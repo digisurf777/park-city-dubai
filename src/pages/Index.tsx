@@ -55,7 +55,7 @@ const Index = () => {
             </div>
             
             {/* Right side - Phone Image */}
-            <div className="flex justify-center lg:justify-end">
+            <div className="flex justify-end">
               <img 
                 src="/lovable-uploads/20c287e2-e6e7-4c77-9fb2-30d50523dbca.png" 
                 alt="Shazam Parking Mobile App"
