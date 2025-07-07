@@ -8,7 +8,7 @@ import { MapPin, Search, X, Car, CreditCard, Ruler } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import Navbar from "@/components/Navbar";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, Link } from "react-router-dom";
 
 const FindParking = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -331,12 +331,22 @@ const FindParking = () => {
                 </div>
 
                 {/* Reserve Button */}
-                <Button 
-                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
-                  disabled={!spot.available}
-                >
-                  {spot.available ? "Reserve" : "Not Available"}
-                </Button>
+                {spot.available ? (
+                  <Link to={`/parking/${spot.id}`}>
+                    <Button 
+                      className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+                    >
+                      Reserve
+                    </Button>
+                  </Link>
+                ) : (
+                  <Button 
+                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+                    disabled
+                  >
+                    Not Available
+                  </Button>
+                )}
               </div>
             </Card>
           ))}
