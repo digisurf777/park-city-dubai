@@ -25,36 +25,21 @@ const Index = () => {
       <section 
         className="relative min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat"
         style={{
-          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url(${dubaihero})`
+          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('/lovable-uploads/161ee737-1491-45d6-a5e3-a642b7ff0806.png')`
         }}
       >
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
-            Guaranteed Monthly<br />
-            <span className="text-primary">Parking in Dubai</span>
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-12 leading-tight">
+            YOUR TRUSTED<br />
+            PARKING<br />
+            <span className="text-white">PLATFORM IN</span><br />
+            <span className="text-white">DUBAI</span>
           </h1>
-          <p className="text-xl md:text-2xl mb-12 max-w-3xl mx-auto opacity-90">
-            Secure parking in Marina, Downtown, DIFC and more.
-          </p>
           
-          {/* Search Bar */}
-          <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-2xl p-6 mb-8">
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex-1">
-                <Input
-                  placeholder="Enter building or district..."
-                  className="h-12 text-lg text-gray-900 border-gray-300 focus:border-primary focus:ring-primary"
-                />
-              </div>
-              <Button className="h-12 px-8 bg-primary hover:bg-primary/90 text-white font-semibold">
-                <Search className="h-5 w-5 mr-2" />
-                Search
-              </Button>
-            </div>
-          </div>
-          
-          <Link to="/rent-out-your-space" className="text-white hover:text-primary transition-colors text-lg underline">
-            List your unused bay →
+          <Link to="/my-account">
+            <Button className="bg-primary hover:bg-primary/90 text-white px-8 py-4 text-lg font-semibold rounded-full">
+              LOGIN / SIGN UP
+            </Button>
           </Link>
         </div>
       </section>
