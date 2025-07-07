@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { MapPin, Calendar, Clock, Car, Shield, DollarSign, Timer } from "lucide-react";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 const Index = () => {
   return (
@@ -193,7 +194,7 @@ const Index = () => {
         </div>
       </section>
 
-      
+      <Footer />
     </div>
   );
 };
