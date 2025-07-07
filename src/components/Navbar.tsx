@@ -1,6 +1,14 @@
 
 import { Button } from "@/components/ui/button";
-import { MapPin, Menu, X } from "lucide-react";
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from "@/components/ui/navigation-menu";
+import { MapPin, Menu, X, ChevronDown } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -28,6 +36,60 @@ const Navbar = () => {
             <Link to="/find-a-parking-space" className="text-gray-700 hover:text-primary transition-colors">
               Find a Parking Space
             </Link>
+            
+            {/* Zones Dropdown */}
+            <NavigationMenu>
+              <NavigationMenuList>
+                <NavigationMenuItem>
+                  <NavigationMenuTrigger className="text-gray-700 hover:text-primary transition-colors bg-transparent">
+                    Zones
+                  </NavigationMenuTrigger>
+                  <NavigationMenuContent>
+                    <div className="w-48 p-2">
+                      <div className="grid gap-1">
+                        <Link 
+                          to="/dubai-marina" 
+                          className="block px-3 py-2 text-sm text-gray-700 hover:text-primary hover:bg-gray-50 rounded-md transition-colors"
+                        >
+                          Dubai Marina
+                        </Link>
+                        <Link 
+                          to="/downtown" 
+                          className="block px-3 py-2 text-sm text-gray-700 hover:text-primary hover:bg-gray-50 rounded-md transition-colors"
+                        >
+                          Downtown
+                        </Link>
+                        <Link 
+                          to="/palm-jumeirah" 
+                          className="block px-3 py-2 text-sm text-gray-700 hover:text-primary hover:bg-gray-50 rounded-md transition-colors"
+                        >
+                          Palm Jumeirah
+                        </Link>
+                        <Link 
+                          to="/business-bay" 
+                          className="block px-3 py-2 text-sm text-gray-700 hover:text-primary hover:bg-gray-50 rounded-md transition-colors"
+                        >
+                          Business Bay
+                        </Link>
+                        <Link 
+                          to="/difc" 
+                          className="block px-3 py-2 text-sm text-gray-700 hover:text-primary hover:bg-gray-50 rounded-md transition-colors"
+                        >
+                          DIFC
+                        </Link>
+                        <Link 
+                          to="/deira" 
+                          className="block px-3 py-2 text-sm text-gray-700 hover:text-primary hover:bg-gray-50 rounded-md transition-colors"
+                        >
+                          Deira
+                        </Link>
+                      </div>
+                    </div>
+                  </NavigationMenuContent>
+                </NavigationMenuItem>
+              </NavigationMenuList>
+            </NavigationMenu>
+            
             <Link to="/about-us" className="text-gray-700 hover:text-primary transition-colors">
               About Us
             </Link>
@@ -83,6 +145,55 @@ const Navbar = () => {
               >
                 Find a Parking Space
               </Link>
+              
+              {/* Mobile Zones Menu */}
+              <div className="py-2">
+                <p className="text-sm font-medium text-gray-500 mb-2">Zones</p>
+                <div className="pl-4 space-y-2">
+                  <Link
+                    to="/dubai-marina"
+                    className="block text-gray-700 hover:text-primary transition-colors py-1"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Dubai Marina
+                  </Link>
+                  <Link
+                    to="/downtown"
+                    className="block text-gray-700 hover:text-primary transition-colors py-1"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Downtown
+                  </Link>
+                  <Link
+                    to="/palm-jumeirah"
+                    className="block text-gray-700 hover:text-primary transition-colors py-1"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Palm Jumeirah
+                  </Link>
+                  <Link
+                    to="/business-bay"
+                    className="block text-gray-700 hover:text-primary transition-colors py-1"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Business Bay
+                  </Link>
+                  <Link
+                    to="/difc"
+                    className="block text-gray-700 hover:text-primary transition-colors py-1"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    DIFC
+                  </Link>
+                  <Link
+                    to="/deira"
+                    className="block text-gray-700 hover:text-primary transition-colors py-1"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Deira
+                  </Link>
+                </div>
+              </div>
               <Link
                 to="/about-us"
                 className="block text-gray-700 hover:text-primary transition-colors py-2"

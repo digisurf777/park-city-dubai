@@ -11,6 +11,12 @@ import News from "./pages/News";
 import ProductPage from "./pages/ProductPage";
 import RentOutYourSpace from "./pages/RentOutYourSpace";
 import NotFound from "./pages/NotFound";
+import DubaiMarina from "./pages/zones/DubaiMarina";
+import Downtown from "./pages/zones/Downtown";
+import PalmJumeirah from "./pages/zones/PalmJumeirah";
+import BusinessBay from "./pages/zones/BusinessBay";
+import DIFC from "./pages/zones/DIFC";
+import Deira from "./pages/zones/Deira";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +35,13 @@ const App = () => (
           <Route path="/news" element={<News />} />
           <Route path="/rent-out-your-space" element={<RentOutYourSpace />} />
           <Route path="/parking/:id" element={<ProductPage />} />
+          {/* Zone Pages */}
+          <Route path="/dubai-marina" element={<DubaiMarina />} />
+          <Route path="/downtown" element={<Downtown />} />
+          <Route path="/palm-jumeirah" element={<PalmJumeirah />} />
+          <Route path="/business-bay" element={<BusinessBay />} />
+          <Route path="/difc" element={<DIFC />} />
+          <Route path="/deira" element={<Deira />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
