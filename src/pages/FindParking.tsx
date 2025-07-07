@@ -1,390 +1,285 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { MapPin, Calendar as CalendarIcon, Clock, Car, Star, ChevronLeft, ChevronRight, Shield, DollarSign, Headphones } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Slider } from "@/components/ui/slider";
+import { Checkbox } from "@/components/ui/checkbox";
+import { MapPin, Search, X, Car, CreditCard, Ruler } from "lucide-react";
 import { useState } from "react";
-import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import Navbar from "@/components/Navbar";
 
 const FindParking = () => {
-  const [currentImageIndex, setCurrentImageIndex] = useState<{[key: number]: number}>({});
-  const [selectedDuration, setSelectedDuration] = useState<{[key: number]: string}>({});
-  const [startDate, setStartDate] = useState<{[key: number]: Date}>({});
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedDistricts, setSelectedDistricts] = useState<string[]>([]);
+  const [priceRange, setPriceRange] = useState([0, 1500]);
+  const [showAvailableOnly, setShowAvailableOnly] = useState(false);
+
+  const districts = [
+    "Palm Jumeirah", "Dubai Marina", "Downtown", "DIFC", 
+    "Business Bay", "JLT", "Barsha Heights", "Deira"
+  ];
 
   const parkingSpots = [
     {
       id: 1,
-      name: "DIFC Business Bay",
-      rating: 4.6,
+      name: "Marina Gate Parking Bay",
+      district: "Dubai Marina",
       price: 450,
-      images: ["/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png", "/src/assets/indoor-parking.jpg", "/src/assets/valet-parking.jpg"],
-      location: "DIFC, Dubai",
-      type: "Outdoor",
-      availability: "Available 24/7"
+      image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
+      specs: ["Compact Size", "Access Card", "2.1m Height"],
+      available: true
     },
     {
       id: 2,
-      name: "Dubai Mall Premium",
-      rating: 4.8,
-      price: 300,
-      images: ["/src/assets/indoor-parking.jpg", "/src/assets/outdoor-parking.jpg", "/src/assets/valet-parking.jpg"],
-      location: "Downtown Dubai",
-      type: "Indoor",
-      availability: "Available 24/7"
+      name: "DIFC Gate Village Bay",
+      district: "DIFC",
+      price: 650,
+      image: "/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.png",
+      specs: ["Large Size", "Remote Access", "3.0m Height"],
+      available: true
     },
     {
       id: 3,
-      name: "Marina Walk Parking",
-      rating: 4.5,
+      name: "Downtown Boulevard Space",
+      district: "Downtown",
       price: 380,
-      images: ["/src/assets/outdoor-parking.jpg", "/src/assets/indoor-parking.jpg", "/src/assets/valet-parking.jpg"],
-      location: "Dubai Marina",
-      type: "Outdoor",
-      availability: "6 AM - 12 AM"
+      image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
+      specs: ["Medium Size", "Access Card", "2.5m Height"],
+      available: false
     },
     {
       id: 4,
-      name: "Mall of Emirates Valet",
-      rating: 4.7,
+      name: "Business Bay Tower Bay",
+      district: "Business Bay",
       price: 520,
-      images: ["/src/assets/valet-parking.jpg", "/src/assets/indoor-parking.jpg", "/src/assets/outdoor-parking.jpg"],
-      location: "Al Barsha",
-      type: "Valet",
-      availability: "Available 24/7"
+      image: "/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.png",
+      specs: ["Large Size", "Remote Access", "2.8m Height"],
+      available: true
+    },
+    {
+      id: 5,
+      name: "JLT Cluster Bay",
+      district: "JLT",
+      price: 420,
+      image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
+      specs: ["Compact Size", "Access Card", "2.2m Height"],
+      available: true
+    },
+    {
+      id: 6,
+      name: "Palm Jumeirah Villa Bay",
+      district: "Palm Jumeirah",
+      price: 750,
+      image: "/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.png",
+      specs: ["Premium Size", "Remote Access", "3.5m Height"],
+      available: true
     }
   ];
 
-  const getDurationOptions = (basePrice: number) => [
-    { label: "1 Month", months: 1, discount: null },
-    { label: "3 Months", months: 3, discount: "5% OFF" },
-    { label: "6 Months", months: 6, discount: "10% OFF" },
-    { label: "12 Months", months: 12, discount: "15% OFF" }
-  ];
-
-  const calculateDiscountedPrice = (basePrice: number, months: number, discount: string | null) => {
-    const totalPrice = basePrice * months;
-    if (!discount) return totalPrice;
-    const discountPercent = parseInt(discount.replace('% OFF', ''));
-    return Math.round(totalPrice * (100 - discountPercent) / 100);
+  const toggleDistrict = (district: string) => {
+    setSelectedDistricts(prev => 
+      prev.includes(district) 
+        ? prev.filter(d => d !== district)
+        : [...prev, district]
+    );
   };
 
-  const nextImage = (spotId: number, totalImages: number) => {
-    setCurrentImageIndex(prev => ({
-      ...prev,
-      [spotId]: ((prev[spotId] || 0) + 1) % totalImages
-    }));
+  const clearFilters = () => {
+    setSearchTerm("");
+    setSelectedDistricts([]);
+    setPriceRange([0, 1500]);
+    setShowAvailableOnly(false);
   };
 
-  const prevImage = (spotId: number, totalImages: number) => {
-    setCurrentImageIndex(prev => ({
-      ...prev,
-      [spotId]: ((prev[spotId] || 0) - 1 + totalImages) % totalImages
-    }));
-  };
+  const filteredSpots = parkingSpots.filter(spot => {
+    const matchesSearch = spot.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         spot.district.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesDistrict = selectedDistricts.length === 0 || selectedDistricts.includes(spot.district);
+    const matchesPrice = spot.price >= priceRange[0] && spot.price <= priceRange[1];
+    const matchesAvailability = !showAvailableOnly || spot.available;
+    
+    return matchesSearch && matchesDistrict && matchesPrice && matchesAvailability;
+  });
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <Navbar />
       
-      {/* Hero Section with Search */}
-      <div className="pt-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">Find a Parking Space</h1>
-            <p className="text-xl text-gray-600">Secure your parking spot in Dubai's prime locations</p>
+      {/* Hero Section */}
+      <div className="relative h-[400px] bg-gradient-to-r from-primary/10 to-primary/5">
+        <div className="absolute inset-0 bg-black/40"></div>
+        <div 
+          className="absolute inset-0 bg-cover bg-center"
+          style={{
+            backgroundImage: 'url("/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png")'
+          }}
+        ></div>
+        <div className="relative z-10 flex items-center justify-center h-full">
+          <div className="text-center text-white px-4">
+            <h1 className="text-5xl md:text-6xl font-bold mb-4">Find a Parking Space</h1>
+            <p className="text-xl md:text-2xl opacity-90">Browse secure monthly bays across Dubai</p>
           </div>
-          
-          {/* Enhanced Search Form */}
-          <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              <div className="space-y-3">
-                <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                  <MapPin className="h-5 w-5 text-primary" />
-                  Location
-                </label>
-                <Input
-                  placeholder="Enter area, mall, or landmark..."
-                  className="h-12 border-gray-200 focus:border-primary focus:ring-primary text-lg"
-                />
+        </div>
+      </div>
+
+      {/* Sticky Filter Bar */}
+      <div className="sticky top-20 z-40 bg-white border-b shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+            {/* Search Box */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search building, tower or district..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+
+            {/* District Pills */}
+            <div className="lg:col-span-2">
+              <div className="flex flex-wrap gap-2">
+                {districts.map((district) => (
+                  <Badge
+                    key={district}
+                    variant={selectedDistricts.includes(district) ? "default" : "outline"}
+                    className={cn(
+                      "cursor-pointer transition-colors",
+                      selectedDistricts.includes(district) 
+                        ? "bg-primary text-primary-foreground" 
+                        : "hover:bg-primary hover:text-primary-foreground"
+                    )}
+                    onClick={() => toggleDistrict(district)}
+                  >
+                    {district}
+                    {selectedDistricts.includes(district) && (
+                      <X className="ml-1 h-3 w-3" />
+                    )}
+                  </Badge>
+                ))}
               </div>
-              <div className="space-y-3">
-                <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                  <CalendarIcon className="h-5 w-5 text-primary" />
-                  Start Date
-                </label>
-                <Input
-                  type="date"
-                  defaultValue="2025-07-07"
-                  className="h-12 border-gray-200 focus:border-primary focus:ring-primary text-lg"
-                />
-              </div>
-              <div className="space-y-3">
-                <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                  <Clock className="h-5 w-5 text-primary" />
-                  Duration
-                </label>
-                <select className="w-full h-12 px-4 py-3 border border-gray-200 rounded-lg focus:border-primary focus:ring-primary focus:outline-none text-lg bg-white">
-                  <option>1 Month</option>
-                  <option>3 Months</option>
-                  <option>6 Months</option>
-                  <option>12 Months</option>
-                </select>
-              </div>
-              <div className="flex items-end">
-                <Button className="w-full h-12 bg-primary hover:bg-primary/90 text-white text-lg font-semibold">
-                  Search Parking
-                </Button>
-              </div>
+            </div>
+
+            {/* Controls */}
+            <div className="flex items-center gap-4">
+              <Button variant="outline" size="sm" onClick={clearFilters}>
+                Reset filters
+              </Button>
+            </div>
+          </div>
+
+          {/* Price Slider */}
+          <div className="mt-4 flex items-center gap-4">
+            <span className="text-sm font-medium text-foreground whitespace-nowrap">
+              Price: AED {priceRange[0]} - {priceRange[1]} / month
+            </span>
+            <div className="flex-1 max-w-xs">
+              <Slider
+                value={priceRange}
+                onValueChange={setPriceRange}
+                max={1500}
+                min={0}
+                step={50}
+                className="w-full"
+              />
+            </div>
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="available"
+                checked={showAvailableOnly}
+                onCheckedChange={(checked) => setShowAvailableOnly(checked === true)}
+              />
+              <label
+                htmlFor="available"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                Show only available
+              </label>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Filters Section */}
-      <div className="bg-gray-50 border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-wrap gap-4 items-center">
-            <span className="text-sm font-medium text-gray-700">Filter by:</span>
-            <Button variant="outline" className="border-primary text-primary hover:bg-primary hover:text-white">
-              Indoor Parking
-            </Button>
-            <Button variant="outline" className="border-primary text-primary hover:bg-primary hover:text-white">
-              Outdoor Parking
-            </Button>
-            <Button variant="outline" className="border-primary text-primary hover:bg-primary hover:text-white">
-              Valet Service
-            </Button>
-            <Button variant="outline" className="border-primary text-primary hover:bg-primary hover:text-white">
-              24/7 Access
-            </Button>
-            <Button variant="outline" className="border-primary text-primary hover:bg-primary hover:text-white">
-              Price: Low to High
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      {/* Results Grid */}
+      {/* Results Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8 flex justify-between items-center">
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900">Available Parking Spaces</h2>
-            <p className="text-gray-600 mt-1">{parkingSpots.length} spaces found in Dubai</p>
-          </div>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm">
-              <MapPin className="h-4 w-4 mr-2" />
-              Map View
-            </Button>
-            <Button variant="outline" size="sm">
-              List View
-            </Button>
-          </div>
+        <div className="mb-6">
+          <h2 className="text-2xl font-bold text-foreground mb-2">Available Parking Spaces</h2>
+          <p className="text-muted-foreground">{filteredSpots.length} spaces found in Dubai</p>
         </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-          {parkingSpots.map((spot) => (
-            <Card key={spot.id} className="overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 border-0">
-              <div className="flex flex-col lg:flex-row">
-                {/* Image Section */}
-                <div className="relative lg:w-2/5 h-64 lg:h-auto">
-                  <img
-                    src={spot.images[currentImageIndex[spot.id] || 0]}
-                    alt={spot.name}
-                    className="w-full h-full object-cover"
-                  />
-                  
-                  {/* Image Navigation */}
-                  <button
-                    onClick={() => prevImage(spot.id, spot.images.length)}
-                    className="absolute left-3 top-1/2 transform -translate-y-1/2 bg-black/60 hover:bg-black/80 text-white rounded-full p-2 transition-colors"
-                  >
-                    <ChevronLeft className="h-5 w-5" />
-                  </button>
-                  <button
-                    onClick={() => nextImage(spot.id, spot.images.length)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-black/60 hover:bg-black/80 text-white rounded-full p-2 transition-colors"
-                  >
-                    <ChevronRight className="h-5 w-5" />
-                  </button>
-
-                  {/* Type Badge */}
-                  <div className="absolute top-4 left-4">
-                    <span className="bg-primary text-white px-3 py-1 rounded-full text-sm font-semibold">
-                      {spot.type}
-                    </span>
+        {/* Listing Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredSpots.map((spot) => (
+            <Card key={spot.id} className="overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+              {/* Image */}
+              <div className="relative aspect-video">
+                <img
+                  src={spot.image}
+                  alt={spot.name}
+                  className="w-full h-full object-cover"
+                />
+                <Badge className="absolute top-4 left-4 bg-primary text-primary-foreground">
+                  From AED {spot.price} / month
+                </Badge>
+                {!spot.available && (
+                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                    <Badge variant="destructive">Not Available</Badge>
                   </div>
+                )}
+              </div>
 
-                  {/* Rating */}
-                  <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm px-3 py-1 rounded-full flex items-center gap-1">
-                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                    <span className="text-sm font-semibold text-gray-900">{spot.rating}</span>
+              {/* Content */}
+              <div className="p-6">
+                <h3 className="text-lg font-bold text-foreground mb-1">{spot.name}</h3>
+                <p className="text-muted-foreground mb-4">{spot.district}</p>
+
+                {/* Specs */}
+                <div className="flex items-center gap-4 mb-4 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-1">
+                    <Car className="h-4 w-4" />
+                    <span>{spot.specs[0]}</span>
                   </div>
-
-                  {/* Image Indicators */}
-                  <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2">
-                    {spot.images.map((_, index) => (
-                      <div
-                        key={index}
-                        className={cn(
-                          "w-2 h-2 rounded-full transition-colors",
-                          index === (currentImageIndex[spot.id] || 0) ? "bg-white" : "bg-white/50"
-                        )}
-                      />
-                    ))}
+                  <div className="flex items-center gap-1">
+                    <CreditCard className="h-4 w-4" />
+                    <span>{spot.specs[1]}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Ruler className="h-4 w-4" />
+                    <span>{spot.specs[2]}</span>
                   </div>
                 </div>
 
-                {/* Content Section */}
-                <div className="lg:w-3/5 p-6">
-                  {/* Header Info */}
-                  <div className="mb-6">
-                    <h3 className="text-2xl font-bold text-gray-900 mb-2">{spot.name}</h3>
-                    <div className="flex items-center gap-2 text-gray-600 mb-3">
-                      <MapPin className="h-4 w-4" />
-                      <span>{spot.location}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-600">
-                      <Clock className="h-4 w-4" />
-                      <span>{spot.availability}</span>
-                    </div>
-                  </div>
-
-                  {/* Booking Section */}
-                  <div className="bg-gray-50 rounded-xl p-5">
-                    <h4 className="text-lg font-bold text-gray-900 mb-4">Reserve Your Space</h4>
-                    
-                    {/* Start Date */}
-                    <div className="mb-4">
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">Start Date</label>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant="outline"
-                            className={cn(
-                              "w-full justify-start text-left font-normal h-11",
-                              !startDate[spot.id] && "text-muted-foreground"
-                            )}
-                          >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
-                            {startDate[spot.id] ? format(startDate[spot.id], "dd.MM.yyyy") : "07.07.2025"}
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={startDate[spot.id] || new Date("2025-07-07")}
-                            onSelect={(date) => setStartDate(prev => ({ ...prev, [spot.id]: date || new Date() }))}
-                            initialFocus
-                            className={cn("p-3 pointer-events-auto")}
-                          />
-                        </PopoverContent>
-                      </Popover>
-                    </div>
-
-                    {/* Duration Selection - 2x2 Grid */}
-                    <div className="mb-6">
-                      <label className="block text-sm font-semibold text-gray-700 mb-4">Rental Duration</label>
-                      <div className="grid grid-cols-2 gap-4">
-                        {getDurationOptions(spot.price).map((option) => {
-                          const isSelected = selectedDuration[spot.id] === option.label;
-                          const discountedPrice = calculateDiscountedPrice(spot.price, option.months, option.discount);
-                          
-                          return (
-                            <button
-                              key={option.label}
-                              onClick={() => setSelectedDuration(prev => ({ ...prev, [spot.id]: option.label }))}
-                              className={cn(
-                                "p-4 rounded-xl border-2 text-center transition-all hover:shadow-md min-h-[80px] flex flex-col justify-center",
-                                isSelected 
-                                  ? "border-primary bg-primary text-white shadow-lg" 
-                                  : "border-gray-200 hover:border-primary bg-white"
-                              )}
-                            >
-                              <div className={cn("font-bold text-base mb-1", isSelected ? "text-white" : "text-gray-900")}>
-                                {option.label}
-                              </div>
-                              {option.months === 1 ? (
-                                <div className={cn("text-sm font-medium", isSelected ? "text-white" : "text-gray-600")}>
-                                  AED {discountedPrice.toFixed(2)}
-                                </div>
-                              ) : (
-                                <div className={cn("text-sm font-bold", isSelected ? "text-white" : "text-green-600")}>
-                                  {option.discount}
-                                </div>
-                              )}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    {/* Benefits Section */}
-                    <div className="mb-6">
-                      <div className="flex items-center gap-2 mb-3">
-                        <div className="w-4 h-4 rounded-full border-2 border-primary bg-primary/10"></div>
-                        <span className="font-semibold text-gray-900">Benefits:</span>
-                      </div>
-                      <div className="space-y-2 text-sm text-gray-600 ml-6">
-                        <div>• Guaranteed parking space</div>
-                        <div>• Fixed price - no increases during rental</div>
-                        <div>• Priority customer support</div>
-                      </div>
-                    </div>
-
-                    {/* Monthly Rolling Option */}
-                    <div className="text-center mb-6">
-                      <span className="text-primary font-medium">
-                        Or choose Monthly Rolling (subject to availability)
-                      </span>
-                    </div>
-
-                    {/* Price Display */}
-                    <div className="mb-6 p-4 bg-primary/5 rounded-xl border border-primary/20">
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-700 font-medium">Total Price:</span>
-                        <span className="text-2xl font-bold text-primary">
-                          AED {(() => {
-                            const selectedOption = getDurationOptions(spot.price).find(d => d.label === selectedDuration[spot.id]);
-                            return selectedOption ? calculateDiscountedPrice(spot.price, selectedOption.months, selectedOption.discount).toFixed(2) : spot.price.toFixed(2);
-                          })()}
-                        </span>
-                      </div>
-                      {selectedDuration[spot.id] && (() => {
-                        const selectedOption = getDurationOptions(spot.price).find(d => d.label === selectedDuration[spot.id]);
-                        if (selectedOption?.discount) {
-                          const originalPrice = spot.price * selectedOption.months;
-                          const discountedPrice = calculateDiscountedPrice(spot.price, selectedOption.months, selectedOption.discount);
-                          return (
-                            <div className="text-sm text-green-600 font-medium mt-2">
-                              You save AED {(originalPrice - discountedPrice).toFixed(2)} with {selectedOption.discount}
-                            </div>
-                          );
-                        }
-                        return null;
-                      })()}
-                    </div>
-
-                    {/* Action Button */}
-                    <Button className="w-full bg-primary hover:bg-primary/90 text-white h-12 text-lg font-bold">
-                      BOOK NOW
-                    </Button>
-                  </div>
-                </div>
+                {/* Reserve Button */}
+                <Button 
+                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+                  disabled={!spot.available}
+                >
+                  {spot.available ? "Reserve" : "Not Available"}
+                </Button>
               </div>
             </Card>
           ))}
         </div>
 
         {/* Load More */}
-        <div className="text-center mt-12">
-          <Button variant="outline" className="px-8 py-3">
-            Load More Parking Spaces
-          </Button>
-        </div>
+        {filteredSpots.length > 0 && (
+          <div className="text-center mt-12">
+            <Button variant="outline" className="px-8 py-3">
+              Load More Parking Spaces
+            </Button>
+          </div>
+        )}
+
+        {filteredSpots.length === 0 && (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground text-lg">No parking spaces found matching your criteria.</p>
+            <Button variant="outline" className="mt-4" onClick={clearFilters}>
+              Clear filters
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );
