@@ -285,10 +285,10 @@ const FindParking = () => {
                       </Popover>
                     </div>
 
-                    {/* Duration Selection */}
-                    <div className="mb-4">
-                      <label className="block text-sm font-semibold text-gray-700 mb-3">Rental Duration</label>
-                      <div className="grid grid-cols-2 gap-3">
+                    {/* Duration Selection - 2x2 Grid */}
+                    <div className="mb-6">
+                      <label className="block text-sm font-semibold text-gray-700 mb-4">Rental Duration</label>
+                      <div className="grid grid-cols-2 gap-4">
                         {getDurationOptions(spot.price).map((option) => {
                           const isSelected = selectedDuration[spot.id] === option.label;
                           const discountedPrice = calculateDiscountedPrice(spot.price, option.months, option.discount);
@@ -298,18 +298,21 @@ const FindParking = () => {
                               key={option.label}
                               onClick={() => setSelectedDuration(prev => ({ ...prev, [spot.id]: option.label }))}
                               className={cn(
-                                "p-3 rounded-lg border-2 text-left transition-all hover:shadow-md",
+                                "p-4 rounded-xl border-2 text-center transition-all hover:shadow-md min-h-[80px] flex flex-col justify-center",
                                 isSelected 
-                                  ? "border-primary bg-primary text-white" 
+                                  ? "border-primary bg-primary text-white shadow-lg" 
                                   : "border-gray-200 hover:border-primary bg-white"
                               )}
                             >
-                              <div className="font-semibold text-sm">{option.label}</div>
-                              <div className={cn("text-lg font-bold", isSelected ? "text-white" : "text-primary")}>
-                                AED {discountedPrice.toFixed(0)}
+                              <div className={cn("font-bold text-base mb-1", isSelected ? "text-white" : "text-gray-900")}>
+                                {option.label}
                               </div>
-                              {option.discount && (
-                                <div className={cn("text-xs font-medium", isSelected ? "text-primary-foreground" : "text-green-600")}>
+                              {option.months === 1 ? (
+                                <div className={cn("text-sm font-medium", isSelected ? "text-white" : "text-gray-600")}>
+                                  AED {discountedPrice.toFixed(2)}
+                                </div>
+                              ) : (
+                                <div className={cn("text-sm font-bold", isSelected ? "text-white" : "text-green-600")}>
                                   {option.discount}
                                 </div>
                               )}
@@ -319,14 +322,34 @@ const FindParking = () => {
                       </div>
                     </div>
 
+                    {/* Benefits Section */}
+                    <div className="mb-6">
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="w-4 h-4 rounded-full border-2 border-primary bg-primary/10"></div>
+                        <span className="font-semibold text-gray-900">Benefits:</span>
+                      </div>
+                      <div className="space-y-2 text-sm text-gray-600 ml-6">
+                        <div>• Guaranteed parking space</div>
+                        <div>• Fixed price - no increases during rental</div>
+                        <div>• Priority customer support</div>
+                      </div>
+                    </div>
+
+                    {/* Monthly Rolling Option */}
+                    <div className="text-center mb-6">
+                      <span className="text-primary font-medium">
+                        Or choose Monthly Rolling (subject to availability)
+                      </span>
+                    </div>
+
                     {/* Price Display */}
-                    <div className="mb-4 p-4 bg-white rounded-lg border border-gray-200">
+                    <div className="mb-6 p-4 bg-primary/5 rounded-xl border border-primary/20">
                       <div className="flex justify-between items-center">
-                        <span className="text-gray-600">Total Price:</span>
+                        <span className="text-gray-700 font-medium">Total Price:</span>
                         <span className="text-2xl font-bold text-primary">
                           AED {(() => {
                             const selectedOption = getDurationOptions(spot.price).find(d => d.label === selectedDuration[spot.id]);
-                            return selectedOption ? calculateDiscountedPrice(spot.price, selectedOption.months, selectedOption.discount).toFixed(0) : spot.price.toFixed(0);
+                            return selectedOption ? calculateDiscountedPrice(spot.price, selectedOption.months, selectedOption.discount).toFixed(2) : spot.price.toFixed(2);
                           })()}
                         </span>
                       </div>
@@ -336,8 +359,8 @@ const FindParking = () => {
                           const originalPrice = spot.price * selectedOption.months;
                           const discountedPrice = calculateDiscountedPrice(spot.price, selectedOption.months, selectedOption.discount);
                           return (
-                            <div className="text-sm text-green-600 font-medium mt-1">
-                              You save AED {(originalPrice - discountedPrice).toFixed(0)} with {selectedOption.discount}
+                            <div className="text-sm text-green-600 font-medium mt-2">
+                              You save AED {(originalPrice - discountedPrice).toFixed(2)} with {selectedOption.discount}
                             </div>
                           );
                         }
@@ -345,29 +368,10 @@ const FindParking = () => {
                       })()}
                     </div>
 
-                    {/* Benefits */}
-                    <div className="mb-4">
-                      <div className="flex flex-wrap gap-2">
-                        <span className="inline-flex items-center gap-1 bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
-                          <Shield className="h-3 w-3" />
-                          Guaranteed Space
-                        </span>
-                        <span className="inline-flex items-center gap-1 bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
-                          <Car className="h-3 w-3" />
-                          Fixed Price
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Action Buttons */}
-                    <div className="space-y-3">
-                      <Button className="w-full bg-primary hover:bg-primary/90 text-white h-12 text-lg font-bold">
-                        BOOK NOW
-                      </Button>
-                      <Button variant="link" className="w-full text-primary hover:text-primary/80">
-                        Monthly Rolling Option
-                      </Button>
-                    </div>
+                    {/* Action Button */}
+                    <Button className="w-full bg-primary hover:bg-primary/90 text-white h-12 text-lg font-bold">
+                      BOOK NOW
+                    </Button>
                   </div>
                 </div>
               </div>
