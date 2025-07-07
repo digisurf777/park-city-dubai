@@ -5,15 +5,44 @@ import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
 import { MapPin, Search, X, Car, CreditCard, Ruler } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import Navbar from "@/components/Navbar";
+import { useSearchParams } from "react-router-dom";
 
 const FindParking = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDistricts, setSelectedDistricts] = useState<string[]>([]);
   const [priceRange, setPriceRange] = useState([0, 1500]);
   const [showAvailableOnly, setShowAvailableOnly] = useState(false);
+
+  const districtZones = [
+    { name: "Dubai Marina", slug: "dubai-marina" },
+    { name: "Downtown", slug: "downtown" },
+    { name: "Palm Jumeirah", slug: "palm-jumeirah" },
+    { name: "Business Bay", slug: "business-bay" },
+    { name: "DIFC", slug: "difc" },
+    { name: "Deira", slug: "deira" }
+  ];
+
+  // Handle URL parameters on component mount
+  useEffect(() => {
+    const districtParam = searchParams.get('district');
+    if (districtParam) {
+      const district = districtZones.find(d => d.slug === districtParam);
+      if (district) {
+        setSelectedDistricts([district.name]);
+        // Scroll to listings
+        setTimeout(() => {
+          const listingsSection = document.getElementById('listings-section');
+          if (listingsSection) {
+            listingsSection.scrollIntoView({ behavior: 'smooth' });
+          }
+        }, 100);
+      }
+    }
+  }, [searchParams]);
 
   const districts = [
     "Palm Jumeirah", "Dubai Marina", "Downtown", "DIFC", 
@@ -85,11 +114,32 @@ const FindParking = () => {
     );
   };
 
+  const handleSelectZone = (districtSlug: string) => {
+    const district = districtZones.find(d => d.slug === districtSlug);
+    if (district) {
+      setSelectedDistricts([district.name]);
+      // Update URL parameters
+      const newSearchParams = new URLSearchParams(searchParams);
+      newSearchParams.set('district', districtSlug);
+      setSearchParams(newSearchParams);
+      
+      // Scroll to listings
+      setTimeout(() => {
+        const listingsSection = document.getElementById('listings-section');
+        if (listingsSection) {
+          listingsSection.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+    }
+  };
+
   const clearFilters = () => {
     setSearchTerm("");
     setSelectedDistricts([]);
     setPriceRange([0, 1500]);
     setShowAvailableOnly(false);
+    // Clear URL parameters
+    setSearchParams(new URLSearchParams());
   };
 
   const filteredSpots = parkingSpots.filter(spot => {
@@ -202,8 +252,37 @@ const FindParking = () => {
         </div>
       </div>
 
+      {/* District Selector Section */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {districtZones.map((zone) => (
+            <div key={zone.slug} className="space-y-4" style={{ marginBottom: '32px' }}>
+              <h3 className="text-xl font-bold" style={{ color: '#202020' }}>
+                {zone.name}
+              </h3>
+              <Button
+                onClick={() => handleSelectZone(zone.slug)}
+                className="w-full md:w-auto px-6 py-3 text-white font-medium rounded-md transition-colors"
+                style={{ 
+                  backgroundColor: '#00B67A',
+                  borderColor: '#00B67A'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#009966';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#00B67A';
+                }}
+              >
+                Select zone
+              </Button>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* Results Section */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div id="listings-section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-6">
           <h2 className="text-2xl font-bold text-foreground mb-2">Available Parking Spaces</h2>
           <p className="text-muted-foreground">{filteredSpots.length} spaces found in Dubai</p>
