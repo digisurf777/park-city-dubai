@@ -22,34 +22,35 @@ const Navbar = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            <Link to="/rent-out-your-space" className="text-gray-700 hover:text-primary transition-colors">
-              Rent out your space
+            <Link to="/" className="text-gray-700 hover:text-primary transition-colors">
+              Home
             </Link>
             <Link to="/find-a-parking-space" className="text-gray-700 hover:text-primary transition-colors">
-              Find a parking space
-            </Link>
-            <Link to="/my-account" className="text-gray-700 hover:text-primary transition-colors">
-              My account
+              Find a Parking Space
             </Link>
             <Link to="/about-us" className="text-gray-700 hover:text-primary transition-colors">
-              About us
-            </Link>
-            <Link to="/news" className="text-gray-700 hover:text-primary transition-colors">
-              News
+              About Us
             </Link>
             <Link to="/faq" className="text-gray-700 hover:text-primary transition-colors">
               FAQ
+            </Link>
+            <Link to="/news" className="text-gray-700 hover:text-primary transition-colors">
+              News
             </Link>
           </div>
 
           {/* Auth Buttons */}
           <div className="hidden md:flex items-center space-x-4">
-            <Button variant="ghost" className="text-gray-700 hover:text-primary">
-              Sign In
-            </Button>
-            <Button className="bg-primary hover:bg-primary/90 text-white">
-              Sign Up
-            </Button>
+            <Link to="/my-account">
+              <Button variant="ghost" className="text-gray-700 hover:text-primary">
+                Login / Sign Up
+              </Button>
+            </Link>
+            <Link to="/rent-out-your-space">
+              <Button className="bg-primary hover:bg-primary/90 text-white">
+                List Your Space
+              </Button>
+            </Link>
           </div>
 
           {/* Mobile menu button */}
@@ -69,39 +70,25 @@ const Navbar = () => {
           <div className="md:hidden absolute top-16 left-0 right-0 backdrop-blur-md bg-white/90 border-b border-white/20 shadow-lg">
             <div className="px-4 py-6 space-y-4">
               <Link
-                to="/rent-out-your-space"
+                to="/"
                 className="block text-gray-700 hover:text-primary transition-colors py-2"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Rent out your space
+                Home
               </Link>
               <Link
                 to="/find-a-parking-space"
                 className="block text-gray-700 hover:text-primary transition-colors py-2"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Find a parking space
-              </Link>
-              <Link
-                to="/my-account"
-                className="block text-gray-700 hover:text-primary transition-colors py-2"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                My account
+                Find a Parking Space
               </Link>
               <Link
                 to="/about-us"
                 className="block text-gray-700 hover:text-primary transition-colors py-2"
                 onClick={() => setIsMenuOpen(false)}
               >
-                About us
-              </Link>
-              <Link
-                to="/news"
-                className="block text-gray-700 hover:text-primary transition-colors py-2"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                News
+                About Us
               </Link>
               <Link
                 to="/faq"
@@ -110,13 +97,24 @@ const Navbar = () => {
               >
                 FAQ
               </Link>
+              <Link
+                to="/news"
+                className="block text-gray-700 hover:text-primary transition-colors py-2"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                News
+              </Link>
               <div className="pt-4 space-y-2">
-                <Button variant="ghost" className="w-full text-gray-700 hover:text-primary">
-                  Sign In
-                </Button>
-                <Button className="w-full bg-primary hover:bg-primary/90 text-white">
-                  Sign Up
-                </Button>
+                <Link to="/my-account">
+                  <Button variant="ghost" className="w-full text-gray-700 hover:text-primary">
+                    Login / Sign Up
+                  </Button>
+                </Link>
+                <Link to="/rent-out-your-space">
+                  <Button className="w-full bg-primary hover:bg-primary/90 text-white">
+                    List Your Space
+                  </Button>
+                </Link>
               </div>
             </div>
           </div>
