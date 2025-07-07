@@ -158,11 +158,11 @@ const FindParking = () => {
       
       {/* Hero Section */}
       <div className="relative h-[400px] bg-gradient-to-r from-primary/10 to-primary/5">
-        <div className="absolute inset-0 bg-black/40"></div>
+        <div className="absolute inset-0 bg-black/35"></div>
         <div 
           className="absolute inset-0 bg-cover bg-center"
           style={{
-            backgroundImage: 'url("/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png")'
+            backgroundImage: 'url("https://shazamparking.ae/wp-content/uploads/2023/01/bigstock-Dubai-Uae-United-Arab-Emirat-466784755-1024x683.jpeg")'
           }}
         ></div>
         <div className="relative z-10 flex items-center justify-center h-full">
