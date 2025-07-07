@@ -30,25 +30,39 @@ const Index = () => {
           animation: 'zoom-slow 20s ease-in-out infinite alternate'
         }}
       >
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white animate-fade-in">
-          <h1 
-            className="text-4xl md:text-6xl lg:text-7xl font-light mb-12 leading-tight"
-            style={{
-              textShadow: '3px 3px 12px rgba(0, 0, 0, 0.9), 0 0 30px rgba(0, 0, 0, 0.7)',
-              fontWeight: '300'
-            }}
-          >
-            YOUR TRUSTED<br />
-            PARKING<br />
-            <span className="text-white">PLATFORM IN</span><br />
-            <span className="text-white">DUBAI</span>
-          </h1>
-          
-          <Link to="/my-account">
-            <Button className="bg-primary hover:bg-primary/90 text-white px-8 py-4 text-lg font-semibold rounded-full">
-              LOGIN / SIGN UP
-            </Button>
-          </Link>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-white animate-fade-in">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center min-h-screen">
+            {/* Left side - Text */}
+            <div className="text-left">
+              <h1 
+                className="text-4xl md:text-6xl lg:text-7xl font-light mb-12 leading-tight"
+                style={{
+                  textShadow: '3px 3px 12px rgba(0, 0, 0, 0.9), 0 0 30px rgba(0, 0, 0, 0.7)',
+                  fontWeight: '300'
+                }}
+              >
+                YOUR TRUSTED<br />
+                PARKING<br />
+                <span className="text-white">PLATFORM IN</span><br />
+                <span className="text-white">DUBAI</span>
+              </h1>
+              
+              <Link to="/my-account">
+                <Button className="bg-primary hover:bg-primary/90 text-white px-8 py-4 text-lg font-semibold rounded-full">
+                  LOGIN / SIGN UP
+                </Button>
+              </Link>
+            </div>
+            
+            {/* Right side - Phone Image */}
+            <div className="flex justify-center lg:justify-end">
+              <img 
+                src="/lovable-uploads/20c287e2-e6e7-4c77-9fb2-30d50523dbca.png" 
+                alt="Shazam Parking Mobile App"
+                className="max-w-xs md:max-w-sm lg:max-w-md h-auto"
+              />
+            </div>
+          </div>
         </div>
       </section>
 
