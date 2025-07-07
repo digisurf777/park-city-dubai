@@ -253,39 +253,12 @@ const Index = () => {
       {/* Steps Section */}
       <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-6">
-              Rent a parking space in just 3 simple steps
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-            <div className="text-center">
-              <img 
-                src={phoneLogo} 
-                alt="Step 1"
-                className="mx-auto mb-6 h-32"
-              />
-              <h3 className="text-2xl font-semibold mb-4">Select the location and duration</h3>
-            </div>
-            
-            <div className="text-center">
-              <img 
-                src={phoneLogo} 
-                alt="Step 2"
-                className="mx-auto mb-6 h-32"
-              />
-              <h3 className="text-2xl font-semibold mb-4">Book Your Space</h3>
-            </div>
-            
-            <div className="text-center">
-              <img 
-                src={phoneLogo} 
-                alt="Step 3"
-                className="mx-auto mb-6 h-32"
-              />
-              <h3 className="text-2xl font-semibold mb-4">Drive & Park</h3>
-            </div>
+          <div className="text-center">
+            <img 
+              src="/lovable-uploads/25cbaba8-3854-4bb0-9a3f-f044623c6db8.png"
+              alt="Rent a parking space in just 3 simple steps"
+              className="w-full max-w-6xl mx-auto"
+            />
           </div>
         </div>
       </section>
