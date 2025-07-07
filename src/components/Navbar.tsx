@@ -22,17 +22,23 @@ const Navbar = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            <Link to="/find-parking" className="text-gray-700 hover:text-primary transition-colors">
-              Find Parking
+            <Link to="/" className="text-gray-700 hover:text-primary transition-colors">
+              Home
             </Link>
-            <Link to="/list-space" className="text-gray-700 hover:text-primary transition-colors">
-              List Your Space
+            <Link to="/how-it-works" className="text-gray-700 hover:text-primary transition-colors">
+              How It Works
             </Link>
-            <Link to="/about" className="text-gray-700 hover:text-primary transition-colors">
-              About
+            <Link to="/pricing" className="text-gray-700 hover:text-primary transition-colors">
+              Pricing
+            </Link>
+            <Link to="/listings" className="text-gray-700 hover:text-primary transition-colors">
+              Listings
             </Link>
             <Link to="/contact" className="text-gray-700 hover:text-primary transition-colors">
               Contact
+            </Link>
+            <Link to="/my-account" className="text-gray-700 hover:text-primary transition-colors">
+              My Account
             </Link>
           </div>
 
@@ -63,25 +69,32 @@ const Navbar = () => {
           <div className="md:hidden absolute top-16 left-0 right-0 backdrop-blur-md bg-white/90 border-b border-white/20 shadow-lg">
             <div className="px-4 py-6 space-y-4">
               <Link
-                to="/find-parking"
+                to="/"
                 className="block text-gray-700 hover:text-primary transition-colors py-2"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Find Parking
+                Home
               </Link>
               <Link
-                to="/list-space"
+                to="/how-it-works"
                 className="block text-gray-700 hover:text-primary transition-colors py-2"
                 onClick={() => setIsMenuOpen(false)}
               >
-                List Your Space
+                How It Works
               </Link>
               <Link
-                to="/about"
+                to="/pricing"
                 className="block text-gray-700 hover:text-primary transition-colors py-2"
                 onClick={() => setIsMenuOpen(false)}
               >
-                About
+                Pricing
+              </Link>
+              <Link
+                to="/listings"
+                className="block text-gray-700 hover:text-primary transition-colors py-2"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Listings
               </Link>
               <Link
                 to="/contact"
@@ -89,6 +102,13 @@ const Navbar = () => {
                 onClick={() => setIsMenuOpen(false)}
               >
                 Contact
+              </Link>
+              <Link
+                to="/my-account"
+                className="block text-gray-700 hover:text-primary transition-colors py-2"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                My Account
               </Link>
               <div className="pt-4 space-y-2">
                 <Button variant="ghost" className="w-full text-gray-700 hover:text-primary">
