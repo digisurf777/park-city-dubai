@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { MapPin, Menu, X } from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -21,18 +22,18 @@ const Navbar = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            <a href="/" className="text-gray-700 hover:text-primary transition-colors">
+            <Link to="/find-parking" className="text-gray-700 hover:text-primary transition-colors">
               Find Parking
-            </a>
-            <a href="/list-space" className="text-gray-700 hover:text-primary transition-colors">
+            </Link>
+            <Link to="/list-space" className="text-gray-700 hover:text-primary transition-colors">
               List Your Space
-            </a>
-            <a href="/about" className="text-gray-700 hover:text-primary transition-colors">
+            </Link>
+            <Link to="/about" className="text-gray-700 hover:text-primary transition-colors">
               About
-            </a>
-            <a href="/contact" className="text-gray-700 hover:text-primary transition-colors">
+            </Link>
+            <Link to="/contact" className="text-gray-700 hover:text-primary transition-colors">
               Contact
-            </a>
+            </Link>
           </div>
 
           {/* Auth Buttons */}
@@ -61,34 +62,34 @@ const Navbar = () => {
         {isMenuOpen && (
           <div className="md:hidden absolute top-16 left-0 right-0 backdrop-blur-md bg-white/90 border-b border-white/20 shadow-lg">
             <div className="px-4 py-6 space-y-4">
-              <a
-                href="/"
+              <Link
+                to="/find-parking"
                 className="block text-gray-700 hover:text-primary transition-colors py-2"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Find Parking
-              </a>
-              <a
-                href="/list-space"
+              </Link>
+              <Link
+                to="/list-space"
                 className="block text-gray-700 hover:text-primary transition-colors py-2"
                 onClick={() => setIsMenuOpen(false)}
               >
                 List Your Space
-              </a>
-              <a
-                href="/about"
+              </Link>
+              <Link
+                to="/about"
                 className="block text-gray-700 hover:text-primary transition-colors py-2"
                 onClick={() => setIsMenuOpen(false)}
               >
                 About
-              </a>
-              <a
-                href="/contact"
+              </Link>
+              <Link
+                to="/contact"
                 className="block text-gray-700 hover:text-primary transition-colors py-2"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Contact
-              </a>
+              </Link>
               <div className="pt-4 space-y-2">
                 <Button variant="ghost" className="w-full text-gray-700 hover:text-primary">
                   Sign In
