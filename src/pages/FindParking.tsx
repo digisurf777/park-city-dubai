@@ -88,96 +88,143 @@ const FindParking = () => {
     <div className="min-h-screen bg-gray-50">
       <Navbar />
       
-      {/* Search Header */}
-      <div className="pt-24 pb-8 bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-primary" />
-                Location
-              </label>
-              <Input
-                placeholder="Enter area or landmark"
-                className="border-gray-200 focus:border-primary focus:ring-primary"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                <CalendarIcon className="h-4 w-4 text-primary" />
-                Date
-              </label>
-              <Input
-                type="date"
-                className="border-gray-200 focus:border-primary focus:ring-primary"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                <Clock className="h-4 w-4 text-primary" />
-                Duration
-              </label>
-              <select className="w-full h-10 px-3 py-2 border border-gray-200 rounded-md focus:border-primary focus:ring-primary focus:outline-none">
-                <option>1 hour</option>
-                <option>2 hours</option>
-                <option>4 hours</option>
-                <option>8 hours</option>
-                <option>24 hours</option>
-              </select>
-            </div>
-            <div className="flex items-end">
-              <Button className="w-full bg-primary hover:bg-primary/90 text-white">
-                Search
-              </Button>
+      {/* Hero Section with Search */}
+      <div className="pt-24 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="text-center mb-8">
+            <h1 className="text-4xl font-bold text-gray-900 mb-4">Find a Parking Space</h1>
+            <p className="text-xl text-gray-600">Secure your parking spot in Dubai's prime locations</p>
+          </div>
+          
+          {/* Enhanced Search Form */}
+          <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <div className="space-y-3">
+                <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                  <MapPin className="h-5 w-5 text-primary" />
+                  Location
+                </label>
+                <Input
+                  placeholder="Enter area, mall, or landmark..."
+                  className="h-12 border-gray-200 focus:border-primary focus:ring-primary text-lg"
+                />
+              </div>
+              <div className="space-y-3">
+                <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                  <CalendarIcon className="h-5 w-5 text-primary" />
+                  Start Date
+                </label>
+                <Input
+                  type="date"
+                  defaultValue="2025-07-07"
+                  className="h-12 border-gray-200 focus:border-primary focus:ring-primary text-lg"
+                />
+              </div>
+              <div className="space-y-3">
+                <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                  <Clock className="h-5 w-5 text-primary" />
+                  Duration
+                </label>
+                <select className="w-full h-12 px-4 py-3 border border-gray-200 rounded-lg focus:border-primary focus:ring-primary focus:outline-none text-lg bg-white">
+                  <option>1 Month</option>
+                  <option>3 Months</option>
+                  <option>6 Months</option>
+                  <option>12 Months</option>
+                </select>
+              </div>
+              <div className="flex items-end">
+                <Button className="w-full h-12 bg-primary hover:bg-primary/90 text-white text-lg font-semibold">
+                  Search Parking
+                </Button>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Results */}
+      {/* Filters Section */}
+      <div className="bg-gray-50 border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex flex-wrap gap-4 items-center">
+            <span className="text-sm font-medium text-gray-700">Filter by:</span>
+            <Button variant="outline" className="border-primary text-primary hover:bg-primary hover:text-white">
+              Indoor Parking
+            </Button>
+            <Button variant="outline" className="border-primary text-primary hover:bg-primary hover:text-white">
+              Outdoor Parking
+            </Button>
+            <Button variant="outline" className="border-primary text-primary hover:bg-primary hover:text-white">
+              Valet Service
+            </Button>
+            <Button variant="outline" className="border-primary text-primary hover:bg-primary hover:text-white">
+              24/7 Access
+            </Button>
+            <Button variant="outline" className="border-primary text-primary hover:bg-primary hover:text-white">
+              Price: Low to High
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Results Grid */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Available Parking Spaces</h1>
-          <p className="text-gray-600">{parkingSpots.length} spaces found</p>
+        <div className="mb-8 flex justify-between items-center">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">Available Parking Spaces</h2>
+            <p className="text-gray-600 mt-1">{parkingSpots.length} spaces found in Dubai</p>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm">
+              <MapPin className="h-4 w-4 mr-2" />
+              Map View
+            </Button>
+            <Button variant="outline" size="sm">
+              List View
+            </Button>
+          </div>
         </div>
 
-        <div className="space-y-6">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
           {parkingSpots.map((spot) => (
-            <Card key={spot.id} className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
-                {/* Left Side - Images */}
-                <div className="relative h-80 lg:h-auto">
+            <Card key={spot.id} className="overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 border-0">
+              <div className="flex flex-col lg:flex-row">
+                {/* Image Section */}
+                <div className="relative lg:w-2/5 h-64 lg:h-auto">
                   <img
                     src={spot.images[currentImageIndex[spot.id] || 0]}
                     alt={spot.name}
                     className="w-full h-full object-cover"
                   />
-                  <div className="absolute top-4 left-4">
-                    <span className="bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-medium text-gray-700">
-                      {spot.type}
-                    </span>
-                  </div>
-                  <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full flex items-center gap-1">
-                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                    <span className="text-sm font-medium">{spot.rating}</span>
-                  </div>
                   
-                  {/* Navigation Arrows */}
+                  {/* Image Navigation */}
                   <button
                     onClick={() => prevImage(spot.id, spot.images.length)}
-                    className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-colors"
+                    className="absolute left-3 top-1/2 transform -translate-y-1/2 bg-black/60 hover:bg-black/80 text-white rounded-full p-2 transition-colors"
                   >
                     <ChevronLeft className="h-5 w-5" />
                   </button>
                   <button
                     onClick={() => nextImage(spot.id, spot.images.length)}
-                    className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-colors"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-black/60 hover:bg-black/80 text-white rounded-full p-2 transition-colors"
                   >
                     <ChevronRight className="h-5 w-5" />
                   </button>
 
+                  {/* Type Badge */}
+                  <div className="absolute top-4 left-4">
+                    <span className="bg-primary text-white px-3 py-1 rounded-full text-sm font-semibold">
+                      {spot.type}
+                    </span>
+                  </div>
+
+                  {/* Rating */}
+                  <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm px-3 py-1 rounded-full flex items-center gap-1">
+                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                    <span className="text-sm font-semibold text-gray-900">{spot.rating}</span>
+                  </div>
+
                   {/* Image Indicators */}
-                  <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-1">
+                  <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2">
                     {spot.images.map((_, index) => (
                       <div
                         key={index}
@@ -188,50 +235,36 @@ const FindParking = () => {
                       />
                     ))}
                   </div>
-
-                  {/* Thumbnail Navigation */}
-                  <div className="absolute bottom-4 left-4 flex gap-2">
-                    {spot.images.slice(0, 3).map((image, index) => (
-                      <button
-                        key={index}
-                        onClick={() => setCurrentImageIndex(prev => ({ ...prev, [spot.id]: index }))}
-                        className={cn(
-                          "w-12 h-12 rounded border-2 overflow-hidden transition-colors",
-                          index === (currentImageIndex[spot.id] || 0) ? "border-white" : "border-white/50"
-                        )}
-                      >
-                        <img src={image} alt="" className="w-full h-full object-cover" />
-                      </button>
-                    ))}
-                  </div>
                 </div>
 
-                {/* Right Side - Booking Information */}
-                <div className="p-6">
-                  <div className="mb-4">
+                {/* Content Section */}
+                <div className="lg:w-3/5 p-6">
+                  {/* Header Info */}
+                  <div className="mb-6">
                     <h3 className="text-2xl font-bold text-gray-900 mb-2">{spot.name}</h3>
-                    <div className="text-2xl font-bold text-primary mb-1">
-                      From: {calculateDiscountedPrice(spot.price, selectedDuration[spot.id] ? getDurationOptions(spot.price).find(d => d.label === selectedDuration[spot.id])?.discount : null).toFixed(2)} د.إ
-                    </div>
-                    <p className="text-gray-600 flex items-center gap-1">
+                    <div className="flex items-center gap-2 text-gray-600 mb-3">
                       <MapPin className="h-4 w-4" />
-                      {spot.location}
-                    </p>
+                      <span>{spot.location}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-gray-600">
+                      <Clock className="h-4 w-4" />
+                      <span>{spot.availability}</span>
+                    </div>
                   </div>
 
-                  {/* Reserve a Parking Space Section */}
-                  <div className="space-y-4">
-                    <h4 className="text-xl font-semibold text-gray-900">Reserve a Parking Space</h4>
+                  {/* Booking Section */}
+                  <div className="bg-gray-50 rounded-xl p-5">
+                    <h4 className="text-lg font-bold text-gray-900 mb-4">Reserve Your Space</h4>
                     
                     {/* Start Date */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
+                    <div className="mb-4">
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Start Date</label>
                       <Popover>
                         <PopoverTrigger asChild>
                           <Button
                             variant="outline"
                             className={cn(
-                              "w-full justify-start text-left font-normal",
+                              "w-full justify-start text-left font-normal h-11",
                               !startDate[spot.id] && "text-muted-foreground"
                             )}
                           >
@@ -251,9 +284,9 @@ const FindParking = () => {
                       </Popover>
                     </div>
 
-                    {/* Rental Duration */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-3">Rental Duration</label>
+                    {/* Duration Selection */}
+                    <div className="mb-4">
+                      <label className="block text-sm font-semibold text-gray-700 mb-3">Rental Duration</label>
                       <div className="grid grid-cols-2 gap-3">
                         {getDurationOptions(spot.price).map((option) => {
                           const isSelected = selectedDuration[spot.id] === option.label;
@@ -264,16 +297,20 @@ const FindParking = () => {
                               key={option.label}
                               onClick={() => setSelectedDuration(prev => ({ ...prev, [spot.id]: option.label }))}
                               className={cn(
-                                "p-4 rounded-lg border-2 text-left transition-all",
+                                "p-3 rounded-lg border-2 text-left transition-all hover:shadow-md",
                                 isSelected 
-                                  ? "border-primary bg-primary/5" 
-                                  : "border-gray-200 hover:border-gray-300"
+                                  ? "border-primary bg-primary text-white" 
+                                  : "border-gray-200 hover:border-primary bg-white"
                               )}
                             >
-                              <div className="font-semibold text-gray-900">{option.label}</div>
-                              <div className="text-sm text-gray-600">AED {discountedPrice.toFixed(2)}</div>
+                              <div className="font-semibold text-sm">{option.label}</div>
+                              <div className={cn("text-lg font-bold", isSelected ? "text-white" : "text-primary")}>
+                                AED {discountedPrice.toFixed(0)}
+                              </div>
                               {option.discount && (
-                                <div className="text-sm font-medium text-primary">{option.discount}</div>
+                                <div className={cn("text-xs font-medium", isSelected ? "text-primary-foreground" : "text-green-600")}>
+                                  {option.discount}
+                                </div>
                               )}
                             </button>
                           );
@@ -281,44 +318,56 @@ const FindParking = () => {
                       </div>
                     </div>
 
-                    {/* Benefits */}
-                    <div className="bg-gray-50 rounded-lg p-4">
-                      <div className="flex items-center gap-2 mb-3">
-                        <div className="w-3 h-3 rounded-full border-2 border-primary"></div>
-                        <span className="font-medium text-gray-900">Benefits:</span>
+                    {/* Price Display */}
+                    <div className="mb-4 p-4 bg-white rounded-lg border border-gray-200">
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600">Total Price:</span>
+                        <span className="text-2xl font-bold text-primary">
+                          AED {calculateDiscountedPrice(spot.price, selectedDuration[spot.id] ? getDurationOptions(spot.price).find(d => d.label === selectedDuration[spot.id])?.discount : null).toFixed(0)}
+                        </span>
                       </div>
-                      <div className="space-y-2 text-sm text-gray-600">
-                        <div className="flex items-center gap-2">
-                          <Shield className="h-4 w-4 text-primary" />
-                          <span>Guaranteed parking space</span>
+                      {selectedDuration[spot.id] && getDurationOptions(spot.price).find(d => d.label === selectedDuration[spot.id])?.discount && (
+                        <div className="text-sm text-green-600 font-medium mt-1">
+                          You save AED {(spot.price - calculateDiscountedPrice(spot.price, getDurationOptions(spot.price).find(d => d.label === selectedDuration[spot.id])?.discount)).toFixed(0)}
                         </div>
-                        <div className="flex items-center gap-2">
-                          <DollarSign className="h-4 w-4 text-primary" />
-                          <span>Fixed price - no increases during rental</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Headphones className="h-4 w-4 text-primary" />
-                          <span>Priority customer support</span>
-                        </div>
+                      )}
+                    </div>
+
+                    {/* Benefits */}
+                    <div className="mb-4">
+                      <div className="flex flex-wrap gap-2">
+                        <span className="inline-flex items-center gap-1 bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
+                          <Shield className="h-3 w-3" />
+                          Guaranteed Space
+                        </span>
+                        <span className="inline-flex items-center gap-1 bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
+                          <Car className="h-3 w-3" />
+                          Fixed Price
+                        </span>
                       </div>
                     </div>
 
-                    {/* Monthly Rolling Option */}
-                    <div className="text-center">
-                      <Button variant="link" className="text-primary hover:text-primary/80">
-                        Or choose Monthly Rolling (subject to availability)
+                    {/* Action Buttons */}
+                    <div className="space-y-3">
+                      <Button className="w-full bg-primary hover:bg-primary/90 text-white h-12 text-lg font-bold">
+                        BOOK NOW
+                      </Button>
+                      <Button variant="link" className="w-full text-primary hover:text-primary/80">
+                        Monthly Rolling Option
                       </Button>
                     </div>
-
-                    {/* Book Now Button */}
-                    <Button className="w-full bg-primary hover:bg-primary/90 text-white py-3 text-lg font-semibold">
-                      Reserve Now
-                    </Button>
                   </div>
                 </div>
               </div>
             </Card>
           ))}
+        </div>
+
+        {/* Load More */}
+        <div className="text-center mt-12">
+          <Button variant="outline" className="px-8 py-3">
+            Load More Parking Spaces
+          </Button>
         </div>
       </div>
     </div>
