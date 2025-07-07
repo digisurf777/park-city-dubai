@@ -31,7 +31,7 @@ const Index = () => {
         }}
       >
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-white animate-fade-in">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center min-h-screen">
+          <div className="flex flex-col lg:flex-row items-center justify-between min-h-screen">
             {/* Left side - Text */}
             <div className="text-left">
               <h1 
@@ -42,9 +42,19 @@ const Index = () => {
                 }}
               >
                 YOUR TRUSTED<br />
-                PARKING<br />
-                <span className="text-white">PLATFORM IN</span><br />
-                <span className="text-white">DUBAI</span>
+                <div className="flex items-center gap-8">
+                  <div>
+                    PARKING<br />
+                    <span className="text-white">PLATFORM IN</span><br />
+                    <span className="text-white">DUBAI</span>
+                  </div>
+                  {/* Phone Image positioned next to text */}
+                  <img 
+                    src="/lovable-uploads/20c287e2-e6e7-4c77-9fb2-30d50523dbca.png" 
+                    alt="Shazam Parking Mobile App"
+                    className="max-w-xs h-auto hidden lg:block"
+                  />
+                </div>
               </h1>
               
               <Link to="/my-account">
@@ -54,12 +64,12 @@ const Index = () => {
               </Link>
             </div>
             
-            {/* Right side - Phone Image */}
-            <div className="flex justify-end">
+            {/* Mobile Phone Image for smaller screens */}
+            <div className="lg:hidden mt-8">
               <img 
                 src="/lovable-uploads/20c287e2-e6e7-4c77-9fb2-30d50523dbca.png" 
                 alt="Shazam Parking Mobile App"
-                className="max-w-xs md:max-w-sm lg:max-w-md h-auto"
+                className="max-w-xs h-auto mx-auto"
               />
             </div>
           </div>
