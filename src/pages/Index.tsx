@@ -23,13 +23,21 @@ const Index = () => {
       
       {/* Hero Section */}
       <section 
-        className="relative min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat"
+        className="relative min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat animate-fade-in"
         style={{
-          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('/lovable-uploads/161ee737-1491-45d6-a5e3-a642b7ff0806.png')`
+          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('/lovable-uploads/25c56481-0d03-4055-bd47-67635ac0d1b0.png')`,
+          backgroundSize: 'cover',
+          animation: 'zoom-slow 20s ease-in-out infinite alternate'
         }}
       >
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-12 leading-tight">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white animate-fade-in">
+          <h1 
+            className="text-4xl md:text-6xl lg:text-7xl font-light mb-12 leading-tight"
+            style={{
+              textShadow: '3px 3px 12px rgba(0, 0, 0, 0.9), 0 0 30px rgba(0, 0, 0, 0.7)',
+              fontWeight: '300'
+            }}
+          >
             YOUR TRUSTED<br />
             PARKING<br />
             <span className="text-white">PLATFORM IN</span><br />

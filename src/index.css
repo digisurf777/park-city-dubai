@@ -90,6 +90,15 @@ All colors MUST be HSL.
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 175 73% 41%;
   }
+
+  @keyframes zoom-slow {
+    0% { 
+      transform: scale(1.05); 
+    }
+    100% { 
+      transform: scale(1); 
+    }
+  }
 }
 
 @layer base {
