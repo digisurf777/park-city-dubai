@@ -58,16 +58,17 @@ const FindParking = () => {
   ];
 
   const getDurationOptions = (basePrice: number) => [
-    { label: "1 Month", price: basePrice, discount: null },
-    { label: "3 Months", price: basePrice, discount: "5% OFF" },
-    { label: "6 Months", price: basePrice, discount: "10% OFF" },
-    { label: "12 Months", price: basePrice, discount: "15% OFF" }
+    { label: "1 Month", months: 1, discount: null },
+    { label: "3 Months", months: 3, discount: "5% OFF" },
+    { label: "6 Months", months: 6, discount: "10% OFF" },
+    { label: "12 Months", months: 12, discount: "15% OFF" }
   ];
 
-  const calculateDiscountedPrice = (basePrice: number, discount: string | null) => {
-    if (!discount) return basePrice;
+  const calculateDiscountedPrice = (basePrice: number, months: number, discount: string | null) => {
+    const totalPrice = basePrice * months;
+    if (!discount) return totalPrice;
     const discountPercent = parseInt(discount.replace('% OFF', ''));
-    return Math.round(basePrice * (100 - discountPercent) / 100);
+    return Math.round(totalPrice * (100 - discountPercent) / 100);
   };
 
   const nextImage = (spotId: number, totalImages: number) => {
@@ -290,7 +291,7 @@ const FindParking = () => {
                       <div className="grid grid-cols-2 gap-3">
                         {getDurationOptions(spot.price).map((option) => {
                           const isSelected = selectedDuration[spot.id] === option.label;
-                          const discountedPrice = calculateDiscountedPrice(option.price, option.discount);
+                          const discountedPrice = calculateDiscountedPrice(spot.price, option.months, option.discount);
                           
                           return (
                             <button
@@ -323,14 +324,25 @@ const FindParking = () => {
                       <div className="flex justify-between items-center">
                         <span className="text-gray-600">Total Price:</span>
                         <span className="text-2xl font-bold text-primary">
-                          AED {calculateDiscountedPrice(spot.price, selectedDuration[spot.id] ? getDurationOptions(spot.price).find(d => d.label === selectedDuration[spot.id])?.discount : null).toFixed(0)}
+                          AED {(() => {
+                            const selectedOption = getDurationOptions(spot.price).find(d => d.label === selectedDuration[spot.id]);
+                            return selectedOption ? calculateDiscountedPrice(spot.price, selectedOption.months, selectedOption.discount).toFixed(0) : spot.price.toFixed(0);
+                          })()}
                         </span>
                       </div>
-                      {selectedDuration[spot.id] && getDurationOptions(spot.price).find(d => d.label === selectedDuration[spot.id])?.discount && (
-                        <div className="text-sm text-green-600 font-medium mt-1">
-                          You save AED {(spot.price - calculateDiscountedPrice(spot.price, getDurationOptions(spot.price).find(d => d.label === selectedDuration[spot.id])?.discount)).toFixed(0)}
-                        </div>
-                      )}
+                      {selectedDuration[spot.id] && (() => {
+                        const selectedOption = getDurationOptions(spot.price).find(d => d.label === selectedDuration[spot.id]);
+                        if (selectedOption?.discount) {
+                          const originalPrice = spot.price * selectedOption.months;
+                          const discountedPrice = calculateDiscountedPrice(spot.price, selectedOption.months, selectedOption.discount);
+                          return (
+                            <div className="text-sm text-green-600 font-medium mt-1">
+                              You save AED {(originalPrice - discountedPrice).toFixed(0)} with {selectedOption.discount}
+                            </div>
+                          );
+                        }
+                        return null;
+                      })()}
                     </div>
 
                     {/* Benefits */}
