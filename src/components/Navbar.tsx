@@ -22,17 +22,23 @@ const Navbar = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            <Link to="/find-parking" className="text-gray-700 hover:text-primary transition-colors">
-              Find Parking
+            <Link to="/rent-out-your-space" className="text-gray-700 hover:text-primary transition-colors">
+              Rent out your space
             </Link>
-            <Link to="/list-space" className="text-gray-700 hover:text-primary transition-colors">
-              List Your Space
+            <Link to="/find-a-parking-space" className="text-gray-700 hover:text-primary transition-colors">
+              Find a parking space
             </Link>
-            <Link to="/about" className="text-gray-700 hover:text-primary transition-colors">
-              About
+            <Link to="/my-account" className="text-gray-700 hover:text-primary transition-colors">
+              My account
             </Link>
-            <Link to="/contact" className="text-gray-700 hover:text-primary transition-colors">
-              Contact
+            <Link to="/about-us" className="text-gray-700 hover:text-primary transition-colors">
+              About us
+            </Link>
+            <Link to="/news" className="text-gray-700 hover:text-primary transition-colors">
+              News
+            </Link>
+            <Link to="/faq" className="text-gray-700 hover:text-primary transition-colors">
+              FAQ
             </Link>
           </div>
 
@@ -63,32 +69,46 @@ const Navbar = () => {
           <div className="md:hidden absolute top-16 left-0 right-0 backdrop-blur-md bg-white/90 border-b border-white/20 shadow-lg">
             <div className="px-4 py-6 space-y-4">
               <Link
-                to="/find-parking"
+                to="/rent-out-your-space"
                 className="block text-gray-700 hover:text-primary transition-colors py-2"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Find Parking
+                Rent out your space
               </Link>
               <Link
-                to="/list-space"
+                to="/find-a-parking-space"
                 className="block text-gray-700 hover:text-primary transition-colors py-2"
                 onClick={() => setIsMenuOpen(false)}
               >
-                List Your Space
+                Find a parking space
               </Link>
               <Link
-                to="/about"
+                to="/my-account"
                 className="block text-gray-700 hover:text-primary transition-colors py-2"
                 onClick={() => setIsMenuOpen(false)}
               >
-                About
+                My account
               </Link>
               <Link
-                to="/contact"
+                to="/about-us"
                 className="block text-gray-700 hover:text-primary transition-colors py-2"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Contact
+                About us
+              </Link>
+              <Link
+                to="/news"
+                className="block text-gray-700 hover:text-primary transition-colors py-2"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                News
+              </Link>
+              <Link
+                to="/faq"
+                className="block text-gray-700 hover:text-primary transition-colors py-2"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                FAQ
               </Link>
               <div className="pt-4 space-y-2">
                 <Button variant="ghost" className="w-full text-gray-700 hover:text-primary">
