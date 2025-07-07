@@ -254,30 +254,53 @@ const FindParking = () => {
 
       {/* District Selector Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {districtZones.map((zone) => (
-            <div key={zone.slug} className="space-y-4" style={{ marginBottom: '32px' }}>
-              <h3 className="text-xl font-bold" style={{ color: '#202020' }}>
-                {zone.name}
-              </h3>
-              <Button
-                onClick={() => handleSelectZone(zone.slug)}
-                className="w-full md:w-auto px-6 py-3 text-white font-medium rounded-md transition-colors"
-                style={{ 
-                  backgroundColor: '#00B67A',
-                  borderColor: '#00B67A'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#009966';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = '#00B67A';
-                }}
-              >
-                Select zone
-              </Button>
-            </div>
-          ))}
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold text-foreground mb-4">Choose Your Zone</h2>
+          <p className="text-muted-foreground text-lg">Select a zone to find parking spaces in that area</p>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {districtZones.map((zone) => {
+            const zoneImages = {
+              'dubai-marina': '/src/assets/zones/dubai-marina.jpg',
+              'downtown': '/src/assets/zones/downtown.jpg',
+              'palm-jumeirah': '/src/assets/zones/palm-jumeirah.jpg',
+              'business-bay': '/src/assets/zones/business-bay.jpg',
+              'difc': '/src/assets/zones/difc.jpg',
+              'deira': '/src/assets/zones/deira.jpg'
+            };
+            
+            return (
+              <div key={zone.slug} className="relative group overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-all duration-300">
+                {/* Zone Image */}
+                <div className="relative h-64 overflow-hidden">
+                  <img
+                    src={zoneImages[zone.slug as keyof typeof zoneImages]}
+                    alt={zone.name}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <div className="absolute inset-0 bg-black/30"></div>
+                  
+                  {/* Zone Title Overlay */}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <h3 className="text-2xl font-bold text-white text-center px-4">
+                      {zone.name}
+                    </h3>
+                  </div>
+                </div>
+                
+                {/* Select Zone Button */}
+                <div className="absolute bottom-4 left-4 right-4">
+                  <Button
+                    onClick={() => handleSelectZone(zone.slug)}
+                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium"
+                  >
+                    Select zone
+                  </Button>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
 
