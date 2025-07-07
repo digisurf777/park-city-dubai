@@ -9,6 +9,12 @@ import dubaihero from "@/assets/dubai-skyline-hero.jpg";
 import luxuryCar from "@/assets/luxury-car-dubai.png";
 import businessMan from "@/assets/business-man.jpg";
 import phoneLogo from "@/assets/phone-logo.png";
+import dubaiMarinaZone from "@/assets/zones/dubai-marina.jpg";
+import downtownZone from "@/assets/zones/downtown.jpg";
+import palmJumeirahZone from "@/assets/zones/palm-jumeirah.jpg";
+import businessBayZone from "@/assets/zones/business-bay.jpg";
+import difcZone from "@/assets/zones/difc.jpg";
+import deiraZone from "@/assets/zones/deira.jpg";
 
 const Index = () => {
   return (
@@ -64,21 +70,31 @@ const Index = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
-              { name: "Dubai Marina", link: "/find-parking?district=dubai-marina" },
-              { name: "Downtown", link: "/find-parking?district=downtown" },
-              { name: "Palm Jumeirah", link: "/find-parking?district=palm-jumeirah" },
-              { name: "Business Bay", link: "/find-parking?district=business-bay" },
-              { name: "DIFC", link: "/find-parking?district=difc" },
-              { name: "Deira", link: "/find-parking?district=deira" }
+              { name: "Dubai Marina", link: "/find-parking?district=dubai-marina", image: dubaiMarinaZone },
+              { name: "Downtown", link: "/find-parking?district=downtown", image: downtownZone },
+              { name: "Palm Jumeirah", link: "/find-parking?district=palm-jumeirah", image: palmJumeirahZone },
+              { name: "Business Bay", link: "/find-parking?district=business-bay", image: businessBayZone },
+              { name: "DIFC", link: "/find-parking?district=difc", image: difcZone },
+              { name: "Deira", link: "/find-parking?district=deira", image: deiraZone }
             ].map((location, index) => (
-              <div key={index} className="text-center">
-                <h3 className="text-2xl font-bold text-gray-900 mb-4 uppercase">{location.name}</h3>
-                <Link to={location.link}>
-                  <Button className="bg-primary hover:bg-primary/90 text-white px-8 py-3 text-lg">
-                    Select Zone
-                  </Button>
-                </Link>
-              </div>
+              <Card key={index} className="overflow-hidden hover:shadow-xl transition-all duration-300 group">
+                <div className="relative aspect-video">
+                  <img 
+                    src={location.image} 
+                    alt={location.name}
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-black bg-opacity-40 transition-opacity group-hover:bg-opacity-30"></div>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center text-white p-6">
+                    <h3 className="text-2xl font-bold mb-4 uppercase text-center">{location.name}</h3>
+                    <Link to={location.link}>
+                      <Button className="bg-primary hover:bg-primary/90 text-white px-6 py-3 text-lg font-semibold">
+                        Select Zone
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              </Card>
             ))}
           </div>
         </div>
