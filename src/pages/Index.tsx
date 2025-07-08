@@ -252,7 +252,7 @@ const Index = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <img 
-              src="/lovable-uploads/25cbaba8-3854-4bb0-9a3f-f044623c6db8.png"
+              src="/lovable-uploads/b290c213-897d-4efd-9d2c-6fc62c2f853e.png"
               alt="Rent a parking space in just 3 simple steps"
               className="w-full max-w-6xl mx-auto"
             />
