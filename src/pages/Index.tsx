@@ -41,12 +41,9 @@ const Index = () => {
                   fontWeight: '300'
                 }}
               >
-                YOUR TRUSTED<br />
                 <div className="flex items-center gap-8">
                   <div>
-                    PARKING<br />
-                    <span className="text-white">PLATFORM IN</span><br />
-                    <span className="text-white">DUBAI</span>
+                    YOUR TRUSTED PARKING PLATFORM IN DUBAI
                   </div>
                   {/* Phone Image positioned next to text */}
                   <img 
