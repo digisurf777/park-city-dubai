@@ -1,4 +1,5 @@
 import { useParams } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Badge } from "@/components/ui/badge";
@@ -11,140 +12,146 @@ const NewsArticle = () => {
   // Article data - in a real app this would come from a CMS or API
   const articles = {
     "top-5-smart-ways-to-commute-around-dubai-in-2025": {
-      title: "Top 5 Ways to Commute Around Dubai in 2025",
+      title: "Top 5 Smart Ways to Commute Around Dubai in 2025 | Dubai Transportation Guide",
+      metaDescription: "Discover the best 5 ways to commute in Dubai 2025: Metro, taxis, driving, chauffeur services & micro-mobility. Complete guide to Dubai transportation with parking solutions.",
       excerpt: "Dubai is a city built for growth. Gleaming towers, expanding communities and a never-ending flow of new residents mean commuting wisely has become an art. Should you drive yourself, hop on the Metro, or hire a private driver?",
       date: "July 5, 2025",
       author: "admin",
-      category: "ShazamParking",
+      category: "Dubai Transportation",
+      keywords: ["Dubai commute", "Dubai transportation", "Dubai Metro", "Dubai parking", "Dubai travel guide", "commuting in Dubai", "Dubai taxis", "public transport Dubai"],
       image: "/lovable-uploads/commute-dubai-article.png",
       content: `
-        <p>Dubai is a city built for growth. Gleaming towers, expanding communities and a never-ending flow of new residents mean commuting wisely has become an art. Should you drive yourself, hop on the Metro, or hire a private driver?</p>
+        <p><strong>Planning your daily commute in Dubai?</strong> Dubai is a city built for growth. Gleaming towers, expanding communities and a never-ending flow of new residents mean commuting wisely has become an art. Should you drive yourself, hop on the Dubai Metro, or hire a private driver?</p>
         
-        <p>This guide breaks down five of the best ways to commute in Dubai today.</p>
+        <p>This comprehensive guide breaks down the <strong>five best ways to commute in Dubai in 2025</strong>, helping you navigate the city's transportation options efficiently and cost-effectively.</p>
         
-        <h2>1️⃣ Dubai Metro: Reliable and Growing</h2>
+        <h2>1. Dubai Metro: The Most Reliable Public Transport System</h2>
         
-        <p>No surprise here. The Dubai Metro remains one of the cleanest, most reliable public transport systems in the world. It covers over 90 kilometres and connects popular areas like Downtown, Marina, Business Bay and Expo City – and is ever expanding.</p>
+        <p>No surprise here. The <strong>Dubai Metro remains one of the cleanest, most reliable public transport systems in the world</strong>. It covers over 90 kilometres and connects popular Dubai areas like <a href="/downtown">Downtown Dubai</a>, <a href="/dubai-marina">Dubai Marina</a>, <a href="/business-bay">Business Bay</a> and Expo City – and is ever expanding.</p>
         
-        <h3>Why people love it:</h3>
+        <h3>Why Dubai Metro is Popular:</h3>
         <ul>
-          <li>Affordable compared to taxis or daily driving.</li>
-          <li>Fully air-conditioned and on time.</li>
-          <li>Stations are expanding each year.</li>
+          <li><strong>Affordable transportation:</strong> Much cheaper compared to daily taxi rides or car ownership costs</li>
+          <li><strong>Climate-controlled comfort:</strong> Fully air-conditioned carriages with punctual service</li>
+          <li><strong>Expanding network:</strong> New Metro stations are added regularly, improving connectivity</li>
         </ul>
         
-        <p><strong>When it is tricky:</strong> Coverage gaps in villa communities mean you may still need to combine it with a bus, taxi or e-scooter. And during peak hours, you will be shoulder to shoulder with hundreds of other commuters.</p>
+        <p><strong>Metro Limitations:</strong> Coverage gaps in villa communities mean you may still need to combine it with RTA buses, taxis or e-scooters for last-mile connectivity. During peak hours (7-9 AM and 5-7 PM), expect crowded carriages.</p>
         
-        <h2>2️⃣ Taxis and E-Hailing Apps: Door-to-Door Flexibility</h2>
+        <h2>2. Dubai Taxis and Ride-Hailing Apps: Ultimate Door-to-Door Convenience</h2>
         
-        <p>Dubai's taxi network and e-hailing apps like Uber and Careem are a lifeline for residents and tourists alike. For quick door-to-door service, this option is still king.</p>
+        <p><strong>Dubai's comprehensive taxi network</strong> and popular ride-hailing apps like Uber and Careem provide essential transport services for both residents and tourists. For convenient door-to-door service across Dubai, this remains the top choice.</p>
         
-        <p><strong>Average costs:</strong> Short rides start around AED 12 to 15. Longer trips to or from the suburbs can easily be AED 50 to 100.</p>
+        <p><strong>Dubai Taxi Costs (2025):</strong> Short rides typically start around AED 12-15. Longer journeys to suburban areas like Arabian Ranches or Dubai Hills can cost AED 50-100.</p>
         
-        <h3>Pros:</h3>
+        <h3>Advantages of Dubai Taxis:</h3>
         <ul>
-          <li>No parking stress or navigation worries.</li>
-          <li>Ideal for visitors and nights out.</li>
-          <li>Safe and well-regulated.</li>
+          <li><strong>Zero parking hassles:</strong> No need to worry about finding parking spaces or navigation</li>
+          <li><strong>Perfect for tourists and night entertainment:</strong> Ideal for Dubai Mall visits, beach trips, and evening activities</li>
+          <li><strong>Safe and regulated service:</strong> All Dubai taxis are licensed and monitored by RTA</li>
         </ul>
         
-        <h3>Cons:</h3>
+        <h3>Disadvantages:</h3>
         <ul>
-          <li>Daily reliance can get expensive.</li>
-          <li>Fares can spike during major events or peak hours.</li>
+          <li><strong>High daily costs:</strong> Regular commuting via taxi can become expensive quickly</li>
+          <li><strong>Surge pricing:</strong> Fares increase during major Dubai events, bad weather, or rush hours</li>
         </ul>
         
-        <p><strong>Smart tip:</strong> Combine taxis with the Metro for longer routes to save money.</p>
+        <p><strong>Money-Saving Tip:</strong> Combine Dubai Metro with short taxi rides for longer routes to significantly reduce transportation costs.</p>
         
-        <h2>3️⃣ Driving Yourself: Ultimate Control but Watch the Costs</h2>
+        <h2>3. Driving Your Own Car in Dubai: Maximum Flexibility with Hidden Costs</h2>
         
-        <p>Driving your own car is a Dubai classic. You decide when you leave, what route you take and where to stop for a karak break. But there is a trade-off since costs pile up fast with fuel, Salik toll gates and of course parking.</p>
+        <p><strong>Driving your own car in Dubai</strong> offers the ultimate freedom. You control departure times, routes, and can stop for that perfect karak break anywhere. However, the true costs add up quickly: fuel expenses, Salik toll gate fees, car maintenance, and most importantly - <strong>Dubai parking costs</strong>.</p>
         
-        <p>Finding a guaranteed space near Marina, DIFC or Downtown can be a daily battle.</p>
+        <p><strong>Dubai Parking Challenge:</strong> Finding guaranteed parking near <a href="/dubai-marina">Dubai Marina</a>, <a href="/difc">DIFC</a>, or <a href="/downtown">Downtown Dubai</a> can be a daily struggle, especially during business hours.</p>
         
-        <p><strong>Pro Tip:</strong> use ShazamParking.ae to secure a private bay monthly. You simply rent a spot near your home or office so you never have to circle again looking for a space or risk a fine.</p>
+        <p><strong>Pro Parking Solution:</strong> Use <a href="/find-parking">ShazamParking.ae</a> to secure a private parking bay monthly. Simply <a href="/rent-out-your-space">rent a designated spot</a> near your home or office location, eliminating the daily hunt for parking and avoiding parking fines.</p>
         
-        <p><strong>Who this suits best:</strong> People with kids, busy schedules or who regularly travel across multiple areas.</p>
+        <p><strong>Best suited for:</strong> Families with children, professionals with packed schedules, or residents who frequently travel between multiple Dubai locations daily.</p>
         
-        <h2>4️⃣ Private Chauffeur Services: Sit Back and Relax</h2>
+        <h2>4. Private Chauffeur Services in Dubai: Premium Comfort and Convenience</h2>
         
-        <p>Some Dubai residents are adding private chauffeur services to their routine, especially for big meetings, long errands or VIP guests. It is a step up from regular taxis or ride-hailing because your driver stays with you, waits between stops and follows your custom plan for the day.</p>
+        <p><strong>Private chauffeur services</strong> are becoming increasingly popular among Dubai residents, particularly for important business meetings, lengthy errands, or hosting VIP guests. This premium option surpasses regular taxis because your dedicated driver remains available, waits between destinations, and follows your personalized daily itinerary.</p>
         
-        <h3>How it works:</h3>
-        <p>Most companies offer hourly or daily rates with flat fees instead of unpredictable surge pricing. For example, Zouffer is a Dubai-based chauffeur company known for professional drivers and flexible packages for individuals, families and corporate clients.</p>
+        <h3>How Dubai Chauffeur Services Work:</h3>
+        <p>Most Dubai chauffeur companies offer transparent hourly or full-day rates with fixed pricing instead of unpredictable surge pricing. For example, <strong>Zouffer</strong> is a reputable Dubai-based chauffeur company known for professional drivers and flexible packages serving individuals, families and corporate clients throughout the emirate.</p>
         
-        <h3>Pros:</h3>
+        <h3>Chauffeur Service Benefits:</h3>
         <ul>
-          <li>Stress-free door-to-door service.</li>
-          <li>No parking worries at multiple stops.</li>
-          <li>Good value for all-day plans.</li>
+          <li><strong>Completely stress-free transportation:</strong> Professional door-to-door service with premium vehicles</li>
+          <li><strong>Zero parking concerns:</strong> No worries about finding parking at multiple Dubai destinations</li>
+          <li><strong>Excellent value for full-day itineraries:</strong> Cost-effective when visiting multiple locations</li>
         </ul>
         
-        <h3>Cons:</h3>
+        <h3>Considerations:</h3>
         <ul>
-          <li>More expensive than a regular taxi.</li>
-          <li>Not practical if you only need short daily trips.</li>
+          <li><strong>Premium pricing:</strong> Higher cost compared to standard Dubai taxis</li>
+          <li><strong>Not suitable for brief trips:</strong> Most cost-effective for longer journeys or full-day requirements</li>
         </ul>
         
-        <p><strong>Best for:</strong> Business clients, visitors, events or families needing VIP convenience.</p>
+        <p><strong>Ideal for:</strong> Business executives, visiting clients, special events, or families requiring VIP-level convenience and comfort.</p>
         
-        <h2>5️⃣ Buses, Cycling and Micro-Mobility: Good for Short Trips</h2>
+        <h2>5. Dubai Public Buses, Cycling and Micro-Mobility: Eco-Friendly Budget Options</h2>
         
-        <p>Dubai's RTA bus network covers the parts of the city the Metro does not reach, and buses are clean and affordable if you are watching your budget.</p>
+        <p><strong>Dubai's extensive RTA bus network</strong> covers areas not served by the Metro system, offering clean and budget-friendly transportation for cost-conscious commuters.</p>
         
-        <p>For shorter hops in pedestrian-friendly neighbourhoods like Jumeirah, Marina or Business Bay, e-scooters and bikes are on the rise. Cycle paths are expanding and rentals are cheap. These options are great for students and last-mile commuters.</p>
+        <p>For shorter distances in pedestrian-friendly Dubai neighborhoods like <a href="/palm-jumeirah">Jumeirah</a>, <a href="/dubai-marina">Marina Walk</a>, or <a href="/business-bay">Business Bay</a>, e-scooters and rental bikes are gaining popularity. Dubai's cycling infrastructure continues expanding with dedicated bike lanes, and rental costs remain very affordable. These sustainable options work perfectly for students and last-mile commuting needs.</p>
         
-        <h3>Pros:</h3>
+        <h3>Benefits of Public Transport and Micro-Mobility:</h3>
         <ul>
-          <li>The most affordable choice.</li>
-          <li>Nol cards make switching between Metro and bus easy.</li>
-          <li>Good for daily steps and sustainability.</li>
+          <li><strong>Most economical transportation option:</strong> Lowest cost for daily Dubai commuting</li>
+          <li><strong>Integrated payment system:</strong> Nol cards enable seamless transfers between Dubai Metro and bus services</li>
+          <li><strong>Health and environmental benefits:</strong> Promotes physical activity and reduces carbon footprint</li>
         </ul>
         
-        <h3>Cons:</h3>
+        <h3>Seasonal Limitations:</h3>
         <ul>
-          <li>Not ideal during the hottest months.</li>
-          <li>May not suit everyone's schedule.</li>
+          <li><strong>Summer weather challenges:</strong> Outdoor cycling and walking become difficult during Dubai's hottest months (June-September)</li>
+          <li><strong>Schedule dependencies:</strong> Bus timetables may not align with everyone's work schedule</li>
         </ul>
         
-        <p><strong>Parking tip:</strong> If you still own a car but want to combine it with a bus or cycle route, you can reserve your bay near your local Metro or bus stop with ShazamParking. That way you do not risk fines or lost time.</p>
+        <p><strong>Smart Parking Integration:</strong> If you own a car but want to combine it with public transport or cycling, <a href="/find-parking">reserve your parking bay</a> near your local Metro station or bus stop with ShazamParking. This hybrid approach eliminates parking fines and saves time.</p>
         
-        <h2>Mix and Match</h2>
+        <h2>Creating Your Perfect Dubai Commute Strategy: Mix and Match</h2>
         
-        <p>No single option works for every day. Some days you want to drive yourself and other times you may prefer the Metro and a short Careem ride to get home comfortably or, with a big day ahead with multiple meetings, a chauffeur service like Zouffer and leave the logistics to someone else.</p>
+        <p><strong>No single transportation method works perfectly for every situation.</strong> Some days you'll prefer driving yourself, while other times the Dubai Metro plus a short Careem ride provides the most comfortable journey home. For busy days with multiple business meetings, professional chauffeur services like Zouffer handle all logistics seamlessly.</p>
         
-        <p>Smart residents mix and match to balance costs, comfort and time.</p>
+        <p><strong>Smart Dubai residents mix and match transportation options</strong> to optimize costs, comfort levels, and travel time based on daily requirements.</p>
         
-        <h2>Make Parking Work For You</h2>
+        <h2>Solve Dubai's Parking Challenge: Make Parking Work For You</h2>
         
-        <p>If you own a car, finding a convenient parking spot is half the battle. With ShazamParking.ae you can rent a secure private bay month to month and skip the daily hunt for parking. Or, if you have an empty parking bay you do not need every day, you can even list it for rent and earn extra income passively, a win-win for Dubai's busy roads.</p>
+        <p><strong>Car ownership and parking availability</strong> represent Dubai's biggest commuting challenge. With <a href="/">ShazamParking.ae</a>, you can rent secure private parking bays on a monthly basis, completely eliminating the daily parking hunt. Alternatively, if you own an unused parking space, <a href="/rent-out-your-space">list it for rental income</a> and generate passive earnings while helping fellow Dubai residents - creating a win-win solution for the city's busy transportation network.</p>
         
-        <h2>✅ Conclusion</h2>
+        <h2>✅ Conclusion: Your Complete Dubai Transportation Guide</h2>
         
-        <p>Dubai is all about options. From the Metro and taxis to your own car, bikes and chauffeur services, there is a commuting style for every budget and schedule. The key is to plan ahead, pick what works for you and be flexible.</p>
+        <p><strong>Dubai offers unmatched transportation diversity.</strong> From the efficient Metro system and reliable taxis to personal vehicles, rental bikes and luxury chauffeur services - there's a commuting solution for every budget, schedule and lifestyle preference. Success lies in advance planning, choosing appropriate options for each situation, and maintaining flexibility in your approach.</p>
         
-        <p>Ready to make your daily routine easier? Book your next parking spot on ShazamParking and discover how smooth your commute can be. For an extra level of comfort, look into reputable chauffeur companies like Zouffer when you need that stress-free door-to-door service.</p>
+        <p><strong>Ready to optimize your daily Dubai commute?</strong> <a href="/find-parking">Book your next guaranteed parking spot</a> with ShazamParking and experience truly smooth commuting. For premium comfort levels, research reputable chauffeur companies like Zouffer for stress-free door-to-door transportation service.</p>
         
-        <p>The roads are ready. Now you are too.</p>
+        <p><strong>Dubai's transportation infrastructure is ready for you. Now you're ready too.</strong></p>
         
-        <p>Visit <strong><a href="https://shazamparking.ae/" target="_blank" rel="noopener">ShazamParking.ae</a></strong> and discover how easy life is when your parking is already sorted.</p>
+        <p>Visit <strong><a href="/" target="_blank" rel="noopener">ShazamParking.ae</a></strong> and discover how effortless life becomes when your Dubai parking is pre-arranged and guaranteed.</p>
       `
     },
     "top-10-ways-to-meet-new-people-in-dubai": {
       title: "Top 10 Ways to Meet New People in Dubai",
+      metaDescription: "Discover the best ways to meet people in Dubai. Complete guide for expats, residents and digital nomads to build social connections in Dubai.",
       excerpt: "Whether you're a brand-new expat, long-term resident, digital nomad, or just someone looking to meet people in Dubai, you're in the right city. With its vibrant international mix and endless...",
       date: "July 5, 2025",
       author: "admin",
-      category: "ShazamParking",
+      category: "Passive Income",
+      keywords: ["parking rental Dubai", "passive income Dubai", "rent parking space", "Dubai property income"],
       image: "/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.png",
       content: "<p>Full article content would go here...</p>"
     },
     "turn-parking-bay-into-passive-income": {
       title: "How to Turn Your Empty Parking Bay into Monthly Passive Income with ShazamParking",
+      metaDescription: "Transform your unused parking space into steady income with ShazamParking. Learn how Dubai property owners earn monthly passive income from parking rentals.",
       excerpt: "Have an unused parking space sitting empty? Transform it into a steady income stream with ShazamParking. Learn how property owners across Dubai are earning hundreds of dirhams monthly...",
       date: "July 5, 2025",
       author: "admin",
-      category: "ShazamParking",
+      category: "Dubai Lifestyle",
+      keywords: ["meet people Dubai", "Dubai social life", "expat Dubai", "Dubai networking"],
       image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
       content: "<p>Full article content would go here...</p>"
     }
@@ -157,11 +164,15 @@ const NewsArticle = () => {
       <div className="min-h-screen bg-background">
         <Navbar />
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
-          <h1 className="text-4xl font-bold mb-4">Article Not Found</h1>
+        <div className="text-center mb-6">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">
+            Article Not Found
+          </h1>
           <p className="text-muted-foreground mb-8">The article you're looking for doesn't exist.</p>
           <Link to="/news" className="text-primary hover:underline">
             Back to News
           </Link>
+        </div>
         </div>
         <Footer />
       </div>
@@ -170,6 +181,19 @@ const NewsArticle = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Helmet>
+        <title>{article.title}</title>
+        <meta name="description" content={article.metaDescription} />
+        <meta name="keywords" content={article.keywords?.join(', ')} />
+        <meta property="og:title" content={article.title} />
+        <meta property="og:description" content={article.metaDescription} />
+        <meta property="og:image" content={article.image} />
+        <meta property="og:type" content="article" />
+        <meta name="author" content={article.author} />
+        <meta name="article:published_time" content={article.date} />
+        <meta name="article:section" content={article.category} />
+        <link rel="canonical" href={`https://shazamparking.ae/news/${slug}`} />
+      </Helmet>
       <Navbar />
       
       {/* Back Navigation */}
@@ -208,9 +232,9 @@ const NewsArticle = () => {
           />
         </div>
 
-        {/* Article Content */}
+        {/* Article Content with better typography */}
         <div 
-          className="prose prose-lg max-w-none"
+          className="prose prose-lg max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-strong:text-foreground prose-a:text-primary hover:prose-a:text-primary/80 prose-ul:text-muted-foreground"
           dangerouslySetInnerHTML={{ __html: article.content }}
         />
 
