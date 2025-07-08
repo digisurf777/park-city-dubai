@@ -9,6 +9,12 @@ import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import Navbar from "@/components/Navbar";
 import { useSearchParams, Link } from "react-router-dom";
+import dubaiMarinaZone from "@/assets/zones/dubai-marina.jpg";
+import downtownZone from "@/assets/zones/downtown.jpg";
+import palmJumeirahZone from "@/assets/zones/palm-jumeirah.jpg";
+import businessBayZone from "@/assets/zones/business-bay.jpg";
+import difcZone from "@/assets/zones/difc.jpg";
+import deiraZone from "@/assets/zones/deira.jpg";
 
 const FindParking = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -262,12 +268,12 @@ const FindParking = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {districtZones.map((zone) => {
             const zoneImages = {
-              'dubai-marina': '/src/assets/zones/dubai-marina.jpg',
-              'downtown': '/src/assets/zones/downtown.jpg',
-              'palm-jumeirah': '/src/assets/zones/palm-jumeirah.jpg',
-              'business-bay': '/src/assets/zones/business-bay.jpg',
-              'difc': '/src/assets/zones/difc.jpg',
-              'deira': '/src/assets/zones/deira.jpg'
+              'dubai-marina': dubaiMarinaZone,
+              'downtown': downtownZone, 
+              'palm-jumeirah': palmJumeirahZone,
+              'business-bay': businessBayZone,
+              'difc': difcZone,
+              'deira': deiraZone
             };
             
             return (
