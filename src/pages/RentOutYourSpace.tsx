@@ -64,9 +64,9 @@ const RentOutYourSpace = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <img 
-              src="/lovable-uploads/b290c213-897d-4efd-9d2c-6fc62c2f853e.png"
-              alt="Rent a parking space in just 3 simple steps"
-              className="w-full max-w-6xl mx-auto"
+              src="/lovable-uploads/747c1f5d-d6b2-4f6a-94a2-aca1927ee856.png"
+              alt="List your parking space in just 3 simple steps"
+              className="w-full max-w-4xl mx-auto px-4"
             />
           </div>
         </div>

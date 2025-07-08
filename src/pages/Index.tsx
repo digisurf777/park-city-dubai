@@ -31,42 +31,29 @@ const Index = () => {
         }}
       >
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-white animate-fade-in">
-          <div className="flex flex-col lg:flex-row items-center justify-between min-h-screen">
-            {/* Left side - Text */}
-            <div className="text-left">
-              <h1 
-                className="text-4xl md:text-6xl lg:text-7xl font-light mb-12 leading-tight"
-                style={{
-                  textShadow: '3px 3px 12px rgba(0, 0, 0, 0.9), 0 0 30px rgba(0, 0, 0, 0.7)',
-                  fontWeight: '300'
-                }}
-              >
-                <div className="flex items-center gap-8">
-                  <div>
-                    YOUR TRUSTED PARKING PLATFORM IN DUBAI
-                  </div>
-                  {/* Phone Image positioned next to text */}
-                  <img 
-                    src="/lovable-uploads/df7ee9c3-3bac-4642-b31e-a35557e4b211.png" 
-                    alt="Shazam Parking Mobile App"
-                    className="max-w-md h-auto hidden lg:block"
-                  />
-                </div>
-              </h1>
-              
-              <Link to="/my-account">
-                <Button className="bg-primary hover:bg-primary/90 text-white px-8 py-4 text-lg font-semibold rounded-full">
-                  LOGIN / SIGN UP
-                </Button>
-              </Link>
-            </div>
+          <div className="flex flex-col items-center justify-center min-h-screen text-center">
+            <h1 
+              className="text-4xl md:text-6xl lg:text-7xl font-light mb-12 leading-tight"
+              style={{
+                textShadow: '3px 3px 12px rgba(0, 0, 0, 0.9), 0 0 30px rgba(0, 0, 0, 0.7)',
+                fontWeight: '300'
+              }}
+            >
+              YOUR TRUSTED PARKING PLATFORM IN DUBAI
+            </h1>
             
-            {/* Mobile Phone Image for smaller screens */}
-            <div className="lg:hidden mt-8">
+            <Link to="/my-account" className="mb-12">
+              <Button className="bg-primary hover:bg-primary/90 text-white px-8 py-4 text-lg font-semibold rounded-full">
+                LOGIN / SIGN UP
+              </Button>
+            </Link>
+            
+            {/* Phone Image positioned lower */}
+            <div className="mt-8">
               <img 
                 src="/lovable-uploads/df7ee9c3-3bac-4642-b31e-a35557e4b211.png" 
                 alt="Shazam Parking Mobile App"
-                className="max-w-sm h-auto mx-auto"
+                className="max-w-md h-auto mx-auto"
               />
             </div>
           </div>
@@ -252,9 +239,9 @@ const Index = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <img 
-              src="/lovable-uploads/b290c213-897d-4efd-9d2c-6fc62c2f853e.png"
-              alt="Rent a parking space in just 3 simple steps"
-              className="w-full max-w-6xl mx-auto"
+              src="/lovable-uploads/747c1f5d-d6b2-4f6a-94a2-aca1927ee856.png"
+              alt="Find parking in just 3 simple steps"
+              className="w-full max-w-4xl mx-auto px-4"
             />
           </div>
         </div>
