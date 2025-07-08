@@ -13,7 +13,7 @@ const News = () => {
       date: "July 5, 2025",
       author: "admin",
       category: "ShazamParking",
-      image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
+      image: "/lovable-uploads/commute-dubai-article.png",
       slug: "top-5-smart-ways-to-commute-around-dubai-in-2025"
     },
     {

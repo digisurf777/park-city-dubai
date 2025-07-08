@@ -8,6 +8,7 @@ import FindParking from "./pages/FindParking";
 import AboutUs from "./pages/AboutUs";
 import FAQ from "./pages/FAQ";
 import News from "./pages/News";
+import NewsArticle from "./pages/NewsArticle";
 import ProductPage from "./pages/ProductPage";
 import RentOutYourSpace from "./pages/RentOutYourSpace";
 import NotFound from "./pages/NotFound";
@@ -33,6 +34,7 @@ const App = () => (
           <Route path="/about-us" element={<AboutUs />} />
           <Route path="/faq" element={<FAQ />} />
           <Route path="/news" element={<News />} />
+          <Route path="/news/:slug" element={<NewsArticle />} />
           <Route path="/rent-out-your-space" element={<RentOutYourSpace />} />
           <Route path="/parking/:id" element={<ProductPage />} />
           {/* Zone Pages */}
