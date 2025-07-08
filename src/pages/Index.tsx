@@ -47,7 +47,7 @@ const Index = () => {
                   </div>
                   {/* Phone Image positioned next to text */}
                   <img 
-                    src="/lovable-uploads/20c287e2-e6e7-4c77-9fb2-30d50523dbca.png" 
+                    src="/lovable-uploads/645ad921-4efc-4172-858a-ce781e236f08.png" 
                     alt="Shazam Parking Mobile App"
                     className="max-w-xs h-auto hidden lg:block"
                   />
@@ -64,7 +64,7 @@ const Index = () => {
             {/* Mobile Phone Image for smaller screens */}
             <div className="lg:hidden mt-8">
               <img 
-                src="/lovable-uploads/20c287e2-e6e7-4c77-9fb2-30d50523dbca.png" 
+                src="/lovable-uploads/645ad921-4efc-4172-858a-ce781e236f08.png" 
                 alt="Shazam Parking Mobile App"
                 className="max-w-xs h-auto mx-auto"
               />
