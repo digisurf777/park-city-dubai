@@ -20,13 +20,12 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2">
             <img 
               src="/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.png" 
               alt="Shazam Parking" 
               className="h-10 w-auto"
             />
-            <span className="text-white font-bold text-xl">SHAZAM PARKING</span>
           </div>
 
           {/* Desktop Navigation */}
