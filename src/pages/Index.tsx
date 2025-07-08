@@ -31,31 +31,37 @@ const Index = () => {
         }}
       >
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-white animate-fade-in">
-          <div className="flex flex-col items-center justify-center min-h-screen text-center">
-            <h1 
-              className="text-4xl md:text-6xl lg:text-7xl font-light mb-12 leading-tight"
-              style={{
-                textShadow: '3px 3px 12px rgba(0, 0, 0, 0.9), 0 0 30px rgba(0, 0, 0, 0.7)',
-                fontWeight: '300'
-              }}
-            >
-              YOUR TRUSTED PARKING PLATFORM IN DUBAI
-            </h1>
+          <div className="flex flex-col lg:flex-row items-center justify-between min-h-screen">
+            {/* Left side - Text */}
+            <div className="text-left lg:flex-1">
+              <h1 
+                className="text-4xl md:text-6xl lg:text-7xl font-light mb-12 leading-tight"
+                style={{
+                  textShadow: '3px 3px 12px rgba(0, 0, 0, 0.9), 0 0 30px rgba(0, 0, 0, 0.7)',
+                  fontWeight: '300'
+                }}
+              >
+                YOUR TRUSTED PARKING PLATFORM IN DUBAI
+              </h1>
+            </div>
             
-            <Link to="/my-account" className="mb-12">
+            {/* Right side - Phone Image */}
+            <div className="lg:flex-1 flex justify-center lg:justify-end">
+              <img 
+                src="/lovable-uploads/df7ee9c3-3bac-4642-b31e-a35557e4b211.png" 
+                alt="Shazam Parking Mobile App"
+                className="max-w-md h-auto"
+              />
+            </div>
+          </div>
+          
+          {/* CTA Button - Centered */}
+          <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2">
+            <Link to="/my-account">
               <Button className="bg-primary hover:bg-primary/90 text-white px-8 py-4 text-lg font-semibold rounded-full">
                 LOGIN / SIGN UP
               </Button>
             </Link>
-            
-            {/* Phone Image positioned lower */}
-            <div className="mt-8">
-              <img 
-                src="/lovable-uploads/df7ee9c3-3bac-4642-b31e-a35557e4b211.png" 
-                alt="Shazam Parking Mobile App"
-                className="max-w-md h-auto mx-auto"
-              />
-            </div>
           </div>
         </div>
       </section>
