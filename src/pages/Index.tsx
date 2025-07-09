@@ -230,8 +230,13 @@ const Index = () => {
       {/* Steps Section */}
       <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-gray-900 mb-6">
+              Rent a parking space in just 3 simple steps
+            </h2>
+          </div>
+          <div className="flex justify-center">
+            <img src="/lovable-uploads/d0df124f-405d-49cb-8c2d-b4ee6829cadf.png" alt="Three simple steps to rent parking" className="max-w-4xl w-full" />
           </div>
         </div>
       </section>
