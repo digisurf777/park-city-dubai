@@ -167,7 +167,7 @@ const FindParking = () => {
       <div className="relative h-[500px] bg-gradient-to-r from-primary/10 to-primary/5">
         <div className="absolute inset-0 bg-black/40"></div>
         <div 
-          className="absolute inset-0 bg-cover bg-center"
+          className="absolute inset-0 bg-cover bg-bottom"
           style={{
             backgroundImage: 'url("/lovable-uploads/fa1ebb65-a439-4ecf-902a-16d18fc92f16.png")'
           }}
