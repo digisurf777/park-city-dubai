@@ -14,7 +14,7 @@ const AboutUs = () => {
         <div 
           className="absolute inset-0 bg-cover bg-center"
           style={{
-            backgroundImage: 'url("/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png")'
+            backgroundImage: 'url("/lovable-uploads/bff8556c-9c7b-4765-820d-b007ca48c5ac.png")'
           }}
         ></div>
         <div className="relative z-10 flex items-center justify-center h-full">
