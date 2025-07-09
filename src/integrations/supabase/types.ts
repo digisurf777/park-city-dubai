@@ -14,7 +14,75 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      parking_bookings: {
+        Row: {
+          cost_aed: number
+          created_at: string
+          duration_hours: number
+          end_time: string
+          id: string
+          location: string
+          start_time: string
+          status: string
+          updated_at: string
+          user_id: string
+          zone: string
+        }
+        Insert: {
+          cost_aed: number
+          created_at?: string
+          duration_hours: number
+          end_time: string
+          id?: string
+          location: string
+          start_time: string
+          status?: string
+          updated_at?: string
+          user_id: string
+          zone: string
+        }
+        Update: {
+          cost_aed?: number
+          created_at?: string
+          duration_hours?: number
+          end_time?: string
+          id?: string
+          location?: string
+          start_time?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+          zone?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          full_name: string | null
+          id: string
+          phone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

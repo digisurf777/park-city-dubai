@@ -8,12 +8,14 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
-import { MapPin, Menu, X, ChevronDown } from "lucide-react";
+import { MapPin, Menu, X, ChevronDown, User } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, signOut } = useAuth();
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-white/80 border-b border-white/20 shadow-lg">
@@ -103,16 +105,34 @@ const Navbar = () => {
 
           {/* Auth Buttons */}
           <div className="hidden md:flex items-center space-x-4">
-            <Link to="/my-account">
-              <Button variant="ghost" className="text-gray-700 hover:text-primary">
-                Login / Sign Up
-              </Button>
-            </Link>
-            <Link to="/rent-out-your-space">
-              <Button className="bg-primary hover:bg-primary/90 text-white">
-                List Your Space
-              </Button>
-            </Link>
+            {user ? (
+              <>
+                <Link to="/my-account">
+                  <Button variant="ghost" className="text-gray-700 hover:text-primary">
+                    <User className="mr-2 h-4 w-4" />
+                    My Account
+                  </Button>
+                </Link>
+                <Link to="/rent-out-your-space">
+                  <Button className="bg-primary hover:bg-primary/90 text-white">
+                    List Your Space
+                  </Button>
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link to="/auth">
+                  <Button variant="ghost" className="text-gray-700 hover:text-primary">
+                    Login / Sign Up
+                  </Button>
+                </Link>
+                <Link to="/rent-out-your-space">
+                  <Button className="bg-primary hover:bg-primary/90 text-white">
+                    List Your Space
+                  </Button>
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -216,16 +236,34 @@ const Navbar = () => {
                 News
               </Link>
               <div className="pt-4 space-y-2">
-                <Link to="/my-account">
-                  <Button variant="ghost" className="w-full text-gray-700 hover:text-primary">
-                    Login / Sign Up
-                  </Button>
-                </Link>
-                <Link to="/rent-out-your-space">
-                  <Button className="w-full bg-primary hover:bg-primary/90 text-white">
-                    List Your Space
-                  </Button>
-                </Link>
+                {user ? (
+                  <>
+                    <Link to="/my-account">
+                      <Button variant="ghost" className="w-full text-gray-700 hover:text-primary">
+                        <User className="mr-2 h-4 w-4" />
+                        My Account
+                      </Button>
+                    </Link>
+                    <Link to="/rent-out-your-space">
+                      <Button className="w-full bg-primary hover:bg-primary/90 text-white">
+                        List Your Space
+                      </Button>
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    <Link to="/auth">
+                      <Button variant="ghost" className="w-full text-gray-700 hover:text-primary">
+                        Login / Sign Up
+                      </Button>
+                    </Link>
+                    <Link to="/rent-out-your-space">
+                      <Button className="w-full bg-primary hover:bg-primary/90 text-white">
+                        List Your Space
+                      </Button>
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           </div>
