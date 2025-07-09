@@ -3,67 +3,45 @@ import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { format } from "date-fns";
+
+interface BlogPost {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  featured_image_url: string;
+  author: string;
+  published_date: string;
+  category: string;
+}
 
 const News = () => {
-  // Simple function to get predictable image paths
-  const getNewsImage = (articleId: number) => `/news/news-${articleId}.jpg`;
-  
-  const newsArticles = [
-    {
-      id: 4,
-      title: "Navigating Parking Near Dubai's Newest Megaprojects: A Guide for Residents and Visitors",
-      excerpt: "Dubai's skyline is growing by the day. From stunning new developments to massive business and lifestyle destinations, the city is undergoing an urban revolution. But amid the excitement and opportunity, there's one challenge that keeps popping up for residents and visitors alike: where to park.",
-      date: "July 8, 2025",
-      author: "admin",
-      category: "ShazamParking",
-      slug: "navigating-parking-near-dubais-newest-megaprojects"
-    },
-    {
-      id: 1,
-      title: "Top 5 Ways to Commute Around Dubai in 2025",
-      excerpt: "Dubai is a city built for growth. Gleaming towers, expanding communities and a never-ending flow of new residents mean commuting wisely has become an art. Should you drive yourself, hop on...",
-      date: "July 5, 2025",
-      author: "admin",
-      category: "ShazamParking",
-      slug: "top-5-smart-ways-to-commute-around-dubai-in-2025"
-    },
-    {
-      id: 2,
-      title: "Top 10 Ways to Meet New People in Dubai",
-      excerpt: "Whether you're a brand-new expat, long-term resident, digital nomad, or just someone looking to meet people in Dubai, you're in the right city. With its vibrant international mix and endless...",
-      date: "July 5, 2025",
-      author: "admin",
-      category: "ShazamParking",
-      slug: "top-10-ways-to-meet-new-people-in-dubai"
-    },
-    {
-      id: 3,
-      title: "How to Turn Your Empty Parking Bay into Monthly Passive Income with ShazamParking",
-      excerpt: "Have an unused parking space sitting empty? Transform it into a steady income stream with ShazamParking. Learn how property owners across Dubai are earning hundreds of dirhams monthly...",
-      date: "July 5, 2025",
-      author: "admin",
-      category: "ShazamParking",
-      slug: "turn-parking-bay-into-passive-income"
-    },
-    {
-      id: 5,
-      title: "How AI Tools Like ChatGPT Are Empowering UAE Consumers: 10 Real-World Examples",
-      excerpt: "In the UAE's mobile-first economy, residents have become some of the world's most sophisticated consumers. A key driver is the rise of powerful AI chat tools such as ChatGPT. These models distil complex regulations, compare financial products and even flag hidden fees helping you save time and money while avoiding costly mistakes.",
-      date: "July 2, 2025",
-      author: "admin",
-      category: "ShazamParking",
-      slug: "how-ai-tools-like-chatgpt-are-empowering-uae-consumers"
-    },
-    {
-      id: 6,
-      title: "How to Find an Apartment in Dubai: A Practical Guide for Newcomers to the UAE",
-      excerpt: "Are you moving to Dubai and searching for a place to live? This guide walks you through the process of renting an apartment in Dubai step by step. Whether you're an expat, digital nomad, or long-term visitor, this SEO-optimized article will help you find the right home and understand Dubai's rental process.",
-      date: "June 29, 2025",
-      author: "admin",
-      category: "ShazamParking",
-      slug: "how-to-find-apartment-in-dubai-guide-for-newcomers"
-    }
-  ];
+  const [newsArticles, setNewsArticles] = useState<BlogPost[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchBlogPosts = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('blog_posts')
+          .select('id, title, slug, excerpt, featured_image_url, author, published_date, category')
+          .eq('status', 'published')
+          .order('published_date', { ascending: false });
+
+        if (error) throw error;
+        setNewsArticles(data || []);
+      } catch (error) {
+        console.error('Error fetching blog posts:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBlogPosts();
+  }, []);
 
   return (
     <div className="min-h-screen bg-background animate-zoom-slow">
@@ -88,24 +66,29 @@ const News = () => {
 
       {/* News Grid */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {newsArticles.map((article) => (
-            <Card key={article.id} className="overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-              <div className="relative aspect-video">
-                <img
-                  src={getNewsImage(article.id)}
-                  alt={article.title}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              
-              <CardContent className="p-6">
-                <div className="flex items-center gap-2 mb-3">
-                  <Badge variant="outline" className="text-xs">
-                    {article.category}
-                  </Badge>
-                  <span className="text-xs text-muted-foreground">{article.date}</span>
+        {loading ? (
+          <div className="text-center">Loading articles...</div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {newsArticles.map((article) => (
+              <Card key={article.id} className="overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+                <div className="relative aspect-video">
+                  <img
+                    src={article.featured_image_url || '/news/hero.jpg'}
+                    alt={article.title}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
+                
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Badge variant="outline" className="text-xs">
+                      {article.category}
+                    </Badge>
+                    <span className="text-xs text-muted-foreground">
+                      {format(new Date(article.published_date), 'MMMM d, yyyy')}
+                    </span>
+                  </div>
                 
                 <h3 className="text-lg font-bold mb-3 line-clamp-2">
                   <Link 
@@ -134,8 +117,9 @@ const News = () => {
                 </div>
               </CardContent>
             </Card>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <Footer />
