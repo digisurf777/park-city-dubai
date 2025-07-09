@@ -101,6 +101,9 @@ const Navbar = () => {
             <Link to="/news" className="text-gray-700 hover:text-primary transition-colors">
               News
             </Link>
+            <Link to="/calculator" className="text-gray-700 hover:text-primary transition-colors">
+              Calculator
+            </Link>
           </div>
 
           {/* Auth Buttons */}
@@ -234,6 +237,13 @@ const Navbar = () => {
                 onClick={() => setIsMenuOpen(false)}
               >
                 News
+              </Link>
+              <Link
+                to="/calculator"
+                className="block text-gray-700 hover:text-primary transition-colors py-2"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Calculator
               </Link>
               <div className="pt-4 space-y-2">
                 {user ? (

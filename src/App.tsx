@@ -14,6 +14,7 @@ import News from "./pages/News";
 import NewsArticle from "./pages/NewsArticle";
 import ProductPage from "./pages/ProductPage";
 import RentOutYourSpace from "./pages/RentOutYourSpace";
+import Calculator from "./pages/Calculator";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import MyAccount from "./pages/MyAccount";
@@ -43,6 +44,7 @@ const App = () => (
               <Route path="/news" element={<News />} />
               <Route path="/news/:slug" element={<NewsArticle />} />
               <Route path="/rent-out-your-space" element={<RentOutYourSpace />} />
+              <Route path="/calculator" element={<Calculator />} />
               <Route path="/parking/:id" element={<ProductPage />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/my-account" element={<ProtectedRoute><MyAccount /></ProtectedRoute>} />
