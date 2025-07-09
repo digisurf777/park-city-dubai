@@ -231,7 +231,7 @@ const Index = () => {
       <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <img src="/lovable-uploads/747c1f5d-d6b2-4f6a-94a2-aca1927ee856.png" alt="Find parking in just 3 simple steps" className="w-full max-w-4xl mx-auto px-4" />
+            
           </div>
         </div>
       </section>
