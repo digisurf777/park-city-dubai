@@ -15,43 +15,31 @@ import palmJumeirahZone from "@/assets/zones/palm-jumeirah.jpg";
 import businessBayZone from "@/assets/zones/business-bay.jpg";
 import difcZone from "@/assets/zones/difc.jpg";
 import deiraZone from "@/assets/zones/deira.jpg";
-
 const Index = () => {
-  return (
-    <div className="min-h-screen bg-white">
+  return <div className="min-h-screen bg-white">
       <Navbar />
       
       {/* Hero Section */}
-      <section 
-        className="relative min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat animate-fade-in"
-        style={{
-          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('/lovable-uploads/25c56481-0d03-4055-bd47-67635ac0d1b0.png')`,
-          backgroundSize: 'cover',
-          animation: 'zoom-slow 20s ease-in-out infinite alternate'
-        }}
-      >
+      <section className="relative min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat animate-fade-in" style={{
+      backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('/lovable-uploads/25c56481-0d03-4055-bd47-67635ac0d1b0.png')`,
+      backgroundSize: 'cover',
+      animation: 'zoom-slow 20s ease-in-out infinite alternate'
+    }}>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-white animate-fade-in">
           <div className="flex flex-col lg:flex-row items-center justify-between min-h-screen">
             {/* Left side - Text */}
             <div className="text-left lg:flex-1">
-              <h1 
-                className="text-4xl md:text-6xl lg:text-7xl font-light mb-12 leading-tight"
-                style={{
-                  textShadow: '3px 3px 12px rgba(0, 0, 0, 0.9), 0 0 30px rgba(0, 0, 0, 0.7)',
-                  fontWeight: '300'
-                }}
-              >
+              <h1 className="text-4xl md:text-6xl lg:text-7xl font-light mb-12 leading-tight" style={{
+              textShadow: '3px 3px 12px rgba(0, 0, 0, 0.9), 0 0 30px rgba(0, 0, 0, 0.7)',
+              fontWeight: '300'
+            }}>
                 YOUR TRUSTED PARKING PLATFORM IN DUBAI
               </h1>
             </div>
             
             {/* Right side - Phone Image */}
             <div className="lg:flex-1 flex justify-center lg:justify-end">
-              <img 
-                src="/lovable-uploads/df7ee9c3-3bac-4642-b31e-a35557e4b211.png" 
-                alt="Shazam Parking Mobile App"
-                className="max-w-md h-auto"
-              />
+              <img src="/lovable-uploads/df7ee9c3-3bac-4642-b31e-a35557e4b211.png" alt="Shazam Parking Mobile App" className="max-w-md h-auto" />
             </div>
           </div>
           
@@ -76,21 +64,33 @@ const Index = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[
-              { name: "Dubai Marina", link: "/find-parking?district=dubai-marina", image: dubaiMarinaZone },
-              { name: "Downtown", link: "/find-parking?district=downtown", image: downtownZone },
-              { name: "Palm Jumeirah", link: "/find-parking?district=palm-jumeirah", image: palmJumeirahZone },
-              { name: "Business Bay", link: "/find-parking?district=business-bay", image: businessBayZone },
-              { name: "DIFC", link: "/find-parking?district=difc", image: difcZone },
-              { name: "Deira", link: "/find-parking?district=deira", image: deiraZone }
-            ].map((location, index) => (
-              <Card key={index} className="overflow-hidden hover:shadow-xl transition-all duration-300 group">
+            {[{
+            name: "Dubai Marina",
+            link: "/find-parking?district=dubai-marina",
+            image: dubaiMarinaZone
+          }, {
+            name: "Downtown",
+            link: "/find-parking?district=downtown",
+            image: downtownZone
+          }, {
+            name: "Palm Jumeirah",
+            link: "/find-parking?district=palm-jumeirah",
+            image: palmJumeirahZone
+          }, {
+            name: "Business Bay",
+            link: "/find-parking?district=business-bay",
+            image: businessBayZone
+          }, {
+            name: "DIFC",
+            link: "/find-parking?district=difc",
+            image: difcZone
+          }, {
+            name: "Deira",
+            link: "/find-parking?district=deira",
+            image: deiraZone
+          }].map((location, index) => <Card key={index} className="overflow-hidden hover:shadow-xl transition-all duration-300 group">
                 <div className="relative aspect-video">
-                  <img 
-                    src={location.image} 
-                    alt={location.name}
-                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                  />
+                  <img src={location.image} alt={location.name} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
                   <div className="absolute inset-0 bg-black bg-opacity-40 transition-opacity group-hover:bg-opacity-30"></div>
                   <div className="absolute inset-0 flex flex-col items-center justify-center text-white p-6">
                     <h3 className="text-2xl font-bold mb-4 uppercase text-center">{location.name}</h3>
@@ -101,8 +101,7 @@ const Index = () => {
                     </Link>
                   </div>
                 </div>
-              </Card>
-            ))}
+              </Card>)}
           </div>
         </div>
       </section>
@@ -168,11 +167,7 @@ const Index = () => {
               </Link>
             </div>
             <div>
-              <img 
-                src={luxuryCar} 
-                alt="Luxury car in Dubai"
-                className="w-full rounded-lg shadow-lg"
-              />
+              <img src={luxuryCar} alt="Luxury car in Dubai" className="w-full rounded-lg shadow-lg" />
             </div>
           </div>
         </div>
@@ -183,11 +178,7 @@ const Index = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="order-2 lg:order-1">
-              <img 
-                src={dubaihero} 
-                alt="Dubai UAE skyline"
-                className="w-full rounded-lg shadow-lg"
-              />
+              <img src={dubaihero} alt="Dubai UAE skyline" className="w-full rounded-lg shadow-lg" />
             </div>
             <div className="order-1 lg:order-2">
               <h2 className="text-4xl font-bold text-gray-900 mb-6">
@@ -231,11 +222,7 @@ const Index = () => {
             <h3 className="text-2xl text-gray-700 mb-8">
               We are the quickest, easiest, and the most secure way to rent a parking space in Dubai!
             </h3>
-            <img 
-              src={businessMan} 
-              alt="Successful businessman"
-              className="mx-auto rounded-lg shadow-lg max-w-2xl w-full"
-            />
+            <img src={businessMan} alt="Successful businessman" className="mx-auto rounded-lg shadow-lg max-w-2xl w-full" />
           </div>
         </div>
       </section>
@@ -244,11 +231,7 @@ const Index = () => {
       <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <img 
-              src="/lovable-uploads/747c1f5d-d6b2-4f6a-94a2-aca1927ee856.png"
-              alt="Find parking in just 3 simple steps"
-              className="w-full max-w-4xl mx-auto px-4"
-            />
+            <img src="/lovable-uploads/747c1f5d-d6b2-4f6a-94a2-aca1927ee856.png" alt="Find parking in just 3 simple steps" className="w-full max-w-4xl mx-auto px-4" />
           </div>
         </div>
       </section>
@@ -263,26 +246,20 @@ const Index = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              {
-                quote: "ShazamParking is a game-changer for anyone looking for a stress-free parking experience, it's easy to use, reliable and convenient.",
-                name: "Aaliyah Armasi"
-              },
-              {
-                quote: "I highly recommend ShazamParking, it offers an easy-to-use platform, a wide range of parking options, and excellent customer service, making it the perfect parking solution.",
-                name: "Ahmed Mohammed"
-              },
-              {
-                quote: "ShazamParking is my go-to platform for parking, it's user-friendly, reliable, and offers a wide range of options, making it convenient and easy to find a parking spot.",
-                name: "Murtaza Hussain"
-              }
-            ].map((testimonial, index) => (
-              <Card key={index} className="p-8 hover:shadow-xl transition-all duration-300">
+            {[{
+            quote: "ShazamParking is a game-changer for anyone looking for a stress-free parking experience, it's easy to use, reliable and convenient.",
+            name: "Aaliyah Armasi"
+          }, {
+            quote: "I highly recommend ShazamParking, it offers an easy-to-use platform, a wide range of parking options, and excellent customer service, making it the perfect parking solution.",
+            name: "Ahmed Mohammed"
+          }, {
+            quote: "ShazamParking is my go-to platform for parking, it's user-friendly, reliable, and offers a wide range of options, making it convenient and easy to find a parking spot.",
+            name: "Murtaza Hussain"
+          }].map((testimonial, index) => <Card key={index} className="p-8 hover:shadow-xl transition-all duration-300">
                 <Quote className="h-8 w-8 text-primary mb-4" />
                 <p className="text-gray-600 mb-6 italic">"{testimonial.quote}"</p>
                 <h4 className="font-semibold text-gray-900">{testimonial.name}</h4>
-              </Card>
-            ))}
+              </Card>)}
           </div>
         </div>
       </section>
@@ -302,24 +279,7 @@ const Index = () => {
       </section>
 
       {/* Stats Strip */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-            <div>
-              <h3 className="text-4xl font-bold text-primary mb-2">250+</h3>
-              <p className="text-gray-600">Spaces Listed</p>
-            </div>
-            <div>
-              <h3 className="text-4xl font-bold text-primary mb-2">98%</h3>
-              <p className="text-gray-600">Occupancy Rate</p>
-            </div>
-            <div>
-              <h3 className="text-4xl font-bold text-primary mb-2">4.9★</h3>
-              <p className="text-gray-600">Average Rating</p>
-            </div>
-          </div>
-        </div>
-      </section>
+      
 
       {/* Final CTA */}
       <section className="py-20 bg-gray-50">
@@ -342,8 +302,6 @@ const Index = () => {
       </section>
 
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
