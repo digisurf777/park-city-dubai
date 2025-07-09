@@ -137,43 +137,91 @@ async function fetchArticleContent(url: string): Promise<Partial<BlogPost> | nul
     const doc = new DOMParser().parseFromString(html, 'text/html')
     
     // Extract title
-    const titleEl = doc.querySelector('h1.entry-title, h1.post-title, h1, .entry-title, .post-title')
+    const titleEl = doc.querySelector('h1.entry-title, h1.post-title, h1, .entry-title, .post-title, .single-post-title')
     const title = titleEl?.textContent?.trim() || 'Untitled'
     
-    // Extract content
-    const contentEl = doc.querySelector('.entry-content, .post-content, .content, article .entry-content, main .entry-content')
+    // Extract content with enhanced formatting
+    const contentEl = doc.querySelector('.entry-content, .post-content, .content, article .entry-content, main .entry-content, .single-post-content')
     let content = ''
     
     if (contentEl) {
-      // Clean up the content - remove script tags, style tags, etc.
-      const scripts = contentEl.querySelectorAll('script, style, noscript')
-      scripts.forEach(el => el.remove())
+      // Clean up the content - remove unwanted elements
+      const unwantedElements = contentEl.querySelectorAll('script, style, noscript, .sharedaddy, .jp-relatedposts, .navigation, .comments, .comment-form')
+      unwantedElements.forEach(el => el.remove())
       
+      // Get raw HTML content
       content = contentEl.innerHTML || contentEl.textContent || ''
+      
+      // Enhanced content formatting
+      content = formatContentWithHeaders(content)
       
       // Convert relative URLs to absolute
       content = content.replace(/src="\/wp-content/g, 'src="https://shazamparking.ae/wp-content')
       content = content.replace(/href="\/(?!http)/g, 'href="https://shazamparking.ae/')
+      content = content.replace(/src="\/uploads/g, 'src="https://shazamparking.ae/uploads')
+      
+      // Ensure images have proper styling
+      content = content.replace(/<img([^>]*)>/g, '<img$1 style="max-width: 100%; height: auto; margin: 1rem 0; border-radius: 8px;">')
     }
     
-    // Extract featured image
+    // Extract featured image with multiple fallbacks
     let featuredImage = ''
-    const imageEl = doc.querySelector('.wp-post-image, .featured-image img, .post-thumbnail img, .entry-image img, meta[property="og:image"]')
-    if (imageEl) {
-      featuredImage = imageEl.getAttribute('src') || imageEl.getAttribute('content') || ''
-      if (featuredImage && !featuredImage.startsWith('http')) {
-        featuredImage = 'https://shazamparking.ae' + featuredImage
+    const imageSelectors = [
+      '.wp-post-image',
+      '.featured-image img',
+      '.post-thumbnail img', 
+      '.entry-image img',
+      'meta[property="og:image"]',
+      '.single-post-thumbnail img',
+      'article img:first-of-type'
+    ]
+    
+    for (const selector of imageSelectors) {
+      const imageEl = doc.querySelector(selector)
+      if (imageEl) {
+        featuredImage = imageEl.getAttribute('src') || imageEl.getAttribute('content') || ''
+        if (featuredImage) break
       }
     }
     
-    // Extract date
-    const dateEl = doc.querySelector('time, .post-date, .entry-date, .published')
-    let publishedDate = dateEl?.getAttribute('datetime') || dateEl?.textContent || ''
+    if (featuredImage && !featuredImage.startsWith('http')) {
+      featuredImage = 'https://shazamparking.ae' + featuredImage
+    }
     
-    // Parse and format date
+    // Enhanced date extraction
+    let publishedDate = ''
+    const dateSelectors = [
+      'time[datetime]',
+      '.post-date',
+      '.entry-date', 
+      '.published',
+      'meta[property="article:published_time"]',
+      '.date'
+    ]
+    
+    for (const selector of dateSelectors) {
+      const dateEl = doc.querySelector(selector)
+      if (dateEl) {
+        publishedDate = dateEl.getAttribute('datetime') || 
+                      dateEl.getAttribute('content') || 
+                      dateEl.textContent || ''
+        if (publishedDate) break
+      }
+    }
+    
+    // Parse and format date with better handling
     if (publishedDate) {
       try {
-        const date = new Date(publishedDate)
+        // Handle various date formats
+        let date = new Date(publishedDate)
+        if (isNaN(date.getTime())) {
+          // Try parsing common formats
+          const dateRegex = /(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/
+          const match = publishedDate.match(dateRegex)
+          if (match) {
+            date = new Date(`${match[3]}-${match[2].padStart(2, '0')}-${match[1].padStart(2, '0')}`)
+          }
+        }
         publishedDate = date.toISOString()
       } catch {
         publishedDate = new Date().toISOString()
@@ -182,21 +230,51 @@ async function fetchArticleContent(url: string): Promise<Partial<BlogPost> | nul
       publishedDate = new Date().toISOString()
     }
     
-    // Extract excerpt from meta description or first paragraph
+    // Enhanced excerpt extraction
     let excerpt = ''
     const metaDesc = doc.querySelector('meta[name="description"]')
     if (metaDesc) {
       excerpt = metaDesc.getAttribute('content') || ''
     } else {
-      const firstP = contentEl?.querySelector('p')
-      if (firstP) {
-        excerpt = firstP.textContent?.trim().substring(0, 250) + '...' || ''
+      // Extract from first meaningful paragraph
+      const paragraphs = contentEl?.querySelectorAll('p')
+      if (paragraphs && paragraphs.length > 0) {
+        for (const p of paragraphs) {
+          const text = p.textContent?.trim() || ''
+          if (text.length > 50) {
+            excerpt = text.substring(0, 200) + '...'
+            break
+          }
+        }
       }
     }
     
-    // Generate slug from URL
+    // Generate SEO-friendly slug from URL
     const urlParts = url.split('/')
-    const slug = urlParts[urlParts.length - 2] || urlParts[urlParts.length - 1] || title.toLowerCase().replace(/[^a-z0-9]/g, '-')
+    let slug = urlParts[urlParts.length - 2] || urlParts[urlParts.length - 1] || ''
+    
+    // Clean up slug
+    if (!slug || slug === '') {
+      slug = title.toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .trim('-')
+    }
+    
+    // Extract author
+    let author = 'admin'
+    const authorEl = doc.querySelector('.author-name, .post-author, .entry-author, .author')
+    if (authorEl) {
+      author = authorEl.textContent?.trim() || 'admin'
+    }
+    
+    // Extract category
+    let category = 'ShazamParking'
+    const categoryEl = doc.querySelector('.post-category, .entry-category, .category')
+    if (categoryEl) {
+      category = categoryEl.textContent?.trim() || 'ShazamParking'
+    }
     
     return {
       title,
@@ -205,6 +283,8 @@ async function fetchArticleContent(url: string): Promise<Partial<BlogPost> | nul
       content,
       featured_image_url: featuredImage,
       published_date: publishedDate,
+      author,
+      category,
       meta_title: title,
       meta_description: excerpt
     }
@@ -213,6 +293,34 @@ async function fetchArticleContent(url: string): Promise<Partial<BlogPost> | nul
     console.error(`Error fetching article ${url}:`, error)
     return null
   }
+}
+
+function formatContentWithHeaders(content: string): string {
+  // Add proper header styling and structure
+  content = content.replace(/<h([1-6])([^>]*)>/g, '<h$1$2 style="font-weight: bold; margin: 2rem 0 1rem 0; color: #1a1a1a; line-height: 1.3;">')
+  
+  // Style H2 headers prominently
+  content = content.replace(/<h2([^>]*)>/g, '<h2$1 style="font-size: 1.75rem; font-weight: bold; margin: 2.5rem 0 1rem 0; color: #00B67A; line-height: 1.3; border-bottom: 2px solid #00B67A; padding-bottom: 0.5rem;">')
+  
+  // Style H3 headers
+  content = content.replace(/<h3([^>]*)>/g, '<h3$1 style="font-size: 1.4rem; font-weight: bold; margin: 2rem 0 1rem 0; color: #333; line-height: 1.3;">')
+  
+  // Improve paragraph spacing
+  content = content.replace(/<p([^>]*)>/g, '<p$1 style="margin: 1rem 0; line-height: 1.7; color: #666;">')
+  
+  // Style lists
+  content = content.replace(/<ul([^>]*)>/g, '<ul$1 style="margin: 1rem 0; padding-left: 1.5rem; color: #666;">')
+  content = content.replace(/<ol([^>]*)>/g, '<ol$1 style="margin: 1rem 0; padding-left: 1.5rem; color: #666;">')
+  content = content.replace(/<li([^>]*)>/g, '<li$1 style="margin: 0.5rem 0; line-height: 1.6;">')
+  
+  // Style links
+  content = content.replace(/<a([^>]*)>/g, '<a$1 style="color: #00B67A; text-decoration: underline;">')
+  
+  // Style strong/bold text
+  content = content.replace(/<strong([^>]*)>/g, '<strong$1 style="font-weight: bold; color: #333;">')
+  content = content.replace(/<b([^>]*)>/g, '<b$1 style="font-weight: bold; color: #333;">')
+  
+  return content
 }
 
 serve(async (req) => {
@@ -248,7 +356,7 @@ serve(async (req) => {
     // Fetch content for each article
     const blogPosts: BlogPost[] = []
     
-    for (const link of articleLinks.slice(0, 10)) { // Limit to first 10 to avoid timeouts
+    for (const link of articleLinks) { // Process all articles
       console.log(`Processing: ${link.title}`)
       const articleContent = await fetchArticleContent(link.url)
       
