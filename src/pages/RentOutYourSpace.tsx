@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Upload, CheckCircle, Wallet, Quote } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import ParkingCalculator from "@/components/ParkingCalculator";
 import { useState } from "react";
 import luxuryCar from "@/assets/luxury-car-dubai.png";
 import phoneLogo from "@/assets/phone-logo.png";
@@ -116,6 +117,21 @@ const RentOutYourSpace = () => {
               />
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Parking Calculator */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-gray-900 mb-6">
+              Calculate Your Earnings
+            </h2>
+            <p className="text-xl text-gray-600">
+              See exactly how much you'll earn monthly with our transparent calculator
+            </p>
+          </div>
+          <ParkingCalculator />
         </div>
       </section>
 

@@ -225,9 +225,17 @@ const ParkingCalculator = () => {
                 </span>
               )}
             </p>
-            <Button className="bg-green-600 hover:bg-green-700">
-              Submit Your Parking Space
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button className="bg-green-600 hover:bg-green-700">
+                Submit Your Parking Space
+              </Button>
+              <Button 
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+                onClick={() => window.open('https://buy.stripe.com/fZu8wO7jv4pP37o4oP18c00', '_blank')}
+              >
+                PAY NOW
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>
