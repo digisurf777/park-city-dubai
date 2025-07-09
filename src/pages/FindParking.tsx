@@ -58,7 +58,7 @@ const FindParking = () => {
   const parkingSpots = [
     {
       id: 1,
-      name: "Marina Gate Parking Bay",
+      name: "Marina Gate Parking",
       district: "Dubai Marina",
       price: 450,
       image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
