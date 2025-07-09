@@ -8,6 +8,7 @@ import { MapPin, Search, X, Car, CreditCard, Ruler } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 import { useSearchParams, Link } from "react-router-dom";
 import dubaiMarinaZone from "@/assets/zones/dubai-marina.jpg";
 import downtownZone from "@/assets/zones/downtown.jpg";
@@ -163,18 +164,20 @@ const FindParking = () => {
       <Navbar />
       
       {/* Hero Section */}
-      <div className="relative h-[400px] bg-gradient-to-r from-primary/10 to-primary/5">
-        <div className="absolute inset-0 bg-black/35"></div>
+      <div className="relative h-[500px] bg-gradient-to-r from-primary/10 to-primary/5">
+        <div className="absolute inset-0 bg-black/40"></div>
         <div 
           className="absolute inset-0 bg-cover bg-center"
           style={{
-            backgroundImage: 'url("https://shazamparking.ae/wp-content/uploads/2023/01/bigstock-Dubai-Uae-United-Arab-Emirat-466784755-1024x683.jpeg")'
+            backgroundImage: 'url("/lovable-uploads/fa1ebb65-a439-4ecf-902a-16d18fc92f16.png")'
           }}
         ></div>
         <div className="relative z-10 flex items-center justify-center h-full">
-          <div className="text-center text-white px-4">
-            <h1 className="text-5xl md:text-6xl font-bold mb-4">Find a Parking Space</h1>
-            <p className="text-xl md:text-2xl opacity-90">Browse secure monthly bays across Dubai</p>
+          <div className="text-center text-white px-4 max-w-4xl">
+            <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
+              We are the quickest, easiest, and the most secure way to rent a parking space in Dubai!
+            </h1>
+            <p className="text-lg md:text-xl opacity-90">Browse secure monthly bays across Dubai</p>
           </div>
         </div>
       </div>
@@ -310,95 +313,7 @@ const FindParking = () => {
         </div>
       </div>
 
-      {/* Results Section */}
-      <div id="listings-section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold text-foreground mb-2">Available Parking Spaces</h2>
-          <p className="text-muted-foreground">{filteredSpots.length} spaces found in Dubai</p>
-        </div>
-
-        {/* Listing Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredSpots.map((spot) => (
-            <Card key={spot.id} className="overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-              {/* Image */}
-              <div className="relative aspect-video">
-                <img
-                  src={spot.image}
-                  alt={spot.name}
-                  className="w-full h-full object-cover"
-                />
-                <Badge className="absolute top-4 left-4 bg-primary text-primary-foreground">
-                  From AED {spot.price} / month
-                </Badge>
-                {!spot.available && (
-                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                    <Badge variant="destructive">Not Available</Badge>
-                  </div>
-                )}
-              </div>
-
-              {/* Content */}
-              <div className="p-6">
-                <h3 className="text-lg font-bold text-foreground mb-1">{spot.name}</h3>
-                <p className="text-muted-foreground mb-4">{spot.district}</p>
-
-                {/* Specs */}
-                <div className="flex items-center gap-4 mb-4 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-1">
-                    <Car className="h-4 w-4" />
-                    <span>{spot.specs[0]}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <CreditCard className="h-4 w-4" />
-                    <span>{spot.specs[1]}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Ruler className="h-4 w-4" />
-                    <span>{spot.specs[2]}</span>
-                  </div>
-                </div>
-
-                {/* Reserve Button */}
-                {spot.available ? (
-                  <Link to={`/parking/${spot.id}`}>
-                    <Button 
-                      className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
-                    >
-                      Reserve
-                    </Button>
-                  </Link>
-                ) : (
-                  <Button 
-                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
-                    disabled
-                  >
-                    Not Available
-                  </Button>
-                )}
-              </div>
-            </Card>
-          ))}
-        </div>
-
-        {/* Load More */}
-        {filteredSpots.length > 0 && (
-          <div className="text-center mt-12">
-            <Button variant="outline" className="px-8 py-3">
-              Load More Parking Spaces
-            </Button>
-          </div>
-        )}
-
-        {filteredSpots.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground text-lg">No parking spaces found matching your criteria.</p>
-            <Button variant="outline" className="mt-4" onClick={clearFilters}>
-              Clear filters
-            </Button>
-          </div>
-        )}
-      </div>
+      <Footer />
     </div>
   );
 };
