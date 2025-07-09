@@ -6,6 +6,8 @@ import { HelmetProvider } from "react-helmet-async";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import LavableHome from "./pages/LavableHome";
+import LavableFAQ from "./pages/LavableFAQ";
 import Index from "./pages/Index";
 import FindParking from "./pages/FindParking";
 import AboutUs from "./pages/AboutUs";
@@ -36,6 +38,10 @@ const App = () => (
         <BrowserRouter>
           <AuthProvider>
             <Routes>
+              {/* Lavable Routes */}
+              <Route path="/lavable" element={<LavableHome />} />
+              <Route path="/lavable/faq" element={<LavableFAQ />} />
+              
               <Route path="/" element={<Index />} />
               <Route path="/find-parking" element={<FindParking />} />
               <Route path="/find-a-parking-space" element={<FindParking />} />
