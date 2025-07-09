@@ -16,7 +16,7 @@ import businessBayZone from "@/assets/zones/business-bay.jpg";
 import difcZone from "@/assets/zones/difc.jpg";
 import deiraZone from "@/assets/zones/deira.jpg";
 const Index = () => {
-  return <div className="min-h-screen bg-white">
+  return <div className="min-h-screen bg-white animate-zoom-slow">
       <Navbar />
       
       {/* Hero Section */}

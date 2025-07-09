@@ -66,7 +66,7 @@ const News = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background animate-zoom-slow">
       <Navbar />
       
       {/* Hero Section */}

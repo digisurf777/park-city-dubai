@@ -63,7 +63,7 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-4">
+    <div className="min-h-screen bg-background flex items-center justify-center px-4 animate-zoom-slow">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle className="text-center">Welcome to Shazam Parking</CardTitle>

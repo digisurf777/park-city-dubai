@@ -39,7 +39,7 @@ const RentOutYourSpace = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white animate-zoom-slow">
       <Navbar />
       
       {/* Hero Section */}
