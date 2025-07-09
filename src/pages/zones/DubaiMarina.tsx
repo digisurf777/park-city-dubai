@@ -18,7 +18,7 @@ const DubaiMarina = () => {
   const parkingSpots = [
     {
       id: 1,
-      name: "Marina Gate Parking Bay",
+      name: "Murjan 2",
       district: "Dubai Marina",
       price: 450,
       image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
@@ -26,13 +26,22 @@ const DubaiMarina = () => {
       available: true
     },
     {
-      id: 5,
-      name: "JLT Cluster Bay",
+      id: 2,
+      name: "Marina Residence",
       district: "Dubai Marina",
       price: 420,
       image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
       specs: ["Access Card", "Covered", "2.2m Height"],
       available: true
+    },
+    {
+      id: 3,
+      name: "Amwaj 4",
+      district: "Dubai Marina",
+      price: 480,
+      image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
+      specs: ["Access Card", "Covered", "2.0m Height"],
+      available: false
     }
   ];
 
@@ -66,7 +75,8 @@ const DubaiMarina = () => {
         <div className="relative z-10 flex items-center justify-center h-full">
           <div className="text-center text-white px-4">
             <h1 className="text-5xl md:text-6xl font-bold mb-4">Parking Spaces in Dubai Marina</h1>
-            <p className="text-xl md:text-2xl opacity-90">Secure monthly bays from AED {minPrice}</p>
+            <p className="text-xl md:text-2xl opacity-90">Picturesque waterfront district with stunning skyline</p>
+            <p className="text-lg md:text-xl opacity-80 mt-2">Secure monthly bays from AED {minPrice}</p>
           </div>
         </div>
       </div>

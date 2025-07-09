@@ -17,12 +17,21 @@ const Downtown = () => {
 
   const parkingSpots = [
     {
-      id: 3,
-      name: "Downtown Boulevard Space",
+      id: 1,
+      name: "The Lofts Central Tower",
       district: "Downtown",
-      price: 380,
+      price: 250,
       image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
       specs: ["Access Card", "Covered", "2.5m Height"],
+      available: true
+    },
+    {
+      id: 2,
+      name: "Burj Vista",
+      district: "Downtown",
+      price: 860,
+      image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
+      specs: ["Access Card", "Covered", "2.3m Height"],
       available: false
     }
   ];
@@ -57,7 +66,8 @@ const Downtown = () => {
         <div className="relative z-10 flex items-center justify-center h-full">
           <div className="text-center text-white px-4">
             <h1 className="text-5xl md:text-6xl font-bold mb-4">Parking Spaces in Downtown</h1>
-            <p className="text-xl md:text-2xl opacity-90">Secure monthly bays from AED {minPrice}</p>
+            <p className="text-xl md:text-2xl opacity-90">Home to Burj Khalifa, Dubai Fountain, and Dubai Mall</p>
+            <p className="text-lg md:text-xl opacity-80 mt-2">Secure monthly bays from AED {minPrice}</p>
           </div>
         </div>
       </div>
