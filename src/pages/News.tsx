@@ -10,6 +10,15 @@ const News = () => {
   
   const newsArticles = [
     {
+      id: 4,
+      title: "Navigating Parking Near Dubai's Newest Megaprojects: A Guide for Residents and Visitors",
+      excerpt: "Dubai's skyline is growing by the day. From stunning new developments to massive business and lifestyle destinations, the city is undergoing an urban revolution. But amid the excitement and opportunity, there's one challenge that keeps popping up for residents and visitors alike: where to park.",
+      date: "July 8, 2025",
+      author: "admin",
+      category: "ShazamParking",
+      slug: "navigating-parking-near-dubais-newest-megaprojects"
+    },
+    {
       id: 1,
       title: "Top 5 Ways to Commute Around Dubai in 2025",
       excerpt: "Dubai is a city built for growth. Gleaming towers, expanding communities and a never-ending flow of new residents mean commuting wisely has become an art. Should you drive yourself, hop on...",
@@ -35,6 +44,24 @@ const News = () => {
       author: "admin",
       category: "ShazamParking",
       slug: "turn-parking-bay-into-passive-income"
+    },
+    {
+      id: 5,
+      title: "How AI Tools Like ChatGPT Are Empowering UAE Consumers: 10 Real-World Examples",
+      excerpt: "In the UAE's mobile-first economy, residents have become some of the world's most sophisticated consumers. A key driver is the rise of powerful AI chat tools such as ChatGPT. These models distil complex regulations, compare financial products and even flag hidden fees helping you save time and money while avoiding costly mistakes.",
+      date: "July 2, 2025",
+      author: "admin",
+      category: "ShazamParking",
+      slug: "how-ai-tools-like-chatgpt-are-empowering-uae-consumers"
+    },
+    {
+      id: 6,
+      title: "How to Find an Apartment in Dubai: A Practical Guide for Newcomers to the UAE",
+      excerpt: "Are you moving to Dubai and searching for a place to live? This guide walks you through the process of renting an apartment in Dubai step by step. Whether you're an expat, digital nomad, or long-term visitor, this SEO-optimized article will help you find the right home and understand Dubai's rental process.",
+      date: "June 29, 2025",
+      author: "admin",
+      category: "ShazamParking",
+      slug: "how-to-find-apartment-in-dubai-guide-for-newcomers"
     }
   ];
 
