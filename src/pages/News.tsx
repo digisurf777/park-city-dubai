@@ -5,6 +5,9 @@ import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 
 const News = () => {
+  // Simple function to get predictable image paths
+  const getNewsImage = (articleId: number) => `/news/news-${articleId}.jpg`;
+  
   const newsArticles = [
     {
       id: 1,
@@ -13,7 +16,6 @@ const News = () => {
       date: "July 5, 2025",
       author: "admin",
       category: "ShazamParking",
-      image: "/lovable-uploads/commute-dubai-article.png",
       slug: "top-5-smart-ways-to-commute-around-dubai-in-2025"
     },
     {
@@ -23,7 +25,6 @@ const News = () => {
       date: "July 5, 2025",
       author: "admin",
       category: "ShazamParking",
-      image: "/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.png",
       slug: "top-10-ways-to-meet-new-people-in-dubai"
     },
     {
@@ -33,7 +34,6 @@ const News = () => {
       date: "July 5, 2025",
       author: "admin",
       category: "ShazamParking",
-      image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
       slug: "turn-parking-bay-into-passive-income"
     }
   ];
@@ -48,7 +48,7 @@ const News = () => {
         <div 
           className="absolute inset-0 bg-cover bg-center"
           style={{
-            backgroundImage: 'url("/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png")'
+            backgroundImage: 'url("/news/hero.jpg")'
           }}
         ></div>
         <div className="relative z-10 flex items-center justify-center h-full">
@@ -66,7 +66,7 @@ const News = () => {
             <Card key={article.id} className="overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
               <div className="relative aspect-video">
                 <img
-                  src={article.image}
+                  src={getNewsImage(article.id)}
                   alt={article.title}
                   className="w-full h-full object-cover"
                 />

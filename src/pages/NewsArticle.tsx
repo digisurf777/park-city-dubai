@@ -9,6 +9,16 @@ import { ArrowLeft } from "lucide-react";
 const NewsArticle = () => {
   const { slug } = useParams();
 
+  // Simple function to get predictable image paths
+  const getNewsImage = (articleSlug: string) => {
+    const slugToId: Record<string, number> = {
+      "top-5-smart-ways-to-commute-around-dubai-in-2025": 1,
+      "top-10-ways-to-meet-new-people-in-dubai": 2,
+      "turn-parking-bay-into-passive-income": 3
+    };
+    return `/news/news-${slugToId[articleSlug] || 1}.jpg`;
+  };
+
   // Article data - in a real app this would come from a CMS or API
   const articles = {
     "top-5-smart-ways-to-commute-around-dubai-in-2025": {
@@ -19,7 +29,6 @@ const NewsArticle = () => {
       author: "admin",
       category: "Dubai Transportation",
       keywords: ["Dubai commute", "Dubai transportation", "Dubai Metro", "Dubai parking", "Dubai travel guide", "commuting in Dubai", "Dubai taxis", "public transport Dubai"],
-      image: "/lovable-uploads/commute-dubai-article.png",
       content: `
         <div class="space-y-8">
           <p class="text-lg leading-relaxed"><strong>Planning your daily commute in Dubai?</strong> Dubai is a city built for growth. Gleaming towers, expanding communities and a never-ending flow of new residents mean commuting wisely has become an art. Should you drive yourself, hop on the Dubai Metro, or hire a private driver?</p>
@@ -159,7 +168,6 @@ const NewsArticle = () => {
       author: "admin",
       category: "Passive Income",
       keywords: ["parking rental Dubai", "passive income Dubai", "rent parking space", "Dubai property income"],
-      image: "/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.png",
       content: "<p>Full article content would go here...</p>"
     },
     "turn-parking-bay-into-passive-income": {
@@ -170,7 +178,6 @@ const NewsArticle = () => {
       author: "admin",
       category: "Dubai Lifestyle",
       keywords: ["meet people Dubai", "Dubai social life", "expat Dubai", "Dubai networking"],
-      image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
       content: "<p>Full article content would go here...</p>"
     }
   };
@@ -205,7 +212,7 @@ const NewsArticle = () => {
         <meta name="keywords" content={article.keywords?.join(', ')} />
         <meta property="og:title" content={article.title} />
         <meta property="og:description" content={article.metaDescription} />
-        <meta property="og:image" content={article.image} />
+        <meta property="og:image" content={getNewsImage(slug || "")} />
         <meta property="og:type" content="article" />
         <meta name="author" content={article.author} />
         <meta name="article:published_time" content={article.date} />
@@ -244,7 +251,7 @@ const NewsArticle = () => {
         {/* Featured Image */}
         <div className="relative aspect-video mb-8 rounded-lg overflow-hidden">
           <img
-            src={article.image}
+            src={getNewsImage(slug || "")}
             alt={article.title}
             className="w-full h-full object-cover"
           />
