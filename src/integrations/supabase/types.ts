@@ -65,6 +65,36 @@ export type Database = {
         }
         Relationships: []
       }
+      news: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          image_url: string | null
+          publication_date: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          publication_date?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          publication_date?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       parking_bookings: {
         Row: {
           cost_aed: number

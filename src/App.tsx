@@ -21,6 +21,7 @@ import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import MyAccount from "./pages/MyAccount";
 import InsertBlogPosts from "./pages/InsertBlogPosts";
+import AdminPanel from "./pages/AdminPanel";
 import DubaiMarina from "./pages/zones/DubaiMarina";
 import Downtown from "./pages/zones/Downtown";
 import PalmJumeirah from "./pages/zones/PalmJumeirah";
@@ -56,6 +57,7 @@ const App = () => (
               <Route path="/auth" element={<Auth />} />
               <Route path="/my-account" element={<ProtectedRoute><MyAccount /></ProtectedRoute>} />
               <Route path="/insert-blog-posts" element={<InsertBlogPosts />} />
+              <Route path="/admin" element={<ProtectedRoute><AdminPanel /></ProtectedRoute>} />
           {/* Zone Pages */}
           <Route path="/dubai-marina" element={<DubaiMarina />} />
           <Route path="/downtown" element={<Downtown />} />
