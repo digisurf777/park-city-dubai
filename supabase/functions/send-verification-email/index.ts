@@ -29,7 +29,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     const emailResponse = await resend.emails.send({
       from: "Parking App <onboarding@resend.dev>",
-      to: ["admin@mywebsite.com"], // Replace with actual admin email
+      to: ["digisurf7777@gmail.com"],
       subject: "New User Verification Submission",
       html: `
         <h1>New User Verification Submission</h1>
