@@ -148,7 +148,7 @@ export type Database = {
           features: string[] | null
           id: string
           images: string[] | null
-          owner_id: string
+          owner_id: string | null
           price_per_day: number | null
           price_per_hour: number
           price_per_month: number | null
@@ -167,7 +167,7 @@ export type Database = {
           features?: string[] | null
           id?: string
           images?: string[] | null
-          owner_id: string
+          owner_id?: string | null
           price_per_day?: number | null
           price_per_hour: number
           price_per_month?: number | null
@@ -186,7 +186,7 @@ export type Database = {
           features?: string[] | null
           id?: string
           images?: string[] | null
-          owner_id?: string
+          owner_id?: string | null
           price_per_day?: number | null
           price_per_hour?: number
           price_per_month?: number | null
