@@ -11,9 +11,12 @@ import { Loader2 } from 'lucide-react';
 
 const Auth = () => {
   const [loading, setLoading] = useState(false);
+  const [resetLoading, setResetLoading] = useState(false);
+  const [showResetForm, setShowResetForm] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
   const [loginForm, setLoginForm] = useState({ email: '', password: '' });
   const [signupForm, setSignupForm] = useState({ email: '', password: '', fullName: '' });
-  const { signIn, signUp, user } = useAuth();
+  const { signIn, signUp, resetPassword, user } = useAuth();
   const navigate = useNavigate();
 
   // Redirect if already logged in
@@ -59,6 +62,27 @@ const Auth = () => {
       toast.error('An error occurred during signup');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setResetLoading(true);
+    
+    try {
+      const { error } = await resetPassword(resetEmail);
+      
+      if (error) {
+        toast.error(error.message);
+      } else {
+        toast.success('Password reset email sent! Please check your inbox.');
+        setResetEmail('');
+        setShowResetForm(false);
+      }
+    } catch (error) {
+      toast.error('An error occurred while sending reset email');
+    } finally {
+      setResetLoading(false);
     }
   };
 
@@ -114,6 +138,52 @@ const Auth = () => {
                     'Log In'
                   )}
                 </Button>
+                
+                <div className="text-center">
+                  <Button
+                    type="button"
+                    variant="link"
+                    className="text-sm p-0"
+                    onClick={() => setShowResetForm(!showResetForm)}
+                  >
+                    Forgot your password?
+                  </Button>
+                </div>
+                
+                {showResetForm && (
+                  <form onSubmit={handleResetPassword} className="mt-4 space-y-4 p-4 border rounded-lg bg-muted/50">
+                    <div className="space-y-2">
+                      <Label htmlFor="reset-email">Email for password reset</Label>
+                      <Input
+                        id="reset-email"
+                        type="email"
+                        placeholder="Enter your email"
+                        value={resetEmail}
+                        onChange={(e) => setResetEmail(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <Button type="submit" className="flex-1" disabled={resetLoading}>
+                        {resetLoading ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Sending...
+                          </>
+                        ) : (
+                          'Send Reset Email'
+                        )}
+                      </Button>
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        onClick={() => setShowResetForm(false)}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </form>
+                )}
               </form>
             </TabsContent>
             
