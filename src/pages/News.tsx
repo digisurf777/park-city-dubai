@@ -51,7 +51,7 @@ const News = () => {
         <div 
           className="absolute inset-0 bg-cover bg-center"
           style={{
-            backgroundImage: 'url("/news/hero.jpg")'
+            backgroundImage: 'url("/lovable-uploads/ba4a4def-2cd7-4e97-89d5-074c13f0bbe8.png")'
           }}
         ></div>
         <div className="relative z-10 flex items-center justify-center h-full">
