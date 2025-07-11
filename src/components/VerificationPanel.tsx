@@ -63,6 +63,11 @@ const VerificationPanel = () => {
     }
   };
 
+  const triggerFileInput = () => {
+    const fileInput = document.getElementById('document') as HTMLInputElement;
+    fileInput?.click();
+  };
+
   const uploadDocument = async () => {
     if (!formData.file || !formData.fullName || !formData.documentType || !user) {
       toast.error('Please fill all fields and select a file');
@@ -193,13 +198,19 @@ const VerificationPanel = () => {
             </div>
           ) : (
             <div className="space-y-6">
-              <div className="border-2 border-dashed border-border rounded-lg p-8 text-center">
+              <div 
+                className="border-2 border-dashed border-border rounded-lg p-8 text-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors" 
+                onClick={triggerFileInput}
+              >
                 <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
                 <h3 className="text-lg font-semibold mb-2">Upload your ID for verification</h3>
                 <p className="text-sm text-muted-foreground mb-4">
                   Make sure the document is clearly visible, readable, and both sides are included. 
                   We accept a National ID, Driver's License, or Passport.
                 </p>
+                {formData.file && (
+                  <p className="text-sm text-primary font-medium">Selected: {formData.file.name}</p>
+                )}
               </div>
 
               <div className="space-y-4">
