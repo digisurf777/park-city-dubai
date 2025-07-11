@@ -4,40 +4,75 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Search, Car, CreditCard, Ruler } from "lucide-react";
-import { useState } from "react";
+import { Search, Car, CreditCard, Ruler, MapPin } from "lucide-react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 import dubaiMarinaHero from "@/assets/zones/dubai-marina.jpg";
 const DubaiMarina = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [priceRange, setPriceRange] = useState([0, 1500]);
   const [showAvailableOnly, setShowAvailableOnly] = useState(false);
-  const parkingSpots = [{
-    id: 1,
-    name: "Murjan 2",
-    district: "Dubai Marina",
-    price: 450,
-    image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
-    specs: ["Access Card", "Covered", "2.1m Height"],
-    available: true
-  }, {
-    id: 2,
-    name: "Marina Residence",
-    district: "Dubai Marina",
-    price: 420,
-    image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
-    specs: ["Access Card", "Covered", "2.2m Height"],
-    available: true
-  }, {
-    id: 3,
-    name: "Amwaj 4",
-    district: "Dubai Marina",
-    price: 480,
-    image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
-    specs: ["Access Card", "Covered", "2.0m Height"],
-    available: false
-  }];
+  const [parkingSpots, setParkingSpots] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchParkingSpots();
+  }, []);
+
+  const fetchParkingSpots = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('parking_listings')
+        .select('*')
+        .eq('zone', 'dubai-marina')
+        .eq('status', 'approved');
+
+      if (error) throw error;
+
+      // Transform data to match UI expectations
+      const transformedData = data.map(spot => ({
+        id: spot.id,
+        name: spot.title,
+        district: "Dubai Marina",
+        price: spot.price_per_month || 0,
+        image: spot.images?.[0] || "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
+        specs: spot.features || ["Access Card", "Covered", "2.1m Height"],
+        available: true,
+        address: spot.address,
+        description: spot.description
+      }));
+
+      setParkingSpots(transformedData);
+    } catch (error) {
+      console.error('Error fetching parking spots:', error);
+      // Fallback to demo data if database query fails
+      setParkingSpots([
+        {
+          id: 1,
+          name: "Murjan 2",
+          district: "Dubai Marina",
+          price: 450,
+          image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
+          specs: ["Access Card", "Covered", "2.1m Height"],
+          available: true
+        },
+        {
+          id: 2,
+          name: "Marina Residence",
+          district: "Dubai Marina", 
+          price: 420,
+          image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
+          specs: ["Access Card", "Covered", "2.2m Height"],
+          available: true
+        }
+      ]);
+    } finally {
+      setLoading(false);
+    }
+  };
   const clearFilters = () => {
     setSearchTerm("");
     setPriceRange([0, 1500]);
@@ -74,8 +109,13 @@ const DubaiMarina = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             {/* Search Box */}
             <div className="relative">
-              
-              
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search building or tower..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
             </div>
 
             <div></div>
@@ -110,11 +150,26 @@ const DubaiMarina = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-6">
           <h2 className="text-2xl font-bold text-foreground mb-2">Available Parking Spaces</h2>
-          <p className="text-muted-foreground">{filteredSpots.length} spaces found in Dubai Marina</p>
+          <p className="text-muted-foreground">
+            {loading ? "Loading..." : `${filteredSpots.length} spaces found in Dubai Marina`}
+          </p>
         </div>
 
         {/* Listing Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3].map(i => (
+              <Card key={i} className="overflow-hidden animate-pulse">
+                <div className="aspect-video bg-gray-200"></div>
+                <div className="p-6">
+                  <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                  <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredSpots.map(spot => <Card key={spot.id} className="overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
               {/* Image */}
               <div className="relative aspect-video">
@@ -130,7 +185,13 @@ const DubaiMarina = () => {
               {/* Content */}
               <div className="p-6">
                 <h3 className="text-lg font-bold text-foreground mb-1">{spot.name}</h3>
-                <p className="text-muted-foreground mb-4">{spot.district}</p>
+                <div className="flex items-center gap-1 text-muted-foreground mb-2">
+                  <MapPin className="h-4 w-4" />
+                  <span className="text-sm">{spot.address || spot.district}</span>
+                </div>
+                {spot.description && (
+                  <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{spot.description}</p>
+                )}
 
                 {/* Specs */}
                 <div className="flex items-center gap-4 mb-4 text-sm text-muted-foreground">
@@ -159,6 +220,7 @@ const DubaiMarina = () => {
               </div>
             </Card>)}
         </div>
+        )}
 
         {filteredSpots.length === 0 && <div className="text-center py-12">
             <p className="text-muted-foreground text-lg">No parking spaces found matching your criteria.</p>
@@ -167,6 +229,8 @@ const DubaiMarina = () => {
             </Button>
           </div>}
       </div>
+      
+      <Footer />
     </div>;
 };
 export default DubaiMarina;

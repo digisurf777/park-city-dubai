@@ -122,22 +122,8 @@ const FindParking = () => {
   };
 
   const handleSelectZone = (districtSlug: string) => {
-    const district = districtZones.find(d => d.slug === districtSlug);
-    if (district) {
-      setSelectedDistricts([district.name]);
-      // Update URL parameters
-      const newSearchParams = new URLSearchParams(searchParams);
-      newSearchParams.set('district', districtSlug);
-      setSearchParams(newSearchParams);
-      
-      // Scroll to listings
-      setTimeout(() => {
-        const listingsSection = document.getElementById('listings-section');
-        if (listingsSection) {
-          listingsSection.scrollIntoView({ behavior: 'smooth' });
-        }
-      }, 100);
-    }
+    // Navigate to dedicated zone page
+    window.location.href = `/zones/${districtSlug}`;
   };
 
   const clearFilters = () => {
