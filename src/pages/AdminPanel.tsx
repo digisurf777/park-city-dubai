@@ -41,6 +41,8 @@ const AdminPanel = () => {
   const [isCreating, setIsCreating] = useState(false);
   const [loading, setLoading] = useState(true);
   const [verificationsLoading, setVerificationsLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [checkingAdmin, setCheckingAdmin] = useState(true);
 
   // Form state
   const [title, setTitle] = useState('');
@@ -53,14 +55,39 @@ const AdminPanel = () => {
   const [messageContent, setMessageContent] = useState('');
   const [selectedUserId, setSelectedUserId] = useState('');
 
-  // Check if user is admin
-  const isAdmin = user?.email === 'digisurf7777@gmail.com';
-
   useEffect(() => {
-    if (!isAdmin) return;
-    fetchPosts();
-    fetchVerifications();
-  }, [isAdmin]);
+    if (user) {
+      checkAdminRole();
+    }
+  }, [user]);
+
+  const checkAdminRole = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .eq('role', 'admin')
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error checking admin role:', error);
+      }
+      
+      setIsAdmin(!!data);
+      
+      if (data) {
+        fetchPosts();
+        fetchVerifications();
+      }
+    } catch (error) {
+      console.error('Error checking admin role:', error);
+    } finally {
+      setCheckingAdmin(false);
+    }
+  };
 
   const fetchPosts = async () => {
     try {
@@ -312,6 +339,14 @@ const AdminPanel = () => {
     );
   }
 
+  if (checkingAdmin || loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p>Loading...</p>
+      </div>
+    );
+  }
+
   if (!isAdmin) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -320,14 +355,6 @@ const AdminPanel = () => {
             <p className="text-center text-destructive">Access denied. Admin privileges required.</p>
           </CardContent>
         </Card>
-      </div>
-    );
-  }
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p>Loading...</p>
       </div>
     );
   }
