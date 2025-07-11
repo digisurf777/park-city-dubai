@@ -164,6 +164,39 @@ export type Database = {
         }
         Relationships: []
       }
+      user_verifications: {
+        Row: {
+          created_at: string
+          document_image_url: string
+          document_type: string
+          full_name: string
+          id: string
+          updated_at: string
+          user_id: string
+          verification_status: string
+        }
+        Insert: {
+          created_at?: string
+          document_image_url: string
+          document_type: string
+          full_name: string
+          id?: string
+          updated_at?: string
+          user_id: string
+          verification_status?: string
+        }
+        Update: {
+          created_at?: string
+          document_image_url?: string
+          document_type?: string
+          full_name?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+          verification_status?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

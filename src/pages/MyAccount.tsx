@@ -8,8 +8,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { Loader2, User, History, LogOut } from 'lucide-react';
+import { Loader2, User, History, LogOut, Shield } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import VerificationPanel from '@/components/VerificationPanel';
 
 interface Profile {
   id: string;
@@ -151,10 +152,14 @@ const MyAccount = () => {
         </div>
 
         <Tabs defaultValue="profile" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="profile">
               <User className="mr-2 h-4 w-4" />
               Profile
+            </TabsTrigger>
+            <TabsTrigger value="verification">
+              <Shield className="mr-2 h-4 w-4" />
+              Verification
             </TabsTrigger>
             <TabsTrigger value="history">
               <History className="mr-2 h-4 w-4" />
@@ -217,6 +222,10 @@ const MyAccount = () => {
                 </form>
               </CardContent>
             </Card>
+          </TabsContent>
+          
+          <TabsContent value="verification">
+            <VerificationPanel />
           </TabsContent>
           
           <TabsContent value="history">
