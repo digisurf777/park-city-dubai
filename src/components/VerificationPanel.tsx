@@ -17,6 +17,7 @@ interface Verification {
   document_type: string;
   document_image_url: string;
   verification_status: 'pending' | 'verified' | 'rejected';
+  nationality?: string;
   created_at: string;
 }
 
@@ -27,6 +28,7 @@ const VerificationPanel = () => {
   const [uploading, setUploading] = useState(false);
   const [formData, setFormData] = useState({
     fullName: '',
+    nationality: '',
     documentType: '',
     file: null as File | null
   });
@@ -69,7 +71,7 @@ const VerificationPanel = () => {
   };
 
   const uploadDocument = async () => {
-    if (!formData.file || !formData.fullName || !formData.documentType || !user) {
+    if (!formData.file || !formData.fullName || !formData.nationality || !formData.documentType || !user) {
       toast.error('Please fill all fields and select a file');
       return;
     }
@@ -99,6 +101,7 @@ const VerificationPanel = () => {
         .insert({
           user_id: user.id,
           full_name: formData.fullName,
+          nationality: formData.nationality,
           document_type: formData.documentType,
           document_image_url: publicUrl
         });
@@ -119,7 +122,7 @@ const VerificationPanel = () => {
 
       toast.success('Verification document uploaded successfully');
       fetchVerification();
-      setFormData({ fullName: '', documentType: '', file: null });
+      setFormData({ fullName: '', nationality: '', documentType: '', file: null });
     } catch (error) {
       console.error('Error uploading document:', error);
       toast.error('Failed to upload verification document');
@@ -184,6 +187,7 @@ const VerificationPanel = () => {
               
               <div className="text-sm text-muted-foreground">
                 <p><strong>Document Type:</strong> {verification.document_type.replace('_', ' ').toUpperCase()}</p>
+                {verification.nationality && <p><strong>Nationality:</strong> {verification.nationality}</p>}
                 <p><strong>Submitted:</strong> {new Date(verification.created_at).toLocaleDateString()}</p>
               </div>
 
@@ -225,6 +229,16 @@ const VerificationPanel = () => {
                 </div>
 
                 <div className="space-y-2">
+                  <Label htmlFor="nationality">Nationality</Label>
+                  <Input
+                    id="nationality"
+                    value={formData.nationality}
+                    onChange={(e) => setFormData(prev => ({ ...prev, nationality: e.target.value }))}
+                    placeholder="Enter your nationality"
+                  />
+                </div>
+
+                <div className="space-y-2">
                   <Label htmlFor="documentType">Document Type</Label>
                   <Select value={formData.documentType} onValueChange={(value) => setFormData(prev => ({ ...prev, documentType: value }))}>
                     <SelectTrigger>
@@ -254,7 +268,7 @@ const VerificationPanel = () => {
 
                 <Button 
                   onClick={uploadDocument} 
-                  disabled={uploading || !formData.file || !formData.fullName || !formData.documentType}
+                  disabled={uploading || !formData.file || !formData.fullName || !formData.nationality || !formData.documentType}
                   className="w-full"
                 >
                   {uploading ? 'Uploading...' : 'Submit for Verification'}

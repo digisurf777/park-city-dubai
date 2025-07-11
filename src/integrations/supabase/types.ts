@@ -204,6 +204,7 @@ export type Database = {
           document_type: string
           full_name: string
           id: string
+          nationality: string | null
           updated_at: string
           user_id: string
           verification_status: string
@@ -214,6 +215,7 @@ export type Database = {
           document_type: string
           full_name: string
           id?: string
+          nationality?: string | null
           updated_at?: string
           user_id: string
           verification_status?: string
@@ -224,6 +226,7 @@ export type Database = {
           document_type?: string
           full_name?: string
           id?: string
+          nationality?: string | null
           updated_at?: string
           user_id?: string
           verification_status?: string
