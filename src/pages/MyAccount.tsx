@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { Loader2, User, History, LogOut, Shield, Mail } from 'lucide-react';
+import { Loader2, User, History, LogOut, Shield, Mail, Home } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import VerificationPanel from '@/components/VerificationPanel';
 import UserInbox from '@/components/UserInbox';
@@ -38,6 +38,7 @@ const MyAccount = () => {
   const [updating, setUpdating] = useState(false);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [bookings, setBookings] = useState<ParkingBooking[]>([]);
+  const [verificationStatus, setVerificationStatus] = useState<string | null>(null);
 
   // Redirect if not logged in
   if (!user) {
@@ -48,6 +49,7 @@ const MyAccount = () => {
   useEffect(() => {
     fetchProfile();
     fetchBookings();
+    fetchVerificationStatus();
   }, [user]);
 
   const fetchProfile = async () => {
@@ -85,6 +87,24 @@ const MyAccount = () => {
       }
     } catch (error) {
       console.error('Error fetching bookings:', error);
+    }
+  };
+
+  const fetchVerificationStatus = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('user_verifications')
+        .select('verification_status')
+        .eq('user_id', user.id)
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error fetching verification:', error);
+      } else {
+        setVerificationStatus(data?.verification_status || null);
+      }
+    } catch (error) {
+      console.error('Error fetching verification:', error);
     }
   };
 
@@ -146,10 +166,16 @@ const MyAccount = () => {
       <div className="max-w-4xl mx-auto p-6">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold">My Account</h1>
-          <Button onClick={handleLogout} variant="outline">
-            <LogOut className="mr-2 h-4 w-4" />
-            Logout
-          </Button>
+          <div className="flex gap-2">
+            <Button onClick={() => navigate('/')} variant="outline">
+              <Home className="mr-2 h-4 w-4" />
+              Home
+            </Button>
+            <Button onClick={handleLogout} variant="outline">
+              <LogOut className="mr-2 h-4 w-4" />
+              Logout
+            </Button>
+          </div>
         </div>
 
         <Tabs defaultValue="profile" className="w-full">
@@ -158,9 +184,15 @@ const MyAccount = () => {
               <User className="mr-2 h-4 w-4" />
               Profile
             </TabsTrigger>
-            <TabsTrigger value="verification">
+            <TabsTrigger 
+              value="verification" 
+              className={verificationStatus === 'pending' || verificationStatus === null ? 'bg-orange-500/10 text-orange-700 dark:text-orange-300 border-orange-500/20' : ''}
+            >
               <Shield className="mr-2 h-4 w-4" />
               Verification
+              {(verificationStatus === 'pending' || verificationStatus === null) && (
+                <Badge variant="destructive" className="ml-2 h-5 w-5 p-0 text-xs">!</Badge>
+              )}
             </TabsTrigger>
             <TabsTrigger value="inbox">
               <Mail className="mr-2 h-4 w-4" />
