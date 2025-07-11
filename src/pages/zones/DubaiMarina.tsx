@@ -27,7 +27,7 @@ const DubaiMarina = () => {
       const { data, error } = await supabase
         .from('parking_listings')
         .select('*')
-        .eq('zone', 'dubai-marina')
+        .eq('zone', 'Dubai Marina')
         .eq('status', 'approved');
 
       if (error) throw error;
