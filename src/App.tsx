@@ -20,6 +20,8 @@ import Calculator from "./pages/Calculator";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import MyAccount from "./pages/MyAccount";
+import ContactAdmin from "./pages/ContactAdmin";
+import Feedback from "./pages/Feedback";
 import InsertBlogPosts from "./pages/InsertBlogPosts";
 import AdminPanel from "./pages/AdminPanel";
 import DubaiMarina from "./pages/zones/DubaiMarina";
@@ -56,9 +58,18 @@ const App = () => (
               <Route path="/parking/:id" element={<ProductPage />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/my-account" element={<ProtectedRoute><MyAccount /></ProtectedRoute>} />
+              <Route path="/contact-admin" element={<ProtectedRoute><ContactAdmin /></ProtectedRoute>} />
+              <Route path="/feedback" element={<ProtectedRoute><Feedback /></ProtectedRoute>} />
               <Route path="/insert-blog-posts" element={<InsertBlogPosts />} />
               <Route path="/admin" element={<ProtectedRoute><AdminPanel /></ProtectedRoute>} />
           {/* Zone Pages */}
+          <Route path="/zones/dubai-marina" element={<DubaiMarina />} />
+          <Route path="/zones/downtown" element={<Downtown />} />
+          <Route path="/zones/palm-jumeirah" element={<PalmJumeirah />} />
+          <Route path="/zones/business-bay" element={<BusinessBay />} />
+          <Route path="/zones/difc" element={<DIFC />} />
+          <Route path="/zones/deira" element={<Deira />} />
+          {/* Legacy zone routes for backward compatibility */}
           <Route path="/dubai-marina" element={<DubaiMarina />} />
           <Route path="/downtown" element={<Downtown />} />
           <Route path="/palm-jumeirah" element={<PalmJumeirah />} />

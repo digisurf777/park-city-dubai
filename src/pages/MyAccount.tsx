@@ -8,8 +8,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { Loader2, User, History, LogOut, Shield, Mail, Home } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Loader2, User, History, LogOut, Shield, Mail, Home, MessageSquare, Send } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
 import VerificationPanel from '@/components/VerificationPanel';
 import UserInbox from '@/components/UserInbox';
 
@@ -179,7 +179,7 @@ const MyAccount = () => {
         </div>
 
         <Tabs defaultValue="profile" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="profile">
               <User className="mr-2 h-4 w-4" />
               Profile
@@ -198,9 +198,13 @@ const MyAccount = () => {
               <Mail className="mr-2 h-4 w-4" />
               Inbox
             </TabsTrigger>
+            <TabsTrigger value="contact">
+              <MessageSquare className="mr-2 h-4 w-4" />
+              Contact
+            </TabsTrigger>
             <TabsTrigger value="history">
               <History className="mr-2 h-4 w-4" />
-              Parking History
+              History
             </TabsTrigger>
           </TabsList>
           
@@ -267,6 +271,67 @@ const MyAccount = () => {
           
           <TabsContent value="inbox">
             <UserInbox />
+          </TabsContent>
+          
+          <TabsContent value="contact">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <MessageSquare className="h-5 w-5" />
+                  Contact & Support
+                </CardTitle>
+                <CardDescription>
+                  Need help or have questions? Choose how you'd like to get in touch with us.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Card>
+                    <CardContent className="pt-6">
+                      <div className="text-center space-y-4">
+                        <Send className="h-8 w-8 text-primary mx-auto" />
+                        <h3 className="font-semibold">Contact Admin</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Send a direct message to our administrators for support or questions.
+                        </p>
+                        <Link to="/contact-admin">
+                          <Button className="w-full">
+                            Send Message
+                          </Button>
+                        </Link>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardContent className="pt-6">
+                      <div className="text-center space-y-4">
+                        <MessageSquare className="h-8 w-8 text-primary mx-auto" />
+                        <h3 className="font-semibold">Send Feedback</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Share your thoughts, suggestions, or report issues with our platform.
+                        </p>
+                        <Link to="/feedback">
+                          <Button variant="outline" className="w-full">
+                            Give Feedback
+                          </Button>
+                        </Link>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <div className="bg-muted p-4 rounded-lg">
+                  <h4 className="font-medium mb-2">Email Support</h4>
+                  <p className="text-sm text-muted-foreground">
+                    For urgent matters, you can also reach us directly at{' '}
+                    <a href="mailto:support@shazamparking.com" className="text-primary hover:underline">
+                      support@shazamparking.com
+                    </a>
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
           
           <TabsContent value="history">
