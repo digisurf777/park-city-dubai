@@ -4,16 +4,23 @@ import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Upload, CheckCircle, Wallet, Quote } from "lucide-react";
+import { Upload, CheckCircle, Wallet, Quote, X } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ParkingCalculator from "@/components/ParkingCalculator";
 import { useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import luxuryCar from "@/assets/luxury-car-dubai.png";
 import phoneLogo from "@/assets/phone-logo.png";
 
 const RentOutYourSpace = () => {
+  const { user } = useAuth();
+  const { toast } = useToast();
   const [monthlyPrice, setMonthlyPrice] = useState<number>(300);
+  const [uploadedImages, setUploadedImages] = useState<File[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -32,10 +39,151 @@ const RentOutYourSpace = () => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (uploadedImages.length + files.length > 5) {
+      toast({
+        title: "Too many images",
+        description: "Maximum 5 images allowed",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    const validFiles = files.filter(file => {
+      if (file.size > 3 * 1024 * 1024) {
+        toast({
+          title: "File too large",
+          description: `${file.name} is larger than 3MB`,
+          variant: "destructive"
+        });
+        return false;
+      }
+      return true;
+    });
+    
+    setUploadedImages(prev => [...prev, ...validFiles]);
+  };
+
+  const removeImage = (index: number) => {
+    setUploadedImages(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const uploadImagesToStorage = async (files: File[]): Promise<string[]> => {
+    const uploadPromises = files.map(async (file, index) => {
+      const fileName = `${Date.now()}-${index}-${file.name}`;
+      const { data, error } = await supabase.storage
+        .from('parking-images')
+        .upload(fileName, file);
+      
+      if (error) throw error;
+      
+      const { data: publicUrl } = supabase.storage
+        .from('parking-images')
+        .getPublicUrl(fileName);
+      
+      return publicUrl.publicUrl;
+    });
+    
+    return Promise.all(uploadPromises);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission
-    alert("Thank you for listing your space. Our team will review the details within 24 hours.");
+    
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to submit a listing",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (uploadedImages.length === 0) {
+      toast({
+        title: "Images required",
+        description: "Please upload at least one image",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      // Upload images to storage
+      const imageUrls = await uploadImagesToStorage(uploadedImages);
+      
+      // Create listing in database
+      const { error: insertError } = await supabase
+        .from('parking_listings')
+        .insert({
+          owner_id: user.id,
+          title: `${formData.bayType} parking in ${formData.buildingName}`,
+          description: formData.notes || `${formData.bayType} parking space in ${formData.buildingName}, ${formData.district}`,
+          address: `${formData.buildingName}, ${formData.district}`,
+          zone: formData.district,
+          price_per_hour: Number((monthlyPrice / 720).toFixed(2)), // Approximate hourly rate
+          price_per_month: monthlyPrice,
+          features: [formData.bayType],
+          images: imageUrls,
+          contact_phone: formData.phone,
+          contact_email: formData.email,
+          status: 'pending'
+        });
+
+      if (insertError) throw insertError;
+
+      // Send admin notification
+      await supabase.functions.invoke('send-message-notification', {
+        body: {
+          subject: 'New Parking Listing Submitted',
+          message: `New parking listing from ${formData.fullName}:
+          
+Building: ${formData.buildingName}
+District: ${formData.district}
+Bay Type: ${formData.bayType}
+Monthly Price: ${monthlyPrice} AED
+Contact: ${formData.email}, ${formData.phone}
+
+${formData.notes ? `Notes: ${formData.notes}` : ''}
+
+Please review and approve this listing.`,
+          userId: user.id,
+          fromAdmin: false
+        }
+      });
+
+      toast({
+        title: "Listing submitted successfully",
+        description: "Our team will review your listing within 24 hours"
+      });
+
+      // Reset form
+      setFormData({
+        fullName: "",
+        email: "",
+        phone: "",
+        buildingName: "",
+        district: "",
+        bayType: "",
+        accessDeviceDeposit: "",
+        notes: ""
+      });
+      setUploadedImages([]);
+      setMonthlyPrice(300);
+
+    } catch (error) {
+      console.error('Error submitting listing:', error);
+      toast({
+        title: "Submission failed",
+        description: "Please try again or contact support",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -283,14 +431,46 @@ const RentOutYourSpace = () => {
                 <Label htmlFor="photos" className="text-base font-medium">
                   Photos (max 5) *
                 </Label>
-                <div className="mt-2 border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-primary transition-colors">
-                  <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600">
-                    Click to upload or drag and drop
-                  </p>
-                  <p className="text-sm text-gray-500 mt-2">
-                    JPEG or PNG, max 3MB each
-                  </p>
+                <div className="mt-2">
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-primary transition-colors">
+                    <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-600">
+                      Click to upload or drag and drop
+                    </p>
+                    <p className="text-sm text-gray-500 mt-2">
+                      JPEG or PNG, max 3MB each
+                    </p>
+                    <input
+                      type="file"
+                      multiple
+                      accept="image/jpeg,image/png"
+                      onChange={handleImageUpload}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    />
+                  </div>
+                  
+                  {uploadedImages.length > 0 && (
+                    <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">
+                      {uploadedImages.map((file, index) => (
+                        <div key={index} className="relative">
+                          <img
+                            src={URL.createObjectURL(file)}
+                            alt={`Upload ${index + 1}`}
+                            className="w-full h-24 object-cover rounded-lg"
+                          />
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0"
+                            onClick={() => removeImage(index)}
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -319,9 +499,10 @@ const RentOutYourSpace = () => {
 
               <Button 
                 type="submit" 
-                className="w-full bg-primary hover:bg-primary/90 text-white py-4 text-lg font-semibold"
+                disabled={isSubmitting}
+                className="w-full bg-primary hover:bg-primary/90 text-white py-4 text-lg font-semibold disabled:opacity-50"
               >
-                Submit Listing
+                {isSubmitting ? "Submitting..." : "Submit Listing"}
               </Button>
             </form>
           </Card>
