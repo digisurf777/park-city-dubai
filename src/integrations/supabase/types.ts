@@ -137,6 +137,66 @@ export type Database = {
         }
         Relationships: []
       }
+      parking_listings: {
+        Row: {
+          address: string
+          availability_schedule: Json | null
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string | null
+          description: string | null
+          features: string[] | null
+          id: string
+          images: string[] | null
+          owner_id: string
+          price_per_day: number | null
+          price_per_hour: number
+          price_per_month: number | null
+          status: string | null
+          title: string
+          updated_at: string | null
+          zone: string
+        }
+        Insert: {
+          address: string
+          availability_schedule?: Json | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string | null
+          description?: string | null
+          features?: string[] | null
+          id?: string
+          images?: string[] | null
+          owner_id: string
+          price_per_day?: number | null
+          price_per_hour: number
+          price_per_month?: number | null
+          status?: string | null
+          title: string
+          updated_at?: string | null
+          zone: string
+        }
+        Update: {
+          address?: string
+          availability_schedule?: Json | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string | null
+          description?: string | null
+          features?: string[] | null
+          id?: string
+          images?: string[] | null
+          owner_id?: string
+          price_per_day?: number | null
+          price_per_hour?: number
+          price_per_month?: number | null
+          status?: string | null
+          title?: string
+          updated_at?: string | null
+          zone?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -145,6 +205,7 @@ export type Database = {
           phone: string | null
           updated_at: string
           user_id: string
+          user_type: string | null
         }
         Insert: {
           created_at?: string
@@ -153,6 +214,7 @@ export type Database = {
           phone?: string | null
           updated_at?: string
           user_id: string
+          user_type?: string | null
         }
         Update: {
           created_at?: string
@@ -161,6 +223,7 @@ export type Database = {
           phone?: string | null
           updated_at?: string
           user_id?: string
+          user_type?: string | null
         }
         Relationships: []
       }

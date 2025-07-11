@@ -6,8 +6,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { Loader2 } from 'lucide-react';
+import { Loader2, User, Building } from 'lucide-react';
 
 const Auth = () => {
   const [loading, setLoading] = useState(false);
@@ -15,7 +16,7 @@ const Auth = () => {
   const [showResetForm, setShowResetForm] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
   const [loginForm, setLoginForm] = useState({ email: '', password: '' });
-  const [signupForm, setSignupForm] = useState({ email: '', password: '', fullName: '' });
+  const [signupForm, setSignupForm] = useState({ email: '', password: '', fullName: '', userType: 'renter' });
   const { signIn, signUp, resetPassword, user } = useAuth();
   const navigate = useNavigate();
 
@@ -50,13 +51,13 @@ const Auth = () => {
     setLoading(true);
     
     try {
-      const { error } = await signUp(signupForm.email, signupForm.password, signupForm.fullName);
+      const { error } = await signUp(signupForm.email, signupForm.password, signupForm.fullName, signupForm.userType);
       
       if (error) {
         toast.error(error.message);
       } else {
         toast.success('Account created successfully! Please check your email to verify your account.');
-        setSignupForm({ email: '', password: '', fullName: '' });
+        setSignupForm({ email: '', password: '', fullName: '', userType: 'renter' });
       }
     } catch (error) {
       toast.error('An error occurred during signup');
