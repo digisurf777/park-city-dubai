@@ -9,35 +9,30 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 
-interface BlogPost {
+interface NewsPost {
   id: string;
   title: string;
-  slug: string;
-  excerpt: string;
   content: string;
-  featured_image_url: string;
-  author: string;
-  published_date: string;
-  category: string;
-  meta_title?: string;
-  meta_description?: string;
+  image_url: string | null;
+  publication_date: string;
+  created_at: string;
+  updated_at: string;
 }
 
 const NewsArticle = () => {
-  const { slug } = useParams();
-  const [article, setArticle] = useState<BlogPost | null>(null);
+  const { slug: id } = useParams();
+  const [article, setArticle] = useState<NewsPost | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchArticle = async () => {
-      if (!slug) return;
+      if (!id) return;
       
       try {
         const { data, error } = await supabase
-          .from('blog_posts')
+          .from('news')
           .select('*')
-          .eq('slug', slug)
-          .eq('status', 'published')
+          .eq('id', id)
           .single();
 
         if (error) {
@@ -55,7 +50,7 @@ const NewsArticle = () => {
     };
 
     fetchArticle();
-  }, [slug]);
+  }, [id]);
 
   if (loading) {
     return (
@@ -94,16 +89,14 @@ const NewsArticle = () => {
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
-        <title>{article.meta_title || article.title}</title>
-        <meta name="description" content={article.meta_description || article.excerpt} />
+        <title>{article.title}</title>
+        <meta name="description" content={article.content.substring(0, 150)} />
         <meta property="og:title" content={article.title} />
-        <meta property="og:description" content={article.meta_description || article.excerpt} />
-        <meta property="og:image" content={article.featured_image_url || '/news/hero.jpg'} />
+        <meta property="og:description" content={article.content.substring(0, 150)} />
+        <meta property="og:image" content={article.image_url || '/news/hero.jpg'} />
         <meta property="og:type" content="article" />
-        <meta name="author" content={article.author} />
-        <meta name="article:published_time" content={article.published_date} />
-        <meta name="article:section" content={article.category} />
-        <link rel="canonical" href={`https://shazamparking.ae/news/${slug}`} />
+        <meta name="article:published_time" content={article.publication_date} />
+        <link rel="canonical" href={`https://shazamparking.ae/news/${id}`} />
       </Helmet>
       <Navbar />
       
@@ -121,27 +114,24 @@ const NewsArticle = () => {
       {/* Article Header */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-6">
-          <Badge variant="outline" className="mb-4">
-            {article.category}
-          </Badge>
           <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">
             {article.title}
           </h1>
           <div className="flex items-center gap-4 text-muted-foreground">
-            <span>By {article.author}</span>
-            <span>•</span>
-            <span>{format(new Date(article.published_date), 'MMMM d, yyyy')}</span>
+            <span>{format(new Date(article.publication_date), 'MMMM d, yyyy')}</span>
           </div>
         </div>
 
         {/* Featured Image */}
-        <div className="relative aspect-video mb-8 rounded-lg overflow-hidden">
-          <img
-            src={article.featured_image_url || '/news/hero.jpg'}
-            alt={article.title}
-            className="w-full h-full object-cover"
-          />
-        </div>
+        {article.image_url && (
+          <div className="relative aspect-video mb-8 rounded-lg overflow-hidden">
+            <img
+              src={article.image_url}
+              alt={article.title}
+              className="w-full h-full object-cover"
+            />
+          </div>
+        )}
 
         {/* Article Content with better typography and spacing */}
         <div 

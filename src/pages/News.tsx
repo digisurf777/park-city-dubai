@@ -7,40 +7,38 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 
-interface BlogPost {
+interface NewsPost {
   id: string;
   title: string;
-  slug: string;
-  excerpt: string;
-  featured_image_url: string;
-  author: string;
-  published_date: string;
-  category: string;
+  content: string;
+  image_url: string | null;
+  publication_date: string;
+  created_at: string;
+  updated_at: string;
 }
 
 const News = () => {
-  const [newsArticles, setNewsArticles] = useState<BlogPost[]>([]);
+  const [newsArticles, setNewsArticles] = useState<NewsPost[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchBlogPosts = async () => {
+    const fetchNewsArticles = async () => {
       try {
         const { data, error } = await supabase
-          .from('blog_posts')
-          .select('id, title, slug, excerpt, featured_image_url, author, published_date, category')
-          .eq('status', 'published')
-          .order('published_date', { ascending: false });
+          .from('news')
+          .select('*')
+          .order('publication_date', { ascending: false });
 
         if (error) throw error;
         setNewsArticles(data || []);
       } catch (error) {
-        console.error('Error fetching blog posts:', error);
+        console.error('Error fetching news articles:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchBlogPosts();
+    fetchNewsArticles();
   }, []);
 
   return (
@@ -74,7 +72,7 @@ const News = () => {
               <Card key={article.id} className="overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
                 <div className="relative aspect-video">
                   <img
-                    src={article.featured_image_url || '/news/hero.jpg'}
+                    src={article.image_url || '/news/hero.jpg'}
                     alt={article.title}
                     className="w-full h-full object-cover"
                   />
@@ -82,17 +80,14 @@ const News = () => {
                 
                 <CardContent className="p-6">
                   <div className="flex items-center gap-2 mb-3">
-                    <Badge variant="outline" className="text-xs">
-                      {article.category}
-                    </Badge>
                     <span className="text-xs text-muted-foreground">
-                      {format(new Date(article.published_date), 'MMMM d, yyyy')}
+                      {format(new Date(article.publication_date), 'MMMM d, yyyy')}
                     </span>
                   </div>
                 
                 <h3 className="text-lg font-bold mb-3 line-clamp-2">
                   <Link 
-                    to={`/news/${article.slug}`}
+                    to={`/news/${article.id}`}
                     className="hover:text-primary transition-colors"
                   >
                     {article.title}
@@ -100,15 +95,15 @@ const News = () => {
                 </h3>
                 
                 <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
-                  {article.excerpt}
+                  {article.content.substring(0, 150)}...
                 </p>
                 
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-muted-foreground">
-                    By {article.author}
+                    {format(new Date(article.publication_date), 'PPP')}
                   </span>
                   <Link 
-                    to={`/news/${article.slug}`}
+                    to={`/news/${article.id}`}
                     className="text-sm font-medium hover:underline"
                     style={{ color: '#00B67A' }}
                   >
