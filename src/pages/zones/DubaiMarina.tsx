@@ -23,12 +23,15 @@ const DubaiMarina = () => {
   }, []);
 
   const fetchParkingSpots = async () => {
+    console.log('Fetching parking spots for Dubai Marina...');
     try {
       const { data, error } = await supabase
         .from('parking_listings')
         .select('*')
         .eq('zone', 'Dubai Marina')
         .eq('status', 'approved');
+
+      console.log('Supabase query result:', { data, error });
 
       if (error) throw error;
 
@@ -45,6 +48,7 @@ const DubaiMarina = () => {
         description: spot.description
       }));
 
+      console.log('Transformed data:', transformedData);
       setParkingSpots(transformedData);
     } catch (error) {
       console.error('Error fetching parking spots:', error);
