@@ -13,7 +13,7 @@ import Footer from "@/components/Footer";
 import dubaiMarinaHero from "@/assets/zones/dubai-marina.jpg";
 const DubaiMarina = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [priceRange, setPriceRange] = useState([0, 1500]);
+  const [priceRange, setPriceRange] = useState([0, 20000]); // Increased max range to include all parking spots
   const [showAvailableOnly, setShowAvailableOnly] = useState(false);
   const [parkingSpots, setParkingSpots] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -79,13 +79,14 @@ const DubaiMarina = () => {
   };
   const clearFilters = () => {
     setSearchTerm("");
-    setPriceRange([0, 1500]);
+    setPriceRange([0, 20000]); // Updated to match new default
     setShowAvailableOnly(false);
   };
   const filteredSpots = parkingSpots.filter(spot => {
     const matchesSearch = spot.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesPrice = spot.price >= priceRange[0] && spot.price <= priceRange[1];
     const matchesAvailability = !showAvailableOnly || spot.available;
+    console.log(`Filtering spot: ${spot.name}, price: ${spot.price}, matchesPrice: ${matchesPrice}, searchTerm: '${searchTerm}', matchesSearch: ${matchesSearch}`);
     return matchesSearch && matchesPrice && matchesAvailability;
   });
   const minPrice = Math.min(...parkingSpots.map(spot => spot.price));
@@ -138,7 +139,7 @@ const DubaiMarina = () => {
               Price: AED {priceRange[0]} - {priceRange[1]} / month
             </span>
             <div className="flex-1 max-w-xs">
-              <Slider value={priceRange} onValueChange={setPriceRange} max={1500} min={0} step={50} className="w-full" />
+              <Slider value={priceRange} onValueChange={setPriceRange} max={20000} min={0} step={100} className="w-full" />
             </div>
             <div className="flex items-center space-x-2">
               <Checkbox id="available" checked={showAvailableOnly} onCheckedChange={checked => setShowAvailableOnly(checked === true)} />
