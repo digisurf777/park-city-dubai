@@ -171,52 +171,48 @@ const DubaiMarina = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredSpots.map(spot => <Card key={spot.id} className="overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-              {/* Image */}
-              <div className="relative aspect-video">
+              {/* Full-width image */}
+              <div className="relative w-full h-64">
                 <img src={spot.image} alt={spot.name} className="w-full h-full object-cover" />
-                <Badge className="absolute top-4 left-4 bg-primary text-primary-foreground">
-                  From AED {spot.price} / month
-                </Badge>
-                {!spot.available && <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                    <Badge variant="destructive">Not Available</Badge>
-                  </div>}
               </div>
 
               {/* Content */}
               <div className="p-6">
-                <h3 className="text-lg font-bold text-foreground mb-1">{spot.name}</h3>
-                <div className="flex items-center gap-1 text-muted-foreground mb-2">
-                  <MapPin className="h-4 w-4" />
-                  <span className="text-sm">{spot.address || spot.district}</span>
+                {/* Title */}
+                <h3 className="text-xl font-bold text-foreground mb-2">{spot.name}</h3>
+                
+                {/* Short description */}
+                <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
+                  {spot.description || "Secure underground parking space. 24/7 access, covered area."}
+                </p>
+
+                {/* Price prominently displayed */}
+                <div className="mb-4">
+                  <span className="text-2xl font-bold text-primary">From AED {spot.price}/month</span>
                 </div>
-                {spot.description && (
-                  <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{spot.description}</p>
+
+                {/* Optional feature tags */}
+                {spot.specs && spot.specs.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {spot.specs.map((feature, index) => (
+                      <Badge key={index} variant="secondary" className="text-xs">
+                        {feature}
+                      </Badge>
+                    ))}
+                  </div>
                 )}
 
-                {/* Specs */}
-                <div className="flex items-center gap-4 mb-4 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-1">
-                    <CreditCard className="h-4 w-4" />
-                    <span>{spot.specs[0]}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Car className="h-4 w-4" />
-                    <span>{spot.specs[1]}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Ruler className="h-4 w-4" />
-                    <span>{spot.specs[2]}</span>
-                  </div>
-                </div>
-
-                {/* Reserve Button */}
-                {spot.available ? <Link to={`/parking/${spot.id}`}>
-                    <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
-                      Reserve
-                    </Button>
-                  </Link> : <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground" disabled>
-                    Not Available
-                  </Button>}
+                {/* Book Now Button */}
+                <a 
+                  href={`https://shazamparking.ae/product/${spot.name.toLowerCase().replace(/\s+/g, '-')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block w-full"
+                >
+                  <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3">
+                    Book Now
+                  </Button>
+                </a>
               </div>
             </Card>)}
         </div>
