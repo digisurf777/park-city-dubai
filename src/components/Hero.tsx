@@ -17,11 +17,15 @@ const Hero = () => {
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         {/* Hero Content */}
         <div className="mb-12">
-          <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
-            Find Perfect Parking
-            <span className="block text-primary">Anywhere in Dubai</span>
+          <h1 className="text-4xl md:text-6xl font-black text-gray-900 mb-6 leading-tight tracking-tight animate-fade-in">
+            <span className="block animate-fade-in" style={{ animationDelay: '0.2s' }}>
+              Find Perfect Parking
+            </span>
+            <span className="block text-primary animate-fade-in" style={{ animationDelay: '0.4s' }}>
+              Anywhere in Dubai
+            </span>
           </h1>
-          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto font-semibold animate-fade-in" style={{ animationDelay: '0.6s' }}>
             Book secure parking spaces instantly. Save time, money, and hassle with Dubai's most trusted parking platform.
           </p>
         </div>
