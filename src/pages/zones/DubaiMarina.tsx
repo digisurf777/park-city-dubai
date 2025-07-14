@@ -11,7 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ParkingBookingModal } from "@/components/ParkingBookingModal";
-import dubaiMarinaHero from "@/assets/zones/dubai-marina.jpg";
+import dubaiMarinaHero from "@/assets/zones/dubai-marina-hero.jpg";
 const DubaiMarina = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [priceRange, setPriceRange] = useState([0, 20000]); 

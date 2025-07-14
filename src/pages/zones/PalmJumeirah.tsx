@@ -11,7 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ParkingBookingModal } from "@/components/ParkingBookingModal";
-import palmJumeirahHero from "@/assets/zones/palm-jumeirah.jpg";
+import palmJumeirahHero from "@/assets/zones/palm-jumeirah-hero.jpg";
 
 const PalmJumeirah = () => {
   const [searchTerm, setSearchTerm] = useState("");
