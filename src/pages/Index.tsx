@@ -273,61 +273,52 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Enhanced Green CTA Banner */}
-      <section className="py-16 sm:py-24 lg:py-32 bg-gradient-to-r from-primary via-emerald-500 to-teal-500 relative overflow-hidden animate-fade-in">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute inset-0" style={{
-            backgroundImage: "radial-gradient(circle at 25px 25px, rgba(255,255,255,0.2) 2px, transparent 0)",
-            backgroundSize: "50px 50px"
-          }}></div>
-        </div>
+      {/* Hero CTA Banner - Matching Reference Style */}
+      <section className="py-20 sm:py-28 lg:py-40 bg-gradient-to-br from-emerald-400 via-emerald-500 to-teal-600 relative overflow-hidden">
+        {/* Clean Background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-emerald-400/90 via-emerald-500/95 to-teal-600/90"></div>
         
-        {/* Floating Elements */}
-        <div className="absolute top-10 left-10 w-20 h-20 bg-white/10 rounded-full blur-xl animate-pulse"></div>
-        <div className="absolute bottom-16 right-16 w-32 h-32 bg-white/5 rounded-full blur-2xl animate-pulse delay-1000"></div>
-        
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-          {/* Enhanced Heading */}
-          <div className="mb-8 sm:mb-12">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-4 sm:mb-6 leading-tight tracking-tight animate-scale-in">
-              Have an unused<br />
-              <span className="text-yellow-300 drop-shadow-lg">parking bay?</span><br />
-              <span className="bg-gradient-to-r from-yellow-200 to-yellow-400 bg-clip-text text-transparent">
-                Earn passive income.
+        <div className="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 text-center relative z-10">
+          {/* Main Headline - Exact Match to Reference */}
+          <div className="mb-12 sm:mb-16">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black text-white mb-6 sm:mb-8 leading-[0.9] tracking-tight">
+              Have an unused
+            </h1>
+            <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black mb-8 sm:mb-12 leading-[0.9] tracking-tight">
+              <span className="bg-gradient-to-r from-yellow-300 via-yellow-400 to-amber-400 bg-clip-text text-transparent drop-shadow-sm">
+                parking bay?
               </span>
             </h2>
-            <p className="text-lg sm:text-xl lg:text-2xl text-white/90 mb-2 font-medium px-4">
-              💰 Turn your empty space into monthly revenue
-            </p>
-            <p className="text-base sm:text-lg lg:text-xl text-white/80 px-4">
-              Join hundreds of space owners earning up to AED 1,000+ per month
-            </p>
+            <h3 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black leading-[0.9] tracking-tight">
+              <span className="bg-gradient-to-r from-yellow-200 via-yellow-300 to-yellow-400 bg-clip-text text-transparent">
+                Earn passive income.
+              </span>
+            </h3>
           </div>
           
-          {/* Enhanced CTA Button */}
-          <div className="space-y-4 sm:space-y-6">
+          {/* CTA Button */}
+          <div className="space-y-6 sm:space-y-8">
             <Link to="/rent-out-your-space">
               <Button 
                 size="lg" 
-                className="bg-white text-primary hover:bg-yellow-50 hover:text-primary/90 px-8 sm:px-12 py-4 sm:py-6 text-lg sm:text-xl font-bold rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105 animate-bounce-slow border-4 border-white/20 w-full sm:w-auto"
+                className="bg-white text-emerald-600 hover:bg-yellow-50 hover:text-emerald-700 px-10 sm:px-16 py-5 sm:py-7 text-xl sm:text-2xl font-bold rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105 w-full sm:w-auto"
               >
-                🚗 List Your Space Now
+                Start Earning Today
               </Button>
             </Link>
             
-            {/* Secondary Info */}
-            <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-8 text-white/90 text-xs sm:text-sm lg:text-base font-medium">
+            {/* Trust Indicators */}
+            <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-8 text-white/95 text-sm sm:text-base font-semibold">
               <div className="flex items-center gap-2">
-                <span className="w-2 h-2 bg-yellow-400 rounded-full"></span>
+                <span className="text-yellow-300 text-lg">✓</span>
                 Free to list
               </div>
               <div className="flex items-center gap-2">
-                <span className="w-2 h-2 bg-yellow-400 rounded-full"></span>
-                Instant bookings
+                <span className="text-yellow-300 text-lg">✓</span>
+                Earn up to AED 1,000/month
               </div>
               <div className="flex items-center gap-2">
-                <span className="w-2 h-2 bg-yellow-400 rounded-full"></span>
+                <span className="text-yellow-300 text-lg">✓</span>
                 Secure payments
               </div>
             </div>
