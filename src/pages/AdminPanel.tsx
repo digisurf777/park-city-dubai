@@ -8,8 +8,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Pencil, Trash2, Plus, CheckCircle, XCircle, FileText, Mail } from 'lucide-react';
+import { Pencil, Trash2, Plus, CheckCircle, XCircle, FileText, Mail, Upload, X } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface NewsPost {
@@ -55,6 +56,7 @@ const AdminPanel = () => {
   const [verifications, setVerifications] = useState<Verification[]>([]);
   const [parkingListings, setParkingListings] = useState<ParkingListing[]>([]);
   const [editingPost, setEditingPost] = useState<NewsPost | null>(null);
+  const [editingListing, setEditingListing] = useState<ParkingListing | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [loading, setLoading] = useState(true);
   const [verificationsLoading, setVerificationsLoading] = useState(true);
@@ -72,6 +74,18 @@ const AdminPanel = () => {
   const [messageSubject, setMessageSubject] = useState('');
   const [messageContent, setMessageContent] = useState('');
   const [selectedUserId, setSelectedUserId] = useState('');
+
+  // Parking listing edit form state
+  const [listingTitle, setListingTitle] = useState('');
+  const [listingDescription, setListingDescription] = useState('');
+  const [listingAddress, setListingAddress] = useState('');
+  const [listingZone, setListingZone] = useState('');
+  const [listingPricePerHour, setListingPricePerHour] = useState<number>(0);
+  const [listingPricePerMonth, setListingPricePerMonth] = useState<number>(0);
+  const [listingContactEmail, setListingContactEmail] = useState('');
+  const [listingContactPhone, setListingContactPhone] = useState('');
+  const [listingImages, setListingImages] = useState<string[]>([]);
+  const [newImageUrl, setNewImageUrl] = useState('');
 
   useEffect(() => {
     if (user) {
@@ -187,6 +201,93 @@ const AdminPanel = () => {
       toast({
         title: "Error",
         description: "Failed to update listing status",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleEditListing = (listing: ParkingListing) => {
+    setEditingListing(listing);
+    setListingTitle(listing.title);
+    setListingDescription(listing.description || '');
+    setListingAddress(listing.address);
+    setListingZone(listing.zone);
+    setListingPricePerHour(listing.price_per_hour);
+    setListingPricePerMonth(listing.price_per_month);
+    setListingContactEmail(listing.contact_email || '');
+    setListingContactPhone(listing.contact_phone || '');
+    setListingImages(listing.images || []);
+    setNewImageUrl('');
+  };
+
+  const resetListingForm = () => {
+    setEditingListing(null);
+    setListingTitle('');
+    setListingDescription('');
+    setListingAddress('');
+    setListingZone('');
+    setListingPricePerHour(0);
+    setListingPricePerMonth(0);
+    setListingContactEmail('');
+    setListingContactPhone('');
+    setListingImages([]);
+    setNewImageUrl('');
+  };
+
+  const addImageToListing = () => {
+    if (newImageUrl.trim() && !listingImages.includes(newImageUrl.trim())) {
+      setListingImages([...listingImages, newImageUrl.trim()]);
+      setNewImageUrl('');
+    }
+  };
+
+  const removeImageFromListing = (imageUrl: string) => {
+    setListingImages(listingImages.filter(img => img !== imageUrl));
+  };
+
+  const handleSaveListing = async () => {
+    if (!editingListing) return;
+
+    if (!listingTitle.trim() || !listingAddress.trim() || !listingZone.trim()) {
+      toast({
+        title: "Error",
+        description: "Title, address, and zone are required",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const listingData = {
+        title: listingTitle.trim(),
+        description: listingDescription.trim() || null,
+        address: listingAddress.trim(),
+        zone: listingZone.trim(),
+        price_per_hour: listingPricePerHour,
+        price_per_month: listingPricePerMonth,
+        contact_email: listingContactEmail.trim() || null,
+        contact_phone: listingContactPhone.trim() || null,
+        images: listingImages.length > 0 ? listingImages : null,
+      };
+
+      const { error } = await supabase
+        .from('parking_listings')
+        .update(listingData)
+        .eq('id', editingListing.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Parking listing updated successfully",
+      });
+
+      resetListingForm();
+      fetchParkingListings();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update parking listing",
         variant: "destructive",
       });
     }
@@ -586,7 +687,180 @@ const AdminPanel = () => {
           </TabsContent>
 
           <TabsContent value="listings" className="space-y-6">
-            <h2 className="text-2xl font-semibold">Parking Listings</h2>
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-semibold">Parking Listings</h2>
+              {editingListing && (
+                <Button variant="outline" onClick={resetListingForm}>
+                  Cancel Edit
+                </Button>
+              )}
+            </div>
+
+            {editingListing && (
+              <Card className="mb-6">
+                <CardHeader>
+                  <CardTitle>Edit Parking Listing</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="listingTitle">Title *</Label>
+                      <Input
+                        id="listingTitle"
+                        value={listingTitle}
+                        onChange={(e) => setListingTitle(e.target.value)}
+                        placeholder="Enter listing title"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="listingZone">Zone *</Label>
+                      <Select value={listingZone} onValueChange={setListingZone}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a zone" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Dubai Marina">Dubai Marina</SelectItem>
+                          <SelectItem value="Business Bay">Business Bay</SelectItem>
+                          <SelectItem value="DIFC">DIFC</SelectItem>
+                          <SelectItem value="Downtown">Downtown</SelectItem>
+                          <SelectItem value="Deira">Deira</SelectItem>
+                          <SelectItem value="Palm Jumeirah">Palm Jumeirah</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="listingAddress">Address *</Label>
+                    <Input
+                      id="listingAddress"
+                      value={listingAddress}
+                      onChange={(e) => setListingAddress(e.target.value)}
+                      placeholder="Enter full address"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="listingDescription">Description</Label>
+                    <Textarea
+                      id="listingDescription"
+                      value={listingDescription}
+                      onChange={(e) => setListingDescription(e.target.value)}
+                      placeholder="Enter description"
+                      rows={3}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="listingPricePerHour">Price per Hour (AED)</Label>
+                      <Input
+                        id="listingPricePerHour"
+                        type="number"
+                        value={listingPricePerHour}
+                        onChange={(e) => setListingPricePerHour(Number(e.target.value))}
+                        min="0"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="listingPricePerMonth">Price per Month (AED)</Label>
+                      <Input
+                        id="listingPricePerMonth"
+                        type="number"
+                        value={listingPricePerMonth}
+                        onChange={(e) => setListingPricePerMonth(Number(e.target.value))}
+                        min="0"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="listingContactEmail">Contact Email</Label>
+                      <Input
+                        id="listingContactEmail"
+                        type="email"
+                        value={listingContactEmail}
+                        onChange={(e) => setListingContactEmail(e.target.value)}
+                        placeholder="Enter contact email"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="listingContactPhone">Contact Phone</Label>
+                      <Input
+                        id="listingContactPhone"
+                        value={listingContactPhone}
+                        onChange={(e) => setListingContactPhone(e.target.value)}
+                        placeholder="Enter contact phone"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label>Images</Label>
+                    <div className="space-y-3">
+                      {listingImages.length > 0 && (
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                          {listingImages.map((imageUrl, index) => (
+                            <div key={index} className="relative group">
+                              <img 
+                                src={imageUrl} 
+                                alt={`Image ${index + 1}`}
+                                className="w-full h-20 object-cover rounded border"
+                              />
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                className="absolute top-1 right-1 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                                onClick={() => removeImageFromListing(imageUrl)}
+                              >
+                                <X className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      
+                      <div className="flex gap-2">
+                        <Input
+                          value={newImageUrl}
+                          onChange={(e) => setNewImageUrl(e.target.value)}
+                          placeholder="Enter image URL"
+                          className="flex-1"
+                        />
+                        <Button onClick={addImageToListing} variant="outline">
+                          <Plus className="h-4 w-4 mr-1" />
+                          Add
+                        </Button>
+                      </div>
+                      
+                      <p className="text-sm text-muted-foreground">
+                        Add image URLs. You can upload images to the{' '}
+                        <a 
+                          href="https://supabase.com/dashboard/project/eoknluyunximjlsnyceb/storage/buckets/parking-images"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:underline"
+                        >
+                          Supabase storage
+                        </a>{' '}
+                        and copy the public URL.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Button onClick={handleSaveListing}>
+                      Save Changes
+                    </Button>
+                    <Button variant="outline" onClick={resetListingForm}>
+                      Cancel
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             {listingsLoading ? (
               <div className="text-center py-8">
                 <p>Loading parking listings...</p>
@@ -612,7 +886,7 @@ const AdminPanel = () => {
                             Zone: {listing.zone}
                           </p>
                           <p className="text-sm text-muted-foreground">
-                            Monthly: {listing.price_per_month} AED
+                            Hourly: {listing.price_per_hour} AED | Monthly: {listing.price_per_month} AED
                           </p>
                           <p className="text-sm text-muted-foreground">
                             Contact: {listing.contact_email}
@@ -645,6 +919,11 @@ const AdminPanel = () => {
                                   />
                                 </div>
                               ))}
+                              {listing.images.length > 4 && (
+                                <div className="flex items-center justify-center text-xs text-muted-foreground bg-gray-100 rounded border h-20">
+                                  +{listing.images.length - 4} more
+                                </div>
+                              )}
                             </div>
                           ) : (
                             <p className="text-sm text-muted-foreground">No images</p>
@@ -662,6 +941,15 @@ const AdminPanel = () => {
                         </div>
                         
                         <div className="flex flex-col gap-2">
+                          <Button
+                            variant="outline"
+                            onClick={() => handleEditListing(listing)}
+                            className="flex items-center gap-2"
+                          >
+                            <Pencil className="h-4 w-4" />
+                            Edit Listing
+                          </Button>
+                          
                           {listing.status === 'pending' && (
                             <>
                               <Button
@@ -681,6 +969,7 @@ const AdminPanel = () => {
                               </Button>
                             </>
                           )}
+                          
                           <Button
                             variant="outline"
                             onClick={() => setSelectedUserId(listing.owner_id)}
