@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useSearchParams, Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import dubaiMarinaZone from "@/assets/zones/dubai-marina-real.jpg";
 import downtownZone from "@/assets/zones/downtown-real.jpg";
 import palmJumeirahZone from "@/assets/zones/palm-jumeirah-real.jpg";
@@ -23,6 +24,8 @@ const FindParking = () => {
   const [selectedDistricts, setSelectedDistricts] = useState<string[]>([]);
   const [priceRange, setPriceRange] = useState([0, 1500]);
   const [showAvailableOnly, setShowAvailableOnly] = useState(false);
+  const [parkingSpots, setParkingSpots] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const districtZones = [
     { name: "Dubai Marina", slug: "dubai-marina" },
@@ -32,6 +35,11 @@ const FindParking = () => {
     { name: "DIFC", slug: "difc" },
     { name: "Deira", slug: "deira" }
   ];
+
+  // Fetch parking spots from database
+  useEffect(() => {
+    fetchParkingSpots();
+  }, []);
 
   // Handle URL parameters on component mount
   useEffect(() => {
@@ -51,66 +59,41 @@ const FindParking = () => {
     }
   }, [searchParams]);
 
+  const fetchParkingSpots = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('parking_listings')
+        .select('*')
+        .eq('status', 'approved');
+
+      if (error) {
+        console.error('Error fetching parking spots:', error);
+        return;
+      }
+
+      // Transform the data to match the UI format
+      const transformedData = data?.map((listing: any) => ({
+        id: listing.id,
+        name: listing.title,
+        district: listing.zone,
+        price: listing.price_per_month || Math.round(listing.price_per_hour * 24 * 30),
+        image: listing.images && listing.images.length > 0 ? listing.images[0] : "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
+        specs: listing.features || ["Access Card", "Secure"],
+        available: listing.status === 'approved'
+      })) || [];
+
+      setParkingSpots(transformedData);
+    } catch (error) {
+      console.error('Error fetching parking spots:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const districts = [
     "Palm Jumeirah", "Dubai Marina", "Downtown", "DIFC", 
     "Business Bay", "JLT", "Barsha Heights", "Deira"
-  ];
-
-  const parkingSpots = [
-    {
-      id: 1,
-      name: "Marina Gate Parking",
-      district: "Dubai Marina",
-      price: 450,
-      image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
-      specs: ["Compact Size", "Access Card", "2.1m Height"],
-      available: true
-    },
-    {
-      id: 2,
-      name: "DIFC Gate Village Bay",
-      district: "DIFC",
-      price: 650,
-      image: "/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.png",
-      specs: ["Large Size", "Remote Access", "3.0m Height"],
-      available: true
-    },
-    {
-      id: 3,
-      name: "Downtown Boulevard Space",
-      district: "Downtown",
-      price: 380,
-      image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
-      specs: ["Medium Size", "Access Card", "2.5m Height"],
-      available: false
-    },
-    {
-      id: 4,
-      name: "Business Bay Tower Bay",
-      district: "Business Bay",
-      price: 520,
-      image: "/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.png",
-      specs: ["Large Size", "Remote Access", "2.8m Height"],
-      available: true
-    },
-    {
-      id: 5,
-      name: "JLT Cluster Bay",
-      district: "JLT",
-      price: 420,
-      image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
-      specs: ["Compact Size", "Access Card", "2.2m Height"],
-      available: true
-    },
-    {
-      id: 6,
-      name: "Palm Jumeirah Villa Bay",
-      district: "Palm Jumeirah",
-      price: 750,
-      image: "/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.png",
-      specs: ["Premium Size", "Remote Access", "3.5m Height"],
-      available: true
-    }
   ];
 
   const toggleDistrict = (district: string) => {
@@ -297,6 +280,70 @@ const FindParking = () => {
             );
           })}
         </div>
+
+        {/* Parking Listings Section */}
+        {loading ? (
+          <div id="listings-section" className="mt-16 text-center">
+            <p className="text-muted-foreground">Loading parking spots...</p>
+          </div>
+        ) : filteredSpots.length > 0 ? (
+          <div id="listings-section" className="mt-16">
+            <h3 className="text-2xl font-bold text-foreground mb-8 text-center">Available Parking Spots</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredSpots.map((spot) => (
+                <Card key={spot.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+                  <div className="relative h-48">
+                    <img
+                      src={spot.image}
+                      alt={spot.name}
+                      className="w-full h-full object-cover"
+                    />
+                    {spot.available ? (
+                      <Badge className="absolute top-2 right-2 bg-green-500">Available</Badge>
+                    ) : (
+                      <Badge className="absolute top-2 right-2 bg-red-500">Unavailable</Badge>
+                    )}
+                  </div>
+                  <div className="p-4">
+                    <h4 className="font-semibold text-lg mb-2">{spot.name}</h4>
+                    <div className="flex items-center text-muted-foreground mb-3">
+                      <MapPin className="h-4 w-4 mr-1" />
+                      <span className="text-sm">{spot.district}</span>
+                    </div>
+                    <div className="flex flex-wrap gap-1 mb-4">
+                      {spot.specs.map((spec: string, index: number) => (
+                        <Badge key={index} variant="outline" className="text-xs">
+                          {spec}
+                        </Badge>
+                      ))}
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="text-xl font-bold text-primary">
+                        AED {spot.price}
+                        <span className="text-sm text-muted-foreground font-normal">/month</span>
+                      </div>
+                      <Button 
+                        size="sm"
+                        disabled={!spot.available}
+                        className={cn(
+                          spot.available 
+                            ? "bg-primary hover:bg-primary/90" 
+                            : "bg-muted text-muted-foreground cursor-not-allowed"
+                        )}
+                      >
+                        {spot.available ? "Reserve" : "Unavailable"}
+                      </Button>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div id="listings-section" className="mt-16 text-center">
+            <p className="text-muted-foreground">No parking spots found matching your criteria.</p>
+          </div>
+        )}
       </div>
 
       <Footer />
