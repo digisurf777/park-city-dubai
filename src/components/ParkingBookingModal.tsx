@@ -3,11 +3,16 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { CalendarIcon, Car, Clock, CreditCard, MapPin } from "lucide-react";
+import { CalendarIcon, Car, Clock, CreditCard, MapPin, Check } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ParkingSpot {
   id: string | number;
@@ -33,15 +38,27 @@ const DURATION_OPTIONS = [
 ];
 
 export const ParkingBookingModal = ({ isOpen, onClose, parkingSpot }: ParkingBookingModalProps) => {
+  const { user } = useAuth();
+  const { toast } = useToast();
   const [startDate, setStartDate] = useState<Date>();
   const [selectedDuration, setSelectedDuration] = useState(DURATION_OPTIONS[0]);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const [userPhone, setUserPhone] = useState("");
+  const [notes, setNotes] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [bookingReference, setBookingReference] = useState("");
 
   useEffect(() => {
     if (!isOpen) {
       setStartDate(undefined);
       setSelectedDuration(DURATION_OPTIONS[0]);
       setIsCalendarOpen(false);
+      setUserPhone("");
+      setNotes("");
+      setIsSubmitting(false);
+      setShowConfirmation(false);
+      setBookingReference("");
     }
   }, [isOpen]);
 
@@ -60,23 +77,114 @@ export const ParkingBookingModal = ({ isOpen, onClose, parkingSpot }: ParkingBoo
 
   const { basePrice, discountAmount, finalPrice, savings } = calculateTotal();
 
-  const handleReserve = () => {
-    if (!startDate) {
-      alert("Please select a start date");
+  const handleReserve = async () => {
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to submit a booking request.",
+        variant: "destructive",
+      });
       return;
     }
-    
-    // Here you would integrate with your booking system
-    console.log("Booking details:", {
-      parkingSpot: parkingSpot.name,
-      startDate,
-      duration: selectedDuration,
-      totalPrice: finalPrice,
-    });
-    
-    alert(`Booking request submitted for ${parkingSpot.name}!\nStart Date: ${format(startDate, "PPP")}\nDuration: ${selectedDuration.label}\nTotal: AED ${finalPrice.toLocaleString()}`);
-    onClose();
+
+    if (!startDate) {
+      toast({
+        title: "Start Date Required",
+        description: "Please select a start date for your booking.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const bookingData = {
+        parkingSpotId: parkingSpot.id.toString(),
+        parkingSpotName: parkingSpot.name,
+        startDate: startDate.toISOString(),
+        duration: selectedDuration.months,
+        totalPrice: finalPrice,
+        userEmail: user.email || "",
+        userName: user.user_metadata?.full_name || user.email || "",
+        userPhone: userPhone,
+        notes: notes,
+      };
+
+      const { data, error } = await supabase.functions.invoke('submit-booking-request', {
+        body: bookingData,
+      });
+
+      if (error) throw error;
+
+      console.log('Booking request submitted:', data);
+      
+      setBookingReference(data.bookingId?.slice(0, 8).toUpperCase() || "");
+      setShowConfirmation(true);
+      
+      toast({
+        title: "Booking Request Submitted!",
+        description: "We'll contact you within 2 working days to confirm availability.",
+      });
+
+    } catch (error: any) {
+      console.error('Error submitting booking:', error);
+      toast({
+        title: "Submission Failed",
+        description: error.message || "Failed to submit booking request. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
+  // Check if start date is within 7 days
+  const isWithin7Days = startDate ? 
+    (startDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24) <= 7 : false;
+
+  // Show confirmation screen
+  if (showConfirmation) {
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="max-w-2xl">
+          <div className="text-center p-6">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Check className="w-8 h-8 text-green-600" />
+            </div>
+            <h2 className="text-2xl font-bold mb-4 text-green-600">✅ Your booking request has been submitted!</h2>
+            
+            <div className="bg-muted/50 p-6 rounded-lg mb-6">
+              <h3 className="font-semibold mb-3">What happens next:</h3>
+              <ul className="text-left space-y-2 max-w-md mx-auto">
+                <li>• We will contact you within <strong>2 working days</strong> to confirm availability</li>
+                <li>• You'll receive a payment link after confirmation</li>
+                <li>• <strong>No charges have been made at this time</strong></li>
+              </ul>
+            </div>
+
+            {bookingReference && (
+              <p className="text-muted-foreground mb-6">
+                Booking Reference: <strong>{bookingReference}</strong>
+              </p>
+            )}
+
+            <div className="space-y-4">
+              <Button 
+                onClick={() => setShowConfirmation(false)}
+                variant="outline"
+              >
+                Submit Another Request
+              </Button>
+              <div>
+                <Button onClick={onClose}>Close</Button>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -216,14 +324,59 @@ export const ParkingBookingModal = ({ isOpen, onClose, parkingSpot }: ParkingBoo
               </CardContent>
             </Card>
 
+            {/* Additional Fields */}
+            <div>
+              <label className="block text-sm font-medium mb-2">Phone Number (Optional)</label>
+              <Input
+                type="tel"
+                placeholder="Your phone number"
+                value={userPhone}
+                onChange={(e) => setUserPhone(e.target.value)}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">Notes (Optional)</label>
+              <Textarea
+                placeholder="Any special requirements or notes..."
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                className="min-h-[80px]"
+              />
+            </div>
+
+            {/* Important Notice */}
+            <Card className="bg-blue-50 border-blue-200">
+              <CardContent className="p-4">
+                <div className="text-sm text-blue-800">
+                  <p className="font-medium mb-2">📋 Booking Process:</p>
+                  <ul className="space-y-1 text-xs">
+                    <li>• Your booking request will be reviewed</li>
+                    <li>• We'll contact you within 2 working days</li>
+                    <li>• Payment will be requested only after confirmation</li>
+                    {isWithin7Days && (
+                      <li className="text-orange-600 font-medium">
+                        • Bookings within 7 days require manual approval
+                      </li>
+                    )}
+                  </ul>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Reserve Button */}
             <Button 
               onClick={handleReserve}
               className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 text-lg"
               size="lg"
+              disabled={!startDate || isSubmitting}
             >
-              Reserve Now
+              {isSubmitting ? "Submitting..." : "👉 Submit Booking Request"}
             </Button>
+
+            <p className="text-xs text-muted-foreground text-center">
+              No charges will be made at this time. Payment link will be provided after confirmation.
+            </p>
           </div>
         </div>
       </DialogContent>
