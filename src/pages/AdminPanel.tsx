@@ -452,6 +452,54 @@ const AdminPanel = () => {
     }
   };
 
+  const handleDeleteListing = async (listingId: string) => {
+    if (!confirm('Are you sure you want to delete this parking listing? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      // First, get the listing to access its images
+      const { data: listing, error: fetchError } = await supabase
+        .from('parking_listings')
+        .select('images')
+        .eq('id', listingId)
+        .single();
+
+      if (fetchError) throw fetchError;
+
+      // Delete images from storage if they exist
+      if (listing?.images && listing.images.length > 0) {
+        for (const imageUrl of listing.images) {
+          if (imageUrl.includes('supabase')) {
+            await deleteImageFromStorage(imageUrl);
+          }
+        }
+      }
+
+      // Delete the listing from database
+      const { error } = await supabase
+        .from('parking_listings')
+        .delete()
+        .eq('id', listingId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Parking listing deleted successfully",
+      });
+
+      fetchParkingListings();
+    } catch (error) {
+      console.error('Error deleting listing:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete parking listing",
+        variant: "destructive",
+      });
+    }
+  };
+
   const updateVerificationStatus = async (verificationId: string, status: 'verified' | 'rejected') => {
     try {
       // Get verification details before updating
@@ -1177,6 +1225,15 @@ const AdminPanel = () => {
                           >
                             <Mail className="h-4 w-4" />
                             Contact Owner
+                          </Button>
+                          
+                          <Button
+                            variant="destructive"
+                            onClick={() => handleDeleteListing(listing.id)}
+                            className="flex items-center gap-2"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                            Delete Listing
                           </Button>
                         </div>
                       </div>
