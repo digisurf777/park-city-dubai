@@ -351,9 +351,9 @@ export const ParkingBookingModal = ({ isOpen, onClose, parkingSpot }: ParkingBoo
                 <div className="text-sm text-blue-800">
                   <p className="font-medium mb-2">📋 Booking Process:</p>
                   <ul className="space-y-1 text-xs">
-                    <li>• Your booking request will be reviewed</li>
-                    <li>• We'll contact you within 2 working days</li>
-                    <li>• Payment will be requested only after confirmation</li>
+                    <li>• We authorize payment and will contact you within 2 days</li>
+                    <li>• Once confirmed we charge you</li>
+                    <li>• If not confirmed we will send money back</li>
                     {isWithin7Days && (
                       <li className="text-orange-600 font-medium">
                         • Bookings within 7 days require manual approval
