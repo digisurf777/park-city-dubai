@@ -194,6 +194,20 @@ const AdminPanel = () => {
 
   const updateVerificationStatus = async (verificationId: string, status: 'verified' | 'rejected') => {
     try {
+      // Get verification details before updating
+      const { data: verification, error: fetchError } = await supabase
+        .from('user_verifications')
+        .select('user_id, full_name')
+        .eq('id', verificationId)
+        .single();
+
+      if (fetchError) throw fetchError;
+
+      // Get user email from auth
+      const { data: userData, error: userError } = await supabase.auth.admin.getUserById(verification.user_id);
+      if (userError) throw userError;
+
+      // Update verification status
       const { error } = await supabase
         .from('user_verifications')
         .update({ verification_status: status })
@@ -201,13 +215,24 @@ const AdminPanel = () => {
 
       if (error) throw error;
 
+      // Send notification to user
+      await supabase.functions.invoke('send-verification-approval', {
+        body: {
+          userId: verification.user_id,
+          userEmail: userData.user.email,
+          userName: verification.full_name,
+          isApproved: status === 'verified'
+        }
+      });
+
       toast({
         title: "Success",
-        description: `Verification ${status} successfully`,
+        description: `Verification ${status} successfully. User has been notified.`,
       });
 
       fetchVerifications();
     } catch (error) {
+      console.error('Error updating verification:', error);
       toast({
         title: "Error",
         description: "Failed to update verification status",
