@@ -12,53 +12,42 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ParkingBookingModal } from "@/components/ParkingBookingModal";
 import downtownHero from "@/assets/zones/downtown-real.jpg";
-
 const Downtown = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [priceRange, setPriceRange] = useState([0, 20000]); 
+  const [priceRange, setPriceRange] = useState([0, 20000]);
   const [showAvailableOnly, setShowAvailableOnly] = useState(false);
   const [parkingSpots, setParkingSpots] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedSpot, setSelectedSpot] = useState<any>(null);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
-
   useEffect(() => {
     fetchParkingSpots();
 
     // Set up real-time subscription to parking_listings changes
-    const channel = supabase
-      .channel('parking-listings-downtown')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'parking_listings'
-        },
-        (payload) => {
-          console.log('Real-time parking listing change in Downtown:', payload);
-          // Refetch data when any parking listing changes
-          fetchParkingSpots();
-        }
-      )
-      .subscribe();
-
+    const channel = supabase.channel('parking-listings-downtown').on('postgres_changes', {
+      event: '*',
+      schema: 'public',
+      table: 'parking_listings'
+    }, payload => {
+      console.log('Real-time parking listing change in Downtown:', payload);
+      // Refetch data when any parking listing changes
+      fetchParkingSpots();
+    }).subscribe();
     return () => {
       supabase.removeChannel(channel);
     };
   }, []);
-
   const fetchParkingSpots = async () => {
     console.log('Fetching parking spots for Downtown...');
     try {
-      const { data, error } = await supabase
-        .from('parking_listings')
-        .select('*')
-        .eq('zone', 'Downtown')
-        .eq('status', 'approved');
-
-      console.log('Supabase query result:', { data, error });
-
+      const {
+        data,
+        error
+      } = await supabase.from('parking_listings').select('*').eq('zone', 'Downtown').eq('status', 'approved');
+      console.log('Supabase query result:', {
+        data,
+        error
+      });
       if (error) throw error;
 
       // Transform data to match UI expectations
@@ -74,44 +63,12 @@ const Downtown = () => {
         address: spot.address,
         description: spot.description
       }));
-
       console.log('Transformed data:', transformedData);
-      
+
       // If no data from database, use demo data
       if (transformedData.length === 0) {
         console.log('No data from database, using demo data');
-        setParkingSpots([
-          {
-            id: 1,
-            name: "The Lofts Central Tower",
-            district: "Downtown",
-            price: 250,
-            image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
-            specs: ["Access Card", "Covered", "2.5m Height"],
-            available: true,
-            address: "The Lofts Central Tower, Downtown Dubai",
-            description: "Prime downtown parking in The Lofts Central Tower. Secure underground parking with 24/7 access and CCTV surveillance."
-          },
-          {
-            id: 2,
-            name: "Burj Vista",
-            district: "Downtown",
-            price: 860,
-            image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
-            specs: ["CCTV", "24h Security", "Concierge"],
-            available: true,
-            address: "Burj Vista, Downtown Dubai",
-            description: "Basement-level parking space in the heart of Downtown. CCTV surveillance, 24-hour maintenance, and concierge services available."
-          }
-        ]);
-      } else {
-        setParkingSpots(transformedData);
-      }
-    } catch (error) {
-      console.error('Error fetching parking spots:', error);
-      // Fallback to demo data if database query fails
-      setParkingSpots([
-        {
+        setParkingSpots([{
           id: 1,
           name: "The Lofts Central Tower",
           district: "Downtown",
@@ -120,9 +77,8 @@ const Downtown = () => {
           specs: ["Access Card", "Covered", "2.5m Height"],
           available: true,
           address: "The Lofts Central Tower, Downtown Dubai",
-          description: "Prime downtown parking with 24/7 security and premium amenities."
-        },
-        {
+          description: "Prime downtown parking in The Lofts Central Tower. Secure underground parking with 24/7 access and CCTV surveillance."
+        }, {
           id: 2,
           name: "Burj Vista",
           district: "Downtown",
@@ -131,36 +87,56 @@ const Downtown = () => {
           specs: ["CCTV", "24h Security", "Concierge"],
           available: true,
           address: "Burj Vista, Downtown Dubai",
-          description: "Basement-level parking with CCTV surveillance and concierge services."
-        }
-      ]);
+          description: "Basement-level parking space in the heart of Downtown. CCTV surveillance, 24-hour maintenance, and concierge services available."
+        }]);
+      } else {
+        setParkingSpots(transformedData);
+      }
+    } catch (error) {
+      console.error('Error fetching parking spots:', error);
+      // Fallback to demo data if database query fails
+      setParkingSpots([{
+        id: 1,
+        name: "The Lofts Central Tower",
+        district: "Downtown",
+        price: 250,
+        image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
+        specs: ["Access Card", "Covered", "2.5m Height"],
+        available: true,
+        address: "The Lofts Central Tower, Downtown Dubai",
+        description: "Prime downtown parking with 24/7 security and premium amenities."
+      }, {
+        id: 2,
+        name: "Burj Vista",
+        district: "Downtown",
+        price: 860,
+        image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
+        specs: ["CCTV", "24h Security", "Concierge"],
+        available: true,
+        address: "Burj Vista, Downtown Dubai",
+        description: "Basement-level parking with CCTV surveillance and concierge services."
+      }]);
     } finally {
       setLoading(false);
     }
   };
-
   const clearFilters = () => {
     setSearchTerm("");
     setPriceRange([0, 20000]);
     setShowAvailableOnly(false);
   };
-
   const filteredSpots = parkingSpots.filter(spot => {
     const matchesSearch = spot.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesPrice = spot.price >= priceRange[0] && spot.price <= priceRange[1];
     const matchesAvailability = !showAvailableOnly || spot.available;
     return matchesSearch && matchesPrice && matchesAvailability;
   });
-  
   const minPrice = parkingSpots.length > 0 ? Math.min(...parkingSpots.map(spot => spot.price)) : 0;
-
   const handleReserveClick = (spot: any) => {
     setSelectedSpot(spot);
     setIsBookingModalOpen(true);
   };
-
-  return (
-    <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background">
       <Navbar />
       
       {/* Hero Section */}
@@ -185,12 +161,7 @@ const Downtown = () => {
             {/* Search Box */}
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search building or tower..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
+              <Input placeholder="Search building or tower..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-10" />
             </div>
 
             <div></div>
@@ -231,43 +202,24 @@ const Downtown = () => {
         </div>
 
         {/* Listing Grid */}
-        {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3].map(i => (
-              <Card key={i} className="overflow-hidden animate-pulse">
+        {loading ? <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3].map(i => <Card key={i} className="overflow-hidden animate-pulse">
                 <div className="aspect-video bg-gray-200"></div>
                 <div className="p-6">
                   <div className="h-4 bg-gray-200 rounded mb-2"></div>
                   <div className="h-3 bg-gray-200 rounded w-2/3"></div>
                 </div>
-              </Card>
-            ))}
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              </Card>)}
+          </div> : <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredSpots.map(spot => <Card key={spot.id} className="overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
               {/* Image carousel */}
               <div className="relative w-full h-64 overflow-hidden">
-                {spot.images && spot.images.length > 0 ? (
-                  <div className="flex transition-transform duration-300 ease-in-out h-full">
-                    <img 
-                      src={spot.images[0]} 
-                      alt={spot.name} 
-                      className="w-full h-full object-cover flex-shrink-0"
-                    />
-                  </div>
-                ) : (
-                  <img 
-                    src={spot.image} 
-                    alt={spot.name} 
-                    className="w-full h-full object-cover"
-                  />
-                )}
-                {spot.images && spot.images.length > 1 && (
-                  <div className="absolute bottom-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
+                {spot.images && spot.images.length > 0 ? <div className="flex transition-transform duration-300 ease-in-out h-full">
+                    <img src={spot.images[0]} alt={spot.name} className="w-full h-full object-cover flex-shrink-0" />
+                  </div> : <img src={spot.image} alt={spot.name} className="w-full h-full object-cover" />}
+                {spot.images && spot.images.length > 1 && <div className="absolute bottom-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
                     +{spot.images.length - 1} more
-                  </div>
-                )}
+                  </div>}
               </div>
 
               {/* Content */}
@@ -286,15 +238,9 @@ const Downtown = () => {
                 </div>
 
                 {/* Optional feature tags */}
-                {spot.specs && spot.specs.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {spot.specs.map((feature, index) => (
-                      <Badge key={index} variant="secondary" className="text-xs">
-                        {feature}
-                      </Badge>
-                    ))}
-                  </div>
-                )}
+                {spot.specs && spot.specs.length > 0 && <div className="flex flex-wrap gap-2 mb-4">
+                    {spot.specs.map((feature, index) => {})}
+                  </div>}
 
                 {/* Benefits */}
                 <div className="mb-4 space-y-2">
@@ -307,37 +253,25 @@ const Downtown = () => {
                 </div>
 
                 {/* Reserve Now Button */}
-                <Button 
-                  onClick={() => handleReserveClick(spot)}
-                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
-                >
+                <Button onClick={() => handleReserveClick(spot)} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
                   Reserve Now
                 </Button>
               </div>
             </Card>)}
-          </div>
-        )}
+          </div>}
 
-        {filteredSpots.length === 0 && !loading && (
-          <div className="text-center py-12">
+        {filteredSpots.length === 0 && !loading && <div className="text-center py-12">
             <p className="text-muted-foreground text-lg">No parking spaces found matching your criteria.</p>
             <Button variant="outline" className="mt-4" onClick={clearFilters}>
               Clear filters
             </Button>
-          </div>
-        )}
+          </div>}
       </div>
 
       <Footer />
 
       {/* Booking Modal */}
-      <ParkingBookingModal
-        isOpen={isBookingModalOpen}
-        onClose={() => setIsBookingModalOpen(false)}
-        parkingSpot={selectedSpot}
-      />
-    </div>
-  );
+      <ParkingBookingModal isOpen={isBookingModalOpen} onClose={() => setIsBookingModalOpen(false)} parkingSpot={selectedSpot} />
+    </div>;
 };
-
 export default Downtown;
