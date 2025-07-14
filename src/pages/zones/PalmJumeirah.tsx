@@ -28,6 +28,7 @@ const PalmJumeirah = () => {
   const [loading, setLoading] = useState(true);
   const [selectedSpot, setSelectedSpot] = useState<any>(null);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+  const [currentImageIndexes, setCurrentImageIndexes] = useState<{[key: string]: number}>({});
 
   useEffect(() => {
     fetchParkingSpots();
@@ -165,6 +166,20 @@ const PalmJumeirah = () => {
     setIsBookingModalOpen(true);
   };
 
+  const nextImage = (spotId: string, totalImages: number) => {
+    setCurrentImageIndexes(prev => ({
+      ...prev,
+      [spotId]: ((prev[spotId] || 0) + 1) % totalImages
+    }));
+  };
+
+  const prevImage = (spotId: string, totalImages: number) => {
+    setCurrentImageIndexes(prev => ({
+      ...prev,
+      [spotId]: ((prev[spotId] || 0) - 1 + totalImages) % totalImages
+    }));
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -260,26 +275,64 @@ const PalmJumeirah = () => {
             {filteredSpots.map((spot) => (
               <Card key={spot.id} className="overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
                 {/* Image carousel */}
-                <div className="relative w-full h-64 overflow-hidden">
-                  {spot.images && spot.images.length > 1 ? (
-                    <Carousel className="w-full h-full">
-                      <CarouselContent className="h-full">
-                        {spot.images.map((image: string, index: number) => (
-                          <CarouselItem key={index} className="h-full">
-                            <img 
-                              src={image} 
-                              alt={`${spot.name} - Image ${index + 1}`} 
-                              className="w-full h-full object-cover"
-                            />
-                          </CarouselItem>
-                        ))}
-                      </CarouselContent>
-                      <CarouselPrevious className="absolute left-2 top-1/2 -translate-y-1/2 h-8 w-8 bg-black/50 hover:bg-black/70 border-0" />
-                      <CarouselNext className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 bg-black/50 hover:bg-black/70 border-0" />
-                      <div className="absolute bottom-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
-                        {spot.images.length} photos
-                      </div>
-                    </Carousel>
+                <div className="relative w-full h-64 overflow-hidden group">
+                  {spot.images && spot.images.length > 0 ? (
+                    <>
+                      <img 
+                        src={spot.images[currentImageIndexes[spot.id] || 0]} 
+                        alt={`${spot.name} - Image ${(currentImageIndexes[spot.id] || 0) + 1}`} 
+                        className="w-full h-full object-cover" 
+                      />
+                      {spot.images.length > 1 && (
+                        <>
+                          {/* Navigation buttons */}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              prevImage(spot.id, spot.images.length);
+                            }}
+                            className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <ChevronLeft className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              nextImage(spot.id, spot.images.length);
+                            }}
+                            className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <ChevronRight className="h-4 w-4" />
+                          </button>
+                          
+                          {/* Image indicator dots */}
+                          <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-1">
+                            {spot.images.map((_: any, index: number) => (
+                              <button
+                                key={index}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setCurrentImageIndexes(prev => ({
+                                    ...prev,
+                                    [spot.id]: index
+                                  }));
+                                }}
+                                className={`w-2 h-2 rounded-full transition-colors ${
+                                  (currentImageIndexes[spot.id] || 0) === index 
+                                    ? 'bg-white' 
+                                    : 'bg-white/50'
+                                }`}
+                              />
+                            ))}
+                          </div>
+                          
+                          {/* Image counter */}
+                          <div className="absolute top-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
+                            {(currentImageIndexes[spot.id] || 0) + 1} / {spot.images.length}
+                          </div>
+                        </>
+                      )}
+                    </>
                   ) : (
                     <img 
                       src={spot.image} 
