@@ -45,7 +45,7 @@ const PalmJumeirah = () => {
         name: spot.title,
         district: "Palm Jumeirah",
         price: spot.price_per_month || 0,
-        image: "/lovable-uploads/ba4a4def-2cd7-4e97-89d5-074c13f0bbe8.png",
+        image: spot.images && spot.images.length > 0 ? spot.images[0] : "/lovable-uploads/ba4a4def-2cd7-4e97-89d5-074c13f0bbe8.png",
         specs: spot.features || ["Access Card", "Covered", "2.1m Height"],
         available: true,
         address: spot.address,
@@ -252,7 +252,7 @@ const PalmJumeirah = () => {
             {filteredSpots.map((spot) => (
               <Card key={spot.id} className="overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
                 <div className="relative w-full h-64">
-                  <img src="/lovable-uploads/ba4a4def-2cd7-4e97-89d5-074c13f0bbe8.png" alt={spot.name} className="w-full h-full object-cover" />
+                  <img src={spot.image} alt={spot.name} className="w-full h-full object-cover" />
                 </div>
 
                 <div className="p-6">

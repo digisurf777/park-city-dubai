@@ -44,7 +44,7 @@ const DubaiMarina = () => {
         name: spot.title,
         district: "Dubai Marina",
         price: spot.price_per_month || 0,
-        image: "/lovable-uploads/25c56481-0d03-4055-bd47-67635ac0d1b0.png",
+        image: spot.images && spot.images.length > 0 ? spot.images[0] : "/lovable-uploads/25c56481-0d03-4055-bd47-67635ac0d1b0.png",
         specs: spot.features || ["Access Card", "Covered", "2.1m Height"],
         available: true,
         address: spot.address,
@@ -374,7 +374,7 @@ const DubaiMarina = () => {
           {filteredSpots.map(spot => <Card key={spot.id} className="overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
               {/* Full-width image */}
               <div className="relative w-full h-64">
-                <img src="/lovable-uploads/25c56481-0d03-4055-bd47-67635ac0d1b0.png" alt={spot.name} className="w-full h-full object-cover" />
+                <img src={spot.image} alt={spot.name} className="w-full h-full object-cover" />
               </div>
 
               {/* Content */}

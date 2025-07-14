@@ -44,7 +44,7 @@ const BusinessBay = () => {
         name: spot.title,
         district: "Business Bay",
         price: spot.price_per_month || 0,
-        image: "/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.png",
+        image: spot.images && spot.images.length > 0 ? spot.images[0] : "/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.png",
         specs: spot.features || ["Access Card", "Covered", "2.1m Height"],
         available: true,
         address: spot.address,
@@ -258,7 +258,7 @@ const BusinessBay = () => {
             {filteredSpots.map((spot) => (
               <Card key={spot.id} className="overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
                 <div className="relative w-full h-64">
-                  <img src="/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.png" alt={spot.name} className="w-full h-full object-cover" />
+                  <img src={spot.image} alt={spot.name} className="w-full h-full object-cover" />
                 </div>
 
                 <div className="p-6">
