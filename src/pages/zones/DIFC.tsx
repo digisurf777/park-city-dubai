@@ -24,6 +24,28 @@ const DIFC = () => {
 
   useEffect(() => {
     fetchParkingSpots();
+
+    // Set up real-time subscription to parking_listings changes
+    const channel = supabase
+      .channel('parking-listings-difc')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'parking_listings'
+        },
+        (payload) => {
+          console.log('Real-time parking listing change in DIFC:', payload);
+          // Refetch data when any parking listing changes
+          fetchParkingSpots();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const fetchParkingSpots = async () => {
