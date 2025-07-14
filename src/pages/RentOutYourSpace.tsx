@@ -12,6 +12,7 @@ import { useState, useRef } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { AnimateOnScroll } from "@/hooks/useScrollAnimation";
 import luxuryCar from "@/assets/luxury-car-dubai.png";
 import phoneLogo from "@/assets/phone-logo.png";
 import ReCAPTCHA from 'react-google-recaptcha';
@@ -259,59 +260,67 @@ const RentOutYourSpace = () => {
       {/* Three Steps Section */}
       <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <img 
-              src="/lovable-uploads/747c1f5d-d6b2-4f6a-94a2-aca1927ee856.png"
-              alt="List your parking space in just 3 simple steps"
-              className="w-full max-w-4xl mx-auto px-4"
-            />
-          </div>
+          <AnimateOnScroll animation="fade-up">
+            <div className="text-center">
+              <img 
+                src="/lovable-uploads/747c1f5d-d6b2-4f6a-94a2-aca1927ee856.png"
+                alt="List your parking space in just 3 simple steps"
+                className="w-full max-w-4xl mx-auto px-4"
+              />
+            </div>
+          </AnimateOnScroll>
         </div>
       </section>
 
       {/* Why List With Us Section */}
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-8">
-              It's completely FREE to post and advertise your parking space!
-            </h2>
-            <p className="text-xl text-gray-600 mb-8">
-              With ShazamParking you can make extra income by renting out your driveway or car park. Listing your space is quick and easy!
-            </p>
-          </div>
+          <AnimateOnScroll animation="slide-left">
+            <div className="text-center mb-16">
+              <h2 className="text-4xl font-bold text-gray-900 mb-8">
+                It's completely FREE to post and advertise your parking space!
+              </h2>
+              <p className="text-xl text-gray-600 mb-8">
+                With ShazamParking you can make extra income by renting out your driveway or car park. Listing your space is quick and easy!
+              </p>
+            </div>
+          </AnimateOnScroll>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16">
-            <div>
-              <h3 className="text-3xl font-bold text-gray-900 mb-8">Why List With Us</h3>
-              <ul className="space-y-4 text-lg text-gray-600">
-                <li className="flex items-center">
-                  <CheckCircle className="h-6 w-6 text-primary mr-3" />
-                  Zero listing fees
-                </li>
-                <li className="flex items-center">
-                  <CheckCircle className="h-6 w-6 text-primary mr-3" />
-                  Guaranteed monthly tenants
-                </li>
-                <li className="flex items-center">
-                  <CheckCircle className="h-6 w-6 text-primary mr-3" />
-                  Dedicated support
-                </li>
-              </ul>
-              <Button 
-                className="mt-8 bg-primary hover:bg-primary/90 text-white px-8 py-4 text-lg"
-                onClick={() => document.getElementById('form')?.scrollIntoView({ behavior: 'smooth' })}
-              >
-                Submit Your Listing
-              </Button>
-            </div>
-            <div>
-              <img 
-                src={luxuryCar} 
-                alt="Owner holding remote"
-                className="w-full rounded-lg shadow-lg"
-              />
-            </div>
+            <AnimateOnScroll animation="slide-left" delay={100}>
+              <div>
+                <h3 className="text-3xl font-bold text-gray-900 mb-8">Why List With Us</h3>
+                <ul className="space-y-4 text-lg text-gray-600">
+                  <li className="flex items-center">
+                    <CheckCircle className="h-6 w-6 text-primary mr-3" />
+                    Zero listing fees
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="h-6 w-6 text-primary mr-3" />
+                    Guaranteed monthly tenants
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="h-6 w-6 text-primary mr-3" />
+                    Dedicated support
+                  </li>
+                </ul>
+                <Button 
+                  className="mt-8 bg-primary hover:bg-primary/90 text-white px-8 py-4 text-lg"
+                  onClick={() => document.getElementById('form')?.scrollIntoView({ behavior: 'smooth' })}
+                >
+                  Submit Your Listing
+                </Button>
+              </div>
+            </AnimateOnScroll>
+            <AnimateOnScroll animation="fade-up" delay={200}>
+              <div>
+                <img 
+                  src={luxuryCar} 
+                  alt="Owner holding remote"
+                  className="w-full rounded-lg shadow-lg"
+                />
+              </div>
+            </AnimateOnScroll>
           </div>
         </div>
       </section>
@@ -319,263 +328,267 @@ const RentOutYourSpace = () => {
       {/* Submit Listing Form */}
       <section id="form" className="py-20 bg-gray-50">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-6">
-              Submit Your Listing
-            </h2>
-          </div>
+          <AnimateOnScroll animation="slide-left">
+            <div className="text-center mb-16">
+              <h2 className="text-4xl font-bold text-gray-900 mb-6">
+                Submit Your Listing
+              </h2>
+            </div>
+          </AnimateOnScroll>
 
-          <Card className="bg-white shadow-2xl p-8">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <Label htmlFor="fullName" className="text-base font-medium">
-                    Full Name *
-                  </Label>
-                  <Input
-                    id="fullName"
-                    type="text"
-                    required
-                    value={formData.fullName}
-                    onChange={(e) => handleInputChange('fullName', e.target.value)}
-                    className="mt-2 h-12"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="email" className="text-base font-medium">
-                    Email *
-                  </Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    required
-                    value={formData.email}
-                    onChange={(e) => handleInputChange('email', e.target.value)}
-                    className="mt-2 h-12"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <Label htmlFor="phone" className="text-base font-medium">
-                    Phone *
-                  </Label>
-                  <Input
-                    id="phone"
-                    type="tel"
-                    required
-                    value={formData.phone}
-                    onChange={(e) => handleInputChange('phone', e.target.value)}
-                    className="mt-2 h-12"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="buildingName" className="text-base font-medium">
-                    Building / Tower Name *
-                  </Label>
-                  <Input
-                    id="buildingName"
-                    type="text"
-                    required
-                    value={formData.buildingName}
-                    onChange={(e) => handleInputChange('buildingName', e.target.value)}
-                    className="mt-2 h-12"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <Label htmlFor="district" className="text-base font-medium">
-                    District *
-                  </Label>
-                  <Select value={formData.district} onValueChange={(value) => handleInputChange('district', value)}>
-                    <SelectTrigger className="mt-2 h-12">
-                      <SelectValue placeholder="Select district" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="dubai-marina">Dubai Marina</SelectItem>
-                      <SelectItem value="downtown">Downtown</SelectItem>
-                      <SelectItem value="difc">DIFC</SelectItem>
-                      <SelectItem value="business-bay">Business Bay</SelectItem>
-                      <SelectItem value="palm-jumeirah">Palm Jumeirah</SelectItem>
-                      <SelectItem value="deira">Deira</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label htmlFor="bayType" className="text-base font-medium">
-                    Bay Type *
-                  </Label>
-                  <Select value={formData.bayType} onValueChange={(value) => handleInputChange('bayType', value)}>
-                    <SelectTrigger className="mt-2 h-12">
-                      <SelectValue placeholder="Select bay type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="covered">Covered</SelectItem>
-                      <SelectItem value="uncovered">Uncovered</SelectItem>
-                      <SelectItem value="podium">Podium</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <Label htmlFor="monthlyPrice" className="text-base font-medium">
-                    Monthly Price (AED) *
-                  </Label>
-                  <Input
-                    id="monthlyPrice"
-                    type="number"
-                    min="300"
-                    step="50"
-                    required
-                    value={monthlyPrice}
-                    onChange={(e) => setMonthlyPrice(Number(e.target.value))}
-                    className="mt-2 h-12"
-                  />
-                  <div className="mt-2 p-3 bg-primary/10 rounded-lg">
-                    <p className="text-sm text-gray-700">
-                      <strong>You earn:</strong> {monthlyPrice} AED - 3% = <strong className="text-primary">{netPayout} AED/month</strong>
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      Service fee: {serviceFee} AED (3% of monthly price)
-                    </p>
-                  </div>
-                </div>
-                <div>
-                  <Label htmlFor="accessDeviceDeposit" className="text-base font-medium">
-                    Access Device Deposit (AED)
-                  </Label>
-                  <Input
-                    id="accessDeviceDeposit"
-                    type="number"
-                    value={formData.accessDeviceDeposit}
-                    onChange={(e) => handleInputChange('accessDeviceDeposit', e.target.value)}
-                    className="mt-2 h-12"
-                    placeholder="Optional"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <Label htmlFor="photos" className="text-base font-medium">
-                  Photos (max 5) *
-                </Label>
-                <div className="mt-2">
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-primary transition-colors">
-                    <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-600">
-                      Click to upload or drag and drop
-                    </p>
-                    <p className="text-sm text-gray-500 mt-2">
-                      JPEG or PNG, max 3MB each
-                    </p>
-                    <input
-                      type="file"
-                      multiple
-                      accept="image/jpeg,image/png"
-                      onChange={handleImageUpload}
-                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                    />
-                  </div>
-                  
-                  {uploadedImages.length > 0 && (
-                    <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">
-                      {uploadedImages.map((file, index) => (
-                        <div key={index} className="relative">
-                          <img
-                            src={URL.createObjectURL(file)}
-                            alt={`Upload ${index + 1}`}
-                            className="w-full h-24 object-cover rounded-lg"
-                          />
-                          <Button
-                            type="button"
-                            variant="destructive"
-                            size="sm"
-                            className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0"
-                            onClick={() => removeImage(index)}
-                          >
-                            <X className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div>
-                <Label htmlFor="idDocument" className="text-base font-medium">
-                  ID Document (Driving License, ID, or Passport) *
-                </Label>
-                <div className="mt-2">
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary transition-colors relative">
-                    <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                    <p className="text-gray-600 text-sm">
-                      {idDocument ? idDocument.name : "Click to upload your ID document"}
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      JPEG or PNG, max 3MB
-                    </p>
-                    <input
-                      type="file"
-                      accept="image/jpeg,image/png"
-                      onChange={handleIdUpload}
-                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+          <AnimateOnScroll animation="fade-up" delay={100}>
+            <Card className="bg-white shadow-2xl p-8">
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <Label htmlFor="fullName" className="text-base font-medium">
+                      Full Name *
+                    </Label>
+                    <Input
+                      id="fullName"
+                      type="text"
                       required
+                      value={formData.fullName}
+                      onChange={(e) => handleInputChange('fullName', e.target.value)}
+                      className="mt-2 h-12"
                     />
                   </div>
-                  {idDocument && (
-                    <div className="mt-3 p-3 bg-green-50 rounded-lg border border-green-200">
-                      <p className="text-sm text-green-700 font-medium">✓ ID document uploaded: {idDocument.name}</p>
-                    </div>
-                  )}
+                  <div>
+                    <Label htmlFor="email" className="text-base font-medium">
+                      Email *
+                    </Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      required
+                      value={formData.email}
+                      onChange={(e) => handleInputChange('email', e.target.value)}
+                      className="mt-2 h-12"
+                    />
+                  </div>
                 </div>
-              </div>
 
-              <div>
-                <Label htmlFor="notes" className="text-base font-medium">
-                  Notes to Admin
-                </Label>
-                <Textarea
-                  id="notes"
-                  value={formData.notes}
-                  onChange={(e) => handleInputChange('notes', e.target.value)}
-                  className="mt-2"
-                  rows={4}
-                  placeholder="Any additional information about your parking space..."
-                />
-              </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <Label htmlFor="phone" className="text-base font-medium">
+                      Phone *
+                    </Label>
+                    <Input
+                      id="phone"
+                      type="tel"
+                      required
+                      value={formData.phone}
+                      onChange={(e) => handleInputChange('phone', e.target.value)}
+                      className="mt-2 h-12"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="buildingName" className="text-base font-medium">
+                      Building / Tower Name *
+                    </Label>
+                    <Input
+                      id="buildingName"
+                      type="text"
+                      required
+                      value={formData.buildingName}
+                      onChange={(e) => handleInputChange('buildingName', e.target.value)}
+                      className="mt-2 h-12"
+                    />
+                  </div>
+                </div>
 
-              <div className="bg-gray-50 p-6 rounded-lg">
-                <h4 className="font-semibold text-gray-900 mb-4">Service Fee Formula:</h4>
-                <ul className="space-y-2 text-sm text-gray-600">
-                  <li>• <strong>Listing fee:</strong> Free</li>
-                  <li>• <strong>Service fee:</strong> 3% of owner's set monthly price</li>
-                  <li>• <strong>Stripe payout frequency:</strong> 1× per month, minus 3% fee</li>
-                </ul>
-              </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <Label htmlFor="district" className="text-base font-medium">
+                      District *
+                    </Label>
+                    <Select value={formData.district} onValueChange={(value) => handleInputChange('district', value)}>
+                      <SelectTrigger className="mt-2 h-12">
+                        <SelectValue placeholder="Select district" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="dubai-marina">Dubai Marina</SelectItem>
+                        <SelectItem value="downtown">Downtown</SelectItem>
+                        <SelectItem value="difc">DIFC</SelectItem>
+                        <SelectItem value="business-bay">Business Bay</SelectItem>
+                        <SelectItem value="palm-jumeirah">Palm Jumeirah</SelectItem>
+                        <SelectItem value="deira">Deira</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="bayType" className="text-base font-medium">
+                      Bay Type *
+                    </Label>
+                    <Select value={formData.bayType} onValueChange={(value) => handleInputChange('bayType', value)}>
+                      <SelectTrigger className="mt-2 h-12">
+                        <SelectValue placeholder="Select bay type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="covered">Covered</SelectItem>
+                        <SelectItem value="uncovered">Uncovered</SelectItem>
+                        <SelectItem value="podium">Podium</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
 
-              <div className="flex justify-center">
-                <ReCAPTCHA
-                  ref={recaptchaRef}
-                  sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI" // Test key - replace with your actual site key
-                  onChange={(token) => setRecaptchaToken(token)}
-                />
-              </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <Label htmlFor="monthlyPrice" className="text-base font-medium">
+                      Monthly Price (AED) *
+                    </Label>
+                    <Input
+                      id="monthlyPrice"
+                      type="number"
+                      min="300"
+                      step="50"
+                      required
+                      value={monthlyPrice}
+                      onChange={(e) => setMonthlyPrice(Number(e.target.value))}
+                      className="mt-2 h-12"
+                    />
+                    <div className="mt-2 p-3 bg-primary/10 rounded-lg">
+                      <p className="text-sm text-gray-700">
+                        <strong>You earn:</strong> {monthlyPrice} AED - 3% = <strong className="text-primary">{netPayout} AED/month</strong>
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Service fee: {serviceFee} AED (3% of monthly price)
+                      </p>
+                    </div>
+                  </div>
+                  <div>
+                    <Label htmlFor="accessDeviceDeposit" className="text-base font-medium">
+                      Access Device Deposit (AED)
+                    </Label>
+                    <Input
+                      id="accessDeviceDeposit"
+                      type="number"
+                      value={formData.accessDeviceDeposit}
+                      onChange={(e) => handleInputChange('accessDeviceDeposit', e.target.value)}
+                      className="mt-2 h-12"
+                      placeholder="Optional"
+                    />
+                  </div>
+                </div>
 
-              <Button 
-                type="submit" 
-                disabled={isSubmitting || !recaptchaToken}
-                className="w-full bg-primary hover:bg-primary/90 text-white py-4 text-lg font-semibold disabled:opacity-50"
-              >
-                {isSubmitting ? "Submitting..." : "Submit Listing"}
-              </Button>
-            </form>
-          </Card>
+                <div>
+                  <Label htmlFor="photos" className="text-base font-medium">
+                    Photos (max 5) *
+                  </Label>
+                  <div className="mt-2">
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-primary transition-colors">
+                      <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                      <p className="text-gray-600">
+                        Click to upload or drag and drop
+                      </p>
+                      <p className="text-sm text-gray-500 mt-2">
+                        JPEG or PNG, max 3MB each
+                      </p>
+                      <input
+                        type="file"
+                        multiple
+                        accept="image/jpeg,image/png"
+                        onChange={handleImageUpload}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                      />
+                    </div>
+                    
+                    {uploadedImages.length > 0 && (
+                      <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">
+                        {uploadedImages.map((file, index) => (
+                          <div key={index} className="relative">
+                            <img
+                              src={URL.createObjectURL(file)}
+                              alt={`Upload ${index + 1}`}
+                              className="w-full h-24 object-cover rounded-lg"
+                            />
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              size="sm"
+                              className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0"
+                              onClick={() => removeImage(index)}
+                            >
+                              <X className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="idDocument" className="text-base font-medium">
+                    ID Document (Driving License, ID, or Passport) *
+                  </Label>
+                  <div className="mt-2">
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary transition-colors relative">
+                      <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                      <p className="text-gray-600 text-sm">
+                        {idDocument ? idDocument.name : "Click to upload your ID document"}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        JPEG or PNG, max 3MB
+                      </p>
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png"
+                        onChange={handleIdUpload}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                        required
+                      />
+                    </div>
+                    {idDocument && (
+                      <div className="mt-3 p-3 bg-green-50 rounded-lg border border-green-200">
+                        <p className="text-sm text-green-700 font-medium">✓ ID document uploaded: {idDocument.name}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="notes" className="text-base font-medium">
+                    Notes to Admin
+                  </Label>
+                  <Textarea
+                    id="notes"
+                    value={formData.notes}
+                    onChange={(e) => handleInputChange('notes', e.target.value)}
+                    className="mt-2"
+                    rows={4}
+                    placeholder="Any additional information about your parking space..."
+                  />
+                </div>
+
+                <div className="bg-gray-50 p-6 rounded-lg">
+                  <h4 className="font-semibold text-gray-900 mb-4">Service Fee Formula:</h4>
+                  <ul className="space-y-2 text-sm text-gray-600">
+                    <li>• <strong>Listing fee:</strong> Free</li>
+                    <li>• <strong>Service fee:</strong> 3% of owner's set monthly price</li>
+                    <li>• <strong>Stripe payout frequency:</strong> 1× per month, minus 3% fee</li>
+                  </ul>
+                </div>
+
+                <div className="flex justify-center">
+                  <ReCAPTCHA
+                    ref={recaptchaRef}
+                    sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI" // Test key - replace with your actual site key
+                    onChange={(token) => setRecaptchaToken(token)}
+                  />
+                </div>
+
+                <Button 
+                  type="submit" 
+                  disabled={isSubmitting || !recaptchaToken}
+                  className="w-full bg-primary hover:bg-primary/90 text-white py-4 text-lg font-semibold disabled:opacity-50"
+                >
+                  {isSubmitting ? "Submitting..." : "Submit Listing"}
+                </Button>
+              </form>
+            </Card>
+          </AnimateOnScroll>
         </div>
       </section>
 
