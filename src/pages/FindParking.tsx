@@ -17,7 +17,6 @@ import palmJumeirahZone from "@/assets/zones/palm-jumeirah-real.jpg";
 import businessBayZone from "@/assets/zones/business-bay-real.jpg";
 import difcZone from "@/assets/zones/difc-real.jpg";
 import deiraZone from "@/assets/zones/deira-real.jpg";
-
 const FindParking = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useState("");
@@ -26,38 +25,40 @@ const FindParking = () => {
   const [showAvailableOnly, setShowAvailableOnly] = useState(false);
   const [parkingSpots, setParkingSpots] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-
-  const districtZones = [
-    { name: "Dubai Marina", slug: "dubai-marina" },
-    { name: "Downtown", slug: "downtown" },
-    { name: "Palm Jumeirah", slug: "palm-jumeirah" },
-    { name: "Business Bay", slug: "business-bay" },
-    { name: "DIFC", slug: "difc" },
-    { name: "Deira", slug: "deira" }
-  ];
+  const districtZones = [{
+    name: "Dubai Marina",
+    slug: "dubai-marina"
+  }, {
+    name: "Downtown",
+    slug: "downtown"
+  }, {
+    name: "Palm Jumeirah",
+    slug: "palm-jumeirah"
+  }, {
+    name: "Business Bay",
+    slug: "business-bay"
+  }, {
+    name: "DIFC",
+    slug: "difc"
+  }, {
+    name: "Deira",
+    slug: "deira"
+  }];
 
   // Fetch parking spots from database
   useEffect(() => {
     fetchParkingSpots();
 
     // Set up real-time subscription to parking_listings changes
-    const channel = supabase
-      .channel('parking-listings-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'parking_listings'
-        },
-        (payload) => {
-          console.log('Real-time parking listing change:', payload);
-          // Refetch data when any parking listing changes
-          fetchParkingSpots();
-        }
-      )
-      .subscribe();
-
+    const channel = supabase.channel('parking-listings-changes').on('postgres_changes', {
+      event: '*',
+      schema: 'public',
+      table: 'parking_listings'
+    }, payload => {
+      console.log('Real-time parking listing change:', payload);
+      // Refetch data when any parking listing changes
+      fetchParkingSpots();
+    }).subscribe();
     return () => {
       supabase.removeChannel(channel);
     };
@@ -74,25 +75,27 @@ const FindParking = () => {
         setTimeout(() => {
           const listingsSection = document.getElementById('listings-section');
           if (listingsSection) {
-            listingsSection.scrollIntoView({ behavior: 'smooth' });
+            listingsSection.scrollIntoView({
+              behavior: 'smooth'
+            });
           }
         }, 100);
       }
     }
   }, [searchParams]);
-
   const fetchParkingSpots = async () => {
     try {
       setLoading(true);
       console.log('Fetching parking spots from database...');
-      
-      const { data, error } = await supabase
-        .from('parking_listings')
-        .select('*')
-        .eq('status', 'approved');
-
-      console.log('Database query result:', { data, error, count: data?.length });
-
+      const {
+        data,
+        error
+      } = await supabase.from('parking_listings').select('*').eq('status', 'approved');
+      console.log('Database query result:', {
+        data,
+        error,
+        count: data?.length
+      });
       if (error) {
         console.error('Error fetching parking spots:', error);
         return;
@@ -112,7 +115,6 @@ const FindParking = () => {
           available: listing.status === 'approved'
         };
       }) || [];
-
       console.log('Transformed data:', transformedData);
       setParkingSpots(transformedData);
     } catch (error) {
@@ -121,25 +123,14 @@ const FindParking = () => {
       setLoading(false);
     }
   };
-
-  const districts = [
-    "Palm Jumeirah", "Dubai Marina", "Downtown", "DIFC", 
-    "Business Bay", "JLT", "Barsha Heights", "Deira"
-  ];
-
+  const districts = ["Palm Jumeirah", "Dubai Marina", "Downtown", "DIFC", "Business Bay", "JLT", "Barsha Heights", "Deira"];
   const toggleDistrict = (district: string) => {
-    setSelectedDistricts(prev => 
-      prev.includes(district) 
-        ? prev.filter(d => d !== district)
-        : [...prev, district]
-    );
+    setSelectedDistricts(prev => prev.includes(district) ? prev.filter(d => d !== district) : [...prev, district]);
   };
-
   const handleSelectZone = (districtSlug: string) => {
     // Navigate to dedicated zone page
     window.location.href = `/zones/${districtSlug}`;
   };
-
   const clearFilters = () => {
     setSearchTerm("");
     setSelectedDistricts([]);
@@ -148,30 +139,22 @@ const FindParking = () => {
     // Clear URL parameters
     setSearchParams(new URLSearchParams());
   };
-
   const filteredSpots = parkingSpots.filter(spot => {
-    const matchesSearch = spot.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         spot.district.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = spot.name.toLowerCase().includes(searchTerm.toLowerCase()) || spot.district.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesDistrict = selectedDistricts.length === 0 || selectedDistricts.includes(spot.district);
     const matchesPrice = spot.price >= priceRange[0] && spot.price <= priceRange[1];
     const matchesAvailability = !showAvailableOnly || spot.available;
-    
     return matchesSearch && matchesDistrict && matchesPrice && matchesAvailability;
   });
-
-  return (
-    <div className="min-h-screen bg-background animate-zoom-slow">
+  return <div className="min-h-screen bg-background animate-zoom-slow">
       <Navbar />
       
       {/* Hero Section */}
       <div className="relative h-[500px] bg-gradient-to-r from-primary/10 to-primary/5">
         <div className="absolute inset-0 bg-black/40"></div>
-        <div 
-          className="absolute inset-0 bg-cover bg-bottom"
-          style={{
-            backgroundImage: 'url("/lovable-uploads/fa1ebb65-a439-4ecf-902a-16d18fc92f16.png")'
-          }}
-        ></div>
+        <div className="absolute inset-0 bg-cover bg-bottom" style={{
+        backgroundImage: 'url("/lovable-uploads/fa1ebb65-a439-4ecf-902a-16d18fc92f16.png")'
+      }}></div>
         <div className="relative z-10 flex items-center justify-center h-full">
           <div className="text-center text-white px-4 max-w-4xl">
             <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
@@ -189,35 +172,16 @@ const FindParking = () => {
             {/* Search Box */}
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search building, tower or district..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
+              <Input placeholder="Search building, tower or district..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-10" />
             </div>
 
             {/* District Pills */}
             <div className="lg:col-span-2">
               <div className="flex flex-wrap gap-2">
-                {districts.map((district) => (
-                  <Badge
-                    key={district}
-                    variant={selectedDistricts.includes(district) ? "default" : "outline"}
-                    className={cn(
-                      "cursor-pointer transition-colors",
-                      selectedDistricts.includes(district) 
-                        ? "bg-primary text-primary-foreground" 
-                        : "hover:bg-primary hover:text-primary-foreground"
-                    )}
-                    onClick={() => toggleDistrict(district)}
-                  >
+                {districts.map(district => <Badge key={district} variant={selectedDistricts.includes(district) ? "default" : "outline"} className={cn("cursor-pointer transition-colors", selectedDistricts.includes(district) ? "bg-primary text-primary-foreground" : "hover:bg-primary hover:text-primary-foreground")} onClick={() => toggleDistrict(district)}>
                     {district}
-                    {selectedDistricts.includes(district) && (
-                      <X className="ml-1 h-3 w-3" />
-                    )}
-                  </Badge>
-                ))}
+                    {selectedDistricts.includes(district) && <X className="ml-1 h-3 w-3" />}
+                  </Badge>)}
               </div>
             </div>
 
@@ -235,25 +199,11 @@ const FindParking = () => {
               Price: AED {priceRange[0]} - {priceRange[1]} / month
             </span>
             <div className="flex-1 max-w-xs">
-              <Slider
-                value={priceRange}
-                onValueChange={setPriceRange}
-                max={1500}
-                min={0}
-                step={50}
-                className="w-full"
-              />
+              <Slider value={priceRange} onValueChange={setPriceRange} max={1500} min={0} step={50} className="w-full" />
             </div>
             <div className="flex items-center space-x-2">
-              <Checkbox
-                id="available"
-                checked={showAvailableOnly}
-                onCheckedChange={(checked) => setShowAvailableOnly(checked === true)}
-              />
-              <label
-                htmlFor="available"
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-              >
+              <Checkbox id="available" checked={showAvailableOnly} onCheckedChange={checked => setShowAvailableOnly(checked === true)} />
+              <label htmlFor="available" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                 Show only available
               </label>
             </div>
@@ -269,25 +219,19 @@ const FindParking = () => {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {districtZones.map((zone) => {
-            const zoneImages = {
-              'dubai-marina': dubaiMarinaZone,
-              'downtown': downtownZone, 
-              'palm-jumeirah': palmJumeirahZone,
-              'business-bay': businessBayZone,
-              'difc': difcZone,
-              'deira': deiraZone
-            };
-            
-            return (
-              <div key={zone.slug} className="relative group overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-all duration-300">
+          {districtZones.map(zone => {
+          const zoneImages = {
+            'dubai-marina': dubaiMarinaZone,
+            'downtown': downtownZone,
+            'palm-jumeirah': palmJumeirahZone,
+            'business-bay': businessBayZone,
+            'difc': difcZone,
+            'deira': deiraZone
+          };
+          return <div key={zone.slug} className="relative group overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-all duration-300">
                 {/* Zone Image */}
                 <div className="relative h-64 overflow-hidden">
-                  <img
-                    src={zoneImages[zone.slug as keyof typeof zoneImages]}
-                    alt={zone.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
+                  <img src={zoneImages[zone.slug as keyof typeof zoneImages]} alt={zone.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                   <div className="absolute inset-0 bg-black/30"></div>
                   
                   {/* Zone Title Overlay */}
@@ -300,56 +244,30 @@ const FindParking = () => {
                 
                 {/* Select Zone Button */}
                 <div className="absolute bottom-4 left-4 right-4">
-                  <Button
-                    onClick={() => handleSelectZone(zone.slug)}
-                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium"
-                  >
+                  <Button onClick={() => handleSelectZone(zone.slug)} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium">
                     Select zone
                   </Button>
                 </div>
-              </div>
-            );
-          })}
+              </div>;
+        })}
         </div>
 
         {/* Parking Listings Section */}
-        {loading ? (
-          <div id="listings-section" className="mt-16 text-center">
+        {loading ? <div id="listings-section" className="mt-16 text-center">
             <p className="text-muted-foreground">Loading parking spots...</p>
-          </div>
-        ) : filteredSpots.length > 0 ? (
-          <div id="listings-section" className="mt-16">
+          </div> : filteredSpots.length > 0 ? <div id="listings-section" className="mt-16">
             <h3 className="text-2xl font-bold text-foreground mb-8 text-center">Available Parking Spots</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredSpots.map((spot) => (
-                <Card key={spot.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+              {filteredSpots.map(spot => <Card key={spot.id} className="overflow-hidden hover:shadow-lg transition-shadow">
                   {/* Image carousel */}
                   <div className="relative h-48 overflow-hidden">
-                    {spot.images && spot.images.length > 0 ? (
-                      <div className="flex transition-transform duration-300 ease-in-out h-full">
-                        <img 
-                          src={spot.images[0]} 
-                          alt={spot.name} 
-                          className="w-full h-full object-cover flex-shrink-0"
-                        />
-                      </div>
-                    ) : (
-                      <img 
-                        src={spot.image} 
-                        alt={spot.name} 
-                        className="w-full h-full object-cover"
-                      />
-                    )}
-                    {spot.images && spot.images.length > 1 && (
-                      <div className="absolute bottom-2 left-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
+                    {spot.images && spot.images.length > 0 ? <div className="flex transition-transform duration-300 ease-in-out h-full">
+                        <img src={spot.images[0]} alt={spot.name} className="w-full h-full object-cover flex-shrink-0" />
+                      </div> : <img src={spot.image} alt={spot.name} className="w-full h-full object-cover" />}
+                    {spot.images && spot.images.length > 1 && <div className="absolute bottom-2 left-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
                         +{spot.images.length - 1} more
-                      </div>
-                    )}
-                    {spot.available ? (
-                      <Badge className="absolute top-2 right-2 bg-green-500">Available</Badge>
-                    ) : (
-                      <Badge className="absolute top-2 right-2 bg-red-500">Unavailable</Badge>
-                    )}
+                      </div>}
+                    {spot.available ? <Badge className="absolute top-2 right-2 bg-green-500">Available</Badge> : <Badge className="absolute top-2 right-2 bg-red-500">Unavailable</Badge>}
                   </div>
                   <div className="p-4">
                     <h4 className="font-semibold text-lg mb-2">{spot.name}</h4>
@@ -357,45 +275,25 @@ const FindParking = () => {
                       <MapPin className="h-4 w-4 mr-1" />
                       <span className="text-sm">{spot.district}</span>
                     </div>
-                    <div className="flex flex-wrap gap-1 mb-4">
-                      {spot.specs.map((spec: string, index: number) => (
-                        <Badge key={index} variant="outline" className="text-xs">
-                          {spec}
-                        </Badge>
-                      ))}
-                    </div>
+                    
                     <div className="flex items-center justify-between">
                       <div className="text-xl font-bold text-primary">
                         AED {spot.price}
                         <span className="text-sm text-muted-foreground font-normal">/month</span>
                       </div>
-                      <Button 
-                        size="sm"
-                        disabled={!spot.available}
-                        className={cn(
-                          spot.available 
-                            ? "bg-primary hover:bg-primary/90" 
-                            : "bg-muted text-muted-foreground cursor-not-allowed"
-                        )}
-                      >
+                      <Button size="sm" disabled={!spot.available} className={cn(spot.available ? "bg-primary hover:bg-primary/90" : "bg-muted text-muted-foreground cursor-not-allowed")}>
                         {spot.available ? "Reserve" : "Unavailable"}
                       </Button>
                     </div>
                   </div>
-                </Card>
-              ))}
+                </Card>)}
             </div>
-          </div>
-        ) : (
-          <div id="listings-section" className="mt-16 text-center">
+          </div> : <div id="listings-section" className="mt-16 text-center">
             <p className="text-muted-foreground">No parking spots found matching your criteria.</p>
-          </div>
-        )}
+          </div>}
       </div>
 
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default FindParking;
