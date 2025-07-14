@@ -17,13 +17,92 @@ const DIFC = () => {
 
   const parkingSpots = [
     {
+      id: 1,
+      name: "Sky Gardens DIFC",
+      district: "DIFC",
+      price: 500,
+      image: "/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.png",
+      specs: ["Sky Gardens", "Premium", "24/7 Security"],
+      available: true,
+      address: "Sky Gardens DIFC, DIFC",
+      description: "Premium parking space in Sky Gardens DIFC with 24/7 security and modern amenities."
+    },
+    {
       id: 2,
-      name: "DIFC Gate Village Bay",
+      name: "Index Tower",
+      district: "DIFC",
+      price: 750,
+      image: "/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.png",
+      specs: ["Premium Tower", "Basement", "Concierge"],
+      available: true,
+      address: "Index Tower, DIFC",
+      description: "Basement parking in the highly sought-after Index Tower with 24-hour security, concierge, and easy elevator access."
+    },
+    {
+      id: 3,
+      name: "Burj Daman",
+      district: "DIFC",
+      price: 700,
+      image: "/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.png",
+      specs: ["Landmark", "Secure", "Premium"],
+      available: true,
+      address: "Burj Daman, DIFC",
+      description: "Premium secure parking in the landmark Burj Daman tower with excellent DIFC access."
+    },
+    {
+      id: 4,
+      name: "Aspin Commercial Tower (3A-31)",
+      district: "DIFC",
+      price: 600,
+      image: "/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.png",
+      specs: ["Commercial", "Space 3A-31", "Secure"],
+      available: true,
+      address: "Aspin Commercial Tower, DIFC",
+      description: "Space 3A-31 in Aspin Commercial Tower with secure access and professional amenities."
+    },
+    {
+      id: 5,
+      name: "Aspin Commercial Tower (5A-25)",
+      district: "DIFC",
+      price: 600,
+      image: "/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.png",
+      specs: ["Commercial", "Space 5A-25", "Secure"],
+      available: true,
+      address: "Aspin Commercial Tower, DIFC",
+      description: "Space 5A-25 in Aspin Commercial Tower with secure parking and business district access."
+    },
+    {
+      id: 6,
+      name: "DAMAC Park Towers",
       district: "DIFC",
       price: 650,
       image: "/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.png",
-      specs: ["Access Card", "Covered", "3.0m Height"],
-      available: true
+      specs: ["DAMAC Quality", "Space P2 088", "Secure"],
+      available: true,
+      address: "DAMAC Park Towers, DIFC",
+      description: "Space P2 088 - Secure parking in DAMAC Park Towers with quality amenities and professional access."
+    },
+    {
+      id: 7,
+      name: "Sky Gardens DIFC (Ground Floor)",
+      district: "DIFC",
+      price: 650,
+      image: "/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.png",
+      specs: ["Ground Floor", "Exit Access", "Premium"],
+      available: true,
+      address: "Sky Gardens DIFC, DIFC",
+      description: "Ground floor parking close to the exit in Sky Gardens DIFC with premium access and convenience."
+    },
+    {
+      id: 8,
+      name: "Limestone House 5F2",
+      district: "DIFC",
+      price: 550,
+      image: "/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.png",
+      specs: ["Space 2176", "Secured", "Covered"],
+      available: true,
+      address: "Limestone House, DIFC",
+      description: "Space number 2176 - Secured covered parking space available for rent with professional access."
     }
   ];
 

@@ -17,13 +17,37 @@ const PalmJumeirah = () => {
 
   const parkingSpots = [
     {
-      id: 6,
-      name: "Palm Jumeirah Villa Bay",
+      id: 1,
+      name: "East Golf Tower",
       district: "Palm Jumeirah",
-      price: 750,
+      price: 500,
       image: "/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.png",
-      specs: ["Access Card", "Covered", "3.5m Height"],
-      available: true
+      specs: ["Covered", "24/7 Security", "Premium"],
+      available: true,
+      address: "East Golf Tower, Palm Jumeirah",
+      description: "Secure parking space in East Golf Tower with 24/7 access and premium amenities in the heart of Palm Jumeirah."
+    },
+    {
+      id: 2,
+      name: "Shoreline Apartments",
+      district: "Palm Jumeirah",
+      price: 900,
+      image: "/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.png",
+      specs: ["Underground", "24/7 Security", "CCTV"],
+      available: true,
+      address: "Shoreline Apartments, Palm Jumeirah",
+      description: "Secure underground parking in the heart of Palm Jumeirah with 24/7 security and CCTV surveillance."
+    },
+    {
+      id: 3,
+      name: "The Palm Tower",
+      district: "Palm Jumeirah",
+      price: 800,
+      image: "/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.png",
+      specs: ["Underground", "24/7 Security", "Premium"],
+      available: true,
+      address: "The Palm Tower, Palm Jumeirah",
+      description: "Underground parking garage in The Palm Tower, in the heart of Palm Jumeirah with 24/7 security."
     }
   ];
 

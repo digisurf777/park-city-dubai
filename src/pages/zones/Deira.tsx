@@ -16,7 +16,28 @@ const Deira = () => {
   const [showAvailableOnly, setShowAvailableOnly] = useState(false);
 
   const parkingSpots = [
-    // No spots currently in Deira - will show "no results" message
+    {
+      id: 1,
+      name: "Abraj Al Mamzar",
+      district: "Deira",
+      price: 200,
+      image: "/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.png",
+      specs: ["Underground", "Secure", "Al Mulla Plaza"],
+      available: true,
+      address: "Abraj Al Mamzar, Deira",
+      description: "Secure underground parking close to Al Mulla Plaza with convenient access and safety features."
+    },
+    {
+      id: 2,
+      name: "Al Meraikhi Tower 2",
+      district: "Deira",
+      price: 300,
+      image: "/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.png",
+      specs: ["Covered", "Elevator Access", "CCTV"],
+      available: true,
+      address: "Al Meraikhi Tower 2, Deira",
+      description: "Convenient covered parking space in Al Meraikhi Tower 2 with easy elevator access and CCTV surveillance."
+    }
   ];
 
   const clearFilters = () => {
@@ -47,7 +68,7 @@ const Deira = () => {
         <div className="relative z-10 flex items-center justify-center h-full">
           <div className="text-center text-white px-4">
             <h1 className="text-5xl md:text-6xl font-bold mb-4">Parking Spaces in Deira</h1>
-            <p className="text-xl md:text-2xl opacity-90">Secure monthly bays from AED 300</p>
+            <p className="text-xl md:text-2xl opacity-90">Secure monthly bays from AED {parkingSpots.length > 0 ? Math.min(...parkingSpots.map(spot => spot.price)) : 200}</p>
           </div>
         </div>
       </div>
@@ -175,12 +196,14 @@ const Deira = () => {
           ))}
         </div>
 
-        <div className="text-center py-12">
-          <p className="text-muted-foreground text-lg">No parking spaces found matching your criteria.</p>
-          <Button variant="outline" className="mt-4" onClick={clearFilters}>
-            Clear filters
-          </Button>
-        </div>
+        {filteredSpots.length === 0 && (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground text-lg">No parking spaces found matching your criteria.</p>
+            <Button variant="outline" className="mt-4" onClick={clearFilters}>
+              Clear filters
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );
