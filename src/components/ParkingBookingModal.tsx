@@ -218,8 +218,31 @@ export const ParkingBookingModal = ({
               {parkingSpot.description && <p className="text-sm text-muted-foreground mb-4">{parkingSpot.description}</p>}
               
               {parkingSpot.specs && parkingSpot.specs.length > 0 && <div className="flex flex-wrap gap-2">
-                  {parkingSpot.specs.map((spec, index) => {})}
+                  {parkingSpot.specs.map((spec, index) => (
+                    <Badge key={index} variant="secondary">{spec}</Badge>
+                  ))}
                 </div>}
+
+              {/* Benefits Section */}
+              <Card className="bg-green-50 border-green-200">
+                <CardContent className="p-4">
+                  <h4 className="font-semibold mb-3 text-green-800">Benefits:</h4>
+                  <ul className="space-y-2 text-sm text-green-700">
+                    <li className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 bg-green-600 rounded-full"></div>
+                      Guaranteed parking space
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 bg-green-600 rounded-full"></div>
+                      Fixed price - no increases during rental
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 bg-green-600 rounded-full"></div>
+                      Priority customer support
+                    </li>
+                  </ul>
+                </CardContent>
+              </Card>
             </div>
           </div>
 
