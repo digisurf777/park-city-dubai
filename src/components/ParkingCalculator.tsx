@@ -6,6 +6,7 @@ import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Calculator, DollarSign, Calendar, CreditCard } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface DurationCalculation {
   duration: number;
@@ -17,6 +18,7 @@ interface DurationCalculation {
 }
 
 const ParkingCalculator = () => {
+  const navigate = useNavigate();
   const [baseRent, setBaseRent] = useState<number>(1000);
   const [cardRequired, setCardRequired] = useState<boolean>(false);
   const [selectedDurations, setSelectedDurations] = useState<number[]>([1, 3, 6, 12]);
@@ -225,15 +227,12 @@ const ParkingCalculator = () => {
                 </span>
               )}
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button className="bg-green-600 hover:bg-green-700">
-                Submit Your Parking Space
-              </Button>
+            <div className="flex justify-center">
               <Button 
-                className="bg-blue-600 hover:bg-blue-700 text-white"
-                onClick={() => window.open('https://buy.stripe.com/fZu8wO7jv4pP37o4oP18c00', '_blank')}
+                className="bg-green-600 hover:bg-green-700"
+                onClick={() => navigate('/rent-out-your-space')}
               >
-                PAY NOW
+                Submit Your Parking Space
               </Button>
             </div>
           </div>

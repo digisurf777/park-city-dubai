@@ -24,6 +24,7 @@ const RentOutYourSpace = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
   const recaptchaRef = useRef<ReCAPTCHA>(null);
+  const [idDocument, setIdDocument] = useState<File | null>(null);
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -70,6 +71,21 @@ const RentOutYourSpace = () => {
 
   const removeImage = (index: number) => {
     setUploadedImages(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleIdUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 3 * 1024 * 1024) {
+        toast({
+          title: "File too large",
+          description: "ID document must be smaller than 3MB",
+          variant: "destructive"
+        });
+        return;
+      }
+      setIdDocument(file);
+    }
   };
 
   const uploadImagesToStorage = async (files: File[]): Promise<string[]> => {
@@ -121,11 +137,28 @@ const RentOutYourSpace = () => {
       return;
     }
 
+    if (!idDocument) {
+      toast({
+        title: "ID document required",
+        description: "Please upload your ID document",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
       // Upload images to storage
       const imageUrls = await uploadImagesToStorage(uploadedImages);
+      
+      // Upload ID document
+      const idFileName = `id-${Date.now()}-${idDocument.name}`;
+      const { data: idData, error: idError } = await supabase.storage
+        .from('verification-docs')
+        .upload(idFileName, idDocument);
+      
+      if (idError) throw idError;
       
       // Create listing in database
       const { error: insertError } = await supabase
@@ -184,6 +217,7 @@ Please review and approve this listing.`,
         notes: ""
       });
       setUploadedImages([]);
+      setIdDocument(null);
       setMonthlyPrice(300);
       
       // Reset reCAPTCHA
@@ -470,6 +504,35 @@ Please review and approve this listing.`,
                           </Button>
                         </div>
                       ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="idDocument" className="text-base font-medium">
+                  ID Document (Driving License, ID, or Passport) *
+                </Label>
+                <div className="mt-2">
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary transition-colors relative">
+                    <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                    <p className="text-gray-600 text-sm">
+                      {idDocument ? idDocument.name : "Click to upload your ID document"}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      JPEG or PNG, max 3MB
+                    </p>
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png"
+                      onChange={handleIdUpload}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                      required
+                    />
+                  </div>
+                  {idDocument && (
+                    <div className="mt-3 p-3 bg-green-50 rounded-lg border border-green-200">
+                      <p className="text-sm text-green-700 font-medium">✓ ID document uploaded: {idDocument.name}</p>
                     </div>
                   )}
                 </div>
