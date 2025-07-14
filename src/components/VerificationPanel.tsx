@@ -110,13 +110,16 @@ const VerificationPanel = () => {
         throw insertError;
       }
 
-      // Send email to admin
-      await supabase.functions.invoke('send-verification-email', {
+      // Send admin notification
+      await supabase.functions.invoke('send-admin-notification', {
         body: {
-          userEmail: user.email,
-          fullName: formData.fullName,
-          documentType: formData.documentType,
-          documentUrl: publicUrl
+          type: 'id_verification',
+          userEmail: user.email || '',
+          userName: formData.fullName,
+          details: {
+            documentType: formData.documentType,
+            nationality: formData.nationality
+          }
         }
       });
 

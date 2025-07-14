@@ -181,22 +181,20 @@ const RentOutYourSpace = () => {
       if (insertError) throw insertError;
 
       // Send admin notification
-      await supabase.functions.invoke('send-message-notification', {
+      await supabase.functions.invoke('send-admin-notification', {
         body: {
-          subject: 'New Parking Listing Submitted',
-          message: `New parking listing from ${formData.fullName}:
-          
-Building: ${formData.buildingName}
-District: ${formData.district}
-Bay Type: ${formData.bayType}
-Monthly Price: ${monthlyPrice} AED
-Contact: ${formData.email}, ${formData.phone}
-
-${formData.notes ? `Notes: ${formData.notes}` : ''}
-
-Please review and approve this listing.`,
-          userId: user.id,
-          fromAdmin: false
+          type: 'parking_listing',
+          userEmail: formData.email,
+          userName: formData.fullName,
+          details: {
+            buildingName: formData.buildingName,
+            district: formData.district,
+            bayType: formData.bayType,
+            monthlyPrice: monthlyPrice,
+            accessDeviceDeposit: formData.accessDeviceDeposit,
+            phone: formData.phone,
+            notes: formData.notes
+          }
         }
       });
 

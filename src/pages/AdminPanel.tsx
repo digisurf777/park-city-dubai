@@ -32,15 +32,33 @@ interface Verification {
   created_at: string;
 }
 
+interface ParkingListing {
+  id: string;
+  title: string;
+  description: string;
+  address: string;
+  zone: string;
+  price_per_hour: number;
+  price_per_month: number;
+  status: string;
+  owner_id: string;
+  images: string[];
+  contact_phone: string;
+  contact_email: string;
+  created_at: string;
+}
+
 const AdminPanel = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [posts, setPosts] = useState<NewsPost[]>([]);
   const [verifications, setVerifications] = useState<Verification[]>([]);
+  const [parkingListings, setParkingListings] = useState<ParkingListing[]>([]);
   const [editingPost, setEditingPost] = useState<NewsPost | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [loading, setLoading] = useState(true);
   const [verificationsLoading, setVerificationsLoading] = useState(true);
+  const [listingsLoading, setListingsLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [checkingAdmin, setCheckingAdmin] = useState(true);
 
@@ -81,6 +99,7 @@ const AdminPanel = () => {
       if (data) {
         fetchPosts();
         fetchVerifications();
+        fetchParkingListings();
       }
     } catch (error) {
       console.error('Error checking admin role:', error);
@@ -126,6 +145,50 @@ const AdminPanel = () => {
       });
     } finally {
       setVerificationsLoading(false);
+    }
+  };
+
+  const fetchParkingListings = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('parking_listings')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setParkingListings(data || []);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch parking listings",
+        variant: "destructive",
+      });
+    } finally {
+      setListingsLoading(false);
+    }
+  };
+
+  const updateListingStatus = async (listingId: string, status: 'approved' | 'rejected') => {
+    try {
+      const { error } = await supabase
+        .from('parking_listings')
+        .update({ status })
+        .eq('id', listingId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: `Listing ${status} successfully`,
+      });
+
+      fetchParkingListings();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update listing status",
+        variant: "destructive",
+      });
     }
   };
 
@@ -365,8 +428,9 @@ const AdminPanel = () => {
         <h1 className="text-3xl font-bold mb-8">Admin Panel</h1>
         
         <Tabs defaultValue="news" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="news">News Management</TabsTrigger>
+            <TabsTrigger value="listings">Parking Listings</TabsTrigger>
             <TabsTrigger value="verifications">User Verifications</TabsTrigger>
             <TabsTrigger value="messages">Send Messages</TabsTrigger>
           </TabsList>
@@ -496,6 +560,126 @@ const AdminPanel = () => {
             </div>
           </TabsContent>
 
+          <TabsContent value="listings" className="space-y-6">
+            <h2 className="text-2xl font-semibold">Parking Listings</h2>
+            {listingsLoading ? (
+              <div className="text-center py-8">
+                <p>Loading parking listings...</p>
+              </div>
+            ) : parkingListings.length === 0 ? (
+              <Card>
+                <CardContent className="pt-6">
+                  <p className="text-center text-muted-foreground">No parking listings found.</p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-4">
+                {parkingListings.map((listing) => (
+                  <Card key={listing.id}>
+                    <CardContent className="pt-6">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="space-y-2">
+                          <h4 className="font-semibold">{listing.title}</h4>
+                          <p className="text-sm text-muted-foreground">
+                            {listing.address}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            Zone: {listing.zone}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            Monthly: {listing.price_per_month} AED
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            Contact: {listing.contact_email}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            Phone: {listing.contact_phone}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            Submitted: {format(new Date(listing.created_at), 'PPP p')}
+                          </p>
+                          <Badge variant={
+                            listing.status === 'approved' ? 'default' :
+                            listing.status === 'rejected' ? 'destructive' : 'secondary'
+                          }>
+                            {listing.status}
+                          </Badge>
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <h5 className="font-medium">Images:</h5>
+                          {listing.images && listing.images.length > 0 ? (
+                            <div className="grid grid-cols-2 gap-2">
+                              {listing.images.slice(0, 4).map((imageUrl, index) => (
+                                <div key={index} className="relative">
+                                  <img 
+                                    src={imageUrl} 
+                                    alt={`Listing ${index + 1}`}
+                                    className="w-full h-20 object-cover rounded border cursor-pointer"
+                                    onClick={() => window.open(imageUrl, '_blank')}
+                                  />
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <p className="text-sm text-muted-foreground">No images</p>
+                          )}
+                          <div className="mt-2">
+                            <a 
+                              href={`https://supabase.com/dashboard/project/eoknluyunximjlsnyceb/storage/buckets/parking-images`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:underline text-sm"
+                            >
+                              View in Database Storage →
+                            </a>
+                          </div>
+                        </div>
+                        
+                        <div className="flex flex-col gap-2">
+                          {listing.status === 'pending' && (
+                            <>
+                              <Button
+                                onClick={() => updateListingStatus(listing.id, 'approved')}
+                                className="flex items-center gap-2"
+                              >
+                                <CheckCircle className="h-4 w-4" />
+                                Approve
+                              </Button>
+                              <Button
+                                variant="destructive"
+                                onClick={() => updateListingStatus(listing.id, 'rejected')}
+                                className="flex items-center gap-2"
+                              >
+                                <XCircle className="h-4 w-4" />
+                                Decline
+                              </Button>
+                            </>
+                          )}
+                          <Button
+                            variant="outline"
+                            onClick={() => setSelectedUserId(listing.owner_id)}
+                            className="flex items-center gap-2"
+                          >
+                            <Mail className="h-4 w-4" />
+                            Contact Owner
+                          </Button>
+                        </div>
+                      </div>
+                      
+                      {listing.description && (
+                        <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+                          <h5 className="font-medium mb-2">Description:</h5>
+                          <p className="text-sm">{listing.description}</p>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
           <TabsContent value="verifications" className="space-y-6">
             <h2 className="text-2xl font-semibold">User Verifications</h2>
             {verificationsLoading ? (
@@ -534,12 +718,22 @@ const AdminPanel = () => {
                         </div>
                         
                         <div className="flex justify-center">
-                          <img 
-                            src={verification.document_image_url} 
-                            alt="Document"
-                            className="max-w-full h-32 object-contain rounded border cursor-pointer"
-                            onClick={() => window.open(verification.document_image_url, '_blank')}
-                          />
+                          <div className="text-center">
+                            <img 
+                              src={verification.document_image_url} 
+                              alt="Document"
+                              className="max-w-full h-32 object-contain rounded border cursor-pointer mb-2"
+                              onClick={() => window.open(verification.document_image_url, '_blank')}
+                            />
+                            <a 
+                              href={`https://supabase.com/dashboard/project/eoknluyunximjlsnyceb/storage/buckets/verification-docs`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:underline text-sm"
+                            >
+                              View in Database Storage →
+                            </a>
+                          </div>
                         </div>
                         
                         <div className="flex flex-col gap-2">
