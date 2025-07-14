@@ -44,7 +44,7 @@ const Deira = () => {
         name: spot.title,
         district: "Deira",
         price: spot.price_per_month || 0,
-        image: spot.images?.[0] || "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
+        image: "/lovable-uploads/747c1f5d-d6b2-4f6a-94a2-aca1927ee856.png",
         specs: spot.features || ["Access Card", "Covered", "2.1m Height"],
         available: true,
         address: spot.address,
@@ -225,7 +225,7 @@ const Deira = () => {
             {filteredSpots.map((spot) => (
               <Card key={spot.id} className="overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
                 <div className="relative w-full h-64">
-                  <img src={spot.image} alt={spot.name} className="w-full h-full object-cover" />
+                  <img src="/lovable-uploads/747c1f5d-d6b2-4f6a-94a2-aca1927ee856.png" alt={spot.name} className="w-full h-full object-cover" />
                 </div>
 
                 <div className="p-6">
