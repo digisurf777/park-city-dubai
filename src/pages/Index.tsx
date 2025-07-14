@@ -32,7 +32,7 @@ const Index = () => {
               <h1 style={{
               textShadow: '3px 3px 12px rgba(0, 0, 0, 0.9), 0 0 30px rgba(0, 0, 0, 0.7)',
               fontWeight: '300'
-            }} className="sm:text-4xl md:text-5xl lg:text-6xl mb-8 lg:mb-12 leading-tight px-4 lg:px-0 font-bold xl:text-6xl text-4xl text-left">
+            }} className="sm:text-4xl md:text-5xl lg:text-6xl mb-8 lg:mb-12 leading-tight px-4 lg:px-0 xl:text-6xl text-4xl text-left font-normal text-slate-50">
                 YOUR TRUSTED PARKING PLATFORM IN DUBAI
               </h1>
             </div>
