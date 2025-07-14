@@ -322,10 +322,22 @@ const AdminPanel = () => {
 
   const deleteImageFromStorage = async (imageUrl: string) => {
     try {
-      // Extract file path from URL
-      const urlParts = imageUrl.split('/');
-      const fileName = urlParts[urlParts.length - 1];
-      const filePath = `parking-listings/${fileName}`;
+      // Extract file path from URL - handle both full URLs and relative paths
+      let filePath = '';
+      if (imageUrl.includes('supabase.co')) {
+        // Full Supabase URL
+        const urlParts = imageUrl.split('/');
+        const fileName = urlParts[urlParts.length - 1];
+        filePath = `parking-listings/${fileName}`;
+      } else if (imageUrl.includes('parking-listings/')) {
+        // Already contains parking-listings path
+        filePath = imageUrl.split('parking-listings/')[1];
+        filePath = `parking-listings/${filePath}`;
+      } else {
+        // Just filename
+        const fileName = imageUrl.split('/').pop() || '';
+        filePath = `parking-listings/${fileName}`;
+      }
 
       // Delete from storage
       const { error } = await supabase.storage
