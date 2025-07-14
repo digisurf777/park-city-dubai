@@ -10,13 +10,16 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { ParkingBookingModal } from "@/components/ParkingBookingModal";
 import dubaiMarinaHero from "@/assets/zones/dubai-marina.jpg";
 const DubaiMarina = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [priceRange, setPriceRange] = useState([0, 20000]); // Increased max range to include all parking spots
+  const [priceRange, setPriceRange] = useState([0, 20000]); 
   const [showAvailableOnly, setShowAvailableOnly] = useState(false);
   const [parkingSpots, setParkingSpots] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedSpot, setSelectedSpot] = useState<any>(null);
+  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
 
   useEffect(() => {
     fetchParkingSpots();
@@ -56,12 +59,14 @@ const DubaiMarina = () => {
       setParkingSpots([
         {
           id: 1,
-          name: "Murjan 2",
+          name: "LIV Residence",
           district: "Dubai Marina",
-          price: 450,
+          price: 650,
           image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
           specs: ["Access Card", "Covered", "2.1m Height"],
-          available: true
+          available: true,
+          address: "Dubai Marina Walk, Dubai Marina",
+          description: "Premium parking space in luxury residential tower with 24/7 security and valet service."
         },
         {
           id: 2,
@@ -70,7 +75,53 @@ const DubaiMarina = () => {
           price: 420,
           image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
           specs: ["Access Card", "Covered", "2.2m Height"],
-          available: true
+          available: true,
+          address: "Marina Promenade, Dubai Marina",
+          description: "Secure underground parking with easy access to Marina Walk and JBR Beach."
+        },
+        {
+          id: 3,
+          name: "Murjan Tower",
+          district: "Dubai Marina",
+          price: 450,
+          image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
+          specs: ["Access Card", "Covered", "2.0m Height"],
+          available: true,
+          address: "Al Marsa Street, Dubai Marina",
+          description: "Modern parking facility with electric charging points and car wash services."
+        },
+        {
+          id: 4,
+          name: "Marina Diamond",
+          district: "Dubai Marina",
+          price: 580,
+          image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
+          specs: ["Access Card", "Covered", "2.3m Height", "Electric Charging"],
+          available: true,
+          address: "Marina Diamond Complex, Dubai Marina",
+          description: "High-end parking with electric vehicle charging stations and concierge services."
+        },
+        {
+          id: 5,
+          name: "The Torch Tower",
+          district: "Dubai Marina",
+          price: 480,
+          image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
+          specs: ["Access Card", "Covered", "2.1m Height"],
+          available: true,
+          address: "Torch Tower, Dubai Marina",
+          description: "Central location with direct access to Dubai Marina Metro Station."
+        },
+        {
+          id: 6,
+          name: "Cayan Tower",
+          district: "Dubai Marina",
+          price: 520,
+          image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
+          specs: ["Access Card", "Covered", "2.2m Height", "Valet Service"],
+          available: true,
+          address: "Cayan Tower, Dubai Marina",
+          description: "Iconic twisted tower with premium valet parking services and Marina views."
         }
       ]);
     } finally {
@@ -86,10 +137,15 @@ const DubaiMarina = () => {
     const matchesSearch = spot.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesPrice = spot.price >= priceRange[0] && spot.price <= priceRange[1];
     const matchesAvailability = !showAvailableOnly || spot.available;
-    console.log(`Filtering spot: ${spot.name}, price: ${spot.price}, matchesPrice: ${matchesPrice}, searchTerm: '${searchTerm}', matchesSearch: ${matchesSearch}`);
     return matchesSearch && matchesPrice && matchesAvailability;
   });
-  const minPrice = Math.min(...parkingSpots.map(spot => spot.price));
+  
+  const minPrice = parkingSpots.length > 0 ? Math.min(...parkingSpots.map(spot => spot.price)) : 0;
+
+  const handleReserveClick = (spot: any) => {
+    setSelectedSpot(spot);
+    setIsBookingModalOpen(true);
+  };
   return <div className="min-h-screen bg-background">
       <Navbar />
       
@@ -207,17 +263,13 @@ const DubaiMarina = () => {
                   </div>
                 )}
 
-                {/* Book Now Button */}
-                <a 
-                  href={`https://shazamparking.ae/product/${spot.name.toLowerCase().replace(/\s+/g, '-')}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block w-full"
+                {/* Reserve Now Button */}
+                <Button 
+                  onClick={() => handleReserveClick(spot)}
+                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3"
                 >
-                  <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3">
-                    Book Now
-                  </Button>
-                </a>
+                  Reserve Now
+                </Button>
               </div>
             </Card>)}
         </div>
@@ -230,6 +282,12 @@ const DubaiMarina = () => {
             </Button>
           </div>}
       </div>
+      
+      <ParkingBookingModal 
+        isOpen={isBookingModalOpen}
+        onClose={() => setIsBookingModalOpen(false)}
+        parkingSpot={selectedSpot}
+      />
       
       <Footer />
     </div>;
