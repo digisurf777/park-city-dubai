@@ -18,6 +18,7 @@ interface ParkingSpot {
   name: string;
   price: number;
   image: string;
+  images?: string[];
   specs?: string[];
   address?: string;
   description?: string;
@@ -200,7 +201,29 @@ export const ParkingBookingModal = ({
           {/* Left Column - Parking Details */}
           <div className="space-y-4">
             <div className="relative">
-              <img src={parkingSpot.image} alt={parkingSpot.name} className="w-full h-48 object-cover rounded-lg" />
+              {parkingSpot.images && parkingSpot.images.length > 0 ? (
+                <div className="space-y-2">
+                  <img 
+                    src={parkingSpot.images[0]} 
+                    alt={parkingSpot.name} 
+                    className="w-full h-48 object-cover rounded-lg" 
+                  />
+                  {parkingSpot.images.length > 1 && (
+                    <div className="grid grid-cols-2 gap-2">
+                      {parkingSpot.images.slice(1).map((image, index) => (
+                        <img 
+                          key={index + 1}
+                          src={image} 
+                          alt={`${parkingSpot.name} - Image ${index + 2}`} 
+                          className="w-full h-24 object-cover rounded-lg" 
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <img src={parkingSpot.image} alt={parkingSpot.name} className="w-full h-48 object-cover rounded-lg" />
+              )}
             </div>
             
             <div>
