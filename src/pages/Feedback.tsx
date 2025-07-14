@@ -172,8 +172,8 @@ ${message}`,
           <div className="mt-8 text-center">
             <p className="text-sm text-muted-foreground">
               Need immediate assistance? Contact us at{' '}
-              <a href="mailto:support@shazamparking.com" className="text-primary hover:underline">
-                support@shazamparking.com
+              <a href="mailto:digisurf777@gmail.com" className="text-primary hover:underline">
+                digisurf777@gmail.com
               </a>
             </p>
           </div>
