@@ -39,6 +39,28 @@ const FindParking = () => {
   // Fetch parking spots from database
   useEffect(() => {
     fetchParkingSpots();
+
+    // Set up real-time subscription to parking_listings changes
+    const channel = supabase
+      .channel('parking-listings-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'parking_listings'
+        },
+        (payload) => {
+          console.log('Real-time parking listing change:', payload);
+          // Refetch data when any parking listing changes
+          fetchParkingSpots();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   // Handle URL parameters on component mount
@@ -62,10 +84,14 @@ const FindParking = () => {
   const fetchParkingSpots = async () => {
     try {
       setLoading(true);
+      console.log('Fetching parking spots from database...');
+      
       const { data, error } = await supabase
         .from('parking_listings')
         .select('*')
         .eq('status', 'approved');
+
+      console.log('Database query result:', { data, error, count: data?.length });
 
       if (error) {
         console.error('Error fetching parking spots:', error);
@@ -73,16 +99,20 @@ const FindParking = () => {
       }
 
       // Transform the data to match the UI format
-      const transformedData = data?.map((listing: any) => ({
-        id: listing.id,
-        name: listing.title,
-        district: listing.zone,
-        price: listing.price_per_month || Math.round(listing.price_per_hour * 24 * 30),
-        image: listing.images && listing.images.length > 0 ? listing.images[0] : "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
-        specs: listing.features || ["Access Card", "Secure"],
-        available: listing.status === 'approved'
-      })) || [];
+      const transformedData = data?.map((listing: any) => {
+        console.log('Processing listing:', listing.title, 'with images:', listing.images);
+        return {
+          id: listing.id,
+          name: listing.title,
+          district: listing.zone,
+          price: listing.price_per_month || Math.round(listing.price_per_hour * 24 * 30),
+          image: listing.images && listing.images.length > 0 ? listing.images[0] : "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
+          specs: listing.features || ["Access Card", "Secure"],
+          available: listing.status === 'approved'
+        };
+      }) || [];
 
+      console.log('Transformed data:', transformedData);
       setParkingSpots(transformedData);
     } catch (error) {
       console.error('Error fetching parking spots:', error);
