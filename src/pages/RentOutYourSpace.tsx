@@ -371,14 +371,7 @@ const RentOutYourSpace = () => {
                     Monthly Price (AED) *
                   </Label>
                   <Input id="monthlyPrice" type="number" min="300" step="50" required value={monthlyPrice} onChange={e => setMonthlyPrice(Number(e.target.value))} className="mt-2 h-12" />
-                  <div className="mt-2 p-3 bg-primary/10 rounded-lg">
-                    <p className="text-sm text-gray-700">
-                      <strong>You earn:</strong> {monthlyPrice} AED - 3% = <strong className="text-primary">{netPayout} AED/month</strong>
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      Service fee: {serviceFee} AED (3% of monthly price)
-                    </p>
-                  </div>
+                  
                 </div>
                 <div>
                   <Label htmlFor="accessDeviceDeposit" className="text-base font-medium">
