@@ -268,21 +268,6 @@ Please review and approve this listing.`,
         </div>
       </section>
 
-      {/* Parking Calculator */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-6">
-              Calculate Your Earnings
-            </h2>
-            <p className="text-xl text-gray-600">
-              See exactly how much you'll earn monthly with our transparent calculator
-            </p>
-          </div>
-          <ParkingCalculator />
-        </div>
-      </section>
-
       {/* Submit Listing Form */}
       <section id="form" className="py-20 bg-gray-50">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -509,8 +494,23 @@ Please review and approve this listing.`,
         </div>
       </section>
 
-      {/* Testimonials */}
+      {/* Parking Calculator */}
       <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-gray-900 mb-6">
+              Calculate Your Earnings
+            </h2>
+            <p className="text-xl text-gray-600">
+              See exactly how much you'll earn monthly with our transparent calculator
+            </p>
+          </div>
+          <ParkingCalculator />
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-gray-900 mb-6">
