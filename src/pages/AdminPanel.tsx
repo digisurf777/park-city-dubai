@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -86,6 +86,8 @@ const AdminPanel = () => {
   const [listingContactPhone, setListingContactPhone] = useState('');
   const [listingImages, setListingImages] = useState<string[]>([]);
   const [newImageUrl, setNewImageUrl] = useState('');
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (user) {
@@ -164,12 +166,15 @@ const AdminPanel = () => {
 
   const fetchParkingListings = async () => {
     try {
+      // Fetch ALL listings without status filter to see everything
       const { data, error } = await supabase
         .from('parking_listings')
         .select('*')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
+      
+      console.log('Fetched all parking listings:', data);
       setParkingListings(data || []);
     } catch (error) {
       toast({
@@ -241,8 +246,115 @@ const AdminPanel = () => {
     }
   };
 
-  const removeImageFromListing = (imageUrl: string) => {
-    setListingImages(listingImages.filter(img => img !== imageUrl));
+  const uploadImageToStorage = async (file: File): Promise<string | null> => {
+    try {
+      setUploadingImage(true);
+      
+      // Create unique filename
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+      const filePath = `parking-listings/${fileName}`;
+
+      // Upload file to Supabase storage
+      const { data, error } = await supabase.storage
+        .from('parking-images')
+        .upload(filePath, file);
+
+      if (error) throw error;
+
+      // Get public URL
+      const { data: urlData } = supabase.storage
+        .from('parking-images')
+        .getPublicUrl(filePath);
+
+      return urlData.publicUrl;
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      toast({
+        title: "Error",
+        description: "Failed to upload image",
+        variant: "destructive",
+      });
+      return null;
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Error",
+        description: "Please select an image file",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "Error",
+        description: "Image size must be less than 5MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const imageUrl = await uploadImageToStorage(file);
+    if (imageUrl) {
+      setListingImages([...listingImages, imageUrl]);
+      toast({
+        title: "Success",
+        description: "Image uploaded successfully",
+      });
+    }
+
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const deleteImageFromStorage = async (imageUrl: string) => {
+    try {
+      // Extract file path from URL
+      const urlParts = imageUrl.split('/');
+      const fileName = urlParts[urlParts.length - 1];
+      const filePath = `parking-listings/${fileName}`;
+
+      // Delete from storage
+      const { error } = await supabase.storage
+        .from('parking-images')
+        .remove([filePath]);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success", 
+        description: "Image deleted from storage",
+      });
+    } catch (error) {
+      console.error('Error deleting image from storage:', error);
+      // Still remove from UI even if storage deletion fails
+    }
+  };
+
+  const removeImageFromListing = async (imageUrl: string) => {
+    // Confirm deletion
+    if (confirm('Are you sure you want to delete this image? This will permanently remove it from storage.')) {
+      // Remove from UI first
+      setListingImages(listingImages.filter(img => img !== imageUrl));
+      
+      // Delete from storage if it's a Supabase storage URL
+      if (imageUrl.includes('supabase')) {
+        await deleteImageFromStorage(imageUrl);
+      }
+    }
   };
 
   const handleSaveListing = async () => {
@@ -797,55 +909,74 @@ const AdminPanel = () => {
                   </div>
 
                   <div>
-                    <Label>Images</Label>
-                    <div className="space-y-3">
+                    <Label>Images Management</Label>
+                    <div className="space-y-4">
                       {listingImages.length > 0 && (
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                           {listingImages.map((imageUrl, index) => (
                             <div key={index} className="relative group">
                               <img 
                                 src={imageUrl} 
                                 alt={`Image ${index + 1}`}
-                                className="w-full h-20 object-cover rounded border"
+                                className="w-full h-24 object-cover rounded border"
                               />
-                              <Button
-                                size="sm"
-                                variant="destructive"
-                                className="absolute top-1 right-1 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                                onClick={() => removeImageFromListing(imageUrl)}
-                              >
-                                <X className="h-3 w-3" />
-                              </Button>
+                              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-opacity rounded flex items-center justify-center">
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0"
+                                  onClick={() => removeImageFromListing(imageUrl)}
+                                >
+                                  <X className="h-4 w-4" />
+                                </Button>
+                              </div>
                             </div>
                           ))}
                         </div>
                       )}
                       
-                      <div className="flex gap-2">
-                        <Input
-                          value={newImageUrl}
-                          onChange={(e) => setNewImageUrl(e.target.value)}
-                          placeholder="Enter image URL"
-                          className="flex-1"
-                        />
-                        <Button onClick={addImageToListing} variant="outline">
-                          <Plus className="h-4 w-4 mr-1" />
-                          Add
-                        </Button>
+                      <div className="space-y-3">
+                        <div className="flex gap-2">
+                          <Button 
+                            onClick={() => fileInputRef.current?.click()}
+                            disabled={uploadingImage}
+                            className="flex items-center gap-2"
+                          >
+                            <Upload className="h-4 w-4" />
+                            {uploadingImage ? 'Uploading...' : 'Upload New Image'}
+                          </Button>
+                          <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/*"
+                            onChange={handleFileUpload}
+                            className="hidden"
+                          />
+                        </div>
+                        
+                        <div className="flex gap-2">
+                          <Input
+                            value={newImageUrl}
+                            onChange={(e) => setNewImageUrl(e.target.value)}
+                            placeholder="Or enter image URL"
+                            className="flex-1"
+                          />
+                          <Button onClick={addImageToListing} variant="outline">
+                            <Plus className="h-4 w-4 mr-1" />
+                            Add URL
+                          </Button>
+                        </div>
                       </div>
                       
-                      <p className="text-sm text-muted-foreground">
-                        Add image URLs. You can upload images to the{' '}
-                        <a 
-                          href="https://supabase.com/dashboard/project/eoknluyunximjlsnyceb/storage/buckets/parking-images"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-600 hover:underline"
-                        >
-                          Supabase storage
-                        </a>{' '}
-                        and copy the public URL.
-                      </p>
+                      <div className="text-sm text-muted-foreground bg-blue-50 p-3 rounded-lg">
+                        <p className="font-medium mb-1">💡 Image Management Tips:</p>
+                        <ul className="space-y-1 text-xs">
+                          <li>• Use "Upload New Image" for best quality and automatic storage</li>
+                          <li>• Supported formats: JPG, PNG, GIF (max 5MB)</li>
+                          <li>• Images are automatically uploaded to Supabase storage</li>
+                          <li>• You can also add images by URL if they're hosted elsewhere</li>
+                        </ul>
+                      </div>
                     </div>
                   </div>
 
@@ -863,16 +994,28 @@ const AdminPanel = () => {
 
             {listingsLoading ? (
               <div className="text-center py-8">
-                <p>Loading parking listings...</p>
+                <p>Loading all parking listings from database...</p>
               </div>
             ) : parkingListings.length === 0 ? (
               <Card>
                 <CardContent className="pt-6">
-                  <p className="text-center text-muted-foreground">No parking listings found.</p>
+                  <p className="text-center text-muted-foreground">No parking listings found in database.</p>
                 </CardContent>
               </Card>
             ) : (
               <div className="space-y-4">
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <h3 className="font-semibold text-blue-900 mb-2">📊 Database Statistics</h3>
+                  <p className="text-blue-700 text-sm">
+                    Total listings in database: <strong>{parkingListings.length}</strong>
+                  </p>
+                  <div className="mt-2 flex gap-4 text-xs text-blue-600">
+                    <span>Approved: {parkingListings.filter(l => l.status === 'approved').length}</span>
+                    <span>Pending: {parkingListings.filter(l => l.status === 'pending').length}</span>
+                    <span>Rejected: {parkingListings.filter(l => l.status === 'rejected').length}</span>
+                  </div>
+                </div>
+                
                 {parkingListings.map((listing) => (
                   <Card key={listing.id}>
                     <CardContent className="pt-6">
