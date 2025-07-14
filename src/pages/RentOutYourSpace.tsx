@@ -8,12 +8,13 @@ import { Upload, CheckCircle, Wallet, Quote, X } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ParkingCalculator from "@/components/ParkingCalculator";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import luxuryCar from "@/assets/luxury-car-dubai.png";
 import phoneLogo from "@/assets/phone-logo.png";
+import ReCAPTCHA from 'react-google-recaptcha';
 
 const RentOutYourSpace = () => {
   const { user } = useAuth();
@@ -21,6 +22,8 @@ const RentOutYourSpace = () => {
   const [monthlyPrice, setMonthlyPrice] = useState<number>(300);
   const [uploadedImages, setUploadedImages] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -100,6 +103,15 @@ const RentOutYourSpace = () => {
       return;
     }
 
+    if (!recaptchaToken) {
+      toast({
+        title: "Verification required",
+        description: "Please complete the reCAPTCHA verification",
+        variant: "destructive"
+      });
+      return;
+    }
+
     if (uploadedImages.length === 0) {
       toast({
         title: "Images required",
@@ -173,6 +185,10 @@ Please review and approve this listing.`,
       });
       setUploadedImages([]);
       setMonthlyPrice(300);
+      
+      // Reset reCAPTCHA
+      recaptchaRef.current?.reset();
+      setRecaptchaToken(null);
 
     } catch (error) {
       console.error('Error submitting listing:', error);
@@ -482,9 +498,17 @@ Please review and approve this listing.`,
                 </ul>
               </div>
 
+              <div className="flex justify-center">
+                <ReCAPTCHA
+                  ref={recaptchaRef}
+                  sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI" // Test key - replace with your actual site key
+                  onChange={(token) => setRecaptchaToken(token)}
+                />
+              </div>
+
               <Button 
                 type="submit" 
-                disabled={isSubmitting}
+                disabled={isSubmitting || !recaptchaToken}
                 className="w-full bg-primary hover:bg-primary/90 text-white py-4 text-lg font-semibold disabled:opacity-50"
               >
                 {isSubmitting ? "Submitting..." : "Submit Listing"}

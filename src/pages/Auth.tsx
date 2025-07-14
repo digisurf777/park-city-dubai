@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { Loader2, User, Building } from 'lucide-react';
+import ReCAPTCHA from 'react-google-recaptcha';
 
 const Auth = () => {
   const [loading, setLoading] = useState(false);
@@ -17,6 +18,8 @@ const Auth = () => {
   const [resetEmail, setResetEmail] = useState('');
   const [loginForm, setLoginForm] = useState({ email: '', password: '' });
   const [signupForm, setSignupForm] = useState({ email: '', password: '', fullName: '', userType: 'renter' });
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
   const { signIn, signUp, resetPassword, user } = useAuth();
   const navigate = useNavigate();
 
@@ -28,6 +31,12 @@ const Auth = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!recaptchaToken) {
+      toast.error('Please complete the reCAPTCHA verification');
+      return;
+    }
+    
     setLoading(true);
     
     try {
@@ -43,6 +52,9 @@ const Auth = () => {
       toast.error('An error occurred during login');
     } finally {
       setLoading(false);
+      // Reset reCAPTCHA
+      recaptchaRef.current?.reset();
+      setRecaptchaToken(null);
     }
   };
 
@@ -129,7 +141,15 @@ const Auth = () => {
                   />
                 </div>
                 
-                <Button type="submit" className="w-full" disabled={loading}>
+                <div className="flex justify-center">
+                  <ReCAPTCHA
+                    ref={recaptchaRef}
+                    sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI" // Test key - replace with your actual site key
+                    onChange={(token) => setRecaptchaToken(token)}
+                  />
+                </div>
+                
+                <Button type="submit" className="w-full" disabled={loading || !recaptchaToken}>
                   {loading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
