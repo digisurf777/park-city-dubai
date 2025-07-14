@@ -39,11 +39,7 @@ const Index = () => {
             
             {/* Right side - Phone Image */}
             <div className="lg:flex-1 flex justify-center lg:justify-end">
-              <img 
-                src="/lovable-uploads/df7ee9c3-3bac-4642-b31e-a35557e4b211.png" 
-                alt="Shazam Parking Mobile App" 
-                className="w-64 sm:w-80 md:w-96 lg:max-w-md h-auto" 
-              />
+              <img alt="Shazam Parking Mobile App" className="w-64 sm:w-80 md:w-96 lg:max-w-md h-auto" src="/lovable-uploads/c910d35f-a4b2-4c06-88e3-7f5b16a45558.png" />
             </div>
           </div>
           
@@ -299,10 +295,7 @@ const Index = () => {
           {/* CTA Button */}
           <div className="space-y-6 sm:space-y-8">
             <Link to="/rent-out-your-space">
-              <Button 
-                size="lg" 
-                className="bg-white text-emerald-600 hover:bg-yellow-50 hover:text-emerald-700 px-10 sm:px-16 py-5 sm:py-7 text-xl sm:text-2xl font-bold rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105 w-full sm:w-auto"
-              >
+              <Button size="lg" className="bg-white text-emerald-600 hover:bg-yellow-50 hover:text-emerald-700 px-10 sm:px-16 py-5 sm:py-7 text-xl sm:text-2xl font-bold rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105 w-full sm:w-auto">
                 Start Earning Today
               </Button>
             </Link>
