@@ -26,13 +26,13 @@ const Index = () => {
       animation: 'zoom-slow 20s ease-in-out infinite alternate'
     }}>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-white animate-fade-in">
-          <div className="flex flex-col lg:flex-row items-center justify-between min-h-screen pt-16 lg:pt-0">
+          <div className="flex flex-col lg:flex-row items-center justify-between min-h-screen pt-16 lg:pt-0 my-0 mx-[2px] px-0 py-[141px]">
             {/* Left side - Text */}
             <div className="text-center lg:text-left lg:flex-1 mb-8 lg:mb-0">
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-light mb-8 lg:mb-12 leading-tight px-4 lg:px-0" style={{
+              <h1 style={{
               textShadow: '3px 3px 12px rgba(0, 0, 0, 0.9), 0 0 30px rgba(0, 0, 0, 0.7)',
               fontWeight: '300'
-            }}>
+            }} className="sm:text-4xl md:text-5xl lg:text-6xl mb-8 lg:mb-12 leading-tight px-4 lg:px-0 font-bold xl:text-6xl text-4xl text-left">
                 YOUR TRUSTED PARKING PLATFORM IN DUBAI
               </h1>
             </div>
