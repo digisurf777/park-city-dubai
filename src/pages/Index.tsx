@@ -285,7 +285,7 @@ Parking Bay? </h1>
               </span>
             </h2>
             <h3 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl leading-[0.9] tracking-tight font-light xl:text-5xl">
-              <span className="bg-gradient-to-r from-yellow-200 via-yellow-300 to-yellow-400 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-yellow-200 via-yellow-300 to-yellow-400 bg-clip-text text-transparent text-6xl font-medium">
                 Earn passive income.
               </span>
             </h3>
