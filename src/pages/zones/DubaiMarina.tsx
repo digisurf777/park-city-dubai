@@ -52,7 +52,81 @@ const DubaiMarina = () => {
       }));
 
       console.log('Transformed data:', transformedData);
-      setParkingSpots(transformedData);
+      
+      // If no data from database, use demo data
+      if (transformedData.length === 0) {
+        console.log('No data from database, using demo data');
+        setParkingSpots([
+          {
+            id: 1,
+            name: "LIV Residence",
+            district: "Dubai Marina",
+            price: 650,
+            image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
+            specs: ["Access Card", "Covered", "2.1m Height"],
+            available: true,
+            address: "Dubai Marina Walk, Dubai Marina",
+            description: "Premium parking space in luxury residential tower with 24/7 security and valet service."
+          },
+          {
+            id: 2,
+            name: "Marina Residence",
+            district: "Dubai Marina", 
+            price: 420,
+            image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
+            specs: ["Access Card", "Covered", "2.2m Height"],
+            available: true,
+            address: "Marina Promenade, Dubai Marina",
+            description: "Secure underground parking with easy access to Marina Walk and JBR Beach."
+          },
+          {
+            id: 3,
+            name: "Murjan Tower",
+            district: "Dubai Marina",
+            price: 450,
+            image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
+            specs: ["Access Card", "Covered", "2.0m Height"],
+            available: true,
+            address: "Al Marsa Street, Dubai Marina",
+            description: "Modern parking facility with electric charging points and car wash services."
+          },
+          {
+            id: 4,
+            name: "Marina Diamond",
+            district: "Dubai Marina",
+            price: 580,
+            image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
+            specs: ["Access Card", "Covered", "2.3m Height", "Electric Charging"],
+            available: true,
+            address: "Marina Diamond Complex, Dubai Marina",
+            description: "High-end parking with electric vehicle charging stations and concierge services."
+          },
+          {
+            id: 5,
+            name: "The Torch Tower",
+            district: "Dubai Marina",
+            price: 480,
+            image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
+            specs: ["Access Card", "Covered", "2.1m Height"],
+            available: true,
+            address: "Torch Tower, Dubai Marina",
+            description: "Central location with direct access to Dubai Marina Metro Station."
+          },
+          {
+            id: 6,
+            name: "Cayan Tower",
+            district: "Dubai Marina",
+            price: 520,
+            image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
+            specs: ["Access Card", "Covered", "2.2m Height", "Valet Service"],
+            available: true,
+            address: "Cayan Tower, Dubai Marina",
+            description: "Iconic twisted tower with premium valet parking services and Marina views."
+          }
+        ]);
+      } else {
+        setParkingSpots(transformedData);
+      }
     } catch (error) {
       console.error('Error fetching parking spots:', error);
       // Fallback to demo data if database query fails
