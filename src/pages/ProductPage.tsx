@@ -3,18 +3,30 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { CalendarIcon, Car, CreditCard, Ruler, ArrowLeft, Check } from "lucide-react";
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 const ProductPage = () => {
   const { id } = useParams();
+  const { user } = useAuth();
+  const { toast } = useToast();
   const [startDate, setStartDate] = useState<Date>();
   const [selectedDuration, setSelectedDuration] = useState<number>(12);
+  const [userPhone, setUserPhone] = useState("");
+  const [notes, setNotes] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [bookingReference, setBookingReference] = useState("");
 
   // Mock data - in real app, fetch by ID
   const parkingSpots = [
@@ -63,6 +75,118 @@ const ProductPage = () => {
   };
 
   const pricing = calculatePrice();
+
+  const handleSubmitBookingRequest = async () => {
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to submit a booking request.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!startDate) {
+      toast({
+        title: "Start Date Required",
+        description: "Please select a start date for your booking.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const bookingData = {
+        parkingSpotId: spot.id.toString(),
+        parkingSpotName: spot.name,
+        startDate: startDate.toISOString(),
+        duration: selectedDuration,
+        totalPrice: pricing.totalPrice,
+        userEmail: user.email || "",
+        userName: user.user_metadata?.full_name || user.email || "",
+        userPhone: userPhone,
+        notes: notes,
+      };
+
+      const { data, error } = await supabase.functions.invoke('submit-booking-request', {
+        body: bookingData,
+      });
+
+      if (error) throw error;
+
+      console.log('Booking request submitted:', data);
+      
+      setBookingReference(data.bookingId?.slice(0, 8).toUpperCase() || "");
+      setShowConfirmation(true);
+      
+      toast({
+        title: "Booking Request Submitted!",
+        description: "We'll contact you within 2 working days to confirm availability.",
+      });
+
+    } catch (error: any) {
+      console.error('Error submitting booking:', error);
+      toast({
+        title: "Submission Failed",
+        description: error.message || "Failed to submit booking request. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Check if start date is within 7 days
+  const isWithin7Days = startDate ? 
+    (startDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24) <= 7 : false;
+
+  if (showConfirmation) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24">
+          <Card className="p-8 text-center">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Check className="w-8 h-8 text-green-600" />
+            </div>
+            <h1 className="text-3xl font-bold mb-4 text-green-600">✅ Your booking request has been submitted!</h1>
+            
+            <div className="bg-muted/50 p-6 rounded-lg mb-6">
+              <h3 className="font-semibold mb-3">What happens next:</h3>
+              <ul className="text-left space-y-2 max-w-md mx-auto">
+                <li>• We will contact you within <strong>2 working days</strong> to confirm availability</li>
+                <li>• You'll receive a payment link after confirmation</li>
+                <li>• <strong>No charges have been made at this time</strong></li>
+              </ul>
+            </div>
+
+            {bookingReference && (
+              <p className="text-muted-foreground mb-6">
+                Booking Reference: <strong>{bookingReference}</strong>
+              </p>
+            )}
+
+            <div className="space-y-4">
+              <Button 
+                onClick={() => setShowConfirmation(false)}
+                variant="outline"
+              >
+                Submit Another Request
+              </Button>
+              <div>
+                <Link to="/find-a-parking-space">
+                  <Button>Browse More Spaces</Button>
+                </Link>
+              </div>
+            </div>
+          </Card>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background animate-zoom-slow">
@@ -193,11 +317,26 @@ const ProductPage = () => {
                 </div>
               </div>
 
-              {/* Monthly Rolling Option */}
-              <div className="text-center mb-6">
-                <p className="text-sm text-primary">
-                  Or choose Monthly Rolling (subject to availability)
-                </p>
+              {/* Additional Fields */}
+              <div className="mb-6">
+                <label className="text-sm font-medium mb-2 block">Phone Number (Optional)</label>
+                <Input
+                  type="tel"
+                  placeholder="Your phone number"
+                  value={userPhone}
+                  onChange={(e) => setUserPhone(e.target.value)}
+                  className="h-12"
+                />
+              </div>
+
+              <div className="mb-6">
+                <label className="text-sm font-medium mb-2 block">Notes (Optional)</label>
+                <Textarea
+                  placeholder="Any special requirements or notes..."
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  className="min-h-[80px]"
+                />
               </div>
 
               {/* Price Summary */}
@@ -215,13 +354,35 @@ const ProductPage = () => {
                 )}
               </Card>
 
+              {/* Important Notice */}
+              <Card className="bg-blue-50 border-blue-200 p-4 mb-6">
+                <div className="text-sm text-blue-800">
+                  <p className="font-medium mb-2">📋 Booking Process:</p>
+                  <ul className="space-y-1 text-xs">
+                    <li>• Your booking request will be reviewed</li>
+                    <li>• We'll contact you within 2 working days</li>
+                    <li>• Payment will be requested only after confirmation</li>
+                    {isWithin7Days && (
+                      <li className="text-orange-600 font-medium">
+                        • Bookings within 7 days require manual approval
+                      </li>
+                    )}
+                  </ul>
+                </div>
+              </Card>
+
               <Button 
+                onClick={handleSubmitBookingRequest}
                 className="w-full h-12 text-white font-medium"
                 style={{ backgroundColor: '#00B67A' }}
-                disabled={!startDate}
+                disabled={!startDate || isSubmitting}
               >
-                Reserve Now
+                {isSubmitting ? "Submitting..." : "👉 Submit Booking Request"}
               </Button>
+
+              <p className="text-xs text-muted-foreground text-center mt-3">
+                No charges will be made at this time. Payment link will be provided after confirmation.
+              </p>
             </Card>
           </div>
         </div>
