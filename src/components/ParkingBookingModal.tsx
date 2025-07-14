@@ -201,29 +201,12 @@ export const ParkingBookingModal = ({
           {/* Left Column - Parking Details */}
           <div className="space-y-4">
             <div className="relative">
-              {parkingSpot.images && parkingSpot.images.length > 0 ? (
-                <div className="space-y-2">
-                  <img 
-                    src={parkingSpot.images[0]} 
-                    alt={parkingSpot.name} 
-                    className="w-full h-48 object-cover rounded-lg" 
-                  />
-                  {parkingSpot.images.length > 1 && (
-                    <div className="grid grid-cols-2 gap-2">
-                      {parkingSpot.images.slice(1).map((image, index) => (
-                        <img 
-                          key={index + 1}
-                          src={image} 
-                          alt={`${parkingSpot.name} - Image ${index + 2}`} 
-                          className="w-full h-24 object-cover rounded-lg" 
-                        />
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <img src={parkingSpot.image} alt={parkingSpot.name} className="w-full h-48 object-cover rounded-lg" />
-              )}
+              {parkingSpot.images && parkingSpot.images.length > 0 ? <div className="space-y-2">
+                  <img src={parkingSpot.images[0]} alt={parkingSpot.name} className="w-full h-48 object-cover rounded-lg" />
+                  {parkingSpot.images.length > 1 && <div className="grid grid-cols-2 gap-2">
+                      {parkingSpot.images.slice(1).map((image, index) => <img key={index + 1} src={image} alt={`${parkingSpot.name} - Image ${index + 2}`} className="w-full h-24 object-cover rounded-lg" />)}
+                    </div>}
+                </div> : <img src={parkingSpot.image} alt={parkingSpot.name} className="w-full h-48 object-cover rounded-lg" />}
             </div>
             
             <div>
@@ -235,11 +218,7 @@ export const ParkingBookingModal = ({
               {parkingSpot.description && <p className="text-sm text-muted-foreground mb-4">{parkingSpot.description}</p>}
               
               {parkingSpot.specs && parkingSpot.specs.length > 0 && <div className="flex flex-wrap gap-2">
-                  {parkingSpot.specs.map((spec, index) => (
-                    <Badge key={index} variant="secondary" className="text-xs">
-                      {spec}
-                    </Badge>
-                  ))}
+                  {parkingSpot.specs.map((spec, index) => {})}
                 </div>}
             </div>
           </div>
