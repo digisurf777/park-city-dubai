@@ -107,6 +107,7 @@ const FindParking = () => {
           district: listing.zone,
           price: listing.price_per_month || Math.round(listing.price_per_hour * 24 * 30),
           image: listing.images && listing.images.length > 0 ? listing.images[0] : "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
+          images: listing.images || [],
           specs: listing.features || ["Access Card", "Secure"],
           available: listing.status === 'approved'
         };
@@ -322,12 +323,28 @@ const FindParking = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredSpots.map((spot) => (
                 <Card key={spot.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                  <div className="relative h-48">
-                    <img
-                      src={spot.image}
-                      alt={spot.name}
-                      className="w-full h-full object-cover"
-                    />
+                  {/* Image carousel */}
+                  <div className="relative h-48 overflow-hidden">
+                    {spot.images && spot.images.length > 0 ? (
+                      <div className="flex transition-transform duration-300 ease-in-out h-full">
+                        <img 
+                          src={spot.images[0]} 
+                          alt={spot.name} 
+                          className="w-full h-full object-cover flex-shrink-0"
+                        />
+                      </div>
+                    ) : (
+                      <img 
+                        src={spot.image} 
+                        alt={spot.name} 
+                        className="w-full h-full object-cover"
+                      />
+                    )}
+                    {spot.images && spot.images.length > 1 && (
+                      <div className="absolute bottom-2 left-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
+                        +{spot.images.length - 1} more
+                      </div>
+                    )}
                     {spot.available ? (
                       <Badge className="absolute top-2 right-2 bg-green-500">Available</Badge>
                     ) : (

@@ -240,10 +240,34 @@ const AdminPanel = () => {
   };
 
   const addImageToListing = () => {
-    if (newImageUrl.trim() && !listingImages.includes(newImageUrl.trim())) {
-      setListingImages([...listingImages, newImageUrl.trim()]);
-      setNewImageUrl('');
+    if (!newImageUrl.trim()) return;
+    
+    // Check if already at max images (5)
+    if (listingImages.length >= 5) {
+      toast({
+        title: "Error",
+        description: "Maximum 5 images allowed per listing",
+        variant: "destructive",
+      });
+      return;
     }
+    
+    // Check if image URL is already added
+    if (listingImages.includes(newImageUrl.trim())) {
+      toast({
+        title: "Error",
+        description: "This image URL is already added",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setListingImages([...listingImages, newImageUrl.trim()]);
+    setNewImageUrl('');
+    toast({
+      title: "Success",
+      description: "Image URL added successfully",
+    });
   };
 
   const uploadImageToStorage = async (file: File): Promise<string | null> => {
@@ -284,6 +308,16 @@ const AdminPanel = () => {
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
+
+    // Check if already at max images (5)
+    if (listingImages.length >= 5) {
+      toast({
+        title: "Error",
+        description: "Maximum 5 images allowed per listing",
+        variant: "destructive",
+      });
+      return;
+    }
 
     // Validate file type
     if (!file.type.startsWith('image/')) {
@@ -958,12 +992,12 @@ const AdminPanel = () => {
                           <div className="flex gap-2">
                             <Button 
                               onClick={() => fileInputRef.current?.click()}
-                              disabled={uploadingImage}
+                              disabled={uploadingImage || listingImages.length >= 5}
                               className="flex items-center gap-2"
                               size="sm"
                             >
                               <Upload className="h-4 w-4" />
-                              {uploadingImage ? 'Uploading...' : 'Upload from Computer'}
+                              {uploadingImage ? 'Uploading...' : `Upload (${listingImages.length}/5)`}
                             </Button>
                             <input
                               ref={fileInputRef}

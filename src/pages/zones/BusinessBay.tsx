@@ -67,6 +67,7 @@ const BusinessBay = () => {
         district: "Business Bay",
         price: spot.price_per_month || 0,
         image: spot.images && spot.images.length > 0 ? spot.images[0] : "/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.png",
+        images: spot.images || [],
         specs: spot.features || ["Access Card", "Covered", "2.1m Height"],
         available: true,
         address: spot.address,
@@ -279,8 +280,28 @@ const BusinessBay = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredSpots.map((spot) => (
               <Card key={spot.id} className="overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-                <div className="relative w-full h-64">
-                  <img src={spot.image} alt={spot.name} className="w-full h-full object-cover" />
+                {/* Image carousel */}
+                <div className="relative w-full h-64 overflow-hidden">
+                  {spot.images && spot.images.length > 0 ? (
+                    <div className="flex transition-transform duration-300 ease-in-out h-full">
+                      <img 
+                        src={spot.images[0]} 
+                        alt={spot.name} 
+                        className="w-full h-full object-cover flex-shrink-0"
+                      />
+                    </div>
+                  ) : (
+                    <img 
+                      src={spot.image} 
+                      alt={spot.name} 
+                      className="w-full h-full object-cover"
+                    />
+                  )}
+                  {spot.images && spot.images.length > 1 && (
+                    <div className="absolute bottom-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
+                      +{spot.images.length - 1} more
+                    </div>
+                  )}
                 </div>
 
                 <div className="p-6">
