@@ -444,15 +444,6 @@ const DubaiMarina = () => {
                   </div>
                 )}
 
-                {/* Benefits */}
-                <div className="mb-4 space-y-2">
-                  <h4 className="text-sm font-semibold text-foreground">Benefits:</h4>
-                  <ul className="text-xs text-muted-foreground space-y-1">
-                    <li>• Guaranteed parking space</li>
-                    <li>• Fixed price - no increases during rental</li>
-                    <li>• Priority customer support</li>
-                  </ul>
-                </div>
 
                 {/* Reserve Now Button */}
                 <Button 
