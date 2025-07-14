@@ -236,7 +236,7 @@ const Index = () => {
             </h2>
           </div>
           <div className="flex justify-center">
-            <img src="/lovable-uploads/d0df124f-405d-49cb-8c2d-b4ee6829cadf.png" alt="Three simple steps to rent parking" className="max-w-4xl w-full" />
+            <img alt="Three simple steps to rent parking" className="max-w-4xl w-full" src="/lovable-uploads/e36f8df6-09a1-434e-aac9-f077569e37a1.png" />
           </div>
         </div>
       </section>
