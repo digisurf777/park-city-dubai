@@ -72,7 +72,7 @@ const FAQ = () => {
         <div 
           className="absolute inset-0 bg-cover bg-center"
           style={{
-            backgroundImage: 'url("/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png")'
+            backgroundImage: 'url("/lovable-uploads/32249908-791f-4751-bdaa-b25414bbcd86.png")'
           }}
         ></div>
         <div className="relative z-10 flex items-center justify-center h-full">
