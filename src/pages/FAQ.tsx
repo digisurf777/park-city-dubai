@@ -10,53 +10,82 @@ import {
 const FAQ = () => {
   const faqData = [
     {
-      category: "General",
+      category: "Platform & General",
       questions: [
         {
-          question: "How does ShazamParking work?",
+          question: "🔑 How does ShazamParking work?",
           answer: "ShazamParking is an online platform that connects drivers looking for parking with owners who have a space available. Drivers pay upfront through our secure system. Owners receive payment after the rental period ends, subject to our Terms and Conditions."
         },
         {
-          question: "How do I pay for a parking space?",
-          answer: "Payments are made securely online at the time of booking. Drivers see a clear breakdown of the base rent, driver service charge, and any access card fee before completing payment. Important: All payments must go through ShazamParking. Out-of-platform payments are strictly prohibited and put you at risk."
+          question: "🆔 What details do you verify before accepting listings or reservations?",
+          answer: "To maintain trust and safety on our platform, we may request identification, such as Emirates ID or similar, from owners and drivers before approving a listing or reservation."
         },
         {
-          question: "How does ShazamParking's payment fee structure work?",
-          answer: "When a space is booked, the driver pays upfront through our secure system. This includes: the base rent (which may include a discount for longer bookings), a fixed driver service charge, and an access card fee (if an access device is provided). Owners receive the base rent minus our agreed commission and any applicable access card handling fee."
+          question: "🏙️ Is there a mobile app?",
+          answer: "We do not have a dedicated mobile app yet, but our website is fully mobile-optimised. You can search for spaces, make bookings, message owners, and manage your account easily from your smartphone or tablet."
+        },
+        {
+          question: "📄 Where can I find more details about how ShazamParking works?",
+          answer: "Always refer to our Terms and Conditions, Cancellation Policy, and Privacy Policy for full details on payments, fees, access card fees, cancellations, disputes, and your rights and responsibilities. These documents form the official agreement when you use our platform."
         }
       ]
     },
     {
-      category: "Booking",
+      category: "Payments & Fees",
       questions: [
         {
-          question: "How do I book a parking space?",
-          answer: "Simply browse available spaces in your desired location, select your preferred dates and duration, then complete the secure online payment process. You'll receive confirmation and access details immediately."
+          question: "💳 How do I pay for a parking space?",
+          answer: "Payments are made securely online at the time of booking. Drivers see a clear breakdown of the base rent, driver service charge, and any access card fee before completing payment. Important: All payments must go through ShazamParking. Out-of-platform payments are strictly prohibited and put you at risk. Report any such requests immediately to support@shazamparking.ae."
         },
         {
-          question: "Can I cancel my booking?",
-          answer: "Cancellation policies vary depending on the space owner's terms. Please review the cancellation policy before booking. Generally, cancellations made 24+ hours in advance may be eligible for partial refunds."
+          question: "💰 How does ShazamParking's payment fee structure work?",
+          answer: "When a space is booked, the driver pays upfront through our secure system. This includes: • The base rent (which may include a discount for longer bookings) • A fixed driver service charge • An access card fee (if an access device is provided). Owners receive the base rent minus our agreed commission and any applicable access card handling fee. Example: For a 6-month booking with 1,000 AED requested monthly rent and 10% discount: Driver pays 6,000 AED upfront (900 + 100 per month x 6) plus 500 AED access card fee. Owner receives approx. 4,220 AED for the full period (after commission and handling fee) paid monthly in arrears."
         },
         {
-          question: "What if I need to extend my parking duration?",
-          answer: "You can request an extension through your account dashboard. Extensions are subject to availability and the owner's approval. Additional charges will apply for the extended period."
+          question: "🏦 When do owners receive payment?",
+          answer: "Payments to owners are made via UAE bank transfer, usually within 15 days after the end of the booking month, provided the rental has been completed satisfactorily and all access items have been returned. Owners must ensure their bank details are up to date in their account."
+        },
+        {
+          question: "🔄 Why is an access card fee charged?",
+          answer: "When an access device (such as a remote or card) is provided for a booking, a refundable access card fee is held to protect the owner's property. The driver pays this upfront and it is refunded once the item is returned in good condition. An access card handling fee may apply for the owner."
+        },
+        {
+          question: "📈 How should owners set their pricing?",
+          answer: "We provide suggested price ranges and a minimum fee for each zone to help owners avoid mispricing and ensure fair, competitive pricing. Final pricing is always the owner's responsibility."
         }
       ]
     },
     {
-      category: "Payments",
+      category: "Bookings & Management",
       questions: [
         {
-          question: "What payment methods do you accept?",
-          answer: "We accept all major credit and debit cards including Visa, Mastercard, and American Express. All payments are processed securely through our encrypted payment system."
+          question: "❌ Can I cancel my booking?",
+          answer: "All bookings are subject to our standard Cancellation Policy. Please refer to the full Cancellation Policy on our website for details on when refunds may or may not apply."
         },
         {
-          question: "When will I be charged?",
-          answer: "Payment is processed immediately upon booking confirmation. For monthly rentals, the full amount is charged upfront. Access card fees (if applicable) are also charged at booking and refunded upon return of the access device."
+          question: "📅 How do I manage or update my bookings and account?",
+          answer: "Log in to your ShazamParking account at any time to manage listings, update your bank details, check upcoming bookings, track payments, and view reviews. Keeping your account details current helps ensure smooth transactions."
         },
         {
-          question: "How do refunds work?",
-          answer: "Refunds are processed according to the cancellation policy of each space. Access card fees are refunded once the access device is returned in good condition. Please allow 5-7 business days for refunds to appear in your account."
+          question: "🗝️ How is the access card transferred between the owner and the driver?",
+          answer: "We recommend either a hands-free exchange using a trusted courier service such as Careem Deliveries. In this case, the delivery would be booked at the owner's expense when sending the access card to the driver, and at the driver's expense when returning it to the owner. Alternatively, owners and drivers can arrange an in-person handover by meeting at a mutually agreed location, usually at or near the parking space, or by leaving the card at a safe location for collection. All details should be agreed in advance through the in-platform chat."
+        }
+      ]
+    },
+    {
+      category: "Support & Issues",
+      questions: [
+        {
+          question: "⭐️ Can I leave a review?",
+          answer: "Yes. We value your feedback. Drivers and owners can leave a review after each completed booking. We also encourage you to share your experience on Trustpilot and Google Reviews."
+        },
+        {
+          question: "📞 How do I get support if I need help?",
+          answer: "If you have any questions or issues, you can reach our team at support@shazamparking.ae. For booking-related issues, please include your booking reference to help us assist you quickly."
+        },
+        {
+          question: "⚙️ What happens if there is a problem accessing the parking space?",
+          answer: "If you have an issue such as blocked access or a faulty entry device, please contact the owner through the in-platform chat and also notify us immediately by email. If the issue remains unresolved, we are always here to assist and, if necessary, will cancel the booking with a refund in line with our policy."
         }
       ]
     }
