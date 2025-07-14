@@ -921,72 +921,82 @@ const AdminPanel = () => {
                   </div>
 
                   <div>
-                    <Label>Images Management</Label>
-                    <div className="space-y-4">
+                    <Label className="text-base font-semibold">📸 Images Management</Label>
+                    <div className="space-y-4 mt-3">
                       {listingImages.length > 0 && (
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                          {listingImages.map((imageUrl, index) => (
-                            <div key={index} className="relative group">
-                              <img 
-                                src={imageUrl} 
-                                alt={`Image ${index + 1}`}
-                                className="w-full h-24 object-cover rounded border"
-                              />
-                              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-opacity rounded flex items-center justify-center">
-                                <Button
-                                  size="sm"
-                                  variant="destructive"
-                                  className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0"
-                                  onClick={() => removeImageFromListing(imageUrl)}
-                                >
-                                  <X className="h-4 w-4" />
-                                </Button>
+                        <div className="bg-gray-50 p-4 rounded-lg">
+                          <h4 className="font-medium mb-3">Current Images ({listingImages.length})</h4>
+                          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                            {listingImages.map((imageUrl, index) => (
+                              <div key={index} className="relative group">
+                                <img 
+                                  src={imageUrl} 
+                                  alt={`Image ${index + 1}`}
+                                  className="w-full h-24 object-cover rounded border cursor-pointer"
+                                  onClick={() => window.open(imageUrl, '_blank')}
+                                />
+                                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-opacity rounded flex items-center justify-center">
+                                  <Button
+                                    size="sm"
+                                    variant="destructive"
+                                    className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0"
+                                    onClick={() => removeImageFromListing(imageUrl)}
+                                    title="Delete image"
+                                  >
+                                    <X className="h-4 w-4" />
+                                  </Button>
+                                </div>
                               </div>
-                            </div>
-                          ))}
+                            ))}
+                          </div>
                         </div>
                       )}
                       
-                      <div className="space-y-3">
-                        <div className="flex gap-2">
-                          <Button 
-                            onClick={() => fileInputRef.current?.click()}
-                            disabled={uploadingImage}
-                            className="flex items-center gap-2"
-                          >
-                            <Upload className="h-4 w-4" />
-                            {uploadingImage ? 'Uploading...' : 'Upload New Image'}
-                          </Button>
-                          <input
-                            ref={fileInputRef}
-                            type="file"
-                            accept="image/*"
-                            onChange={handleFileUpload}
-                            className="hidden"
-                          />
-                        </div>
-                        
-                        <div className="flex gap-2">
-                          <Input
-                            value={newImageUrl}
-                            onChange={(e) => setNewImageUrl(e.target.value)}
-                            placeholder="Or enter image URL"
-                            className="flex-1"
-                          />
-                          <Button onClick={addImageToListing} variant="outline">
-                            <Plus className="h-4 w-4 mr-1" />
-                            Add URL
-                          </Button>
+                      <div className="bg-white border-2 border-dashed border-gray-300 rounded-lg p-4">
+                        <h4 className="font-medium mb-3">Add New Images</h4>
+                        <div className="space-y-3">
+                          <div className="flex gap-2">
+                            <Button 
+                              onClick={() => fileInputRef.current?.click()}
+                              disabled={uploadingImage}
+                              className="flex items-center gap-2"
+                              size="sm"
+                            >
+                              <Upload className="h-4 w-4" />
+                              {uploadingImage ? 'Uploading...' : 'Upload from Computer'}
+                            </Button>
+                            <input
+                              ref={fileInputRef}
+                              type="file"
+                              accept="image/*"
+                              onChange={handleFileUpload}
+                              className="hidden"
+                            />
+                          </div>
+                          
+                          <div className="flex gap-2">
+                            <Input
+                              value={newImageUrl}
+                              onChange={(e) => setNewImageUrl(e.target.value)}
+                              placeholder="Or paste image URL here"
+                              className="flex-1"
+                            />
+                            <Button onClick={addImageToListing} variant="outline" size="sm">
+                              <Plus className="h-4 w-4 mr-1" />
+                              Add URL
+                            </Button>
+                          </div>
                         </div>
                       </div>
                       
-                      <div className="text-sm text-muted-foreground bg-blue-50 p-3 rounded-lg">
-                        <p className="font-medium mb-1">💡 Image Management Tips:</p>
-                        <ul className="space-y-1 text-xs">
-                          <li>• Use "Upload New Image" for best quality and automatic storage</li>
-                          <li>• Supported formats: JPG, PNG, GIF (max 5MB)</li>
-                          <li>• Images are automatically uploaded to Supabase storage</li>
-                          <li>• You can also add images by URL if they're hosted elsewhere</li>
+                      <div className="text-sm text-muted-foreground bg-blue-50 border border-blue-200 p-3 rounded-lg">
+                        <p className="font-medium mb-1 text-blue-900">💡 Image Management Features:</p>
+                        <ul className="space-y-1 text-xs text-blue-700">
+                          <li>• <strong>Upload:</strong> Click "Upload from Computer" to add images directly</li>
+                          <li>• <strong>Delete:</strong> Hover over any image and click the X button to remove it</li>
+                          <li>• <strong>View:</strong> Click on any image to open it in a new tab</li>
+                          <li>• <strong>URL:</strong> You can also add images by pasting URLs</li>
+                          <li>• <strong>Storage:</strong> All images are stored in Supabase database</li>
                         </ul>
                       </div>
                     </div>
