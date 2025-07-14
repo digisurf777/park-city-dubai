@@ -6,28 +6,43 @@ import { MapPin, Calendar, Clock, Car } from "lucide-react";
 
 const Hero = () => {
   return (
-    <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 via-white to-primary/5 pt-16">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute inset-0" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2316B79D' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='4'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
-        }}></div>
-      </div>
-
+    <section className="relative min-h-screen flex items-center justify-center bg-primary pt-16">
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         {/* Hero Content */}
         <div className="mb-12">
-          <h1 className="text-4xl md:text-6xl font-black text-gray-900 mb-6 leading-tight tracking-tight animate-fade-in">
+          <h1 className="text-4xl md:text-6xl font-black text-white mb-6 leading-tight tracking-tight animate-fade-in">
             <span className="block animate-fade-in" style={{ animationDelay: '0.2s' }}>
-              Find Perfect Parking
-            </span>
-            <span className="block text-primary animate-fade-in" style={{ animationDelay: '0.4s' }}>
-              Anywhere in Dubai
+              Have an unused Parking Bay?
             </span>
           </h1>
-          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto font-semibold animate-fade-in" style={{ animationDelay: '0.6s' }}>
-            Book secure parking spaces instantly. Save time, money, and hassle with Dubai's most trusted parking platform.
-          </p>
+          <h2 className="text-3xl md:text-5xl font-black text-yellow-400 mb-8 animate-fade-in" style={{ animationDelay: '0.4s' }}>
+            Earn passive income.
+          </h2>
+          <Button className="bg-white text-primary hover:bg-gray-100 px-8 py-4 text-lg font-semibold rounded-full mb-8 animate-fade-in" style={{ animationDelay: '0.6s' }}>
+            Start Earning Today
+          </Button>
+          
+          {/* Feature Points */}
+          <div className="flex flex-col md:flex-row justify-center items-center gap-8 text-white animate-fade-in" style={{ animationDelay: '0.8s' }}>
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center">
+                <span className="text-primary font-bold">✓</span>
+              </div>
+              <span className="text-lg font-medium">Free to list</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center">
+                <span className="text-primary font-bold">✓</span>
+              </div>
+              <span className="text-lg font-medium">Earn up to AED 1,000/month</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center">
+                <span className="text-primary font-bold">✓</span>
+              </div>
+              <span className="text-lg font-medium">Secure payments</span>
+            </div>
+          </div>
         </div>
 
         {/* Search Card */}
