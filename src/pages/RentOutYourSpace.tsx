@@ -15,10 +15,13 @@ import { useToast } from "@/hooks/use-toast";
 import luxuryCar from "@/assets/luxury-car-dubai.png";
 import phoneLogo from "@/assets/phone-logo.png";
 import ReCAPTCHA from 'react-google-recaptcha';
-
 const RentOutYourSpace = () => {
-  const { user } = useAuth();
-  const { toast } = useToast();
+  const {
+    user
+  } = useAuth();
+  const {
+    toast
+  } = useToast();
   const [monthlyPrice, setMonthlyPrice] = useState<number>(300);
   const [uploadedImages, setUploadedImages] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -35,14 +38,14 @@ const RentOutYourSpace = () => {
     accessDeviceDeposit: "",
     notes: ""
   });
-
   const serviceFee = Math.round(monthlyPrice * 0.03);
   const netPayout = monthlyPrice - serviceFee;
-
   const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
   };
-
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (uploadedImages.length + files.length > 5) {
@@ -53,7 +56,6 @@ const RentOutYourSpace = () => {
       });
       return;
     }
-    
     const validFiles = files.filter(file => {
       if (file.size > 3 * 1024 * 1024) {
         toast({
@@ -65,14 +67,11 @@ const RentOutYourSpace = () => {
       }
       return true;
     });
-    
     setUploadedImages(prev => [...prev, ...validFiles]);
   };
-
   const removeImage = (index: number) => {
     setUploadedImages(prev => prev.filter((_, i) => i !== index));
   };
-
   const handleIdUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -87,29 +86,23 @@ const RentOutYourSpace = () => {
       setIdDocument(file);
     }
   };
-
   const uploadImagesToStorage = async (files: File[]): Promise<string[]> => {
     const uploadPromises = files.map(async (file, index) => {
       const fileName = `${Date.now()}-${index}-${file.name}`;
-      const { data, error } = await supabase.storage
-        .from('parking-images')
-        .upload(fileName, file);
-      
+      const {
+        data,
+        error
+      } = await supabase.storage.from('parking-images').upload(fileName, file);
       if (error) throw error;
-      
-      const { data: publicUrl } = supabase.storage
-        .from('parking-images')
-        .getPublicUrl(fileName);
-      
+      const {
+        data: publicUrl
+      } = supabase.storage.from('parking-images').getPublicUrl(fileName);
       return publicUrl.publicUrl;
     });
-    
     return Promise.all(uploadPromises);
   };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (!user) {
       toast({
         title: "Authentication required",
@@ -118,7 +111,6 @@ const RentOutYourSpace = () => {
       });
       return;
     }
-
     if (!recaptchaToken) {
       toast({
         title: "Verification required",
@@ -127,7 +119,6 @@ const RentOutYourSpace = () => {
       });
       return;
     }
-
     if (uploadedImages.length === 0) {
       toast({
         title: "Images required",
@@ -136,7 +127,6 @@ const RentOutYourSpace = () => {
       });
       return;
     }
-
     if (!idDocument) {
       toast({
         title: "ID document required",
@@ -145,39 +135,37 @@ const RentOutYourSpace = () => {
       });
       return;
     }
-
     setIsSubmitting(true);
-
     try {
       // Upload images to storage
       const imageUrls = await uploadImagesToStorage(uploadedImages);
-      
+
       // Upload ID document
       const idFileName = `id-${Date.now()}-${idDocument.name}`;
-      const { data: idData, error: idError } = await supabase.storage
-        .from('verification-docs')
-        .upload(idFileName, idDocument);
-      
+      const {
+        data: idData,
+        error: idError
+      } = await supabase.storage.from('verification-docs').upload(idFileName, idDocument);
       if (idError) throw idError;
-      
-      // Create listing in database
-      const { error: insertError } = await supabase
-        .from('parking_listings')
-        .insert({
-          owner_id: user.id,
-          title: `${formData.bayType} parking in ${formData.buildingName}`,
-          description: formData.notes || `${formData.bayType} parking space in ${formData.buildingName}, ${formData.district}`,
-          address: `${formData.buildingName}, ${formData.district}`,
-          zone: formData.district,
-          price_per_hour: Number((monthlyPrice / 720).toFixed(2)), // Approximate hourly rate
-          price_per_month: monthlyPrice,
-          features: [formData.bayType],
-          images: imageUrls,
-          contact_phone: formData.phone,
-          contact_email: formData.email,
-          status: 'pending'
-        });
 
+      // Create listing in database
+      const {
+        error: insertError
+      } = await supabase.from('parking_listings').insert({
+        owner_id: user.id,
+        title: `${formData.bayType} parking in ${formData.buildingName}`,
+        description: formData.notes || `${formData.bayType} parking space in ${formData.buildingName}, ${formData.district}`,
+        address: `${formData.buildingName}, ${formData.district}`,
+        zone: formData.district,
+        price_per_hour: Number((monthlyPrice / 720).toFixed(2)),
+        // Approximate hourly rate
+        price_per_month: monthlyPrice,
+        features: [formData.bayType],
+        images: imageUrls,
+        contact_phone: formData.phone,
+        contact_email: formData.email,
+        status: 'pending'
+      });
       if (insertError) throw insertError;
 
       // Send admin notification
@@ -197,7 +185,6 @@ const RentOutYourSpace = () => {
           }
         }
       });
-
       toast({
         title: "Listing submitted successfully",
         description: "Our team will review your listing within 24 hours"
@@ -217,11 +204,10 @@ const RentOutYourSpace = () => {
       setUploadedImages([]);
       setIdDocument(null);
       setMonthlyPrice(300);
-      
+
       // Reset reCAPTCHA
       recaptchaRef.current?.reset();
       setRecaptchaToken(null);
-
     } catch (error) {
       console.error('Error submitting listing:', error);
       toast({
@@ -233,18 +219,13 @@ const RentOutYourSpace = () => {
       setIsSubmitting(false);
     }
   };
-
-  return (
-    <div className="min-h-screen bg-white animate-zoom-slow">
+  return <div className="min-h-screen bg-white animate-zoom-slow">
       <Navbar />
       
       {/* Hero Section */}
-      <section 
-        className="relative min-h-[70vh] flex items-center justify-center bg-cover bg-center bg-no-repeat"
-        style={{
-          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url(${luxuryCar})`
-        }}
-      >
+      <section className="relative min-h-[70vh] flex items-center justify-center bg-cover bg-center bg-no-repeat" style={{
+      backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url(${luxuryCar})`
+    }}>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
           <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
             Earn Passive Income<br />
@@ -260,11 +241,7 @@ const RentOutYourSpace = () => {
       <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <img 
-              src="/lovable-uploads/747c1f5d-d6b2-4f6a-94a2-aca1927ee856.png"
-              alt="List your parking space in just 3 simple steps"
-              className="w-full max-w-4xl mx-auto px-4"
-            />
+            <img src="/lovable-uploads/747c1f5d-d6b2-4f6a-94a2-aca1927ee856.png" alt="List your parking space in just 3 simple steps" className="w-full max-w-4xl mx-auto px-4" />
           </div>
         </div>
       </section>
@@ -298,19 +275,14 @@ const RentOutYourSpace = () => {
                   Dedicated support
                 </li>
               </ul>
-              <Button 
-                className="mt-8 bg-primary hover:bg-primary/90 text-white px-8 py-4 text-lg"
-                onClick={() => document.getElementById('form')?.scrollIntoView({ behavior: 'smooth' })}
-              >
+              <Button className="mt-8 bg-primary hover:bg-primary/90 text-white px-8 py-4 text-lg" onClick={() => document.getElementById('form')?.scrollIntoView({
+              behavior: 'smooth'
+            })}>
                 Submit Your Listing
               </Button>
             </div>
             <div>
-              <img 
-                src={luxuryCar} 
-                alt="Owner holding remote"
-                className="w-full rounded-lg shadow-lg"
-              />
+              <img src={luxuryCar} alt="Owner holding remote" className="w-full rounded-lg shadow-lg" />
             </div>
           </div>
         </div>
@@ -332,27 +304,13 @@ const RentOutYourSpace = () => {
                   <Label htmlFor="fullName" className="text-base font-medium">
                     Full Name *
                   </Label>
-                  <Input
-                    id="fullName"
-                    type="text"
-                    required
-                    value={formData.fullName}
-                    onChange={(e) => handleInputChange('fullName', e.target.value)}
-                    className="mt-2 h-12"
-                  />
+                  <Input id="fullName" type="text" required value={formData.fullName} onChange={e => handleInputChange('fullName', e.target.value)} className="mt-2 h-12" />
                 </div>
                 <div>
                   <Label htmlFor="email" className="text-base font-medium">
                     Email *
                   </Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    required
-                    value={formData.email}
-                    onChange={(e) => handleInputChange('email', e.target.value)}
-                    className="mt-2 h-12"
-                  />
+                  <Input id="email" type="email" required value={formData.email} onChange={e => handleInputChange('email', e.target.value)} className="mt-2 h-12" />
                 </div>
               </div>
 
@@ -361,27 +319,13 @@ const RentOutYourSpace = () => {
                   <Label htmlFor="phone" className="text-base font-medium">
                     Phone *
                   </Label>
-                  <Input
-                    id="phone"
-                    type="tel"
-                    required
-                    value={formData.phone}
-                    onChange={(e) => handleInputChange('phone', e.target.value)}
-                    className="mt-2 h-12"
-                  />
+                  <Input id="phone" type="tel" required value={formData.phone} onChange={e => handleInputChange('phone', e.target.value)} className="mt-2 h-12" />
                 </div>
                 <div>
                   <Label htmlFor="buildingName" className="text-base font-medium">
                     Building / Tower Name *
                   </Label>
-                  <Input
-                    id="buildingName"
-                    type="text"
-                    required
-                    value={formData.buildingName}
-                    onChange={(e) => handleInputChange('buildingName', e.target.value)}
-                    className="mt-2 h-12"
-                  />
+                  <Input id="buildingName" type="text" required value={formData.buildingName} onChange={e => handleInputChange('buildingName', e.target.value)} className="mt-2 h-12" />
                 </div>
               </div>
 
@@ -390,7 +334,7 @@ const RentOutYourSpace = () => {
                   <Label htmlFor="district" className="text-base font-medium">
                     District *
                   </Label>
-                  <Select value={formData.district} onValueChange={(value) => handleInputChange('district', value)}>
+                  <Select value={formData.district} onValueChange={value => handleInputChange('district', value)}>
                     <SelectTrigger className="mt-2 h-12">
                       <SelectValue placeholder="Select district" />
                     </SelectTrigger>
@@ -408,7 +352,7 @@ const RentOutYourSpace = () => {
                   <Label htmlFor="bayType" className="text-base font-medium">
                     Bay Type *
                   </Label>
-                  <Select value={formData.bayType} onValueChange={(value) => handleInputChange('bayType', value)}>
+                  <Select value={formData.bayType} onValueChange={value => handleInputChange('bayType', value)}>
                     <SelectTrigger className="mt-2 h-12">
                       <SelectValue placeholder="Select bay type" />
                     </SelectTrigger>
@@ -426,16 +370,7 @@ const RentOutYourSpace = () => {
                   <Label htmlFor="monthlyPrice" className="text-base font-medium">
                     Monthly Price (AED) *
                   </Label>
-                  <Input
-                    id="monthlyPrice"
-                    type="number"
-                    min="300"
-                    step="50"
-                    required
-                    value={monthlyPrice}
-                    onChange={(e) => setMonthlyPrice(Number(e.target.value))}
-                    className="mt-2 h-12"
-                  />
+                  <Input id="monthlyPrice" type="number" min="300" step="50" required value={monthlyPrice} onChange={e => setMonthlyPrice(Number(e.target.value))} className="mt-2 h-12" />
                   <div className="mt-2 p-3 bg-primary/10 rounded-lg">
                     <p className="text-sm text-gray-700">
                       <strong>You earn:</strong> {monthlyPrice} AED - 3% = <strong className="text-primary">{netPayout} AED/month</strong>
@@ -449,14 +384,7 @@ const RentOutYourSpace = () => {
                   <Label htmlFor="accessDeviceDeposit" className="text-base font-medium">
                     Access Device Deposit (AED)
                   </Label>
-                  <Input
-                    id="accessDeviceDeposit"
-                    type="number"
-                    value={formData.accessDeviceDeposit}
-                    onChange={(e) => handleInputChange('accessDeviceDeposit', e.target.value)}
-                    className="mt-2 h-12"
-                    placeholder="Optional"
-                  />
+                  <Input id="accessDeviceDeposit" type="number" value={formData.accessDeviceDeposit} onChange={e => handleInputChange('accessDeviceDeposit', e.target.value)} className="mt-2 h-12" placeholder="Optional" />
                 </div>
               </div>
 
@@ -473,37 +401,17 @@ const RentOutYourSpace = () => {
                     <p className="text-sm text-gray-500 mt-2">
                       JPEG or PNG, max 3MB each
                     </p>
-                    <input
-                      type="file"
-                      multiple
-                      accept="image/jpeg,image/png"
-                      onChange={handleImageUpload}
-                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                    />
+                    <input type="file" multiple accept="image/jpeg,image/png" onChange={handleImageUpload} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
                   </div>
                   
-                  {uploadedImages.length > 0 && (
-                    <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">
-                      {uploadedImages.map((file, index) => (
-                        <div key={index} className="relative">
-                          <img
-                            src={URL.createObjectURL(file)}
-                            alt={`Upload ${index + 1}`}
-                            className="w-full h-24 object-cover rounded-lg"
-                          />
-                          <Button
-                            type="button"
-                            variant="destructive"
-                            size="sm"
-                            className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0"
-                            onClick={() => removeImage(index)}
-                          >
+                  {uploadedImages.length > 0 && <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">
+                      {uploadedImages.map((file, index) => <div key={index} className="relative">
+                          <img src={URL.createObjectURL(file)} alt={`Upload ${index + 1}`} className="w-full h-24 object-cover rounded-lg" />
+                          <Button type="button" variant="destructive" size="sm" className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0" onClick={() => removeImage(index)}>
                             <X className="h-3 w-3" />
                           </Button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                        </div>)}
+                    </div>}
                 </div>
               </div>
 
@@ -520,19 +428,11 @@ const RentOutYourSpace = () => {
                     <p className="text-xs text-gray-500 mt-1">
                       JPEG or PNG, max 3MB
                     </p>
-                    <input
-                      type="file"
-                      accept="image/jpeg,image/png"
-                      onChange={handleIdUpload}
-                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                      required
-                    />
+                    <input type="file" accept="image/jpeg,image/png" onChange={handleIdUpload} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" required />
                   </div>
-                  {idDocument && (
-                    <div className="mt-3 p-3 bg-green-50 rounded-lg border border-green-200">
+                  {idDocument && <div className="mt-3 p-3 bg-green-50 rounded-lg border border-green-200">
                       <p className="text-sm text-green-700 font-medium">✓ ID document uploaded: {idDocument.name}</p>
-                    </div>
-                  )}
+                    </div>}
                 </div>
               </div>
 
@@ -540,38 +440,17 @@ const RentOutYourSpace = () => {
                 <Label htmlFor="notes" className="text-base font-medium">
                   Notes to Admin
                 </Label>
-                <Textarea
-                  id="notes"
-                  value={formData.notes}
-                  onChange={(e) => handleInputChange('notes', e.target.value)}
-                  className="mt-2"
-                  rows={4}
-                  placeholder="Any additional information about your parking space..."
-                />
+                <Textarea id="notes" value={formData.notes} onChange={e => handleInputChange('notes', e.target.value)} className="mt-2" rows={4} placeholder="Any additional information about your parking space..." />
               </div>
 
-              <div className="bg-gray-50 p-6 rounded-lg">
-                <h4 className="font-semibold text-gray-900 mb-4">Service Fee Formula:</h4>
-                <ul className="space-y-2 text-sm text-gray-600">
-                  <li>• <strong>Listing fee:</strong> Free</li>
-                  <li>• <strong>Service fee:</strong> 3% of owner's set monthly price</li>
-                  <li>• <strong>Stripe payout frequency:</strong> 1× per month, minus 3% fee</li>
-                </ul>
-              </div>
+              
 
               <div className="flex justify-center">
-                <ReCAPTCHA
-                  ref={recaptchaRef}
-                  sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI" // Test key - replace with your actual site key
-                  onChange={(token) => setRecaptchaToken(token)}
-                />
+                <ReCAPTCHA ref={recaptchaRef} sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI" // Test key - replace with your actual site key
+              onChange={token => setRecaptchaToken(token)} />
               </div>
 
-              <Button 
-                type="submit" 
-                disabled={isSubmitting || !recaptchaToken}
-                className="w-full bg-primary hover:bg-primary/90 text-white py-4 text-lg font-semibold disabled:opacity-50"
-              >
+              <Button type="submit" disabled={isSubmitting || !recaptchaToken} className="w-full bg-primary hover:bg-primary/90 text-white py-4 text-lg font-semibold disabled:opacity-50">
                 {isSubmitting ? "Submitting..." : "Submit Listing"}
               </Button>
             </form>
@@ -604,43 +483,34 @@ const RentOutYourSpace = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              {
-                quote: "What a nice parking service! Thanks for the amazing options for car parking spots around our city. Having such a reliable backup is liberating.",
-                name: "Aaliyah Armasi"
-              },
-              {
-                quote: "Everyone I know really likes ShazamParking services. Thank you for your effective and expedient help as well as easy booking! Stay awesome!",
-                name: "Ahmed Mohammed"
-              },
-              {
-                quote: "Simple and easy-to-use, perfect service.",
-                name: "Murtaza Hussain"
-              }
-            ].map((testimonial, index) => (
-              <Card key={index} className="p-8 hover:shadow-xl transition-all duration-300">
+            {[{
+            quote: "What a nice parking service! Thanks for the amazing options for car parking spots around our city. Having such a reliable backup is liberating.",
+            name: "Aaliyah Armasi"
+          }, {
+            quote: "Everyone I know really likes ShazamParking services. Thank you for your effective and expedient help as well as easy booking! Stay awesome!",
+            name: "Ahmed Mohammed"
+          }, {
+            quote: "Simple and easy-to-use, perfect service.",
+            name: "Murtaza Hussain"
+          }].map((testimonial, index) => <Card key={index} className="p-8 hover:shadow-xl transition-all duration-300">
                 <Quote className="h-8 w-8 text-primary mb-4" />
                 <p className="text-gray-600 mb-6 italic">"{testimonial.quote}"</p>
                 <h4 className="font-semibold text-gray-900">{testimonial.name}</h4>
-              </Card>
-            ))}
+              </Card>)}
           </div>
         </div>
       </section>
 
       {/* Floating CTA Button */}
       <div className="fixed bottom-6 right-6 z-50">
-        <Button 
-          className="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-full shadow-lg"
-          onClick={() => document.getElementById('form')?.scrollIntoView({ behavior: 'smooth' })}
-        >
+        <Button className="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-full shadow-lg" onClick={() => document.getElementById('form')?.scrollIntoView({
+        behavior: 'smooth'
+      })}>
           Submit Listing
         </Button>
       </div>
 
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default RentOutYourSpace;
