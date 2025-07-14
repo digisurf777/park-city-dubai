@@ -4,13 +4,20 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Search, Car, CreditCard, Ruler, MapPin } from "lucide-react";
+import { Search, Car, CreditCard, Ruler, MapPin, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ParkingBookingModal } from "@/components/ParkingBookingModal";
+import { 
+  Carousel, 
+  CarouselContent, 
+  CarouselItem, 
+  CarouselNext, 
+  CarouselPrevious 
+} from "@/components/ui/carousel";
 import palmJumeirahHero from "@/assets/zones/palm-jumeirah-real.jpg";
 
 const PalmJumeirah = () => {
@@ -46,6 +53,7 @@ const PalmJumeirah = () => {
         district: "Palm Jumeirah",
         price: spot.price_per_month || 0,
         image: spot.images && spot.images.length > 0 ? spot.images[0] : "/lovable-uploads/ba4a4def-2cd7-4e97-89d5-074c13f0bbe8.png",
+        images: spot.images || [],
         specs: spot.features || ["Access Card", "Covered", "2.1m Height"],
         available: true,
         address: spot.address,
@@ -251,8 +259,34 @@ const PalmJumeirah = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredSpots.map((spot) => (
               <Card key={spot.id} className="overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-                <div className="relative w-full h-64">
-                  <img src={spot.image} alt={spot.name} className="w-full h-full object-cover" />
+                {/* Image carousel */}
+                <div className="relative w-full h-64 overflow-hidden">
+                  {spot.images && spot.images.length > 1 ? (
+                    <Carousel className="w-full h-full">
+                      <CarouselContent className="h-full">
+                        {spot.images.map((image: string, index: number) => (
+                          <CarouselItem key={index} className="h-full">
+                            <img 
+                              src={image} 
+                              alt={`${spot.name} - Image ${index + 1}`} 
+                              className="w-full h-full object-cover"
+                            />
+                          </CarouselItem>
+                        ))}
+                      </CarouselContent>
+                      <CarouselPrevious className="absolute left-2 top-1/2 -translate-y-1/2 h-8 w-8 bg-black/50 hover:bg-black/70 border-0" />
+                      <CarouselNext className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 bg-black/50 hover:bg-black/70 border-0" />
+                      <div className="absolute bottom-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
+                        {spot.images.length} photos
+                      </div>
+                    </Carousel>
+                  ) : (
+                    <img 
+                      src={spot.image} 
+                      alt={spot.name} 
+                      className="w-full h-full object-cover"
+                    />
+                  )}
                 </div>
 
                 <div className="p-6">
