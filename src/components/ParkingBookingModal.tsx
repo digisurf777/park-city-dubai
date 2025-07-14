@@ -350,16 +350,12 @@ export const ParkingBookingModal = ({ isOpen, onClose, parkingSpot }: ParkingBoo
               <CardContent className="p-4">
                 <div className="text-sm text-blue-800">
                   <p className="font-medium mb-2">📋 Booking Process:</p>
-                  <ul className="space-y-1 text-xs">
-                    <li>• We authorize payment and will contact you within 2 days</li>
-                    <li>• Once confirmed we charge you</li>
-                    <li>• If not confirmed we will send money back</li>
-                    {isWithin7Days && (
-                      <li className="text-orange-600 font-medium">
-                        • Bookings within 7 days require manual approval
-                      </li>
-                    )}
-                  </ul>
+                  <p className="text-xs">All bookings subject to final confirmation of availability.</p>
+                  {isWithin7Days && (
+                    <p className="text-orange-600 font-medium text-xs mt-2">
+                      • Bookings within 7 days require manual approval
+                    </p>
+                  )}
                 </div>
               </CardContent>
             </Card>
