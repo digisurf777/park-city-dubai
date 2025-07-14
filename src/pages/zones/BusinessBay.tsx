@@ -11,7 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ParkingBookingModal } from "@/components/ParkingBookingModal";
-import businessBayHero from "@/assets/zones/business-bay-hero.jpg";
+import businessBayHero from "@/assets/zones/business-bay-real.jpg";
 
 const BusinessBay = () => {
   const [searchTerm, setSearchTerm] = useState("");

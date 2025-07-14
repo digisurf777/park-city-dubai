@@ -10,12 +10,12 @@ import { cn } from "@/lib/utils";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useSearchParams, Link } from "react-router-dom";
-import dubaiMarinaZone from "@/assets/zones/dubai-marina-hero.jpg";
-import downtownZone from "@/assets/zones/downtown-hero.jpg";
-import palmJumeirahZone from "@/assets/zones/palm-jumeirah-hero.jpg";
-import businessBayZone from "@/assets/zones/business-bay-hero.jpg";
-import difcZone from "@/assets/zones/difc-hero.jpg";
-import deiraZone from "@/assets/zones/deira-hero.jpg";
+import dubaiMarinaZone from "@/assets/zones/dubai-marina-real.jpg";
+import downtownZone from "@/assets/zones/downtown-real.jpg";
+import palmJumeirahZone from "@/assets/zones/palm-jumeirah-real.jpg";
+import businessBayZone from "@/assets/zones/business-bay-real.jpg";
+import difcZone from "@/assets/zones/difc-real.jpg";
+import deiraZone from "@/assets/zones/deira-real.jpg";
 
 const FindParking = () => {
   const [searchParams, setSearchParams] = useSearchParams();

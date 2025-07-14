@@ -11,7 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ParkingBookingModal } from "@/components/ParkingBookingModal";
-import deiraHero from "@/assets/zones/deira-hero.jpg";
+import deiraHero from "@/assets/zones/deira-real.jpg";
 
 const Deira = () => {
   const [searchTerm, setSearchTerm] = useState("");
