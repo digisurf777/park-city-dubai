@@ -51,11 +51,7 @@ const AboutUs = () => {
             <h3 className="text-2xl font-bold mb-4">Are you looking to rent out your space?</h3>
             <Link to="/rent-out-your-space">
               <Button 
-                className="px-8 py-3 text-white font-medium rounded-md transition-colors"
-                style={{ 
-                  backgroundColor: '#00B67A',
-                  borderColor: '#00B67A'
-                }}
+                className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3 font-medium rounded-md transition-colors"
               >
                 Rent out a space
               </Button>
@@ -66,11 +62,7 @@ const AboutUs = () => {
             <h3 className="text-2xl font-bold mb-4">Are you looking for a parking space?</h3>
             <Link to="/find-a-parking-space">
               <Button 
-                className="px-8 py-3 text-white font-medium rounded-md transition-colors"
-                style={{ 
-                  backgroundColor: '#00B67A',
-                  borderColor: '#00B67A'
-                }}
+                className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3 font-medium rounded-md transition-colors"
               >
                 Book a space
               </Button>

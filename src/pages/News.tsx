@@ -104,8 +104,7 @@ const News = () => {
                   </span>
                   <Link 
                     to={`/news/${article.id}`}
-                    className="text-sm font-medium hover:underline"
-                    style={{ color: '#00B67A' }}
+                    className="text-sm font-medium text-primary hover:underline"
                   >
                     Read more
                   </Link>

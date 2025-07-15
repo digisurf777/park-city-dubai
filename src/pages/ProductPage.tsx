@@ -378,8 +378,7 @@ const ProductPage = () => {
 
               <Button 
                 onClick={handleSubmitBookingRequest}
-                className="w-full h-12 text-white font-medium"
-                style={{ backgroundColor: '#00B67A' }}
+                className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-medium"
                 disabled={!startDate || isSubmitting}
               >
                 {isSubmitting ? "Submitting..." : "👉 Submit Booking Request"}
