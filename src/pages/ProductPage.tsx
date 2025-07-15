@@ -248,9 +248,9 @@ const ProductPage = () => {
                 <h3 className="text-lg font-semibold">Benefits:</h3>
               </div>
               <ul className="space-y-2 text-muted-foreground">
-                <li>• Guaranteed parking space</li>
-                <li>• Fixed price - no increases during rental</li>
-                <li>• Priority customer support</li>
+                <li>• Pre-booked parking space</li>
+                <li>• Fixed price - no increases during the fixed rental period</li>
+                <li>• Customer support</li>
               </ul>
             </div>
           </div>

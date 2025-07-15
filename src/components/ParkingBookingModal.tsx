@@ -230,15 +230,15 @@ export const ParkingBookingModal = ({
                   <ul className="space-y-2 text-sm text-green-700">
                     <li className="flex items-center gap-2">
                       <div className="w-1.5 h-1.5 bg-green-600 rounded-full"></div>
-                      Guaranteed parking space
+                      Pre-booked parking space
                     </li>
                     <li className="flex items-center gap-2">
                       <div className="w-1.5 h-1.5 bg-green-600 rounded-full"></div>
-                      Fixed price - no increases during rental
+                      Fixed price - no increases during the fixed rental period
                     </li>
                     <li className="flex items-center gap-2">
                       <div className="w-1.5 h-1.5 bg-green-600 rounded-full"></div>
-                      Priority customer support
+                      Customer support
                     </li>
                   </ul>
                 </CardContent>
