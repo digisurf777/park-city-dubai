@@ -15,24 +15,26 @@ import palmJumeirahZone from "@/assets/zones/palm-jumeirah.jpg";
 import businessBayZone from "@/assets/zones/business-bay.jpg";
 import difcZone from "@/assets/zones/difc.jpg";
 import deiraZone from "@/assets/zones/deira.jpg";
+
 const Index = () => {
-  return <div className="min-h-screen bg-white animate-zoom-slow">
+  return (
+    <div className="min-h-screen bg-white animate-zoom-slow">
       <Navbar />
       
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat animate-fade-in" style={{
-      backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('/lovable-uploads/25c56481-0d03-4055-bd47-67635ac0d1b0.png')`,
-      backgroundSize: 'cover',
-      animation: 'zoom-slow 20s ease-in-out infinite alternate'
-    }}>
+        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('/lovable-uploads/25c56481-0d03-4055-bd47-67635ac0d1b0.png')`,
+        backgroundSize: 'cover',
+        animation: 'zoom-slow 20s ease-in-out infinite alternate'
+      }}>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-white animate-fade-in">
           <div className="flex flex-col lg:flex-row items-center justify-between min-h-screen pt-16 lg:pt-0 my-0 mx-[2px] px-0 py-[141px]">
             {/* Left side - Text */}
             <div className="text-center lg:text-left lg:flex-1 mb-8 lg:mb-0">
               <h1 style={{
-              textShadow: '3px 3px 12px rgba(0, 0, 0, 0.9), 0 0 30px rgba(0, 0, 0, 0.7)',
-              fontWeight: '300'
-            }} className="sm:text-4xl md:text-5xl lg:text-6xl mb-8 lg:mb-12 leading-tight px-4 lg:px-0 xl:text-6xl text-4xl text-left font-normal text-slate-50">
+                textShadow: '3px 3px 12px rgba(0, 0, 0, 0.9), 0 0 30px rgba(0, 0, 0, 0.7)',
+                fontWeight: '300'
+              }} className="sm:text-4xl md:text-5xl lg:text-6xl mb-8 lg:mb-12 leading-tight px-4 lg:px-0 xl:text-6xl text-4xl text-left font-normal text-slate-50">
                 YOUR TRUSTED PARKING PLATFORM IN DUBAI
               </h1>
             </div>
@@ -64,31 +66,39 @@ const Index = () => {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
-            {[{
-            name: "Dubai Marina",
-            link: "/zones/dubai-marina",
-            image: dubaiMarinaZone
-          }, {
-            name: "Downtown",
-            link: "/find-parking?district=downtown",
-            image: downtownZone
-          }, {
-            name: "Palm Jumeirah",
-            link: "/find-parking?district=palm-jumeirah",
-            image: palmJumeirahZone
-          }, {
-            name: "Business Bay",
-            link: "/find-parking?district=business-bay",
-            image: businessBayZone
-          }, {
-            name: "DIFC",
-            link: "/find-parking?district=difc",
-            image: difcZone
-          }, {
-            name: "Deira",
-            link: "/find-parking?district=deira",
-            image: deiraZone
-          }].map((location, index) => <Card key={index} className="overflow-hidden hover:shadow-xl transition-all duration-300 group">
+            {[
+              {
+                name: "Dubai Marina",
+                link: "/zones/dubai-marina",
+                image: dubaiMarinaZone
+              },
+              {
+                name: "Downtown",
+                link: "/find-parking?district=downtown",
+                image: downtownZone
+              },
+              {
+                name: "Palm Jumeirah",
+                link: "/find-parking?district=palm-jumeirah",
+                image: palmJumeirahZone
+              },
+              {
+                name: "Business Bay",
+                link: "/find-parking?district=business-bay",
+                image: businessBayZone
+              },
+              {
+                name: "DIFC",
+                link: "/find-parking?district=difc",
+                image: difcZone
+              },
+              {
+                name: "Deira",
+                link: "/find-parking?district=deira",
+                image: deiraZone
+              }
+            ].map((location, index) => (
+              <Card key={index} className="overflow-hidden hover:shadow-xl transition-all duration-300 group">
                 <div className="relative aspect-video">
                   <img src={location.image} alt={location.name} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
                   <div className="absolute inset-0 bg-black bg-opacity-40 transition-opacity group-hover:bg-opacity-30"></div>
@@ -101,7 +111,8 @@ const Index = () => {
                     </Link>
                   </div>
                 </div>
-              </Card>)}
+              </Card>
+            ))}
           </div>
         </div>
       </section>
@@ -251,20 +262,26 @@ const Index = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
-            {[{
-            quote: "ShazamParking is a game-changer for anyone looking for a stress-free parking experience, it's easy to use, reliable and convenient.",
-            name: "Aaliyah Armasi"
-          }, {
-            quote: "I highly recommend ShazamParking, it offers an easy-to-use platform, a wide range of parking options, and excellent customer service, making it the perfect parking solution.",
-            name: "Ahmed Mohammed"
-          }, {
-            quote: "ShazamParking is my go-to platform for parking, it's user-friendly, reliable, and offers a wide range of options, making it convenient and easy to find a parking spot.",
-            name: "Murtaza Hussain"
-          }].map((testimonial, index) => <Card key={index} className="p-6 sm:p-8 hover:shadow-xl transition-all duration-300">
+            {[
+              {
+                quote: "ShazamParking is a game-changer for anyone looking for a stress-free parking experience, it's easy to use, reliable and convenient.",
+                name: "Aaliyah Armasi"
+              },
+              {
+                quote: "I highly recommend ShazamParking, it offers an easy-to-use platform, a wide range of parking options, and excellent customer service, making it the perfect parking solution.",
+                name: "Ahmed Mohammed"
+              },
+              {
+                quote: "ShazamParking is my go-to platform for parking, it's user-friendly, reliable, and offers a wide range of options, making it convenient and easy to find a parking spot.",
+                name: "Murtaza Hussain"
+              }
+            ].map((testimonial, index) => (
+              <Card key={index} className="p-6 sm:p-8 hover:shadow-xl transition-all duration-300">
                 <Quote className="h-6 sm:h-8 w-6 sm:w-8 text-primary mb-3 sm:mb-4" />
                 <p className="text-gray-600 mb-4 sm:mb-6 italic text-sm sm:text-base">"{testimonial.quote}"</p>
                 <h4 className="font-semibold text-gray-900 text-sm sm:text-base">{testimonial.name}</h4>
-              </Card>)}
+              </Card>
+            ))}
           </div>
         </div>
       </section>
@@ -278,7 +295,6 @@ const Index = () => {
           {/* Main Headline - Exact Match to Reference */}
           <div className="mb-11 sm:mb-14 ">
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white mb-6 sm:mb-8 text-5xl tracking-tight xl:text-7xl">Own a Parking Space?</h1>
-Parking Bay? </h1>
             <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black mb-8 sm:mb-12 leading-[0.9] tracking-tight">
               <span className="bg-gradient-to-r from-yellow-300 via-yellow-400 to-amber-400 bg-clip-text text-transparent drop-shadow-sm text-6xl">
                 Turn it into steady income.
@@ -339,6 +355,8 @@ Parking Bay? </h1>
       </section>
 
       <Footer />
-    </div>;
+    </div>
+  );
 };
+
 export default Index;
