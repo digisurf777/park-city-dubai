@@ -28,15 +28,31 @@ const Index = () => {
         animation: 'zoom-slow 20s ease-in-out infinite alternate'
       }}>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-white animate-fade-in">
-          <div className="flex flex-col lg:flex-row items-center justify-between min-h-screen pt-16 lg:pt-0 my-0 mx-[2px] px-0 py-[141px]">
+          <div className="flex flex-col lg:flex-row items-center justify-between min-h-screen pt-20 sm:pt-24 lg:pt-0 py-8 sm:py-16 lg:py-[141px]">
             {/* Left side - Text */}
-            <div className="text-center lg:text-left lg:flex-1 mb-8 lg:mb-0">
-              <h1 style={{
-                textShadow: '3px 3px 12px rgba(0, 0, 0, 0.9), 0 0 30px rgba(0, 0, 0, 0.7)',
-                fontWeight: '300'
-              }} className="sm:text-4xl md:text-5xl lg:text-6xl mb-8 lg:mb-12 leading-tight px-4 lg:px-0 xl:text-6xl text-4xl text-left font-normal text-slate-50">
-                YOUR TRUSTED PARKING PLATFORM IN DUBAI
+            <div className="text-center lg:text-left lg:flex-1 mb-8 lg:mb-0 mt-8 sm:mt-16 lg:mt-0">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black leading-tight px-2 lg:px-0 mb-4">
+                <span className="block text-white" style={{
+                  textShadow: '3px 3px 12px rgba(0, 0, 0, 0.9), 0 0 30px rgba(0, 0, 0, 0.7)'
+                }}>
+                  YOUR TRUSTED
+                </span>
+                <span className="block text-primary font-black" style={{
+                  textShadow: '2px 2px 8px rgba(0, 0, 0, 0.5)'
+                }}>
+                  PARKING PLATFORM
+                </span>
+                <span className="block text-white" style={{
+                  textShadow: '3px 3px 12px rgba(0, 0, 0, 0.9), 0 0 30px rgba(0, 0, 0, 0.7)'
+                }}>
+                  IN DUBAI
+                </span>
               </h1>
+              <p className="text-lg sm:text-xl text-white/90 mt-4 px-2 lg:px-0" style={{
+                textShadow: '2px 2px 8px rgba(0, 0, 0, 0.7)'
+              }}>
+                List your parking space in minutes and start earning every month.
+              </p>
             </div>
             
             {/* Right side - Phone Image */}
@@ -46,7 +62,7 @@ const Index = () => {
           </div>
           
           {/* CTA Button - Centered */}
-          <div className="absolute bottom-10 sm:bottom-20 left-1/2 transform -translate-x-1/2 px-4">
+          <div className="absolute bottom-8 sm:bottom-16 lg:bottom-20 left-1/2 transform -translate-x-1/2 px-4">
             <Link to="/my-account">
               <Button className="bg-primary hover:bg-primary/90 text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-full w-full sm:w-auto">
                 LOGIN / SIGN UP
