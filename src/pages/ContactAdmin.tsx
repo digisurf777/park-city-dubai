@@ -104,15 +104,25 @@ ${message}`,
 
           <div className="text-center mb-8">
             <Mail className="h-12 w-12 text-primary mx-auto mb-4" />
-            <h1 className="text-3xl font-bold mb-4">Contact Admin</h1>
-            <p className="text-muted-foreground">
-              Send a direct message to the administrators for support, questions, or assistance.
+            <h1 className="text-3xl font-bold mb-4">Contact Support</h1>
+            <p className="text-muted-foreground text-lg mb-4">
+              We're here to help! Send us a message through the form below or email us directly at{' '}
+              <a href="mailto:support@shazam.ae" className="text-primary hover:underline font-medium">
+                support@shazam.ae
+              </a>
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Have any questions? Feel free to send a direct email to{' '}
+              <a href="mailto:support@shazam.ae" className="text-primary hover:underline">
+                support@shazam.ae
+              </a>{' '}
+              and we'll get back to you as soon as possible.
             </p>
           </div>
 
           <Card>
             <CardHeader>
-              <CardTitle>Send Message to Admin</CardTitle>
+              <CardTitle>Send us a Message</CardTitle>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
@@ -148,7 +158,7 @@ ${message}`,
                       <strong>Signed in as:</strong> {user.email}
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">
-                      Admin will respond to your message in your account inbox.
+                      Our support team will respond to your message in your account inbox.
                     </p>
                   </div>
                 ) : (
@@ -177,12 +187,23 @@ ${message}`,
             </CardContent>
           </Card>
 
-          <div className="mt-8 text-center">
-            <p className="text-sm text-muted-foreground">
-              For urgent matters, you can also email us directly at{' '}
-              <a href="mailto:digisurf777@gmail.com" className="text-primary hover:underline">
-                digisurf777@gmail.com
-              </a>
+          <div className="mt-8 p-6 bg-muted/50 rounded-lg text-center border">
+            <div className="flex items-center justify-center mb-3">
+              <Mail className="h-5 w-5 text-primary mr-2" />
+              <h3 className="font-semibold">Need Immediate Assistance?</h3>
+            </div>
+            <p className="text-sm text-muted-foreground mb-2">
+              For urgent matters or immediate assistance, send a direct email to:
+            </p>
+            <a 
+              href="mailto:support@shazam.ae" 
+              className="text-lg font-medium text-primary hover:underline inline-flex items-center"
+            >
+              <Mail className="h-4 w-4 mr-1" />
+              support@shazam.ae
+            </a>
+            <p className="text-xs text-muted-foreground mt-2">
+              We typically respond within 24 hours
             </p>
           </div>
         </div>
