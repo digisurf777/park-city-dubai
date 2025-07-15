@@ -303,21 +303,21 @@ const Index = () => {
       </section>
 
       {/* Hero CTA Banner - Matching Reference Style */}
-      <section className="py-20 sm:py-28 lg:py-40 bg-primary relative overflow-hidden">
+      <section className="py-12 sm:py-16 lg:py-20 bg-primary relative overflow-hidden">
         {/* Clean Background */}
         <div className="absolute inset-0 bg-primary"></div>
         
         <div className="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 text-center relative z-10">
           {/* Main Headline - Exact Match to Reference */}
-          <div className="mb-11 sm:mb-14 ">
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white mb-6 sm:mb-8 text-5xl tracking-tight xl:text-7xl">Own a Parking Space?</h1>
-            <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black mb-8 sm:mb-12 leading-[0.9] tracking-tight">
-              <span className="bg-gradient-to-r from-yellow-300 via-yellow-400 to-amber-400 bg-clip-text text-transparent drop-shadow-sm text-6xl">
+          <div className="mb-6 sm:mb-8">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white mb-4 sm:mb-6 tracking-tight">Own a Parking Space?</h1>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black mb-6 sm:mb-8 leading-[0.9] tracking-tight">
+              <span className="bg-gradient-to-r from-yellow-300 via-yellow-400 to-amber-400 bg-clip-text text-transparent drop-shadow-sm">
                 Turn it into steady income.
               </span>
             </h2>
-            <h3 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl leading-[0.9] tracking-tight font-light xl:text-5xl">
-              <span className="bg-gradient-to-r from-yellow-200 via-yellow-300 to-yellow-400 bg-clip-text text-transparent text-6xl font-medium">
+            <h3 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl leading-[0.9] tracking-tight font-light">
+              <span className="bg-gradient-to-r from-yellow-200 via-yellow-300 to-yellow-400 bg-clip-text text-transparent font-medium">
                 Earn passive income.
               </span>
             </h3>
