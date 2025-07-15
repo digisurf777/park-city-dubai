@@ -261,10 +261,22 @@ export const ParkingBookingModal = ({
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar mode="single" selected={startDate} onSelect={date => {
-                  setStartDate(date);
-                  setIsCalendarOpen(false);
-                }} disabled={date => date < new Date()} initialFocus className="pointer-events-auto" />
+                   <Calendar 
+                     mode="single" 
+                     selected={startDate} 
+                     onSelect={date => {
+                       setStartDate(date);
+                       setIsCalendarOpen(false);
+                     }} 
+                     disabled={date => {
+                       const today = new Date();
+                       const minDate = new Date(today);
+                       minDate.setDate(today.getDate() + 2);
+                       return date < minDate;
+                     }} 
+                     initialFocus 
+                     className="pointer-events-auto" 
+                   />
                 </PopoverContent>
               </Popover>
             </div>

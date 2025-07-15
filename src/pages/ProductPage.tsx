@@ -277,14 +277,19 @@ const ProductPage = () => {
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={startDate}
-                      onSelect={setStartDate}
-                      disabled={(date) => date < new Date()}
-                      initialFocus
-                      className={cn("p-3 pointer-events-auto")}
-                    />
+                     <Calendar
+                       mode="single"
+                       selected={startDate}
+                       onSelect={setStartDate}
+                       disabled={(date) => {
+                         const today = new Date();
+                         const minDate = new Date(today);
+                         minDate.setDate(today.getDate() + 2);
+                         return date < minDate;
+                       }}
+                       initialFocus
+                       className={cn("p-3 pointer-events-auto")}
+                     />
                   </PopoverContent>
                 </Popover>
               </div>
