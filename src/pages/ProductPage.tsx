@@ -281,7 +281,12 @@ const ProductPage = () => {
                       mode="single"
                       selected={startDate}
                       onSelect={setStartDate}
-                      disabled={(date) => date < new Date()}
+                      disabled={(date) => {
+                        const today = new Date();
+                        const minDate = new Date();
+                        minDate.setDate(today.getDate() + 2);
+                        return date < minDate;
+                      }}
                       initialFocus
                       className={cn("p-3 pointer-events-auto")}
                     />

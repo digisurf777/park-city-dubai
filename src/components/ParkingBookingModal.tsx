@@ -218,7 +218,9 @@ export const ParkingBookingModal = ({
               {parkingSpot.description && <p className="text-sm text-muted-foreground mb-4">{parkingSpot.description}</p>}
               
               {parkingSpot.specs && parkingSpot.specs.length > 0 && <div className="flex flex-wrap gap-2">
-                  {parkingSpot.specs.map((spec, index) => {})}
+                  {parkingSpot.specs.map((spec, index) => (
+                    <Badge key={index} variant="secondary">{spec}</Badge>
+                  ))}
                 </div>}
 
               {/* Benefits Section */}
@@ -260,7 +262,12 @@ export const ParkingBookingModal = ({
                   <Calendar mode="single" selected={startDate} onSelect={date => {
                   setStartDate(date);
                   setIsCalendarOpen(false);
-                }} disabled={date => date < new Date()} initialFocus className="pointer-events-auto" />
+                }} disabled={date => {
+                  const today = new Date();
+                  const minDate = new Date();
+                  minDate.setDate(today.getDate() + 2);
+                  return date < minDate;
+                }} initialFocus className="pointer-events-auto" />
                 </PopoverContent>
               </Popover>
             </div>
