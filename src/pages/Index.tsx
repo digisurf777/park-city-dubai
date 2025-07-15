@@ -270,9 +270,9 @@ const Index = () => {
       </section>
 
       {/* Hero CTA Banner - Matching Reference Style */}
-      <section className="py-20 sm:py-28 lg:py-40 bg-gradient-to-br from-emerald-400 via-emerald-500 to-teal-600 relative overflow-hidden">
+      <section className="py-20 sm:py-28 lg:py-40 bg-primary relative overflow-hidden">
         {/* Clean Background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-emerald-400/90 via-emerald-500/95 to-teal-600/90"></div>
+        <div className="absolute inset-0 bg-primary"></div>
         
         <div className="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 text-center relative z-10">
           {/* Main Headline - Exact Match to Reference */}
@@ -294,7 +294,7 @@ Parking Bay? </h1>
           {/* CTA Button */}
           <div className="space-y-6 sm:space-y-8">
             <Link to="/rent-out-your-space">
-              <Button size="lg" className="bg-white text-emerald-600 hover:bg-yellow-50 hover:text-emerald-700 px-10 sm:px-16 py-5 sm:py-7 text-xl sm:text-2xl font-bold rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105 w-full sm:w-auto">
+              <Button size="lg" className="bg-white text-primary hover:bg-yellow-50 hover:text-primary px-10 sm:px-16 py-5 sm:py-7 text-xl sm:text-2xl font-bold rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105 w-full sm:w-auto">
                 Start Earning Today
               </Button>
             </Link>
