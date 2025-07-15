@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { MapPin, Mail, Phone } from "lucide-react";
+import { MapPin, Mail } from "lucide-react";
 
 const Footer = () => {
   return (
@@ -18,15 +18,9 @@ const Footer = () => {
             <p className="text-gray-300 mb-6 max-w-md">
               Dubai's premier parking solution. Guaranteed spots, fixed prices, and absolute convenience for all your parking needs.
             </p>
-            <div className="flex space-x-4">
-              <div className="flex items-center text-gray-300">
-                <Phone className="h-4 w-4 mr-2" />
-                <span>+971 4 123 4567</span>
-              </div>
-              <div className="flex items-center text-gray-300">
-                <Mail className="h-4 w-4 mr-2" />
-                <span>info@shazamparking.ae</span>
-              </div>
+            <div className="flex items-center text-gray-300">
+              <Mail className="h-4 w-4 mr-2" />
+              <span>support@shazam.ae</span>
             </div>
           </div>
 
