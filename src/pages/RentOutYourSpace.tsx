@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { Upload, CheckCircle, Wallet, Quote, X } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -35,12 +36,12 @@ const RentOutYourSpace = () => {
     buildingName: "",
     district: "",
     bayType: "",
-    accessDeviceDeposit: "",
+    accessDeviceDeposit: false,
     notes: ""
   });
   const serviceFee = Math.round(monthlyPrice * 0.03);
   const netPayout = monthlyPrice - serviceFee;
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field: string, value: string | boolean) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -198,7 +199,7 @@ const RentOutYourSpace = () => {
         buildingName: "",
         district: "",
         bayType: "",
-        accessDeviceDeposit: "",
+        accessDeviceDeposit: false,
         notes: ""
       });
       setUploadedImages([]);
@@ -370,14 +371,36 @@ const RentOutYourSpace = () => {
                   <Label htmlFor="monthlyPrice" className="text-base font-medium">
                     Monthly Price (AED) *
                   </Label>
-                  <Input id="monthlyPrice" type="number" min="300" step="50" required value={monthlyPrice} onChange={e => setMonthlyPrice(Number(e.target.value))} className="mt-2 h-12" />
-                  
+                  <Select value={monthlyPrice.toString()} onValueChange={value => setMonthlyPrice(Number(value))}>
+                    <SelectTrigger className="mt-2 h-12">
+                      <SelectValue placeholder="Select monthly price" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Array.from({ length: 15 }, (_, i) => {
+                        const price = 300 + (i * 50);
+                        return price <= 1000 ? (
+                          <SelectItem key={price} value={price.toString()}>
+                            {price} AED
+                          </SelectItem>
+                        ) : null;
+                      })}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div>
                   <Label htmlFor="accessDeviceDeposit" className="text-base font-medium">
                     Access Device Deposit (AED)
                   </Label>
-                  <Input id="accessDeviceDeposit" type="number" value={formData.accessDeviceDeposit} onChange={e => handleInputChange('accessDeviceDeposit', e.target.value)} className="mt-2 h-12" placeholder="Optional" />
+                  <div className="flex items-center space-x-3 mt-2">
+                    <Switch
+                      id="accessDeviceDeposit"
+                      checked={formData.accessDeviceDeposit as boolean}
+                      onCheckedChange={(checked) => handleInputChange('accessDeviceDeposit', checked)}
+                    />
+                    <Label htmlFor="accessDeviceDeposit" className="text-sm">
+                      {formData.accessDeviceDeposit ? 'Yes' : 'No'}
+                    </Label>
+                  </div>
                 </div>
               </div>
 
