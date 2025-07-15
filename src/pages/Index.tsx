@@ -313,14 +313,9 @@ const Index = () => {
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white mb-4 sm:mb-6 tracking-tight">Own a Parking Space?</h1>
             <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black mb-6 sm:mb-8 leading-[0.9] tracking-tight">
               <span className="bg-gradient-to-r from-yellow-300 via-yellow-400 to-amber-400 bg-clip-text text-transparent drop-shadow-sm">
-                Turn it into steady income.
+                Turn it into steady passive income.
               </span>
             </h2>
-            <h3 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl leading-[0.9] tracking-tight font-light">
-              <span className="bg-gradient-to-r from-yellow-200 via-yellow-300 to-yellow-400 bg-clip-text text-transparent font-medium">
-                Earn passive income.
-              </span>
-            </h3>
           </div>
           
           {/* CTA Button */}
