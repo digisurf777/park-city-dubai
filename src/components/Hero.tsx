@@ -12,11 +12,11 @@ const Hero = () => {
         <div className="mb-12">
           <h1 className="text-4xl md:text-6xl font-black text-white mb-6 leading-tight tracking-tight animate-fade-in">
             <span className="block animate-fade-in" style={{ animationDelay: '0.2s' }}>
-              Own a Parking Space?
+              Have an unused Parking Bay?
             </span>
           </h1>
           <h2 className="text-3xl md:text-5xl font-black text-yellow-400 mb-8 animate-fade-in" style={{ animationDelay: '0.4s' }}>
-            Turn it into steady income.
+            Earn passive income.
           </h2>
           <Button className="bg-white text-primary hover:bg-gray-100 px-8 py-4 text-lg font-semibold rounded-full mb-8 animate-fade-in" style={{ animationDelay: '0.6s' }}>
             Start Earning Today
