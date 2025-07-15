@@ -5,6 +5,7 @@ import { MapPin, Search, CreditCard, Car, DollarSign, Clock, Shield, Quote } fro
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 import dubaihero from "@/assets/dubai-skyline-hero.jpg";
 import luxuryCar from "@/assets/luxury-car-dubai.png";
 import businessMan from "@/assets/business-man.jpg";
@@ -22,64 +23,148 @@ const Index = () => {
       <Navbar />
       
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat animate-fade-in" style={{
-        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('/lovable-uploads/25c56481-0d03-4055-bd47-67635ac0d1b0.png')`,
-        backgroundSize: 'cover',
-        animation: 'zoom-slow 20s ease-in-out infinite alternate'
-      }}>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-white animate-fade-in">
+      <motion.section 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1.5 }}
+        className="relative min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat" 
+        style={{
+          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('/lovable-uploads/25c56481-0d03-4055-bd47-67635ac0d1b0.png')`,
+          backgroundSize: 'cover',
+        }}
+      >
+        <motion.div 
+          initial={{ scale: 1 }}
+          animate={{ scale: 1.05 }}
+          transition={{ duration: 20, repeat: Infinity, repeatType: "reverse", ease: "easeInOut" }}
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{
+            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('/lovable-uploads/25c56481-0d03-4055-bd47-67635ac0d1b0.png')`,
+            backgroundSize: 'cover',
+          }}
+        />
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-white z-10">
           <div className="flex flex-col lg:flex-row items-center justify-between min-h-screen pt-20 sm:pt-24 lg:pt-0 py-8 sm:py-16 lg:py-[141px]">
             {/* Left side - Text */}
-            <div className="text-center lg:text-left lg:flex-1 mb-8 lg:mb-0 mt-8 sm:mt-16 lg:mt-0">
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black leading-tight px-2 lg:px-0 mb-4">
-                <span className="block text-white" style={{
-                  textShadow: '3px 3px 12px rgba(0, 0, 0, 0.9), 0 0 30px rgba(0, 0, 0, 0.7)'
-                }}>
+            <motion.div 
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 1, delay: 0.5 }}
+              className="text-center lg:text-left lg:flex-1 mb-8 lg:mb-0 mt-8 sm:mt-16 lg:mt-0"
+            >
+              <motion.h1 
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 1, delay: 0.7 }}
+                className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black leading-tight px-2 lg:px-0 mb-4"
+              >
+                <motion.span 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, delay: 0.9 }}
+                  className="block text-white" 
+                  style={{
+                    textShadow: '3px 3px 12px rgba(0, 0, 0, 0.9), 0 0 30px rgba(0, 0, 0, 0.7)'
+                  }}
+                >
                   YOUR TRUSTED
-                </span>
-                <span className="block text-primary font-black" style={{
-                  textShadow: '2px 2px 8px rgba(0, 0, 0, 0.5)'
-                }}>
+                </motion.span>
+                <motion.span 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, delay: 1.1 }}
+                  className="block text-primary font-black" 
+                  style={{
+                    textShadow: '2px 2px 8px rgba(0, 0, 0, 0.5)'
+                  }}
+                >
                   PARKING PLATFORM
-                </span>
-                <span className="block text-white" style={{
-                  textShadow: '3px 3px 12px rgba(0, 0, 0, 0.9), 0 0 30px rgba(0, 0, 0, 0.7)'
-                }}>
+                </motion.span>
+                <motion.span 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, delay: 1.3 }}
+                  className="block text-white" 
+                  style={{
+                    textShadow: '3px 3px 12px rgba(0, 0, 0, 0.9), 0 0 30px rgba(0, 0, 0, 0.7)'
+                  }}
+                >
                   IN DUBAI
-                </span>
-              </h1>
-              <p className="text-lg sm:text-xl text-white/90 mt-4 px-2 lg:px-0" style={{
-                textShadow: '2px 2px 8px rgba(0, 0, 0, 0.7)'
-              }}>
+                </motion.span>
+              </motion.h1>
+              <motion.p 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 1.5 }}
+                className="text-lg sm:text-xl text-white/90 mt-4 px-2 lg:px-0" 
+                style={{
+                  textShadow: '2px 2px 8px rgba(0, 0, 0, 0.7)'
+                }}
+              >
                 List your parking space in minutes and start earning every month.
-              </p>
-            </div>
+              </motion.p>
+            </motion.div>
             
             {/* Right side - Phone Image */}
-            <div className="lg:flex-1 flex justify-center lg:justify-end">
-              <img alt="Shazam Parking Mobile App" className="w-64 sm:w-80 md:w-96 lg:max-w-md h-auto" src="/lovable-uploads/c910d35f-a4b2-4c06-88e3-7f5b16a45558.png" />
-            </div>
+            <motion.div 
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 1, delay: 0.8 }}
+              className="lg:flex-1 flex justify-center lg:justify-end"
+            >
+              <motion.img 
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 1.2, delay: 1 }}
+                whileHover={{ scale: 1.05 }}
+                alt="Shazam Parking Mobile App" 
+                className="w-64 sm:w-80 md:w-96 lg:max-w-md h-auto" 
+                src="/lovable-uploads/c910d35f-a4b2-4c06-88e3-7f5b16a45558.png" 
+              />
+            </motion.div>
           </div>
           
           {/* CTA Button - Centered */}
-          <div className="flex justify-center mt-8 sm:mt-12 lg:absolute lg:bottom-20 lg:left-1/2 lg:transform lg:-translate-x-1/2 px-4">
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 1.7 }}
+            className="flex justify-center mt-8 sm:mt-12 lg:absolute lg:bottom-20 lg:left-1/2 lg:transform lg:-translate-x-1/2 px-4"
+          >
             <Link to="/my-account">
-              <Button className="bg-primary hover:bg-primary/90 text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-full w-full sm:w-auto">
-                LOGIN / SIGN UP
-              </Button>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Button className="bg-primary hover:bg-primary/90 text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-full w-full sm:w-auto shadow-lg transition-all duration-300">
+                  LOGIN / SIGN UP
+                </Button>
+              </motion.div>
             </Link>
-          </div>
+          </motion.div>
         </div>
-      </section>
+      </motion.section>
 
       {/* Popular Parking Locations */}
-      <section className="py-12 sm:py-16 lg:py-20 bg-white">
+      <motion.section 
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        transition={{ duration: 0.8 }}
+        viewport={{ once: true, amount: 0.2 }}
+        className="py-12 sm:py-16 lg:py-20 bg-white"
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12 sm:mb-16">
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            viewport={{ once: true }}
+            className="text-center mb-12 sm:mb-16"
+          >
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 sm:mb-6 px-4">
               POPULAR PARKING LOCATIONS IN DUBAI
             </h2>
-          </div>
+          </motion.div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
             {[
@@ -114,91 +199,198 @@ const Index = () => {
                 image: deiraZone
               }
             ].map((location, index) => (
-              <Card key={index} className="overflow-hidden hover:shadow-xl transition-all duration-300 group">
-                <div className="relative aspect-video">
-                  <img src={location.image} alt={location.name} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
-                  <div className="absolute inset-0 bg-black bg-opacity-40 transition-opacity group-hover:bg-opacity-30"></div>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center text-white p-4 sm:p-6">
-                    <h3 className="text-lg sm:text-xl lg:text-2xl font-bold mb-3 sm:mb-4 uppercase text-center">{location.name}</h3>
-                    <Link to={location.link}>
-                      <Button className="bg-primary hover:bg-primary/90 text-white px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base lg:text-lg font-semibold">
-                        Select Zone
-                      </Button>
-                    </Link>
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                viewport={{ once: true }}
+                whileHover={{ y: -5 }}
+              >
+                <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 group">
+                  <div className="relative aspect-video">
+                    <img src={location.image} alt={location.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                    <div className="absolute inset-0 bg-black bg-opacity-40 transition-opacity duration-300 group-hover:bg-opacity-30"></div>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center text-white p-4 sm:p-6">
+                      <motion.h3 
+                        initial={{ scale: 0.9 }}
+                        whileHover={{ scale: 1.05 }}
+                        className="text-lg sm:text-xl lg:text-2xl font-bold mb-3 sm:mb-4 uppercase text-center"
+                      >
+                        {location.name}
+                      </motion.h3>
+                      <Link to={location.link}>
+                        <motion.div
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          <Button className="bg-primary hover:bg-primary/90 text-white px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base lg:text-lg font-semibold transition-all duration-300">
+                            Select Zone
+                          </Button>
+                        </motion.div>
+                      </Link>
+                    </div>
                   </div>
-                </div>
-              </Card>
+                </Card>
+              </motion.div>
             ))}
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* How It Works Strip */}
-      <section className="py-12 sm:py-16 lg:py-20 bg-gray-50">
+      <motion.section 
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        transition={{ duration: 0.8 }}
+        viewport={{ once: true, amount: 0.2 }}
+        className="py-12 sm:py-16 lg:py-20 bg-gray-50"
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12 sm:mb-16">
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            viewport={{ once: true }}
+            className="text-center mb-12 sm:mb-16"
+          >
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 sm:mb-6 px-4">
               How It Works
             </h2>
-          </div>
+          </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-12">
-            <div className="text-center">
-              <div className="bg-primary/10 rounded-full w-16 sm:w-20 h-16 sm:h-20 flex items-center justify-center mx-auto mb-4 sm:mb-6">
-                <Search className="h-8 sm:h-10 w-8 sm:w-10 text-primary" />
-              </div>
-              <h3 className="text-lg sm:text-xl lg:text-2xl font-semibold mb-3 sm:mb-4">Search & Select</h3>
-              <p className="text-gray-600 text-sm sm:text-base px-4">
-                Find the perfect parking location from our verified spaces
-              </p>
-            </div>
-            
-            <div className="text-center">
-              <div className="bg-primary/10 rounded-full w-16 sm:w-20 h-16 sm:h-20 flex items-center justify-center mx-auto mb-4 sm:mb-6">
-                <CreditCard className="h-8 sm:h-10 w-8 sm:w-10 text-primary" />
-              </div>
-              <h3 className="text-lg sm:text-xl lg:text-2xl font-semibold mb-3 sm:mb-4">Book & Pay Securely</h3>
-              <p className="text-gray-600 text-sm sm:text-base px-4">
-                Reserve your spot instantly with secure online payment
-              </p>
-            </div>
-            
-            <div className="text-center">
-              <div className="bg-primary/10 rounded-full w-16 sm:w-20 h-16 sm:h-20 flex items-center justify-center mx-auto mb-4 sm:mb-6">
-                <Car className="h-8 sm:h-10 w-8 sm:w-10 text-primary" />
-              </div>
-              <h3 className="text-lg sm:text-xl lg:text-2xl font-semibold mb-3 sm:mb-4">Park & Relax</h3>
-              <p className="text-gray-600 text-sm sm:text-base px-4">
-                Arrive at your destination with guaranteed parking
-              </p>
-            </div>
+            {[
+              {
+                icon: Search,
+                title: "Search & Select",
+                description: "Find the perfect parking location from our verified spaces"
+              },
+              {
+                icon: CreditCard,
+                title: "Book & Pay Securely", 
+                description: "Reserve your spot instantly with secure online payment"
+              },
+              {
+                icon: Car,
+                title: "Park & Relax",
+                description: "Arrive at your destination with guaranteed parking"
+              }
+            ].map((step, index) => (
+              <motion.div 
+                key={index}
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.3 + index * 0.2 }}
+                viewport={{ once: true }}
+                whileHover={{ y: -5 }}
+                className="text-center"
+              >
+                <motion.div 
+                  initial={{ scale: 0 }}
+                  whileInView={{ scale: 1 }}
+                  transition={{ duration: 0.5, delay: 0.5 + index * 0.2 }}
+                  viewport={{ once: true }}
+                  whileHover={{ scale: 1.1 }}
+                  className="bg-primary/10 rounded-full w-16 sm:w-20 h-16 sm:h-20 flex items-center justify-center mx-auto mb-4 sm:mb-6"
+                >
+                  <step.icon className="h-8 sm:h-10 w-8 sm:w-10 text-primary" />
+                </motion.div>
+                <motion.h3 
+                  initial={{ opacity: 0 }}
+                  whileInView={{ opacity: 1 }}
+                  transition={{ duration: 0.6, delay: 0.7 + index * 0.2 }}
+                  viewport={{ once: true }}
+                  className="text-lg sm:text-xl lg:text-2xl font-semibold mb-3 sm:mb-4"
+                >
+                  {step.title}
+                </motion.h3>
+                <motion.p 
+                  initial={{ opacity: 0 }}
+                  whileInView={{ opacity: 1 }}
+                  transition={{ duration: 0.6, delay: 0.9 + index * 0.2 }}
+                  viewport={{ once: true }}
+                  className="text-gray-600 text-sm sm:text-base px-4"
+                >
+                  {step.description}
+                </motion.p>
+              </motion.div>
+            ))}
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* Rent Out Your Space Section */}
-      <section className="py-12 sm:py-16 lg:py-20 bg-white">
+      <motion.section 
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        transition={{ duration: 0.8 }}
+        viewport={{ once: true, amount: 0.2 }}
+        className="py-12 sm:py-16 lg:py-20 bg-white"
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-            <div className="text-center lg:text-left">
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 sm:mb-6">
+            <motion.div 
+              initial={{ opacity: 0, x: -50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              viewport={{ once: true }}
+              className="text-center lg:text-left"
+            >
+              <motion.h2 
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.3 }}
+                viewport={{ once: true }}
+                className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 sm:mb-6"
+              >
                 Are you looking to rent out your space?
-              </h2>
-              <p className="text-base sm:text-lg lg:text-xl text-gray-600 mb-6 sm:mb-8 uppercase font-semibold">
+              </motion.h2>
+              <motion.p 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.5 }}
+                viewport={{ once: true }}
+                className="text-base sm:text-lg lg:text-xl text-gray-600 mb-6 sm:mb-8 uppercase font-semibold"
+              >
                 SHAZAM PARKING IS HERE TO HELP YOU
-              </p>
-              <Link to="/rent-out-your-space">
-                <Button className="bg-primary hover:bg-primary/90 text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg w-full sm:w-auto">
-                  Rent Out a Space
-                </Button>
-              </Link>
-            </div>
-            <div className="order-first lg:order-last">
-              <img src={luxuryCar} alt="Luxury car in Dubai" className="w-full rounded-lg shadow-lg" />
-            </div>
+              </motion.p>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.7 }}
+                viewport={{ once: true }}
+              >
+                <Link to="/rent-out-your-space">
+                  <motion.div
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <Button className="bg-primary hover:bg-primary/90 text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg w-full sm:w-auto shadow-lg transition-all duration-300">
+                      Rent Out a Space
+                    </Button>
+                  </motion.div>
+                </Link>
+              </motion.div>
+            </motion.div>
+            <motion.div 
+              initial={{ opacity: 0, x: 50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+              viewport={{ once: true }}
+              className="order-first lg:order-last"
+            >
+              <motion.img 
+                whileHover={{ scale: 1.05 }}
+                transition={{ duration: 0.3 }}
+                src={luxuryCar} 
+                alt="Luxury car in Dubai" 
+                className="w-full rounded-lg shadow-lg" 
+              />
+            </motion.div>
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* Find Parking Section */}
       <section className="py-12 sm:py-16 lg:py-20 bg-gray-50">
@@ -303,47 +495,95 @@ const Index = () => {
       </section>
 
       {/* Hero CTA Banner - Matching Reference Style */}
-      <section className="py-12 sm:py-16 lg:py-20 bg-primary relative overflow-hidden">
+      <motion.section 
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        transition={{ duration: 0.8 }}
+        viewport={{ once: true, amount: 0.2 }}
+        className="py-12 sm:py-16 lg:py-20 bg-primary relative overflow-hidden"
+      >
         {/* Clean Background */}
         <div className="absolute inset-0 bg-primary"></div>
         
         <div className="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 text-center relative z-10">
           {/* Main Headline - Exact Match to Reference */}
-          <div className="mb-6 sm:mb-8">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white mb-4 sm:mb-6 tracking-tight">Own a Parking Space?</h1>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black mb-6 sm:mb-8 leading-[0.9] tracking-tight">
+          <motion.div 
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            viewport={{ once: true }}
+            className="mb-6 sm:mb-8"
+          >
+            <motion.h1 
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              viewport={{ once: true }}
+              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white mb-4 sm:mb-6 tracking-tight"
+            >
+              Own a Parking Space?
+            </motion.h1>
+            <motion.h2 
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.5 }}
+              viewport={{ once: true }}
+              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black mb-6 sm:mb-8 leading-[0.9] tracking-tight"
+            >
               <span className="bg-gradient-to-r from-yellow-300 via-yellow-400 to-amber-400 bg-clip-text text-transparent drop-shadow-sm">
                 Turn it into steady passive income.
               </span>
-            </h2>
-          </div>
+            </motion.h2>
+          </motion.div>
           
           {/* CTA Button */}
-          <div className="space-y-6 sm:space-y-8">
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.7 }}
+            viewport={{ once: true }}
+            className="space-y-6 sm:space-y-8"
+          >
             <Link to="/rent-out-your-space">
-              <Button size="lg" className="bg-white text-primary hover:bg-yellow-50 hover:text-primary px-10 sm:px-16 py-5 sm:py-7 text-xl sm:text-2xl font-bold rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105 w-full sm:w-auto">
-                Start Earning Today
-              </Button>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Button size="lg" className="bg-white text-primary hover:bg-yellow-50 hover:text-primary px-10 sm:px-16 py-5 sm:py-7 text-xl sm:text-2xl font-bold rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 w-full sm:w-auto">
+                  Start Earning Today
+                </Button>
+              </motion.div>
             </Link>
             
             {/* Trust Indicators */}
-            <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-8 text-white/95 text-sm sm:text-base font-semibold">
-              <div className="flex items-center gap-2">
-                <span className="text-yellow-300 text-lg">✓</span>
-                Free to list
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-yellow-300 text-lg">✓</span>
-                Earn up to AED 1,000/month
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-yellow-300 text-lg">✓</span>
-                Secure payments
-              </div>
-            </div>
-          </div>
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.9 }}
+              viewport={{ once: true }}
+              className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-8 text-white/95 text-sm sm:text-base font-semibold"
+            >
+              {[
+                "Free to list",
+                "Earn up to AED 1,000/month", 
+                "Secure payments"
+              ].map((text, index) => (
+                <motion.div 
+                  key={index}
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.5, delay: 1 + index * 0.1 }}
+                  viewport={{ once: true }}
+                  className="flex items-center gap-2"
+                >
+                  <span className="text-yellow-300 text-lg">✓</span>
+                  {text}
+                </motion.div>
+              ))}
+            </motion.div>
+          </motion.div>
         </div>
-      </section>
+      </motion.section>
 
       {/* Final CTA */}
       <section className="py-12 sm:py-16 lg:py-20 bg-gray-50">
