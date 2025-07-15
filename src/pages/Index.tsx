@@ -6,6 +6,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import useSEO from "@/hooks/useSEO";
 import dubaihero from "@/assets/dubai-skyline-hero.jpg";
 import luxuryCar from "@/assets/luxury-car-dubai.png";
 import businessMan from "@/assets/business-man.jpg";
@@ -18,8 +19,16 @@ import difcZone from "@/assets/zones/difc.jpg";
 import deiraZone from "@/assets/zones/deira.jpg";
 
 const Index = () => {
+  const seoData = useSEO({
+    title: "Shazam Parking - Dubai's Trusted Parking Platform",
+    description: "Find and book parking spaces in Dubai Marina, Downtown, DIFC, Business Bay, Palm Jumeirah, and Deira. List your parking space and start earning monthly income with Dubai's most trusted parking platform.",
+    keywords: "Dubai parking, parking space rental, Dubai Marina parking, Downtown Dubai parking, DIFC parking, Business Bay parking, Palm Jumeirah parking, Deira parking, secure parking Dubai, monthly parking income, rent parking space Dubai",
+    url: "/"
+  });
+
   return (
     <div className="min-h-screen bg-white animate-zoom-slow">
+      {seoData}
       <Navbar />
       
       {/* Hero Section */}

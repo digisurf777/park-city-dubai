@@ -11,8 +11,16 @@ import { Mail, Send, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import useSEO from '@/hooks/useSEO';
 
 const ContactAdmin = () => {
+  const seoData = useSEO({
+    title: "Contact Shazam Parking - Get Support & Help | Dubai Parking Platform",
+    description: "Need help with Shazam Parking? Contact our support team at support@shazam.ae or use our contact form. Get assistance with parking bookings, listing spaces, and account issues.",
+    keywords: "Shazam Parking contact, parking support Dubai, customer service, help desk, parking assistance, support@shazam.ae",
+    url: "/contact-admin"
+  });
+
   const { user } = useAuth();
   const { toast } = useToast();
   const [subject, setSubject] = useState('');
@@ -91,6 +99,7 @@ ${message}`,
 
   return (
     <div className="min-h-screen bg-background">
+      {seoData}
       <Navbar />
       
       <div className="container mx-auto px-4 py-12">

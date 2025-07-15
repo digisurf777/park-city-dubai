@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
+import useSEO from "@/hooks/useSEO";
 
 interface NewsPost {
   id: string;
@@ -18,6 +19,13 @@ interface NewsPost {
 }
 
 const News = () => {
+  const seoData = useSEO({
+    title: "Latest News & Updates - Shazam Parking Dubai",
+    description: "Stay updated with the latest news, updates, and insights about parking in Dubai. Read about new parking zones, city developments, and Shazam Parking platform updates.",
+    keywords: "Dubai parking news, parking updates Dubai, city developments, urban planning Dubai, parking regulations, Dubai Marina news, Downtown Dubai updates",
+    url: "/news"
+  });
+
   const [newsArticles, setNewsArticles] = useState<NewsPost[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -43,6 +51,7 @@ const News = () => {
 
   return (
     <div className="min-h-screen bg-background animate-zoom-slow">
+      {seoData}
       <Navbar />
       
       {/* Hero Section */}
