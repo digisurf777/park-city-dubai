@@ -22,18 +22,30 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16 min-h-[60px]">
           {/* Logo */}
-          <Link 
-            to="/" 
-            className="flex items-center space-x-2 touch-manipulation min-h-[44px] min-w-[44px]"
-            onClick={() => setIsMenuOpen(false)}
+          <div 
+            className="flex items-center space-x-2 touch-manipulation min-h-[44px] min-w-[44px] cursor-pointer"
+            onClick={(e) => {
+              e.preventDefault();
+              setIsMenuOpen(false);
+              window.location.href = '/';
+            }}
+            role="button"
+            tabIndex={0}
             aria-label="Go to home page"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                setIsMenuOpen(false);
+                window.location.href = '/';
+              }
+            }}
           >
             <img 
               src="/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.png" 
               alt="Shazam Parking" 
               className="h-10 w-auto"
             />
-          </Link>
+          </div>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
