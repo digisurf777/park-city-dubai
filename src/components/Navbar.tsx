@@ -22,19 +22,16 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16 min-h-[60px]">
           {/* Logo */}
-          <div className="flex items-center space-x-2">
+          <Link to="/" className="flex items-center space-x-2 touch-manipulation">
             <img 
               src="/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.png" 
               alt="Shazam Parking" 
               className="h-10 w-auto"
             />
-          </div>
+          </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            <Link to="/" className="text-gray-700 hover:text-primary transition-colors">
-              Home
-            </Link>
             <Link to="/find-a-parking-space" className="text-gray-700 hover:text-primary transition-colors">
               Find a Parking Space
             </Link>
@@ -156,13 +153,6 @@ const Navbar = () => {
         {isMenuOpen && (
           <div className="md:hidden absolute top-16 left-0 right-0 backdrop-blur-md bg-white/95 border-b border-white/20 shadow-lg animate-slide-up max-h-[calc(100vh-4rem)] overflow-y-auto mobile-scroll">
             <div className="px-4 py-6 space-y-2 pb-safe-area-bottom">
-              <Link
-                to="/"
-                className="block text-gray-700 hover:text-primary transition-colors py-3 px-2 rounded-md touch-manipulation min-h-[44px] flex items-center"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Home
-              </Link>
               <Link
                 to="/find-a-parking-space"
                 className="block text-gray-700 hover:text-primary transition-colors py-3 px-2 rounded-md touch-manipulation min-h-[44px] flex items-center"
