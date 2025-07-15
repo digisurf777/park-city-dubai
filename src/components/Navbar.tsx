@@ -170,6 +170,39 @@ const Navbar = () => {
         {isMenuOpen && (
           <div className="md:hidden absolute top-16 left-0 right-0 backdrop-blur-md bg-white/95 border-b border-white/20 shadow-lg animate-slide-up max-h-[calc(100vh-4rem)] overflow-y-auto mobile-scroll">
             <div className="px-4 py-6 space-y-2 pb-safe-area-bottom">
+              
+              {/* Auth Buttons - Top of mobile menu */}
+              <div className="pb-4 mb-4 border-b border-gray-200 space-y-3">
+                {user ? (
+                  <>
+                    <Link to="/my-account" onClick={() => setIsMenuOpen(false)}>
+                      <Button variant="ghost" className="w-full text-gray-700 hover:text-primary min-h-[44px] touch-manipulation">
+                        <User className="mr-2 h-4 w-4" />
+                        My Account
+                      </Button>
+                    </Link>
+                    <Link to="/rent-out-your-space" onClick={() => setIsMenuOpen(false)}>
+                      <Button className="w-full bg-primary hover:bg-primary/90 text-white min-h-[44px] touch-manipulation">
+                        List Your Space
+                      </Button>
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    <Link to="/auth" onClick={() => setIsMenuOpen(false)}>
+                      <Button variant="ghost" className="w-full text-gray-700 hover:text-primary min-h-[44px] touch-manipulation">
+                        Login / Sign Up
+                      </Button>
+                    </Link>
+                    <Link to="/rent-out-your-space" onClick={() => setIsMenuOpen(false)}>
+                      <Button className="w-full bg-primary hover:bg-primary/90 text-white min-h-[44px] touch-manipulation">
+                        List Your Space
+                      </Button>
+                    </Link>
+                  </>
+                )}
+              </div>
+
               <Link
                 to="/find-a-parking-space"
                 className="block text-gray-700 hover:text-primary transition-colors py-3 px-2 rounded-md touch-manipulation min-h-[44px] flex items-center"
@@ -254,36 +287,6 @@ const Navbar = () => {
               >
                 Calculator
               </Link>
-              <div className="pt-4 space-y-3">
-                {user ? (
-                  <>
-                    <Link to="/my-account" onClick={() => setIsMenuOpen(false)}>
-                      <Button variant="ghost" className="w-full text-gray-700 hover:text-primary min-h-[44px] touch-manipulation">
-                        <User className="mr-2 h-4 w-4" />
-                        My Account
-                      </Button>
-                    </Link>
-                    <Link to="/rent-out-your-space" onClick={() => setIsMenuOpen(false)}>
-                      <Button className="w-full bg-primary hover:bg-primary/90 text-white min-h-[44px] touch-manipulation">
-                        List Your Space
-                      </Button>
-                    </Link>
-                  </>
-                ) : (
-                  <>
-                    <Link to="/auth" onClick={() => setIsMenuOpen(false)}>
-                      <Button variant="ghost" className="w-full text-gray-700 hover:text-primary min-h-[44px] touch-manipulation">
-                        Login / Sign Up
-                      </Button>
-                    </Link>
-                    <Link to="/rent-out-your-space" onClick={() => setIsMenuOpen(false)}>
-                      <Button className="w-full bg-primary hover:bg-primary/90 text-white min-h-[44px] touch-manipulation">
-                        List Your Space
-                      </Button>
-                    </Link>
-                  </>
-                )}
-              </div>
             </div>
           </div>
         )}
