@@ -192,12 +192,12 @@ export const ParkingBookingModal = ({
       </Dialog>;
   }
   return <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[95vh] overflow-y-auto mx-4 sm:mx-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold">Reserve Parking Space</DialogTitle>
         </DialogHeader>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
           {/* Left Column - Parking Details */}
           <div className="space-y-4">
             <div className="relative">
@@ -253,7 +253,7 @@ export const ParkingBookingModal = ({
               <label className="block text-sm font-medium mb-2">Start Date *</label>
               <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !startDate && "text-muted-foreground")}>
+                  <Button variant="outline" className={cn("w-full justify-start text-left font-normal h-12", !startDate && "text-muted-foreground")}>
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {startDate ? format(startDate, "PPP") : "Select start date"}
                   </Button>
@@ -275,8 +275,8 @@ export const ParkingBookingModal = ({
             {/* Duration Selection */}
             <div>
               <label className="block text-sm font-medium mb-2">Rental Duration</label>
-              <div className="grid grid-cols-2 gap-2">
-                {DURATION_OPTIONS.map(option => <Button key={option.months} variant={selectedDuration.months === option.months ? "default" : "outline"} className="flex flex-col h-auto py-3 px-4" onClick={() => setSelectedDuration(option)}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {DURATION_OPTIONS.map(option => <Button key={option.months} variant={selectedDuration.months === option.months ? "default" : "outline"} className="flex flex-col h-auto py-4 px-4 text-center" onClick={() => setSelectedDuration(option)}>
                     <span className="font-semibold">{option.label}</span>
                     {option.discount > 0 && <span className="text-xs text-green-600 font-medium">
                         {option.description}
@@ -346,7 +346,7 @@ export const ParkingBookingModal = ({
             </Card>
 
             {/* Reserve Button */}
-            <Button onClick={handleReserve} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 text-lg" size="lg" disabled={!startDate || isSubmitting}>
+            <Button onClick={handleReserve} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-4 text-lg" size="lg" disabled={!startDate || isSubmitting}>
               {isSubmitting ? "Submitting..." : "👉 Submit Booking Request"}
             </Button>
 

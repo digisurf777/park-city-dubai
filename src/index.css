@@ -99,6 +99,18 @@ All colors MUST be HSL.
       transform: scale(1); 
     }
   }
+  
+  /* Mobile-specific improvements */
+  @keyframes mobile-fade-in {
+    0% { 
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    100% { 
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 }
 
 @layer base {
@@ -108,5 +120,37 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    /* Mobile optimizations */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    touch-action: manipulation; /* Prevents zoom on double tap */
+  }
+
+  /* Mobile touch targets - minimum 44px for accessibility */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Better mobile scrolling */
+  .mobile-scroll {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+
+  /* Focus states for accessibility */
+  .touch-focus:focus-visible {
+    @apply ring-2 ring-primary ring-offset-2;
+  }
+
+  /* Responsive text scaling */
+  @media (max-width: 640px) {
+    .responsive-text {
+      font-size: clamp(0.875rem, 2.5vw, 1rem);
+    }
+    
+    .responsive-heading {
+      font-size: clamp(1.5rem, 5vw, 2.25rem);
+    }
   }
 }

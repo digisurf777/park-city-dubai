@@ -268,7 +268,7 @@ const ProductPage = () => {
                     <Button
                       variant="outline"
                       className={cn(
-                        "w-full justify-start text-left font-normal h-12",
+                        "w-full justify-start text-left font-normal h-12 touch-manipulation",
                         !startDate && "text-muted-foreground"
                       )}
                     >
@@ -297,12 +297,12 @@ const ProductPage = () => {
               {/* Rental Duration */}
               <div className="mb-6">
                 <label className="text-sm font-medium mb-4 block">Rental Duration</label>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {durationOptions.map((option) => (
                     <Card
                       key={option.months}
                       className={cn(
-                        "cursor-pointer transition-all border-2",
+                        "cursor-pointer transition-all border-2 touch-manipulation min-h-[80px]",
                         selectedDuration === option.months
                           ? "border-primary bg-primary text-primary-foreground"
                           : "border-border hover:border-primary/50"
@@ -378,8 +378,9 @@ const ProductPage = () => {
 
               <Button 
                 onClick={handleSubmitBookingRequest}
-                className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-medium"
+                className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-medium touch-manipulation"
                 disabled={!startDate || isSubmitting}
+                size="lg"
               >
                 {isSubmitting ? "Submitting..." : "👉 Submit Booking Request"}
               </Button>
