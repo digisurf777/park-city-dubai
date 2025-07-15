@@ -11,13 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ParkingBookingModal } from "@/components/ParkingBookingModal";
-import { 
-  Carousel, 
-  CarouselContent, 
-  CarouselItem, 
-  CarouselNext, 
-  CarouselPrevious 
-} from "@/components/ui/carousel";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import difcHero from "@/assets/zones/difc-real.jpg";
 const DIFC = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -27,7 +21,9 @@ const DIFC = () => {
   const [loading, setLoading] = useState(true);
   const [selectedSpot, setSelectedSpot] = useState<any>(null);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
-  const [currentImageIndexes, setCurrentImageIndexes] = useState<{[key: string]: number}>({});
+  const [currentImageIndexes, setCurrentImageIndexes] = useState<{
+    [key: string]: number;
+  }>({});
   useEffect(() => {
     fetchParkingSpots();
 
@@ -189,14 +185,12 @@ const DIFC = () => {
     setSelectedSpot(spot);
     setIsBookingModalOpen(true);
   };
-
   const nextImage = (spotId: string, totalImages: number) => {
     setCurrentImageIndexes(prev => ({
       ...prev,
       [spotId]: ((prev[spotId] || 0) + 1) % totalImages
     }));
   };
-
   const prevImage = (spotId: string, totalImages: number) => {
     setCurrentImageIndexes(prev => ({
       ...prev,
@@ -221,35 +215,7 @@ const DIFC = () => {
       </div>
 
       <div className="sticky top-20 z-40 bg-white border-b shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input placeholder="Search building or tower..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-10" />
-            </div>
-            <div></div>
-            <div className="flex items-center gap-4">
-              <Button variant="outline" size="sm" onClick={clearFilters}>
-                Reset filters
-              </Button>
-            </div>
-          </div>
-
-          <div className="mt-4 flex items-center gap-4">
-            <span className="text-sm font-medium text-foreground whitespace-nowrap">
-              Price: AED {priceRange[0]} - {priceRange[1]} / month
-            </span>
-            <div className="flex-1 max-w-xs">
-              <Slider value={priceRange} onValueChange={setPriceRange} max={1500} min={0} step={50} className="w-full" />
-            </div>
-            <div className="flex items-center space-x-2">
-              <Checkbox id="available" checked={showAvailableOnly} onCheckedChange={checked => setShowAvailableOnly(checked === true)} />
-              <label htmlFor="available" className="text-sm font-medium leading-none">
-                Show only available
-              </label>
-            </div>
-          </div>
-        </div>
+        
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -272,70 +238,40 @@ const DIFC = () => {
             {filteredSpots.map(spot => <Card key={spot.id} className="overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
                 {/* Image carousel */}
                 <div className="relative w-full h-64 overflow-hidden group">
-                  {spot.images && spot.images.length > 0 ? (
-                    <>
-                      <img 
-                        src={spot.images[currentImageIndexes[spot.id] || 0]} 
-                        alt={`${spot.name} - Image ${(currentImageIndexes[spot.id] || 0) + 1}`} 
-                        className="w-full h-full object-cover" 
-                      />
-                      {spot.images.length > 1 && (
-                        <>
+                  {spot.images && spot.images.length > 0 ? <>
+                      <img src={spot.images[currentImageIndexes[spot.id] || 0]} alt={`${spot.name} - Image ${(currentImageIndexes[spot.id] || 0) + 1}`} className="w-full h-full object-cover" />
+                      {spot.images.length > 1 && <>
                           {/* Navigation buttons */}
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              prevImage(spot.id, spot.images.length);
-                            }}
-                            className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                          >
+                          <button onClick={e => {
+                  e.stopPropagation();
+                  prevImage(spot.id, spot.images.length);
+                }} className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
                             <ChevronLeft className="h-4 w-4" />
                           </button>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              nextImage(spot.id, spot.images.length);
-                            }}
-                            className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                          >
+                          <button onClick={e => {
+                  e.stopPropagation();
+                  nextImage(spot.id, spot.images.length);
+                }} className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
                             <ChevronRight className="h-4 w-4" />
                           </button>
                           
                           {/* Image indicator dots */}
                           <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-1">
-                            {spot.images.map((_: any, index: number) => (
-                              <button
-                                key={index}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setCurrentImageIndexes(prev => ({
-                                    ...prev,
-                                    [spot.id]: index
-                                  }));
-                                }}
-                                className={`w-2 h-2 rounded-full transition-colors ${
-                                  (currentImageIndexes[spot.id] || 0) === index 
-                                    ? 'bg-white' 
-                                    : 'bg-white/50'
-                                }`}
-                              />
-                            ))}
+                            {spot.images.map((_: any, index: number) => <button key={index} onClick={e => {
+                    e.stopPropagation();
+                    setCurrentImageIndexes(prev => ({
+                      ...prev,
+                      [spot.id]: index
+                    }));
+                  }} className={`w-2 h-2 rounded-full transition-colors ${(currentImageIndexes[spot.id] || 0) === index ? 'bg-white' : 'bg-white/50'}`} />)}
                           </div>
                           
                           {/* Image counter */}
                           <div className="absolute top-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
                             {(currentImageIndexes[spot.id] || 0) + 1} / {spot.images.length}
                           </div>
-                        </>
-                      )}
-                    </>
-                  ) : (
-                    <img 
-                      src={spot.image} 
-                      alt={spot.name} 
-                      className="w-full h-full object-cover"
-                    />
-                  )}
+                        </>}
+                    </> : <img src={spot.image} alt={spot.name} className="w-full h-full object-cover" />}
                 </div>
 
                 <div className="p-6">
