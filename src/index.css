@@ -18,7 +18,7 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 158 64% 52%; /* #00B67A - Trustpilot Green */
+    --primary: 174 66% 56%; /* #4ECDC4 - Shazam Parking Brand Green */
     --primary-foreground: 0 0% 100%;
 
     --secondary: 154 100% 96%;
@@ -37,18 +37,18 @@ All colors MUST be HSL.
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 158 64% 52%;
+    --ring: 174 66% 56%;
 
     --radius: 0.5rem;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 158 64% 52%;
+    --sidebar-primary: 174 66% 56%;
     --sidebar-primary-foreground: 0 0% 98%;
     --sidebar-accent: 175 73% 96%;
     --sidebar-accent-foreground: 175 73% 15%;
     --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 158 64% 52%;
+    --sidebar-ring: 174 66% 56%;
   }
 
   .dark {
@@ -61,7 +61,7 @@ All colors MUST be HSL.
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 158 64% 52%; /* #00B67A - Trustpilot Green */
+    --primary: 174 66% 56%; /* #4ECDC4 - Shazam Parking Brand Green */
     --primary-foreground: 0 0% 100%;
     
     --text-dark: 0 0% 13%; /* #202020 */
@@ -80,15 +80,15 @@ All colors MUST be HSL.
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 158 64% 52%;
+    --ring: 174 66% 56%;
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 158 64% 52%;
+    --sidebar-primary: 174 66% 56%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 240 3.7% 15.9%;
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 158 64% 52%;
+    --sidebar-ring: 174 66% 56%;
   }
 
   @keyframes zoom-slow {
