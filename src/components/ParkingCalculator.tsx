@@ -144,7 +144,7 @@ const ParkingCalculator = () => {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <DollarSign className="h-5 w-5" />
+            <Calculator className="h-5 w-5" />
             Your Monthly Earnings Breakdown
           </CardTitle>
         </CardHeader>
