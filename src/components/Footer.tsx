@@ -25,17 +25,17 @@ const Footer = () => {
             <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
             <ul className="space-y-2">
               <li>
-                <Link to="/find-parking" className="text-gray-300 hover:text-primary transition-colors">
+                <Link to="/find-a-parking-space" className="text-gray-300 hover:text-primary transition-colors">
                   Find Parking
                 </Link>
               </li>
               <li>
-                <Link to="/list-space" className="text-gray-300 hover:text-primary transition-colors">
+                <Link to="/rent-out-your-space" className="text-gray-300 hover:text-primary transition-colors">
                   List Your Space
                 </Link>
               </li>
               <li>
-                <Link to="/about" className="text-gray-300 hover:text-primary transition-colors">
+                <Link to="/about-us" className="text-gray-300 hover:text-primary transition-colors">
                   About
                 </Link>
               </li>
@@ -52,7 +52,9 @@ const Footer = () => {
             <h3 className="text-lg font-semibold mb-4">Support</h3>
             <ul className="space-y-2">
               <li>
-                
+                <Link to="/calculator" className="text-gray-300 hover:text-primary transition-colors">
+                  Calculator
+                </Link>
               </li>
               <li>
                 <Link to="/terms" className="text-gray-300 hover:text-primary transition-colors">
