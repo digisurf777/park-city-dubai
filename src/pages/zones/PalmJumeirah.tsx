@@ -13,7 +13,7 @@ import Footer from "@/components/Footer";
 import { ParkingBookingModal } from "@/components/ParkingBookingModal";
 import ImageZoomModal from "@/components/ImageZoomModal";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-import palmJumeirahHero from "@/assets/zones/palm-jumeirah-real.jpg";
+import palmJumeirahHero from "@/assets/palm-jumeirah-new.jpg";
 const PalmJumeirah = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [priceRange, setPriceRange] = useState([0, 1500]);
