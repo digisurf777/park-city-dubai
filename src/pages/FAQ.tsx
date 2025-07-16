@@ -146,8 +146,8 @@ const FAQ = () => {
                         <p className="text-muted-foreground leading-relaxed">
                           Yes. We value your feedback. Drivers and owners can leave a review after each completed booking. We also encourage you to share your experience on{" "}
                           <a 
-                            href="https://www.trustpilot.com/review/shazamparking.ae" 
-                            target="_blank" 
+                            href="https://www.trustpilot.com/evaluate/shazamparking.ae" 
+                            target="_blank"
                             rel="noopener noreferrer"
                             className="text-primary hover:underline font-medium"
                           >
@@ -155,8 +155,8 @@ const FAQ = () => {
                           </a>
                           {" "}and{" "}
                           <a 
-                            href="https://www.google.com/search?q=shazamparking+reviews" 
-                            target="_blank" 
+                            href="https://business.google.com/reviews/l/02838397052751832628" 
+                            target="_blank"
                             rel="noopener noreferrer"
                             className="text-primary hover:underline font-medium"
                           >
@@ -186,7 +186,7 @@ const FAQ = () => {
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <a
-                href="https://www.trustpilot.com/review/shazamparking.ae"
+                href="https://www.trustpilot.com/evaluate/shazamparking.ae"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center bg-primary text-primary-foreground px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors font-medium shadow-lg"
@@ -194,7 +194,7 @@ const FAQ = () => {
                 ⭐ Review us on Trustpilot
               </a>
               <a
-                href="https://www.google.com/search?q=shazamparking+reviews"
+                href="https://business.google.com/reviews/l/02838397052751832628"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-lg"
@@ -257,7 +257,7 @@ const FAQ = () => {
             <p className="text-muted-foreground mb-4">Have you used ShazamParking? We'd love to hear from you!</p>
             <div className="flex flex-col sm:flex-row justify-center gap-3">
               <a
-                href="https://www.trustpilot.com/review/shazamparking.ae"
+                href="https://www.trustpilot.com/evaluate/shazamparking.ae"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center border border-primary text-primary px-4 py-2 rounded-md hover:bg-primary hover:text-primary-foreground transition-colors text-sm font-medium"
@@ -265,7 +265,7 @@ const FAQ = () => {
                 Leave a Trustpilot Review
               </a>
               <a
-                href="https://www.google.com/search?q=shazamparking+reviews"
+                href="https://business.google.com/reviews/l/02838397052751832628"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center border border-blue-600 text-blue-600 px-4 py-2 rounded-md hover:bg-blue-600 hover:text-white transition-colors text-sm font-medium"
