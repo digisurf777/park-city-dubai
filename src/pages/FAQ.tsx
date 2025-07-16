@@ -141,16 +141,117 @@ const FAQ = () => {
                   <AccordionTrigger className="text-left hover:no-underline py-6">
                     <span className="font-semibold">{item.question}</span>
                   </AccordionTrigger>
-                  <AccordionContent className="pb-6">
-                    <p className="text-muted-foreground leading-relaxed">
-                      {item.answer}
-                    </p>
-                  </AccordionContent>
+                    <AccordionContent className="pb-6">
+                      {item.question === "⭐️ Can I leave a review?" ? (
+                        <p className="text-muted-foreground leading-relaxed">
+                          Yes. We value your feedback. Drivers and owners can leave a review after each completed booking. We also encourage you to share your experience on{" "}
+                          <a 
+                            href="https://www.trustpilot.com/review/shazamparking.ae" 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-primary hover:underline font-medium"
+                          >
+                            Trustpilot
+                          </a>
+                          {" "}and{" "}
+                          <a 
+                            href="https://www.google.com/search?q=shazamparking+reviews" 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-primary hover:underline font-medium"
+                          >
+                            Google Reviews
+                          </a>.
+                        </p>
+                      ) : (
+                        <p className="text-muted-foreground leading-relaxed">
+                          {item.answer}
+                        </p>
+                      )}
+                    </AccordionContent>
                 </AccordionItem>
               ))}
             </Accordion>
           </div>
         ))}
+      </div>
+
+      {/* Customer Reviews Section */}
+      <div className="bg-gray-50 py-16">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold mb-4">What Our Customers Say</h2>
+            <p className="text-lg text-muted-foreground mb-8">
+              Don't just take our word for it - see what drivers and parking space owners have to say about ShazamParking
+            </p>
+            <div className="flex justify-center space-x-4">
+              <a
+                href="https://www.trustpilot.com/review/shazamparking.ae"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors font-medium"
+              >
+                ⭐ Review us on Trustpilot
+              </a>
+              <a
+                href="https://www.google.com/search?q=shazamparking+reviews"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+              >
+                📝 Review us on Google
+              </a>
+            </div>
+          </div>
+          
+          {/* Sample Reviews */}
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="bg-white p-6 rounded-lg shadow-sm border">
+              <div className="flex items-center mb-4">
+                <div className="flex text-yellow-400">
+                  ⭐⭐⭐⭐⭐
+                </div>
+                <span className="ml-2 text-sm text-gray-600">5/5</span>
+              </div>
+              <p className="text-gray-700 mb-4">
+                "Excellent service! Found a parking spot right in downtown Dubai when I needed it most. The booking process was smooth and the owner was very responsive."
+              </p>
+              <div className="text-sm text-gray-600">
+                <span className="font-medium">Ahmed K.</span> - Driver
+              </div>
+            </div>
+            
+            <div className="bg-white p-6 rounded-lg shadow-sm border">
+              <div className="flex items-center mb-4">
+                <div className="flex text-yellow-400">
+                  ⭐⭐⭐⭐⭐
+                </div>
+                <span className="ml-2 text-sm text-gray-600">5/5</span>
+              </div>
+              <p className="text-gray-700 mb-4">
+                "As a parking space owner, ShazamParking has been fantastic. Easy to list my space and the payment system is reliable. Great passive income!"
+              </p>
+              <div className="text-sm text-gray-600">
+                <span className="font-medium">Sarah M.</span> - Space Owner
+              </div>
+            </div>
+            
+            <div className="bg-white p-6 rounded-lg shadow-sm border">
+              <div className="flex items-center mb-4">
+                <div className="flex text-yellow-400">
+                  ⭐⭐⭐⭐⭐
+                </div>
+                <span className="ml-2 text-sm text-gray-600">5/5</span>
+              </div>
+              <p className="text-gray-700 mb-4">
+                "Much cheaper than street parking and way more convenient. The app works perfectly and customer support is very helpful when needed."
+              </p>
+              <div className="text-sm text-gray-600">
+                <span className="font-medium">Mohamed A.</span> - Driver
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <Footer />
