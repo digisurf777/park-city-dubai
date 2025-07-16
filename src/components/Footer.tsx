@@ -12,30 +12,9 @@ const Footer = () => {
             <p className="text-gray-300 mb-6 max-w-md">
               Dubai's premier parking solution. Fixed prices and absolute convenience for all your parking needs.
             </p>
-            <div className="space-y-4">
-              <div className="flex items-center text-gray-300">
-                <Mail className="h-4 w-4 mr-2" />
-                <span>support@shazam.ae</span>
-              </div>
-              
-              {/* App Store Downloads */}
-              <div className="space-y-2">
-                <p className="text-sm text-gray-400 font-medium">Download Our App</p>
-                <div className="flex flex-col sm:flex-row gap-2">
-                  <div className="flex items-center bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 cursor-not-allowed opacity-60">
-                    <div className="flex flex-col">
-                      <span className="text-xs text-gray-400">Coming Soon</span>
-                      <span className="text-sm font-medium text-gray-300">App Store</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 cursor-not-allowed opacity-60">
-                    <div className="flex flex-col">
-                      <span className="text-xs text-gray-400">Coming Soon</span>
-                      <span className="text-sm font-medium text-gray-300">Google Play</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
+            <div className="flex items-center text-gray-300">
+              <Mail className="h-4 w-4 mr-2" />
+              <span>support@shazam.ae</span>
             </div>
           </div>
 
@@ -96,6 +75,25 @@ const Footer = () => {
                 </a>
               </li>
             </ul>
+            
+            {/* App Store Downloads */}
+            <div className="mt-6 space-y-2">
+              <p className="text-sm text-gray-400 font-medium">Download Our App</p>
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center bg-gray-800 border border-gray-700 rounded-lg px-2 py-1.5 cursor-not-allowed opacity-60 text-xs">
+                  <div className="flex flex-col">
+                    <span className="text-xs text-gray-400">Coming Soon</span>
+                    <span className="text-xs font-medium text-gray-300">App Store</span>
+                  </div>
+                </div>
+                <div className="flex items-center bg-gray-800 border border-gray-700 rounded-lg px-2 py-1.5 cursor-not-allowed opacity-60 text-xs">
+                  <div className="flex flex-col">
+                    <span className="text-xs text-gray-400">Coming Soon</span>
+                    <span className="text-xs font-medium text-gray-300">Google Play</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
