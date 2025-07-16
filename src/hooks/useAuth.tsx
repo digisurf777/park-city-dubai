@@ -48,7 +48,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const signUp = async (email: string, password: string, fullName: string, userType: string = 'renter') => {
-    const redirectUrl = `${window.location.origin}/`;
+    const redirectUrl = `${window.location.origin}/email-confirmed`;
     
     const { error } = await supabase.auth.signUp({
       email,
@@ -62,18 +62,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
     });
 
-    // Send welcome email after successful signup
+    // Send admin notification after successful signup
     if (!error) {
       try {
-        await supabase.functions.invoke('send-welcome-email', {
+        await supabase.functions.invoke('send-admin-signup-notification', {
           body: {
             email: email,
-            name: fullName
+            fullName: fullName,
+            userType: userType
           }
         });
-        console.log('Welcome email sent successfully');
+        console.log('Admin notification sent successfully');
       } catch (emailError) {
-        console.error('Failed to send welcome email:', emailError);
+        console.error('Failed to send admin notification:', emailError);
         // Don't fail the signup if email fails
       }
     }

@@ -17,7 +17,7 @@ const Auth = () => {
   const [showResetForm, setShowResetForm] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
   const [loginForm, setLoginForm] = useState({ email: '', password: '' });
-  const [signupForm, setSignupForm] = useState({ email: '', password: '', fullName: '', userType: 'renter' });
+  const [signupForm, setSignupForm] = useState({ email: '', password: '', confirmPassword: '', fullName: '', userType: 'seeker' });
   const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
   const recaptchaRef = useRef<ReCAPTCHA>(null);
   const { signIn, signUp, resetPassword, user } = useAuth();
@@ -60,6 +60,17 @@ const Auth = () => {
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (signupForm.password !== signupForm.confirmPassword) {
+      toast.error('Passwords do not match');
+      return;
+    }
+    
+    if (signupForm.password.length < 6) {
+      toast.error('Password must be at least 6 characters long');
+      return;
+    }
+    
     setLoading(true);
     
     try {
@@ -68,8 +79,8 @@ const Auth = () => {
       if (error) {
         toast.error(error.message);
       } else {
-        toast.success('Account created successfully! Please check your email to verify your account.');
-        setSignupForm({ email: '', password: '', fullName: '', userType: 'renter' });
+        toast.success('Account created successfully! Please check your email to confirm your account before logging in.');
+        setSignupForm({ email: '', password: '', confirmPassword: '', fullName: '', userType: 'seeker' });
       }
     } catch (error) {
       toast.error('An error occurred during signup');
@@ -226,11 +237,11 @@ const Auth = () => {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="signup-email">Email</Label>
+                  <Label htmlFor="signup-email">Email Address</Label>
                   <Input
                     id="signup-email"
                     type="email"
-                    placeholder="Enter your email"
+                    placeholder="Enter your email address"
                     value={signupForm.email}
                     onChange={(e) => setSignupForm({ ...signupForm, email: e.target.value })}
                     required
@@ -242,11 +253,47 @@ const Auth = () => {
                   <Input
                     id="signup-password"
                     type="password"
-                    placeholder="Choose a password"
+                    placeholder="Choose a password (min. 6 characters)"
                     value={signupForm.password}
                     onChange={(e) => setSignupForm({ ...signupForm, password: e.target.value })}
                     required
+                    minLength={6}
                   />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="signup-confirm-password">Confirm Password</Label>
+                  <Input
+                    id="signup-confirm-password"
+                    type="password"
+                    placeholder="Confirm your password"
+                    value={signupForm.confirmPassword}
+                    onChange={(e) => setSignupForm({ ...signupForm, confirmPassword: e.target.value })}
+                    required
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="user-type">I am a:</Label>
+                  <Select value={signupForm.userType} onValueChange={(value) => setSignupForm({ ...signupForm, userType: value })}>
+                    <SelectTrigger id="user-type">
+                      <SelectValue placeholder="Select your role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="seeker">
+                        <div className="flex items-center gap-2">
+                          <User className="h-4 w-4" />
+                          Parking Seeker
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="owner">
+                        <div className="flex items-center gap-2">
+                          <Building className="h-4 w-4" />
+                          Parking Owner
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 
                 <Button type="submit" className="w-full" disabled={loading}>

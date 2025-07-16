@@ -20,6 +20,7 @@ import RentOutYourSpace from "./pages/RentOutYourSpace";
 import Calculator from "./pages/Calculator";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
+import EmailConfirmed from "./pages/EmailConfirmed";
 import MyAccount from "./pages/MyAccount";
 import ContactAdmin from "./pages/ContactAdmin";
 import Feedback from "./pages/Feedback";
@@ -59,6 +60,7 @@ const App = () => (
               <Route path="/calculator" element={<Calculator />} />
               <Route path="/parking/:id" element={<ProductPage />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/email-confirmed" element={<EmailConfirmed />} />
               <Route path="/my-account" element={<ProtectedRoute><MyAccount /></ProtectedRoute>} />
               <Route path="/contact-admin" element={<ProtectedRoute><ContactAdmin /></ProtectedRoute>} />
               <Route path="/feedback" element={<ProtectedRoute><Feedback /></ProtectedRoute>} />
