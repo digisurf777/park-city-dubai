@@ -13,7 +13,7 @@ import Footer from "@/components/Footer";
 import { ParkingBookingModal } from "@/components/ParkingBookingModal";
 import ImageZoomModal from "@/components/ImageZoomModal";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-import downtownHero from "@/assets/zones/downtown-real.jpg";
+import downtownHero from "/lovable-uploads/f676da2a-39c9-4211-8561-5b884e0ceed8.png";
 const Downtown = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [priceRange, setPriceRange] = useState([0, 20000]);

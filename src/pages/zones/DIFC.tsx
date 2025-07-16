@@ -13,7 +13,7 @@ import Footer from "@/components/Footer";
 import { ParkingBookingModal } from "@/components/ParkingBookingModal";
 import ImageZoomModal from "@/components/ImageZoomModal";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-import difcHero from "@/assets/zones/difc-real.jpg";
+import difcHero from "/lovable-uploads/63d539ac-8cbb-46b2-aa39-3de0695ef8c9.png";
 const DIFC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [priceRange, setPriceRange] = useState([0, 1500]);
