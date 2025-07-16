@@ -702,9 +702,8 @@ ShazamParking</p>
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 sm:mb-6 px-4">
             Your Trusted Parking Platform
           </h2>
-          <h3 className="text-lg sm:text-xl lg:text-2xl text-gray-700 mb-6 sm:mb-8 px-4">
-            Shazam Parking Makes it Easy
-          </h3>
+          <h3 className="text-lg sm:text-xl lg:text-2xl text-gray-700 mb-6 sm:mb-8 px-4">ShazamParking
+Makes it Easy</h3>
           <p className="text-base sm:text-lg lg:text-xl text-gray-600 mb-6 sm:mb-8 px-4">
             Revolutionising parking in Dubai
           </p>
