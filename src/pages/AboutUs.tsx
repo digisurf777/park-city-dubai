@@ -53,7 +53,7 @@ const AboutUs = () => {
               <Button 
                 className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3 font-medium rounded-md transition-colors"
               >
-                Rent out a space
+                List Your Space
               </Button>
             </Link>
           </div>
