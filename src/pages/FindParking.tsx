@@ -167,48 +167,7 @@ const FindParking = () => {
 
       {/* Sticky Filter Bar */}
       <div className="sticky top-20 z-40 bg-white border-b shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-            {/* Search Box */}
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input placeholder="Search building, tower or district..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-10" />
-            </div>
-
-            {/* District Pills */}
-            <div className="lg:col-span-2">
-              <div className="flex flex-wrap gap-2">
-                {districts.map(district => <Badge key={district} variant={selectedDistricts.includes(district) ? "default" : "outline"} className={cn("cursor-pointer transition-colors", selectedDistricts.includes(district) ? "bg-primary text-primary-foreground" : "hover:bg-primary hover:text-primary-foreground")} onClick={() => toggleDistrict(district)}>
-                    {district}
-                    {selectedDistricts.includes(district) && <X className="ml-1 h-3 w-3" />}
-                  </Badge>)}
-              </div>
-            </div>
-
-            {/* Controls */}
-            <div className="flex items-center gap-4">
-              <Button variant="outline" size="sm" onClick={clearFilters}>
-                Reset filters
-              </Button>
-            </div>
-          </div>
-
-          {/* Price Slider */}
-          <div className="mt-4 flex items-center gap-4">
-            <span className="text-sm font-medium text-foreground whitespace-nowrap">
-              Price: AED {priceRange[0]} - {priceRange[1]} / month
-            </span>
-            <div className="flex-1 max-w-xs">
-              <Slider value={priceRange} onValueChange={setPriceRange} max={1500} min={0} step={50} className="w-full" />
-            </div>
-            <div className="flex items-center space-x-2">
-              <Checkbox id="available" checked={showAvailableOnly} onCheckedChange={checked => setShowAvailableOnly(checked === true)} />
-              <label htmlFor="available" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                Show only available
-              </label>
-            </div>
-          </div>
-        </div>
+        
       </div>
 
       {/* District Selector Section */}
