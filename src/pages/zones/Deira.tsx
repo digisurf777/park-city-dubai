@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ParkingBookingModal } from "@/components/ParkingBookingModal";
+import ImageZoomModal from "@/components/ImageZoomModal";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import deiraHero from "@/assets/zones/deira-real.jpg";
 const Deira = () => {
@@ -24,6 +25,10 @@ const Deira = () => {
   const [currentImageIndexes, setCurrentImageIndexes] = useState<{
     [key: string]: number;
   }>({});
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+  const [selectedImages, setSelectedImages] = useState<string[]>([]);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [selectedSpotName, setSelectedSpotName] = useState("");
   useEffect(() => {
     fetchParkingSpots();
   }, []);
@@ -121,6 +126,13 @@ const Deira = () => {
     setSelectedSpot(spot);
     setIsBookingModalOpen(true);
   };
+
+  const handleImageClick = (spot: any, imageIndex: number) => {
+    setSelectedImages(spot.images && spot.images.length > 0 ? spot.images : [spot.image]);
+    setSelectedImageIndex(imageIndex);
+    setSelectedSpotName(spot.name);
+    setIsImageModalOpen(true);
+  };
   const nextImage = (spotId: string, totalImages: number) => {
     setCurrentImageIndexes(prev => ({
       ...prev,
@@ -175,7 +187,12 @@ const Deira = () => {
                 {/* Image carousel */}
                 <div className="relative w-full h-64 overflow-hidden group">
                   {spot.images && spot.images.length > 0 ? <>
-                      <img src={spot.images[currentImageIndexes[spot.id] || 0]} alt={`${spot.name} - Image ${(currentImageIndexes[spot.id] || 0) + 1}`} className="w-full h-full object-cover" />
+                      <img 
+                        src={spot.images[currentImageIndexes[spot.id] || 0]} 
+                        alt={`${spot.name} - Image ${(currentImageIndexes[spot.id] || 0) + 1}`} 
+                        className="w-full h-full object-cover cursor-pointer" 
+                        onClick={() => handleImageClick(spot, currentImageIndexes[spot.id] || 0)}
+                      />
                       {spot.images.length > 1 && <>
                           {/* Navigation buttons */}
                           <button onClick={e => {
@@ -207,7 +224,12 @@ const Deira = () => {
                             {(currentImageIndexes[spot.id] || 0) + 1} / {spot.images.length}
                           </div>
                         </>}
-                    </> : <img src={spot.image} alt={spot.name} className="w-full h-full object-cover" />}
+                    </> : <img 
+                      src={spot.image} 
+                      alt={spot.name} 
+                      className="w-full h-full object-cover cursor-pointer" 
+                      onClick={() => handleImageClick(spot, 0)}
+                    />}
                 </div>
 
                 <div className="p-6">
@@ -248,6 +270,13 @@ const Deira = () => {
       <Footer />
 
       <ParkingBookingModal isOpen={isBookingModalOpen} onClose={() => setIsBookingModalOpen(false)} parkingSpot={selectedSpot} />
+      <ImageZoomModal 
+        isOpen={isImageModalOpen} 
+        onClose={() => setIsImageModalOpen(false)} 
+        images={selectedImages}
+        initialIndex={selectedImageIndex}
+        spotName={selectedSpotName}
+      />
     </div>;
 };
 export default Deira;
