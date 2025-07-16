@@ -464,13 +464,22 @@ const RentOutYourSpace = () => {
 
               
 
-              <div className="flex justify-center">
-                <ReCAPTCHA ref={recaptchaRef} sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI" // Test key - replace with your actual site key
-              onChange={token => setRecaptchaToken(token)} />
+              <div className="space-y-3">
+                <div className="flex justify-center">
+                  <ReCAPTCHA 
+                    ref={recaptchaRef} 
+                    sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI" // Test key - replace with your actual site key
+                    onChange={token => setRecaptchaToken(token)} 
+                  />
+                </div>
+                {!recaptchaToken && (
+                  <div className="bg-red-50 border border-red-200 rounded-md p-3">
+                    <p className="text-sm text-red-700 text-center font-medium">
+                      Please complete the reCAPTCHA verification above before submitting your listing
+                    </p>
+                  </div>
+                )}
               </div>
-              <p className="text-sm text-red-600 mt-2 text-center">
-                Please complete the reCAPTCHA verification above before submitting your listing
-              </p>
 
               <Button type="submit" disabled={isSubmitting || !recaptchaToken} className="w-full bg-primary hover:bg-primary/90 text-white py-4 text-lg font-semibold disabled:opacity-50">
                 {isSubmitting ? "Submitting..." : "Submit Listing"}
