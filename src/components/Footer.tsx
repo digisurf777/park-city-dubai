@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { MapPin, Mail } from "lucide-react";
+import { MapPin, Mail, Apple, Play } from "lucide-react";
 const Footer = () => {
   return <footer className="bg-gray-900 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -82,12 +82,14 @@ const Footer = () => {
               <div className="flex gap-2">
                 <div className="flex items-center justify-center bg-gray-800 border border-gray-700 rounded-md px-2 py-2 cursor-not-allowed opacity-60 w-20 h-12">
                   <div className="text-center">
+                    <Apple className="h-4 w-4 mx-auto mb-1 text-gray-300" />
                     <div className="text-xs text-gray-400">Download on the</div>
                     <div className="text-xs font-medium text-gray-300">App Store</div>
                   </div>
                 </div>
                 <div className="flex items-center justify-center bg-gray-800 border border-gray-700 rounded-md px-2 py-2 cursor-not-allowed opacity-60 w-20 h-12">
                   <div className="text-center">
+                    <Play className="h-4 w-4 mx-auto mb-1 text-gray-300" />
                     <div className="text-xs text-gray-400">Get IT ON</div>
                     <div className="text-xs font-medium text-gray-300">Google Play</div>
                   </div>
