@@ -7,7 +7,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Calculator, DollarSign, Calendar, CreditCard } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-
 interface DurationCalculation {
   duration: number;
   discount: number;
@@ -16,28 +15,35 @@ interface DurationCalculation {
   cardFee: number;
   netToOwner: number;
 }
-
 const ParkingCalculator = () => {
   const navigate = useNavigate();
   const [baseRent, setBaseRent] = useState<number>(1000);
   const [cardRequired, setCardRequired] = useState<boolean>(false);
   const [selectedDurations, setSelectedDurations] = useState<number[]>([1, 3, 6, 12]);
   const [calculations, setCalculations] = useState<DurationCalculation[]>([]);
-
-  const durations = [
-    { value: 1, label: "1 Month", discount: 0 },
-    { value: 3, label: "3 Months", discount: 0.05 },
-    { value: 6, label: "6 Months", discount: 0.10 },
-    { value: 12, label: "12 Months", discount: 0.15 }
-  ];
-
+  const durations = [{
+    value: 1,
+    label: "1 Month",
+    discount: 0
+  }, {
+    value: 3,
+    label: "3 Months",
+    discount: 0.05
+  }, {
+    value: 6,
+    label: "6 Months",
+    discount: 0.10
+  }, {
+    value: 12,
+    label: "12 Months",
+    discount: 0.15
+  }];
   const calculateEarnings = () => {
     const results: DurationCalculation[] = durations.map(duration => {
       const rentAfterDiscount = baseRent * (1 - duration.discount);
       const shazamFee = rentAfterDiscount * 0.20; // 20% commission
-      const cardFee = cardRequired ? 100 : 0; // One-time card fee when card required
-      const netToOwner = rentAfterDiscount - shazamFee - (cardFee / duration.value);
-
+      const cardFee = cardRequired && duration.value >= 6 ? 100 : 0; // One-time card fee for 6+ months
+      const netToOwner = rentAfterDiscount - shazamFee - cardFee / duration.value;
       return {
         duration: duration.value,
         discount: duration.discount * 100,
@@ -47,14 +53,11 @@ const ParkingCalculator = () => {
         netToOwner
       };
     });
-
     setCalculations(results);
   };
-
   useEffect(() => {
     calculateEarnings();
   }, [baseRent, cardRequired]);
-
   const handleDurationToggle = (duration: number, checked: boolean) => {
     if (checked) {
       setSelectedDurations([...selectedDurations, duration]);
@@ -62,13 +65,10 @@ const ParkingCalculator = () => {
       setSelectedDurations(selectedDurations.filter(d => d !== duration));
     }
   };
-
   const getCustomerPrice = (rentAfterDiscount: number) => {
     return rentAfterDiscount + 100; // +100 AED service fee for customers
   };
-
-  return (
-    <div className="space-y-6">
+  return <div className="space-y-6">
       {/* Calculator Inputs */}
       <Card>
         <CardHeader>
@@ -81,15 +81,7 @@ const ParkingCalculator = () => {
           {/* Base Rent Input */}
           <div className="space-y-2">
             <Label htmlFor="baseRent">Base Monthly Rent (AED)</Label>
-            <Input
-              id="baseRent"
-              type="number"
-              value={baseRent}
-              onChange={(e) => setBaseRent(Number(e.target.value))}
-              placeholder="Enter monthly rent in AED"
-              min="100"
-              step="50"
-            />
+            <Input id="baseRent" type="number" value={baseRent} onChange={e => setBaseRent(Number(e.target.value))} placeholder="Enter monthly rent in AED" min="100" step="50" />
           </div>
 
           {/* Card Required Toggle */}
@@ -99,14 +91,9 @@ const ParkingCalculator = () => {
                 <CreditCard className="h-4 w-4" />
                 Access Card Required?
               </Label>
-              <p className="text-sm text-muted-foreground">
-                Requires 500 AED deposit + 100 AED one-time fee
-              </p>
+              <p className="text-sm text-muted-foreground">Requires 500 AED deposit (+ 100 AED one-time fee)</p>
             </div>
-            <Switch
-              checked={cardRequired}
-              onCheckedChange={setCardRequired}
-            />
+            <Switch checked={cardRequired} onCheckedChange={setCardRequired} />
           </div>
 
           {/* Duration Selection */}
@@ -116,25 +103,15 @@ const ParkingCalculator = () => {
               Accepted Rental Durations
             </Label>
             <div className="grid grid-cols-2 gap-3">
-              {durations.map(duration => (
-                <div key={duration.value} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={`duration-${duration.value}`}
-                    checked={selectedDurations.includes(duration.value)}
-                    onCheckedChange={(checked) => 
-                      handleDurationToggle(duration.value, checked as boolean)
-                    }
-                  />
+              {durations.map(duration => <div key={duration.value} className="flex items-center space-x-2">
+                  <Checkbox id={`duration-${duration.value}`} checked={selectedDurations.includes(duration.value)} onCheckedChange={checked => handleDurationToggle(duration.value, checked as boolean)} />
                   <Label htmlFor={`duration-${duration.value}`} className="text-sm">
                     {duration.label} 
-                    {duration.discount > 0 && (
-                      <span className="text-green-600 ml-1">
+                    {duration.discount > 0 && <span className="text-green-600 ml-1">
                         (-{duration.discount * 100}%)
-                      </span>
-                    )}
+                      </span>}
                   </Label>
-                </div>
-              ))}
+                </div>)}
             </div>
           </div>
         </CardContent>
@@ -144,7 +121,7 @@ const ParkingCalculator = () => {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Calculator className="h-5 w-5" />
+            <DollarSign className="h-5 w-5" />
             Your Monthly Earnings Breakdown
           </CardTitle>
         </CardHeader>
@@ -163,10 +140,7 @@ const ParkingCalculator = () => {
                 </tr>
               </thead>
               <tbody>
-                {calculations
-                  .filter(calc => selectedDurations.includes(calc.duration))
-                  .map(calc => (
-                  <tr key={calc.duration} className="border-b hover:bg-muted/50">
+                {calculations.filter(calc => selectedDurations.includes(calc.duration)).map(calc => <tr key={calc.duration} className="border-b hover:bg-muted/50">
                     <td className="p-2 font-medium">{calc.duration} Month{calc.duration > 1 ? 's' : ''}</td>
                     <td className="p-2">
                       {calc.discount > 0 ? `-${calc.discount}%` : 'None'}
@@ -176,16 +150,13 @@ const ParkingCalculator = () => {
                       {getCustomerPrice(calc.rentAfterDiscount).toFixed(0)} AED
                     </td>
                     <td className="p-2 text-red-600">-{calc.shazamFee.toFixed(0)} AED</td>
-                    {cardRequired && (
-                      <td className="p-2 text-red-600">
+                    {cardRequired && <td className="p-2 text-red-600">
                         {calc.cardFee > 0 ? `-${calc.cardFee} AED` : '-'}
-                      </td>
-                    )}
+                      </td>}
                     <td className="p-2 font-bold text-green-600">
                       {calc.netToOwner.toFixed(0)} AED
                     </td>
-                  </tr>
-                ))}
+                  </tr>)}
               </tbody>
             </table>
           </div>
@@ -197,14 +168,12 @@ const ParkingCalculator = () => {
             </p>
           </div>
 
-          {cardRequired && (
-            <div className="mt-3 p-4 bg-amber-50 rounded-lg">
+          {cardRequired && <div className="mt-3 p-4 bg-amber-50 rounded-lg">
               <p className="text-sm text-amber-800">
                 <strong>Card Fee Details:</strong> 100 AED one-time fee applies for rentals 6+ months. 
                 500 AED deposit is refundable when card is returned.
               </p>
-            </div>
-          )}
+            </div>}
         </CardContent>
       </Card>
 
@@ -217,29 +186,18 @@ const ParkingCalculator = () => {
             </h3>
             <p className="text-sm text-green-700">
               You've selected {selectedDurations.length} rental duration{selectedDurations.length > 1 ? 's' : ''}.
-              {selectedDurations.length > 0 && (
-                <span className="block mt-1">
-                  Estimated monthly earnings: {calculations
-                    .filter(calc => selectedDurations.includes(calc.duration))
-                    .map(calc => `${calc.netToOwner.toFixed(0)} AED`)
-                    .join(' - ')
-                  }
-                </span>
-              )}
+              {selectedDurations.length > 0 && <span className="block mt-1">
+                  Estimated monthly earnings: {calculations.filter(calc => selectedDurations.includes(calc.duration)).map(calc => `${calc.netToOwner.toFixed(0)} AED`).join(' - ')}
+                </span>}
             </p>
             <div className="flex justify-center">
-              <Button 
-                className="bg-primary hover:bg-primary/90"
-                onClick={() => navigate('/rent-out-your-space')}
-              >
+              <Button className="bg-primary hover:bg-primary/90" onClick={() => navigate('/rent-out-your-space')}>
                 Submit Your Parking Space
               </Button>
             </div>
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>;
 };
-
 export default ParkingCalculator;
