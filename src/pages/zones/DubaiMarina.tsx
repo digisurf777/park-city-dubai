@@ -388,8 +388,15 @@ const DubaiMarina = () => {
                   <span className="text-2xl font-bold text-primary">From AED {spot.price}/month</span>
                 </div>
 
-                {/* Optional feature tags */}
-                {spot.specs && spot.specs.length > 0}
+                {/* Benefits */}
+                <div className="mb-4 space-y-2">
+                  <h4 className="text-sm font-semibold text-foreground">Benefits:</h4>
+                  <ul className="text-xs text-muted-foreground space-y-1">
+                    <li>• Pre-booked parking space</li>
+                    <li>• Fixed price - no increases during the fixed rental period</li>
+                    <li>• Customer support</li>
+                  </ul>
+                </div>
 
 
                 {/* Reserve Now Button */}

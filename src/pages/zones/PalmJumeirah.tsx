@@ -247,12 +247,7 @@ const PalmJumeirah = () => {
                     <span className="text-2xl font-bold text-primary">From AED {spot.price}/month</span>
                   </div>
 
-                  {spot.specs && spot.specs.length > 0 && <div className="flex flex-wrap gap-2 mb-4">
-                      {spot.specs.map((feature, index) => <Badge key={index} variant="secondary" className="text-xs">
-                          {feature}
-                        </Badge>)}
-                    </div>}
-
+                  {/* Benefits */}
                   <div className="mb-4 space-y-2">
                     <h4 className="text-sm font-semibold text-foreground">Benefits:</h4>
                     <ul className="text-xs text-muted-foreground space-y-1">
