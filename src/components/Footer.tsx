@@ -78,7 +78,7 @@ const Footer = () => {
             
             {/* App Store Downloads */}
             <div className="mt-6 space-y-2">
-              <p className="text-sm text-gray-400 font-medium">Download Our App</p>
+              <p className="text-sm text-gray-400 font-medium">Coming Soon</p>
               <div className="flex gap-2">
                 <div className="flex items-center justify-center bg-gray-800 border border-gray-700 rounded-md px-2 py-2 cursor-not-allowed opacity-60 w-20 h-12">
                   <div className="text-center">
