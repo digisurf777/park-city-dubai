@@ -27,7 +27,7 @@ const handler = async (req: Request): Promise<Response> => {
     const userTypeLabel = userType === 'owner' ? 'Parking Owner' : 'Parking Seeker';
     
     const emailResponse = await resend.emails.send({
-      from: "ShazamParking <digisurf777@gmail.com>",
+      from: "Shazam Parking <onboarding@resend.dev>",
       to: ["digisurf777@gmail.com"],
       subject: `New User Sign-Up: ${userTypeLabel}`,
       html: `
