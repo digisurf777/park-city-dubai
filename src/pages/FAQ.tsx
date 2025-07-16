@@ -177,19 +177,19 @@ const FAQ = () => {
       </div>
 
       {/* Customer Reviews Section */}
-      <div className="bg-gray-50 py-16">
+      <div className="bg-muted/30 py-16">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">What Our Customers Say</h2>
+            <h2 className="text-3xl font-bold mb-4 text-foreground">What Our Customers Say</h2>
             <p className="text-lg text-muted-foreground mb-8">
               Don't just take our word for it - see what drivers and parking space owners have to say about ShazamParking
             </p>
-            <div className="flex justify-center space-x-4">
+            <div className="flex flex-col sm:flex-row justify-center gap-4">
               <a
                 href="https://www.trustpilot.com/review/shazamparking.ae"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors font-medium"
+                className="inline-flex items-center justify-center bg-primary text-primary-foreground px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors font-medium shadow-lg"
               >
                 ⭐ Review us on Trustpilot
               </a>
@@ -197,7 +197,7 @@ const FAQ = () => {
                 href="https://www.google.com/search?q=shazamparking+reviews"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                className="inline-flex items-center justify-center bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-lg"
               >
                 📝 Review us on Google
               </a>
@@ -205,50 +205,73 @@ const FAQ = () => {
           </div>
           
           {/* Sample Reviews */}
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="bg-white p-6 rounded-lg shadow-sm border">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="bg-card p-6 rounded-lg shadow-lg border border-border">
               <div className="flex items-center mb-4">
-                <div className="flex text-yellow-400">
+                <div className="flex text-yellow-500">
                   ⭐⭐⭐⭐⭐
                 </div>
-                <span className="ml-2 text-sm text-gray-600">5/5</span>
+                <span className="ml-2 text-sm text-muted-foreground font-medium">5/5</span>
               </div>
-              <p className="text-gray-700 mb-4">
+              <p className="text-card-foreground mb-4 text-sm leading-relaxed">
                 "Excellent service! Found a parking spot right in downtown Dubai when I needed it most. The booking process was smooth and the owner was very responsive."
               </p>
-              <div className="text-sm text-gray-600">
-                <span className="font-medium">Ahmed K.</span> - Driver
+              <div className="text-sm text-muted-foreground">
+                <span className="font-medium text-foreground">Ahmed K.</span> - Driver
               </div>
             </div>
             
-            <div className="bg-white p-6 rounded-lg shadow-sm border">
+            <div className="bg-card p-6 rounded-lg shadow-lg border border-border">
               <div className="flex items-center mb-4">
-                <div className="flex text-yellow-400">
+                <div className="flex text-yellow-500">
                   ⭐⭐⭐⭐⭐
                 </div>
-                <span className="ml-2 text-sm text-gray-600">5/5</span>
+                <span className="ml-2 text-sm text-muted-foreground font-medium">5/5</span>
               </div>
-              <p className="text-gray-700 mb-4">
+              <p className="text-card-foreground mb-4 text-sm leading-relaxed">
                 "As a parking space owner, ShazamParking has been fantastic. Easy to list my space and the payment system is reliable. Great passive income!"
               </p>
-              <div className="text-sm text-gray-600">
-                <span className="font-medium">Sarah M.</span> - Space Owner
+              <div className="text-sm text-muted-foreground">
+                <span className="font-medium text-foreground">Sarah M.</span> - Space Owner
               </div>
             </div>
             
-            <div className="bg-white p-6 rounded-lg shadow-sm border">
+            <div className="bg-card p-6 rounded-lg shadow-lg border border-border">
               <div className="flex items-center mb-4">
-                <div className="flex text-yellow-400">
+                <div className="flex text-yellow-500">
                   ⭐⭐⭐⭐⭐
                 </div>
-                <span className="ml-2 text-sm text-gray-600">5/5</span>
+                <span className="ml-2 text-sm text-muted-foreground font-medium">5/5</span>
               </div>
-              <p className="text-gray-700 mb-4">
+              <p className="text-card-foreground mb-4 text-sm leading-relaxed">
                 "Much cheaper than street parking and way more convenient. The app works perfectly and customer support is very helpful when needed."
               </p>
-              <div className="text-sm text-gray-600">
-                <span className="font-medium">Mohamed A.</span> - Driver
+              <div className="text-sm text-muted-foreground">
+                <span className="font-medium text-foreground">Mohamed A.</span> - Driver
               </div>
+            </div>
+          </div>
+          
+          {/* Additional CTA */}
+          <div className="text-center mt-12">
+            <p className="text-muted-foreground mb-4">Have you used ShazamParking? We'd love to hear from you!</p>
+            <div className="flex flex-col sm:flex-row justify-center gap-3">
+              <a
+                href="https://www.trustpilot.com/review/shazamparking.ae"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center border border-primary text-primary px-4 py-2 rounded-md hover:bg-primary hover:text-primary-foreground transition-colors text-sm font-medium"
+              >
+                Leave a Trustpilot Review
+              </a>
+              <a
+                href="https://www.google.com/search?q=shazamparking+reviews"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center border border-blue-600 text-blue-600 px-4 py-2 rounded-md hover:bg-blue-600 hover:text-white transition-colors text-sm font-medium"
+              >
+                Leave a Google Review
+              </a>
             </div>
           </div>
         </div>
