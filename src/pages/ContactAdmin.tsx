@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -14,6 +14,9 @@ import Footer from '@/components/Footer';
 import useSEO from '@/hooks/useSEO';
 
 const ContactAdmin = () => {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   const seoData = useSEO({
     title: "Contact Shazam Parking - Get Support & Help | Dubai Parking Platform",
     description: "Need help with Shazam Parking? Contact our support team at support@shazam.ae or use our contact form. Get assistance with parking bookings, listing spaces, and account issues.",

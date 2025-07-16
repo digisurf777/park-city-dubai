@@ -18,6 +18,9 @@ import businessBayZone from "@/assets/zones/business-bay-real.jpg";
 import difcZone from "/lovable-uploads/63d539ac-8cbb-46b2-aa39-3de0695ef8c9.png";
 import deiraZone from "@/assets/zones/deira-real.jpg";
 const FindParking = () => {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDistricts, setSelectedDistricts] = useState<string[]>([]);

@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import {
@@ -9,6 +10,9 @@ import {
 import dubaiParkingHero from "@/assets/dubai-parking-hero.jpg";
 
 const FAQ = () => {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   const faqData = [
     {
       category: "Platform & General",

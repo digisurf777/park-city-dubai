@@ -9,7 +9,7 @@ import { Upload, CheckCircle, Wallet, Quote, X } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ParkingCalculator from "@/components/ParkingCalculator";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -17,6 +17,9 @@ import luxuryCar from "@/assets/luxury-car-dubai.png";
 import phoneLogo from "@/assets/phone-logo.png";
 import ReCAPTCHA from 'react-google-recaptcha';
 const RentOutYourSpace = () => {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   const {
     user
   } = useAuth();
