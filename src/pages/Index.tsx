@@ -12,10 +12,10 @@ import luxuryCar from "@/assets/luxury-car-dubai.png";
 import businessMan from "@/assets/business-man.jpg";
 import phoneLogo from "@/assets/phone-logo.png";
 import dubaiMarinaZone from "@/assets/zones/dubai-marina.jpg";
-import downtownZone from "@/assets/zones/downtown.jpg";
+import downtownZone from "/lovable-uploads/f676da2a-39c9-4211-8561-5b884e0ceed8.png";
 import palmJumeirahZone from "@/assets/zones/palm-jumeirah.jpg";
 import businessBayZone from "@/assets/zones/business-bay.jpg";
-import difcZone from "@/assets/zones/difc.jpg";
+import difcZone from "/lovable-uploads/63d539ac-8cbb-46b2-aa39-3de0695ef8c9.png";
 import deiraZone from "@/assets/zones/deira.jpg";
 const Index = () => {
   const seoData = useSEO({
