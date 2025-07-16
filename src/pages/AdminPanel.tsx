@@ -64,6 +64,10 @@ const AdminPanel = () => {
   const [listingsLoading, setListingsLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [checkingAdmin, setCheckingAdmin] = useState(true);
+  const [allUsers, setAllUsers] = useState<any[]>([]);
+  const [usersLoading, setUsersLoading] = useState(true);
+  const [verificationUpdating, setVerificationUpdating] = useState<string | null>(null);
+  const [messageSending, setMessageSending] = useState(false);
 
   // Form state
   const [title, setTitle] = useState('');
@@ -117,6 +121,7 @@ const AdminPanel = () => {
         fetchPosts();
         fetchVerifications();
         fetchParkingListings();
+        fetchAllUsers();
       }
     } catch (error) {
       console.error('Error checking admin role:', error);
@@ -500,8 +505,28 @@ const AdminPanel = () => {
     }
   };
 
+  const fetchAllUsers = async () => {
+    try {
+      // Get all profiles to show in user selection
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('user_id, full_name')
+        .order('full_name', { ascending: true });
+
+      if (error) throw error;
+      setAllUsers(data || []);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+    } finally {
+      setUsersLoading(false);
+    }
+  };
+
   const updateVerificationStatus = async (verificationId: string, status: 'verified' | 'rejected') => {
     try {
+      setVerificationUpdating(verificationId);
+      console.log(`Updating verification ${verificationId} to status: ${status}`);
+
       // Get verification details before updating
       const { data: verification, error: fetchError } = await supabase
         .from('user_verifications')
@@ -509,33 +534,67 @@ const AdminPanel = () => {
         .eq('id', verificationId)
         .single();
 
-      if (fetchError) throw fetchError;
+      if (fetchError) {
+        console.error('Error fetching verification:', fetchError);
+        throw fetchError;
+      }
 
-      // Get user email from auth
-      const { data: userData, error: userError } = await supabase.auth.admin.getUserById(verification.user_id);
-      if (userError) throw userError;
+      console.log('Verification data:', verification);
 
-      // Update verification status
-      const { error } = await supabase
+      // Update verification status first
+      const { error: updateError } = await supabase
         .from('user_verifications')
         .update({ verification_status: status })
         .eq('id', verificationId);
 
-      if (error) throw error;
+      if (updateError) {
+        console.error('Error updating verification status:', updateError);
+        throw updateError;
+      }
 
-      // Send notification to user
-      await supabase.functions.invoke('send-verification-approval', {
-        body: {
-          userId: verification.user_id,
-          userEmail: userData.user.email,
-          userName: verification.full_name,
-          isApproved: status === 'verified'
+      console.log('Verification status updated successfully');
+
+      // Get user email from profiles table first, then fallback to auth
+      let userEmail = '';
+      let userName = verification.full_name;
+
+      try {
+        // Try to get email from auth
+        const { data: authData, error: authError } = await supabase.auth.admin.getUserById(verification.user_id);
+        if (authError) {
+          console.error('Error getting user from auth:', authError);
+        } else {
+          userEmail = authData.user.email || '';
         }
-      });
+      } catch (authErr) {
+        console.error('Auth API error:', authErr);
+      }
+
+      if (userEmail) {
+        // Send notification to user
+        try {
+          const { data: functionResponse, error: functionError } = await supabase.functions.invoke('send-verification-approval', {
+            body: {
+              userId: verification.user_id,
+              userEmail: userEmail,
+              userName: userName,
+              isApproved: status === 'verified'
+            }
+          });
+
+          if (functionError) {
+            console.error('Function invocation error:', functionError);
+          } else {
+            console.log('Notification function called successfully:', functionResponse);
+          }
+        } catch (funcErr) {
+          console.error('Error calling notification function:', funcErr);
+        }
+      }
 
       toast({
         title: "Success",
-        description: `Verification ${status} successfully. User has been notified.`,
+        description: `Verification ${status} successfully. ${userEmail ? 'User has been notified.' : 'Note: Could not send notification email.'}`,
       });
 
       fetchVerifications();
@@ -546,6 +605,8 @@ const AdminPanel = () => {
         description: "Failed to update verification status",
         variant: "destructive",
       });
+    } finally {
+      setVerificationUpdating(null);
     }
   };
 
@@ -560,6 +621,9 @@ const AdminPanel = () => {
     }
 
     try {
+      setMessageSending(true);
+      console.log(`Sending message to user: ${selectedUserId}`);
+
       // Insert message into database
       const { error: dbError } = await supabase
         .from('user_messages')
@@ -570,33 +634,58 @@ const AdminPanel = () => {
           message: messageContent,
         }]);
 
-      if (dbError) throw dbError;
+      if (dbError) {
+        console.error('Database error:', dbError);
+        throw dbError;
+      }
+
+      console.log('Message inserted into database successfully');
 
       // Get user details for email notification
-      const { data: userData, error: userError } = await supabase
-        .from('profiles')
-        .select('full_name')
-        .eq('user_id', selectedUserId)
-        .single();
+      let userName = 'User';
+      let userEmail = '';
 
-      if (userError) throw userError;
+      try {
+        const { data: userData, error: userError } = await supabase
+          .from('profiles')
+          .select('full_name')
+          .eq('user_id', selectedUserId)
+          .maybeSingle();
 
-      const { data: authData, error: authError } = await supabase.auth.admin.getUserById(selectedUserId);
-      if (authError) throw authError;
+        if (userData && userData.full_name) {
+          userName = userData.full_name;
+        }
 
-      // Send email notification
-      const { error: emailError } = await supabase.functions.invoke('send-message-notification', {
-        body: {
-          userEmail: authData.user.email,
-          userName: userData.full_name || 'User',
-          subject: messageSubject,
-          message: messageContent,
-        },
-      });
+        const { data: authData, error: authError } = await supabase.auth.admin.getUserById(selectedUserId);
+        if (authError) {
+          console.error('Auth error:', authError);
+        } else {
+          userEmail = authData.user.email || '';
+        }
+      } catch (err) {
+        console.error('Error getting user details:', err);
+      }
 
-      if (emailError) {
-        console.error('Email notification failed:', emailError);
-        // Don't throw here - message was saved successfully
+      // Send email notification if we have an email
+      if (userEmail) {
+        try {
+          const { data: emailResponse, error: emailError } = await supabase.functions.invoke('send-message-notification', {
+            body: {
+              userEmail: userEmail,
+              userName: userName,
+              subject: messageSubject,
+              message: messageContent,
+            },
+          });
+
+          if (emailError) {
+            console.error('Email notification failed:', emailError);
+          } else {
+            console.log('Email notification sent successfully:', emailResponse);
+          }
+        } catch (emailErr) {
+          console.error('Error sending email notification:', emailErr);
+        }
       }
 
       toast({
@@ -608,11 +697,14 @@ const AdminPanel = () => {
       setMessageContent('');
       setSelectedUserId('');
     } catch (error) {
+      console.error('Error sending message:', error);
       toast({
         title: "Error",
         description: "Failed to send message",
         variant: "destructive",
       });
+    } finally {
+      setMessageSending(false);
     }
   };
 
@@ -1312,18 +1404,20 @@ const AdminPanel = () => {
                             <>
                               <Button
                                 onClick={() => updateVerificationStatus(verification.id, 'verified')}
+                                disabled={verificationUpdating === verification.id}
                                 className="flex items-center gap-2"
                               >
                                 <CheckCircle className="h-4 w-4" />
-                                Approve
+                                {verificationUpdating === verification.id ? 'Processing...' : 'Approve'}
                               </Button>
                               <Button
                                 variant="destructive"
                                 onClick={() => updateVerificationStatus(verification.id, 'rejected')}
+                                disabled={verificationUpdating === verification.id}
                                 className="flex items-center gap-2"
                               >
                                 <XCircle className="h-4 w-4" />
-                                Decline
+                                {verificationUpdating === verification.id ? 'Processing...' : 'Decline'}
                               </Button>
                             </>
                           )}
@@ -1355,11 +1449,12 @@ const AdminPanel = () => {
                     value={selectedUserId}
                     onChange={(e) => setSelectedUserId(e.target.value)}
                     className="w-full p-2 border rounded-md"
+                    disabled={usersLoading}
                   >
-                    <option value="">Select a user...</option>
-                    {verifications.map((verification) => (
-                      <option key={verification.user_id} value={verification.user_id}>
-                        {verification.full_name} ({verification.verification_status})
+                    <option value="">{usersLoading ? 'Loading users...' : 'Select a user...'}</option>
+                    {allUsers.map((user) => (
+                      <option key={user.user_id} value={user.user_id}>
+                        {user.full_name || 'Unknown User'}
                       </option>
                     ))}
                   </select>
@@ -1386,9 +1481,13 @@ const AdminPanel = () => {
                   />
                 </div>
 
-                <Button onClick={sendMessage} className="flex items-center gap-2">
+                <Button 
+                  onClick={sendMessage} 
+                  disabled={messageSending}
+                  className="flex items-center gap-2"
+                >
                   <Mail className="h-4 w-4" />
-                  Send Message
+                  {messageSending ? 'Sending...' : 'Send Message'}
                 </Button>
               </CardContent>
             </Card>
