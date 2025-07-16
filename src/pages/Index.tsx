@@ -632,7 +632,7 @@ ShazamParking</p>
           }} viewport={{
             once: true
           }} className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black mb-6 sm:mb-8 leading-[0.9] tracking-tight">
-              <span className="bg-gradient-to-r from-yellow-300 via-yellow-400 to-amber-400 bg-clip-text text-transparent drop-shadow-sm">
+              <span className="bg-gradient-to-r from-yellow-300 via-yellow-400 to-amber-400 bg-clip-text drop-shadow-sm text-slate-200 text-4xl font-semibold">
                 Turn it into a steady passive income.
               </span>
             </motion.h2>
