@@ -434,7 +434,8 @@ const Index = () => {
               delay: 0.5
             }} viewport={{
               once: true
-            }} className="text-base lg:text-xl text-gray-600 mb-6 sm:mb-8 uppercase font-semibold sm:text-lg">ShazamParking IS HERE TO HELP YOU</motion.p>
+            }} className="text-base lg:text-xl text-gray-600 mb-6 sm:mb-8 uppercase font-semibold sm:text-lg">ShazamParking
+IS HERE TO HELP YOU</motion.p>
               <motion.div initial={{
               opacity: 0,
               y: 20
@@ -493,7 +494,7 @@ const Index = () => {
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 sm:mb-6">
                 Are you looking for a parking space?
               </h2>
-              <p className="text-base sm:text-lg lg:text-xl text-gray-600 mb-6 sm:mb-8 uppercase font-semibold">FIND YOUR SPACE WITH 
+              <p className="text-base sm:text-lg lg:text-xl text-gray-600 mb-6 sm:mb-8 uppercase font-semibold">FIND YOUR SPACE WITH  
 ShazamParking</p>
               <Link to="/find-parking">
                 <Button className="bg-primary hover:bg-primary/90 text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg w-full sm:w-auto">
