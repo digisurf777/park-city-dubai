@@ -147,6 +147,9 @@ const Auth = () => {
                     sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI" // Test key - replace with your actual site key
                     onChange={(token) => setRecaptchaToken(token)}
                   />
+                  <p className="text-sm text-red-600 mt-2 text-center">
+                    Please complete the reCAPTCHA verification above to proceed with login
+                  </p>
                 </div>
                 
                 <Button type="submit" className="w-full" disabled={loading || !recaptchaToken}>

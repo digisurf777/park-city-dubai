@@ -250,7 +250,9 @@ const Downtown = () => {
 
                 {/* Optional feature tags */}
                 {spot.specs && spot.specs.length > 0 && <div className="flex flex-wrap gap-2 mb-4">
-                    {spot.specs.map((feature, index) => {})}
+                    {spot.specs.map((feature, index) => <Badge key={index} variant="secondary" className="text-xs">
+                        {feature}
+                      </Badge>)}
                   </div>}
 
                 {/* Benefits */}

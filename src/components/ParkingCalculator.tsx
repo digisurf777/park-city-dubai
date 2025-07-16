@@ -229,7 +229,7 @@ const ParkingCalculator = () => {
             </p>
             <div className="flex justify-center">
               <Button 
-                className="bg-green-600 hover:bg-green-700"
+                className="bg-primary hover:bg-primary/90"
                 onClick={() => navigate('/rent-out-your-space')}
               >
                 Submit Your Parking Space
