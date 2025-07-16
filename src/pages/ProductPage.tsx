@@ -15,6 +15,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import ImageZoomModal from "@/components/ImageZoomModal";
 
 const ProductPage = () => {
   const { id } = useParams();
@@ -27,6 +28,7 @@ const ProductPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [bookingReference, setBookingReference] = useState("");
+  const [showImageModal, setShowImageModal] = useState(false);
 
   // Mock data - in real app, fetch by ID
   const parkingSpots = [
@@ -205,7 +207,10 @@ const ProductPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Left Column - Product Info */}
           <div>
-            <div className="relative aspect-video mb-6 rounded-lg overflow-hidden">
+            <div 
+              className="relative aspect-video mb-6 rounded-lg overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
+              onClick={() => setShowImageModal(true)}
+            >
               <img
                 src={spot.image}
                 alt={spot.name}
@@ -394,6 +399,15 @@ const ProductPage = () => {
       </div>
 
       <Footer />
+      
+      {/* Image Zoom Modal */}
+      <ImageZoomModal
+        isOpen={showImageModal}
+        onClose={() => setShowImageModal(false)}
+        images={[spot.image]}
+        initialIndex={0}
+        spotName={spot.name}
+      />
     </div>
   );
 };
