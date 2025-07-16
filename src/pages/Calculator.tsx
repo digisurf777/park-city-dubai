@@ -1,8 +1,12 @@
+import { useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ParkingCalculator from "@/components/ParkingCalculator";
 
 const Calculator = () => {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   return (
     <div className="min-h-screen bg-white animate-zoom-slow">
       <Navbar />

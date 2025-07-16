@@ -44,6 +44,16 @@ const Footer = () => {
                   Contact
                 </Link>
               </li>
+              <li>
+                <Link to="/faq" className="text-gray-300 hover:text-primary transition-colors">
+                  FAQ
+                </Link>
+              </li>
+              <li>
+                <Link to="/calculator" className="text-gray-300 hover:text-primary transition-colors">
+                  Calculator
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -52,24 +62,19 @@ const Footer = () => {
             <h3 className="text-lg font-semibold mb-4">Support</h3>
             <ul className="space-y-2">
               <li>
-                <Link to="/calculator" className="text-gray-300 hover:text-primary transition-colors">
-                  Calculator
-                </Link>
-              </li>
-              <li>
-                <Link to="/terms" className="text-gray-300 hover:text-primary transition-colors">
-                  Terms of Service
-                </Link>
-              </li>
-              <li>
-                <Link to="/privacy" className="text-gray-300 hover:text-primary transition-colors">
+                <a href="https://shazamparking.ae/privacy-policy/" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-primary transition-colors">
                   Privacy Policy
-                </Link>
+                </a>
               </li>
               <li>
-                <Link to="/faq" className="text-gray-300 hover:text-primary transition-colors">
-                  FAQ
-                </Link>
+                <a href="https://shazamparking.ae/terms-and-conditions/" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-primary transition-colors">
+                  Terms of Conditions
+                </a>
+              </li>
+              <li>
+                <a href="https://shazamparking.ae/cookies-notice/" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-primary transition-colors">
+                  Cookies Notice
+                </a>
               </li>
             </ul>
           </div>
