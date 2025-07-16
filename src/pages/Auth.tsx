@@ -152,21 +152,12 @@ const Auth = () => {
                   />
                 </div>
                 
-                <div className="space-y-3">
-                  <div className="flex justify-center">
-                    <ReCAPTCHA
-                      ref={recaptchaRef}
-                      sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI" // Test key - replace with your actual site key
-                      onChange={(token) => setRecaptchaToken(token)}
-                    />
-                  </div>
-                  {!recaptchaToken && (
-                    <div className="bg-red-50 border border-red-200 rounded-md p-3">
-                      <p className="text-sm text-red-700 text-center font-medium">
-                        Please complete the reCAPTCHA verification above to proceed with login
-                      </p>
-                    </div>
-                  )}
+                <div className="flex justify-center">
+                  <ReCAPTCHA
+                    ref={recaptchaRef}
+                    sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI" // Test key - replace with your actual site key
+                    onChange={(token) => setRecaptchaToken(token)}
+                  />
                 </div>
                 
                 <Button type="submit" className="w-full" disabled={loading || !recaptchaToken}>
