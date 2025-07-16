@@ -40,7 +40,7 @@ const FAQ = () => {
       questions: [
         {
           question: "💳 How do I pay for a parking space?",
-          answer: "Payments are made securely online at the time of booking. Drivers see a clear breakdown of the base rent, driver service charge, and any access card fee before completing payment. Important: All payments must go through ShazamParking. Out-of-platform payments are strictly prohibited and put you at risk. Report any such requests immediately to support@shazamparking.ae."
+          answer: "Payments are made securely online at the time of booking. Drivers see a clear breakdown of the base rent, driver service charge, and any access card fee before completing payment. Important: All payments must go through ShazamParking. Out-of-platform payments are strictly prohibited and put you at risk. Report any such requests immediately to support@shazam.ae."
         },
         {
           question: "💰 How does ShazamParking's payment fee structure work?",
@@ -86,7 +86,7 @@ const FAQ = () => {
         },
         {
           question: "📞 How do I get support if I need help?",
-          answer: "If you have any questions or issues, you can reach our team at support@shazamparking.ae. For booking-related issues, please include your booking reference to help us assist you quickly."
+          answer: "If you have any questions or issues, you can reach our team at support@shazam.ae. For booking-related issues, please include your booking reference to help us assist you quickly."
         },
         {
           question: "⚙️ What happens if there is a problem accessing the parking space?",
