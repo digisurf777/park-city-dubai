@@ -17,7 +17,7 @@ const LavableHome = () => {
               Welcome to <span className="text-primary">Lavable</span>
             </h1>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
-              Dubai's premier parking solution. Guaranteed spots, fixed prices, and absolute convenience for all your parking needs.
+              Dubai's premier parking solution. Fixed prices and absolute convenience for all your parking needs.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" asChild>

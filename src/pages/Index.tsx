@@ -283,7 +283,7 @@ const Index = () => {
               {
                 icon: Car,
                 title: "Park & Relax",
-                description: "Arrive at your destination with guaranteed parking"
+                description: "Arrive at your destination with parking available"
               }
             ].map((step, index) => (
               <motion.div 

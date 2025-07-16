@@ -10,7 +10,7 @@ const Footer = () => {
               <img src="/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.png" alt="Shazam Parking" className="h-10 w-auto" />
             </div>
             <p className="text-gray-300 mb-6 max-w-md">
-              Dubai's premier parking solution. Guaranteed spots, fixed prices, and absolute convenience for all your parking needs.
+              Dubai's premier parking solution. Fixed prices and absolute convenience for all your parking needs.
             </p>
             <div className="flex space-x-4">
               <div className="flex items-center text-gray-300">

@@ -17,7 +17,7 @@ const LavableFooter = () => {
               <span className="text-2xl font-bold">Lavable</span>
             </div>
             <p className="text-gray-300 mb-6 max-w-md">
-              Dubai's premier parking solution. Guaranteed spots, fixed prices, and absolute convenience for all your parking needs.
+              Dubai's premier parking solution. Fixed prices and absolute convenience for all your parking needs.
             </p>
             <div className="flex flex-col space-y-2 mb-6">
               <div className="flex items-center text-gray-300">

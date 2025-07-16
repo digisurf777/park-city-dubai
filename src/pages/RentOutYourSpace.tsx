@@ -269,7 +269,7 @@ const RentOutYourSpace = () => {
                 </li>
                 <li className="flex items-center">
                   <CheckCircle className="h-6 w-6 text-primary mr-3" />
-                  Guaranteed monthly tenants
+                  Monthly tenants available
                 </li>
                 <li className="flex items-center">
                   <CheckCircle className="h-6 w-6 text-primary mr-3" />
