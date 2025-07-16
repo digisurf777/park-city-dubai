@@ -31,6 +31,7 @@ import PalmJumeirah from "./pages/zones/PalmJumeirah";
 import BusinessBay from "./pages/zones/BusinessBay";
 import DIFC from "./pages/zones/DIFC";
 import Deira from "./pages/zones/Deira";
+import UserDashboard from "./pages/UserDashboard";
 
 const queryClient = new QueryClient();
 
@@ -60,6 +61,7 @@ const App = () => (
               <Route path="/parking/:id" element={<ProductPage />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/my-account" element={<ProtectedRoute><MyAccount /></ProtectedRoute>} />
+              <Route path="/dashboard" element={<ProtectedRoute><UserDashboard /></ProtectedRoute>} />
               <Route path="/contact-admin" element={<ProtectedRoute><ContactAdmin /></ProtectedRoute>} />
               <Route path="/feedback" element={<ProtectedRoute><Feedback /></ProtectedRoute>} />
               <Route path="/insert-blog-posts" element={<InsertBlogPosts />} />

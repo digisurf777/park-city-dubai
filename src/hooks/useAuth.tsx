@@ -62,9 +62,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
     });
 
-    // Send welcome email after successful signup
+    // Send admin notification and welcome email after successful signup
     if (!error) {
       try {
+        // Send admin notification
+        await supabase.functions.invoke('send-admin-signup-notification', {
+          body: {
+            fullName: fullName,
+            email: email,
+            userType: userType
+          }
+        });
+        console.log('Admin notification sent successfully');
+      } catch (emailError) {
+        console.error('Failed to send admin notification:', emailError);
+        // Don't fail the signup if admin notification fails
+      }
+
+      try {
+        // Send welcome email
         await supabase.functions.invoke('send-welcome-email', {
           body: {
             email: email,
