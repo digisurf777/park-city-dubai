@@ -35,7 +35,7 @@ const ParkingCalculator = () => {
     const results: DurationCalculation[] = durations.map(duration => {
       const rentAfterDiscount = baseRent * (1 - duration.discount);
       const shazamFee = rentAfterDiscount * 0.20; // 20% commission
-      const cardFee = cardRequired && duration.value >= 6 ? 100 : 0; // One-time card fee for 6+ months
+      const cardFee = cardRequired ? 100 : 0; // One-time card fee when card required
       const netToOwner = rentAfterDiscount - shazamFee - (cardFee / duration.value);
 
       return {
