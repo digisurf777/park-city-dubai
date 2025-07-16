@@ -6,6 +6,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import dubaiParkingHero from "@/assets/dubai-parking-hero.jpg";
 
 const FAQ = () => {
   const faqData = [
@@ -101,7 +102,7 @@ const FAQ = () => {
         <div 
           className="absolute inset-0 bg-cover bg-center"
           style={{
-            backgroundImage: 'url("/lovable-uploads/32249908-791f-4751-bdaa-b25414bbcd86.png")'
+            backgroundImage: `url(${dubaiParkingHero})`
           }}
         ></div>
         <div className="relative z-10 flex items-center justify-center h-full">
