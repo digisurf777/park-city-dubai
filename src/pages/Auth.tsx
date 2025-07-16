@@ -17,7 +17,7 @@ const Auth = () => {
   const [showResetForm, setShowResetForm] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
   const [loginForm, setLoginForm] = useState({ email: '', password: '' });
-  const [signupForm, setSignupForm] = useState({ email: '', password: '', confirmPassword: '', fullName: '', userType: 'renter' });
+  const [signupForm, setSignupForm] = useState({ email: '', password: '', fullName: '', userType: 'renter' });
   const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
   const recaptchaRef = useRef<ReCAPTCHA>(null);
   const { signIn, signUp, resetPassword, user } = useAuth();
@@ -46,7 +46,7 @@ const Auth = () => {
         toast.error(error.message);
       } else {
         toast.success('Logged in successfully!');
-        navigate('/dashboard');
+        navigate('/');
       }
     } catch (error) {
       toast.error('An error occurred during login');
@@ -60,13 +60,6 @@ const Auth = () => {
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Validate password confirmation
-    if (signupForm.password !== signupForm.confirmPassword) {
-      toast.error('Passwords do not match');
-      return;
-    }
-    
     setLoading(true);
     
     try {
@@ -76,7 +69,7 @@ const Auth = () => {
         toast.error(error.message);
       } else {
         toast.success('Account created successfully! Please check your email to verify your account.');
-        setSignupForm({ email: '', password: '', confirmPassword: '', fullName: '', userType: 'renter' });
+        setSignupForm({ email: '', password: '', fullName: '', userType: 'renter' });
       }
     } catch (error) {
       toast.error('An error occurred during signup');
@@ -254,41 +247,6 @@ const Auth = () => {
                     onChange={(e) => setSignupForm({ ...signupForm, password: e.target.value })}
                     required
                   />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="signup-confirm-password">Confirm Password</Label>
-                  <Input
-                    id="signup-confirm-password"
-                    type="password"
-                    placeholder="Confirm your password"
-                    value={signupForm.confirmPassword}
-                    onChange={(e) => setSignupForm({ ...signupForm, confirmPassword: e.target.value })}
-                    required
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="signup-user-type">Account Type</Label>
-                  <Select value={signupForm.userType} onValueChange={(value) => setSignupForm({ ...signupForm, userType: value })}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select account type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="renter">
-                        <div className="flex items-center gap-2">
-                          <User className="h-4 w-4" />
-                          Renter (Looking for parking)
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="owner">
-                        <div className="flex items-center gap-2">
-                          <Building className="h-4 w-4" />
-                          Owner (Rent out parking space)
-                        </div>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
                 </div>
                 
                 <Button type="submit" className="w-full" disabled={loading}>

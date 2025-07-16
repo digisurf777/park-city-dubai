@@ -200,33 +200,27 @@ export type Database = {
       profiles: {
         Row: {
           created_at: string
-          email_confirmed_at: string | null
           full_name: string | null
           id: string
           phone: string | null
-          signup_notified: boolean | null
           updated_at: string
           user_id: string
           user_type: string | null
         }
         Insert: {
           created_at?: string
-          email_confirmed_at?: string | null
           full_name?: string | null
           id?: string
           phone?: string | null
-          signup_notified?: boolean | null
           updated_at?: string
           user_id: string
           user_type?: string | null
         }
         Update: {
           created_at?: string
-          email_confirmed_at?: string | null
           full_name?: string | null
           id?: string
           phone?: string | null
-          signup_notified?: boolean | null
           updated_at?: string
           user_id?: string
           user_type?: string | null
