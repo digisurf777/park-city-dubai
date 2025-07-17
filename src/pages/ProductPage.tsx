@@ -58,21 +58,33 @@ const ProductPage = () => {
 
   const durationOptions = [
     { months: 1, discount: 0, label: "1 Month" },
-    { months: 3, discount: 5, label: "3 Months" },
-    { months: 6, discount: 10, label: "6 Months" },
-    { months: 12, discount: 15, label: "12 Months" }
+    { months: 3, discount: 0.05, label: "3 Months" },
+    { months: 6, discount: 0.10, label: "6 Months" },
+    { months: 12, discount: 0.15, label: "12 Months" }
   ];
 
   const calculatePrice = () => {
-    const basePrice = spot.price * selectedDuration;
+    const baseRent = spot.price;
     const selectedOption = durationOptions.find(opt => opt.months === selectedDuration);
     const discount = selectedOption?.discount || 0;
-    const discountAmount = (basePrice * discount) / 100;
+    
+    // Apply discount to base rent
+    const rentAfterDiscount = baseRent * (1 - discount);
+    
+    // Customer pays the discounted rent + 100 AED service fee
+    const customerPrice = rentAfterDiscount + 100;
+    
+    // Calculate total for the duration
+    const totalPrice = customerPrice * selectedDuration;
+    const discountAmount = baseRent * discount * selectedDuration;
+    
     return {
-      basePrice,
+      basePrice: baseRent * selectedDuration,
       discountAmount,
-      totalPrice: basePrice - discountAmount,
-      discount
+      totalPrice,
+      discount: discount * 100,
+      monthlyCustomerPrice: customerPrice,
+      monthlyRentAfterDiscount: rentAfterDiscount
     };
   };
 
@@ -217,7 +229,7 @@ const ProductPage = () => {
                 className="w-full h-full object-cover"
               />
               <Badge className="absolute top-4 left-4 bg-primary text-primary-foreground">
-                From AED {spot.price} / month
+                From AED {spot.price + 100} / month
               </Badge>
             </div>
 
@@ -317,9 +329,9 @@ const ProductPage = () => {
                       <CardContent className="p-4 text-center">
                         <div className="font-semibold mb-1">{option.label}</div>
                         {option.months === 1 ? (
-                          <div className="text-sm opacity-75">AED {spot.price}.00</div>
+                          <div className="text-sm opacity-75">AED {(spot.price + 100).toFixed(0)}/month</div>
                         ) : (
-                          <div className="text-sm font-medium">{option.discount}% OFF</div>
+                          <div className="text-sm font-medium">{(option.discount * 100)}% OFF</div>
                         )}
                       </CardContent>
                     </Card>
@@ -351,17 +363,32 @@ const ProductPage = () => {
 
               {/* Price Summary */}
               <Card className="bg-muted/50 p-4 mb-6">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="font-medium">Total Price:</span>
-                  <span className="text-2xl font-bold text-primary">
-                    AED {pricing.totalPrice.toFixed(2)}
-                  </span>
-                </div>
-                {pricing.discount > 0 && (
-                  <div className="text-sm text-green-600">
-                    You save AED {pricing.discountAmount.toFixed(2)} with {pricing.discount}% OFF
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm">Monthly Rate (after discount):</span>
+                    <span className="font-medium">AED {pricing.monthlyRentAfterDiscount.toFixed(0)}</span>
                   </div>
-                )}
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm">Service Fee:</span>
+                    <span className="font-medium">+AED 100/month</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm">Monthly Cost to You:</span>
+                    <span className="font-medium">AED {pricing.monthlyCustomerPrice.toFixed(0)}</span>
+                  </div>
+                  <hr className="my-2" />
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium">Total for {selectedDuration} month{selectedDuration > 1 ? 's' : ''}:</span>
+                    <span className="text-2xl font-bold text-primary">
+                      AED {pricing.totalPrice.toFixed(0)}
+                    </span>
+                  </div>
+                  {pricing.discount > 0 && (
+                    <div className="text-sm text-green-600">
+                      You save AED {pricing.discountAmount.toFixed(0)} with {pricing.discount}% OFF
+                    </div>
+                  )}
+                </div>
               </Card>
 
               {/* Important Notice */}

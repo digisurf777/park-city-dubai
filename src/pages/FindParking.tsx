@@ -107,11 +107,15 @@ const FindParking = () => {
       // Transform the data to match the UI format
       const transformedData = data?.map((listing: any) => {
         console.log('Processing listing:', listing.title, 'with images:', listing.images);
+        const basePrice = listing.price_per_month || Math.round(listing.price_per_hour * 24 * 30);
+        // Add 100 AED service fee to match calculator pricing
+        const customerPrice = basePrice + 100;
         return {
           id: listing.id,
           name: listing.title,
           district: listing.zone,
-          price: listing.price_per_month || Math.round(listing.price_per_hour * 24 * 30),
+          price: customerPrice,
+          basePrice: basePrice,
           image: listing.images && listing.images.length > 0 ? listing.images[0] : "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
           images: listing.images || [],
           specs: listing.features || ["Access Card", "Secure"],
