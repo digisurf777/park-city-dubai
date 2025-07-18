@@ -17,25 +17,29 @@ const EmailConfirmed = () => {
   useEffect(() => {
     const handleEmailConfirmation = async () => {
       try {
-        // Get the token and type from URL parameters
-        const token = searchParams.get('token');
+        // Get all URL parameters that Supabase sends
+        const tokenHash = searchParams.get('token_hash');
         const type = searchParams.get('type');
+        const redirectTo = searchParams.get('redirect_to');
 
-        if (!token || type !== 'signup') {
-          setError('Invalid confirmation link');
+        console.log('Confirmation params:', { tokenHash, type, redirectTo });
+
+        // For email confirmation, we should use token_hash
+        if (!tokenHash || !type) {
+          setError('Invalid confirmation link - missing required parameters');
           setLoading(false);
           return;
         }
 
-        // Verify the token with Supabase
+        // Verify the email confirmation
         const { data, error } = await supabase.auth.verifyOtp({
-          token_hash: token,
-          type: 'signup'
+          token_hash: tokenHash,
+          type: type as any
         });
 
         if (error) {
           console.error('Verification error:', error);
-          setError('The confirmation link has expired or is invalid');
+          setError(error.message || 'The confirmation link has expired or is invalid');
         } else if (data.user) {
           setConfirmed(true);
           
@@ -50,7 +54,7 @@ const EmailConfirmed = () => {
             // Don't fail confirmation if profile update fails
           }
 
-          // Start countdown and auto-redirect
+          // Start countdown and auto-redirect to account
           let counter = 3;
           setCountdown(counter);
           const timer = setInterval(() => {
@@ -58,9 +62,12 @@ const EmailConfirmed = () => {
             setCountdown(counter);
             if (counter === 0) {
               clearInterval(timer);
-              navigate('/auth');
+              // Redirect to account page instead of auth
+              navigate('/my-account');
             }
           }, 1000);
+        } else {
+          setError('No user data received from confirmation');
         }
       } catch (err) {
         console.error('Confirmation error:', err);
@@ -71,10 +78,10 @@ const EmailConfirmed = () => {
     };
 
     handleEmailConfirmation();
-  }, [searchParams]);
+  }, [searchParams, navigate]);
 
-  const handleLoginRedirect = () => {
-    navigate('/auth');
+  const handleAccountRedirect = () => {
+    navigate('/my-account');
   };
 
   if (loading) {
@@ -118,13 +125,13 @@ const EmailConfirmed = () => {
           {confirmed ? (
             <>
               <p className="text-sm text-muted-foreground">
-                Your email address has been confirmed. You can now sign in to your account.
+                Your email address has been confirmed. You can now access your account.
               </p>
               <p className="text-sm text-blue-600 font-medium">
-                Redirecting to login in {countdown} second{countdown !== 1 ? 's' : ''}...
+                Redirecting to your account in {countdown} second{countdown !== 1 ? 's' : ''}...
               </p>
-              <Button onClick={handleLoginRedirect} className="w-full">
-                Go to Sign In Now
+              <Button onClick={handleAccountRedirect} className="w-full">
+                Go to My Account Now
               </Button>
             </>
           ) : (
