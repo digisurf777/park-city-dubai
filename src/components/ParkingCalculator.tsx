@@ -97,12 +97,19 @@ const ParkingCalculator = () => {
             <Input 
               id="baseRent" 
               type="number" 
-              value={baseRent} 
+              value={baseRent === 0 ? '' : baseRent} 
               onChange={e => {
                 const value = e.target.value;
-                // Remove leading zeros and handle empty string
+                if (value === '') {
+                  setBaseRent(0);
+                  return;
+                }
+                // Remove leading zeros and convert to number
                 const cleanValue = value.replace(/^0+/, '') || '0';
-                setBaseRent(Number(cleanValue));
+                const numValue = Number(cleanValue);
+                if (!isNaN(numValue) && numValue >= 0) {
+                  setBaseRent(numValue);
+                }
               }} 
               placeholder="Enter monthly rent in AED" 
               min="100" 
