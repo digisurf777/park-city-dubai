@@ -720,16 +720,13 @@ const AdminPanel = () => {
     toolbar: {
       container: [
         [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-        [{ 'font': [] }],
-        [{ 'size': ['small', false, 'large', 'huge'] }],
         ['bold', 'italic', 'underline', 'strike'],
-        [{ 'color': [] }, { 'background': [] }],
-        [{ 'script': 'sub'}, { 'script': 'super' }],
-        [{ 'list': 'ordered'}, { 'list': 'bullet' }, { 'indent': '-1'}, { 'indent': '+1' }],
-        [{ 'direction': 'rtl' }],
-        [{ 'align': [] }],
+        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+        [{ 'indent': '-1'}, { 'indent': '+1' }],
         ['blockquote', 'code-block'],
         ['link', 'image-upload'],
+        [{ 'color': [] }, { 'background': [] }],
+        [{ 'align': [] }],
         ['clean']
       ],
       handlers: {
@@ -738,17 +735,19 @@ const AdminPanel = () => {
         }
       }
     },
+    clipboard: {
+      matchVisual: false
+    }
   };
 
   const quillFormats = [
-    'header', 'font', 'size',
+    'header', 
     'bold', 'italic', 'underline', 'strike',
-    'color', 'background',
-    'script',
     'list', 'bullet', 'indent',
-    'direction', 'align',
     'blockquote', 'code-block',
-    'link', 'image'
+    'link', 'image',
+    'color', 'background',
+    'align'
   ];
 
   const handleImageInsert = (imageUrl: string) => {
@@ -1010,7 +1009,7 @@ const AdminPanel = () => {
                           Add Image
                         </Button>
                       </div>
-                      <div className="news-editor">
+                      <div className="news-editor min-h-[400px]">
                         <ReactQuill
                           ref={quillRef}
                           value={content}
@@ -1018,8 +1017,12 @@ const AdminPanel = () => {
                           modules={quillModules}
                           formats={quillFormats}
                           placeholder="Write your news content here... Use the toolbar above for rich formatting and to add images."
-                          className="bg-white"
-                          style={{ height: '450px', marginBottom: '60px' }}
+                          theme="snow"
+                          className="bg-white border rounded-md"
+                          style={{ 
+                            height: '400px',
+                            marginBottom: '50px'
+                          }}
                         />
                       </div>
                     </div>
