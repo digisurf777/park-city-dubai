@@ -13,6 +13,8 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Pencil, Trash2, Plus, CheckCircle, XCircle, FileText, Mail, Upload, X, Eye, Edit, Lightbulb, Camera } from 'lucide-react';
 import { format } from 'date-fns';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 interface NewsPost {
   id: string;
@@ -22,6 +24,10 @@ interface NewsPost {
   publication_date: string;
   created_at: string;
   updated_at: string;
+  tags?: string[];
+  status?: string;
+  meta_title?: string;
+  meta_description?: string;
 }
 
 interface Verification {
@@ -84,6 +90,14 @@ const AdminPanel = () => {
   const [content, setContent] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [publicationDate, setPublicationDate] = useState('');
+  const [tags, setTags] = useState('');
+  const [status, setStatus] = useState('published');
+  const [metaTitle, setMetaTitle] = useState('');
+  const [metaDescription, setMetaDescription] = useState('');
+  const [isPreviewMode, setIsPreviewMode] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imageUploading, setImageUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Message state
   const [messageSubject, setMessageSubject] = useState('');
@@ -102,7 +116,7 @@ const AdminPanel = () => {
   const [listingImages, setListingImages] = useState<string[]>([]);
   const [newImageUrl, setNewImageUrl] = useState('');
   const [uploadingImage, setUploadingImage] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const listingFileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (user) {
@@ -366,8 +380,8 @@ const AdminPanel = () => {
     }
 
     // Reset file input
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+    if (listingFileInputRef.current) {
+      listingFileInputRef.current.value = '';
     }
   };
 
@@ -852,8 +866,14 @@ const AdminPanel = () => {
     setContent('');
     setImageUrl('');
     setPublicationDate('');
+    setTags('');
+    setStatus('published');
+    setMetaTitle('');
+    setMetaDescription('');
     setEditingPost(null);
     setIsCreating(false);
+    setIsPreviewMode(false);
+    setImageFile(null);
   };
 
   const handleEdit = (post: NewsPost) => {
@@ -862,7 +882,12 @@ const AdminPanel = () => {
     setContent(post.content);
     setImageUrl(post.image_url || '');
     setPublicationDate(format(new Date(post.publication_date), "yyyy-MM-dd'T'HH:mm"));
+    setTags(post.tags?.join(', ') || '');
+    setStatus(post.status || 'published');
+    setMetaTitle(post.meta_title || '');
+    setMetaDescription(post.meta_description || '');
     setIsCreating(false);
+    setIsPreviewMode(false);
   };
 
   const handleCreate = () => {
@@ -872,7 +897,82 @@ const AdminPanel = () => {
     setContent('');
     setImageUrl('');
     setPublicationDate(format(new Date(), "yyyy-MM-dd'T'HH:mm"));
+    setTags('');
+    setStatus('published');
+    setMetaTitle('');
+    setMetaDescription('');
+    setIsPreviewMode(false);
   };
+
+  const handleImageUpload = async (file: File) => {
+    if (!file) return;
+
+    const maxSize = 2 * 1024 * 1024; // 2MB
+    if (file.size > maxSize) {
+      toast({
+        title: "Error",
+        description: "Image size must be less than 2MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      toast({
+        title: "Error",
+        description: "Only JPG, PNG, and WebP images are allowed",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setImageUploading(true);
+      const fileName = `${Date.now()}-${file.name}`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from('news-images')
+        .upload(fileName, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('news-images')
+        .getPublicUrl(fileName);
+
+      setImageUrl(publicUrl);
+      toast({
+        title: "Success",
+        description: "Image uploaded successfully",
+      });
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      toast({
+        title: "Error",
+        description: "Failed to upload image",
+        variant: "destructive",
+      });
+    } finally {
+      setImageUploading(false);
+    }
+  };
+
+  const quillModules = {
+    toolbar: [
+      [{ 'header': [1, 2, 3, 4, false] }],
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+      ['link', 'image'],
+      [{ 'align': [] }],
+      ['clean']
+    ],
+  };
+
+  const quillFormats = [
+    'header', 'bold', 'italic', 'underline', 'strike',
+    'list', 'bullet', 'link', 'image', 'align'
+  ];
 
   const handleSave = async () => {
     if (!title.trim() || !content.trim()) {
@@ -885,11 +985,17 @@ const AdminPanel = () => {
     }
 
     try {
+      const tagsArray = tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
+      
       const postData = {
         title: title.trim(),
         content: content.trim(),
         image_url: imageUrl.trim() || null,
         publication_date: publicationDate || new Date().toISOString(),
+        tags: tagsArray.length > 0 ? tagsArray : null,
+        status: status,
+        meta_title: metaTitle.trim() || null,
+        meta_description: metaDescription.trim() || null,
       };
 
       if (editingPost) {
@@ -1031,22 +1137,116 @@ const AdminPanel = () => {
 
                     <div>
                       <Label htmlFor="content">Content</Label>
-                      <Textarea
-                        id="content"
-                        value={content}
-                        onChange={(e) => setContent(e.target.value)}
-                        placeholder="Enter post content"
-                        rows={8}
+                      <div className="min-h-[300px]">
+                        <ReactQuill
+                          theme="snow"
+                          value={content}
+                          onChange={setContent}
+                          modules={quillModules}
+                          formats={quillFormats}
+                          placeholder="Enter post content..."
+                          style={{ height: '250px', marginBottom: '50px' }}
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="tags">Tags (comma separated)</Label>
+                      <Input
+                        id="tags"
+                        value={tags}
+                        onChange={(e) => setTags(e.target.value)}
+                        placeholder="Enter tags separated by commas"
                       />
                     </div>
 
                     <div>
-                      <Label htmlFor="imageUrl">Image URL</Label>
+                      <Label htmlFor="status">Status</Label>
+                      <Select value={status} onValueChange={setStatus}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="published">Published</SelectItem>
+                          <SelectItem value="draft">Draft</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="imageUrl">Featured Image</Label>
+                      <div className="space-y-2">
+                        <div className="flex gap-2">
+                          <Button 
+                            type="button"
+                            onClick={() => fileInputRef.current?.click()}
+                            disabled={imageUploading}
+                            className="flex items-center gap-2"
+                            size="sm"
+                            variant="outline"
+                          >
+                            <Upload className="h-4 w-4" />
+                            {imageUploading ? 'Uploading...' : 'Upload Image'}
+                          </Button>
+                          <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/jpeg,image/png,image/webp"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                setImageFile(file);
+                                handleImageUpload(file);
+                              }
+                            }}
+                            className="hidden"
+                          />
+                        </div>
+                        <Input
+                          id="imageUrl"
+                          value={imageUrl}
+                          onChange={(e) => setImageUrl(e.target.value)}
+                          placeholder="Or enter image URL"
+                        />
+                        {imageUrl && (
+                          <div className="relative w-32 h-20">
+                            <img
+                              src={imageUrl}
+                              alt="Preview"
+                              className="w-full h-full object-cover rounded border"
+                            />
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="destructive"
+                              className="absolute -top-1 -right-1 h-6 w-6 p-0"
+                              onClick={() => setImageUrl('')}
+                            >
+                              <X className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="metaTitle">SEO Title (optional)</Label>
                       <Input
-                        id="imageUrl"
-                        value={imageUrl}
-                        onChange={(e) => setImageUrl(e.target.value)}
-                        placeholder="Enter image URL"
+                        id="metaTitle"
+                        value={metaTitle}
+                        onChange={(e) => setMetaTitle(e.target.value)}
+                        placeholder="SEO title for search engines"
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="metaDescription">SEO Description (optional)</Label>
+                      <Textarea
+                        id="metaDescription"
+                        value={metaDescription}
+                        onChange={(e) => setMetaDescription(e.target.value)}
+                        placeholder="SEO description for search engines"
+                        rows={2}
                       />
                     </div>
 
@@ -1062,12 +1262,48 @@ const AdminPanel = () => {
 
                     <div className="flex gap-2">
                       <Button onClick={handleSave}>
-                        Save
+                        Save Post
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        onClick={() => setIsPreviewMode(!isPreviewMode)}
+                      >
+                        {isPreviewMode ? 'Edit' : 'Preview'}
                       </Button>
                       <Button variant="outline" onClick={resetForm}>
                         Cancel
                       </Button>
                     </div>
+
+                    {/* Preview Mode */}
+                    {isPreviewMode && (
+                      <div className="mt-6 p-6 border rounded-lg bg-muted/50">
+                        <h3 className="text-lg font-semibold mb-4">Preview</h3>
+                        <div className="bg-white p-6 rounded border">
+                          <h1 className="text-3xl font-bold mb-4">{title}</h1>
+                          {imageUrl && (
+                            <img
+                              src={imageUrl}
+                              alt={title}
+                              className="w-full max-w-2xl h-64 object-cover rounded mb-6"
+                            />
+                          )}
+                          <div 
+                            className="prose prose-lg max-w-none"
+                            dangerouslySetInnerHTML={{ __html: content }}
+                          />
+                          {tags && (
+                            <div className="mt-6 flex flex-wrap gap-2">
+                              {tags.split(',').map((tag, index) => (
+                                <Badge key={index} variant="secondary">
+                                  {tag.trim()}
+                                </Badge>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               )}
@@ -1275,7 +1511,7 @@ const AdminPanel = () => {
                         <div className="space-y-3">
                           <div className="flex gap-2">
                             <Button 
-                              onClick={() => fileInputRef.current?.click()}
+                              onClick={() => listingFileInputRef.current?.click()}
                               disabled={uploadingImage || listingImages.length >= 5}
                               className="flex items-center gap-2"
                               size="sm"
@@ -1284,7 +1520,7 @@ const AdminPanel = () => {
                               {uploadingImage ? 'Uploading...' : `Upload (${listingImages.length}/5)`}
                             </Button>
                             <input
-                              ref={fileInputRef}
+                              ref={listingFileInputRef}
                               type="file"
                               accept="image/*"
                               onChange={handleFileUpload}
