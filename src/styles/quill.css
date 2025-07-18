@@ -159,6 +159,15 @@
   box-shadow: 0 4px 12px -4px hsl(var(--foreground) / 0.1);
 }
 
+/* Hide broken images and file icons */
+.news-content img[src=""], 
+.news-content img:not([src]), 
+.news-content img[alt=""],
+.news-content img[src*="file-icon"],
+.news-content img[src*="placeholder"] {
+  display: none !important;
+}
+
 .news-content a {
   color: hsl(var(--primary));
   font-weight: 500;
