@@ -10,10 +10,10 @@ import TawkToChat from "@/components/TawkToChat";
 import LavableHome from "./pages/LavableHome";
 import LavableFAQ from "./pages/LavableFAQ";
 import Index from "./pages/Index";
-import FindParkingOptimized from "./pages/FindParkingOptimized";
+import FindParking from "./pages/FindParking";
 import AboutUs from "./pages/AboutUs";
 import FAQ from "./pages/FAQ";
-import NewsOptimized from "./pages/NewsOptimized";
+import News from "./pages/News";
 import NewsArticle from "./pages/NewsArticle";
 import ProductPage from "./pages/ProductPage";
 import RentOutYourSpace from "./pages/RentOutYourSpace";
@@ -50,11 +50,11 @@ const App = () => (
               <Route path="/lavable/faq" element={<LavableFAQ />} />
               
               <Route path="/" element={<Index />} />
-              <Route path="/find-parking" element={<FindParkingOptimized />} />
-              <Route path="/find-a-parking-space" element={<FindParkingOptimized />} />
+              <Route path="/find-parking" element={<FindParking />} />
+              <Route path="/find-a-parking-space" element={<FindParking />} />
               <Route path="/about-us" element={<AboutUs />} />
               <Route path="/faq" element={<FAQ />} />
-              <Route path="/news" element={<NewsOptimized />} />
+              <Route path="/news" element={<News />} />
               <Route path="/news/:slug" element={<NewsArticle />} />
               <Route path="/rent-out-your-space" element={<RentOutYourSpace />} />
               <Route path="/calculator" element={<Calculator />} />
