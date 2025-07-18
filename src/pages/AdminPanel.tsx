@@ -14,6 +14,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Pencil, Trash2, Plus, CheckCircle, XCircle, FileText, Mail, Upload, X, Users } from 'lucide-react';
 import { format } from 'date-fns';
 import UserManagementTab from '@/components/UserManagementTab';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 interface NewsPost {
   id: string;
@@ -709,6 +711,23 @@ const AdminPanel = () => {
     }
   };
 
+  // Rich text editor configuration
+  const quillModules = {
+    toolbar: [
+      [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+      [{ 'align': [] }],
+      ['link'],
+      ['clean']
+    ],
+  };
+
+  const quillFormats = [
+    'header', 'bold', 'italic', 'underline', 'strike',
+    'list', 'bullet', 'align', 'link'
+  ];
+
   const resetForm = () => {
     setTitle('');
     setContent('');
@@ -874,60 +893,75 @@ const AdminPanel = () => {
               </Button>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 gap-8">
               {/* Form Section */}
               {(isCreating || editingPost) && (
-                <Card>
+                <Card className="w-full">
                   <CardHeader>
                     <CardTitle>
                       {editingPost ? 'Edit News Post' : 'Create New News Post'}
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      <Label htmlFor="title">Title</Label>
-                      <Input
-                        id="title"
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        placeholder="Enter post title"
-                      />
+                  <CardContent className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="title">Title</Label>
+                        <Input
+                          id="title"
+                          value={title}
+                          onChange={(e) => setTitle(e.target.value)}
+                          placeholder="Enter post title"
+                        />
+                      </div>
+
+                      <div>
+                        <Label htmlFor="publicationDate">Publication Date</Label>
+                        <Input
+                          id="publicationDate"
+                          type="datetime-local"
+                          value={publicationDate}
+                          onChange={(e) => setPublicationDate(e.target.value)}
+                        />
+                      </div>
                     </div>
 
                     <div>
-                      <Label htmlFor="content">Content</Label>
-                      <Textarea
-                        id="content"
-                        value={content}
-                        onChange={(e) => setContent(e.target.value)}
-                        placeholder="Enter post content"
-                        rows={8}
-                      />
-                    </div>
-
-                    <div>
-                      <Label htmlFor="imageUrl">Image URL</Label>
+                      <Label htmlFor="imageUrl">Featured Image URL</Label>
                       <Input
                         id="imageUrl"
                         value={imageUrl}
                         onChange={(e) => setImageUrl(e.target.value)}
                         placeholder="Enter image URL"
                       />
+                      {imageUrl && (
+                        <div className="mt-2">
+                          <img 
+                            src={imageUrl} 
+                            alt="Preview" 
+                            className="w-32 h-20 object-cover rounded border"
+                          />
+                        </div>
+                      )}
                     </div>
 
                     <div>
-                      <Label htmlFor="publicationDate">Publication Date</Label>
-                      <Input
-                        id="publicationDate"
-                        type="datetime-local"
-                        value={publicationDate}
-                        onChange={(e) => setPublicationDate(e.target.value)}
-                      />
+                      <Label htmlFor="content">Content</Label>
+                      <div className="mt-2">
+                        <ReactQuill
+                          value={content}
+                          onChange={setContent}
+                          modules={quillModules}
+                          formats={quillFormats}
+                          placeholder="Write your news content here... Use the toolbar above for formatting."
+                          className="bg-white"
+                          style={{ height: '400px', marginBottom: '50px' }}
+                        />
+                      </div>
                     </div>
 
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 pt-4">
                       <Button onClick={handleSave}>
-                        Save
+                        {editingPost ? 'Update Post' : 'Create Post'}
                       </Button>
                       <Button variant="outline" onClick={resetForm}>
                         Cancel
@@ -938,7 +972,7 @@ const AdminPanel = () => {
               )}
 
               {/* Posts List Section */}
-              <div className={`space-y-4 ${(isCreating || editingPost) ? '' : 'lg:col-span-2'}`}>
+              <div className="space-y-4">
                 <h3 className="text-xl font-semibold mb-4">All News Posts</h3>
                 {posts.length === 0 ? (
                   <Card>
@@ -963,7 +997,10 @@ const AdminPanel = () => {
                                 className="w-32 h-20 object-cover rounded mb-2"
                               />
                             )}
-                            <p className="text-sm line-clamp-3">{post.content}</p>
+                            <div 
+                              className="text-sm line-clamp-3 prose prose-sm max-w-none"
+                              dangerouslySetInnerHTML={{ __html: post.content }}
+                            />
                           </div>
                           <div className="flex gap-2 ml-4">
                             <Button
