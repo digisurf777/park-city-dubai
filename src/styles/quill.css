@@ -1,0 +1,72 @@
+/* Custom styles for ReactQuill editor */
+.ql-editor {
+  min-height: 250px;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.ql-editor h1 {
+  font-size: 2rem;
+  font-weight: bold;
+  margin: 1.5rem 0 1rem 0;
+}
+
+.ql-editor h2 {
+  font-size: 1.75rem;
+  font-weight: bold;
+  margin: 1.25rem 0 0.75rem 0;
+}
+
+.ql-editor h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 1rem 0 0.5rem 0;
+}
+
+.ql-editor h4 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0.75rem 0 0.5rem 0;
+}
+
+.ql-editor p {
+  margin: 0 0 1rem 0;
+  line-height: 1.6;
+}
+
+.ql-editor ul, .ql-editor ol {
+  margin: 0 0 1rem 0;
+  padding-left: 1.5rem;
+}
+
+.ql-editor li {
+  margin: 0.25rem 0;
+}
+
+.ql-editor blockquote {
+  border-left: 4px solid #e5e7eb;
+  margin: 1rem 0;
+  padding: 0.5rem 0 0.5rem 1rem;
+  font-style: italic;
+}
+
+.ql-editor img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin: 1rem 0;
+}
+
+.ql-toolbar {
+  border-top: 1px solid #e5e7eb;
+  border-left: 1px solid #e5e7eb;
+  border-right: 1px solid #e5e7eb;
+  border-radius: 8px 8px 0 0;
+}
+
+.ql-container {
+  border-bottom: 1px solid #e5e7eb;
+  border-left: 1px solid #e5e7eb;
+  border-right: 1px solid #e5e7eb;
+  border-radius: 0 0 8px 8px;
+}

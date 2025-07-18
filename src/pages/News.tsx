@@ -35,6 +35,7 @@ const News = () => {
         const { data, error } = await supabase
           .from('news')
           .select('*')
+          .eq('status', 'published')
           .order('publication_date', { ascending: false });
 
         if (error) throw error;
@@ -104,7 +105,7 @@ const News = () => {
                 </h3>
                 
                 <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
-                  {article.content.substring(0, 150)}...
+                  {article.content.replace(/<[^>]*>/g, '').substring(0, 150)}...
                 </p>
                 
                 <div className="flex items-center justify-between">

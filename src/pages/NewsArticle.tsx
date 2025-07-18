@@ -2,9 +2,10 @@ import { useParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import NewsComments from "@/components/NewsComments";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Calendar, Clock } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
@@ -17,6 +18,10 @@ interface NewsPost {
   publication_date: string;
   created_at: string;
   updated_at: string;
+  tags?: string[] | null;
+  meta_title?: string | null;
+  meta_description?: string | null;
+  status?: string;
 }
 
 const NewsArticle = () => {
@@ -33,6 +38,7 @@ const NewsArticle = () => {
           .from('news')
           .select('*')
           .eq('id', id)
+          .eq('status', 'published')
           .single();
 
         if (error) {
@@ -89,13 +95,14 @@ const NewsArticle = () => {
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
-        <title>{article.title}</title>
-        <meta name="description" content={article.content.substring(0, 150)} />
-        <meta property="og:title" content={article.title} />
-        <meta property="og:description" content={article.content.substring(0, 150)} />
+        <title>{article.meta_title || article.title} - Shazam Parking</title>
+        <meta name="description" content={article.meta_description || article.content.replace(/<[^>]*>/g, '').substring(0, 150)} />
+        <meta property="og:title" content={article.meta_title || article.title} />
+        <meta property="og:description" content={article.meta_description || article.content.replace(/<[^>]*>/g, '').substring(0, 150)} />
         <meta property="og:image" content={article.image_url || '/news/hero.jpg'} />
         <meta property="og:type" content="article" />
         <meta name="article:published_time" content={article.publication_date} />
+        <meta name="keywords" content={article.tags?.join(', ') || 'Dubai parking, news, ShazamParking'} />
         <link rel="canonical" href={`https://shazamparking.ae/news/${id}`} />
       </Helmet>
       <Navbar />
@@ -113,18 +120,37 @@ const NewsArticle = () => {
 
       {/* Article Header */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-6">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">
+        <div className="mb-8">
+          <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
             {article.title}
           </h1>
-          <div className="flex items-center gap-4 text-muted-foreground">
-            <span>{format(new Date(article.publication_date), 'MMMM d, yyyy')}</span>
+          
+          <div className="flex items-center gap-6 text-muted-foreground mb-6">
+            <div className="flex items-center gap-2">
+              <Calendar className="h-4 w-4" />
+              <span>{format(new Date(article.publication_date), 'MMMM d, yyyy')}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Clock className="h-4 w-4" />
+              <span>{Math.ceil(article.content.replace(/<[^>]*>/g, '').length / 200)} min read</span>
+            </div>
           </div>
+
+          {/* Tags */}
+          {article.tags && article.tags.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-6">
+              {article.tags.map((tag, index) => (
+                <Badge key={index} variant="secondary" className="text-xs">
+                  {tag}
+                </Badge>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Featured Image */}
         {article.image_url && (
-          <div className="relative aspect-video mb-8 rounded-lg overflow-hidden">
+          <div className="relative aspect-video mb-8 rounded-xl overflow-hidden shadow-lg">
             <img
               src={article.image_url}
               alt={article.title}
@@ -133,11 +159,13 @@ const NewsArticle = () => {
           </div>
         )}
 
-        {/* Article Content with better typography and spacing */}
-        <div 
-          className="prose prose-lg max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-strong:text-foreground prose-a:text-primary hover:prose-a:text-primary/80 prose-ul:text-muted-foreground prose-h2:mt-12 prose-h2:mb-6 prose-h3:mt-8 prose-h3:mb-4 prose-p:mb-6 prose-ul:mb-6 prose-li:mb-2"
-          dangerouslySetInnerHTML={{ __html: article.content }}
-        />
+        {/* Article Content with enhanced typography */}
+        <article className="prose prose-lg md:prose-xl max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-p:leading-relaxed prose-strong:text-foreground prose-a:text-primary hover:prose-a:text-primary/80 prose-ul:text-muted-foreground prose-ol:text-muted-foreground prose-li:text-muted-foreground prose-h1:text-3xl prose-h1:font-bold prose-h1:mt-12 prose-h1:mb-8 prose-h2:text-2xl prose-h2:font-bold prose-h2:mt-10 prose-h2:mb-6 prose-h3:text-xl prose-h3:font-semibold prose-h3:mt-8 prose-h3:mb-4 prose-h4:text-lg prose-h4:font-semibold prose-h4:mt-6 prose-h4:mb-3 prose-p:mb-6 prose-ul:mb-6 prose-ol:mb-6 prose-li:mb-2 prose-blockquote:border-l-4 prose-blockquote:border-primary prose-blockquote:pl-6 prose-blockquote:italic prose-img:rounded-lg prose-img:shadow-md">
+          <div dangerouslySetInnerHTML={{ __html: article.content }} />
+        </article>
+
+        {/* Comments Section */}
+        <NewsComments newsId={article.id} />
 
         {/* CTA Section */}
         <div className="mt-12 p-8 bg-primary/5 rounded-lg text-center">

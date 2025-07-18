@@ -15,6 +15,7 @@ import { Pencil, Trash2, Plus, CheckCircle, XCircle, FileText, Mail, Upload, X, 
 import { format } from 'date-fns';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import '../styles/quill.css';
 
 interface NewsPost {
   id: string;

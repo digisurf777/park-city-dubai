@@ -71,7 +71,11 @@ export type Database = {
           created_at: string
           id: string
           image_url: string | null
+          meta_description: string | null
+          meta_title: string | null
           publication_date: string
+          status: string | null
+          tags: string[] | null
           title: string
           updated_at: string
         }
@@ -80,7 +84,11 @@ export type Database = {
           created_at?: string
           id?: string
           image_url?: string | null
+          meta_description?: string | null
+          meta_title?: string | null
           publication_date?: string
+          status?: string | null
+          tags?: string[] | null
           title: string
           updated_at?: string
         }
@@ -89,11 +97,94 @@ export type Database = {
           created_at?: string
           id?: string
           image_url?: string | null
+          meta_description?: string | null
+          meta_title?: string | null
           publication_date?: string
+          status?: string | null
+          tags?: string[] | null
           title?: string
           updated_at?: string
         }
         Relationships: []
+      }
+      news_comments: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          news_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          news_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          news_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "news_comments_news_id_fkey"
+            columns: ["news_id"]
+            isOneToOne: false
+            referencedRelation: "news"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      news_images: {
+        Row: {
+          alt_text: string | null
+          caption: string | null
+          created_at: string
+          display_order: number | null
+          id: string
+          image_type: string
+          image_url: string
+          news_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          alt_text?: string | null
+          caption?: string | null
+          created_at?: string
+          display_order?: number | null
+          id?: string
+          image_type?: string
+          image_url: string
+          news_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          alt_text?: string | null
+          caption?: string | null
+          created_at?: string
+          display_order?: number | null
+          id?: string
+          image_type?: string
+          image_url?: string
+          news_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "news_images_news_id_fkey"
+            columns: ["news_id"]
+            isOneToOne: false
+            referencedRelation: "news"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       parking_bookings: {
         Row: {
@@ -207,7 +298,7 @@ export type Database = {
           signup_notified: boolean | null
           updated_at: string
           user_id: string
-          user_type: string | null
+          user_type: string
         }
         Insert: {
           created_at?: string
@@ -218,7 +309,7 @@ export type Database = {
           signup_notified?: boolean | null
           updated_at?: string
           user_id: string
-          user_type?: string | null
+          user_type?: string
         }
         Update: {
           created_at?: string
@@ -229,7 +320,7 @@ export type Database = {
           signup_notified?: boolean | null
           updated_at?: string
           user_id?: string
-          user_type?: string | null
+          user_type?: string
         }
         Relationships: []
       }
