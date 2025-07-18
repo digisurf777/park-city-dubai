@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -7,11 +7,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Trash2, Edit } from "lucide-react";
+import { Trash2, Edit, Image as ImageIcon } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import UserManagementTab from "@/components/UserManagementTab";
 import UserInbox from "@/components/UserInbox";
+import NewsImageManager from "@/components/NewsImageManager";
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
@@ -34,7 +35,9 @@ const AdminPanel = () => {
   });
   const [editingNews, setEditingNews] = useState<NewsPost | null>(null);
   const [loading, setLoading] = useState(false);
+  const [showImageManager, setShowImageManager] = useState(false);
   const { toast } = useToast();
+  const quillRef = useRef<ReactQuill>(null);
 
   useEffect(() => {
     fetchNews();
@@ -67,9 +70,11 @@ const AdminPanel = () => {
   const createNews = async () => {
     setLoading(true);
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('news')
-        .insert({ ...newNews, publication_date: newNews.publication_date });
+        .insert({ ...newNews, publication_date: newNews.publication_date })
+        .select()
+        .single();
 
       if (error) {
         throw error;
@@ -79,13 +84,12 @@ const AdminPanel = () => {
         title: "Success!",
         description: "News post created successfully",
       });
-      setNewNews({
-        id: '',
-        title: '',
-        content: '',
-        image_url: null,
-        publication_date: new Date().toISOString().slice(0, 16),
-      });
+      
+      // Update the newNews state with the returned ID so we can manage images
+      setNewNews(prev => ({ ...prev, id: data.id }));
+      setEditingNews(data);
+      setShowImageManager(true);
+      
       fetchNews();
     } catch (error) {
       console.error('Error creating news:', error);
@@ -117,14 +121,6 @@ const AdminPanel = () => {
         title: "Success!",
         description: "News post updated successfully",
       });
-      setNewNews({
-        id: '',
-        title: '',
-        content: '',
-        image_url: null,
-        publication_date: new Date().toISOString().slice(0, 16),
-      });
-      setEditingNews(null);
       fetchNews();
     } catch (error) {
       console.error('Error updating news:', error);
@@ -176,6 +172,7 @@ const AdminPanel = () => {
       image_url: post.image_url,
       publication_date: post.publication_date,
     });
+    setShowImageManager(true);
   };
 
   const cancelEdit = () => {
@@ -187,6 +184,20 @@ const AdminPanel = () => {
       image_url: null,
       publication_date: new Date().toISOString().slice(0, 16),
     });
+    setShowImageManager(false);
+  };
+
+  const handleFeaturedImageChange = (url: string) => {
+    setNewNews(prev => ({ ...prev, image_url: url }));
+  };
+
+  const handleInsertInlineImage = (url: string) => {
+    if (quillRef.current) {
+      const quill = quillRef.current.getEditor();
+      const range = quill.getSelection();
+      const position = range ? range.index : quill.getLength();
+      quill.insertEmbed(position, 'image', url);
+    }
   };
 
   const modules = {
@@ -195,7 +206,7 @@ const AdminPanel = () => {
       ['bold', 'italic', 'underline', 'strike'],
       [{ 'list': 'ordered'}, { 'list': 'bullet' }],
       [{ 'indent': '-1'}, { 'indent': '+1' }],
-      ['link'],
+      ['link', 'image'],
       [{ 'align': [] }],
       ['clean']
     ],
@@ -203,7 +214,7 @@ const AdminPanel = () => {
 
   const formats = [
     'header', 'bold', 'italic', 'underline', 'strike',
-    'list', 'bullet', 'indent', 'link', 'align'
+    'list', 'bullet', 'indent', 'link', 'image', 'align'
   ];
 
   return (
@@ -221,76 +232,96 @@ const AdminPanel = () => {
           </TabsList>
 
           <TabsContent value="news" className="space-y-8">
-            {/* News Creation Form */}
-            <Card>
-              <CardHeader>
-                <CardTitle>{editingNews ? 'Edit News Post' : 'Create New News Post'}</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* News Creation Form */}
+              <div className="space-y-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>{editingNews ? 'Edit News Post' : 'Create New News Post'}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <Label htmlFor="title">Title</Label>
+                      <Input
+                        id="title"
+                        value={newNews.title}
+                        onChange={(e) => setNewNews({...newNews, title: e.target.value})}
+                        placeholder="Enter news title"
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="content">Content</Label>
+                      <div className="mt-2">
+                        <ReactQuill
+                          ref={quillRef}
+                          theme="snow"
+                          value={newNews.content}
+                          onChange={(content) => setNewNews({...newNews, content})}
+                          modules={modules}
+                          formats={formats}
+                          placeholder="Write your news content here..."
+                          style={{ minHeight: '200px' }}
+                        />
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="publication_date">Publication Date</Label>
+                      <Input
+                        id="publication_date"
+                        type="datetime-local"
+                        value={newNews.publication_date}
+                        onChange={(e) => setNewNews({...newNews, publication_date: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div className="flex gap-2">
+                      <Button 
+                        onClick={editingNews ? updateNews : createNews}
+                        disabled={loading}
+                        className="flex-1"
+                      >
+                        {loading ? "Processing..." : (editingNews ? "Update News Post" : "Create News Post")}
+                      </Button>
+                      
+                      {(editingNews || newNews.id) && (
+                        <Button
+                          onClick={() => setShowImageManager(!showImageManager)}
+                          variant="outline"
+                          size="sm"
+                        >
+                          <ImageIcon className="h-4 w-4 mr-2" />
+                          Images
+                        </Button>
+                      )}
+                    </div>
+                    
+                    {editingNews && (
+                      <Button 
+                        onClick={cancelEdit}
+                        variant="outline"
+                        className="w-full"
+                      >
+                        Cancel Edit
+                      </Button>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Image Manager */}
+              {showImageManager && (editingNews || newNews.id) && (
                 <div>
-                  <Label htmlFor="title">Title</Label>
-                  <Input
-                    id="title"
-                    value={newNews.title}
-                    onChange={(e) => setNewNews({...newNews, title: e.target.value})}
-                    placeholder="Enter news title"
+                  <NewsImageManager
+                    newsId={editingNews?.id || newNews.id}
+                    onFeaturedImageChange={handleFeaturedImageChange}
+                    onInsertInlineImage={handleInsertInlineImage}
+                    featuredImageUrl={newNews.image_url || ''}
                   />
                 </div>
-                
-                <div>
-                  <Label htmlFor="content">Content</Label>
-                  <div className="mt-2">
-                    <ReactQuill
-                      theme="snow"
-                      value={newNews.content}
-                      onChange={(content) => setNewNews({...newNews, content})}
-                      modules={modules}
-                      formats={formats}
-                      placeholder="Write your news content here..."
-                      style={{ minHeight: '200px' }}
-                    />
-                  </div>
-                </div>
-                
-                <div>
-                  <Label htmlFor="image_url">Image URL</Label>
-                  <Input
-                    id="image_url"
-                    value={newNews.image_url || ''}
-                    onChange={(e) => setNewNews({...newNews, image_url: e.target.value})}
-                    placeholder="Enter image URL"
-                  />
-                </div>
-                
-                <div>
-                  <Label htmlFor="publication_date">Publication Date</Label>
-                  <Input
-                    id="publication_date"
-                    type="datetime-local"
-                    value={newNews.publication_date}
-                    onChange={(e) => setNewNews({...newNews, publication_date: e.target.value})}
-                  />
-                </div>
-                
-                <Button 
-                  onClick={editingNews ? updateNews : createNews}
-                  disabled={loading}
-                  className="w-full"
-                >
-                  {loading ? "Processing..." : (editingNews ? "Update News Post" : "Create News Post")}
-                </Button>
-                
-                {editingNews && (
-                  <Button 
-                    onClick={cancelEdit}
-                    variant="outline"
-                    className="w-full"
-                  >
-                    Cancel Edit
-                  </Button>
-                )}
-              </CardContent>
-            </Card>
+              )}
+            </div>
 
             {/* News List */}
             <Card>
@@ -310,6 +341,9 @@ const AdminPanel = () => {
                         <p className="text-xs text-muted-foreground mt-2">
                           Published: {new Date(post.publication_date).toLocaleString()}
                         </p>
+                        {post.image_url && (
+                          <img src={post.image_url} alt="" className="w-16 h-16 object-cover rounded mt-2" />
+                        )}
                       </div>
                       <div className="flex gap-2">
                         <Button
