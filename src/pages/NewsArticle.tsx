@@ -1,7 +1,9 @@
+
 import { useParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import NewsComments from "@/components/NewsComments";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
@@ -133,9 +135,9 @@ const NewsArticle = () => {
           </div>
         )}
 
-        {/* Article Content with better typography and spacing */}
+        {/* Article Content with enhanced typography and rich text support */}
         <div 
-          className="prose prose-lg max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-strong:text-foreground prose-a:text-primary hover:prose-a:text-primary/80 prose-ul:text-muted-foreground prose-h2:mt-12 prose-h2:mb-6 prose-h3:mt-8 prose-h3:mb-4 prose-p:mb-6 prose-ul:mb-6 prose-li:mb-2"
+          className="prose prose-lg max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-strong:text-foreground prose-a:text-primary hover:prose-a:text-primary/80 prose-ul:text-muted-foreground prose-ol:text-muted-foreground prose-li:text-muted-foreground prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl prose-h4:text-lg prose-h5:text-base prose-h6:text-sm prose-h1:mt-12 prose-h1:mb-6 prose-h2:mt-10 prose-h2:mb-5 prose-h3:mt-8 prose-h3:mb-4 prose-h4:mt-6 prose-h4:mb-3 prose-h5:mt-4 prose-h5:mb-2 prose-h6:mt-4 prose-h6:mb-2 prose-p:mb-6 prose-ul:mb-6 prose-ol:mb-6 prose-li:mb-2 prose-blockquote:border-primary prose-blockquote:bg-primary/5 prose-blockquote:p-4 prose-blockquote:rounded prose-img:rounded-lg prose-img:shadow-md"
           dangerouslySetInnerHTML={{ __html: article.content }}
         />
 
@@ -153,6 +155,11 @@ const NewsArticle = () => {
               List Your Space
             </Link>
           </div>
+        </div>
+
+        {/* Comments Section */}
+        <div className="mt-12 pt-12 border-t">
+          <NewsComments newsId={article.id} />
         </div>
       </div>
 
