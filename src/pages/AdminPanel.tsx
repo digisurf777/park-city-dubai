@@ -14,7 +14,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Pencil, Trash2, Plus, CheckCircle, XCircle, FileText, Mail, Upload, X, Users } from 'lucide-react';
 import { format } from 'date-fns';
 import UserManagementTab from '@/components/UserManagementTab';
-import NewsImageManager from '@/components/NewsImageManager';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
@@ -57,7 +56,6 @@ interface ParkingListing {
 const AdminPanel = () => {
   const { user } = useAuth();
   const { toast } = useToast();
-  const quillRef = useRef<ReactQuill>(null);
   const [posts, setPosts] = useState<NewsPost[]>([]);
   const [verifications, setVerifications] = useState<Verification[]>([]);
   const [parkingListings, setParkingListings] = useState<ParkingListing[]>([]);
@@ -177,6 +175,7 @@ const AdminPanel = () => {
 
   const fetchParkingListings = async () => {
     try {
+      // Fetch ALL listings without status filter to see everything
       const { data, error } = await supabase
         .from('parking_listings')
         .select('*')
@@ -252,6 +251,7 @@ const AdminPanel = () => {
   const addImageToListing = () => {
     if (!newImageUrl.trim()) return;
     
+    // Check if already at max images (5)
     if (listingImages.length >= 5) {
       toast({
         title: "Error",
@@ -261,6 +261,7 @@ const AdminPanel = () => {
       return;
     }
     
+    // Check if image URL is already added
     if (listingImages.includes(newImageUrl.trim())) {
       toast({
         title: "Error",
@@ -282,16 +283,19 @@ const AdminPanel = () => {
     try {
       setUploadingImage(true);
       
+      // Create unique filename
       const fileExt = file.name.split('.').pop();
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
       const filePath = `parking-listings/${fileName}`;
 
+      // Upload file to Supabase storage
       const { data, error } = await supabase.storage
         .from('parking-images')
         .upload(filePath, file);
 
       if (error) throw error;
 
+      // Get public URL
       const { data: urlData } = supabase.storage
         .from('parking-images')
         .getPublicUrl(filePath);
@@ -314,6 +318,7 @@ const AdminPanel = () => {
     const file = event.target.files?.[0];
     if (!file) return;
 
+    // Check if already at max images (5)
     if (listingImages.length >= 5) {
       toast({
         title: "Error",
@@ -323,6 +328,7 @@ const AdminPanel = () => {
       return;
     }
 
+    // Validate file type
     if (!file.type.startsWith('image/')) {
       toast({
         title: "Error",
@@ -332,6 +338,7 @@ const AdminPanel = () => {
       return;
     }
 
+    // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       toast({
         title: "Error",
@@ -350,6 +357,7 @@ const AdminPanel = () => {
       });
     }
 
+    // Reset file input
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -357,19 +365,24 @@ const AdminPanel = () => {
 
   const deleteImageFromStorage = async (imageUrl: string) => {
     try {
+      // Extract file path from URL - handle both full URLs and relative paths
       let filePath = '';
       if (imageUrl.includes('supabase.co')) {
+        // Full Supabase URL
         const urlParts = imageUrl.split('/');
         const fileName = urlParts[urlParts.length - 1];
         filePath = `parking-listings/${fileName}`;
       } else if (imageUrl.includes('parking-listings/')) {
+        // Already contains parking-listings path
         filePath = imageUrl.split('parking-listings/')[1];
         filePath = `parking-listings/${filePath}`;
       } else {
+        // Just filename
         const fileName = imageUrl.split('/').pop() || '';
         filePath = `parking-listings/${fileName}`;
       }
 
+      // Delete from storage
       const { error } = await supabase.storage
         .from('parking-images')
         .remove([filePath]);
@@ -382,13 +395,17 @@ const AdminPanel = () => {
       });
     } catch (error) {
       console.error('Error deleting image from storage:', error);
+      // Still remove from UI even if storage deletion fails
     }
   };
 
   const removeImageFromListing = async (imageUrl: string) => {
+    // Confirm deletion
     if (confirm('Are you sure you want to delete this image? This will permanently remove it from storage.')) {
+      // Remove from UI first
       setListingImages(listingImages.filter(img => img !== imageUrl));
       
+      // Delete from storage if it's a Supabase storage URL
       if (imageUrl.includes('supabase')) {
         await deleteImageFromStorage(imageUrl);
       }
@@ -449,6 +466,7 @@ const AdminPanel = () => {
     }
 
     try {
+      // First, get the listing to access its images
       const { data: listing, error: fetchError } = await supabase
         .from('parking_listings')
         .select('images')
@@ -457,6 +475,7 @@ const AdminPanel = () => {
 
       if (fetchError) throw fetchError;
 
+      // Delete images from storage if they exist
       if (listing?.images && listing.images.length > 0) {
         for (const imageUrl of listing.images) {
           if (imageUrl.includes('supabase')) {
@@ -465,6 +484,7 @@ const AdminPanel = () => {
         }
       }
 
+      // Delete the listing from database
       const { error } = await supabase
         .from('parking_listings')
         .delete()
@@ -490,6 +510,7 @@ const AdminPanel = () => {
 
   const fetchAllUsers = async () => {
     try {
+      // Get all profiles to show in user selection
       const { data, error } = await supabase
         .from('profiles')
         .select('user_id, full_name')
@@ -509,6 +530,7 @@ const AdminPanel = () => {
       setVerificationUpdating(verificationId);
       console.log(`Updating verification ${verificationId} to status: ${status}`);
 
+      // Get verification details before updating
       const { data: verification, error: fetchError } = await supabase
         .from('user_verifications')
         .select('user_id, full_name')
@@ -522,6 +544,7 @@ const AdminPanel = () => {
 
       console.log('Verification data:', verification);
 
+      // Update verification status first
       const { error: updateError } = await supabase
         .from('user_verifications')
         .update({ verification_status: status })
@@ -534,10 +557,12 @@ const AdminPanel = () => {
 
       console.log('Verification status updated successfully');
 
+      // Get user email from profiles table first, then fallback to auth
       let userEmail = '';
       let userName = verification.full_name;
 
       try {
+        // Try to get email from auth
         const { data: authData, error: authError } = await supabase.auth.admin.getUserById(verification.user_id);
         if (authError) {
           console.error('Error getting user from auth:', authError);
@@ -549,6 +574,7 @@ const AdminPanel = () => {
       }
 
       if (userEmail) {
+        // Send notification to user
         try {
           const { data: functionResponse, error: functionError } = await supabase.functions.invoke('send-verification-approval', {
             body: {
@@ -601,6 +627,7 @@ const AdminPanel = () => {
       setMessageSending(true);
       console.log(`Sending message to user: ${selectedUserId}`);
 
+      // Insert message into database
       const { error: dbError } = await supabase
         .from('user_messages')
         .insert([{
@@ -617,6 +644,7 @@ const AdminPanel = () => {
 
       console.log('Message inserted into database successfully');
 
+      // Get user details for email notification
       let userName = 'User';
       let userEmail = '';
 
@@ -641,6 +669,7 @@ const AdminPanel = () => {
         console.error('Error getting user details:', err);
       }
 
+      // Send email notification if we have an email
       if (userEmail) {
         try {
           const { data: emailResponse, error: emailError } = await supabase.functions.invoke('send-message-notification', {
@@ -682,37 +711,22 @@ const AdminPanel = () => {
     }
   };
 
+  // Rich text editor configuration
   const quillModules = {
     toolbar: [
       [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
       ['bold', 'italic', 'underline', 'strike'],
       [{ 'list': 'ordered'}, { 'list': 'bullet' }],
       [{ 'align': [] }],
-      [{ 'color': [] }, { 'background': [] }],
       ['link'],
-      ['blockquote', 'code-block'],
-      [{ 'indent': '-1'}, { 'indent': '+1' }],
-      [{ 'size': ['small', false, 'large', 'huge'] }],
       ['clean']
     ],
   };
 
   const quillFormats = [
     'header', 'bold', 'italic', 'underline', 'strike',
-    'list', 'bullet', 'align', 'color', 'background',
-    'link', 'blockquote', 'code-block', 'indent', 'size'
+    'list', 'bullet', 'align', 'link'
   ];
-
-  const insertImageIntoContent = (imageUrl: string) => {
-    const quill = quillRef.current?.getEditor();
-    if (quill) {
-      const range = quill.getSelection();
-      const index = range ? range.index : quill.getLength();
-      quill.insertEmbed(index, 'image', imageUrl);
-      quill.insertText(index + 1, '\n');
-      quill.setSelection(index + 2, 0);
-    }
-  };
 
   const resetForm = () => {
     setTitle('');
@@ -880,6 +894,7 @@ const AdminPanel = () => {
             </div>
 
             <div className="grid grid-cols-1 gap-8">
+              {/* Form Section */}
               {(isCreating || editingPost) && (
                 <Card className="w-full">
                   <CardHeader>
@@ -929,21 +944,15 @@ const AdminPanel = () => {
                       )}
                     </div>
 
-                    <NewsImageManager 
-                      onImageInsert={insertImageIntoContent}
-                      disabled={false}
-                    />
-
                     <div>
                       <Label htmlFor="content">Content</Label>
                       <div className="mt-2">
                         <ReactQuill
-                          ref={quillRef}
                           value={content}
                           onChange={setContent}
                           modules={quillModules}
                           formats={quillFormats}
-                          placeholder="Write your news content here... Use the toolbar above for rich formatting including headers, lists, links, and more."
+                          placeholder="Write your news content here... Use the toolbar above for formatting."
                           className="bg-white"
                           style={{ height: '400px', marginBottom: '50px' }}
                         />
@@ -962,6 +971,7 @@ const AdminPanel = () => {
                 </Card>
               )}
 
+              {/* Posts List Section */}
               <div className="space-y-4">
                 <h3 className="text-xl font-semibold mb-4">All News Posts</h3>
                 {posts.length === 0 ? (
