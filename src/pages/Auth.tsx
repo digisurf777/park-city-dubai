@@ -93,7 +93,7 @@ const Auth = () => {
       } else {
         toast.success('Account created successfully!', {
           duration: 6000,
-          description: 'Check your inbox and confirm your email address before logging in.'
+          description: 'Please check your email and click the confirmation link.'
         });
         setSignupForm({ email: '', password: '', confirmPassword: '', fullName: '', userType: 'seeker' });
         
@@ -101,7 +101,7 @@ const Auth = () => {
         setTimeout(() => {
           toast.info('Important!', {
             duration: 8000,
-            description: 'You must confirm your email address before you can log in. Also check your spam folder.'
+            description: 'Please confirm your email before logging in. Check your spam folder too.'
           });
         }, 2000);
       }
@@ -252,7 +252,7 @@ const Auth = () => {
                     <span className="text-sm font-medium">Email confirmation required</span>
                   </div>
                   <p className="text-xs text-blue-700 mt-1">
-                    After registration you must confirm your email address before logging in.
+                    Check your email and click the confirmation link to activate your account.
                   </p>
                 </div>
 

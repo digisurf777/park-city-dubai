@@ -166,7 +166,7 @@ const EmailConfirmed = () => {
           {confirmed ? (
             <>
               <p className="text-sm text-muted-foreground">
-                Your email has been confirmed. You can now access your account and start using ShazamParking.
+                Welcome to ShazamParking! Your account is now active and ready to use.
               </p>
               <Button onClick={() => navigate('/')} className="w-full">
                 Go to ShazamParking
