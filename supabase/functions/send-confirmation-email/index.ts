@@ -28,13 +28,13 @@ const handler = async (req: Request): Promise<Response> => {
     const emailResponse = await resend.emails.send({
       from: "Shazam Parking <onboarding@resend.dev>",
       to: [email],
-      subject: "Potwierdź swój adres e-mail - Shazam Parking",
+      subject: "Confirm your ShazamParking account email",
       html: `
         <!DOCTYPE html>
-        <html lang="pl" style="font-family: Arial, sans-serif;">
+        <html lang="en" style="font-family: Arial, sans-serif;">
           <head>
             <meta charset="UTF-8" />
-            <title>Potwierdź swój e-mail</title>
+            <title>Confirm your email</title>
           </head>
           <body style="margin: 0; padding: 0; background-color: #f9f9f9;">
             <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f9f9f9;">
@@ -48,30 +48,32 @@ const handler = async (req: Request): Promise<Response> => {
                     </tr>
                     <tr>
                       <td style="padding: 30px 40px; text-align: left;">
-                        <h2 style="color: #333333;">Potwierdź swój adres e-mail</h2>
+                        <h2 style="color: #333333;">Welcome to ShazamParking!</h2>
                         <p style="font-size: 16px; color: #555555;">
-                          Cześć ${fullName},
+                          Hello ${fullName},
                         </p>
                         <p style="font-size: 16px; color: #555555;">
-                          Dziękujemy za rejestrację w <strong>Shazam Parking</strong>! Aby dokończyć konfigurację konta, potwierdź swój adres e-mail klikając przycisk poniżej:
+                          Thank you for signing up. To keep your account secure, please confirm your email address by clicking the link below:
                         </p>
                         <p style="text-align: center; margin: 30px 0;">
                           <a href="${confirmationUrl}" target="_blank" style="background-color: #0099cc; color: #ffffff; text-decoration: none; padding: 14px 26px; border-radius: 6px; font-weight: bold;">
-                            Potwierdź mój e-mail
+                            Confirm my email
                           </a>
                         </p>
                         <p style="font-size: 14px; color: #999999;">
-                          Jeśli nie tworzyłeś konta, zignoruj tę wiadomość.
+                          If you did not create this account, you can safely ignore this email.
                         </p>
                         <p style="font-size: 14px; color: #999999;">
-                          Link jest ważny przez 24 godziny.
+                          You're receiving this email because you signed up for a ShazamParking account.
                         </p>
                       </td>
                     </tr>
                     <tr>
                       <td style="padding: 20px 40px; text-align: center; font-size: 12px; color: #999999;">
-                        © Shazam Parking — Wszystkie prawa zastrzeżone<br />
-                        Potrzebujesz pomocy? Napisz do nas: <a href="mailto:support@shazam.ae">support@shazam.ae</a>
+                        For help, please contact <a href="mailto:support@shazam.ae">support@shazam.ae</a><br />
+                        <br />
+                        Kind regards,<br />
+                        The ShazamParking Team
                       </td>
                     </tr>
                   </table>
