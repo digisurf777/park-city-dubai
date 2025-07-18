@@ -85,6 +85,8 @@ const News = () => {
                     src={article.image_url || '/news/hero.jpg'}
                     alt={article.title}
                     className="w-full h-full object-cover"
+                    loading="lazy"
+                    decoding="async"
                   />
                 </div>
                 

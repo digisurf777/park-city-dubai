@@ -197,7 +197,13 @@ const FindParking = () => {
           return <div key={zone.slug} className="relative group overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-all duration-300">
                 {/* Zone Image */}
                 <div className="relative h-64 overflow-hidden">
-                  <img src={zoneImages[zone.slug as keyof typeof zoneImages]} alt={zone.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                  <img 
+                    src={zoneImages[zone.slug as keyof typeof zoneImages]} 
+                    alt={zone.name} 
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+                    loading="lazy"
+                    decoding="async"
+                  />
                   <div className="absolute inset-0 bg-black/30"></div>
                   
                   {/* Zone Title Overlay */}
@@ -228,8 +234,20 @@ const FindParking = () => {
                   {/* Image carousel */}
                   <div className="relative h-48 overflow-hidden">
                     {spot.images && spot.images.length > 0 ? <div className="flex transition-transform duration-300 ease-in-out h-full">
-                        <img src={spot.images[0]} alt={spot.name} className="w-full h-full object-cover flex-shrink-0" />
-                      </div> : <img src={spot.image} alt={spot.name} className="w-full h-full object-cover" />}
+                        <img 
+                          src={spot.images[0]} 
+                          alt={spot.name} 
+                          className="w-full h-full object-cover flex-shrink-0" 
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      </div> : <img 
+                          src={spot.image} 
+                          alt={spot.name} 
+                          className="w-full h-full object-cover" 
+                          loading="lazy"
+                          decoding="async"
+                        />}
                     {spot.images && spot.images.length > 1 && <div className="absolute bottom-2 left-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
                         +{spot.images.length - 1} more
                       </div>}
