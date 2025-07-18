@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Pencil, Trash2, Plus, CheckCircle, XCircle, FileText, Mail, Upload, X, Eye, Edit, Lightbulb, Camera } from 'lucide-react';
+import { Pencil, Trash2, Plus, CheckCircle, XCircle, FileText, Mail, Upload, X, Eye, Edit, Lightbulb, Camera, Settings } from 'lucide-react';
 import { format } from 'date-fns';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
@@ -26,7 +26,14 @@ interface NewsPost {
   created_at: string;
   updated_at: string;
   tags?: string[];
+  meta_title?: string | null;
+  meta_description?: string | null;
   status?: string;
+}
+
+interface AdminSetupResponse {
+  message: string;
+  error?: string;
   meta_title?: string;
   meta_description?: string;
 }
@@ -959,6 +966,35 @@ const AdminPanel = () => {
     }
   };
 
+  const setupAdminAccess = async () => {
+    try {
+      const { data, error } = await supabase.functions.invoke('setup-admin');
+      
+      if (error) {
+        console.error('Setup admin error:', error);
+        toast({
+          title: "Error",
+          description: "Failed to set up admin access",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      console.log('Setup admin response:', data);
+      toast({
+        title: "Success", 
+        description: "Admin access set up successfully. Please refresh the page.",
+      });
+    } catch (error) {
+      console.error('Setup admin error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to set up admin access",
+        variant: "destructive",
+      });
+    }
+  };
+
   const quillModules = {
     toolbar: [
       [{ 'header': [1, 2, 3, 4, false] }],
@@ -1027,9 +1063,10 @@ const AdminPanel = () => {
       resetForm();
       fetchPosts();
     } catch (error) {
+      console.error('Save post error:', error);
       toast({
-        title: "Error",
-        description: "Failed to save news post",
+        title: "Error", 
+        description: `Failed to save news post: ${error.message || 'Unknown error'}`,
         variant: "destructive",
       });
     }
@@ -1110,10 +1147,16 @@ const AdminPanel = () => {
           <TabsContent value="news" className="space-y-6">
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-semibold">News Management</h2>
-              <Button onClick={handleCreate} className="flex items-center gap-2">
-                <Plus className="h-4 w-4" />
-                Create New Post
-              </Button>
+              <div className="flex gap-2">
+                <Button onClick={setupAdminAccess} variant="outline" className="flex items-center gap-2">
+                  <Settings className="h-4 w-4" />
+                  Setup Admin Access
+                </Button>
+                <Button onClick={handleCreate} className="flex items-center gap-2">
+                  <Plus className="h-4 w-4" />
+                  Create New Post
+                </Button>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
