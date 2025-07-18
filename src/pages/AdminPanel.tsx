@@ -221,7 +221,7 @@ const AdminPanel = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
       
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <h1 className="text-3xl font-bold mb-8">Admin Panel</h1>
         
         <Tabs defaultValue="news" className="space-y-8">
@@ -232,95 +232,99 @@ const AdminPanel = () => {
           </TabsList>
 
           <TabsContent value="news" className="space-y-8">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* News Creation Form */}
-              <div className="space-y-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>{editingNews ? 'Edit News Post' : 'Create New News Post'}</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      <Label htmlFor="title">Title</Label>
-                      <Input
-                        id="title"
-                        value={newNews.title}
-                        onChange={(e) => setNewNews({...newNews, title: e.target.value})}
-                        placeholder="Enter news title"
-                      />
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="content">Content</Label>
-                      <div className="mt-2">
-                        <ReactQuill
-                          ref={quillRef}
-                          theme="snow"
-                          value={newNews.content}
-                          onChange={(content) => setNewNews({...newNews, content})}
-                          modules={modules}
-                          formats={formats}
-                          placeholder="Write your news content here..."
-                          style={{ minHeight: '200px' }}
+            {/* News Creation/Edit Form - Full Width */}
+            <div className="w-full">
+              <Card>
+                <CardHeader>
+                  <CardTitle>{editingNews ? 'Edit News Post' : 'Create New News Post'}</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* Left Column - Form */}
+                    <div className="space-y-4">
+                      <div>
+                        <Label htmlFor="title">Title</Label>
+                        <Input
+                          id="title"
+                          value={newNews.title}
+                          onChange={(e) => setNewNews({...newNews, title: e.target.value})}
+                          placeholder="Enter news title"
                         />
                       </div>
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="publication_date">Publication Date</Label>
-                      <Input
-                        id="publication_date"
-                        type="datetime-local"
-                        value={newNews.publication_date}
-                        onChange={(e) => setNewNews({...newNews, publication_date: e.target.value})}
-                      />
-                    </div>
-                    
-                    <div className="flex gap-2">
-                      <Button 
-                        onClick={editingNews ? updateNews : createNews}
-                        disabled={loading}
-                        className="flex-1"
-                      >
-                        {loading ? "Processing..." : (editingNews ? "Update News Post" : "Create News Post")}
-                      </Button>
                       
-                      {(editingNews || newNews.id) && (
-                        <Button
-                          onClick={() => setShowImageManager(!showImageManager)}
-                          variant="outline"
-                          size="sm"
+                      <div>
+                        <Label htmlFor="publication_date">Publication Date</Label>
+                        <Input
+                          id="publication_date"
+                          type="datetime-local"
+                          value={newNews.publication_date}
+                          onChange={(e) => setNewNews({...newNews, publication_date: e.target.value})}
+                        />
+                      </div>
+                      
+                      <div className="flex gap-2">
+                        <Button 
+                          onClick={editingNews ? updateNews : createNews}
+                          disabled={loading}
+                          className="flex-1"
                         >
-                          <ImageIcon className="h-4 w-4 mr-2" />
-                          Images
+                          {loading ? "Processing..." : (editingNews ? "Update News Post" : "Create News Post")}
+                        </Button>
+                        
+                        {(editingNews || newNews.id) && (
+                          <Button
+                            onClick={() => setShowImageManager(!showImageManager)}
+                            variant="outline"
+                            size="sm"
+                          >
+                            <ImageIcon className="h-4 w-4 mr-2" />
+                            Images
+                          </Button>
+                        )}
+                      </div>
+                      
+                      {editingNews && (
+                        <Button 
+                          onClick={cancelEdit}
+                          variant="outline"
+                          className="w-full"
+                        >
+                          Cancel Edit
                         </Button>
                       )}
                     </div>
-                    
-                    {editingNews && (
-                      <Button 
-                        onClick={cancelEdit}
-                        variant="outline"
-                        className="w-full"
-                      >
-                        Cancel Edit
-                      </Button>
-                    )}
-                  </CardContent>
-                </Card>
-              </div>
 
-              {/* Image Manager */}
-              {showImageManager && (editingNews || newNews.id) && (
-                <div>
-                  <NewsImageManager
-                    newsId={editingNews?.id || newNews.id}
-                    onFeaturedImageChange={handleFeaturedImageChange}
-                    onInsertInlineImage={handleInsertInlineImage}
-                    featuredImageUrl={newNews.image_url || ''}
-                  />
-                </div>
-              )}
+                    {/* Right Column - Image Manager */}
+                    {showImageManager && (editingNews || newNews.id) && (
+                      <div>
+                        <NewsImageManager
+                          newsId={editingNews?.id || newNews.id}
+                          onFeaturedImageChange={handleFeaturedImageChange}
+                          onInsertInlineImage={handleInsertInlineImage}
+                          featuredImageUrl={newNews.image_url || ''}
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Content Editor - Full Width */}
+                  <div>
+                    <Label htmlFor="content">Content</Label>
+                    <div className="mt-2">
+                      <ReactQuill
+                        ref={quillRef}
+                        theme="snow"
+                        value={newNews.content}
+                        onChange={(content) => setNewNews({...newNews, content})}
+                        modules={modules}
+                        formats={formats}
+                        placeholder="Write your news content here..."
+                        style={{ minHeight: '300px' }}
+                      />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
 
             {/* News List */}
