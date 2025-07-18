@@ -73,81 +73,81 @@
 
 /* Styles for published news articles */
 .news-content {
-  font-size: 1.125rem;
-  line-height: 1.8;
+  font-size: 1rem;
+  line-height: 1.6;
   color: hsl(var(--muted-foreground));
 }
 
 .news-content h1 {
-  font-size: 2.5rem;
+  font-size: 2rem;
   font-weight: bold;
   color: hsl(var(--foreground));
-  margin: 3rem 0 2rem 0;
-  padding-bottom: 1rem;
+  margin: 2rem 0 1.5rem 0;
+  padding-bottom: 0.5rem;
   border-bottom: 2px solid hsl(var(--border));
 }
 
 .news-content h2 {
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-weight: bold;
   color: hsl(var(--primary));
-  margin: 2.5rem 0 1.5rem 0;
+  margin: 1.5rem 0 1rem 0;
 }
 
 .news-content h3 {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: hsl(var(--foreground));
-  margin: 2rem 0 1rem 0;
-}
-
-.news-content h4 {
   font-size: 1.25rem;
   font-weight: 600;
   color: hsl(var(--foreground));
-  margin: 1.5rem 0 0.75rem 0;
+  margin: 1.25rem 0 0.75rem 0;
+}
+
+.news-content h4 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: hsl(var(--foreground));
+  margin: 1rem 0 0.5rem 0;
 }
 
 .news-content p {
-  margin: 0 0 1.5rem 0;
-  line-height: 1.8;
+  margin: 0 0 1rem 0;
+  line-height: 1.6;
 }
 
 .news-content p:first-child::first-letter {
-  font-size: 4rem;
+  font-size: 3rem;
   font-weight: bold;
   color: hsl(var(--primary));
   float: left;
-  margin: 0.5rem 0.5rem 0 0;
+  margin: 0.25rem 0.375rem 0 0;
   line-height: 0.8;
 }
 
 .news-content ul, .news-content ol {
-  margin: 0 0 1.5rem 0;
-  padding-left: 2rem;
+  margin: 0 0 1rem 0;
+  padding-left: 1.5rem;
 }
 
 .news-content li {
-  margin: 0.5rem 0;
-  line-height: 1.7;
+  margin: 0.25rem 0;
+  line-height: 1.6;
 }
 
 .news-content blockquote {
   border-left: 4px solid hsl(var(--primary));
-  margin: 2rem 0;
-  padding: 1rem 0 1rem 1.5rem;
+  margin: 1.5rem 0;
+  padding: 0.75rem 0 0.75rem 1rem;
   background: hsl(var(--muted) / 0.3);
   border-radius: 0 8px 8px 0;
   font-style: italic;
-  font-size: 1.1rem;
+  font-size: 1rem;
 }
 
 .news-content img {
   max-width: 100%;
   height: auto;
-  border-radius: 12px;
-  margin: 2rem 0;
-  box-shadow: 0 10px 30px -10px hsl(var(--foreground) / 0.1);
+  border-radius: 8px;
+  margin: 1.5rem 0;
+  box-shadow: 0 4px 12px -4px hsl(var(--foreground) / 0.1);
 }
 
 .news-content a {
