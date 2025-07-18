@@ -92,17 +92,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       password,
     });
 
-    // Check if email is confirmed
-    if (!error && data.user && !data.user.email_confirmed_at) {
-      // Sign out the user immediately if email is not confirmed
-      await supabase.auth.signOut();
-      return { 
-        error: { 
-          message: 'Please confirm your email address before logging in. Check your inbox and spam folder.' 
-        }
-      };
-    }
-
     return { error };
   };
 
