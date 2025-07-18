@@ -11,12 +11,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Pencil, Trash2, Plus, CheckCircle, XCircle, FileText, Mail, Upload, X, Users, Image } from 'lucide-react';
+import { Pencil, Trash2, Plus, CheckCircle, XCircle, FileText, Mail, Upload, X } from 'lucide-react';
 import { format } from 'date-fns';
-import UserManagementTab from '@/components/UserManagementTab';
-import NewsImageUpload from '@/components/NewsImageUpload';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
 
 interface NewsPost {
   id: string;
@@ -97,9 +93,6 @@ const AdminPanel = () => {
   const [newImageUrl, setNewImageUrl] = useState('');
   const [uploadingImage, setUploadingImage] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const [showImageUpload, setShowImageUpload] = useState(false);
-  const quillRef = useRef<ReactQuill>(null);
 
   useEffect(() => {
     if (user) {
@@ -715,40 +708,6 @@ const AdminPanel = () => {
     }
   };
 
-  // Simplified and working rich text editor configuration
-  const quillModules = {
-    toolbar: [
-      [{ 'header': [1, 2, 3, false] }],
-      ['bold', 'italic', 'underline'],
-      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-      ['blockquote', 'link'],
-      ['clean']
-    ],
-    clipboard: {
-      matchVisual: false
-    }
-  };
-
-  const quillFormats = [
-    'header', 
-    'bold', 'italic', 'underline',
-    'list', 'bullet',
-    'blockquote', 'link'
-  ];
-
-  const handleImageInsert = (imageUrl: string) => {
-    if (quillRef.current) {
-      const quill = quillRef.current.getEditor();
-      const range = quill.getSelection();
-      const index = range ? range.index : quill.getLength();
-      
-      // Insert image with proper formatting
-      quill.insertEmbed(index, 'image', imageUrl);
-      quill.insertText(index + 1, '\n');
-      quill.setSelection(index + 2, 0);
-    }
-  };
-
   const resetForm = () => {
     setTitle('');
     setContent('');
@@ -894,15 +853,11 @@ const AdminPanel = () => {
         <h1 className="text-3xl font-bold mb-8">Admin Panel</h1>
         
         <Tabs defaultValue="news" className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="news">News Management</TabsTrigger>
             <TabsTrigger value="listings">Parking Listings</TabsTrigger>
             <TabsTrigger value="verifications">User Verifications</TabsTrigger>
             <TabsTrigger value="messages">Send Messages</TabsTrigger>
-            <TabsTrigger value="users">
-              <Users className="h-4 w-4 mr-2" />
-              User Management
-            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="news" className="space-y-6">
@@ -914,94 +869,60 @@ const AdminPanel = () => {
               </Button>
             </div>
 
-            <div className="grid grid-cols-1 gap-8">
-              {/* Enhanced Form Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Form Section */}
               {(isCreating || editingPost) && (
-                <Card className="w-full">
+                <Card>
                   <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <FileText className="h-5 w-5" />
+                    <CardTitle>
                       {editingPost ? 'Edit News Post' : 'Create New News Post'}
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="title">Title *</Label>
-                        <Input
-                          id="title"
-                          value={title}
-                          onChange={(e) => setTitle(e.target.value)}
-                          placeholder="Enter compelling post title"
-                          className="mt-1"
-                        />
-                      </div>
-
-                      <div>
-                        <Label htmlFor="publicationDate">Publication Date *</Label>
-                        <Input
-                          id="publicationDate"
-                          type="datetime-local"
-                          value={publicationDate}
-                          onChange={(e) => setPublicationDate(e.target.value)}
-                          className="mt-1"
-                        />
-                      </div>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <Label htmlFor="title">Title</Label>
+                      <Input
+                        id="title"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        placeholder="Enter post title"
+                      />
                     </div>
 
                     <div>
-                      <Label htmlFor="imageUrl">Featured Image URL</Label>
-                      <div className="flex gap-2 mt-1">
-                        <Input
-                          id="imageUrl"
-                          value={imageUrl}
-                          onChange={(e) => setImageUrl(e.target.value)}
-                          placeholder="Enter featured image URL"
-                          className="flex-1"
-                        />
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={() => setShowImageUpload(true)}
-                          className="flex items-center gap-2"
-                        >
-                          <Image className="h-4 w-4" />
-                          Upload
-                        </Button>
-                      </div>
-                      {imageUrl && (
-                        <div className="mt-3">
-                          <img 
-                            src={imageUrl} 
-                            alt="Featured image preview" 
-                            className="w-40 h-24 object-cover rounded border"
-                          />
-                        </div>
-                      )}
+                      <Label htmlFor="content">Content</Label>
+                      <Textarea
+                        id="content"
+                        value={content}
+                        onChange={(e) => setContent(e.target.value)}
+                        placeholder="Enter post content"
+                        rows={8}
+                      />
                     </div>
 
                     <div>
-                      <Label htmlFor="content">Content *</Label>
-                      <div className="mt-2">
-                        <ReactQuill
-                          ref={quillRef}
-                          value={content}
-                          onChange={setContent}
-                          modules={quillModules}
-                          formats={quillFormats}
-                          placeholder="Start typing your news content here..."
-                          theme="snow"
-                          style={{ 
-                            height: '300px',
-                            marginBottom: '50px'
-                          }}
-                        />
-                      </div>
+                      <Label htmlFor="imageUrl">Image URL</Label>
+                      <Input
+                        id="imageUrl"
+                        value={imageUrl}
+                        onChange={(e) => setImageUrl(e.target.value)}
+                        placeholder="Enter image URL"
+                      />
                     </div>
 
-                    <div className="flex gap-2 pt-4">
-                      <Button onClick={handleSave} className="flex items-center gap-2">
-                        {editingPost ? 'Update Post' : 'Create Post'}
+                    <div>
+                      <Label htmlFor="publicationDate">Publication Date</Label>
+                      <Input
+                        id="publicationDate"
+                        type="datetime-local"
+                        value={publicationDate}
+                        onChange={(e) => setPublicationDate(e.target.value)}
+                      />
+                    </div>
+
+                    <div className="flex gap-2">
+                      <Button onClick={handleSave}>
+                        Save
                       </Button>
                       <Button variant="outline" onClick={resetForm}>
                         Cancel
@@ -1012,7 +933,7 @@ const AdminPanel = () => {
               )}
 
               {/* Posts List Section */}
-              <div className="space-y-4">
+              <div className={`space-y-4 ${(isCreating || editingPost) ? '' : 'lg:col-span-2'}`}>
                 <h3 className="text-xl font-semibold mb-4">All News Posts</h3>
                 {posts.length === 0 ? (
                   <Card>
@@ -1037,10 +958,7 @@ const AdminPanel = () => {
                                 className="w-32 h-20 object-cover rounded mb-2"
                               />
                             )}
-                            <div 
-                              className="text-sm line-clamp-3 prose prose-sm max-w-none"
-                              dangerouslySetInnerHTML={{ __html: post.content }}
-                            />
+                            <p className="text-sm line-clamp-3">{post.content}</p>
                           </div>
                           <div className="flex gap-2 ml-4">
                             <Button
@@ -1139,11 +1057,7 @@ const AdminPanel = () => {
                         id="listingPricePerHour"
                         type="number"
                         value={listingPricePerHour}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          const cleanValue = value.replace(/^0+/, '') || '0';
-                          setListingPricePerHour(Number(cleanValue));
-                        }}
+                        onChange={(e) => setListingPricePerHour(Number(e.target.value))}
                         min="0"
                       />
                     </div>
@@ -1153,11 +1067,7 @@ const AdminPanel = () => {
                         id="listingPricePerMonth"
                         type="number"
                         value={listingPricePerMonth}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          const cleanValue = value.replace(/^0+/, '') || '0';
-                          setListingPricePerMonth(Number(cleanValue));
-                        }}
+                        onChange={(e) => setListingPricePerMonth(Number(e.target.value))}
                         min="0"
                       />
                     </div>
@@ -1582,26 +1492,7 @@ const AdminPanel = () => {
               </CardContent>
             </Card>
           </TabsContent>
-
-          <TabsContent value="users" className="space-y-6">
-            <UserManagementTab />
-          </TabsContent>
         </Tabs>
-
-        {/* Image Upload Modal */}
-        <NewsImageUpload
-          isOpen={showImageUpload}
-          onClose={() => setShowImageUpload(false)}
-          onImageInsert={(url) => {
-            if (showImageUpload) {
-              // If opened from featured image section
-              setImageUrl(url);
-            } else {
-              // If opened from content editor
-              handleImageInsert(url);
-            }
-          }}
-        />
       </div>
     </div>
   );

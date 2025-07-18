@@ -1,3 +1,4 @@
+
 import { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -48,7 +49,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signUp = async (email: string, password: string, fullName: string, userType: string = 'seeker') => {
+  const signUp = async (email: string, password: string, fullName: string, userType: string = 'renter') => {
     const redirectUrl = `${window.location.origin}/email-confirmed`;
     
     const { data, error } = await supabase.auth.signUp({
@@ -63,8 +64,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
     });
 
-    // Only send welcome email after successful signup, not immediately
-    // The confirmation email is handled by Supabase automatically
+    // Send custom confirmation email after successful signup
+    if (!error && data.user && !data.user.email_confirmed_at) {
+      try {
+        // Generate confirmation URL - this should match Supabase's format
+        const confirmationUrl = `${window.location.origin}/email-confirmed`;
+        
+        await supabase.functions.invoke('send-confirmation-email', {
+          body: {
+            email: email,
+            fullName: fullName,
+            confirmationUrl: confirmationUrl
+          }
+        });
+        console.log('Custom confirmation email sent successfully');
+      } catch (emailError) {
+        console.error('Failed to send custom confirmation email:', emailError);
+        // Don't fail the signup if custom email fails
+      }
+    }
 
     // Send admin notification after successful signup
     if (!error) {
@@ -98,7 +116,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       await supabase.auth.signOut();
       return { 
         error: { 
-          message: 'Please confirm your email address before logging in. Check your inbox.' 
+          message: 'Potwierdź swój adres e-mail przed zalogowaniem. Sprawdź swoją skrzynkę odbiorczą.' 
         } 
       };
     }
@@ -111,28 +129,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const resetPassword = async (email: string) => {
-    const redirectUrl = `${window.location.origin}/reset-password`;
+    const redirectUrl = `${window.location.origin}/auth`;
     
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: redirectUrl,
     });
-    
-    // Send custom password reset email
-    if (!error) {
-      try {
-        await supabase.functions.invoke('send-password-reset', {
-          body: {
-            email: email,
-            resetUrl: redirectUrl
-          }
-        });
-        console.log('Custom password reset email sent successfully');
-      } catch (emailError) {
-        console.error('Failed to send custom password reset email:', emailError);
-        // Don't fail the reset if custom email fails, Supabase default will still work
-      }
-    }
-    
     return { error };
   };
 

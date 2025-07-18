@@ -10,98 +10,31 @@ const EmailConfirmed = () => {
   const [loading, setLoading] = useState(true);
   const [confirmed, setConfirmed] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [countdown, setCountdown] = useState(3);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
   useEffect(() => {
     const handleEmailConfirmation = async () => {
       try {
-        // Get all possible URL parameters that Supabase might send
-        const tokenHash = searchParams.get('token_hash');
+        // Get the token and type from URL parameters
         const token = searchParams.get('token');
         const type = searchParams.get('type');
-        const redirectTo = searchParams.get('redirect_to');
-        const accessToken = searchParams.get('access_token');
-        const refreshToken = searchParams.get('refresh_token');
-        
-        // Log all parameters for debugging
-        console.log('All URL params:', Object.fromEntries(searchParams.entries()));
-        console.log('Confirmation params:', { tokenHash, token, type, redirectTo, accessToken, refreshToken });
 
-        // If we have access and refresh tokens, try setting the session directly
-        if (accessToken && refreshToken) {
-          console.log('Found access and refresh tokens, setting session...');
-          const { data, error } = await supabase.auth.setSession({
-            access_token: accessToken,
-            refresh_token: refreshToken
-          });
-          
-          if (error) {
-            console.error('Session setting error:', error);
-            setError(error.message || 'Failed to confirm email with provided tokens');
-          } else if (data.user) {
-            setConfirmed(true);
-            
-            // Update profile
-            try {
-              await supabase
-                .from('profiles')
-                .update({ email_confirmed_at: new Date().toISOString() })
-                .eq('user_id', data.user.id);
-            } catch (profileError) {
-              console.error('Error updating profile:', profileError);
-            }
-
-            // Start countdown and redirect
-            let counter = 3;
-            setCountdown(counter);
-            const timer = setInterval(() => {
-              counter--;
-              setCountdown(counter);
-              if (counter === 0) {
-                clearInterval(timer);
-                navigate('/my-account');
-              }
-            }, 1000);
-          }
+        if (!token || type !== 'signup') {
+          setError('Nieprawidłowy link potwierdzający');
           setLoading(false);
           return;
         }
 
-        // Fallback to OTP verification if no session tokens
-        if (!tokenHash && !token) {
-          console.error('No token found in URL');
-          setError('Invalid confirmation link - no token or session data found');
-          setLoading(false);
-          return;
-        }
-
-        // Default type to 'signup' if not provided
-        const confirmationType = type || 'signup';
-
-        // Try to verify with token_hash first (preferred method)
-        let verificationData;
-        
-        if (tokenHash) {
-          console.log('Verifying with token_hash...');
-          verificationData = await supabase.auth.verifyOtp({
-            token_hash: tokenHash,
-            type: confirmationType as any
-          });
-        } else {
-          // For simple token verification, we need more specific handling
-          console.log('Token verification not supported in this flow');
-          setError('Unsupported confirmation link format');
-          setLoading(false);
-          return;
-        }
-
-        const { data, error } = verificationData;
+        // Verify the token with Supabase
+        const { data, error } = await supabase.auth.verifyOtp({
+          token_hash: token,
+          type: 'signup'
+        });
 
         if (error) {
           console.error('Verification error:', error);
-          setError(error.message || 'The confirmation link has expired or is invalid');
+          setError('Link potwierdzający wygasł lub jest nieprawidłowy');
         } else if (data.user) {
           setConfirmed(true);
           
@@ -115,35 +48,20 @@ const EmailConfirmed = () => {
             console.error('Error updating profile:', profileError);
             // Don't fail confirmation if profile update fails
           }
-
-          // Start countdown and auto-redirect to account
-          let counter = 3;
-          setCountdown(counter);
-          const timer = setInterval(() => {
-            counter--;
-            setCountdown(counter);
-            if (counter === 0) {
-              clearInterval(timer);
-              // Redirect to account page instead of auth
-              navigate('/my-account');
-            }
-          }, 1000);
-        } else {
-          setError('No user data received from confirmation');
         }
       } catch (err) {
         console.error('Confirmation error:', err);
-        setError('An error occurred while confirming your email address');
+        setError('Wystąpił błąd podczas potwierdzania adresu e-mail');
       } finally {
         setLoading(false);
       }
     };
 
     handleEmailConfirmation();
-  }, [searchParams, navigate]);
+  }, [searchParams]);
 
-  const handleAccountRedirect = () => {
-    navigate('/my-account');
+  const handleLoginRedirect = () => {
+    navigate('/auth');
   };
 
   if (loading) {
@@ -152,7 +70,7 @@ const EmailConfirmed = () => {
         <Card className="w-full max-w-md">
           <CardContent className="flex flex-col items-center justify-center py-8">
             <Loader2 className="h-8 w-8 animate-spin mb-4" />
-            <p>Confirming your email address...</p>
+            <p>Potwierdzanie adresu e-mail...</p>
           </CardContent>
         </Card>
       </div>
@@ -167,19 +85,19 @@ const EmailConfirmed = () => {
             {confirmed ? (
               <>
                 <CheckCircle className="h-6 w-6 text-green-600" />
-                Email Confirmed!
+                E-mail potwierdzony!
               </>
             ) : (
               <>
                 <XCircle className="h-6 w-6 text-red-600" />
-                Confirmation Failed
+                Potwierdzenie nieudane
               </>
             )}
           </CardTitle>
           <CardDescription>
             {confirmed 
-              ? "Your email address has been successfully confirmed."
-              : "There was a problem confirming your email address."
+              ? "Twój adres e-mail został pomyślnie potwierdzony."
+              : "Wystąpił problem z potwierdzeniem adresu e-mail."
             }
           </CardDescription>
         </CardHeader>
@@ -187,25 +105,22 @@ const EmailConfirmed = () => {
           {confirmed ? (
             <>
               <p className="text-sm text-muted-foreground">
-                Your email address has been confirmed. You can now access your account.
+                Twój adres e-mail został potwierdzony. Możesz teraz zalogować się do swojego konta.
               </p>
-              <p className="text-sm text-blue-600 font-medium">
-                Redirecting to your account in {countdown} second{countdown !== 1 ? 's' : ''}...
-              </p>
-              <Button onClick={handleAccountRedirect} className="w-full">
-                Go to My Account Now
+              <Button onClick={handleLoginRedirect} className="w-full">
+                Przejdź do logowania
               </Button>
             </>
           ) : (
             <>
               <p className="text-sm text-red-600">
-                {error || "The confirmation link is invalid or has expired."}
+                {error || "Link potwierdzający jest nieprawidłowy lub wygasł."}
               </p>
               <p className="text-sm text-muted-foreground">
-                Try registering again or contact support if the problem persists.
+                Spróbuj zarejestrować się ponownie lub skontaktuj się z obsługą, jeśli problem się powtarza.
               </p>
               <Button onClick={() => navigate('/auth')} variant="outline" className="w-full">
-                Back to Registration
+                Powrót do rejestracji
               </Button>
             </>
           )}
