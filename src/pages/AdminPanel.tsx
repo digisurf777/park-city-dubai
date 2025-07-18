@@ -68,6 +68,16 @@ const AdminPanel = () => {
   const [usersLoading, setUsersLoading] = useState(true);
   const [verificationUpdating, setVerificationUpdating] = useState<string | null>(null);
   const [messageSending, setMessageSending] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [userFilter, setUserFilter] = useState('all');
+  const [detailedUsers, setDetailedUsers] = useState<any[]>([]);
+  const [detailedUsersLoading, setDetailedUsersLoading] = useState(true);
+  const [userStats, setUserStats] = useState({
+    totalUsers: 0,
+    onlineUsers: 0,
+    parkingOwners: 0,
+    parkingSeekers: 0
+  });
 
   // Form state
   const [title, setTitle] = useState('');
@@ -122,6 +132,7 @@ const AdminPanel = () => {
         fetchVerifications();
         fetchParkingListings();
         fetchAllUsers();
+        fetchDetailedUsers();
       }
     } catch (error) {
       console.error('Error checking admin role:', error);
@@ -522,6 +533,134 @@ const AdminPanel = () => {
     }
   };
 
+  const fetchDetailedUsers = async () => {
+    try {
+      setDetailedUsersLoading(true);
+      
+      // Get detailed user information
+      const { data: profiles, error: profilesError } = await supabase
+        .from('profiles')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (profilesError) throw profilesError;
+
+      // Get booking counts for each user
+      const { data: bookings, error: bookingsError } = await supabase
+        .from('parking_bookings')
+        .select('user_id');
+
+      if (bookingsError) throw bookingsError;
+
+      // Get listing counts for each user
+      const { data: listings, error: listingsError } = await supabase
+        .from('parking_listings')
+        .select('owner_id');
+
+      if (listingsError) throw listingsError;
+
+      // Get message counts for each user
+      const { data: messages, error: messagesError } = await supabase
+        .from('user_messages')
+        .select('user_id');
+
+      if (messagesError) throw messagesError;
+
+      // Count bookings, listings, and messages per user
+      const bookingCounts: Record<string, number> = {};
+      const listingCounts: Record<string, number> = {};
+      const messageCounts: Record<string, number> = {};
+
+      bookings?.forEach(booking => {
+        bookingCounts[booking.user_id] = (bookingCounts[booking.user_id] || 0) + 1;
+      });
+
+      listings?.forEach(listing => {
+        listingCounts[listing.owner_id] = (listingCounts[listing.owner_id] || 0) + 1;
+      });
+
+      messages?.forEach(message => {
+        messageCounts[message.user_id] = (messageCounts[message.user_id] || 0) + 1;
+      });
+
+      // Combine all data
+      const enrichedUsers = profiles?.map(profile => ({
+        ...profile,
+        bookings: bookingCounts[profile.user_id] || 0,
+        listings: listingCounts[profile.user_id] || 0,
+        messages: messageCounts[profile.user_id] || 0,
+        status: 'offline' // Since we can't track real-time status easily
+      })) || [];
+
+      setDetailedUsers(enrichedUsers);
+
+      // Calculate stats
+      const totalUsers = enrichedUsers.length;
+      const parkingOwners = enrichedUsers.filter(user => user.user_type === 'owner').length;
+      const parkingSeekers = enrichedUsers.filter(user => user.user_type === 'seeker').length;
+
+      setUserStats({
+        totalUsers,
+        onlineUsers: 0, // Would need real-time tracking
+        parkingOwners,
+        parkingSeekers
+      });
+
+    } catch (error) {
+      console.error('Error fetching detailed users:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch user details",
+        variant: "destructive",
+      });
+    } finally {
+      setDetailedUsersLoading(false);
+    }
+  };
+
+  const deleteUser = async (userId: string) => {
+    if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      // Note: In a production app, you might want to handle this differently
+      // For now, we'll just delete the profile (the auth user would remain)
+      const { error } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('user_id', userId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "User deleted successfully",
+      });
+
+      fetchDetailedUsers();
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete user",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const filteredUsers = detailedUsers.filter(user => {
+    const matchesSearch = !searchTerm || 
+      user.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.phone?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesFilter = userFilter === 'all' || 
+      (userFilter === 'owners' && user.user_type === 'owner') ||
+      (userFilter === 'seekers' && user.user_type === 'seeker');
+    
+    return matchesSearch && matchesFilter;
+  });
+
   const updateVerificationStatus = async (verificationId: string, status: 'verified' | 'rejected') => {
     try {
       setVerificationUpdating(verificationId);
@@ -853,11 +992,12 @@ const AdminPanel = () => {
         <h1 className="text-3xl font-bold mb-8">Admin Panel</h1>
         
         <Tabs defaultValue="news" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="news">News Management</TabsTrigger>
             <TabsTrigger value="listings">Parking Listings</TabsTrigger>
             <TabsTrigger value="verifications">User Verifications</TabsTrigger>
             <TabsTrigger value="messages">Send Messages</TabsTrigger>
+            <TabsTrigger value="users">User Management</TabsTrigger>
           </TabsList>
 
           <TabsContent value="news" className="space-y-6">
@@ -1489,6 +1629,179 @@ const AdminPanel = () => {
                   <Mail className="h-4 w-4" />
                   {messageSending ? 'Sending...' : 'Send Message'}
                 </Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="users" className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-semibold">User Management</h2>
+            </div>
+
+            {/* User Statistics */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="text-center">
+                    <h3 className="text-2xl font-bold">{userStats.totalUsers}</h3>
+                    <p className="text-muted-foreground">Total Users</p>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="text-center">
+                    <h3 className="text-2xl font-bold text-green-600">{userStats.onlineUsers}</h3>
+                    <p className="text-muted-foreground">Online Now</p>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="text-center">
+                    <h3 className="text-2xl font-bold">{userStats.parkingOwners}</h3>
+                    <p className="text-muted-foreground">Parking Owners</p>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="text-center">
+                    <h3 className="text-2xl font-bold">{userStats.parkingSeekers}</h3>
+                    <p className="text-muted-foreground">Parking Seekers</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Search and Filter */}
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex-1">
+                <Input
+                  placeholder="Search users by name, email, or phone..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+              <Select value={userFilter} onValueChange={setUserFilter}>
+                <SelectTrigger className="w-full sm:w-[180px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Users</SelectItem>
+                  <SelectItem value="owners">Parking Owners</SelectItem>
+                  <SelectItem value="seekers">Parking Seekers</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* User Management Table */}
+            <Card>
+              <CardHeader>
+                <CardTitle>User Management ({filteredUsers.length} users)</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {detailedUsersLoading ? (
+                  <div className="text-center py-8">
+                    <p>Loading users...</p>
+                  </div>
+                ) : filteredUsers.length === 0 ? (
+                  <div className="text-center py-8">
+                    <p className="text-muted-foreground">No users found.</p>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="border-b">
+                          <th className="text-left p-4">User</th>
+                          <th className="text-left p-4">Type</th>
+                          <th className="text-left p-4">Status</th>
+                          <th className="text-left p-4">Activity</th>
+                          <th className="text-left p-4">Joined</th>
+                          <th className="text-left p-4">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredUsers.map((user) => (
+                          <tr key={user.user_id} className="border-b hover:bg-muted/50">
+                            <td className="p-4">
+                              <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
+                                  <span className="text-sm font-medium">
+                                    {user.full_name ? user.full_name.charAt(0).toUpperCase() : 'U'}
+                                  </span>
+                                </div>
+                                <div>
+                                  <p className="font-medium">{user.full_name || 'Unknown'}</p>
+                                  <p className="text-sm text-muted-foreground">{user.phone || 'No phone'}</p>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="p-4">
+                              <Badge variant={user.user_type === 'owner' ? 'default' : 'secondary'}>
+                                {user.user_type === 'owner' ? 'Parking Owner' : 'Parking Seeker'}
+                              </Badge>
+                            </td>
+                            <td className="p-4">
+                              <Badge variant={user.status === 'online' ? 'default' : 'secondary'}>
+                                {user.status === 'online' ? 'Online' : 'Offline'}
+                              </Badge>
+                            </td>
+                            <td className="p-4">
+                              <div className="text-sm space-y-1">
+                                <div>Bookings: {user.bookings}</div>
+                                <div>Listings: {user.listings}</div>
+                                <div>Messages: {user.messages}</div>
+                              </div>
+                            </td>
+                            <td className="p-4">
+                              <div className="text-sm">
+                                {format(new Date(user.created_at), 'MMM d, yyyy')}
+                              </div>
+                            </td>
+                            <td className="p-4">
+                              <div className="flex items-center gap-2">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => {
+                                    // View user details - could open a modal
+                                    toast({
+                                      title: "User Details",
+                                      description: `User: ${user.full_name || 'Unknown'}, Type: ${user.user_type}`,
+                                    });
+                                  }}
+                                >
+                                  👁️
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => {
+                                    setSelectedUserId(user.user_id);
+                                    // Switch to messages tab
+                                    const messagesTab = document.querySelector('[value="messages"]') as HTMLElement;
+                                    messagesTab?.click();
+                                  }}
+                                >
+                                  ✏️
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  onClick={() => deleteUser(user.user_id)}
+                                >
+                                  🗑️
+                                </Button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
