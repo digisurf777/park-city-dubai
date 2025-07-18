@@ -9,11 +9,11 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import TawkToChat from "@/components/TawkToChat";
 import LavableHome from "./pages/LavableHome";
 import LavableFAQ from "./pages/LavableFAQ";
-import Index from "./pages/Index";
-import FindParking from "./pages/FindParking";
+import IndexOptimized from "./pages/IndexOptimized";
+import FindParkingOptimized from "./pages/FindParkingOptimized";
 import AboutUs from "./pages/AboutUs";
 import FAQ from "./pages/FAQ";
-import News from "./pages/News";
+import NewsOptimized from "./pages/NewsOptimized";
 import NewsArticle from "./pages/NewsArticle";
 import ProductPage from "./pages/ProductPage";
 import RentOutYourSpace from "./pages/RentOutYourSpace";
@@ -49,12 +49,12 @@ const App = () => (
               <Route path="/lavable" element={<LavableHome />} />
               <Route path="/lavable/faq" element={<LavableFAQ />} />
               
-              <Route path="/" element={<Index />} />
-              <Route path="/find-parking" element={<FindParking />} />
-              <Route path="/find-a-parking-space" element={<FindParking />} />
+              <Route path="/" element={<IndexOptimized />} />
+              <Route path="/find-parking" element={<FindParkingOptimized />} />
+              <Route path="/find-a-parking-space" element={<FindParkingOptimized />} />
               <Route path="/about-us" element={<AboutUs />} />
               <Route path="/faq" element={<FAQ />} />
-              <Route path="/news" element={<News />} />
+              <Route path="/news" element={<NewsOptimized />} />
               <Route path="/news/:slug" element={<NewsArticle />} />
               <Route path="/rent-out-your-space" element={<RentOutYourSpace />} />
               <Route path="/calculator" element={<Calculator />} />
