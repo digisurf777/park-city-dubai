@@ -14,6 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Pencil, Trash2, Plus, CheckCircle, XCircle, FileText, Mail, Upload, X, Users } from 'lucide-react';
 import { format } from 'date-fns';
 import UserManagementTab from '@/components/UserManagementTab';
+import NewsImageUpload from '@/components/NewsImageUpload';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
@@ -711,22 +712,37 @@ const AdminPanel = () => {
     }
   };
 
-  // Rich text editor configuration
+  // Enhanced Rich text editor configuration
   const quillModules = {
     toolbar: [
       [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+      [{ 'size': ['small', false, 'large', 'huge'] }],
       ['bold', 'italic', 'underline', 'strike'],
+      [{ 'color': [] }, { 'background': [] }],
       [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+      [{ 'indent': '-1'}, { 'indent': '+1' }],
       [{ 'align': [] }],
-      ['link'],
+      ['blockquote', 'code-block'],
+      ['link', 'image'],
       ['clean']
     ],
   };
 
   const quillFormats = [
-    'header', 'bold', 'italic', 'underline', 'strike',
-    'list', 'bullet', 'align', 'link'
+    'header', 'size', 'bold', 'italic', 'underline', 'strike',
+    'color', 'background', 'list', 'bullet', 'indent', 'align',
+    'blockquote', 'code-block', 'link', 'image'
   ];
+
+  // Function to insert image into Quill editor
+  const insertImageIntoEditor = (imageUrl: string) => {
+    // Get current cursor position and insert image
+    const quillEditor = document.querySelector('.ql-editor');
+    if (quillEditor) {
+      const img = `<img src="${imageUrl}" alt="News Image" style="max-width: 100%; height: auto; margin: 10px 0;" />`;
+      setContent(prev => prev + img);
+    }
+  };
 
   const resetForm = () => {
     setTitle('');
@@ -894,7 +910,7 @@ const AdminPanel = () => {
             </div>
 
             <div className="grid grid-cols-1 gap-8">
-              {/* Form Section */}
+              {/* Enhanced Form Section */}
               {(isCreating || editingPost) && (
                 <Card className="w-full">
                   <CardHeader>
@@ -931,7 +947,7 @@ const AdminPanel = () => {
                         id="imageUrl"
                         value={imageUrl}
                         onChange={(e) => setImageUrl(e.target.value)}
-                        placeholder="Enter image URL"
+                        placeholder="Enter featured image URL"
                       />
                       {imageUrl && (
                         <div className="mt-2">
@@ -944,6 +960,9 @@ const AdminPanel = () => {
                       )}
                     </div>
 
+                    {/* Image Upload Component */}
+                    <NewsImageUpload onImageInserted={insertImageIntoEditor} />
+
                     <div>
                       <Label htmlFor="content">Content</Label>
                       <div className="mt-2">
@@ -952,9 +971,9 @@ const AdminPanel = () => {
                           onChange={setContent}
                           modules={quillModules}
                           formats={quillFormats}
-                          placeholder="Write your news content here... Use the toolbar above for formatting."
-                          className="bg-white"
-                          style={{ height: '400px', marginBottom: '50px' }}
+                          placeholder="Write your news content here... Use the toolbar above for formatting and the image uploader above to add images."
+                          className="bg-white news-editor"
+                          style={{ height: '500px', marginBottom: '60px' }}
                         />
                       </div>
                     </div>
@@ -971,7 +990,7 @@ const AdminPanel = () => {
                 </Card>
               )}
 
-              {/* Posts List Section */}
+              {/* Enhanced Posts List Section */}
               <div className="space-y-4">
                 <h3 className="text-xl font-semibold mb-4">All News Posts</h3>
                 {posts.length === 0 ? (
@@ -982,7 +1001,7 @@ const AdminPanel = () => {
                   </Card>
                 ) : (
                   posts.map((post) => (
-                    <Card key={post.id}>
+                    <Card key={post.id} className="hover:shadow-lg transition-shadow">
                       <CardContent className="pt-6">
                         <div className="flex justify-between items-start mb-4">
                           <div className="flex-1">
@@ -991,31 +1010,43 @@ const AdminPanel = () => {
                               Published: {format(new Date(post.publication_date), 'PPP p')}
                             </p>
                             {post.image_url && (
-                              <img 
-                                src={post.image_url} 
-                                alt={post.title}
-                                className="w-32 h-20 object-cover rounded mb-2"
-                              />
+                              <div className="mb-3">
+                                <img 
+                                  src={post.image_url} 
+                                  alt={post.title}
+                                  className="w-48 h-32 object-cover rounded border"
+                                />
+                              </div>
                             )}
-                            <div 
-                              className="text-sm line-clamp-3 prose prose-sm max-w-none"
-                              dangerouslySetInnerHTML={{ __html: post.content }}
-                            />
+                            <div className="prose prose-sm max-w-none">
+                              <div 
+                                className="text-sm line-clamp-4 news-content-preview"
+                                dangerouslySetInnerHTML={{ 
+                                  __html: post.content.length > 200 
+                                    ? post.content.substring(0, 200) + '...' 
+                                    : post.content 
+                                }}
+                              />
+                            </div>
                           </div>
                           <div className="flex gap-2 ml-4">
                             <Button
                               size="sm"
                               variant="outline"
                               onClick={() => handleEdit(post)}
+                              className="flex items-center gap-1"
                             >
                               <Pencil className="h-4 w-4" />
+                              Edit
                             </Button>
                             <Button
                               size="sm"
                               variant="destructive"
                               onClick={() => handleDelete(post.id)}
+                              className="flex items-center gap-1"
                             >
                               <Trash2 className="h-4 w-4" />
+                              Delete
                             </Button>
                           </div>
                         </div>
