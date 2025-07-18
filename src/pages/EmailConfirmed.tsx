@@ -92,7 +92,8 @@ const EmailConfirmed = () => {
             await supabase.functions.invoke('send-welcome-email', {
               body: {
                 email: result.data.user.email,
-                name: result.data.user.user_metadata?.full_name || 'User'
+                name: result.data.user.user_metadata?.full_name || 'User',
+                redirectUrl: window.location.origin
               }
             });
             console.log('Welcome email sent successfully');
@@ -165,10 +166,10 @@ const EmailConfirmed = () => {
           {confirmed ? (
             <>
               <p className="text-sm text-muted-foreground">
-                Your email has been confirmed. You can now log in to your account.
+                Your email has been confirmed. You can now access your account and start using ShazamParking.
               </p>
-              <Button onClick={handleLoginRedirect} className="w-full">
-                Go to Login
+              <Button onClick={() => navigate('/')} className="w-full">
+                Go to ShazamParking
               </Button>
             </>
           ) : (
