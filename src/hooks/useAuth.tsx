@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -129,11 +128,28 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const resetPassword = async (email: string) => {
-    const redirectUrl = `${window.location.origin}/auth`;
+    const redirectUrl = `${window.location.origin}/reset-password`;
     
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: redirectUrl,
     });
+    
+    // Send custom password reset email
+    if (!error) {
+      try {
+        await supabase.functions.invoke('send-password-reset', {
+          body: {
+            email: email,
+            resetUrl: redirectUrl
+          }
+        });
+        console.log('Custom password reset email sent successfully');
+      } catch (emailError) {
+        console.error('Failed to send custom password reset email:', emailError);
+        // Don't fail the reset if custom email fails, Supabase default will still work
+      }
+    }
+    
     return { error };
   };
 

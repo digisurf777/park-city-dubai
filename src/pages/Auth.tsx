@@ -122,8 +122,9 @@ const Auth = () => {
       if (error) {
         toast.error(error.message || 'Błąd podczas wysyłania e-maila resetującego');
       } else {
-        toast.success('E-mail resetujący hasło został wysłany!', {
-          description: 'Sprawdź swoją skrzynkę odbiorczą.'
+        toast.success('E-mail z linkiem do resetowania hasła został wysłany!', {
+          duration: 6000,
+          description: 'Sprawdź swoją skrzynkę odbiorczą i kliknij link, aby zresetować hasło.'
         });
         setResetEmail('');
         setShowResetForm(false);
