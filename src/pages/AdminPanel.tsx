@@ -11,9 +11,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Pencil, Trash2, Plus, CheckCircle, XCircle, FileText, Mail, Upload, X, Users } from 'lucide-react';
+import { Pencil, Trash2, Plus, CheckCircle, XCircle, FileText, Mail, Upload, X, Users, Image } from 'lucide-react';
 import { format } from 'date-fns';
 import UserManagementTab from '@/components/UserManagementTab';
+import NewsImageUpload from '@/components/NewsImageUpload';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
@@ -96,6 +97,9 @@ const AdminPanel = () => {
   const [newImageUrl, setNewImageUrl] = useState('');
   const [uploadingImage, setUploadingImage] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [showImageUpload, setShowImageUpload] = useState(false);
+  const quillRef = useRef<ReactQuill>(null);
 
   useEffect(() => {
     if (user) {
@@ -711,22 +715,54 @@ const AdminPanel = () => {
     }
   };
 
-  // Rich text editor configuration
+  // Enhanced rich text editor configuration
   const quillModules = {
-    toolbar: [
-      [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-      ['bold', 'italic', 'underline', 'strike'],
-      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-      [{ 'align': [] }],
-      ['link'],
-      ['clean']
-    ],
+    toolbar: {
+      container: [
+        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+        [{ 'font': [] }],
+        [{ 'size': ['small', false, 'large', 'huge'] }],
+        ['bold', 'italic', 'underline', 'strike'],
+        [{ 'color': [] }, { 'background': [] }],
+        [{ 'script': 'sub'}, { 'script': 'super' }],
+        [{ 'list': 'ordered'}, { 'list': 'bullet' }, { 'indent': '-1'}, { 'indent': '+1' }],
+        [{ 'direction': 'rtl' }],
+        [{ 'align': [] }],
+        ['blockquote', 'code-block'],
+        ['link', 'image-upload'],
+        ['clean']
+      ],
+      handlers: {
+        'image-upload': () => {
+          setShowImageUpload(true);
+        }
+      }
+    },
   };
 
   const quillFormats = [
-    'header', 'bold', 'italic', 'underline', 'strike',
-    'list', 'bullet', 'align', 'link'
+    'header', 'font', 'size',
+    'bold', 'italic', 'underline', 'strike',
+    'color', 'background',
+    'script',
+    'list', 'bullet', 'indent',
+    'direction', 'align',
+    'blockquote', 'code-block',
+    'link', 'image'
   ];
+
+  const handleImageInsert = (imageUrl: string) => {
+    if (quillRef.current) {
+      const quill = quillRef.current.getEditor();
+      const range = quill.getSelection();
+      const index = range ? range.index : quill.getLength();
+      
+      // Insert image with proper formatting
+      quill.insertEmbed(index, 'image', imageUrl);
+      quill.insertText(index + 1, '\n');
+      quill.setSelection(index + 2);
+    }
+  };
 
   const resetForm = () => {
     setTitle('');
@@ -894,73 +930,101 @@ const AdminPanel = () => {
             </div>
 
             <div className="grid grid-cols-1 gap-8">
-              {/* Form Section */}
+              {/* Enhanced Form Section */}
               {(isCreating || editingPost) && (
                 <Card className="w-full">
                   <CardHeader>
-                    <CardTitle>
+                    <CardTitle className="flex items-center gap-2">
+                      <FileText className="h-5 w-5" />
                       {editingPost ? 'Edit News Post' : 'Create New News Post'}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="title">Title</Label>
+                        <Label htmlFor="title">Title *</Label>
                         <Input
                           id="title"
                           value={title}
                           onChange={(e) => setTitle(e.target.value)}
-                          placeholder="Enter post title"
+                          placeholder="Enter compelling post title"
+                          className="mt-1"
                         />
                       </div>
 
                       <div>
-                        <Label htmlFor="publicationDate">Publication Date</Label>
+                        <Label htmlFor="publicationDate">Publication Date *</Label>
                         <Input
                           id="publicationDate"
                           type="datetime-local"
                           value={publicationDate}
                           onChange={(e) => setPublicationDate(e.target.value)}
+                          className="mt-1"
                         />
                       </div>
                     </div>
 
                     <div>
                       <Label htmlFor="imageUrl">Featured Image URL</Label>
-                      <Input
-                        id="imageUrl"
-                        value={imageUrl}
-                        onChange={(e) => setImageUrl(e.target.value)}
-                        placeholder="Enter image URL"
-                      />
+                      <div className="flex gap-2 mt-1">
+                        <Input
+                          id="imageUrl"
+                          value={imageUrl}
+                          onChange={(e) => setImageUrl(e.target.value)}
+                          placeholder="Enter featured image URL"
+                          className="flex-1"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => setShowImageUpload(true)}
+                          className="flex items-center gap-2"
+                        >
+                          <Image className="h-4 w-4" />
+                          Upload
+                        </Button>
+                      </div>
                       {imageUrl && (
-                        <div className="mt-2">
+                        <div className="mt-3">
                           <img 
                             src={imageUrl} 
-                            alt="Preview" 
-                            className="w-32 h-20 object-cover rounded border"
+                            alt="Featured image preview" 
+                            className="w-40 h-24 object-cover rounded border"
                           />
                         </div>
                       )}
                     </div>
 
                     <div>
-                      <Label htmlFor="content">Content</Label>
-                      <div className="mt-2">
+                      <div className="flex items-center justify-between mb-2">
+                        <Label htmlFor="content">Content *</Label>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setShowImageUpload(true)}
+                          className="flex items-center gap-1 text-xs"
+                        >
+                          <Image className="h-3 w-3" />
+                          Add Image
+                        </Button>
+                      </div>
+                      <div className="news-editor">
                         <ReactQuill
+                          ref={quillRef}
                           value={content}
                           onChange={setContent}
                           modules={quillModules}
                           formats={quillFormats}
-                          placeholder="Write your news content here... Use the toolbar above for formatting."
+                          placeholder="Write your news content here... Use the toolbar above for rich formatting and to add images."
                           className="bg-white"
-                          style={{ height: '400px', marginBottom: '50px' }}
+                          style={{ height: '450px', marginBottom: '60px' }}
                         />
                       </div>
                     </div>
 
                     <div className="flex gap-2 pt-4">
-                      <Button onClick={handleSave}>
+                      <Button onClick={handleSave} className="flex items-center gap-2">
                         {editingPost ? 'Update Post' : 'Create Post'}
                       </Button>
                       <Button variant="outline" onClick={resetForm}>
@@ -1539,6 +1603,21 @@ const AdminPanel = () => {
             <UserManagementTab />
           </TabsContent>
         </Tabs>
+
+        {/* Image Upload Modal */}
+        <NewsImageUpload
+          isOpen={showImageUpload}
+          onClose={() => setShowImageUpload(false)}
+          onImageInsert={(url) => {
+            if (showImageUpload) {
+              // If opened from featured image section
+              setImageUrl(url);
+            } else {
+              // If opened from content editor
+              handleImageInsert(url);
+            }
+          }}
+        />
       </div>
     </div>
   );
