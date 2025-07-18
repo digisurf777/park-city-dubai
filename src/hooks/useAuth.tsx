@@ -81,6 +81,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         console.error('Failed to send custom confirmation email:', emailError);
         // Don't fail the signup if custom email fails
       }
+
+      // Send welcome email immediately after confirmation email
+      try {
+        await supabase.functions.invoke('send-welcome-email', {
+          body: {
+            email: email,
+            name: fullName
+          }
+        });
+        console.log('Welcome email sent successfully');
+      } catch (emailError) {
+        console.error('Failed to send welcome email:', emailError);
+        // Don't fail the signup if welcome email fails
+      }
     }
 
     // Send admin notification after successful signup
