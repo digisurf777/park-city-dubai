@@ -87,6 +87,20 @@ const EmailConfirmed = () => {
           setConfirmed(true);
           console.log('User confirmed successfully:', result.data.user.email);
           
+          // Send welcome email after successful confirmation
+          try {
+            await supabase.functions.invoke('send-welcome-email', {
+              body: {
+                email: result.data.user.email,
+                name: result.data.user.user_metadata?.full_name || 'User'
+              }
+            });
+            console.log('Welcome email sent successfully');
+          } catch (emailError) {
+            console.error('Failed to send welcome email:', emailError);
+            // Don't fail the confirmation if email fails
+          }
+          
           // Redirect to home after success
           setTimeout(() => {
             navigate('/');
