@@ -22,30 +22,14 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16 min-h-[60px]">
           {/* Logo */}
-          <div 
-            className="flex items-center space-x-2 touch-manipulation min-h-[44px] min-w-[44px] cursor-pointer"
-            onClick={(e) => {
-              e.preventDefault();
-              setIsMenuOpen(false);
-              window.location.href = '/';
-            }}
-            role="button"
-            tabIndex={0}
-            aria-label="Go to home page"
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                setIsMenuOpen(false);
-                window.location.href = '/';
-              }
-            }}
-          >
+          <Link to="/" className="flex items-center space-x-2 touch-manipulation min-h-[44px] min-w-[44px]" onClick={() => setIsMenuOpen(false)}>
             <img 
               src="/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.png" 
               alt="Shazam Parking" 
               className="h-10 w-auto"
+              loading="eager"
             />
-          </div>
+          </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
@@ -168,7 +152,7 @@ const Navbar = () => {
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="md:hidden absolute top-16 left-0 right-0 backdrop-blur-md bg-white/95 border-b border-white/20 shadow-lg animate-slide-up max-h-[calc(100vh-4rem)] overflow-y-auto mobile-scroll">
+          <div className="md:hidden fixed top-16 left-0 right-0 z-40 backdrop-blur-md bg-white/95 border-b border-white/20 shadow-lg animate-fade-in max-h-[calc(100vh-4rem)] overflow-y-auto mobile-scroll">
             <div className="px-4 py-6 space-y-2 pb-safe-area-bottom">
               
               {/* Auth Buttons - Top of mobile menu */}
@@ -176,13 +160,13 @@ const Navbar = () => {
                 {user ? (
                   <>
                     <Link to="/my-account" onClick={() => setIsMenuOpen(false)}>
-                      <Button variant="ghost" className="w-full text-gray-700 hover:text-primary min-h-[44px] touch-manipulation">
-                        <User className="mr-2 h-4 w-4" />
+                      <Button variant="ghost" className="w-full text-gray-700 hover:text-primary min-h-[48px] touch-manipulation text-left justify-start">
+                        <User className="mr-3 h-5 w-5" />
                         My Account
                       </Button>
                     </Link>
                     <Link to="/rent-out-your-space" onClick={() => setIsMenuOpen(false)}>
-                      <Button className="w-full bg-primary hover:bg-primary/90 text-white min-h-[44px] touch-manipulation">
+                      <Button className="w-full bg-primary hover:bg-primary/90 text-white min-h-[48px] touch-manipulation">
                         List Your Space
                       </Button>
                     </Link>
@@ -190,12 +174,12 @@ const Navbar = () => {
                 ) : (
                   <>
                     <Link to="/auth" onClick={() => setIsMenuOpen(false)}>
-                      <Button variant="ghost" className="w-full text-gray-700 hover:text-primary min-h-[44px] touch-manipulation">
+                      <Button variant="ghost" className="w-full text-gray-700 hover:text-primary min-h-[48px] touch-manipulation text-left justify-start">
                         Login / Sign Up
                       </Button>
                     </Link>
                     <Link to="/rent-out-your-space" onClick={() => setIsMenuOpen(false)}>
-                      <Button className="w-full bg-primary hover:bg-primary/90 text-white min-h-[44px] touch-manipulation">
+                      <Button className="w-full bg-primary hover:bg-primary/90 text-white min-h-[48px] touch-manipulation">
                         List Your Space
                       </Button>
                     </Link>
@@ -205,7 +189,7 @@ const Navbar = () => {
 
               <Link
                 to="/find-a-parking-space"
-                className="block text-gray-700 hover:text-primary transition-colors py-3 px-2 rounded-md touch-manipulation min-h-[44px] flex items-center"
+                className="block text-gray-700 hover:text-primary transition-colors py-4 px-4 rounded-md touch-manipulation min-h-[48px] flex items-center text-lg font-medium"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Find a Parking Space
@@ -213,46 +197,46 @@ const Navbar = () => {
               
               {/* Mobile Zones Menu */}
               <div className="py-2">
-                <p className="text-sm font-medium text-gray-500 mb-2 px-2">Zones</p>
-                <div className="pl-4 space-y-1">
+                <p className="text-sm font-semibold text-gray-600 mb-3 px-4 uppercase tracking-wide">Popular Zones</p>
+                <div className="space-y-1">
                   <Link
                     to="/dubai-marina"
-                    className="block text-gray-700 hover:text-primary transition-colors py-2 px-2 rounded-md touch-manipulation min-h-[40px] flex items-center"
+                    className="block text-gray-700 hover:text-primary transition-colors py-3 px-6 rounded-md touch-manipulation min-h-[44px] flex items-center text-base"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Dubai Marina
                   </Link>
                   <Link
                     to="/downtown"
-                    className="block text-gray-700 hover:text-primary transition-colors py-2 px-2 rounded-md touch-manipulation min-h-[40px] flex items-center"
+                    className="block text-gray-700 hover:text-primary transition-colors py-3 px-6 rounded-md touch-manipulation min-h-[44px] flex items-center text-base"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Downtown
                   </Link>
                   <Link
                     to="/palm-jumeirah"
-                    className="block text-gray-700 hover:text-primary transition-colors py-2 px-2 rounded-md touch-manipulation min-h-[40px] flex items-center"
+                    className="block text-gray-700 hover:text-primary transition-colors py-3 px-6 rounded-md touch-manipulation min-h-[44px] flex items-center text-base"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Palm Jumeirah
                   </Link>
                   <Link
                     to="/business-bay"
-                    className="block text-gray-700 hover:text-primary transition-colors py-2 px-2 rounded-md touch-manipulation min-h-[40px] flex items-center"
+                    className="block text-gray-700 hover:text-primary transition-colors py-3 px-6 rounded-md touch-manipulation min-h-[44px] flex items-center text-base"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Business Bay
                   </Link>
                   <Link
                     to="/difc"
-                    className="block text-gray-700 hover:text-primary transition-colors py-2 px-2 rounded-md touch-manipulation min-h-[40px] flex items-center"
+                    className="block text-gray-700 hover:text-primary transition-colors py-3 px-6 rounded-md touch-manipulation min-h-[44px] flex items-center text-base"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     DIFC
                   </Link>
                   <Link
                     to="/deira"
-                    className="block text-gray-700 hover:text-primary transition-colors py-2 px-2 rounded-md touch-manipulation min-h-[40px] flex items-center"
+                    className="block text-gray-700 hover:text-primary transition-colors py-3 px-6 rounded-md touch-manipulation min-h-[44px] flex items-center text-base"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Deira
@@ -261,28 +245,28 @@ const Navbar = () => {
               </div>
               <Link
                 to="/about-us"
-                className="block text-gray-700 hover:text-primary transition-colors py-3 px-2 rounded-md touch-manipulation min-h-[44px] flex items-center"
+                className="block text-gray-700 hover:text-primary transition-colors py-4 px-4 rounded-md touch-manipulation min-h-[48px] flex items-center text-lg font-medium"
                 onClick={() => setIsMenuOpen(false)}
               >
                 About Us
               </Link>
               <Link
                 to="/faq"
-                className="block text-gray-700 hover:text-primary transition-colors py-3 px-2 rounded-md touch-manipulation min-h-[44px] flex items-center"
+                className="block text-gray-700 hover:text-primary transition-colors py-4 px-4 rounded-md touch-manipulation min-h-[48px] flex items-center text-lg font-medium"
                 onClick={() => setIsMenuOpen(false)}
               >
                 FAQ
               </Link>
               <Link
                 to="/news"
-                className="block text-gray-700 hover:text-primary transition-colors py-3 px-2 rounded-md touch-manipulation min-h-[44px] flex items-center"
+                className="block text-gray-700 hover:text-primary transition-colors py-4 px-4 rounded-md touch-manipulation min-h-[48px] flex items-center text-lg font-medium"
                 onClick={() => setIsMenuOpen(false)}
               >
                 News
               </Link>
               <Link
                 to="/calculator"
-                className="block text-gray-700 hover:text-primary transition-colors py-3 px-2 rounded-md touch-manipulation min-h-[44px] flex items-center"
+                className="block text-gray-700 hover:text-primary transition-colors py-4 px-4 rounded-md touch-manipulation min-h-[48px] flex items-center text-lg font-medium"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Calculator

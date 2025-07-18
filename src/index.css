@@ -100,13 +100,24 @@ All colors MUST be HSL.
     }
   }
   
-  /* Mobile-specific improvements */
-  @keyframes mobile-fade-in {
-    0% { 
+  /* Simplified mobile animations for better performance */
+  @keyframes fade-in {
+    from { 
       opacity: 0;
       transform: translateY(20px);
     }
-    100% { 
+    to { 
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes slide-up {
+    from { 
+      opacity: 0;
+      transform: translateY(100%);
+    }
+    to { 
       opacity: 1;
       transform: translateY(0);
     }
@@ -143,6 +154,51 @@ All colors MUST be HSL.
     @apply ring-2 ring-primary ring-offset-2;
   }
 
+  /* Performance optimized animations */
+  .animate-fade-in {
+    animation: fade-in 0.6s ease-out forwards;
+  }
+  
+  .animate-slide-up {
+    animation: slide-up 0.3s ease-out forwards;
+  }
+
+  /* Responsive image optimization */
+  img {
+    content-visibility: auto;
+  }
+  
+  /* Reduce motion for users who prefer it */
+  @media (prefers-reduced-motion: reduce) {
+    .animate-fade-in,
+    .animate-slide-up,
+    .animate-zoom-slow {
+      animation: none;
+    }
+    
+    * {
+      transition-duration: 0.01ms !important;
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+    }
+  }
+
+  /* Better mobile viewport handling */
+  @supports (height: 100dvh) {
+    .min-h-screen {
+      min-height: 100dvh;
+    }
+  }
+
+  /* Safe area handling for notched devices */
+  .pt-safe-area-top {
+    padding-top: env(safe-area-inset-top);
+  }
+  
+  .pb-safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
   /* Responsive text scaling */
   @media (max-width: 640px) {
     .responsive-text {
@@ -152,5 +208,10 @@ All colors MUST be HSL.
     .responsive-heading {
       font-size: clamp(1.5rem, 5vw, 2.25rem);
     }
+  }
+  
+  /* Touch-friendly navigation */
+  .touch-manipulation {
+    touch-action: manipulation;
   }
 }
