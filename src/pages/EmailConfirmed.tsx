@@ -16,49 +16,88 @@ const EmailConfirmed = () => {
   useEffect(() => {
     const handleEmailConfirmation = async () => {
       try {
-        // Get the token and type from URL parameters
+        // Get all possible URL parameters
         const token_hash = searchParams.get('token_hash');
         const type = searchParams.get('type');
         const access_token = searchParams.get('access_token');
         const refresh_token = searchParams.get('refresh_token');
+        const token = searchParams.get('token');
+        const code = searchParams.get('code');
 
-        console.log('URL params:', { token_hash, type, access_token });
+        // Also check hash fragment for tokens
+        const hash = window.location.hash.substring(1);
+        const hashParams = new URLSearchParams(hash);
+        const hashAccessToken = hashParams.get('access_token');
+        const hashRefreshToken = hashParams.get('refresh_token');
 
-        // Handle different confirmation methods
+        console.log('URL params:', { 
+          token_hash, 
+          type, 
+          access_token, 
+          refresh_token, 
+          token, 
+          code,
+          hashAccessToken,
+          hashRefreshToken,
+          allParams: Object.fromEntries(searchParams.entries()),
+          hashData: Object.fromEntries(hashParams.entries())
+        });
+
+        let result;
+
+        // Try different confirmation methods in order of preference
         if (access_token && refresh_token) {
-          // Direct token method - set the session
-          const { data, error } = await supabase.auth.setSession({
+          console.log('Using direct access token method');
+          result = await supabase.auth.setSession({
             access_token,
             refresh_token
           });
-
-          if (error) {
-            console.error('Session error:', error);
-            setError('Invalid confirmation link');
-          } else if (data.user) {
-            setConfirmed(true);
-            console.log('User confirmed via session:', data.user.email);
-          }
+        } else if (hashAccessToken && hashRefreshToken) {
+          console.log('Using hash fragment token method');
+          result = await supabase.auth.setSession({
+            access_token: hashAccessToken,
+            refresh_token: hashRefreshToken
+          });
+        } else if (code) {
+          console.log('Using OAuth code exchange method');
+          result = await supabase.auth.exchangeCodeForSession(code);
         } else if (token_hash && type) {
-          // Hash token method
-          const { data, error } = await supabase.auth.verifyOtp({
+          console.log('Using token hash verification method');
+          result = await supabase.auth.verifyOtp({
             token_hash,
             type: type as any
           });
-
-          if (error) {
-            console.error('Verification error:', error);
-            setError('Confirmation link expired or invalid');
-          } else if (data.user) {
-            setConfirmed(true);
-            console.log('User confirmed via OTP:', data.user.email);
-          }
         } else {
-          setError('Invalid confirmation link - missing parameters');
+          const availableParams = {
+            query: Object.fromEntries(searchParams.entries()),
+            hash: Object.fromEntries(hashParams.entries())
+          };
+          console.error('No valid confirmation parameters found:', availableParams);
+          setError(`Invalid confirmation link - missing parameters. Found: ${JSON.stringify(availableParams, null, 2)}`);
+          setLoading(false);
+          return;
         }
-      } catch (err) {
+
+        console.log('Confirmation result:', result);
+
+        if (result.error) {
+          console.error('Confirmation error:', result.error);
+          setError(result.error.message || 'Confirmation failed');
+        } else if (result.data?.user) {
+          setConfirmed(true);
+          console.log('User confirmed successfully:', result.data.user.email);
+          
+          // Redirect to home after success
+          setTimeout(() => {
+            navigate('/');
+          }, 2000);
+        } else {
+          console.error('No user data in result:', result);
+          setError('Confirmation succeeded but no user data received');
+        }
+      } catch (err: any) {
         console.error('Confirmation error:', err);
-        setError('An error occurred while confirming your email');
+        setError(err.message || 'An error occurred while confirming your email');
       } finally {
         setLoading(false);
       }
