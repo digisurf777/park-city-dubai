@@ -10,7 +10,7 @@ import TawkToChat from "@/components/TawkToChat";
 import LavableHome from "./pages/LavableHome";
 import LavableFAQ from "./pages/LavableFAQ";
 import Index from "./pages/Index";
-import FindParking from "./pages/FindParking";
+import FindParkingOptimized from "./pages/FindParkingOptimized";
 import AboutUs from "./pages/AboutUs";
 import FAQ from "./pages/FAQ";
 import News from "./pages/News";
@@ -50,8 +50,8 @@ const App = () => (
               <Route path="/lavable/faq" element={<LavableFAQ />} />
               
               <Route path="/" element={<Index />} />
-              <Route path="/find-parking" element={<FindParking />} />
-              <Route path="/find-a-parking-space" element={<FindParking />} />
+              <Route path="/find-parking" element={<FindParkingOptimized />} />
+              <Route path="/find-a-parking-space" element={<FindParkingOptimized />} />
               <Route path="/about-us" element={<AboutUs />} />
               <Route path="/faq" element={<FAQ />} />
               <Route path="/news" element={<News />} />
