@@ -10,6 +10,7 @@ const EmailConfirmed = () => {
   const [loading, setLoading] = useState(true);
   const [confirmed, setConfirmed] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [countdown, setCountdown] = useState(3);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
@@ -48,6 +49,18 @@ const EmailConfirmed = () => {
             console.error('Error updating profile:', profileError);
             // Don't fail confirmation if profile update fails
           }
+
+          // Start countdown and auto-redirect
+          let counter = 3;
+          setCountdown(counter);
+          const timer = setInterval(() => {
+            counter--;
+            setCountdown(counter);
+            if (counter === 0) {
+              clearInterval(timer);
+              navigate('/auth');
+            }
+          }, 1000);
         }
       } catch (err) {
         console.error('Confirmation error:', err);
@@ -107,8 +120,11 @@ const EmailConfirmed = () => {
               <p className="text-sm text-muted-foreground">
                 Your email address has been confirmed. You can now sign in to your account.
               </p>
+              <p className="text-sm text-blue-600 font-medium">
+                Redirecting to login in {countdown} second{countdown !== 1 ? 's' : ''}...
+              </p>
               <Button onClick={handleLoginRedirect} className="w-full">
-                Go to Sign In
+                Go to Sign In Now
               </Button>
             </>
           ) : (

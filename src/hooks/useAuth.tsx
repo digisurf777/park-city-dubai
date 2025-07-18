@@ -48,7 +48,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signUp = async (email: string, password: string, fullName: string, userType: string = 'renter') => {
+  const signUp = async (email: string, password: string, fullName: string, userType: string = 'seeker') => {
     const redirectUrl = `${window.location.origin}/email-confirmed`;
     
     const { data, error } = await supabase.auth.signUp({
@@ -63,26 +63,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
     });
 
-    // Send custom confirmation email after successful signup
-    if (!error && data.user && !data.user.email_confirmed_at) {
-      try {
-        // Generate confirmation URL - this should match Supabase's format
-        const confirmationUrl = `${window.location.origin}/email-confirmed`;
-        
-        await supabase.functions.invoke('send-confirmation-email', {
-          body: {
-            email: email,
-            fullName: fullName,
-            confirmationUrl: confirmationUrl
-          }
-        });
-        console.log('Custom confirmation email sent successfully');
-      } catch (emailError) {
-        console.error('Failed to send custom confirmation email:', emailError);
-        // Don't fail the signup if custom email fails
-      }
-
-      // Send welcome email immediately after confirmation email
+    // Send welcome email only after successful signup
+    if (!error && data.user) {
       try {
         await supabase.functions.invoke('send-welcome-email', {
           body: {
