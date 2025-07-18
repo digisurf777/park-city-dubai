@@ -1,89 +1,212 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 174 66% 56%; /* #4ECDC4 - Shazam Parking Brand Green */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 154 100% 96%;
+    --secondary-foreground: 154 100% 15%;
+    
+    --text-dark: 0 0% 13%; /* #202020 */
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 142 73% 91%;
+    --accent-foreground: 142 73% 15%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 174 66% 56%;
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 174 66% 56%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 175 73% 96%;
+    --sidebar-accent-foreground: 175 73% 15%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 174 66% 56%;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 174 66% 56%; /* #4ECDC4 - Shazam Parking Brand Green */
+    --primary-foreground: 0 0% 100%;
+    
+    --text-dark: 0 0% 13%; /* #202020 */
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 174 66% 56%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 174 66% 56%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 174 66% 56%;
+  }
+
+  @keyframes zoom-slow {
+    0% { 
+      transform: scale(1.05); 
+    }
+    100% { 
+      transform: scale(1); 
+    }
+  }
+  
+  /* Mobile-specific improvements */
+  @keyframes mobile-fade-in {
+    0% { 
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    100% { 
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
 @layer base {
   * {
-    @apply antialiased;
+    @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
-    font-feature-settings: "rlig" 1, "calt" 1;
+    /* Mobile optimizations */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    touch-action: manipulation; /* Prevents zoom on double tap */
+  }
+
+  /* Mobile touch targets - minimum 44px for accessibility */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Better mobile scrolling */
+  .mobile-scroll {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+
+  /* Focus states for accessibility */
+  .touch-focus:focus-visible {
+    @apply ring-2 ring-primary ring-offset-2;
+  }
+
+  /* Responsive text scaling */
+  @media (max-width: 640px) {
+    .responsive-text {
+      font-size: clamp(0.875rem, 2.5vw, 1rem);
+    }
+    
+    .responsive-heading {
+      font-size: clamp(1.5rem, 5vw, 2.25rem);
+    }
   }
 }
 
-@layer components {
-  .section-container {
-    @apply container py-24;
-  }
-}
-
-/* Enhanced ReactQuill Styles */
-.ql-editor {
-  min-height: 400px !important;
-  font-family: inherit;
-  line-height: 1.6;
-}
-
-.ql-editor img {
-  max-width: 100%;
-  height: auto;
-  border-radius: 8px;
-  margin: 10px 0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.ql-editor p {
-  margin-bottom: 1em;
-}
-
-.ql-editor h1, .ql-editor h2, .ql-editor h3, .ql-editor h4, .ql-editor h5, .ql-editor h6 {
-  margin-top: 1.5em;
-  margin-bottom: 0.5em;
-  font-weight: bold;
-}
-
-.ql-editor ul, .ql-editor ol {
-  margin-bottom: 1em;
-  padding-left: 1.5em;
-}
-
-.ql-editor blockquote {
-  border-left: 4px solid #e2e8f0;
-  padding-left: 1em;
-  margin: 1em 0;
-  font-style: italic;
-  background-color: #f8fafc;
-}
-
+/* ReactQuill custom styling */
 .ql-toolbar {
-  border-top: 1px solid #e2e8f0 !important;
-  border-left: 1px solid #e2e8f0 !important;
-  border-right: 1px solid #e2e8f0 !important;
+  border-top: 1px solid hsl(var(--border)) !important;
+  border-left: 1px solid hsl(var(--border)) !important;
+  border-right: 1px solid hsl(var(--border)) !important;
   border-bottom: none !important;
-  background: white;
-  border-radius: 8px 8px 0 0;
+  background: hsl(var(--muted)) !important;
 }
 
 .ql-container {
-  border-bottom: 1px solid #e2e8f0 !important;
-  border-left: 1px solid #e2e8f0 !important;
-  border-right: 1px solid #e2e8f0 !important;
+  border-bottom: 1px solid hsl(var(--border)) !important;
+  border-left: 1px solid hsl(var(--border)) !important;
+  border-right: 1px solid hsl(var(--border)) !important;
   border-top: none !important;
-  border-radius: 0 0 8px 8px;
-  background: white;
+  font-family: inherit !important;
 }
 
-.ql-snow .ql-tooltip {
-  z-index: 1000;
+.ql-editor {
+  font-size: 14px !important;
+  line-height: 1.6 !important;
+  min-height: 350px !important;
 }
 
-/* Image resize handles */
-.ql-editor .ql-image-resize {
-  position: relative;
-  display: inline-block;
+.ql-editor h1 { font-size: 2em !important; margin: 0.67em 0 !important; }
+.ql-editor h2 { font-size: 1.5em !important; margin: 0.75em 0 !important; }
+.ql-editor h3 { font-size: 1.17em !important; margin: 0.83em 0 !important; }
+.ql-editor h4 { font-size: 1em !important; margin: 1.12em 0 !important; }
+.ql-editor h5 { font-size: 0.83em !important; margin: 1.5em 0 !important; }
+.ql-editor h6 { font-size: 0.75em !important; margin: 1.67em 0 !important; }
+
+.ql-editor p { margin: 1em 0 !important; }
+.ql-editor ul, .ql-editor ol { margin: 1em 0 !important; padding-left: 2em !important; }
+.ql-editor li { margin: 0.5em 0 !important; }
+
+/* Ensure proper spacing in prose content */
+.prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
 }
 
-.ql-editor .ql-image-resize img {
-  display: block;
+.prose p {
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+.prose ul, .prose ol {
+  margin-top: 1em;
+  margin-bottom: 1em;
+  padding-left: 2em;
+}
+
+.prose li {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
 }
