@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -20,7 +21,7 @@ const EmailConfirmed = () => {
         const type = searchParams.get('type');
 
         if (!token || type !== 'signup') {
-          setError('Invalid confirmation link');
+          setError('Nieprawidłowy link potwierdzający');
           setLoading(false);
           return;
         }
@@ -32,18 +33,25 @@ const EmailConfirmed = () => {
         });
 
         if (error) {
-          setError(error.message);
+          console.error('Verification error:', error);
+          setError('Link potwierdzający wygasł lub jest nieprawidłowy');
         } else if (data.user) {
           setConfirmed(true);
           
           // Update the profile to mark email as confirmed
-          await supabase
-            .from('profiles')
-            .update({ email_confirmed_at: new Date().toISOString() })
-            .eq('user_id', data.user.id);
+          try {
+            await supabase
+              .from('profiles')
+              .update({ email_confirmed_at: new Date().toISOString() })
+              .eq('user_id', data.user.id);
+          } catch (profileError) {
+            console.error('Error updating profile:', profileError);
+            // Don't fail confirmation if profile update fails
+          }
         }
       } catch (err) {
-        setError('An error occurred while confirming your email');
+        console.error('Confirmation error:', err);
+        setError('Wystąpił błąd podczas potwierdzania adresu e-mail');
       } finally {
         setLoading(false);
       }
@@ -62,7 +70,7 @@ const EmailConfirmed = () => {
         <Card className="w-full max-w-md">
           <CardContent className="flex flex-col items-center justify-center py-8">
             <Loader2 className="h-8 w-8 animate-spin mb-4" />
-            <p>Confirming your email...</p>
+            <p>Potwierdzanie adresu e-mail...</p>
           </CardContent>
         </Card>
       </div>
@@ -77,19 +85,19 @@ const EmailConfirmed = () => {
             {confirmed ? (
               <>
                 <CheckCircle className="h-6 w-6 text-green-600" />
-                Email Confirmed!
+                E-mail potwierdzony!
               </>
             ) : (
               <>
                 <XCircle className="h-6 w-6 text-red-600" />
-                Confirmation Failed
+                Potwierdzenie nieudane
               </>
             )}
           </CardTitle>
           <CardDescription>
             {confirmed 
-              ? "Your email has been successfully confirmed."
-              : "There was an issue confirming your email."
+              ? "Twój adres e-mail został pomyślnie potwierdzony."
+              : "Wystąpił problem z potwierdzeniem adresu e-mail."
             }
           </CardDescription>
         </CardHeader>
@@ -97,22 +105,22 @@ const EmailConfirmed = () => {
           {confirmed ? (
             <>
               <p className="text-sm text-muted-foreground">
-                Your email has been confirmed. You can now log in to your account.
+                Twój adres e-mail został potwierdzony. Możesz teraz zalogować się do swojego konta.
               </p>
               <Button onClick={handleLoginRedirect} className="w-full">
-                Go to Login
+                Przejdź do logowania
               </Button>
             </>
           ) : (
             <>
               <p className="text-sm text-red-600">
-                {error || "The confirmation link is invalid or has expired."}
+                {error || "Link potwierdzający jest nieprawidłowy lub wygasł."}
               </p>
               <p className="text-sm text-muted-foreground">
-                Please try signing up again or contact support if you continue to have issues.
+                Spróbuj zarejestrować się ponownie lub skontaktuj się z obsługą, jeśli problem się powtarza.
               </p>
-              <Button onClick={() => navigate('/')} variant="outline" className="w-full">
-                Back to Home
+              <Button onClick={() => navigate('/auth')} variant="outline" className="w-full">
+                Powrót do rejestracji
               </Button>
             </>
           )}
