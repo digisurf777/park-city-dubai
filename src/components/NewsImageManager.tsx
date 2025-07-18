@@ -52,7 +52,14 @@ const NewsImageManager = ({
         .order('display_order');
 
       if (error) throw error;
-      setImages(data || []);
+      
+      // Type assertion to ensure image_type is properly typed
+      const typedImages = (data || []).map(img => ({
+        ...img,
+        image_type: img.image_type as 'featured' | 'inline'
+      }));
+      
+      setImages(typedImages);
     } catch (error) {
       console.error('Error fetching images:', error);
     }
