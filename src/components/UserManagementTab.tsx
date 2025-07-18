@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -146,8 +145,18 @@ const UserManagementTab = () => {
             messages_count: messagesResult.data?.length || 0
           };
 
+          // Ensure user_type is properly typed
+          const userType: 'renter' | 'owner' = (profile.user_type === 'owner') ? 'owner' : 'renter';
+
           userDetails.push({
-            ...profile,
+            user_id: profile.user_id,
+            full_name: profile.full_name,
+            phone: profile.phone,
+            user_type: userType,
+            created_at: profile.created_at,
+            updated_at: profile.updated_at,
+            email_confirmed_at: profile.email_confirmed_at,
+            signup_notified: profile.signup_notified,
             activity,
             email: authUser?.email || 'Unknown',
             last_sign_in: authUser?.last_sign_in_at || null,
@@ -155,9 +164,18 @@ const UserManagementTab = () => {
           });
         } catch (error) {
           console.error('Error fetching data for user:', profile.user_id, error);
-          // Add user with minimal data
+          // Add user with minimal data and proper typing
+          const userType: 'renter' | 'owner' = (profile.user_type === 'owner') ? 'owner' : 'renter';
+          
           userDetails.push({
-            ...profile,
+            user_id: profile.user_id,
+            full_name: profile.full_name,
+            phone: profile.phone,
+            user_type: userType,
+            created_at: profile.created_at,
+            updated_at: profile.updated_at,
+            email_confirmed_at: profile.email_confirmed_at,
+            signup_notified: profile.signup_notified,
             activity: {
               parking_bookings: 0,
               parking_listings: 0,
