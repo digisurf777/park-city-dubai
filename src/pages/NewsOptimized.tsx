@@ -1,48 +1,11 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import useSEO from "@/hooks/useSEO";
-
-// Lazy load images component
-const LazyImage = ({ src, alt, className }: {
-  src: string;
-  alt: string;
-  className?: string;
-}) => {
-  const [imageLoaded, setImageLoaded] = useState(false);
-  const [imageSrc, setImageSrc] = useState("");
-
-  useEffect(() => {
-    const img = new Image();
-    img.onload = () => {
-      setImageSrc(src);
-      setImageLoaded(true);
-    };
-    img.src = src;
-  }, [src]);
-
-  return (
-    <div className={`relative ${className}`}>
-      {!imageLoaded && (
-        <div className="absolute inset-0 bg-gray-200 animate-pulse" />
-      )}
-      {imageSrc && (
-        <img
-          src={imageSrc}
-          alt={alt}
-          className="w-full h-full object-cover"
-          loading="lazy"
-          onLoad={() => setImageLoaded(true)}
-        />
-      )}
-    </div>
-  );
-};
 
 interface NewsPost {
   id: string;
@@ -54,6 +17,40 @@ interface NewsPost {
   updated_at: string;
 }
 
+// Optimized image component with lazy loading
+const OptimizedImage = ({ src, alt, className }: { src: string; alt: string; className: string }) => {
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [error, setError] = useState(false);
+
+  const handleLoad = useCallback(() => {
+    setIsLoaded(true);
+  }, []);
+
+  const handleError = useCallback(() => {
+    setError(true);
+    setIsLoaded(true);
+  }, []);
+
+  return (
+    <div className={`relative ${className}`}>
+      {!isLoaded && (
+        <div className="absolute inset-0 bg-muted animate-pulse" />
+      )}
+      <img
+        src={error ? '/news/hero.jpg' : src}
+        alt={alt}
+        className={`w-full h-full object-cover transition-opacity duration-300 ${
+          isLoaded ? 'opacity-100' : 'opacity-0'
+        }`}
+        loading="lazy"
+        onLoad={handleLoad}
+        onError={handleError}
+        decoding="async"
+      />
+    </div>
+  );
+};
+
 const NewsOptimized = () => {
   const seoData = useSEO({
     title: "Latest News & Updates - Shazam Parking Dubai",
@@ -64,8 +61,9 @@ const NewsOptimized = () => {
 
   const [newsArticles, setNewsArticles] = useState<NewsPost[]>([]);
   const [loading, setLoading] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1);
-  const articlesPerPage = 9;
+  const [displayedArticles, setDisplayedArticles] = useState<NewsPost[]>([]);
+  const [page, setPage] = useState(1);
+  const articlesPerPage = 6;
 
   useEffect(() => {
     const fetchNewsArticles = async () => {
@@ -78,6 +76,7 @@ const NewsOptimized = () => {
 
         if (error) throw error;
         setNewsArticles(data || []);
+        setDisplayedArticles((data || []).slice(0, articlesPerPage));
       } catch (error) {
         console.error('Error fetching news articles:', error);
       } finally {
@@ -88,56 +87,65 @@ const NewsOptimized = () => {
     fetchNewsArticles();
   }, []);
 
-  // Pagination
-  const totalPages = Math.ceil(newsArticles.length / articlesPerPage);
-  const currentArticles = newsArticles.slice(
-    (currentPage - 1) * articlesPerPage,
-    currentPage * articlesPerPage
-  );
+  const loadMoreArticles = useCallback(() => {
+    const nextArticles = newsArticles.slice(0, page * articlesPerPage + articlesPerPage);
+    setDisplayedArticles(nextArticles);
+    setPage(prev => prev + 1);
+  }, [newsArticles, page]);
+
+  const hasMore = displayedArticles.length < newsArticles.length;
 
   return (
     <div className="min-h-screen bg-background">
       {seoData}
       <Navbar />
       
-      {/* Hero Section */}
-      <div className="relative h-[400px] bg-gradient-to-r from-primary/10 to-primary/5">
-        <div className="absolute inset-0 bg-black/40"></div>
-        <div 
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage: 'url("/lovable-uploads/ba4a4def-2cd7-4e97-89d5-074c13f0bbe8.png")'
-          }}
-        ></div>
+      {/* Optimized Hero Section */}
+      <div className="relative h-[300px] md:h-[400px]">
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-primary/10" />
+        <OptimizedImage 
+          src="/lovable-uploads/ba4a4def-2cd7-4e97-89d5-074c13f0bbe8.png"
+          alt="News Hero"
+          className="absolute inset-0"
+        />
         <div className="relative z-10 flex items-center justify-center h-full">
           <div className="text-center text-white px-4">
-            <h1 className="text-5xl md:text-6xl font-bold mb-4">News</h1>
-            <p className="text-xl md:text-2xl opacity-90">Latest updates and insights from ShazamParking</p>
+            <h1 className="text-4xl md:text-6xl font-bold mb-4">News</h1>
+            <p className="text-lg md:text-2xl opacity-90">Latest updates from ShazamParking</p>
           </div>
         </div>
       </div>
 
       {/* News Grid */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {loading ? (
-          <div className="text-center">Loading articles...</div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, i) => (
+              <Card key={i} className="overflow-hidden">
+                <div className="aspect-video bg-muted animate-pulse" />
+                <CardContent className="p-6">
+                  <div className="h-4 bg-muted rounded animate-pulse mb-3" />
+                  <div className="h-6 bg-muted rounded animate-pulse mb-2" />
+                  <div className="h-4 bg-muted rounded animate-pulse w-3/4" />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {currentArticles.map((article) => (
-                <Card key={article.id} className="overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-                  <div className="relative aspect-video">
-                    <LazyImage
-                      src={article.image_url || '/news/hero.jpg'}
-                      alt={article.title}
-                      className="w-full h-full"
-                    />
-                  </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {displayedArticles.map((article) => (
+                <Card key={article.id} className="overflow-hidden hover:shadow-lg transition-shadow duration-200">
+                  <OptimizedImage
+                    src={article.image_url || '/news/hero.jpg'}
+                    alt={article.title}
+                    className="aspect-video"
+                  />
                   
                   <CardContent className="p-6">
                     <div className="flex items-center gap-2 mb-3">
                       <span className="text-xs text-muted-foreground">
-                        {format(new Date(article.publication_date), 'MMMM d, yyyy')}
+                        {format(new Date(article.publication_date), 'MMM d, yyyy')}
                       </span>
                     </div>
                   
@@ -151,52 +159,28 @@ const NewsOptimized = () => {
                     </h3>
                   
                     <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
-                      {article.content.replace(/<[^>]*>/g, '').substring(0, 150)}...
+                      {article.content.replace(/<[^>]*>/g, '').substring(0, 120)}...
                     </p>
                   
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground">
-                        {format(new Date(article.publication_date), 'PPP')}
-                      </span>
-                      <Link 
-                        to={`/news/${article.id}`}
-                        className="text-sm font-medium text-primary hover:underline"
-                      >
-                        Read more
-                      </Link>
-                    </div>
+                    <Link 
+                      to={`/news/${article.id}`}
+                      className="text-sm font-medium text-primary hover:underline"
+                    >
+                      Read more →
+                    </Link>
                   </CardContent>
                 </Card>
               ))}
             </div>
 
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="flex justify-center mt-12 space-x-2">
-                <Button
-                  variant="outline"
-                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                  disabled={currentPage === 1}
+            {hasMore && (
+              <div className="text-center mt-12">
+                <button
+                  onClick={loadMoreArticles}
+                  className="bg-primary text-primary-foreground px-8 py-3 rounded-lg hover:bg-primary/90 transition-colors"
                 >
-                  Previous
-                </Button>
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                  <Button
-                    key={page}
-                    variant={currentPage === page ? "default" : "outline"}
-                    onClick={() => setCurrentPage(page)}
-                    className="w-10"
-                  >
-                    {page}
-                  </Button>
-                ))}
-                <Button
-                  variant="outline"
-                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                  disabled={currentPage === totalPages}
-                >
-                  Next
-                </Button>
+                  Load More Articles
+                </button>
               </div>
             )}
           </>

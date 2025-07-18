@@ -26,34 +26,20 @@ const handler = async (req: Request): Promise<Response> => {
     const { userEmail, userName, subject, message }: MessageNotificationRequest = await req.json();
 
     const emailResponse = await resend.emails.send({
-      from: "ShazamParking <onboarding@resend.dev>",
-      to: [userEmail],
-      subject: `Message from ShazamParking Admin: ${subject}`,
+      from: "Parking App <onboarding@resend.dev>",
+      to: ["digisurf777@gmail.com"],
+      subject: `New Message: ${subject}`,
       html: `
-        <h1>You have a new message from ShazamParking Admin!</h1>
-        <p>Hello ${userName},</p>
-        <p>You have received a message from the ShazamParking administration team.</p>
-        
-        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #007bff;">
-          <h3 style="margin: 0 0 10px 0; color: #333;">Subject: ${subject}</h3>
-          <div style="color: #555; line-height: 1.6;">
-            ${message.replace(/\n/g, '<br>')}
-          </div>
+        <h1>You have a new message, ${userName}!</h1>
+        <p>Subject: <strong>${subject}</strong></p>
+        <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <p>${message.replace(/\n/g, '<br>')}</p>
         </div>
+        <p>Please log in to your account to view and respond to this message.</p>
         
-        <p>Please log in to your ShazamParking account to view your messages and respond if needed.</p>
-        
-        <div style="margin: 30px 0;">
-          <a href="https://1f056007-f350-4973-ab3d-3d7b5c7cd1db.lovableproject.com/my-account" 
-             style="background: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">
-            View My Account
-          </a>
-        </div>
-        
-        <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;" />
+        <hr style="margin: 30px 0;" />
         <p style="color: #666; font-size: 12px;">
-          This is an automated email from ShazamParking. Please do not reply to this email.
-          <br>For support, please contact us through the app or website.
+          This is an automated email from the Parking App messaging system.
         </p>
       `,
     });

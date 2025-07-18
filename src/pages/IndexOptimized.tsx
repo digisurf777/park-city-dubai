@@ -19,57 +19,6 @@ const IndexOptimized = () => {
     url: "/"
   });
 
-  const locations = [
-    {
-      name: "Dubai Marina",
-      link: "/zones/dubai-marina",
-      image: "/assets/zones/dubai-marina.jpg"
-    },
-    {
-      name: "Downtown",
-      link: "/find-parking?district=downtown",
-      image: "/lovable-uploads/f676da2a-39c9-4211-8561-5b884e0ceed8.png"
-    },
-    {
-      name: "Palm Jumeirah",
-      link: "/find-parking?district=palm-jumeirah",
-      image: "/lovable-uploads/atlantis-hotel-hero.jpg"
-    },
-    {
-      name: "Business Bay",
-      link: "/find-parking?district=business-bay",
-      image: "/assets/zones/business-bay.jpg"
-    },
-    {
-      name: "DIFC",
-      link: "/find-parking?district=difc",
-      image: "/lovable-uploads/63d539ac-8cbb-46b2-aa39-3de0695ef8c9.png"
-    },
-    {
-      name: "Deira",
-      link: "/find-parking?district=deira",
-      image: "/assets/zones/deira.jpg"
-    }
-  ];
-
-  const steps = [
-    {
-      icon: Search,
-      title: "Search & Select",
-      description: "Find the perfect parking location from our verified spaces"
-    },
-    {
-      icon: CreditCard,
-      title: "Book & Pay Securely",
-      description: "Reserve your spot instantly with secure online payment"
-    },
-    {
-      icon: Car,
-      title: "Park & Relax",
-      description: "Arrive at your destination with parking available"
-    }
-  ];
-
   return (
     <div className="min-h-screen bg-white">
       {seoData}

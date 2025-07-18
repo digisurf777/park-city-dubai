@@ -9,7 +9,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import TawkToChat from "@/components/TawkToChat";
 import LavableHome from "./pages/LavableHome";
 import LavableFAQ from "./pages/LavableFAQ";
-import IndexOptimized from "./pages/IndexOptimized";
+import Index from "./pages/Index";
 import FindParkingOptimized from "./pages/FindParkingOptimized";
 import AboutUs from "./pages/AboutUs";
 import FAQ from "./pages/FAQ";
@@ -49,7 +49,7 @@ const App = () => (
               <Route path="/lavable" element={<LavableHome />} />
               <Route path="/lavable/faq" element={<LavableFAQ />} />
               
-              <Route path="/" element={<IndexOptimized />} />
+              <Route path="/" element={<Index />} />
               <Route path="/find-parking" element={<FindParkingOptimized />} />
               <Route path="/find-a-parking-space" element={<FindParkingOptimized />} />
               <Route path="/about-us" element={<AboutUs />} />
