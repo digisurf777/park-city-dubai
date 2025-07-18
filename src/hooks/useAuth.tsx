@@ -115,7 +115,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       await supabase.auth.signOut();
       return { 
         error: { 
-          message: 'Potwierdź swój adres e-mail przed zalogowaniem. Sprawdź swoją skrzynkę odbiorczą.' 
+          message: 'Please confirm your email address before logging in. Check your inbox.' 
         } 
       };
     }

@@ -21,7 +21,7 @@ const EmailConfirmed = () => {
         const type = searchParams.get('type');
 
         if (!token || type !== 'signup') {
-          setError('Nieprawidłowy link potwierdzający');
+          setError('Invalid confirmation link');
           setLoading(false);
           return;
         }
@@ -34,7 +34,7 @@ const EmailConfirmed = () => {
 
         if (error) {
           console.error('Verification error:', error);
-          setError('Link potwierdzający wygasł lub jest nieprawidłowy');
+          setError('The confirmation link has expired or is invalid');
         } else if (data.user) {
           setConfirmed(true);
           
@@ -51,7 +51,7 @@ const EmailConfirmed = () => {
         }
       } catch (err) {
         console.error('Confirmation error:', err);
-        setError('Wystąpił błąd podczas potwierdzania adresu e-mail');
+        setError('An error occurred while confirming your email address');
       } finally {
         setLoading(false);
       }
@@ -70,7 +70,7 @@ const EmailConfirmed = () => {
         <Card className="w-full max-w-md">
           <CardContent className="flex flex-col items-center justify-center py-8">
             <Loader2 className="h-8 w-8 animate-spin mb-4" />
-            <p>Potwierdzanie adresu e-mail...</p>
+            <p>Confirming your email address...</p>
           </CardContent>
         </Card>
       </div>
@@ -85,19 +85,19 @@ const EmailConfirmed = () => {
             {confirmed ? (
               <>
                 <CheckCircle className="h-6 w-6 text-green-600" />
-                E-mail potwierdzony!
+                Email Confirmed!
               </>
             ) : (
               <>
                 <XCircle className="h-6 w-6 text-red-600" />
-                Potwierdzenie nieudane
+                Confirmation Failed
               </>
             )}
           </CardTitle>
           <CardDescription>
             {confirmed 
-              ? "Twój adres e-mail został pomyślnie potwierdzony."
-              : "Wystąpił problem z potwierdzeniem adresu e-mail."
+              ? "Your email address has been successfully confirmed."
+              : "There was a problem confirming your email address."
             }
           </CardDescription>
         </CardHeader>
@@ -105,22 +105,22 @@ const EmailConfirmed = () => {
           {confirmed ? (
             <>
               <p className="text-sm text-muted-foreground">
-                Twój adres e-mail został potwierdzony. Możesz teraz zalogować się do swojego konta.
+                Your email address has been confirmed. You can now sign in to your account.
               </p>
               <Button onClick={handleLoginRedirect} className="w-full">
-                Przejdź do logowania
+                Go to Sign In
               </Button>
             </>
           ) : (
             <>
               <p className="text-sm text-red-600">
-                {error || "Link potwierdzający jest nieprawidłowy lub wygasł."}
+                {error || "The confirmation link is invalid or has expired."}
               </p>
               <p className="text-sm text-muted-foreground">
-                Spróbuj zarejestrować się ponownie lub skontaktuj się z obsługą, jeśli problem się powtarza.
+                Try registering again or contact support if the problem persists.
               </p>
               <Button onClick={() => navigate('/auth')} variant="outline" className="w-full">
-                Powrót do rejestracji
+                Back to Registration
               </Button>
             </>
           )}
