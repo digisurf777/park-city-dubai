@@ -17,41 +17,48 @@ const EmailConfirmed = () => {
     const handleEmailConfirmation = async () => {
       try {
         // Get the token and type from URL parameters
-        const token = searchParams.get('token');
+        const token_hash = searchParams.get('token_hash');
         const type = searchParams.get('type');
+        const access_token = searchParams.get('access_token');
+        const refresh_token = searchParams.get('refresh_token');
 
-        if (!token || type !== 'signup') {
-          setError('Nieprawidłowy link potwierdzający');
-          setLoading(false);
-          return;
-        }
+        console.log('URL params:', { token_hash, type, access_token });
 
-        // Verify the token with Supabase
-        const { data, error } = await supabase.auth.verifyOtp({
-          token_hash: token,
-          type: 'signup'
-        });
+        // Handle different confirmation methods
+        if (access_token && refresh_token) {
+          // Direct token method - set the session
+          const { data, error } = await supabase.auth.setSession({
+            access_token,
+            refresh_token
+          });
 
-        if (error) {
-          console.error('Verification error:', error);
-          setError('Link potwierdzający wygasł lub jest nieprawidłowy');
-        } else if (data.user) {
-          setConfirmed(true);
-          
-          // Update the profile to mark email as confirmed
-          try {
-            await supabase
-              .from('profiles')
-              .update({ email_confirmed_at: new Date().toISOString() })
-              .eq('user_id', data.user.id);
-          } catch (profileError) {
-            console.error('Error updating profile:', profileError);
-            // Don't fail confirmation if profile update fails
+          if (error) {
+            console.error('Session error:', error);
+            setError('Invalid confirmation link');
+          } else if (data.user) {
+            setConfirmed(true);
+            console.log('User confirmed via session:', data.user.email);
           }
+        } else if (token_hash && type) {
+          // Hash token method
+          const { data, error } = await supabase.auth.verifyOtp({
+            token_hash,
+            type: type as any
+          });
+
+          if (error) {
+            console.error('Verification error:', error);
+            setError('Confirmation link expired or invalid');
+          } else if (data.user) {
+            setConfirmed(true);
+            console.log('User confirmed via OTP:', data.user.email);
+          }
+        } else {
+          setError('Invalid confirmation link - missing parameters');
         }
       } catch (err) {
         console.error('Confirmation error:', err);
-        setError('Wystąpił błąd podczas potwierdzania adresu e-mail');
+        setError('An error occurred while confirming your email');
       } finally {
         setLoading(false);
       }
@@ -70,7 +77,7 @@ const EmailConfirmed = () => {
         <Card className="w-full max-w-md">
           <CardContent className="flex flex-col items-center justify-center py-8">
             <Loader2 className="h-8 w-8 animate-spin mb-4" />
-            <p>Potwierdzanie adresu e-mail...</p>
+            <p>Confirming email address...</p>
           </CardContent>
         </Card>
       </div>
@@ -85,19 +92,19 @@ const EmailConfirmed = () => {
             {confirmed ? (
               <>
                 <CheckCircle className="h-6 w-6 text-green-600" />
-                E-mail potwierdzony!
+                Email Confirmed!
               </>
             ) : (
               <>
                 <XCircle className="h-6 w-6 text-red-600" />
-                Potwierdzenie nieudane
+                Confirmation Failed
               </>
             )}
           </CardTitle>
           <CardDescription>
             {confirmed 
-              ? "Twój adres e-mail został pomyślnie potwierdzony."
-              : "Wystąpił problem z potwierdzeniem adresu e-mail."
+              ? "Your email address has been successfully confirmed."
+              : "There was a problem confirming your email address."
             }
           </CardDescription>
         </CardHeader>
@@ -105,22 +112,22 @@ const EmailConfirmed = () => {
           {confirmed ? (
             <>
               <p className="text-sm text-muted-foreground">
-                Twój adres e-mail został potwierdzony. Możesz teraz zalogować się do swojego konta.
+                Your email has been confirmed. You can now log in to your account.
               </p>
               <Button onClick={handleLoginRedirect} className="w-full">
-                Przejdź do logowania
+                Go to Login
               </Button>
             </>
           ) : (
             <>
               <p className="text-sm text-red-600">
-                {error || "Link potwierdzający jest nieprawidłowy lub wygasł."}
+                {error || "The confirmation link is invalid or expired."}
               </p>
               <p className="text-sm text-muted-foreground">
-                Spróbuj zarejestrować się ponownie lub skontaktuj się z obsługą, jeśli problem się powtarza.
+                Please try registering again or contact support if this problem persists.
               </p>
               <Button onClick={() => navigate('/auth')} variant="outline" className="w-full">
-                Powrót do rejestracji
+                Back to Registration
               </Button>
             </>
           )}
