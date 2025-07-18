@@ -286,7 +286,7 @@ export type Database = {
           signup_notified: boolean | null
           updated_at: string
           user_id: string
-          user_type: string | null
+          user_type: string
         }
         Insert: {
           created_at?: string
@@ -297,7 +297,7 @@ export type Database = {
           signup_notified?: boolean | null
           updated_at?: string
           user_id: string
-          user_type?: string | null
+          user_type?: string
         }
         Update: {
           created_at?: string
@@ -308,7 +308,7 @@ export type Database = {
           signup_notified?: boolean | null
           updated_at?: string
           user_id?: string
-          user_type?: string | null
+          user_type?: string
         }
         Relationships: []
       }

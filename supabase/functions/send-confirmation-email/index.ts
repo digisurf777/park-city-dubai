@@ -26,7 +26,7 @@ const handler = async (req: Request): Promise<Response> => {
     const { email, fullName, confirmationUrl }: ConfirmationEmailRequest = await req.json();
     
     const emailResponse = await resend.emails.send({
-      from: "Shazam Parking <onboarding@resend.dev>",
+      from: "onboarding@resend.dev",
       to: [email],
       subject: "Confirm your ShazamParking account email",
       html: `
