@@ -16,6 +16,7 @@ import { format } from 'date-fns';
 import UserManagementTab from '@/components/UserManagementTab';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import NewsImageManager from '@/components/NewsImageManager';
 
 interface NewsPost {
   id: string;
@@ -96,6 +97,9 @@ const AdminPanel = () => {
   const [newImageUrl, setNewImageUrl] = useState('');
   const [uploadingImage, setUploadingImage] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Add ref for ReactQuill to insert images at cursor position
+  const quillRef = useRef<ReactQuill>(null);
 
   useEffect(() => {
     if (user) {
@@ -711,21 +715,38 @@ const AdminPanel = () => {
     }
   };
 
-  // Rich text editor configuration
+  const insertImageIntoContent = (imageUrl: string) => {
+    if (quillRef.current) {
+      const quill = quillRef.current.getEditor();
+      const range = quill.getSelection();
+      const index = range ? range.index : quill.getLength();
+      
+      // Insert image at cursor position
+      quill.insertEmbed(index, 'image', imageUrl);
+      
+      // Move cursor after the image
+      quill.setSelection(index + 1);
+      
+      // Focus back to editor
+      quill.focus();
+    }
+  };
+
+  // Rich text editor configuration with image support
   const quillModules = {
     toolbar: [
       [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
       ['bold', 'italic', 'underline', 'strike'],
       [{ 'list': 'ordered'}, { 'list': 'bullet' }],
       [{ 'align': [] }],
-      ['link'],
+      ['link', 'image'],
       ['clean']
     ],
   };
 
   const quillFormats = [
     'header', 'bold', 'italic', 'underline', 'strike',
-    'list', 'bullet', 'align', 'link'
+    'list', 'bullet', 'align', 'link', 'image'
   ];
 
   const resetForm = () => {
@@ -903,59 +924,54 @@ const AdminPanel = () => {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="title">Title</Label>
-                        <Input
-                          id="title"
-                          value={title}
-                          onChange={(e) => setTitle(e.target.value)}
-                          placeholder="Enter post title"
-                        />
-                      </div>
-
-                      <div>
-                        <Label htmlFor="publicationDate">Publication Date</Label>
-                        <Input
-                          id="publicationDate"
-                          type="datetime-local"
-                          value={publicationDate}
-                          onChange={(e) => setPublicationDate(e.target.value)}
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <Label htmlFor="imageUrl">Featured Image URL</Label>
-                      <Input
-                        id="imageUrl"
-                        value={imageUrl}
-                        onChange={(e) => setImageUrl(e.target.value)}
-                        placeholder="Enter image URL"
-                      />
-                      {imageUrl && (
-                        <div className="mt-2">
-                          <img 
-                            src={imageUrl} 
-                            alt="Preview" 
-                            className="w-32 h-20 object-cover rounded border"
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                      {/* Left Column - Basic Info */}
+                      <div className="space-y-4">
+                        <div>
+                          <Label htmlFor="title">Title</Label>
+                          <Input
+                            id="title"
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                            placeholder="Enter post title"
                           />
                         </div>
-                      )}
-                    </div>
 
-                    <div>
-                      <Label htmlFor="content">Content</Label>
-                      <div className="mt-2">
-                        <ReactQuill
-                          value={content}
-                          onChange={setContent}
-                          modules={quillModules}
-                          formats={quillFormats}
-                          placeholder="Write your news content here... Use the toolbar above for formatting."
-                          className="bg-white"
-                          style={{ height: '400px', marginBottom: '50px' }}
+                        <div>
+                          <Label htmlFor="publicationDate">Publication Date</Label>
+                          <Input
+                            id="publicationDate"
+                            type="datetime-local"
+                            value={publicationDate}
+                            onChange={(e) => setPublicationDate(e.target.value)}
+                          />
+                        </div>
+
+                        {/* Image Manager */}
+                        <NewsImageManager
+                          featuredImageUrl={imageUrl}
+                          onFeaturedImageChange={setImageUrl}
+                          onInsertInlineImage={insertImageIntoContent}
                         />
+                      </div>
+
+                      {/* Right Column - Content Editor */}
+                      <div className="space-y-4">
+                        <div>
+                          <Label htmlFor="content">Content</Label>
+                          <div className="mt-2">
+                            <ReactQuill
+                              ref={quillRef}
+                              value={content}
+                              onChange={setContent}
+                              modules={quillModules}
+                              formats={quillFormats}
+                              placeholder="Write your news content here... Use the toolbar above for formatting."
+                              className="bg-white"
+                              style={{ height: '500px', marginBottom: '50px' }}
+                            />
+                          </div>
+                        </div>
                       </div>
                     </div>
 
