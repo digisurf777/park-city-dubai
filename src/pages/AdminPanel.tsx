@@ -171,6 +171,12 @@ const AdminPanel = () => {
         .order('publication_date', { ascending: false });
 
       if (error) throw error;
+      
+      console.log('Fetched news posts:', data);
+      console.log('Number of posts:', data?.length || 0);
+      if (data && data.length > 0) {
+        console.log('First post content preview:', data[0].content.substring(0, 100));
+      }
       setPosts(data || []);
     } catch (error) {
       toast({
@@ -997,10 +1003,29 @@ const AdminPanel = () => {
 
   // Helper function to strip HTML and create excerpt
   const createExcerpt = (htmlContent: string, maxLength: number = 150) => {
-    // Remove HTML tags
-    const textContent = htmlContent.replace(/<[^>]*>/g, '');
-    // Remove extra whitespace
+    if (!htmlContent || typeof htmlContent !== 'string') {
+      return 'No content available';
+    }
+    
+    // Remove HTML tags including img tags and their base64 content
+    let textContent = htmlContent.replace(/<img[^>]*>/gi, '');
+    textContent = textContent.replace(/<[^>]*>/g, '');
+    
+    // Decode HTML entities
+    textContent = textContent.replace(/&nbsp;/g, ' ');
+    textContent = textContent.replace(/&amp;/g, '&');
+    textContent = textContent.replace(/&lt;/g, '<');
+    textContent = textContent.replace(/&gt;/g, '>');
+    textContent = textContent.replace(/&quot;/g, '"');
+    
+    // Remove extra whitespace and line breaks
     const cleanText = textContent.replace(/\s+/g, ' ').trim();
+    
+    // Return empty message if no content
+    if (!cleanText) {
+      return 'No text content available';
+    }
+    
     // Truncate if needed
     if (cleanText.length <= maxLength) return cleanText;
     return cleanText.substring(0, maxLength).trim() + '...';
@@ -1389,7 +1414,9 @@ const AdminPanel = () => {
                                 className="w-32 h-20 object-cover rounded mb-2"
                               />
                             )}
-                            <p className="text-sm text-muted-foreground line-clamp-3">{createExcerpt(post.content)}</p>
+                            <p className="text-sm text-muted-foreground line-clamp-3">
+                              {createExcerpt(post.content)}
+                            </p>
                           </div>
                           <div className="flex gap-2 ml-4">
                             <Button
