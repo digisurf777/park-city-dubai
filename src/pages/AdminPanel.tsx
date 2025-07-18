@@ -760,7 +760,8 @@ const AdminPanel = () => {
       // Insert image with proper formatting
       quill.insertEmbed(index, 'image', imageUrl);
       quill.insertText(index + 1, '\n');
-      quill.setSelection(index + 2);
+      // Fix: Use proper range object instead of just a number
+      quill.setSelection(index + 2, 0);
     }
   };
 
