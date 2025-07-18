@@ -95,50 +95,6 @@ export type Database = {
         }
         Relationships: []
       }
-      news_images: {
-        Row: {
-          alt_text: string | null
-          caption: string | null
-          created_at: string
-          display_order: number | null
-          id: string
-          image_type: string
-          image_url: string
-          news_id: string | null
-          updated_at: string
-        }
-        Insert: {
-          alt_text?: string | null
-          caption?: string | null
-          created_at?: string
-          display_order?: number | null
-          id?: string
-          image_type?: string
-          image_url: string
-          news_id?: string | null
-          updated_at?: string
-        }
-        Update: {
-          alt_text?: string | null
-          caption?: string | null
-          created_at?: string
-          display_order?: number | null
-          id?: string
-          image_type?: string
-          image_url?: string
-          news_id?: string | null
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "news_images_news_id_fkey"
-            columns: ["news_id"]
-            isOneToOne: false
-            referencedRelation: "news"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       parking_bookings: {
         Row: {
           cost_aed: number
