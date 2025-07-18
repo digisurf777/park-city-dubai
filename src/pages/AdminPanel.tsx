@@ -995,6 +995,17 @@ const AdminPanel = () => {
     }
   };
 
+  // Helper function to strip HTML and create excerpt
+  const createExcerpt = (htmlContent: string, maxLength: number = 150) => {
+    // Remove HTML tags
+    const textContent = htmlContent.replace(/<[^>]*>/g, '');
+    // Remove extra whitespace
+    const cleanText = textContent.replace(/\s+/g, ' ').trim();
+    // Truncate if needed
+    if (cleanText.length <= maxLength) return cleanText;
+    return cleanText.substring(0, maxLength).trim() + '...';
+  };
+
   const quillModules = {
     toolbar: [
       [{ 'header': [1, 2, 3, 4, false] }],
@@ -1378,7 +1389,7 @@ const AdminPanel = () => {
                                 className="w-32 h-20 object-cover rounded mb-2"
                               />
                             )}
-                            <p className="text-sm line-clamp-3">{post.content}</p>
+                            <p className="text-sm text-muted-foreground line-clamp-3">{createExcerpt(post.content)}</p>
                           </div>
                           <div className="flex gap-2 ml-4">
                             <Button
