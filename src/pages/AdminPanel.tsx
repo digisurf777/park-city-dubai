@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Pencil, Trash2, Plus, CheckCircle, XCircle, FileText, Mail, Upload, X } from 'lucide-react';
+import { Pencil, Trash2, Plus, CheckCircle, XCircle, FileText, Mail, Upload, X, Eye, Edit, Lightbulb, Camera } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface NewsPost {
@@ -1236,7 +1236,10 @@ const AdminPanel = () => {
                   </div>
 
                   <div>
-                    <Label className="text-base font-semibold">📸 Images Management</Label>
+                    <Label className="text-base font-semibold flex items-center gap-2">
+                      <Camera className="h-4 w-4" />
+                      Images Management
+                    </Label>
                     <div className="space-y-4 mt-3">
                       {listingImages.length > 0 && (
                         <div className="bg-gray-50 p-4 rounded-lg">
@@ -1305,7 +1308,10 @@ const AdminPanel = () => {
                       </div>
                       
                       <div className="text-sm text-muted-foreground bg-blue-50 border border-blue-200 p-3 rounded-lg">
-                        <p className="font-medium mb-1 text-blue-900">💡 Image Management Features:</p>
+                        <p className="font-medium mb-1 text-blue-900 flex items-center gap-2">
+                          <Lightbulb className="h-4 w-4" />
+                          Image Management Features:
+                        </p>
                         <ul className="space-y-1 text-xs text-blue-700">
                           <li>• <strong>Upload:</strong> Click "Upload from Computer" to add images directly</li>
                           <li>• <strong>Delete:</strong> Hover over any image and click the X button to remove it</li>
@@ -1773,7 +1779,7 @@ const AdminPanel = () => {
                                     });
                                   }}
                                 >
-                                  👁️
+                                  <Eye className="h-4 w-4" />
                                 </Button>
                                 <Button
                                   size="sm"
@@ -1785,14 +1791,14 @@ const AdminPanel = () => {
                                     messagesTab?.click();
                                   }}
                                 >
-                                  ✏️
+                                  <Edit className="h-4 w-4" />
                                 </Button>
                                 <Button
                                   size="sm"
                                   variant="destructive"
                                   onClick={() => deleteUser(user.user_id)}
                                 >
-                                  🗑️
+                                  <Trash2 className="h-4 w-4" />
                                 </Button>
                               </div>
                             </td>
