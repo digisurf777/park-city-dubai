@@ -17,25 +17,87 @@ const EmailConfirmed = () => {
   useEffect(() => {
     const handleEmailConfirmation = async () => {
       try {
-        // Get all URL parameters that Supabase sends
+        // Get all possible URL parameters that Supabase might send
         const tokenHash = searchParams.get('token_hash');
+        const token = searchParams.get('token');
         const type = searchParams.get('type');
         const redirectTo = searchParams.get('redirect_to');
+        const accessToken = searchParams.get('access_token');
+        const refreshToken = searchParams.get('refresh_token');
+        
+        // Log all parameters for debugging
+        console.log('All URL params:', Object.fromEntries(searchParams.entries()));
+        console.log('Confirmation params:', { tokenHash, token, type, redirectTo, accessToken, refreshToken });
 
-        console.log('Confirmation params:', { tokenHash, type, redirectTo });
+        // If we have access and refresh tokens, try setting the session directly
+        if (accessToken && refreshToken) {
+          console.log('Found access and refresh tokens, setting session...');
+          const { data, error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken
+          });
+          
+          if (error) {
+            console.error('Session setting error:', error);
+            setError(error.message || 'Failed to confirm email with provided tokens');
+          } else if (data.user) {
+            setConfirmed(true);
+            
+            // Update profile
+            try {
+              await supabase
+                .from('profiles')
+                .update({ email_confirmed_at: new Date().toISOString() })
+                .eq('user_id', data.user.id);
+            } catch (profileError) {
+              console.error('Error updating profile:', profileError);
+            }
 
-        // For email confirmation, we should use token_hash
-        if (!tokenHash || !type) {
-          setError('Invalid confirmation link - missing required parameters');
+            // Start countdown and redirect
+            let counter = 3;
+            setCountdown(counter);
+            const timer = setInterval(() => {
+              counter--;
+              setCountdown(counter);
+              if (counter === 0) {
+                clearInterval(timer);
+                navigate('/my-account');
+              }
+            }, 1000);
+          }
           setLoading(false);
           return;
         }
 
-        // Verify the email confirmation
-        const { data, error } = await supabase.auth.verifyOtp({
-          token_hash: tokenHash,
-          type: type as any
-        });
+        // Fallback to OTP verification if no session tokens
+        if (!tokenHash && !token) {
+          console.error('No token found in URL');
+          setError('Invalid confirmation link - no token or session data found');
+          setLoading(false);
+          return;
+        }
+
+        // Default type to 'signup' if not provided
+        const confirmationType = type || 'signup';
+
+        // Try to verify with token_hash first (preferred method)
+        let verificationData;
+        
+        if (tokenHash) {
+          console.log('Verifying with token_hash...');
+          verificationData = await supabase.auth.verifyOtp({
+            token_hash: tokenHash,
+            type: confirmationType as any
+          });
+        } else {
+          // For simple token verification, we need more specific handling
+          console.log('Token verification not supported in this flow');
+          setError('Unsupported confirmation link format');
+          setLoading(false);
+          return;
+        }
+
+        const { data, error } = verificationData;
 
         if (error) {
           console.error('Verification error:', error);
