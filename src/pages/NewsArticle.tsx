@@ -160,7 +160,23 @@ const NewsArticle = () => {
         )}
 
         {/* Article Content with enhanced typography */}
-        <article className="prose prose-lg md:prose-xl max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-p:leading-relaxed prose-strong:text-foreground prose-a:text-primary hover:prose-a:text-primary/80 prose-ul:text-muted-foreground prose-ol:text-muted-foreground prose-li:text-muted-foreground prose-h1:text-3xl prose-h1:font-bold prose-h1:mt-12 prose-h1:mb-8 prose-h2:text-2xl prose-h2:font-bold prose-h2:mt-10 prose-h2:mb-6 prose-h3:text-xl prose-h3:font-semibold prose-h3:mt-8 prose-h3:mb-4 prose-h4:text-lg prose-h4:font-semibold prose-h4:mt-6 prose-h4:mb-3 prose-p:mb-6 prose-ul:mb-6 prose-ol:mb-6 prose-li:mb-2 prose-blockquote:border-l-4 prose-blockquote:border-primary prose-blockquote:pl-6 prose-blockquote:italic prose-img:rounded-lg prose-img:shadow-md">
+        <article className="prose prose-lg md:prose-xl max-w-none 
+          prose-headings:text-foreground prose-headings:font-bold prose-headings:tracking-tight
+          prose-p:text-muted-foreground prose-p:leading-loose prose-p:text-base md:prose-p:text-lg prose-p:mb-6
+          prose-strong:text-foreground prose-strong:font-semibold
+          prose-a:text-primary prose-a:font-medium hover:prose-a:text-primary/80 prose-a:underline-offset-2
+          prose-ul:text-muted-foreground prose-ol:text-muted-foreground prose-li:text-muted-foreground prose-li:mb-2 prose-li:leading-relaxed
+          prose-h1:text-3xl md:prose-h1:text-4xl prose-h1:font-bold prose-h1:mt-16 prose-h1:mb-8 prose-h1:pb-4 prose-h1:border-b prose-h1:border-border
+          prose-h2:text-2xl md:prose-h2:text-3xl prose-h2:font-bold prose-h2:mt-12 prose-h2:mb-6 prose-h2:text-primary
+          prose-h3:text-xl md:prose-h3:text-2xl prose-h3:font-semibold prose-h3:mt-10 prose-h3:mb-4 prose-h3:text-foreground
+          prose-h4:text-lg md:prose-h4:text-xl prose-h4:font-semibold prose-h4:mt-8 prose-h4:mb-3
+          prose-ul:mb-6 prose-ol:mb-6 prose-ul:space-y-2 prose-ol:space-y-2
+          prose-blockquote:border-l-4 prose-blockquote:border-primary prose-blockquote:pl-6 prose-blockquote:py-2 prose-blockquote:bg-muted/30 prose-blockquote:italic prose-blockquote:rounded-r-lg
+          prose-img:rounded-xl prose-img:shadow-lg prose-img:my-8
+          prose-hr:border-border prose-hr:my-12
+          prose-code:bg-muted prose-code:px-2 prose-code:py-1 prose-code:rounded prose-code:text-sm prose-code:font-mono
+          prose-pre:bg-muted prose-pre:border prose-pre:border-border prose-pre:rounded-lg prose-pre:p-4
+          first-letter:text-4xl first-letter:font-bold first-letter:text-primary first-letter:float-left first-letter:mr-2 first-letter:mt-1">
           <div dangerouslySetInnerHTML={{ __html: article.content }} />
         </article>
 
