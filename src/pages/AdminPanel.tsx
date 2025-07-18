@@ -1139,7 +1139,11 @@ const AdminPanel = () => {
                         id="listingPricePerHour"
                         type="number"
                         value={listingPricePerHour}
-                        onChange={(e) => setListingPricePerHour(Number(e.target.value))}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          const cleanValue = value.replace(/^0+/, '') || '0';
+                          setListingPricePerHour(Number(cleanValue));
+                        }}
                         min="0"
                       />
                     </div>
@@ -1149,7 +1153,11 @@ const AdminPanel = () => {
                         id="listingPricePerMonth"
                         type="number"
                         value={listingPricePerMonth}
-                        onChange={(e) => setListingPricePerMonth(Number(e.target.value))}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          const cleanValue = value.replace(/^0+/, '') || '0';
+                          setListingPricePerMonth(Number(cleanValue));
+                        }}
                         min="0"
                       />
                     </div>

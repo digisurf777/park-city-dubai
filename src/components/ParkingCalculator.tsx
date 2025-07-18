@@ -40,10 +40,23 @@ const ParkingCalculator = () => {
   }];
   const calculateEarnings = () => {
     const results: DurationCalculation[] = durations.map(duration => {
-      const rentAfterDiscount = baseRent * (1 - duration.discount);
-      const shazamFee = rentAfterDiscount * 0.20; // 20% commission
-      const cardFee = cardRequired && duration.value >= 6 ? 100 : 0; // One-time card fee for 6+ months
-      const netToOwner = rentAfterDiscount - shazamFee - cardFee / duration.value;
+      // Apply the correct formula: ((basePrice - 100) × [0.95 / 0.90 / 0.85]) × months + (100 × months)
+      const adjustedBasePrice = baseRent - 100;
+      const discountMultiplier = 1 - duration.discount;
+      const rentAfterDiscount = (adjustedBasePrice * discountMultiplier) + 100;
+      
+      // Customer pays rent after discount + 100 AED platform fee
+      const customerPrice = rentAfterDiscount + 100;
+      
+      // Calculate card fee only if toggle is ON and duration >= 6 months
+      const cardFee = cardRequired && duration.value >= 6 ? 100 : 0;
+      
+      // Owner earnings: Start from customer price, subtract platform fee, subtract card fee, apply 20% commission
+      const afterPlatformFee = customerPrice - 100; // Remove platform fee
+      const afterCardFee = afterPlatformFee - cardFee; // Remove card fee if applicable
+      const shazamFee = afterCardFee * 0.20; // 20% commission on remaining amount
+      const netToOwner = afterCardFee - shazamFee;
+
       return {
         duration: duration.value,
         discount: duration.discount * 100,
@@ -81,7 +94,20 @@ const ParkingCalculator = () => {
           {/* Base Rent Input */}
           <div className="space-y-2">
             <Label htmlFor="baseRent">Base Monthly Rent (AED)</Label>
-            <Input id="baseRent" type="number" value={baseRent} onChange={e => setBaseRent(Number(e.target.value))} placeholder="Enter monthly rent in AED" min="100" step="50" />
+            <Input 
+              id="baseRent" 
+              type="number" 
+              value={baseRent} 
+              onChange={e => {
+                const value = e.target.value;
+                // Remove leading zeros and handle empty string
+                const cleanValue = value.replace(/^0+/, '') || '0';
+                setBaseRent(Number(cleanValue));
+              }} 
+              placeholder="Enter monthly rent in AED" 
+              min="100" 
+              step="50" 
+            />
           </div>
 
           {/* Card Required Toggle */}
@@ -91,7 +117,9 @@ const ParkingCalculator = () => {
                 <CreditCard className="h-4 w-4" />
                 Access Card Required?
               </Label>
-              <p className="text-sm text-muted-foreground">Requires 500 AED deposit (+ 100 AED one-time fee)</p>
+              <p className="text-sm text-muted-foreground">
+                Requires 500 AED refundable deposit + 100 AED one-time fee (for 6+ month rentals only)
+              </p>
             </div>
             <Switch checked={cardRequired} onCheckedChange={setCardRequired} />
           </div>
@@ -133,8 +161,9 @@ const ParkingCalculator = () => {
                   <th className="text-left p-2">Discount</th>
                   <th className="text-left p-2">Rent After Discount</th>
                   <th className="text-left p-2">Customer Pays*</th>
-                  <th className="text-left p-2">Shazam Fee (20%)</th>
+                  <th className="text-left p-2">Platform Fee</th>
                   {cardRequired && <th className="text-left p-2">Card Fee</th>}
+                  <th className="text-left p-2">Shazam Commission</th>
                   <th className="text-left p-2 font-semibold">Net to You</th>
                 </tr>
               </thead>
@@ -148,10 +177,11 @@ const ParkingCalculator = () => {
                     <td className="p-2 text-blue-600">
                       {getCustomerPrice(calc.rentAfterDiscount).toFixed(0)} AED
                     </td>
-                    <td className="p-2 text-red-600">-{calc.shazamFee.toFixed(0)} AED</td>
+                    <td className="p-2 text-red-600">-100 AED</td>
                     {cardRequired && <td className="p-2 text-red-600">
                         {calc.cardFee > 0 ? `-${calc.cardFee} AED` : '-'}
                       </td>}
+                    <td className="p-2 text-red-600">-{calc.shazamFee.toFixed(0)} AED</td>
                     <td className="p-2 font-bold text-green-600">
                       {calc.netToOwner.toFixed(0)} AED
                     </td>
@@ -162,15 +192,15 @@ const ParkingCalculator = () => {
           
           <div className="mt-4 p-4 bg-blue-50 rounded-lg">
             <p className="text-sm text-blue-800">
-              <strong>*Customer Pricing:</strong> Includes +100 AED/month service fee. 
-              {cardRequired && " Requires 500 AED refundable deposit for access card."}
+              <strong>*Customer Pricing:</strong> Includes +100 AED/month platform fee. 
+              {cardRequired && " Requires 500 AED refundable deposit for access card (6+ months only)."}
             </p>
           </div>
 
           {cardRequired && <div className="mt-3 p-4 bg-amber-50 rounded-lg">
               <p className="text-sm text-amber-800">
-                <strong>Card Fee Details:</strong> 100 AED one-time fee applies for rentals 6+ months. 
-                500 AED deposit is refundable when card is returned.
+                <strong>Access Card Details:</strong> 100 AED one-time fee + 500 AED refundable deposit applies only for rentals 6+ months. 
+                No card fees for shorter rentals.
               </p>
             </div>}
         </CardContent>

@@ -68,23 +68,41 @@ const ProductPage = () => {
     const selectedOption = durationOptions.find(opt => opt.months === selectedDuration);
     const discount = selectedOption?.discount || 0;
     
-    // Apply discount to base rent
-    const rentAfterDiscount = baseRent * (1 - discount);
+    // Apply the correct formula: ((basePrice - 100) × [0.95 / 0.90 / 0.85]) × months + (100 × months)
+    const adjustedBasePrice = baseRent - 100;
+    const discountMultiplier = 1 - discount;
+    const rentAfterDiscount = (adjustedBasePrice * discountMultiplier) + 100;
     
-    // Customer pays the discounted rent + 100 AED service fee
+    // Customer pays the discounted rent + 100 AED platform fee
     const customerPrice = rentAfterDiscount + 100;
     
     // Calculate total for the duration
     const totalPrice = customerPrice * selectedDuration;
-    const discountAmount = baseRent * discount * selectedDuration;
+    const originalPrice = (baseRent + 100) * selectedDuration;
+    const discountAmount = originalPrice - totalPrice;
+    
+    // Handle 12-month payment split
+    const isCardRequired = spot.specs?.includes("Access Card");
+    const needsCardFee = isCardRequired && selectedDuration >= 6;
+    
+    let paymentBreakdown = null;
+    if (selectedDuration === 12) {
+      const halfAmount = totalPrice / 2;
+      paymentBreakdown = {
+        halfNow: halfAmount,
+        halfLater: halfAmount
+      };
+    }
     
     return {
-      basePrice: baseRent * selectedDuration,
+      basePrice: (baseRent + 100) * selectedDuration,
       discountAmount,
       totalPrice,
       discount: discount * 100,
       monthlyCustomerPrice: customerPrice,
-      monthlyRentAfterDiscount: rentAfterDiscount
+      monthlyRentAfterDiscount: rentAfterDiscount,
+      needsCardFee,
+      paymentBreakdown
     };
   };
 
@@ -369,20 +387,49 @@ const ProductPage = () => {
                     <span className="font-medium">AED {pricing.monthlyRentAfterDiscount.toFixed(0)}</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm">Service Fee:</span>
+                    <span className="text-sm">Platform Fee:</span>
                     <span className="font-medium">+AED 100/month</span>
                   </div>
+                  {pricing.needsCardFee && (
+                    <>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm">Access Card Fee (one-time):</span>
+                        <span className="font-medium text-orange-600">+AED 100</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm">Access Card Deposit (refundable):</span>
+                        <span className="font-medium text-blue-600">AED 500</span>
+                      </div>
+                    </>
+                  )}
                   <div className="flex justify-between items-center">
                     <span className="text-sm">Monthly Cost to You:</span>
                     <span className="font-medium">AED {pricing.monthlyCustomerPrice.toFixed(0)}</span>
                   </div>
                   <hr className="my-2" />
-                  <div className="flex justify-between items-center">
-                    <span className="font-medium">Total for {selectedDuration} month{selectedDuration > 1 ? 's' : ''}:</span>
-                    <span className="text-2xl font-bold text-primary">
-                      AED {pricing.totalPrice.toFixed(0)}
-                    </span>
-                  </div>
+                  {pricing.paymentBreakdown ? (
+                    <>
+                      <div className="flex justify-between items-center">
+                        <span className="font-medium">Half Paid Now:</span>
+                        <span className="text-xl font-bold text-primary">
+                          AED {pricing.paymentBreakdown.halfNow.toFixed(0)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="font-medium">Half Paid on Month 5:</span>
+                        <span className="text-xl font-bold text-primary">
+                          AED {pricing.paymentBreakdown.halfLater.toFixed(0)}
+                        </span>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium">Total for {selectedDuration} month{selectedDuration > 1 ? 's' : ''}:</span>
+                      <span className="text-2xl font-bold text-primary">
+                        AED {pricing.totalPrice.toFixed(0)}
+                      </span>
+                    </div>
+                  )}
                   {pricing.discount > 0 && (
                     <div className="text-sm text-green-600">
                       You save AED {pricing.discountAmount.toFixed(0)} with {pricing.discount}% OFF
