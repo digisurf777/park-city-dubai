@@ -63,21 +63,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
     });
 
-    // Send welcome email only after successful signup
-    if (!error && data.user) {
-      try {
-        await supabase.functions.invoke('send-welcome-email', {
-          body: {
-            email: email,
-            name: fullName
-          }
-        });
-        console.log('Welcome email sent successfully');
-      } catch (emailError) {
-        console.error('Failed to send welcome email:', emailError);
-        // Don't fail the signup if welcome email fails
-      }
-    }
+    // Only send welcome email after successful signup, not immediately
+    // The confirmation email is handled by Supabase automatically
 
     // Send admin notification after successful signup
     if (!error) {
