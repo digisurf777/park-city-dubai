@@ -715,26 +715,15 @@ const AdminPanel = () => {
     }
   };
 
-  // Enhanced rich text editor configuration
+  // Simplified and working rich text editor configuration
   const quillModules = {
-    toolbar: {
-      container: [
-        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-        ['bold', 'italic', 'underline', 'strike'],
-        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-        [{ 'indent': '-1'}, { 'indent': '+1' }],
-        ['blockquote', 'code-block'],
-        ['link', 'image-upload'],
-        [{ 'color': [] }, { 'background': [] }],
-        [{ 'align': [] }],
-        ['clean']
-      ],
-      handlers: {
-        'image-upload': () => {
-          setShowImageUpload(true);
-        }
-      }
-    },
+    toolbar: [
+      [{ 'header': [1, 2, 3, false] }],
+      ['bold', 'italic', 'underline'],
+      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+      ['blockquote', 'link'],
+      ['clean']
+    ],
     clipboard: {
       matchVisual: false
     }
@@ -742,12 +731,9 @@ const AdminPanel = () => {
 
   const quillFormats = [
     'header', 
-    'bold', 'italic', 'underline', 'strike',
-    'list', 'bullet', 'indent',
-    'blockquote', 'code-block',
-    'link', 'image',
-    'color', 'background',
-    'align'
+    'bold', 'italic', 'underline',
+    'list', 'bullet',
+    'blockquote', 'link'
   ];
 
   const handleImageInsert = (imageUrl: string) => {
@@ -759,7 +745,6 @@ const AdminPanel = () => {
       // Insert image with proper formatting
       quill.insertEmbed(index, 'image', imageUrl);
       quill.insertText(index + 1, '\n');
-      // Fix: Use proper range object instead of just a number
       quill.setSelection(index + 2, 0);
     }
   };
@@ -996,31 +981,18 @@ const AdminPanel = () => {
                     </div>
 
                     <div>
-                      <div className="flex items-center justify-between mb-2">
-                        <Label htmlFor="content">Content *</Label>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setShowImageUpload(true)}
-                          className="flex items-center gap-1 text-xs"
-                        >
-                          <Image className="h-3 w-3" />
-                          Add Image
-                        </Button>
-                      </div>
-                      <div className="news-editor min-h-[400px]">
+                      <Label htmlFor="content">Content *</Label>
+                      <div className="mt-2">
                         <ReactQuill
                           ref={quillRef}
                           value={content}
                           onChange={setContent}
                           modules={quillModules}
                           formats={quillFormats}
-                          placeholder="Write your news content here... Use the toolbar above for rich formatting and to add images."
+                          placeholder="Start typing your news content here..."
                           theme="snow"
-                          className="bg-white border rounded-md"
                           style={{ 
-                            height: '400px',
+                            height: '300px',
                             marginBottom: '50px'
                           }}
                         />
