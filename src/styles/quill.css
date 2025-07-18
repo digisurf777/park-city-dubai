@@ -70,3 +70,122 @@
   border-right: 1px solid #e5e7eb;
   border-radius: 0 0 8px 8px;
 }
+
+/* Styles for published news articles */
+.news-content {
+  font-size: 1.125rem;
+  line-height: 1.8;
+  color: hsl(var(--muted-foreground));
+}
+
+.news-content h1 {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: hsl(var(--foreground));
+  margin: 3rem 0 2rem 0;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid hsl(var(--border));
+}
+
+.news-content h2 {
+  font-size: 2rem;
+  font-weight: bold;
+  color: hsl(var(--primary));
+  margin: 2.5rem 0 1.5rem 0;
+}
+
+.news-content h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: hsl(var(--foreground));
+  margin: 2rem 0 1rem 0;
+}
+
+.news-content h4 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: hsl(var(--foreground));
+  margin: 1.5rem 0 0.75rem 0;
+}
+
+.news-content p {
+  margin: 0 0 1.5rem 0;
+  line-height: 1.8;
+}
+
+.news-content p:first-child::first-letter {
+  font-size: 4rem;
+  font-weight: bold;
+  color: hsl(var(--primary));
+  float: left;
+  margin: 0.5rem 0.5rem 0 0;
+  line-height: 0.8;
+}
+
+.news-content ul, .news-content ol {
+  margin: 0 0 1.5rem 0;
+  padding-left: 2rem;
+}
+
+.news-content li {
+  margin: 0.5rem 0;
+  line-height: 1.7;
+}
+
+.news-content blockquote {
+  border-left: 4px solid hsl(var(--primary));
+  margin: 2rem 0;
+  padding: 1rem 0 1rem 1.5rem;
+  background: hsl(var(--muted) / 0.3);
+  border-radius: 0 8px 8px 0;
+  font-style: italic;
+  font-size: 1.1rem;
+}
+
+.news-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 12px;
+  margin: 2rem 0;
+  box-shadow: 0 10px 30px -10px hsl(var(--foreground) / 0.1);
+}
+
+.news-content a {
+  color: hsl(var(--primary));
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color 0.2s ease;
+}
+
+.news-content a:hover {
+  color: hsl(var(--primary) / 0.8);
+}
+
+.news-content strong {
+  color: hsl(var(--foreground));
+  font-weight: 600;
+}
+
+.news-content code {
+  background: hsl(var(--muted));
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-family: ui-monospace, monospace;
+  font-size: 0.9rem;
+}
+
+.news-content pre {
+  background: hsl(var(--muted));
+  border: 1px solid hsl(var(--border));
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 1.5rem 0;
+  overflow-x: auto;
+}
+
+.news-content hr {
+  border: none;
+  border-top: 1px solid hsl(var(--border));
+  margin: 3rem 0;
+}
