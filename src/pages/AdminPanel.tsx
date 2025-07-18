@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -6,8 +7,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
 import { Trash2, Edit } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -24,15 +23,6 @@ interface NewsPost {
   publication_date: string;
 }
 
-interface FeedbackItem {
-  id: string;
-  type: 'bug' | 'feature' | 'other';
-  subject: string;
-  message: string;
-  email: string;
-  created_at: string;
-}
-
 const AdminPanel = () => {
   const [newsPosts, setNewsPosts] = useState<NewsPost[]>([]);
   const [newNews, setNewNews] = useState<NewsPost>({
@@ -45,11 +35,9 @@ const AdminPanel = () => {
   const [editingNews, setEditingNews] = useState<NewsPost | null>(null);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
-  const [feedback, setFeedback] = useState<FeedbackItem[]>([]);
 
   useEffect(() => {
     fetchNews();
-    fetchFeedback();
   }, []);
 
   const fetchNews = async () => {
@@ -71,25 +59,6 @@ const AdminPanel = () => {
         description: "Failed to fetch news posts",
         variant: "destructive",
       });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchFeedback = async () => {
-    setLoading(true);
-    try {
-      const { data, error } = await supabase
-        .from('feedback')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        throw error;
-      }
-      setFeedback(data || []);
-    } catch (error) {
-      console.error('Error fetching feedback:', error);
     } finally {
       setLoading(false);
     }
@@ -198,35 +167,6 @@ const AdminPanel = () => {
     }
   };
 
-  const deleteFeedback = async (id: string) => {
-    setLoading(true);
-    try {
-      const { error } = await supabase
-        .from('feedback')
-        .delete()
-        .eq('id', id);
-
-      if (error) {
-        throw error;
-      }
-
-      toast({
-        title: "Success!",
-        description: "Feedback deleted successfully",
-      });
-      fetchFeedback();
-    } catch (error) {
-      console.error('Error deleting feedback:', error);
-      toast({
-        title: "Error",
-        description: "Failed to delete feedback",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const startEdit = (post: NewsPost) => {
     setEditingNews(post);
     setNewNews({
@@ -274,10 +214,9 @@ const AdminPanel = () => {
         <h1 className="text-3xl font-bold mb-8">Admin Panel</h1>
         
         <Tabs defaultValue="news" className="space-y-8">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="news">News Management</TabsTrigger>
             <TabsTrigger value="users">User Management</TabsTrigger>
-            <TabsTrigger value="feedback">User Feedback</TabsTrigger>
             <TabsTrigger value="inbox">User Inbox</TabsTrigger>
           </TabsList>
 
@@ -317,7 +256,7 @@ const AdminPanel = () => {
                   <Label htmlFor="image_url">Image URL</Label>
                   <Input
                     id="image_url"
-                    value={newNews.image_url}
+                    value={newNews.image_url || ''}
                     onChange={(e) => setNewNews({...newNews, image_url: e.target.value})}
                     placeholder="Enter image URL"
                   />
@@ -397,45 +336,6 @@ const AdminPanel = () => {
 
           <TabsContent value="users">
             <UserManagementTab />
-          </TabsContent>
-
-          <TabsContent value="feedback">
-            {/* Feedback Management */}
-            <Card>
-              <CardHeader>
-                <CardTitle>User Feedback</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {feedback.map((item) => (
-                    <div key={item.id} className="p-4 border rounded-lg">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <Badge variant={item.type === 'bug' ? 'destructive' : item.type === 'feature' ? 'default' : 'secondary'}>
-                              {item.type}
-                            </Badge>
-                            <span className="text-sm text-muted-foreground">
-                              {new Date(item.created_at).toLocaleDateString()}
-                            </span>
-                          </div>
-                          <h4 className="font-medium mb-1">{item.subject}</h4>
-                          <p className="text-sm text-muted-foreground">{item.message}</p>
-                          <p className="text-xs text-muted-foreground mt-2">From: {item.email}</p>
-                        </div>
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          onClick={() => deleteFeedback(item.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
           </TabsContent>
 
           <TabsContent value="inbox">
