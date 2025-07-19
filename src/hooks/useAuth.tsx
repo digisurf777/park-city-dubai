@@ -50,7 +50,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const signUp = async (email: string, password: string, fullName: string, userType: string = 'renter') => {
-    const redirectUrl = `https://shazamparking.ae/email-confirmed`;
+    const redirectUrl = `${window.location.origin}/email-confirmed`;
     
     const { data, error } = await supabase.auth.signUp({
       email,

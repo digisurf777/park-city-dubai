@@ -31,8 +31,8 @@ const handler = async (req: Request): Promise<Response> => {
     
     const emailResponse = await resend.emails.send({
       from: "Shazam Parking <verify@shazam.ae>",
-      to: ["digisurf777@gmail.com"], // Using your verified email for testing
-      subject: `Email Confirmation for ${fullName} (${email})`,
+      to: [email],
+      subject: `Email Confirmation - Shazam Parking`,
       html: `
         <!DOCTYPE html>
         <html lang="en" style="font-family: Arial, sans-serif;">
