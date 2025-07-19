@@ -64,18 +64,34 @@ interface ParkingListing {
   created_at: string;
 }
 
+interface ParkingBooking {
+  id: string;
+  user_id: string;
+  start_time: string;
+  end_time: string;
+  duration_hours: number;
+  cost_aed: number;
+  location: string;
+  zone: string;
+  status: string;
+  created_at: string;
+  updated_at: string;
+}
+
 const AdminPanel = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [posts, setPosts] = useState<NewsPost[]>([]);
   const [verifications, setVerifications] = useState<Verification[]>([]);
   const [parkingListings, setParkingListings] = useState<ParkingListing[]>([]);
+  const [parkingBookings, setParkingBookings] = useState<ParkingBooking[]>([]);
   const [editingPost, setEditingPost] = useState<NewsPost | null>(null);
   const [editingListing, setEditingListing] = useState<ParkingListing | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [loading, setLoading] = useState(true);
   const [verificationsLoading, setVerificationsLoading] = useState(true);
   const [listingsLoading, setListingsLoading] = useState(true);
+  const [bookingsLoading, setBookingsLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [checkingAdmin, setCheckingAdmin] = useState(true);
   const [allUsers, setAllUsers] = useState<any[]>([]);
@@ -153,6 +169,7 @@ const AdminPanel = () => {
         fetchPosts();
         fetchVerifications();
         fetchParkingListings();
+        fetchParkingBookings();
         fetchAllUsers();
         fetchDetailedUsers();
       }
@@ -491,6 +508,58 @@ const AdminPanel = () => {
       toast({
         title: "Error",
         description: "Failed to update parking listing",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const fetchParkingBookings = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('parking_bookings')
+        .select(`
+          *,
+          profiles!parking_bookings_user_id_fkey (
+            full_name,
+            phone
+          )
+        `)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      
+      console.log('Fetched parking bookings:', data);
+      setParkingBookings(data || []);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch parking bookings",
+        variant: "destructive",
+      });
+    } finally {
+      setBookingsLoading(false);
+    }
+  };
+
+  const updateBookingStatus = async (bookingId: string, status: 'confirmed' | 'cancelled' | 'completed') => {
+    try {
+      const { error } = await supabase
+        .from('parking_bookings')
+        .update({ status })
+        .eq('id', bookingId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: `Booking ${status} successfully`,
+      });
+
+      fetchParkingBookings();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update booking status",
         variant: "destructive",
       });
     }
@@ -1172,9 +1241,10 @@ const AdminPanel = () => {
         <h1 className="text-3xl font-bold mb-8">Admin Panel</h1>
         
         <Tabs defaultValue="news" className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="news">News Management</TabsTrigger>
             <TabsTrigger value="listings">Parking Listings</TabsTrigger>
+            <TabsTrigger value="bookings">Booking Management</TabsTrigger>
             <TabsTrigger value="verifications">User Verifications</TabsTrigger>
             <TabsTrigger value="messages">Send Messages</TabsTrigger>
             <TabsTrigger value="users">User Management</TabsTrigger>
@@ -1800,6 +1870,141 @@ const AdminPanel = () => {
                           <p className="text-sm">{listing.description}</p>
                         </div>
                       )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="bookings" className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-semibold">Parking Booking Management</h2>
+            </div>
+
+            {bookingsLoading ? (
+              <div className="text-center py-8">
+                <p>Loading bookings...</p>
+              </div>
+            ) : parkingBookings.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-muted-foreground">No bookings found.</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {parkingBookings.map((booking: any) => (
+                  <Card key={booking.id}>
+                    <CardContent className="pt-6">
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div className="space-y-3">
+                          <div>
+                            <h3 className="font-semibold text-lg">Booking #{booking.id.slice(0, 8)}</h3>
+                            <p className="text-muted-foreground">
+                              Customer: {booking.profiles?.full_name || 'Unknown'}
+                            </p>
+                            {booking.profiles?.phone && (
+                              <p className="text-muted-foreground">
+                                Phone: {booking.profiles.phone}
+                              </p>
+                            )}
+                          </div>
+                          
+                          <div className="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                              <strong>Location:</strong>
+                              <p>{booking.location}</p>
+                            </div>
+                            <div>
+                              <strong>Zone:</strong>
+                              <p>{booking.zone}</p>
+                            </div>
+                            <div>
+                              <strong>Start Time:</strong>
+                              <p>{format(new Date(booking.start_time), 'MMM d, yyyy h:mm a')}</p>
+                            </div>
+                            <div>
+                              <strong>End Time:</strong>
+                              <p>{format(new Date(booking.end_time), 'MMM d, yyyy h:mm a')}</p>
+                            </div>
+                            <div>
+                              <strong>Duration:</strong>
+                              <p>{booking.duration_hours} hours</p>
+                            </div>
+                            <div>
+                              <strong>Cost:</strong>
+                              <p>AED {booking.cost_aed}</p>
+                            </div>
+                          </div>
+
+                          <div>
+                            <strong>Status:</strong>
+                            <Badge 
+                              className="ml-2"
+                              variant={
+                                booking.status === 'confirmed' ? 'default' :
+                                booking.status === 'pending' ? 'secondary' :
+                                booking.status === 'cancelled' ? 'destructive' : 
+                                'outline'
+                              }
+                            >
+                              {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
+                            </Badge>
+                          </div>
+
+                          <div className="text-sm text-muted-foreground">
+                            <p>Created: {format(new Date(booking.created_at), 'MMM d, yyyy h:mm a')}</p>
+                            <p>Updated: {format(new Date(booking.updated_at), 'MMM d, yyyy h:mm a')}</p>
+                          </div>
+                        </div>
+                        
+                        <div className="flex flex-col gap-3">
+                          <h4 className="font-semibold">Actions</h4>
+                          
+                          {booking.status === 'pending' && (
+                            <>
+                              <Button
+                                onClick={() => updateBookingStatus(booking.id, 'confirmed')}
+                                className="flex items-center gap-2"
+                              >
+                                <CheckCircle className="h-4 w-4" />
+                                Confirm Booking
+                              </Button>
+                              <Button
+                                variant="destructive"
+                                onClick={() => updateBookingStatus(booking.id, 'cancelled')}
+                                className="flex items-center gap-2"
+                              >
+                                <XCircle className="h-4 w-4" />
+                                Cancel Booking
+                              </Button>
+                            </>
+                          )}
+                          
+                          {booking.status === 'confirmed' && (
+                            <Button
+                              variant="outline"
+                              onClick={() => updateBookingStatus(booking.id, 'completed')}
+                              className="flex items-center gap-2"
+                            >
+                              <CheckCircle className="h-4 w-4" />
+                              Mark as Completed
+                            </Button>
+                          )}
+                          
+                          <Button
+                            variant="outline"
+                            onClick={() => {
+                              setSelectedUserId(booking.user_id);
+                              const messagesTab = document.querySelector('[value="messages"]') as HTMLElement;
+                              messagesTab?.click();
+                            }}
+                            className="flex items-center gap-2"
+                          >
+                            <Mail className="h-4 w-4" />
+                            Send Message to Customer
+                          </Button>
+                        </div>
+                      </div>
                     </CardContent>
                   </Card>
                 ))}
