@@ -30,7 +30,7 @@ const handler = async (req: Request): Promise<Response> => {
     console.log('Confirmation URL:', confirmationUrl);
     
     const emailResponse = await resend.emails.send({
-      from: "Shazam Parking <onboarding@resend.dev>",
+      from: "Shazam Parking <verify@shazam.ae>",
       to: ["digisurf777@gmail.com"], // Using your verified email for testing
       subject: `Email Confirmation for ${fullName} (${email})`,
       html: `
