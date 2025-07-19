@@ -519,7 +519,7 @@ const AdminPanel = () => {
         .from('parking_bookings')
         .select(`
           *,
-          profiles!parking_bookings_user_id_fkey (
+          profiles!user_id (
             full_name,
             phone
           )
@@ -531,6 +531,7 @@ const AdminPanel = () => {
       console.log('Fetched parking bookings:', data);
       setParkingBookings(data || []);
     } catch (error) {
+      console.error('Error fetching bookings:', error);
       toast({
         title: "Error",
         description: "Failed to fetch parking bookings",
