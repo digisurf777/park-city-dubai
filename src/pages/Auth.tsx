@@ -93,13 +93,16 @@ const Auth = () => {
       if (error) {
         if (error.message.includes('already registered')) {
           toast.error('This email address is already registered');
-        } else if (error.message.includes('email rate limit exceeded') || error.message.includes('429')) {
+        } else if (error.message.includes('email rate limit exceeded') || error.message.includes('429') || error.code === 'over_email_send_rate_limit') {
           // Handle rate limit error
           setRateLimited(true);
-          toast.error('Too many email requests. Please wait a few minutes before trying again.', {
-            duration: 10000,
-            description: 'Email confirmation requests are limited to prevent spam.'
+          toast.error('Email system temporarily busy', {
+            duration: 15000,
+            description: 'Your account may have been created but email confirmation is delayed. Try logging in after a few minutes.'
           });
+          
+          // Clear the form since account might be created
+          setSignupForm({ email: '', password: '', confirmPassword: '', fullName: '', userType: 'seeker' });
           
           // Reset rate limit after 5 minutes
           setTimeout(() => {
