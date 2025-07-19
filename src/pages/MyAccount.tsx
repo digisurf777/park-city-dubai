@@ -29,8 +29,31 @@ interface ParkingBooking {
   end_time: string;
   duration_hours: number;
   cost_aed: number;
-  status: 'active' | 'completed' | 'cancelled';
+  status: 'active' | 'completed' | 'cancelled' | 'pending';
   created_at: string;
+}
+
+interface ParkingListing {
+  id: string;
+  title: string;
+  address: string;
+  zone: string;
+  price_per_hour: number;
+  price_per_day?: number;
+  price_per_month?: number;
+  status: 'pending' | 'approved' | 'rejected';
+  created_at: string;
+}
+
+interface ParkingHistoryItem {
+  id: string;
+  type: 'booking' | 'listing';
+  title: string;
+  location: string;
+  zone: string;
+  status: string;
+  created_at: string;
+  details: ParkingBooking | ParkingListing;
 }
 
 const MyAccount = () => {
@@ -40,6 +63,8 @@ const MyAccount = () => {
   const [updating, setUpdating] = useState(false);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [bookings, setBookings] = useState<ParkingBooking[]>([]);
+  const [listings, setListings] = useState<ParkingListing[]>([]);
+  const [parkingHistory, setParkingHistory] = useState<ParkingHistoryItem[]>([]);
   const [verificationStatus, setVerificationStatus] = useState<string | null>(null);
   const [isParkingOwner, setIsParkingOwner] = useState<boolean>(false);
 
@@ -52,8 +77,37 @@ const MyAccount = () => {
   useEffect(() => {
     fetchProfile();
     fetchBookings();
+    fetchListings();
     fetchVerificationStatus();
   }, [user]);
+
+  useEffect(() => {
+    // Combine bookings and listings into unified history
+    const combinedHistory: ParkingHistoryItem[] = [
+      ...bookings.map(booking => ({
+        id: booking.id,
+        type: 'booking' as const,
+        title: `Booking - ${booking.location}`,
+        location: booking.location,
+        zone: booking.zone,
+        status: booking.status,
+        created_at: booking.created_at,
+        details: booking
+      })),
+      ...listings.map(listing => ({
+        id: listing.id,
+        type: 'listing' as const,
+        title: `Listing - ${listing.title}`,
+        location: listing.address,
+        zone: listing.zone,
+        status: listing.status,
+        created_at: listing.created_at,
+        details: listing
+      }))
+    ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    
+    setParkingHistory(combinedHistory);
+  }, [bookings, listings]);
 
   const fetchProfile = async () => {
     try {
@@ -91,6 +145,24 @@ const MyAccount = () => {
       }
     } catch (error) {
       console.error('Error fetching bookings:', error);
+    }
+  };
+
+  const fetchListings = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('parking_listings')
+        .select('*')
+        .eq('owner_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching listings:', error);
+      } else {
+        setListings((data || []) as ParkingListing[]);
+      }
+    } catch (error) {
+      console.error('Error fetching listings:', error);
     }
   };
 
@@ -154,7 +226,66 @@ const MyAccount = () => {
       case 'active': return 'bg-green-500';
       case 'completed': return 'bg-gray-500';
       case 'cancelled': return 'bg-red-500';
+      case 'pending': return 'bg-yellow-500';
+      case 'approved': return 'bg-green-500';
+      case 'rejected': return 'bg-red-500';
       default: return 'bg-gray-500';
+    }
+  };
+
+  const getStatusText = (status: string) => {
+    return status.charAt(0).toUpperCase() + status.slice(1);
+  };
+
+  const renderHistoryItemDetails = (item: ParkingHistoryItem) => {
+    if (item.type === 'booking') {
+      const booking = item.details as ParkingBooking;
+      return (
+        <div className="grid grid-cols-2 gap-4 text-sm">
+          <div>
+            <p className="text-muted-foreground">Start Time</p>
+            <p>{new Date(booking.start_time).toLocaleString()}</p>
+          </div>
+          <div>
+            <p className="text-muted-foreground">End Time</p>
+            <p>{new Date(booking.end_time).toLocaleString()}</p>
+          </div>
+          <div>
+            <p className="text-muted-foreground">Duration</p>
+            <p>{booking.duration_hours} hours</p>
+          </div>
+          <div>
+            <p className="text-muted-foreground">Cost</p>
+            <p className="font-semibold">{booking.cost_aed} AED</p>
+          </div>
+        </div>
+      );
+    } else {
+      const listing = item.details as ParkingListing;
+      return (
+        <div className="grid grid-cols-2 gap-4 text-sm">
+          <div>
+            <p className="text-muted-foreground">Hourly Rate</p>
+            <p className="font-semibold">{listing.price_per_hour} AED/hour</p>
+          </div>
+          {listing.price_per_day && (
+            <div>
+              <p className="text-muted-foreground">Daily Rate</p>
+              <p className="font-semibold">{listing.price_per_day} AED/day</p>
+            </div>
+          )}
+          {listing.price_per_month && (
+            <div>
+              <p className="text-muted-foreground">Monthly Rate</p>
+              <p className="font-semibold">{listing.price_per_month} AED/month</p>
+            </div>
+          )}
+          <div>
+            <p className="text-muted-foreground">Created</p>
+            <p>{new Date(listing.created_at).toLocaleDateString()}</p>
+          </div>
+        </div>
+      );
     }
   };
 
@@ -368,46 +499,36 @@ const MyAccount = () => {
               <CardHeader>
                 <CardTitle>Parking History</CardTitle>
                 <CardDescription>
-                  View your past and current parking bookings
+                  View your parking bookings and listings
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {bookings.length === 0 ? (
+                {parkingHistory.length === 0 ? (
                   <p className="text-muted-foreground text-center py-8">
-                    No parking bookings yet. Start by finding a parking space!
+                    No parking activity yet. Start by booking a space or listing your parking!
                   </p>
                 ) : (
                   <div className="space-y-4">
-                    {bookings.map((booking) => (
-                      <div key={booking.id} className="border rounded-lg p-4">
+                    {parkingHistory.map((item) => (
+                      <div key={`${item.type}-${item.id}`} className="border rounded-lg p-4">
                         <div className="flex justify-between items-start mb-2">
                           <div>
-                            <h3 className="font-semibold">{booking.location}</h3>
-                            <p className="text-sm text-muted-foreground">{booking.zone}</p>
+                            <div className="flex items-center gap-2 mb-1">
+                              {item.type === 'booking' ? (
+                                <Car className="h-4 w-4 text-blue-600" />
+                              ) : (
+                                <ParkingCircle className="h-4 w-4 text-green-600" />
+                              )}
+                              <h3 className="font-semibold">{item.title}</h3>
+                            </div>
+                            <p className="text-sm text-muted-foreground">{item.zone}</p>
                           </div>
-                          <Badge className={getStatusColor(booking.status)}>
-                            {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
+                          <Badge className={getStatusColor(item.status)}>
+                            {getStatusText(item.status)}
                           </Badge>
                         </div>
                         
-                        <div className="grid grid-cols-2 gap-4 text-sm">
-                          <div>
-                            <p className="text-muted-foreground">Start Time</p>
-                            <p>{new Date(booking.start_time).toLocaleString()}</p>
-                          </div>
-                          <div>
-                            <p className="text-muted-foreground">End Time</p>
-                            <p>{new Date(booking.end_time).toLocaleString()}</p>
-                          </div>
-                          <div>
-                            <p className="text-muted-foreground">Duration</p>
-                            <p>{booking.duration_hours} hours</p>
-                          </div>
-                          <div>
-                            <p className="text-muted-foreground">Cost</p>
-                            <p className="font-semibold">{booking.cost_aed} AED</p>
-                          </div>
-                        </div>
+                        {renderHistoryItemDetails(item)}
                       </div>
                     ))}
                   </div>
