@@ -70,8 +70,8 @@ const Footer = () => {
                 </a>
               </li>
               <li>
-                <a href="https://shazamparking.ae/terms-and-conditions/" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-primary transition-colors">
-                  Terms of Conditions
+                <a href="/terms-and-conditions" className="text-gray-300 hover:text-primary transition-colors">
+                  Terms & Conditions
                 </a>
               </li>
               <li>
