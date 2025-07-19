@@ -20,6 +20,7 @@ const Auth = () => {
   const [loginForm, setLoginForm] = useState({ email: '', password: '' });
   const [signupForm, setSignupForm] = useState({ email: '', password: '', confirmPassword: '', fullName: '', userType: 'seeker' });
   const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
+  const [rateLimited, setRateLimited] = useState(false);
   const recaptchaRef = useRef<ReCAPTCHA>(null);
   const { signIn, signUp, resetPassword, user } = useAuth();
   const navigate = useNavigate();
@@ -69,6 +70,11 @@ const Auth = () => {
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Prevent multiple rapid submissions
+    if (loading || rateLimited) {
+      return;
+    }
+    
     if (signupForm.password !== signupForm.confirmPassword) {
       toast.error('Passwords do not match');
       return;
@@ -87,6 +93,18 @@ const Auth = () => {
       if (error) {
         if (error.message.includes('already registered')) {
           toast.error('This email address is already registered');
+        } else if (error.message.includes('email rate limit exceeded') || error.message.includes('429')) {
+          // Handle rate limit error
+          setRateLimited(true);
+          toast.error('Too many email requests. Please wait a few minutes before trying again.', {
+            duration: 10000,
+            description: 'Email confirmation requests are limited to prevent spam.'
+          });
+          
+          // Reset rate limit after 5 minutes
+          setTimeout(() => {
+            setRateLimited(false);
+          }, 5 * 60 * 1000);
         } else {
           toast.error(error.message || 'Error during registration');
         }
@@ -328,16 +346,26 @@ const Auth = () => {
                   </Select>
                 </div>
                 
-                <Button type="submit" className="w-full" disabled={loading}>
+                <Button type="submit" className="w-full" disabled={loading || rateLimited}>
                   {loading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Creating account...
                     </>
+                  ) : rateLimited ? (
+                    'Rate Limited - Please Wait'
                   ) : (
                     'Create Account'
                   )}
                 </Button>
+                
+                {rateLimited && (
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mt-2">
+                    <p className="text-xs text-yellow-700">
+                      Too many signup attempts detected. Please wait a few minutes before trying again.
+                    </p>
+                  </div>
+                )}
               </form>
             </TabsContent>
           </Tabs>
