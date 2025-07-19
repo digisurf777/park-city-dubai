@@ -165,10 +165,10 @@ const EmailConfirmed = () => {
           {confirmed ? (
             <>
               <p className="text-sm text-muted-foreground">
-                Your email has been confirmed. You can now log in to your account.
+                Welcome to Shazam Parking! Your account is now active and ready to use.
               </p>
-              <Button onClick={handleLoginRedirect} className="w-full">
-                Go to Login
+              <Button onClick={() => navigate('/')} className="w-full">
+                Go to Shazam Parking
               </Button>
             </>
           ) : (
