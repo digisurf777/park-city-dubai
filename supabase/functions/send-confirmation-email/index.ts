@@ -25,10 +25,14 @@ const handler = async (req: Request): Promise<Response> => {
   try {
     const { email, fullName, confirmationUrl }: ConfirmationEmailRequest = await req.json();
     
+    console.log('Sending confirmation email to:', email);
+    console.log('Full name:', fullName);
+    console.log('Confirmation URL:', confirmationUrl);
+    
     const emailResponse = await resend.emails.send({
       from: "Shazam Parking <onboarding@resend.dev>",
-      to: [email],
-      subject: "Confirm your ShazamParking account email",
+      to: ["digisurf777@gmail.com"], // Using your verified email for testing
+      subject: `Email Confirmation for ${fullName} (${email})`,
       html: `
         <!DOCTYPE html>
         <html lang="en" style="font-family: Arial, sans-serif;">
@@ -53,6 +57,7 @@ const handler = async (req: Request): Promise<Response> => {
                           Hello ${fullName},
                         </p>
                         <p style="font-size: 16px; color: #555555;">
+                          <strong>Email:</strong> ${email}<br>
                           Thank you for signing up. To keep your account secure, please confirm your email address by clicking the link below:
                         </p>
                         <p style="text-align: center; margin: 30px 0;">
@@ -86,6 +91,11 @@ const handler = async (req: Request): Promise<Response> => {
     });
 
     console.log("Confirmation email sent successfully:", emailResponse);
+    
+    if (emailResponse.error) {
+      console.error('Resend error:', emailResponse.error);
+      throw new Error(`Failed to send email: ${emailResponse.error.message}`);
+    }
 
     return new Response(JSON.stringify(emailResponse), {
       status: 200,
