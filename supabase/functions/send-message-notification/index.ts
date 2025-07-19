@@ -25,59 +25,26 @@ const handler = async (req: Request): Promise<Response> => {
   try {
     const { userEmail, userName, subject, message }: MessageNotificationRequest = await req.json();
 
-    console.log('Sending message notification to:', userEmail);
-    console.log('Subject:', subject);
-    console.log('Message preview:', message.substring(0, 100));
-
     const emailResponse = await resend.emails.send({
-      from: "Shazam Parking <verify@shazam.ae>",
-      to: ["digisurf777@gmail.com"], // Using your verified email for testing
-      subject: `Message from Shazam Parking Admin: ${subject}`,
+      from: "Parking App <onboarding@resend.dev>",
+      to: ["digisurf777@gmail.com"],
+      subject: `New Message: ${subject}`,
       html: `
-        <!DOCTYPE html>
-        <html lang="en">
-          <head>
-            <meta charset="UTF-8" />
-            <title>New Message from Admin</title>
-          </head>
-          <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-            <div style="background-color: #0099cc; padding: 20px; text-align: center; margin-bottom: 30px;">
-              <h1 style="color: white; margin: 0;">Message from Shazam Parking</h1>
-            </div>
-            
-            <div style="background-color: #f9f9f9; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-              <h2 style="color: #0099cc; margin-top: 0;">Hello ${userName}!</h2>
-              <p><strong>Customer Email:</strong> ${userEmail}</p>
-              <p>You have received a new message from the Shazam Parking administration team.</p>
-              
-              <div style="background-color: white; padding: 15px; border-left: 4px solid #0099cc; margin: 20px 0;">
-                <h3 style="margin-top: 0; color: #0099cc;">Subject: ${subject}</h3>
-                <div style="white-space: pre-wrap;">${message}</div>
-              </div>
-              
-              <p>Please log in to your Shazam Parking account to view this message and respond if needed.</p>
-              <p style="text-align: center; margin: 30px 0;">
-                <a href="https://shazamparking.ae/my-account" style="background-color: #0099cc; color: white; text-decoration: none; padding: 12px 24px; border-radius: 6px; display: inline-block;">
-                  View My Account
-                </a>
-              </p>
-            </div>
-            
-            <div style="text-align: center; color: #666; font-size: 12px; margin-top: 30px;">
-              <p>This is an automated message from Shazam Parking Administration.</p>
-              <p>For support, contact us at <a href="mailto:support@shazam.ae">support@shazam.ae</a></p>
-            </div>
-          </body>
-        </html>
+        <h1>You have a new message, ${userName}!</h1>
+        <p>Subject: <strong>${subject}</strong></p>
+        <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <p>${message.replace(/\n/g, '<br>')}</p>
+        </div>
+        <p>Please log in to your account to view and respond to this message.</p>
+        
+        <hr style="margin: 30px 0;" />
+        <p style="color: #666; font-size: 12px;">
+          This is an automated email from the Parking App messaging system.
+        </p>
       `,
     });
 
     console.log("Message notification email sent successfully:", emailResponse);
-    
-    if (emailResponse.error) {
-      console.error('Resend error:', emailResponse.error);
-      throw new Error(`Failed to send email: ${emailResponse.error.message}`);
-    }
 
     return new Response(JSON.stringify(emailResponse), {
       status: 200,
