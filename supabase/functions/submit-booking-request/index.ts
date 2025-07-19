@@ -107,6 +107,10 @@ const handler = async (req: Request): Promise<Response> => {
     });
 
     console.log('Admin notification sent:', adminEmailResponse);
+    
+    if (adminEmailResponse.error) {
+      console.error('Error sending admin email:', adminEmailResponse.error);
+    }
 
     // Send confirmation email to user
     const userEmailResponse = await resend.emails.send({
@@ -138,6 +142,10 @@ const handler = async (req: Request): Promise<Response> => {
     });
 
     console.log('User confirmation sent:', userEmailResponse);
+    
+    if (userEmailResponse.error) {
+      console.error('Error sending user email:', userEmailResponse.error);
+    }
 
     return new Response(
       JSON.stringify({ 
