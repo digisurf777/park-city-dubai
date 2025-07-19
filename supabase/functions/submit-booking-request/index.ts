@@ -69,7 +69,7 @@ const handler = async (req: Request): Promise<Response> => {
         end_time: endDate.toISOString(),
         duration_hours: bookingData.duration * 30 * 24, // Approximate hours for months
         cost_aed: bookingData.totalPrice,
-        status: 'pending_review'
+        status: 'pending'
       })
       .select()
       .single();
@@ -83,8 +83,8 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Send notification email to admin
     const adminEmailResponse = await resend.emails.send({
-      from: "Parking App <onboarding@resend.dev>",
-      to: ["digisurf777@gmail.com"],
+      from: "Shazam Parking <onboarding@resend.dev>",
+      to: ["support@shazam.ae"],
       subject: `New Booking Request - ${bookingData.parkingSpotName}`,
       html: `
         <h1>New Parking Space Booking Request</h1>
@@ -110,7 +110,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Send confirmation email to user
     const userEmailResponse = await resend.emails.send({
-      from: "Parking App <onboarding@resend.dev>",
+      from: "Shazam Parking <onboarding@resend.dev>",
       to: [bookingData.userEmail],
       subject: `Booking Request Received - ${bookingData.parkingSpotName}`,
       html: `
@@ -132,8 +132,8 @@ const handler = async (req: Request): Promise<Response> => {
           <p>• <strong>No charges have been made at this time</strong></p>
         </div>
         
-        <p>If you have any questions, please contact us at digisurf777@gmail.com</p>
-        <p>Best regards,<br>The Parking Team</p>
+        <p>If you have any questions, please contact us at support@shazam.ae</p>
+        <p>Best regards,<br>The Shazam Parking Team</p>
       `,
     });
 
