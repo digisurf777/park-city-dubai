@@ -75,6 +75,9 @@ const AdminPanel = () => {
     message: ''
   });
 
+  console.log('AdminPanel - Current user:', user);
+  console.log('AdminPanel - Parking bookings count:', parkingBookings.length);
+
   const fetchParkingBookings = async () => {
     try {
       console.log('Fetching parking bookings...');
@@ -176,6 +179,7 @@ const AdminPanel = () => {
 
   useEffect(() => {
     const loadData = async () => {
+      console.log('AdminPanel: Starting to load data...');
       setLoading(true);
       await Promise.all([
         fetchParkingBookings(),
@@ -183,6 +187,7 @@ const AdminPanel = () => {
         fetchUserProfiles()
       ]);
       setLoading(false);
+      console.log('AdminPanel: Finished loading data');
     };
 
     loadData();
