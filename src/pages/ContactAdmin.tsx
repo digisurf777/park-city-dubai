@@ -69,15 +69,10 @@ const ContactAdmin = () => {
       // Send notification to admin
       await supabase.functions.invoke('send-message-notification', {
         body: {
-          subject: `Message from User: ${subject}`,
-          message: `New message from user: ${user.email}
-
-Subject: ${subject}
-
-Message:
-${message}`,
-          userId: user.id,
-          fromAdmin: false
+          userEmail: user.email,
+          userName: user.email,
+          subject: subject,
+          message: message
         }
       });
 
