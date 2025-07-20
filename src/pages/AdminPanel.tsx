@@ -204,16 +204,48 @@ const AdminPanel = () => {
       
       console.log('Admin role check result:', data);
       const isAdminUser = !!data;
-      setIsAdmin(isAdminUser);
       
-      if (isAdminUser) {
-        console.log('User is admin, fetching admin data...');
-        fetchPosts();
-        fetchVerifications();
-        fetchParkingListings();
-        fetchParkingBookings();
-        fetchAllUsers();
-        fetchDetailedUsers();
+      // If no admin role found, try to set up as admin (for first-time setup)
+      if (!isAdminUser) {
+        console.log('No admin role found, attempting to set up admin...');
+        try {
+          const { error: setupError } = await supabase.functions.invoke('setup-admin');
+          if (!setupError) {
+            console.log('Admin setup successful, rechecking role...');
+            // Recheck admin role after setup
+            const { data: recheckData } = await supabase
+              .from('user_roles')
+              .select('role')
+              .eq('user_id', user.id)
+              .eq('role', 'admin')
+              .single();
+            
+            if (recheckData) {
+              setIsAdmin(true);
+              console.log('User is now admin, fetching admin data...');
+              fetchPosts();
+              fetchVerifications();
+              fetchParkingListings();
+              fetchParkingBookings();
+              fetchAllUsers();
+              fetchDetailedUsers();
+            }
+          }
+        } catch (setupErr) {
+          console.error('Admin setup failed:', setupErr);
+        }
+      } else {
+        setIsAdmin(isAdminUser);
+        
+        if (isAdminUser) {
+          console.log('User is admin, fetching admin data...');
+          fetchPosts();
+          fetchVerifications();
+          fetchParkingListings();
+          fetchParkingBookings();
+          fetchAllUsers();
+          fetchDetailedUsers();
+        }
       }
     } catch (error) {
       console.error('Error checking admin role:', error);
@@ -1301,8 +1333,51 @@ const AdminPanel = () => {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Card className="w-96">
-          <CardContent className="pt-6">
-            <p className="text-center text-muted-foreground">Please log in to access the admin panel.</p>
+          <CardContent className="pt-6 text-center space-y-4">
+            <h2 className="text-xl font-semibold">Admin Access Required</h2>
+            <p className="text-muted-foreground">Please log in to access the admin panel.</p>
+            <Button 
+              onClick={() => window.location.href = '/auth'}
+              className="w-full"
+            >
+              Go to Login
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (checkingAdmin) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Card className="w-96">
+          <CardContent className="pt-6 text-center space-y-4">
+            <h2 className="text-xl font-semibold">Verifying Admin Access</h2>
+            <p className="text-muted-foreground">Checking your admin privileges...</p>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Card className="w-96">
+          <CardContent className="pt-6 text-center space-y-4">
+            <h2 className="text-xl font-semibold">Access Denied</h2>
+            <p className="text-muted-foreground">
+              You don't have admin privileges. Contact an administrator for access.
+            </p>
+            <Button 
+              variant="outline"
+              onClick={() => window.location.href = '/'}
+              className="w-full"
+            >
+              Return to Home
+            </Button>
           </CardContent>
         </Card>
       </div>
