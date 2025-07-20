@@ -172,40 +172,6 @@ const AdminPanel = () => {
         fetchParkingBookings();
         fetchAllUsers();
         fetchDetailedUsers();
-        
-        // Set up real-time subscription for new bookings
-        const bookingsChannel = supabase
-          .channel('parking_bookings_changes')
-          .on(
-            'postgres_changes',
-            {
-              event: 'INSERT',
-              schema: 'public',
-              table: 'parking_bookings'
-            },
-            () => {
-              console.log('New booking received, refreshing...');
-              fetchParkingBookings();
-            }
-          )
-          .on(
-            'postgres_changes',
-            {
-              event: 'UPDATE',
-              schema: 'public',
-              table: 'parking_bookings'
-            },
-            () => {
-              console.log('Booking updated, refreshing...');
-              fetchParkingBookings();
-            }
-          )
-          .subscribe();
-
-        // Cleanup subscription on unmount
-        return () => {
-          supabase.removeChannel(bookingsChannel);
-        };
       }
     } catch (error) {
       console.error('Error checking admin role:', error);
