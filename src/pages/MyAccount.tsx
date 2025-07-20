@@ -409,20 +409,7 @@ const MyAccount = () => {
                   </Card>
 
                   <Card>
-                    <CardContent className="pt-6">
-                      <div className="text-center space-y-4">
-                        <MessageSquare className="h-8 w-8 text-primary mx-auto" />
-                        <h3 className="font-semibold">Send Feedback</h3>
-                        <p className="text-sm text-muted-foreground">
-                          Share your thoughts, suggestions, or report issues with our platform.
-                        </p>
-                        <Link to="/feedback">
-                          <Button variant="outline" className="w-full">
-                            Give Feedback
-                          </Button>
-                        </Link>
-                      </div>
-                    </CardContent>
+                    
                   </Card>
                 </div>
 
