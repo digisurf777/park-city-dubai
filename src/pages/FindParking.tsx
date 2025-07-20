@@ -13,7 +13,7 @@ import { useSearchParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import dubaiMarinaZone from "@/assets/zones/dubai-marina-real.jpg";
 import downtownZone from "/lovable-uploads/f676da2a-39c9-4211-8561-5b884e0ceed8.png";
-import dubaiHeroImage from "@/assets/dubai-find-parking-hero.jpg";
+import dubaiHeroImage from "@/assets/dubai-daytime-hero.jpg";
 import palmJumeirahZone from "/lovable-uploads/atlantis-hotel-hero.jpg";
 import businessBayZone from "@/assets/zones/business-bay-real.jpg";
 import difcZone from "/lovable-uploads/63d539ac-8cbb-46b2-aa39-3de0695ef8c9.png";
