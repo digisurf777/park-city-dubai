@@ -519,7 +519,7 @@ const AdminPanel = () => {
         .from('parking_bookings')
         .select(`
           *,
-          profiles(
+          profiles!parking_bookings_user_id_profiles_user_id_fkey (
             full_name,
             phone
           )
