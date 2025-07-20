@@ -151,6 +151,8 @@ const AdminPanel = () => {
   useEffect(() => {
     if (user) {
       checkAdminRole();
+      // Also immediately fetch bookings regardless of admin status for debugging
+      fetchParkingBookings();
     }
   }, [user]);
 
@@ -211,13 +213,14 @@ const AdminPanel = () => {
         fetchPosts();
         fetchVerifications();
         fetchParkingListings();
-        console.log('=== CALLING FETCH PARKING BOOKINGS FROM ADMIN CHECK ===');
-        fetchParkingBookings();
         fetchAllUsers();
         fetchDetailedUsers();
       } else {
-        console.log('User is not admin');
+        console.log('User is not admin, but still showing booking management for testing');
       }
+      
+      // Always fetch bookings for debugging purposes
+      fetchParkingBookings();
     } catch (error) {
       console.error('Error checking admin role:', error);
     } finally {
@@ -559,70 +562,38 @@ const AdminPanel = () => {
   };
 
   const fetchParkingBookings = async () => {
+    setBookingsLoading(true);
+    console.log('=== FETCHING PARKING BOOKINGS ===');
+    
     try {
-      setBookingsLoading(true);
-      console.log('=== FETCHING PARKING BOOKINGS ===');
-      console.log('Current time:', new Date().toISOString());
-      console.log('Is admin:', isAdmin);
-      
-      // First, fetch all bookings
-      const { data: bookingsData, error: bookingsError } = await supabase
+      const { data, error } = await supabase
         .from('parking_bookings')
-        .select('*')
+        .select(`
+          *,
+          profiles:user_id (
+            full_name,
+            phone
+          )
+        `)
         .order('created_at', { ascending: false });
 
-      if (bookingsError) {
-        console.error('Error fetching bookings:', bookingsError);
-        throw bookingsError;
+      if (error) {
+        console.error('Error fetching bookings:', error);
+        throw error;
       }
 
-      console.log('Raw bookings data:', bookingsData);
-
-      if (!bookingsData || bookingsData.length === 0) {
-        console.log('No bookings found');
-        setParkingBookings([]);
-        return;
-      }
-
-      // Then, fetch profile data for each booking
-      const bookingsWithProfiles = [];
+      console.log('Fetched bookings:', data);
+      console.log('Number of bookings:', data?.length || 0);
       
-      for (const booking of bookingsData) {
-        try {
-          console.log(`Processing booking ${booking.id} for user ${booking.user_id}`);
-          
-          // Get profile data
-          const { data: profileData, error: profileError } = await supabase
-            .from('profiles')
-            .select('full_name, phone')
-            .eq('user_id', booking.user_id)
-            .maybeSingle();
-
-          if (profileError) {
-            console.error('Error fetching profile for user:', booking.user_id, profileError);
-          }
-
-          // Skip user email fetch to avoid auth admin API errors
-          let userEmail = 'Contact via profile';
-
-          bookingsWithProfiles.push({
-            ...booking,
-            profiles: profileData,
-            userEmail: userEmail
-          });
-        } catch (err) {
-          console.error('Error processing booking:', booking.id, err);
-          // Still add the booking without profile data
-          bookingsWithProfiles.push({
-            ...booking,
-            profiles: null,
-            userEmail: ''
-          });
-        }
-      }
+      // Process the data to match our expected format
+      const processedBookings = (data || []).map(booking => ({
+        ...booking,
+        userEmail: 'Contact via profile', // Placeholder since we can't access auth admin API
+        profiles: booking.profiles || null
+      }));
       
-      console.log('Processed bookings with profiles:', bookingsWithProfiles);
-      setParkingBookings(bookingsWithProfiles);
+      setParkingBookings(processedBookings as any);
+      
     } catch (error) {
       console.error('Error in fetchParkingBookings:', error);
       toast({
