@@ -61,7 +61,7 @@ const Footer = () => {
             <h3 className="text-lg font-semibold mb-4">Support</h3>
             <ul className="space-y-2">
               <li>
-                <a href="https://shazamparking.ae/privacy-policy/" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-primary transition-colors">
+                <a href="/privacy-policy" className="text-gray-300 hover:text-primary transition-colors">
                   Privacy Policy
                 </a>
               </li>
