@@ -111,22 +111,22 @@ const RentOutYourSpace = () => {
       toast({
         title: "Authentication required",
         description: (
-          <div className="space-y-2">
-            <p>Please sign in to submit a listing</p>
-            <div className="flex space-x-2">
+          <div className="space-y-3">
+            <p className="text-sm">Please sign in to submit a listing</p>
+            <div className="flex space-x-3">
               <Button
-                variant="outline"
+                variant="secondary"
                 size="sm"
                 onClick={() => window.location.href = '/auth'}
-                className="text-white border-white hover:bg-white hover:text-destructive"
+                className="bg-white text-destructive hover:bg-gray-100 font-semibold px-4 py-2"
               >
                 Login
               </Button>
               <Button
-                variant="outline"
+                variant="secondary"
                 size="sm"
                 onClick={() => window.location.href = '/auth'}
-                className="text-white border-white hover:bg-white hover:text-destructive"
+                className="bg-white text-destructive hover:bg-gray-100 font-semibold px-4 py-2"
               >
                 Sign Up
               </Button>
