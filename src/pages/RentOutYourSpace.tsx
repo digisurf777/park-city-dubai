@@ -379,27 +379,21 @@ const RentOutYourSpace = () => {
                       <SelectValue placeholder="Select monthly price" />
                     </SelectTrigger>
                     <SelectContent>
-                      {Array.from({ length: 15 }, (_, i) => {
-                        const price = 300 + (i * 50);
-                        return price <= 1000 ? (
-                          <SelectItem key={price} value={price.toString()}>
+                      {Array.from({
+                      length: 15
+                    }, (_, i) => {
+                      const price = 300 + i * 50;
+                      return price <= 1000 ? <SelectItem key={price} value={price.toString()}>
                             {price} AED
-                          </SelectItem>
-                        ) : null;
-                      })}
+                          </SelectItem> : null;
+                    })}
                     </SelectContent>
                   </Select>
                 </div>
                 <div>
-                  <Label htmlFor="accessDeviceDeposit" className="text-base font-medium">
-                    Access Device Deposit (AED)
-                  </Label>
+                  <Label htmlFor="accessDeviceDeposit" className="text-base font-medium">Access Device Deposit (AED 500)</Label>
                   <div className="flex items-center space-x-3 mt-2">
-                    <Switch
-                      id="accessDeviceDeposit"
-                      checked={formData.accessDeviceDeposit as boolean}
-                      onCheckedChange={(checked) => handleInputChange('accessDeviceDeposit', checked)}
-                    />
+                    <Switch id="accessDeviceDeposit" checked={formData.accessDeviceDeposit as boolean} onCheckedChange={checked => handleInputChange('accessDeviceDeposit', checked)} />
                     <Label htmlFor="accessDeviceDeposit" className="text-sm">
                       {formData.accessDeviceDeposit ? 'Yes' : 'No'}
                     </Label>
@@ -465,11 +459,8 @@ const RentOutYourSpace = () => {
               
 
               <div className="flex justify-center">
-                <ReCAPTCHA 
-                  ref={recaptchaRef} 
-                  sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI" // Test key - replace with your actual site key
-                  onChange={token => setRecaptchaToken(token)} 
-                />
+                <ReCAPTCHA ref={recaptchaRef} sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI" // Test key - replace with your actual site key
+              onChange={token => setRecaptchaToken(token)} />
               </div>
 
               <Button type="submit" disabled={isSubmitting || !recaptchaToken} className="w-full bg-primary hover:bg-primary/90 text-white py-4 text-lg font-semibold disabled:opacity-50">
