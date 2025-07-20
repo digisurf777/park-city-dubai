@@ -13,6 +13,7 @@ import { useSearchParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import dubaiMarinaZone from "@/assets/zones/dubai-marina-real.jpg";
 import downtownZone from "/lovable-uploads/f676da2a-39c9-4211-8561-5b884e0ceed8.png";
+import dubaiHeroImage from "@/assets/dubai-find-parking-hero.jpg";
 import palmJumeirahZone from "/lovable-uploads/atlantis-hotel-hero.jpg";
 import businessBayZone from "@/assets/zones/business-bay-real.jpg";
 import difcZone from "/lovable-uploads/63d539ac-8cbb-46b2-aa39-3de0695ef8c9.png";
@@ -159,8 +160,8 @@ const FindParking = () => {
       {/* Hero Section */}
       <div className="relative h-[500px] bg-gradient-to-r from-primary/10 to-primary/5">
         <div className="absolute inset-0 bg-black/40"></div>
-        <div className="absolute inset-0 bg-cover bg-bottom" style={{
-        backgroundImage: 'url("/lovable-uploads/atlantis-hotel-hero.jpg")'
+        <div className="absolute inset-0 bg-cover bg-center" style={{
+        backgroundImage: `url(${dubaiHeroImage})`
       }}></div>
         <div className="relative z-10 flex items-center justify-center h-full">
           <div className="text-center text-white px-4 max-w-4xl">
