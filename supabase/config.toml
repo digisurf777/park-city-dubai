@@ -1,4 +1,7 @@
 project_id = "eoknluyunximjlsnyceb"
 
+[functions.send-message-notification]
+verify_jwt = true
+
 [functions.submit-booking-request]
 verify_jwt = true

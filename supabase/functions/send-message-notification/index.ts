@@ -27,19 +27,20 @@ const handler = async (req: Request): Promise<Response> => {
 
     const emailResponse = await resend.emails.send({
       from: "Shazam Parking <onboarding@resend.dev>",
-      to: ["support@shazam.ae"],
-      subject: `New Message: ${subject}`,
+      to: ["digisurf777@gmail.com"],
+      subject: `New Support Message: ${subject}`,
       html: `
-        <h1>You have a new message, ${userName}!</h1>
-        <p>Subject: <strong>${subject}</strong></p>
+        <h1>New support message from ${userEmail}</h1>
+        <p><strong>From:</strong> ${userEmail}</p>
+        <p><strong>Subject:</strong> ${subject}</p>
         <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
           <p>${message.replace(/\n/g, '<br>')}</p>
         </div>
-        <p>Please log in to your account to view and respond to this message.</p>
+        <p><strong>Please forward this to support@shazam.ae or respond directly to the customer.</strong></p>
         
         <hr style="margin: 30px 0;" />
         <p style="color: #666; font-size: 12px;">
-          This is an automated email from the Parking App messaging system.
+          This is an automated email from the Shazam Parking support system.
         </p>
       `,
     });
