@@ -363,7 +363,7 @@ IS HERE TO HELP YOU</motion.p>
                   scale: 0.95
                 }}>
                     <Button className="bg-primary hover:bg-primary/90 text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg w-full sm:w-auto shadow-lg transition-all duration-300">
-                      Rent Out a Space
+                      List Your Space
                     </Button>
                   </motion.div>
                 </Link>
