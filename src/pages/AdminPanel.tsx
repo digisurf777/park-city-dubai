@@ -2057,19 +2057,32 @@ const AdminPanel = () => {
                   {bookingsLoading ? 'Loading...' : 'Refresh Bookings'}
                 </Button>
                 <Button 
-                  variant="secondary" 
-                  onClick={() => {
-                    console.log('Force reload admin data...');
-                    fetchPosts();
-                    fetchVerifications();
-                    fetchParkingListings();
-                    fetchParkingBookings();
-                    fetchAllUsers();
-                    fetchDetailedUsers();
+                  variant="destructive" 
+                  onClick={async () => {
+                    console.log('=== FORCE LOADING ALL BOOKINGS ===');
+                    setBookingsLoading(true);
+                    try {
+                      const { data, error } = await supabase
+                        .from('parking_bookings')
+                        .select('*')
+                        .order('created_at', { ascending: false });
+                      
+                      console.log('Force fetch result:', data);
+                      if (error) {
+                        console.error('Force fetch error:', error);
+                      } else {
+                        setParkingBookings(data || []);
+                        console.log('Set parkingBookings to:', data?.length || 0, 'items');
+                      }
+                    } catch (err) {
+                      console.error('Force fetch catch error:', err);
+                    } finally {
+                      setBookingsLoading(false);
+                    }
                   }}
                   className="flex items-center gap-2"
                 >
-                  Force Reload All Data
+                  FORCE LOAD BOOKINGS NOW
                 </Button>
               </div>
             </div>
