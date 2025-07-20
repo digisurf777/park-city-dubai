@@ -261,15 +261,32 @@ const FindParking = () => {
                       <span className="text-sm">{spot.district}</span>
                     </div>
                     
-                    <div className="flex items-center justify-between">
-                      <div className="text-xl font-bold text-primary">
+                    <div className="space-y-2">
+                      <div className="text-lg font-semibold text-primary">
                         AED {spot.price}
                         <span className="text-sm text-muted-foreground font-normal">/month</span>
                       </div>
-                      <Button size="sm" disabled={!spot.available} className={cn(spot.available ? "bg-primary hover:bg-primary/90" : "bg-muted text-muted-foreground cursor-not-allowed")}>
-                        {spot.available ? "Reserve" : "Unavailable"}
-                      </Button>
+                      
+                      {/* Multi-month pricing */}
+                      <div className="text-xs text-muted-foreground space-y-1">
+                        <div className="flex justify-between">
+                          <span>3 months:</span>
+                          <span className="font-medium">AED {Math.round(((spot.price - 100) * 0.95) * 3 + (100 * 3))}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>6 months:</span>
+                          <span className="font-medium">AED {Math.round(((spot.price - 100) * 0.90) * 6 + (100 * 6))}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>12 months:</span>
+                          <span className="font-medium">AED {Math.round(((spot.price - 100) * 0.85) * 12 + (100 * 12))}</span>
+                        </div>
+                      </div>
                     </div>
+                    
+                    <Button size="sm" disabled={!spot.available} className={cn(spot.available ? "bg-primary hover:bg-primary/90" : "bg-muted text-muted-foreground cursor-not-allowed")}>
+                      {spot.available ? "Reserve" : "Unavailable"}
+                    </Button>
                   </div>
                 </Card>)}
             </div>
