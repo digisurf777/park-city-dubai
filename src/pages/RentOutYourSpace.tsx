@@ -331,7 +331,7 @@ const RentOutYourSpace = () => {
                 </li>
                 <li className="flex items-center">
                   <CheckCircle className="h-6 w-6 text-primary mr-3" />
-                  Dedicated support
+                  Transparent fees and ongoing support
                 </li>
               </ul>
               <Button className="mt-8 bg-primary hover:bg-primary/90 text-white px-8 py-4 text-lg" onClick={() => document.getElementById('form')?.scrollIntoView({
