@@ -340,26 +340,6 @@ const MyAccount = () => {
                   } : null)} placeholder="+971 50 123 4567" />
                   </div>
 
-                  <div className="space-y-3">
-                    <Label className="text-base font-medium">User Type</Label>
-                    <div className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex items-center space-x-3">
-                        <Car className="h-5 w-5 text-blue-600" />
-                        <div>
-                          <p className="font-medium">Parking Seeker</p>
-                          <p className="text-sm text-muted-foreground">Find and book parking spaces</p>
-                        </div>
-                      </div>
-                      <Switch checked={isParkingOwner} onCheckedChange={setIsParkingOwner} />
-                      <div className="flex items-center space-x-3">
-                        <ParkingCircle className="h-5 w-5 text-green-600" />
-                        <div>
-                          <p className="font-medium">Parking Owner</p>
-                          <p className="text-sm text-muted-foreground">List and rent out parking spaces</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
                   
                   <Button type="submit" disabled={updating}>
                     {updating ? <>
