@@ -602,18 +602,8 @@ const AdminPanel = () => {
             console.error('Error fetching profile for user:', booking.user_id, profileError);
           }
 
-          // Get user email (this requires admin role)
-          let userEmail = '';
-          try {
-            const { data: authData, error: authError } = await supabase.auth.admin.getUserById(booking.user_id);
-            if (authError) {
-              console.error('Error getting user email:', authError);
-            } else if (authData.user) {
-              userEmail = authData.user.email || '';
-            }
-          } catch (err) {
-            console.error('Error calling auth admin API:', err);
-          }
+          // Skip user email fetch to avoid auth admin API errors
+          let userEmail = 'Contact via profile';
 
           bookingsWithProfiles.push({
             ...booking,
