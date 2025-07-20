@@ -515,21 +515,32 @@ const AdminPanel = () => {
 
   const fetchParkingBookings = async () => {
     try {
-      const { data, error } = await supabase
+      // First, fetch all bookings
+      const { data: bookingsData, error: bookingsError } = await supabase
         .from('parking_bookings')
-        .select(`
-          *,
-          profiles!parking_bookings_user_id_profiles_user_id_fkey (
-            full_name,
-            phone
-          )
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (bookingsError) throw bookingsError;
+
+      // Then, fetch profile data for each booking
+      const bookingsWithProfiles = await Promise.all(
+        (bookingsData || []).map(async (booking) => {
+          const { data: profileData } = await supabase
+            .from('profiles')
+            .select('full_name, phone')
+            .eq('user_id', booking.user_id)
+            .single();
+
+          return {
+            ...booking,
+            profiles: profileData
+          };
+        })
+      );
       
-      console.log('Fetched parking bookings:', data);
-      setParkingBookings(data || []);
+      console.log('Fetched parking bookings:', bookingsWithProfiles);
+      setParkingBookings(bookingsWithProfiles);
     } catch (error) {
       console.error('Error fetching bookings:', error);
       toast({
