@@ -101,7 +101,29 @@ export const ParkingBookingModal = ({
     if (!user) {
       toast({
         title: "Authentication Required",
-        description: "Please log in to submit a booking request.",
+        description: (
+          <div className="space-y-2">
+            <p>Please log in to submit a booking request.</p>
+            <div className="flex space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => window.location.href = '/auth'}
+                className="text-white border-white hover:bg-white hover:text-destructive"
+              >
+                Login
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => window.location.href = '/auth'}
+                className="text-white border-white hover:bg-white hover:text-destructive"
+              >
+                Sign Up
+              </Button>
+            </div>
+          </div>
+        ),
         variant: "destructive"
       });
       return;
