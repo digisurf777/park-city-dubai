@@ -230,6 +230,20 @@ const RentOutYourSpace = () => {
           }
         }
       });
+
+      // Send customer confirmation email
+      await supabase.functions.invoke('send-customer-confirmation', {
+        body: {
+          userEmail: formData.email,
+          userName: formData.fullName,
+          listingDetails: {
+            buildingName: formData.buildingName,
+            district: formData.district,
+            bayType: formData.bayType,
+            monthlyPrice: monthlyPrice
+          }
+        }
+      });
       toast({
         title: "Listing submitted successfully",
         description: "Our team will review your listing within 24 hours"

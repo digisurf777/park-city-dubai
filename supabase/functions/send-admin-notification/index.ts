@@ -111,7 +111,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     const emailResponse = await resend.emails.send({
       from: "ShazamParking Admin <onboarding@resend.dev>",
-      to: ["digisurf7777@gmail.com"], // Admin email
+      to: ["support@shazam.ae"], // Changed to support@shazam.ae
       subject: subject,
       html: htmlContent,
     });
