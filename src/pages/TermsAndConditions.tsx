@@ -390,6 +390,273 @@ const TermsAndConditions = () => {
               </p>
             </section>
 
+            {/* Owner Agreement Section */}
+            <section className="mb-8 border-t pt-8">
+              <h1 className="text-3xl font-bold mb-6 text-center">OWNER AGREEMENT</h1>
+              
+              <div className="mb-6">
+                <h2 className="text-2xl font-semibold mb-4">1. These Terms</h2>
+                
+                <p className="mb-4">
+                  1.1 Shazam Technology Solutions – FZCO, a company registered in the United Arab Emirates, with the 
+                  registered number 63137 (trading as ShazamParking) (<strong>"us"</strong>, <strong>"we"</strong> or 
+                  <strong>"ShazamParking"</strong>) provides a website ({window.location.hostname} 
+                  (<strong>"Site"</strong>)) and associated services (<strong>"Services"</strong>) connecting those 
+                  seeking to book parking spaces, charging points or storage spaces for vehicles and bicycles 
+                  (<strong>"Drivers"</strong>) with our registered owners who own and operate such parking spaces 
+                  (<strong>"you"</strong> or the <strong>"Owners"</strong>).
+                </p>
+                
+                <p className="mb-4">
+                  1.2 These terms and conditions will apply at any time when you use the Site or any other method of 
+                  accessing the Services (including via the ShazamParking application (where applicable)). By continuing 
+                  to use the Site and/or the Services, you accept these terms and conditions and they will apply to this 
+                  agreement between you and us (<strong>"Agreement"</strong>).
+                </p>
+                
+                <p className="mb-4">
+                  1.3 This Agreement governs the relationship between us and you in relation to the use of parking spaces, 
+                  charging points or storage spaces (together, the <strong>"Parking Spaces"</strong>). When listing your 
+                  Parking Spaces using the Services (<strong>"Bookings"</strong>) and making available for use the Parking 
+                  Spaces, you will be bound by your obligations under this Agreement.
+                </p>
+                
+                <p className="mb-4">
+                  1.4 These terms and conditions may be amended from time to time as we continually develop the services 
+                  we provide. We may amend this Agreement by posting the amended terms and conditions on the Site.
+                </p>
+                
+                <p className="mb-4">
+                  1.5 This Agreement is with you, the person using the Services. You will comply with the terms of this 
+                  Agreement and any additional requirements in relation to the Parking Space.
+                </p>
+              </div>
+
+              <div className="mb-6">
+                <h2 className="text-2xl font-semibold mb-4">2. Services and listing</h2>
+                
+                <p className="mb-4">
+                  2.1 In order to take Bookings for your Parking Spaces you must register an Account as set out on the Site.
+                </p>
+                
+                <p className="mb-4">
+                  2.2 We may advertise your Parking Space on the Site, the ShazamParking application and selected third 
+                  party websites to increase the reach of your Parking Space to potential Drivers.
+                </p>
+                
+                <p className="mb-4">
+                  2.3 You will be required to complete your own listing for the Site. In your listing, you agree to provide 
+                  all relevant information about the Parking Space including: (a) the address and a full description of the 
+                  Parking Space; (b) any restrictions on the types of vehicles that are suitable for the Parking Space; 
+                  (c) any other information or restrictions which apply to the Parking Space; and (d) if installed, any 
+                  details relating to electric vehicle charging equipment.
+                </p>
+                
+                <p className="mb-4">
+                  2.4 You are responsible for the accuracy of all information in your listing and any information you provide 
+                  to us in relation to a Booking.
+                </p>
+              </div>
+
+              <div className="mb-6">
+                <h2 className="text-2xl font-semibold mb-4">3. Our Role</h2>
+                
+                <p className="mb-4">
+                  3.1 You acknowledge that ShazamParking operates as an independent technology platform and service provider. 
+                  We do not act as your agent or represent you in any capacity.
+                </p>
+                
+                <p className="mb-4">
+                  3.2 By entering into this Agreement, you grant us a limited, non-exclusive right to list your Parking 
+                  Space on the Site and to license it to third-party Drivers for temporary use.
+                </p>
+                
+                <p className="mb-4">
+                  3.3 We enter into a separate Driver Agreement with each Driver under which the Driver, amongst other 
+                  things, pays a fee to us for access to services, including access to your Parking Space.
+                </p>
+              </div>
+
+              <div className="mb-6">
+                <h2 className="text-2xl font-semibold mb-4">4. Bookings, payment, and charges</h2>
+                
+                <p className="mb-4">
+                  4.1 You may make your Parking Space available for booking. It is your responsibility to ensure that 
+                  you inform us of any dates your Parking Space will not be available for booking.
+                </p>
+                
+                <p className="mb-4">
+                  4.2 You agree that we will manage the entire booking process and you authorise us to accept a booking 
+                  for an available date without further reference to you.
+                </p>
+                
+                <p className="mb-4">
+                  4.3 In exchange for the Owner providing access to the Parking Space, we will transmit payment of the 
+                  amount owed pursuant to this Agreement to the Owner within 15 working days following the end of the 
+                  first month of the Booking Period.
+                </p>
+              </div>
+
+              <div className="mb-6">
+                <h2 className="text-2xl font-semibold mb-4">5. Your obligations</h2>
+                
+                <p className="mb-4">
+                  5.1 You must: (a) honour all bookings with Drivers; (b) ensure that the Driver has access to the 
+                  Parking Space; (c) not deliberately do anything which will put the Driver or their vehicle at risk; 
+                  (d) provide your Parking Space in accordance with your listing details; (e) ensure all information 
+                  is true and accurate; (f) keep the Parking Space clean and tidy; (g) deal with all Drivers professionally; 
+                  and (h) deal with queries and complaints promptly.
+                </p>
+                
+                <p className="mb-4">
+                  5.2 All communications between Drivers and Owners must take place exclusively within the Site's chat 
+                  platform. You are prohibited from sharing personal contact information or making off-platform arrangements.
+                </p>
+              </div>
+            </section>
+
+            {/* Driver Agreement Section */}
+            <section className="mb-8 border-t pt-8">
+              <h1 className="text-3xl font-bold mb-6 text-center">DRIVER AGREEMENT</h1>
+              
+              <div className="mb-6">
+                <h2 className="text-2xl font-semibold mb-4">1. These Terms</h2>
+                
+                <p className="mb-4">
+                  1.1 Shazam Technology Solutions – FZCO provides a website ({window.location.hostname}) and associated 
+                  services connecting those seeking to book parking spaces with registered owners who own and operate 
+                  such parking spaces.
+                </p>
+                
+                <p className="mb-4">
+                  1.2 These terms and conditions will apply when you use the Site or Services. By continuing to use the 
+                  Site and/or Services, you accept these terms and conditions.
+                </p>
+                
+                <p className="mb-4">
+                  1.3 This Agreement governs the relationship between us and you in relation to booking and using parking 
+                  spaces through our Services.
+                </p>
+              </div>
+
+              <div className="mb-6">
+                <h2 className="text-2xl font-semibold mb-4">2. Services and booking</h2>
+                
+                <p className="mb-4">
+                  2.1 To make a booking for a Parking Space you must register an Account as set out on the Site.
+                </p>
+                
+                <p className="mb-4">
+                  2.2 We will provide information to you about available Parking Spaces listed by Owners on the Site.
+                </p>
+                
+                <p className="mb-4">
+                  2.3 You acknowledge that we operate as an independent technology platform. We do not act as your agent 
+                  or represent you in any capacity.
+                </p>
+              </div>
+
+              <div className="mb-6">
+                <h2 className="text-2xl font-semibold mb-4">3. Payment</h2>
+                
+                <p className="mb-4">
+                  3.1 Payment shall be charged from you at the time of the Booking request.
+                </p>
+                
+                <p className="mb-4">
+                  3.2 If your Booking requires an access card/device, we will collect a refundable access card/device 
+                  fee at the time of Booking.
+                </p>
+                
+                <p className="mb-4">
+                  3.3 All fees are stated inclusive of any applicable VAT or other taxes.
+                </p>
+              </div>
+
+              <div className="mb-6">
+                <h2 className="text-2xl font-semibold mb-4">4. The Licence for the Booking Period</h2>
+                
+                <p className="mb-4">
+                  4.1 You are only permitted to use the Parking Space during the Booking Period.
+                </p>
+                
+                <p className="mb-4">
+                  4.2 Each Booking is only valid for the vehicle details you entered when making the Booking.
+                </p>
+                
+                <p className="mb-4">
+                  4.3 Upon arrival at the Parking Space, you should inspect it and ensure you are satisfied that it 
+                  meets the description on the Site.
+                </p>
+              </div>
+
+              <div className="mb-6">
+                <h2 className="text-2xl font-semibold mb-4">5. Your obligations</h2>
+                
+                <p className="mb-4">
+                  5.1 You must: (a) observe and act in accordance with this Agreement; (b) not use the Parking Space 
+                  in any way harmful to our business; (c) provide accurate information; (d) keep the Parking Space 
+                  clean and tidy; (e) park without obstructing adjoining spaces; (f) not conduct illegal activities; 
+                  and (g) use the Parking Space only for parking.
+                </p>
+                
+                <p className="mb-4">
+                  5.2 All communications between Drivers and Owners must take place exclusively within the Site's chat 
+                  platform. You are prohibited from sharing personal contact information.
+                </p>
+              </div>
+            </section>
+
+            {/* Standard Payment Terms Section */}
+            <section className="mb-8 border-t pt-8">
+              <h1 className="text-3xl font-bold mb-6 text-center">STANDARD PAYMENT TERMS</h1>
+              
+              <p className="mb-4 italic text-center">
+                (Standalone Terms Governing Invoiced Services Rendered by Shazam Technology Solutions – FZCO)
+              </p>
+              
+              <div className="mb-6">
+                <h2 className="text-2xl font-semibold mb-4">1. Scope and Binding Nature</h2>
+                
+                <p className="mb-4">
+                  1.1 These Standard Payment Terms govern all invoiced engagements where we have delivered, performed, 
+                  or facilitated any form of service or deliverable to you, excluding any payment made directly through the Site.
+                </p>
+                
+                <p className="mb-4">
+                  1.2 By receiving or accepting any service deliverable and/or invoice from us, you acknowledge and agree 
+                  that these Standard Payment Terms shall be binding and enforceable in full.
+                </p>
+              </div>
+
+              <div className="mb-6">
+                <h2 className="text-2xl font-semibold mb-4">2. Invoice and Payment Terms</h2>
+                
+                <p className="mb-4">
+                  2.1 All invoices issued by us are payable within seven (7) calendar days from the date of the invoice 
+                  unless otherwise agreed in writing by us.
+                </p>
+                
+                <p className="mb-4">
+                  2.2 All payments shall be made in United Arab Emirates Dirhams (AED), by bank transfer to the account 
+                  nominated by the Company.
+                </p>
+                
+                <p className="mb-4">
+                  2.3 Payments must be made free and clear of any deductions or withholdings, save where required by law.
+                </p>
+              </div>
+
+              <div className="mb-6">
+                <h2 className="text-2xl font-semibold mb-4">3. Late Payment and Consequences</h2>
+                
+                <p className="mb-4">
+                  3.1 Where full payment is not received by the due date, we shall be entitled to apply a late payment 
+                  fee of AED 200 per calendar week (or part thereof) of delay.
+                </p>
+              </div>
+            </section>
+
             <div className="bg-muted p-6 rounded-lg mt-12">
               <p className="text-sm text-muted-foreground text-center">
                 These terms and conditions are effective as of the date of publication on our website. 
