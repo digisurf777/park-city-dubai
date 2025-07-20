@@ -559,7 +559,9 @@ const AdminPanel = () => {
     setBookingsLoading(true);
     
     try {
-      // Fetch bookings with user email from profiles table
+      console.log('Fetching parking bookings...');
+      
+      // Fetch bookings with user profiles
       const { data, error } = await supabase
         .from('parking_bookings')
         .select(`
@@ -571,30 +573,22 @@ const AdminPanel = () => {
         `)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching bookings:', error);
+        throw error;
+      }
 
-      // Get user emails for messaging
-      const bookingsWithEmails = await Promise.all((data || []).map(async (booking) => {
-        try {
-          // Get user email from auth.users via profiles if available
-          const { data: userData, error: userError } = await supabase.auth.admin.getUserById(booking.user_id);
-          
-          return {
-            ...booking,
-            userEmail: userData?.user?.email || 'Email not available',
-            profiles: booking.profiles || null
-          };
-        } catch (err) {
-          // Fallback for when auth admin API is not accessible
-          return {
-            ...booking,
-            userEmail: 'Contact via profile',
-            profiles: booking.profiles || null
-          };
-        }
+      console.log('Fetched bookings:', data);
+
+      // Set the bookings with fallback data
+      const processedBookings = (data || []).map(booking => ({
+        ...booking,
+        userEmail: 'Email not available', // Fallback since we can't access auth.admin from client
+        profiles: booking.profiles || { full_name: 'Unknown User', phone: null }
       }));
       
-      setParkingBookings(bookingsWithEmails as any);
+      setParkingBookings(processedBookings as any);
+      console.log('Processed bookings count:', processedBookings.length);
       
     } catch (error) {
       console.error('Error in fetchParkingBookings:', error);
@@ -2040,7 +2034,7 @@ const AdminPanel = () => {
                           </div>
                           
                           <p className="text-muted-foreground mb-4">
-                            Zone: {booking.zone} • Customer: {booking.profiles?.full_name || 'mg'} ({booking.userEmail || 'N/A'})
+                            Zone: {booking.zone} • Customer: {booking.profiles?.full_name || 'mg'} (N/A)
                           </p>
                           
                           <div className="grid grid-cols-4 gap-8">
