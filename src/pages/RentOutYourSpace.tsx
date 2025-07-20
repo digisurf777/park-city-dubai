@@ -92,17 +92,36 @@ const RentOutYourSpace = () => {
   };
   const uploadImagesToStorage = async (files: File[]): Promise<string[]> => {
     const uploadPromises = files.map(async (file, index) => {
-      const fileName = `${Date.now()}-${index}-${file.name}`;
-      const {
-        data,
-        error
-      } = await supabase.storage.from('parking-images').upload(fileName, file);
-      if (error) throw error;
-      const {
-        data: publicUrl
-      } = supabase.storage.from('parking-images').getPublicUrl(fileName);
-      return publicUrl.publicUrl;
+      try {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Date.now()}-${index}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+        
+        console.log('Uploading file:', fileName, 'Size:', file.size);
+        
+        const { data, error } = await supabase.storage
+          .from('parking-images')
+          .upload(fileName, file, {
+            cacheControl: '3600',
+            upsert: false
+          });
+        
+        if (error) {
+          console.error('Upload error:', error);
+          throw error;
+        }
+        
+        const { data: publicUrl } = supabase.storage
+          .from('parking-images')
+          .getPublicUrl(fileName);
+        
+        console.log('Upload successful:', publicUrl.publicUrl);
+        return publicUrl.publicUrl;
+      } catch (error) {
+        console.error('Error uploading file:', file.name, error);
+        throw error;
+      }
     });
+    
     return Promise.all(uploadPromises);
   };
   const handleSubmit = async (e: React.FormEvent) => {
