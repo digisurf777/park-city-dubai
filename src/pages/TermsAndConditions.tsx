@@ -638,12 +638,18 @@ const TermsAndConditions = () => {
                 </p>
                 
                 <p className="mb-4">
-                  2.2 All payments shall be made in United Arab Emirates Dirhams (AED), by bank transfer to the account 
-                  nominated by the Company.
+                  2.5 All payments shall be made in United Arab Emirates Dirhams (AED), by bank transfer to the account 
+                  nominated by the Company or in such other currency or by such other method as we may stipulate in writing.
                 </p>
                 
                 <p className="mb-4">
-                  2.3 Payments must be made free and clear of any deductions or withholdings, save where required by law.
+                  2.6 Payments must be made free and clear of any deductions or withholdings, save where required by law. 
+                  You shall be responsible for all associated transfer fees, currency conversion charges, or intermediary banking costs.
+                </p>
+                
+                <p className="mb-4">
+                  2.7 We may register for UAE Value Added Tax (VAT) when required or voluntarily elects to do so. From 
+                  the date of registration, VAT shall apply in addition to all Fees payable by you.
                 </p>
               </div>
 
@@ -651,9 +657,241 @@ const TermsAndConditions = () => {
                 <h2 className="text-2xl font-semibold mb-4">3. Late Payment and Consequences</h2>
                 
                 <p className="mb-4">
-                  3.1 Where full payment is not received by the due date, we shall be entitled to apply a late payment 
-                  fee of AED 200 per calendar week (or part thereof) of delay.
+                  3.1 Where full payment is not received by the due date, we shall be entitled to exercise any or all 
+                  of the following rights without prejudice to any other rights or remedies:
                 </p>
+                
+                <ul className="list-disc pl-6 mb-4">
+                  <li>apply a late payment fee of AED 200 per calendar week (or part thereof) of delay;</li>
+                  <li>suspend the provision of any further services or Site access until payment is received;</li>
+                  <li>terminate any active or pending service arrangements with the Client;</li>
+                  <li>withhold deliverables, data access, or documentation otherwise due to you; and</li>
+                  <li>report the non-payment to appropriate credit or industry reporting databases, where applicable.</li>
+                </ul>
+                
+                <p className="mb-4">
+                  3.2 We shall not be liable for any loss or damage incurred by you resulting from such suspension, 
+                  termination or withholding.
+                </p>
+              </div>
+
+              <div className="mb-6">
+                <h2 className="text-2xl font-semibold mb-4">4. Invoice Disputes</h2>
+                
+                <p className="mb-4">
+                  4.1 You must raise any dispute or query regarding an invoice within five (5) calendar days of the invoice date.
+                </p>
+                
+                <p className="mb-4">
+                  4.2 Disputes must be raised in writing to support@shazam.ae, stating clear grounds for the objection.
+                </p>
+                
+                <p className="mb-4">
+                  4.3 If no dispute is raised within the prescribed period, the invoice shall be deemed valid and accepted in full.
+                </p>
+              </div>
+
+              <div className="mb-6">
+                <h2 className="text-2xl font-semibold mb-4">5. No Right of Set-Off</h2>
+                
+                <p className="mb-4">
+                  5.1 You shall not be entitled to withhold or deduct any amount from any invoice payable to us on account 
+                  of any actual or alleged counterclaim, unless such set-off has been expressly acknowledged and agreed in writing by us.
+                </p>
+              </div>
+
+              <div className="mb-6">
+                <h2 className="text-2xl font-semibold mb-4">6. Costs of Recovery</h2>
+                
+                <p className="mb-4">
+                  6.1 You shall indemnify and reimburse us for all reasonable costs incurred in enforcing payment, including 
+                  but not limited to: legal fees, debt collection agency costs, court filing and service fees, enforcement 
+                  costs, and administrative charges.
+                </p>
+              </div>
+
+              <div className="mb-6">
+                <h2 className="text-2xl font-semibold mb-4">7. Governing Law and Dispute Resolution</h2>
+                
+                <p className="mb-4">
+                  7.1 These Standard Payment Terms and any non-contractual obligations connected with it shall be governed 
+                  by the laws of England and Wales and are made between us and you.
+                </p>
+                
+                <p className="mb-4">
+                  7.2 Both parties irrevocably agree to submit to the exclusive jurisdiction of the courts of the Dubai 
+                  International Financial Centre.
+                </p>
+                
+                <p className="mb-4">
+                  7.3 This clause 7 shall survive the expiration or termination of these Standard Payment Terms and in 
+                  such event shall be treated as an independent agreement.
+                </p>
+                
+                <p className="mb-4">
+                  7.4 In the event of any inconsistency or conflict between the English version of this Agreement and any 
+                  translation (including any Arabic version), the English version shall prevail and govern.
+                </p>
+              </div>
+            </section>
+
+            {/* Annexure A - Cancellation Policy */}
+            <section className="mb-8 border-t pt-8">
+              <h1 className="text-3xl font-bold mb-6 text-center">ANNEXURE A</h1>
+              <h2 className="text-2xl font-bold mb-6 text-center">Cancellation Policy</h2>
+              
+              <div className="mb-6">
+                <h3 className="text-xl font-semibold mb-4">1. Binding Nature of Bookings</h3>
+                
+                <p className="mb-4">
+                  All bookings have a minimum period of a month and are payable in advance. Once payment is processed, 
+                  the booking is final, non-cancellable, and non-refundable by the Driver, subject only to the exceptions 
+                  in clause 3 below except where required otherwise by UAE consumer protection law. By making payment, 
+                  the Driver and Owner confirm full acceptance of this policy.
+                </p>
+              </div>
+
+              <div className="mb-6">
+                <h3 className="text-xl font-semibold mb-4">2. Driver Cancellations – Strict No Refund Policy</h3>
+                
+                <ul className="list-disc pl-6 mb-4">
+                  <li>Drivers <strong>may not cancel</strong> a booking once payment is made.</li>
+                  <li>No refund, credit, or partial adjustment will be given for changes in personal circumstances or non-use of the space.</li>
+                  <li>All communications regarding cancellation or disputes must be sent via email to support@shazam.ae and are only valid upon written acknowledgment by us.</li>
+                </ul>
+              </div>
+
+              <div className="mb-6">
+                <h3 className="text-xl font-semibold mb-4">3. Limited Exceptions – At Our Discretion</h3>
+                
+                <p className="mb-4">
+                  We may, in our sole discretion, issue a full or partial refund if the Driver is unable to access or 
+                  use the space due to:
+                </p>
+                
+                <ul className="list-disc pl-6 mb-4">
+                  <li><strong>Access Failure</strong> – e.g. blocked space, faulty or missing access card;</li>
+                  <li><strong>Third-Party Intervention</strong> – e.g. landlord, strata, or regulatory authority prevents use;</li>
+                  <li><strong>Force Majeure</strong> – including, but not limited to, acts of God, war, fire, flood, pandemic, or government orders, as recognized under UAE Civil Code; or</li>
+                  <li><strong>Serious Owner Misconduct</strong> – e.g. fraudulent listing, breach of lease, untruthful details</li>
+                </ul>
+                
+                <p className="mb-4">
+                  All claims must be made within 48 hours of the incident, by email, with supporting evidence.
+                </p>
+              </div>
+
+              <div className="mb-6">
+                <h3 className="text-xl font-semibold mb-4">4. Owner Cancellations</h3>
+                
+                <p className="mb-4">
+                  Owners may only cancel a confirmed booking before the Booking Period begins and only where:
+                </p>
+                
+                <ul className="list-disc pl-6 mb-4">
+                  <li>Access is legally or physically restricted;</li>
+                  <li>Force majeure applies; or</li>
+                  <li>Building policies or legal issues prevent fulfilment.</li>
+                </ul>
+                
+                <p className="mb-4">
+                  Cancellations must be made by email to us and the Driver. In these cases, the Driver will receive a full refund.
+                </p>
+                
+                <p className="mb-4">
+                  Repeat cancellations or cancellations due to Owner negligence may lead to delisting and penalties.
+                </p>
+              </div>
+
+              <div className="mb-6">
+                <h3 className="text-xl font-semibold mb-4">5. Refund Processing and Deductions</h3>
+                
+                <ul className="list-disc pl-6 mb-4">
+                  <li>All approved refunds will be processed within 20 business days</li>
+                  <li>Refunds are issued net of: (i) Credit card transaction fees; and (ii) Reasonable administrative fees (not exceeding 10% of the price of the Booking Period), unless otherwise required by law.</li>
+                  <li>Refunds will only be issued to the original payment method.</li>
+                  <li>The Access Card Fee is refundable only if: (i) Access devices are returned in good condition; and (ii) No claims are made within 48 hours post-rental.</li>
+                </ul>
+              </div>
+
+              <div className="mb-6">
+                <h3 className="text-xl font-semibold mb-4">6. Abuse and Enforcement</h3>
+                
+                <ul className="list-disc pl-6 mb-4">
+                  <li>Any fraudulent, abusive, or misleading conduct by a Driver or Owner will result in account suspension and potential legal action.</li>
+                  <li>No refunds are given to Drivers who "no-show" or do not use the Parking Space for the entirety of the Booking Period.</li>
+                </ul>
+              </div>
+
+              <div className="mb-6">
+                <h3 className="text-xl font-semibold mb-4">7. Final Authority</h3>
+                
+                <p className="mb-4">
+                  We retain full discretion to resolve cancellation or refund requests. Our written determination shall be final and binding.
+                </p>
+              </div>
+
+              <div className="mb-6">
+                <h3 className="text-xl font-semibold mb-4">8. Owner Liability for Commission in Cases of Misconduct or Listing Failures</h3>
+                
+                <p className="mb-4">
+                  Where a booking is cancelled, disrupted, or refunded due to Owner misconduct or failure to comply with 
+                  obligations, the Owner shall be liable to pay us a minimum of 20% or the fee for the entire Booking 
+                  Period and any other reasonable administrative expenses incurred by us.
+                </p>
+                
+                <p className="mb-4">
+                  This amount shall be payable within 5 business days of demand, and we may deduct the amount from any 
+                  pending or future Owner payouts and/or the payment method linked to the Owner account.
+                </p>
+              </div>
+            </section>
+
+            {/* Annexure B - Referral Program */}
+            <section className="mb-8 border-t pt-8">
+              <h1 className="text-3xl font-bold mb-6 text-center">ANNEXURE B</h1>
+              <h2 className="text-2xl font-bold mb-6 text-center">Referral Program</h2>
+              
+              <p className="mb-6">
+                We may, from time to time, operate a Driver Referral Program and an Owner Referral Program (each a 
+                <strong>"Referral Program"</strong>) to reward eligible Drivers and Owners for introducing new Drivers 
+                and/or new Owners to the Site.
+              </p>
+
+              <div className="mb-6">
+                <h3 className="text-xl font-semibold mb-4">(a) Driver Referral</h3>
+                
+                <p className="mb-4">
+                  Under the Driver Referral Program, a Driver may refer another individual who completes a Booking for 
+                  the first time using the Site. If the referred Driver completes a Booking of at least three (3) months, 
+                  the referring Driver shall receive a credit of AED 50 against their next Booking, and the referred Driver 
+                  shall also receive a credit of AED 50.
+                </p>
+              </div>
+
+              <div className="mb-6">
+                <h3 className="text-xl font-semibold mb-4">(b) Owner Referral</h3>
+                
+                <p className="mb-4">
+                  Under the Owner Referral Program, an existing Owner may refer a new Owner who lists a Parking Space and 
+                  successfully completes a Booking of at least three (3) months. Once the referred Owner's Booking is 
+                  complete and the Site payment is made, the referring Owner shall receive a credit or payout of AED 100, 
+                  as determined by us.
+                </p>
+              </div>
+
+              <div className="mb-6">
+                <h3 className="text-xl font-semibold mb-4">(c) Eligibility and Conditions</h3>
+                
+                <ul className="list-disc pl-6 mb-4">
+                  <li>The referred Driver or Owner must not already have (or have had in 2-year period preceding the referral) an account on the Site.</li>
+                  <li>Any referral must be made through the Site's official referral link or code system, if available, or otherwise in accordance with the instructions provided by us.</li>
+                  <li>Referral rewards shall not be available if we, acting reasonably, determine that the referral was self-created, fraudulent, or in breach of these terms.</li>
+                  <li>We reserve the right to cancel, suspend or modify any Referral Program at any time, in whole or in part, without prior notice.</li>
+                  <li>Referral rewards are non-transferable, have no cash value unless otherwise stated, and may be used only in accordance with the Site's policies.</li>
+                  <li>Our decision regarding eligibility, calculation of rewards and any related disputes shall be final and binding.</li>
+                  <li>Owners and Drivers may not circumvent the Site's payment processes or booking rules by misusing the Referral Program. Any such conduct shall be treated as a material breach and may result in suspension, termination or forfeiture of any accrued referral rewards.</li>
+                </ul>
               </div>
             </section>
 
