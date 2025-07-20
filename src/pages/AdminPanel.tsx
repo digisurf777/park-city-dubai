@@ -2085,41 +2085,23 @@ const AdminPanel = () => {
                           </div>
                         </div>
                         
-                        <div className="flex flex-col gap-3">
-                          <h4 className="font-semibold">Actions</h4>
-                          
-                          {booking.status === 'pending' && (
-                            <>
-                              <Button
-                                onClick={() => updateBookingStatus(booking.id, 'confirmed')}
-                                className="flex items-center gap-2"
-                              >
-                                <CheckCircle className="h-4 w-4" />
-                                Confirm Booking
-                              </Button>
-                              <Button
-                                variant="destructive"
-                                onClick={() => updateBookingStatus(booking.id, 'cancelled')}
-                                className="flex items-center gap-2"
-                              >
-                                <XCircle className="h-4 w-4" />
-                                Cancel Booking
-                              </Button>
-                            </>
-                          )}
-                          
-                          {booking.status === 'confirmed' && (
-                            <Button
-                              variant="outline"
-                              onClick={() => updateBookingStatus(booking.id, 'completed')}
-                              className="flex items-center gap-2"
-                            >
-                              <CheckCircle className="h-4 w-4" />
-                              Mark as Completed
-                            </Button>
-                          )}
-                          
-                           <Button
+                        <div className="flex gap-3">
+                          <Button
+                            onClick={() => updateBookingStatus(booking.id, 'confirmed')}
+                            className="bg-green-600 hover:bg-green-700 text-white flex items-center gap-2"
+                          >
+                            <CheckCircle className="h-4 w-4" />
+                            Confirm
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            onClick={() => updateBookingStatus(booking.id, 'cancelled')}
+                            className="flex items-center gap-2"
+                          >
+                            <XCircle className="h-4 w-4" />
+                            Deny
+                          </Button>
+                          <Button
                             variant="outline"
                             onClick={() => {
                               setSelectedUserId(booking.user_id);
@@ -2131,7 +2113,7 @@ const AdminPanel = () => {
                             className="flex items-center gap-2"
                           >
                             <Mail className="h-4 w-4" />
-                            Send Message to Customer
+                            Message
                           </Button>
                         </div>
                       </div>
