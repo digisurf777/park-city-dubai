@@ -113,6 +113,7 @@ const AdminPanel = () => {
     parkingOwners: 0,
     parkingSeekers: 0
   });
+  const [bookingStatusFilter, setBookingStatusFilter] = useState<string>('');
 
   // Form state
   const [title, setTitle] = useState('');
@@ -882,6 +883,11 @@ const AdminPanel = () => {
       (userFilter === 'seekers' && user.user_type === 'seeker');
     
     return matchesSearch && matchesFilter;
+  });
+
+  const filteredBookings = parkingBookings.filter(booking => {
+    if (!bookingStatusFilter) return true;
+    return booking.status === bookingStatusFilter;
   });
 
   const updateVerificationStatus = async (verificationId: string, status: 'verified' | 'rejected') => {
@@ -2006,19 +2012,47 @@ const AdminPanel = () => {
           <TabsContent value="bookings" className="space-y-6">
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-semibold">Parking Booking Management</h2>
+              <div className="flex items-center gap-4">
+                <Select 
+                  value={bookingStatusFilter || 'all'} 
+                  onValueChange={(value) => setBookingStatusFilter(value === 'all' ? '' : value)}
+                >
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Filter by status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Bookings</SelectItem>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="confirmed">Confirmed</SelectItem>
+                    <SelectItem value="completed">Completed</SelectItem>
+                    <SelectItem value="cancelled">Cancelled</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Badge variant="outline" className="px-3 py-1">
+                  Total: {filteredBookings.length}
+                </Badge>
+                <Button 
+                  variant="outline" 
+                  onClick={fetchParkingBookings}
+                  disabled={bookingsLoading}
+                  className="flex items-center gap-2"
+                >
+                  {bookingsLoading ? 'Loading...' : 'Refresh Bookings'}
+                </Button>
+              </div>
             </div>
 
             {bookingsLoading ? (
               <div className="text-center py-8">
                 <p>Loading bookings...</p>
               </div>
-            ) : parkingBookings.length === 0 ? (
+            ) : filteredBookings.length === 0 ? (
               <div className="text-center py-8">
-                <p className="text-muted-foreground">No bookings found.</p>
+                <p className="text-muted-foreground">No bookings found{bookingStatusFilter ? ` with status "${bookingStatusFilter}"` : ''}.</p>
               </div>
             ) : (
               <div className="space-y-4">
-                {parkingBookings.map((booking: any) => (
+                {filteredBookings.map((booking: any) => (
                   <Card key={booking.id}>
                     <CardContent className="pt-6">
                       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
