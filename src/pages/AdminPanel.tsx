@@ -180,9 +180,14 @@ const AdminPanel = () => {
   }, [isAdmin]);
 
   const checkAdminRole = async () => {
-    if (!user) return;
+    if (!user) {
+      console.log('No user found for admin check');
+      return;
+    }
     
     try {
+      console.log('Checking admin role for user:', user.id);
+      
       const { data, error } = await supabase
         .from('user_roles')
         .select('role')
@@ -194,15 +199,20 @@ const AdminPanel = () => {
         console.error('Error checking admin role:', error);
       }
       
-      setIsAdmin(!!data);
+      console.log('Admin role check result:', data);
+      const isAdminUser = !!data;
+      setIsAdmin(isAdminUser);
       
-      if (data) {
+      if (isAdminUser) {
+        console.log('User is admin, fetching admin data...');
         fetchPosts();
         fetchVerifications();
         fetchParkingListings();
         fetchParkingBookings();
         fetchAllUsers();
         fetchDetailedUsers();
+      } else {
+        console.log('User is not admin');
       }
     } catch (error) {
       console.error('Error checking admin role:', error);
@@ -546,49 +556,82 @@ const AdminPanel = () => {
 
   const fetchParkingBookings = async () => {
     try {
+      setBookingsLoading(true);
+      console.log('Fetching parking bookings...');
+      
       // First, fetch all bookings
       const { data: bookingsData, error: bookingsError } = await supabase
         .from('parking_bookings')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (bookingsError) throw bookingsError;
+      if (bookingsError) {
+        console.error('Error fetching bookings:', bookingsError);
+        throw bookingsError;
+      }
 
-      // Then, fetch profile data and user email for each booking
-      const bookingsWithProfiles = await Promise.all(
-        (bookingsData || []).map(async (booking) => {
-          const { data: profileData } = await supabase
+      console.log('Raw bookings data:', bookingsData);
+
+      if (!bookingsData || bookingsData.length === 0) {
+        console.log('No bookings found');
+        setParkingBookings([]);
+        return;
+      }
+
+      // Then, fetch profile data for each booking
+      const bookingsWithProfiles = [];
+      
+      for (const booking of bookingsData) {
+        try {
+          console.log(`Processing booking ${booking.id} for user ${booking.user_id}`);
+          
+          // Get profile data
+          const { data: profileData, error: profileError } = await supabase
             .from('profiles')
             .select('full_name, phone')
             .eq('user_id', booking.user_id)
-            .single();
+            .maybeSingle();
 
-          // Get user email for sending messages
+          if (profileError) {
+            console.error('Error fetching profile for user:', booking.user_id, profileError);
+          }
+
+          // Get user email (this requires admin role)
           let userEmail = '';
           try {
             const { data: authData, error: authError } = await supabase.auth.admin.getUserById(booking.user_id);
-            if (!authError && authData.user) {
+            if (authError) {
+              console.error('Error getting user email:', authError);
+            } else if (authData.user) {
               userEmail = authData.user.email || '';
             }
           } catch (err) {
-            console.error('Error getting user email:', err);
+            console.error('Error calling auth admin API:', err);
           }
 
-          return {
+          bookingsWithProfiles.push({
             ...booking,
             profiles: profileData,
             userEmail: userEmail
-          };
-        })
-      );
+          });
+        } catch (err) {
+          console.error('Error processing booking:', booking.id, err);
+          // Still add the booking without profile data
+          bookingsWithProfiles.push({
+            ...booking,
+            profiles: null,
+            userEmail: ''
+          });
+        }
+      }
       
-      console.log('Fetched parking bookings:', bookingsWithProfiles);
+      console.log('Processed bookings with profiles:', bookingsWithProfiles);
       setParkingBookings(bookingsWithProfiles);
     } catch (error) {
-      console.error('Error fetching bookings:', error);
+      console.error('Error in fetchParkingBookings:', error);
       toast({
         title: "Error",
-        description: "Failed to fetch parking bookings",
+        description: `Failed to fetch parking bookings: ${error.message}`,
         variant: "destructive",
       });
     } finally {
