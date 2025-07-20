@@ -27,7 +27,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     const emailResponse = await resend.emails.send({
       from: "Shazam Parking <onboarding@resend.dev>",
-      to: ["digisurf777@gmail.com"],
+      to: ["digisurf777@gmail.com", "support@shazam.ae"],
       subject: `New Support Message: ${subject}`,
       html: `
         <h1>New support message from ${userEmail}</h1>
