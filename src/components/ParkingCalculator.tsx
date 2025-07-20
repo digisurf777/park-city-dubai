@@ -42,8 +42,8 @@ const ParkingCalculator = () => {
     const results: DurationCalculation[] = durations.map(duration => {
       const rentAfterDiscount = baseRent * (1 - duration.discount);
       const shazamFee = rentAfterDiscount * 0.20; // 20% commission
-      const cardFee = cardRequired && duration.value >= 6 ? 100 : 0; // One-time card fee for 6+ months
-      const netToOwner = rentAfterDiscount - shazamFee - cardFee / duration.value;
+      const cardFee = cardRequired ? 100 : 0; // 100 AED card fee when access card is required
+      const netToOwner = rentAfterDiscount - shazamFee - cardFee;
       return {
         duration: duration.value,
         discount: duration.discount * 100,
@@ -150,7 +150,7 @@ const ParkingCalculator = () => {
                     </td>
                     <td className="p-2 text-red-600">-{calc.shazamFee.toFixed(0)} AED</td>
                     {cardRequired && <td className="p-2 text-red-600">
-                        {calc.cardFee > 0 ? `-${calc.cardFee} AED` : '-'}
+                        -100 AED
                       </td>}
                     <td className="p-2 font-bold text-green-600">
                       {calc.netToOwner.toFixed(0)} AED
@@ -169,7 +169,7 @@ const ParkingCalculator = () => {
 
           {cardRequired && <div className="mt-3 p-4 bg-amber-50 rounded-lg">
               <p className="text-sm text-amber-800">
-                <strong>Card Fee Details:</strong> 100 AED one-time fee applies for rentals 6+ months. 
+                <strong>Card Fee Details:</strong> 100 AED monthly fee applies when access card is required. 
                 500 AED deposit is refundable when card is returned.
               </p>
             </div>}
