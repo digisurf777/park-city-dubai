@@ -168,7 +168,9 @@ const AdminPanel = () => {
           table: 'parking_bookings'
         },
         (payload) => {
-          console.log('Real-time booking change:', payload);
+          console.log('=== REAL-TIME BOOKING CHANGE ===', payload);
+          console.log('Event type:', payload.eventType);
+          console.log('New booking data:', payload.new);
           // Refresh bookings when any change occurs
           fetchParkingBookings();
         }
@@ -209,6 +211,7 @@ const AdminPanel = () => {
         fetchPosts();
         fetchVerifications();
         fetchParkingListings();
+        console.log('=== CALLING FETCH PARKING BOOKINGS FROM ADMIN CHECK ===');
         fetchParkingBookings();
         fetchAllUsers();
         fetchDetailedUsers();
@@ -558,7 +561,9 @@ const AdminPanel = () => {
   const fetchParkingBookings = async () => {
     try {
       setBookingsLoading(true);
-      console.log('Fetching parking bookings...');
+      console.log('=== FETCHING PARKING BOOKINGS ===');
+      console.log('Current time:', new Date().toISOString());
+      console.log('Is admin:', isAdmin);
       
       // First, fetch all bookings
       const { data: bookingsData, error: bookingsError } = await supabase
