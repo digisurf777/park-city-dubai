@@ -22,7 +22,10 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16 min-h-[60px]">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2 touch-manipulation min-h-[44px] min-w-[44px]" onClick={() => setIsMenuOpen(false)}>
+          <Link to="/" className="flex items-center space-x-2 touch-manipulation min-h-[44px] min-w-[44px]" onClick={() => {
+            setIsMenuOpen(false);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}>
             <img 
               src="/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.png" 
               alt="Shazam Parking" 
