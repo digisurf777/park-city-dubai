@@ -12,7 +12,6 @@ import { Link } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import useSEO from '@/hooks/useSEO';
-
 const ContactAdmin = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -23,47 +22,44 @@ const ContactAdmin = () => {
     keywords: "Shazam Parking contact, parking support Dubai, customer service, help desk, parking assistance, support@shazam.ae",
     url: "/contact-admin"
   });
-
-  const { user } = useAuth();
-  const { toast } = useToast();
+  const {
+    user
+  } = useAuth();
+  const {
+    toast
+  } = useToast();
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (!user) {
       toast({
         title: "Authentication required",
         description: "Please sign in to contact admin",
-        variant: "destructive",
+        variant: "destructive"
       });
       return;
     }
-
     if (!subject.trim() || !message.trim()) {
       toast({
         title: "Missing information",
         description: "Please fill in both subject and message",
-        variant: "destructive",
+        variant: "destructive"
       });
       return;
     }
-
     setIsSubmitting(true);
-
     try {
       // Insert message into database
-      const { error } = await supabase
-        .from('user_messages')
-        .insert([{
-          user_id: user.id,
-          from_admin: false,
-          subject: subject,
-          message: message,
-        }]);
-
+      const {
+        error
+      } = await supabase.from('user_messages').insert([{
+        user_id: user.id,
+        from_admin: false,
+        subject: subject,
+        message: message
+      }]);
       if (error) throw error;
 
       // Send notification to admin
@@ -75,12 +71,10 @@ const ContactAdmin = () => {
           message: message
         }
       });
-
       toast({
         title: "Message sent successfully",
-        description: "Your message has been sent to the admin. You'll receive a response in your inbox.",
+        description: "Your message has been sent to the admin. You'll receive a response in your inbox."
       });
-
       setSubject('');
       setMessage('');
     } catch (error) {
@@ -88,15 +82,13 @@ const ContactAdmin = () => {
       toast({
         title: "Failed to send message",
         description: "Please try again or contact support directly",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setIsSubmitting(false);
     }
   };
-
-  return (
-    <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background">
       {seoData}
       <Navbar />
       
@@ -135,90 +127,42 @@ const ContactAdmin = () => {
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
                   <Label htmlFor="subject">Subject</Label>
-                  <Input
-                    id="subject"
-                    type="text"
-                    value={subject}
-                    onChange={(e) => setSubject(e.target.value)}
-                    placeholder="What is this message about?"
-                    required
-                    className="mt-2"
-                  />
+                  <Input id="subject" type="text" value={subject} onChange={e => setSubject(e.target.value)} placeholder="What is this message about?" required className="mt-2" />
                 </div>
 
                 <div>
                   <Label htmlFor="message">Your Message</Label>
-                  <Textarea
-                    id="message"
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    placeholder="Please describe your question, issue, or request in detail..."
-                    rows={8}
-                    required
-                    className="mt-2"
-                  />
+                  <Textarea id="message" value={message} onChange={e => setMessage(e.target.value)} placeholder="Please describe your question, issue, or request in detail..." rows={8} required className="mt-2" />
                 </div>
 
-                {user ? (
-                  <div className="bg-muted p-4 rounded-lg">
+                {user ? <div className="bg-muted p-4 rounded-lg">
                     <p className="text-sm text-muted-foreground">
                       <strong>Signed in as:</strong> {user.email}
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">
                       Our support team will respond to your message in your account inbox.
                     </p>
-                  </div>
-                ) : (
-                  <div className="bg-destructive/10 p-4 rounded-lg border border-destructive/20">
+                  </div> : <div className="bg-destructive/10 p-4 rounded-lg border border-destructive/20">
                     <p className="text-sm text-destructive">
                       You must be signed in to contact admin. Please <a href="/auth" className="underline">sign in</a> first.
                     </p>
-                  </div>
-                )}
+                  </div>}
 
-                <Button 
-                  type="submit" 
-                  disabled={isSubmitting || !user}
-                  className="w-full"
-                >
-                  {isSubmitting ? (
-                    "Sending..."
-                  ) : (
-                    <>
+                <Button type="submit" disabled={isSubmitting || !user} className="w-full">
+                  {isSubmitting ? "Sending..." : <>
                       <Send className="h-4 w-4 mr-2" />
                       Send Message
-                    </>
-                  )}
+                    </>}
                 </Button>
               </form>
             </CardContent>
           </Card>
 
-          <div className="mt-8 p-6 bg-muted/50 rounded-lg text-center border">
-            <div className="flex items-center justify-center mb-3">
-              <Mail className="h-5 w-5 text-primary mr-2" />
-              <h3 className="font-semibold">Need Immediate Assistance?</h3>
-            </div>
-            <p className="text-sm text-muted-foreground mb-2">
-              For urgent matters or immediate assistance, send a direct email to:
-            </p>
-            <a 
-              href="mailto:support@shazam.ae" 
-              className="text-lg font-medium text-primary hover:underline inline-flex items-center"
-            >
-              <Mail className="h-4 w-4 mr-1" />
-              support@shazam.ae
-            </a>
-            <p className="text-xs text-muted-foreground mt-2">
-              We typically respond within 24 hours
-            </p>
-          </div>
+          
         </div>
       </div>
 
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default ContactAdmin;
