@@ -68,6 +68,18 @@ const ParkingCalculator = () => {
   const getCustomerPrice = (rentAfterDiscount: number) => {
     return rentAfterDiscount + 100; // +100 AED service fee for customers
   };
+
+  const handleBaseRentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    // Remove leading zeros and convert to number
+    const cleanValue = value.replace(/^0+/, '') || '0';
+    const numericValue = Number(cleanValue);
+    
+    // Only update if it's a valid number
+    if (!isNaN(numericValue) && numericValue >= 0) {
+      setBaseRent(numericValue);
+    }
+  };
   return <div className="space-y-6">
       {/* Calculator Inputs */}
       <Card>
@@ -81,7 +93,7 @@ const ParkingCalculator = () => {
           {/* Base Rent Input */}
           <div className="space-y-2">
             <Label htmlFor="baseRent">Base Monthly Rent (AED)</Label>
-            <Input id="baseRent" type="number" value={baseRent} onChange={e => setBaseRent(Number(e.target.value))} placeholder="Enter monthly rent in AED" min="100" step="50" />
+            <Input id="baseRent" type="text" value={baseRent || ''} onChange={handleBaseRentChange} placeholder="Enter monthly rent in AED" />
           </div>
 
           {/* Card Required Toggle */}
