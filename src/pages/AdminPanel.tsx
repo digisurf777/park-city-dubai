@@ -151,8 +151,6 @@ const AdminPanel = () => {
   useEffect(() => {
     if (user) {
       checkAdminRole();
-      // Also immediately fetch bookings regardless of admin status for debugging
-      fetchParkingBookings();
     }
   }, [user]);
 
@@ -213,14 +211,10 @@ const AdminPanel = () => {
         fetchPosts();
         fetchVerifications();
         fetchParkingListings();
+        fetchParkingBookings();
         fetchAllUsers();
         fetchDetailedUsers();
-      } else {
-        console.log('User is not admin, but still showing booking management for testing');
       }
-      
-      // Always fetch bookings for debugging purposes
-      fetchParkingBookings();
     } catch (error) {
       console.error('Error checking admin role:', error);
     } finally {
@@ -563,9 +557,9 @@ const AdminPanel = () => {
 
   const fetchParkingBookings = async () => {
     setBookingsLoading(true);
-    console.log('=== FETCHING PARKING BOOKINGS ===');
     
     try {
+      // Fetch bookings with user email from profiles table
       const { data, error } = await supabase
         .from('parking_bookings')
         .select(`
@@ -577,28 +571,36 @@ const AdminPanel = () => {
         `)
         .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('Error fetching bookings:', error);
-        throw error;
-      }
+      if (error) throw error;
 
-      console.log('Fetched bookings:', data);
-      console.log('Number of bookings:', data?.length || 0);
-      
-      // Process the data to match our expected format
-      const processedBookings = (data || []).map(booking => ({
-        ...booking,
-        userEmail: 'Contact via profile', // Placeholder since we can't access auth admin API
-        profiles: booking.profiles || null
+      // Get user emails for messaging
+      const bookingsWithEmails = await Promise.all((data || []).map(async (booking) => {
+        try {
+          // Get user email from auth.users via profiles if available
+          const { data: userData, error: userError } = await supabase.auth.admin.getUserById(booking.user_id);
+          
+          return {
+            ...booking,
+            userEmail: userData?.user?.email || 'Email not available',
+            profiles: booking.profiles || null
+          };
+        } catch (err) {
+          // Fallback for when auth admin API is not accessible
+          return {
+            ...booking,
+            userEmail: 'Contact via profile',
+            profiles: booking.profiles || null
+          };
+        }
       }));
       
-      setParkingBookings(processedBookings as any);
+      setParkingBookings(bookingsWithEmails as any);
       
     } catch (error) {
       console.error('Error in fetchParkingBookings:', error);
       toast({
         title: "Error",
-        description: `Failed to fetch parking bookings: ${error.message}`,
+        description: "Failed to fetch parking bookings",
         variant: "destructive",
       });
     } finally {
@@ -1976,15 +1978,6 @@ const AdminPanel = () => {
           </TabsContent>
 
           <TabsContent value="bookings" className="space-y-6">
-            <div className="bg-blue-50 p-4 rounded-lg mb-4">
-              <h3 className="font-semibold">Debug Info:</h3>
-              <p>User ID: {user?.id || 'Not logged in'}</p>
-              <p>Is Admin: {isAdmin ? 'Yes' : 'No'}</p>
-              <p>Checking Admin: {checkingAdmin ? 'Yes' : 'No'}</p>
-              <p>Total Bookings: {parkingBookings.length}</p>
-              <p>Filtered Bookings: {filteredBookings.length}</p>
-              <p>Bookings Loading: {bookingsLoading ? 'Yes' : 'No'}</p>
-            </div>
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-semibold">Parking Booking Management</h2>
               <div className="flex items-center gap-4">
@@ -2008,42 +2001,11 @@ const AdminPanel = () => {
                 </Badge>
                 <Button 
                   variant="outline" 
-                  onClick={() => {
-                    console.log('Manual refresh clicked - fetching bookings now...');
-                    fetchParkingBookings();
-                  }}
+                  onClick={fetchParkingBookings}
                   disabled={bookingsLoading}
                   className="flex items-center gap-2"
                 >
-                  {bookingsLoading ? 'Loading...' : 'Refresh Bookings'}
-                </Button>
-                <Button 
-                  variant="destructive" 
-                  onClick={async () => {
-                    console.log('=== FORCE LOADING ALL BOOKINGS ===');
-                    setBookingsLoading(true);
-                    try {
-                      const { data, error } = await supabase
-                        .from('parking_bookings')
-                        .select('*')
-                        .order('created_at', { ascending: false });
-                      
-                      console.log('Force fetch result:', data);
-                      if (error) {
-                        console.error('Force fetch error:', error);
-                      } else {
-                        setParkingBookings(data || []);
-                        console.log('Set parkingBookings to:', data?.length || 0, 'items');
-                      }
-                    } catch (err) {
-                      console.error('Force fetch catch error:', err);
-                    } finally {
-                      setBookingsLoading(false);
-                    }
-                  }}
-                  className="flex items-center gap-2"
-                >
-                  FORCE LOAD BOOKINGS NOW
+                  {bookingsLoading ? 'Loading...' : 'Refresh'}
                 </Button>
               </div>
             </div>
@@ -2157,10 +2119,12 @@ const AdminPanel = () => {
                             </Button>
                           )}
                           
-                          <Button
+                           <Button
                             variant="outline"
                             onClick={() => {
                               setSelectedUserId(booking.user_id);
+                              setMessageSubject(`Booking Update - ${booking.location}`);
+                              setMessageContent(`Hello ${booking.profiles?.full_name || 'Customer'},\n\nRegarding your parking booking:\n\nLocation: ${booking.location}\nZone: ${booking.zone}\nStart: ${format(new Date(booking.start_time), 'MMM d, yyyy h:mm a')}\nEnd: ${format(new Date(booking.end_time), 'MMM d, yyyy h:mm a')}\nCost: AED ${booking.cost_aed}\n\nBest regards,\nShazam Parking Team`);
                               const messagesTab = document.querySelector('[value="messages"]') as HTMLElement;
                               messagesTab?.click();
                             }}
