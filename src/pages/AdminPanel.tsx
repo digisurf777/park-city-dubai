@@ -80,15 +80,10 @@ const AdminPanel = () => {
       console.log('Fetching parking bookings...');
       
       // Fetch bookings with user profile information via join
+      // First get bookings
       const { data: bookingsData, error: bookingsError } = await supabase
         .from('parking_bookings')
-        .select(`
-          *,
-          profiles!inner(
-            full_name,
-            user_id
-          )
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
 
       if (bookingsError) {
@@ -98,31 +93,26 @@ const AdminPanel = () => {
 
       console.log('Bookings data:', bookingsData);
 
-      // Get user emails from auth.users via profiles
+      // Then get user profiles separately
       const userIds = [...new Set(bookingsData?.map(booking => booking.user_id) || [])];
-      console.log('User IDs to fetch emails for:', userIds);
+      console.log('User IDs to fetch profiles for:', userIds);
 
-      // Get emails by fetching auth user data for each user
-      const bookingsWithUserInfo = await Promise.all(
-        (bookingsData || []).map(async (booking) => {
-          try {
-            // Try to get user email from auth, but don't fail if it doesn't work
-            const { data: { user: authUser } } = await supabase.auth.admin.getUserById(booking.user_id);
-            return {
-              ...booking,
-              user_email: authUser?.email || 'N/A',
-              user_name: booking.profiles?.full_name || 'Unknown User'
-            };
-          } catch (error) {
-            console.warn('Could not fetch user email for user:', booking.user_id);
-            return {
-              ...booking,
-              user_email: 'N/A',
-              user_name: booking.profiles?.full_name || 'Unknown User'
-            };
-          }
-        })
-      );
+      const { data: profilesData } = await supabase
+        .from('profiles')
+        .select('user_id, full_name')
+        .in('user_id', userIds);
+
+      console.log('Profiles data:', profilesData);
+
+      // Create a map of user_id to profile for quick lookup
+      const profilesMap = new Map(profilesData?.map(profile => [profile.user_id, profile]) || []);
+
+      // Combine bookings with user info
+      const bookingsWithUserInfo = (bookingsData || []).map(booking => ({
+        ...booking,
+        user_email: 'N/A', // Will be fetched separately if needed
+        user_name: profilesMap.get(booking.user_id)?.full_name || 'Unknown User'
+      }));
 
       setParkingBookings(bookingsWithUserInfo);
       console.log('Final bookings with user info:', bookingsWithUserInfo);
