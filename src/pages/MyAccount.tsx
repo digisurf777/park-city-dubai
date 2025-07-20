@@ -9,18 +9,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
-import { Loader2, User, History, LogOut, Shield, Mail, Home, MessageSquare, Send } from 'lucide-react';
+import { Loader2, User, History, LogOut, Shield, Mail, Home, MessageSquare, Send, Car, ParkingCircle } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import VerificationPanel from '@/components/VerificationPanel';
 import UserInbox from '@/components/UserInbox';
-
 interface Profile {
   id: string;
   full_name: string;
   phone: string;
   user_type: string;
 }
-
 interface ParkingBooking {
   id: string;
   location: string;
@@ -32,7 +30,6 @@ interface ParkingBooking {
   status: 'active' | 'completed' | 'cancelled' | 'pending';
   created_at: string;
 }
-
 interface ParkingListing {
   id: string;
   title: string;
@@ -44,7 +41,6 @@ interface ParkingListing {
   status: 'pending' | 'approved' | 'rejected';
   created_at: string;
 }
-
 interface ParkingHistoryItem {
   id: string;
   type: 'booking' | 'listing';
@@ -55,9 +51,11 @@ interface ParkingHistoryItem {
   created_at: string;
   details: ParkingBooking | ParkingListing;
 }
-
 const MyAccount = () => {
-  const { user, signOut } = useAuth();
+  const {
+    user,
+    signOut
+  } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
@@ -66,62 +64,53 @@ const MyAccount = () => {
   const [listings, setListings] = useState<ParkingListing[]>([]);
   const [parkingHistory, setParkingHistory] = useState<ParkingHistoryItem[]>([]);
   const [verificationStatus, setVerificationStatus] = useState<string | null>(null);
-  
+  const [isParkingOwner, setIsParkingOwner] = useState<boolean>(false);
 
   // Redirect if not logged in
   if (!user) {
     navigate('/auth');
     return null;
   }
-
   useEffect(() => {
     fetchProfile();
     fetchBookings();
     fetchListings();
     fetchVerificationStatus();
   }, [user]);
-
   useEffect(() => {
     // Combine bookings and listings into unified history
-    const combinedHistory: ParkingHistoryItem[] = [
-      ...bookings.map(booking => ({
-        id: booking.id,
-        type: 'booking' as const,
-        title: `Booking - ${booking.location}`,
-        location: booking.location,
-        zone: booking.zone,
-        status: booking.status,
-        created_at: booking.created_at,
-        details: booking
-      })),
-      ...listings.map(listing => ({
-        id: listing.id,
-        type: 'listing' as const,
-        title: `Listing - ${listing.title}`,
-        location: listing.address,
-        zone: listing.zone,
-        status: listing.status,
-        created_at: listing.created_at,
-        details: listing
-      }))
-    ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-    
+    const combinedHistory: ParkingHistoryItem[] = [...bookings.map(booking => ({
+      id: booking.id,
+      type: 'booking' as const,
+      title: `Booking - ${booking.location}`,
+      location: booking.location,
+      zone: booking.zone,
+      status: booking.status,
+      created_at: booking.created_at,
+      details: booking
+    })), ...listings.map(listing => ({
+      id: listing.id,
+      type: 'listing' as const,
+      title: `Listing - ${listing.title}`,
+      location: listing.address,
+      zone: listing.zone,
+      status: listing.status,
+      created_at: listing.created_at,
+      details: listing
+    }))].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
     setParkingHistory(combinedHistory);
   }, [bookings, listings]);
-
   const fetchProfile = async () => {
     try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('user_id', user.id)
-        .single();
-
+      const {
+        data,
+        error
+      } = await supabase.from('profiles').select('*').eq('user_id', user.id).single();
       if (error) {
         console.error('Error fetching profile:', error);
       } else {
         setProfile(data);
-        
+        setIsParkingOwner(data?.user_type === 'owner');
       }
     } catch (error) {
       console.error('Error fetching profile:', error);
@@ -129,15 +118,14 @@ const MyAccount = () => {
       setLoading(false);
     }
   };
-
   const fetchBookings = async () => {
     try {
-      const { data, error } = await supabase
-        .from('parking_bookings')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-
+      const {
+        data,
+        error
+      } = await supabase.from('parking_bookings').select('*').eq('user_id', user.id).order('created_at', {
+        ascending: false
+      });
       if (error) {
         console.error('Error fetching bookings:', error);
       } else {
@@ -147,15 +135,14 @@ const MyAccount = () => {
       console.error('Error fetching bookings:', error);
     }
   };
-
   const fetchListings = async () => {
     try {
-      const { data, error } = await supabase
-        .from('parking_listings')
-        .select('*')
-        .eq('owner_id', user.id)
-        .order('created_at', { ascending: false });
-
+      const {
+        data,
+        error
+      } = await supabase.from('parking_listings').select('*').eq('owner_id', user.id).order('created_at', {
+        ascending: false
+      });
       if (error) {
         console.error('Error fetching listings:', error);
       } else {
@@ -165,15 +152,12 @@ const MyAccount = () => {
       console.error('Error fetching listings:', error);
     }
   };
-
   const fetchVerificationStatus = async () => {
     try {
-      const { data, error } = await supabase
-        .from('user_verifications')
-        .select('verification_status')
-        .eq('user_id', user.id)
-        .single();
-
+      const {
+        data,
+        error
+      } = await supabase.from('user_verifications').select('verification_status').eq('user_id', user.id).single();
       if (error && error.code !== 'PGRST116') {
         console.error('Error fetching verification:', error);
       } else {
@@ -183,21 +167,18 @@ const MyAccount = () => {
       console.error('Error fetching verification:', error);
     }
   };
-
   const updateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!profile) return;
-
     setUpdating(true);
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          full_name: profile.full_name,
-          phone: profile.phone,
-        })
-        .eq('user_id', user.id);
-
+      const {
+        error
+      } = await supabase.from('profiles').update({
+        full_name: profile.full_name,
+        phone: profile.phone,
+        user_type: isParkingOwner ? 'owner' : 'renter'
+      }).eq('user_id', user.id);
       if (error) {
         toast.error('Failed to update profile');
       } else {
@@ -209,7 +190,6 @@ const MyAccount = () => {
       setUpdating(false);
     }
   };
-
   const handleLogout = async () => {
     try {
       await signOut();
@@ -219,28 +199,31 @@ const MyAccount = () => {
       toast.error('Error logging out');
     }
   };
-
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'active': return 'bg-green-500';
-      case 'completed': return 'bg-gray-500';
-      case 'cancelled': return 'bg-red-500';
-      case 'pending': return 'bg-yellow-500';
-      case 'approved': return 'bg-green-500';
-      case 'rejected': return 'bg-red-500';
-      default: return 'bg-gray-500';
+      case 'active':
+        return 'bg-green-500';
+      case 'completed':
+        return 'bg-gray-500';
+      case 'cancelled':
+        return 'bg-red-500';
+      case 'pending':
+        return 'bg-yellow-500';
+      case 'approved':
+        return 'bg-green-500';
+      case 'rejected':
+        return 'bg-red-500';
+      default:
+        return 'bg-gray-500';
     }
   };
-
   const getStatusText = (status: string) => {
     return status.charAt(0).toUpperCase() + status.slice(1);
   };
-
   const renderHistoryItemDetails = (item: ParkingHistoryItem) => {
     if (item.type === 'booking') {
       const booking = item.details as ParkingBooking;
-      return (
-        <div className="grid grid-cols-2 gap-4 text-sm">
+      return <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
             <p className="text-muted-foreground">Start Time</p>
             <p>{new Date(booking.start_time).toLocaleString()}</p>
@@ -257,47 +240,35 @@ const MyAccount = () => {
             <p className="text-muted-foreground">Cost</p>
             <p className="font-semibold">{booking.cost_aed} AED</p>
           </div>
-        </div>
-      );
+        </div>;
     } else {
       const listing = item.details as ParkingListing;
-      return (
-        <div className="grid grid-cols-2 gap-4 text-sm">
+      return <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
             <p className="text-muted-foreground">Hourly Rate</p>
             <p className="font-semibold">{listing.price_per_hour} AED/hour</p>
           </div>
-          {listing.price_per_day && (
-            <div>
+          {listing.price_per_day && <div>
               <p className="text-muted-foreground">Daily Rate</p>
               <p className="font-semibold">{listing.price_per_day} AED/day</p>
-            </div>
-          )}
-          {listing.price_per_month && (
-            <div>
+            </div>}
+          {listing.price_per_month && <div>
               <p className="text-muted-foreground">Monthly Rate</p>
               <p className="font-semibold">{listing.price_per_month} AED/month</p>
-            </div>
-          )}
+            </div>}
           <div>
             <p className="text-muted-foreground">Created</p>
             <p>{new Date(listing.created_at).toLocaleDateString()}</p>
           </div>
-        </div>
-      );
+        </div>;
     }
   };
-
   if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+    return <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="min-h-screen bg-background pt-20 animate-zoom-slow">
+  return <div className="min-h-screen bg-background pt-20 animate-zoom-slow">
       <div className="max-w-4xl mx-auto p-6">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold">My Account</h1>
@@ -319,15 +290,10 @@ const MyAccount = () => {
               <User className="mr-2 h-4 w-4" />
               Profile
             </TabsTrigger>
-            <TabsTrigger 
-              value="verification" 
-              className={verificationStatus === 'pending' || verificationStatus === null ? 'bg-orange-500/10 text-orange-700 dark:text-orange-300 border-orange-500/20' : ''}
-            >
+            <TabsTrigger value="verification" className={verificationStatus === 'pending' || verificationStatus === null ? 'bg-orange-500/10 text-orange-700 dark:text-orange-300 border-orange-500/20' : ''}>
               <Shield className="mr-2 h-4 w-4" />
               Verification
-              {(verificationStatus === 'pending' || verificationStatus === null) && (
-                <Badge variant="destructive" className="ml-2 h-5 w-5 p-0 text-xs">!</Badge>
-              )}
+              {(verificationStatus === 'pending' || verificationStatus === null) && <Badge variant="destructive" className="ml-2 h-5 w-5 p-0 text-xs">!</Badge>}
             </TabsTrigger>
             <TabsTrigger value="inbox">
               <Mail className="mr-2 h-4 w-4" />
@@ -355,46 +321,51 @@ const MyAccount = () => {
                 <form onSubmit={updateProfile} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={user.email || ''}
-                      disabled
-                      className="bg-muted"
-                    />
+                    <Input id="email" type="email" value={user.email || ''} disabled className="bg-muted" />
                   </div>
                   
                   <div className="space-y-2">
                     <Label htmlFor="full_name">Full Name</Label>
-                    <Input
-                      id="full_name"
-                      type="text"
-                      value={profile?.full_name || ''}
-                      onChange={(e) => setProfile(prev => prev ? { ...prev, full_name: e.target.value } : null)}
-                    />
+                    <Input id="full_name" type="text" value={profile?.full_name || ''} onChange={e => setProfile(prev => prev ? {
+                    ...prev,
+                    full_name: e.target.value
+                  } : null)} />
                   </div>
                   
                   <div className="space-y-2">
                     <Label htmlFor="phone">Phone Number</Label>
-                    <Input
-                      id="phone"
-                      type="tel"
-                      value={profile?.phone || ''}
-                      onChange={(e) => setProfile(prev => prev ? { ...prev, phone: e.target.value } : null)}
-                      placeholder="+971 50 123 4567"
-                    />
+                    <Input id="phone" type="tel" value={profile?.phone || ''} onChange={e => setProfile(prev => prev ? {
+                    ...prev,
+                    phone: e.target.value
+                  } : null)} placeholder="+971 50 123 4567" />
                   </div>
 
+                  <div className="space-y-3">
+                    <Label className="text-base font-medium">User Type</Label>
+                    <div className="flex items-center justify-between p-4 border rounded-lg">
+                      <div className="flex items-center space-x-3">
+                        <Car className="h-5 w-5 text-blue-600" />
+                        <div>
+                          <p className="font-medium">Parking Seeker</p>
+                          <p className="text-sm text-muted-foreground">Find and book parking spaces</p>
+                        </div>
+                      </div>
+                      <Switch checked={isParkingOwner} onCheckedChange={setIsParkingOwner} />
+                      <div className="flex items-center space-x-3">
+                        <ParkingCircle className="h-5 w-5 text-green-600" />
+                        <div>
+                          <p className="font-medium">Parking Owner</p>
+                          <p className="text-sm text-muted-foreground">List and rent out parking spaces</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                   
                   <Button type="submit" disabled={updating}>
-                    {updating ? (
-                      <>
+                    {updating ? <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         Updating...
-                      </>
-                    ) : (
-                      'Update Profile'
-                    )}
+                      </> : 'Update Profile'}
                   </Button>
                 </form>
               </CardContent>
@@ -416,9 +387,7 @@ const MyAccount = () => {
                   <MessageSquare className="h-5 w-5" />
                   Contact & Support
                 </CardTitle>
-                <CardDescription>
-                  Need help or have questions? Choose how you'd like to get in touch with us.
-                </CardDescription>
+                
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -461,9 +430,9 @@ const MyAccount = () => {
                   <h4 className="font-medium mb-2">Email Support</h4>
                   <p className="text-sm text-muted-foreground">
                     For urgent matters, you can also reach us directly at{' '}
-                <a href="mailto:support@shazam.ae" className="text-primary hover:underline">
-                  support@shazam.ae
-                </a>
+                    <a href="mailto:support@shazamparking.com" className="text-primary hover:underline">
+                      support@shazamparking.com
+                    </a>
                   </p>
                 </div>
               </CardContent>
@@ -479,17 +448,14 @@ const MyAccount = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {parkingHistory.length === 0 ? (
-                  <p className="text-muted-foreground text-center py-8">
+                {parkingHistory.length === 0 ? <p className="text-muted-foreground text-center py-8">
                     No parking activity yet. Start by booking a space or listing your parking!
-                  </p>
-                ) : (
-                  <div className="space-y-4">
-                    {parkingHistory.map((item) => (
-                      <div key={`${item.type}-${item.id}`} className="border rounded-lg p-4">
+                  </p> : <div className="space-y-4">
+                    {parkingHistory.map(item => <div key={`${item.type}-${item.id}`} className="border rounded-lg p-4">
                         <div className="flex justify-between items-start mb-2">
                           <div>
                             <div className="flex items-center gap-2 mb-1">
+                              {item.type === 'booking' ? <Car className="h-4 w-4 text-blue-600" /> : <ParkingCircle className="h-4 w-4 text-green-600" />}
                               <h3 className="font-semibold">{item.title}</h3>
                             </div>
                             <p className="text-sm text-muted-foreground">{item.zone}</p>
@@ -500,17 +466,13 @@ const MyAccount = () => {
                         </div>
                         
                         {renderHistoryItemDetails(item)}
-                      </div>
-                    ))}
-                  </div>
-                )}
+                      </div>)}
+                  </div>}
               </CardContent>
             </Card>
           </TabsContent>
         </Tabs>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default MyAccount;
