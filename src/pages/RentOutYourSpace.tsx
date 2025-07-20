@@ -447,7 +447,7 @@ const RentOutYourSpace = () => {
                   Photos (max 5) *
                 </Label>
                 <div className="mt-2">
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-primary transition-colors">
+                  <div className="relative border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-primary transition-colors">
                     <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                     <p className="text-gray-600">
                       Click to upload or drag and drop
@@ -455,7 +455,13 @@ const RentOutYourSpace = () => {
                     <p className="text-sm text-gray-500 mt-2">
                       JPEG or PNG, max 3MB each
                     </p>
-                    <input type="file" multiple accept="image/jpeg,image/png" onChange={handleImageUpload} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                    <input 
+                      type="file" 
+                      multiple 
+                      accept="image/jpeg,image/png,image/jpg" 
+                      onChange={handleImageUpload} 
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
+                    />
                   </div>
                   
                   {uploadedImages.length > 0 && <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">
