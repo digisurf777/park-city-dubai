@@ -18,7 +18,7 @@ const Auth = () => {
   const [showResetForm, setShowResetForm] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
   const [loginForm, setLoginForm] = useState({ email: '', password: '' });
-  const [signupForm, setSignupForm] = useState({ email: '', password: '', confirmPassword: '', fullName: '', userType: 'seeker' });
+  const [signupForm, setSignupForm] = useState({ email: '', password: '', confirmPassword: '', fullName: '' });
   const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
   const [rateLimited, setRateLimited] = useState(false);
   const recaptchaRef = useRef<ReCAPTCHA>(null);
@@ -88,7 +88,7 @@ const Auth = () => {
     setLoading(true);
     
     try {
-      const { error } = await signUp(signupForm.email, signupForm.password, signupForm.fullName, signupForm.userType);
+      const { error } = await signUp(signupForm.email, signupForm.password, signupForm.fullName, 'seeker');
       
       if (error) {
         if (error.message.includes('already registered')) {
@@ -102,7 +102,7 @@ const Auth = () => {
           });
           
           // Clear the form since account might be created
-          setSignupForm({ email: '', password: '', confirmPassword: '', fullName: '', userType: 'seeker' });
+          setSignupForm({ email: '', password: '', confirmPassword: '', fullName: '' });
           
           // Reset rate limit after 5 minutes
           setTimeout(() => {
@@ -116,7 +116,7 @@ const Auth = () => {
           duration: 6000,
           description: 'Check your inbox and confirm your email address before logging in.'
         });
-        setSignupForm({ email: '', password: '', confirmPassword: '', fullName: '', userType: 'seeker' });
+        setSignupForm({ email: '', password: '', confirmPassword: '', fullName: '' });
         
         // Show additional info about email confirmation
         setTimeout(() => {
@@ -326,28 +326,6 @@ const Auth = () => {
                   />
                 </div>
                 
-                <div className="space-y-2">
-                  <Label htmlFor="user-type">I am:</Label>
-                  <Select value={signupForm.userType} onValueChange={(value) => setSignupForm({ ...signupForm, userType: value })}>
-                    <SelectTrigger id="user-type">
-                      <SelectValue placeholder="Choose your role" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="seeker">
-                        <div className="flex items-center gap-2">
-                          <User className="h-4 w-4" />
-                          Looking for parking space
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="owner">
-                        <div className="flex items-center gap-2">
-                          <Building className="h-4 w-4" />
-                          Parking space owner
-                        </div>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
                 
                 <Button type="submit" className="w-full" disabled={loading || rateLimited}>
                   {loading ? (
