@@ -1,5 +1,7 @@
+
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import OptimizedImage from "./OptimizedImage";
 
 const PerformantHero = () => {
   return (
@@ -38,22 +40,26 @@ const PerformantHero = () => {
             </p>
           </div>
           
-          {/* Right side - Phone Image */}
+          {/* Right side - Phone Image - Optimized */}
           <div className="lg:flex-1 flex justify-center lg:justify-end">
-            <img 
-              alt="Shazam Parking Mobile App" 
-              className="w-64 sm:w-80 md:w-96 lg:max-w-md h-auto transition-transform duration-300 hover:scale-105" 
-              src="/lovable-uploads/c910d35f-a4b2-4c06-88e3-7f5b16a45558.png"
-              loading="lazy"
-              decoding="async"
-            />
+            <div className="w-64 sm:w-80 md:w-96 lg:max-w-md h-auto transition-transform duration-300 hover:scale-105">
+              <OptimizedImage 
+                src="/lovable-uploads/c910d35f-a4b2-4c06-88e3-7f5b16a45558.png"
+                alt="Shazam Parking Mobile App"
+                className="w-full h-auto"
+                priority={true}
+                sizes="(max-width: 768px) 80vw, (max-width: 1024px) 50vw, 25vw"
+                width={400}
+                height={800}
+              />
+            </div>
           </div>
         </div>
         
-        {/* CTA Button - Centered */}
+        {/* CTA Button - Enhanced for mobile */}
         <div className="flex justify-center mt-8 sm:mt-12 lg:absolute lg:bottom-20 lg:left-1/2 lg:transform lg:-translate-x-1/2 px-4">
-          <Link to="/auth">
-            <Button className="bg-primary hover:bg-primary/90 text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-full w-full sm:w-auto shadow-lg transition-all duration-300 hover:scale-105 touch-manipulation min-h-[48px]">
+          <Link to="/auth" className="w-full sm:w-auto">
+            <Button className="bg-primary hover:bg-primary/90 text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-full w-full sm:w-auto shadow-lg transition-all duration-300 hover:scale-105 touch-manipulation min-h-[48px] active:scale-95">
               LOGIN / SIGN UP
             </Button>
           </Link>
