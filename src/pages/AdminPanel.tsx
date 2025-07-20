@@ -2023,51 +2023,11 @@ const AdminPanel = () => {
                 {filteredBookings.map((booking: any) => (
                   <Card key={booking.id}>
                     <CardContent className="pt-6">
-                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <div className="space-y-3">
-                          <div>
-                            <h3 className="font-semibold text-lg">Booking #{booking.id.slice(0, 8)}</h3>
-                            <p className="text-muted-foreground">
-                              Customer: {booking.profiles?.full_name || 'Unknown'}
-                            </p>
-                            {booking.profiles?.phone && (
-                              <p className="text-muted-foreground">
-                                Phone: {booking.profiles.phone}
-                              </p>
-                            )}
-                          </div>
-                          
-                          <div className="grid grid-cols-2 gap-4 text-sm">
-                            <div>
-                              <strong>Location:</strong>
-                              <p>{booking.location}</p>
-                            </div>
-                            <div>
-                              <strong>Zone:</strong>
-                              <p>{booking.zone}</p>
-                            </div>
-                            <div>
-                              <strong>Start Time:</strong>
-                              <p>{format(new Date(booking.start_time), 'MMM d, yyyy h:mm a')}</p>
-                            </div>
-                            <div>
-                              <strong>End Time:</strong>
-                              <p>{format(new Date(booking.end_time), 'MMM d, yyyy h:mm a')}</p>
-                            </div>
-                            <div>
-                              <strong>Duration:</strong>
-                              <p>{booking.duration_hours} hours</p>
-                            </div>
-                            <div>
-                              <strong>Cost:</strong>
-                              <p>AED {booking.cost_aed}</p>
-                            </div>
-                          </div>
-
-                          <div>
-                            <strong>Status:</strong>
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-4">
+                            <h3 className="font-semibold text-lg">{booking.location}</h3>
                             <Badge 
-                              className="ml-2"
                               variant={
                                 booking.status === 'confirmed' ? 'default' :
                                 booking.status === 'pending' ? 'secondary' :
@@ -2075,13 +2035,31 @@ const AdminPanel = () => {
                                 'outline'
                               }
                             >
-                              {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
+                              {booking.status}
                             </Badge>
                           </div>
-
-                          <div className="text-sm text-muted-foreground">
-                            <p>Created: {format(new Date(booking.created_at), 'MMM d, yyyy h:mm a')}</p>
-                            <p>Updated: {format(new Date(booking.updated_at), 'MMM d, yyyy h:mm a')}</p>
+                          
+                          <p className="text-muted-foreground mb-4">
+                            Zone: {booking.zone} • Customer: {booking.profiles?.full_name || 'mg'} ({booking.userEmail || 'N/A'})
+                          </p>
+                          
+                          <div className="grid grid-cols-4 gap-8">
+                            <div>
+                              <p className="font-medium">Start Time</p>
+                              <p className="text-muted-foreground">{format(new Date(booking.start_time), 'dd.MM.yyyy, HH:mm:ss')}</p>
+                            </div>
+                            <div>
+                              <p className="font-medium">End Time</p>
+                              <p className="text-muted-foreground">{format(new Date(booking.end_time), 'dd.MM.yyyy, HH:mm:ss')}</p>
+                            </div>
+                            <div>
+                              <p className="font-medium">Duration</p>
+                              <p className="text-muted-foreground">{booking.duration_hours} hours</p>
+                            </div>
+                            <div>
+                              <p className="font-medium">Cost</p>
+                              <p className="text-muted-foreground">₹ {booking.cost_aed} AED</p>
+                            </div>
                           </div>
                         </div>
                         
