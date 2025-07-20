@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
-import { Loader2, User, History, LogOut, Shield, Mail, Home, MessageSquare, Send, Car, ParkingCircle } from 'lucide-react';
+import { Loader2, User, History, LogOut, Shield, Mail, Home, MessageSquare, Send } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import VerificationPanel from '@/components/VerificationPanel';
 import UserInbox from '@/components/UserInbox';
@@ -66,7 +66,7 @@ const MyAccount = () => {
   const [listings, setListings] = useState<ParkingListing[]>([]);
   const [parkingHistory, setParkingHistory] = useState<ParkingHistoryItem[]>([]);
   const [verificationStatus, setVerificationStatus] = useState<string | null>(null);
-  const [isParkingOwner, setIsParkingOwner] = useState<boolean>(false);
+  
 
   // Redirect if not logged in
   if (!user) {
@@ -121,7 +121,7 @@ const MyAccount = () => {
         console.error('Error fetching profile:', error);
       } else {
         setProfile(data);
-        setIsParkingOwner(data?.user_type === 'owner');
+        
       }
     } catch (error) {
       console.error('Error fetching profile:', error);
@@ -195,7 +195,6 @@ const MyAccount = () => {
         .update({
           full_name: profile.full_name,
           phone: profile.phone,
-          user_type: isParkingOwner ? 'owner' : 'renter',
         })
         .eq('user_id', user.id);
 
@@ -386,29 +385,6 @@ const MyAccount = () => {
                     />
                   </div>
 
-                  <div className="space-y-3">
-                    <Label className="text-base font-medium">User Type</Label>
-                    <div className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex items-center space-x-3">
-                        <Car className="h-5 w-5 text-blue-600" />
-                        <div>
-                          <p className="font-medium">Parking Seeker</p>
-                          <p className="text-sm text-muted-foreground">Find and book parking spaces</p>
-                        </div>
-                      </div>
-                      <Switch
-                        checked={isParkingOwner}
-                        onCheckedChange={setIsParkingOwner}
-                      />
-                      <div className="flex items-center space-x-3">
-                        <ParkingCircle className="h-5 w-5 text-green-600" />
-                        <div>
-                          <p className="font-medium">Parking Owner</p>
-                          <p className="text-sm text-muted-foreground">List and rent out parking spaces</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
                   
                   <Button type="submit" disabled={updating}>
                     {updating ? (
@@ -514,11 +490,6 @@ const MyAccount = () => {
                         <div className="flex justify-between items-start mb-2">
                           <div>
                             <div className="flex items-center gap-2 mb-1">
-                              {item.type === 'booking' ? (
-                                <Car className="h-4 w-4 text-blue-600" />
-                              ) : (
-                                <ParkingCircle className="h-4 w-4 text-green-600" />
-                              )}
                               <h3 className="font-semibold">{item.title}</h3>
                             </div>
                             <p className="text-sm text-muted-foreground">{item.zone}</p>
