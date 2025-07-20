@@ -418,7 +418,6 @@ const RentOutYourSpace = () => {
                     <SelectContent>
                       <SelectItem value="covered">Covered</SelectItem>
                       <SelectItem value="uncovered">Uncovered</SelectItem>
-                      <SelectItem value="podium">Podium</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
