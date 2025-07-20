@@ -95,25 +95,21 @@ const RentOutYourSpace = () => {
       try {
         const fileExt = file.name.split('.').pop();
         const fileName = `${Date.now()}-${index}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-        
         console.log('Uploading file:', fileName, 'Size:', file.size);
-        
-        const { data, error } = await supabase.storage
-          .from('parking-images')
-          .upload(fileName, file, {
-            cacheControl: '3600',
-            upsert: false
-          });
-        
+        const {
+          data,
+          error
+        } = await supabase.storage.from('parking-images').upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
         if (error) {
           console.error('Upload error:', error);
           throw error;
         }
-        
-        const { data: publicUrl } = supabase.storage
-          .from('parking-images')
-          .getPublicUrl(fileName);
-        
+        const {
+          data: publicUrl
+        } = supabase.storage.from('parking-images').getPublicUrl(fileName);
         console.log('Upload successful:', publicUrl.publicUrl);
         return publicUrl.publicUrl;
       } catch (error) {
@@ -121,7 +117,6 @@ const RentOutYourSpace = () => {
         throw error;
       }
     });
-    
     return Promise.all(uploadPromises);
   };
   const handleSubmit = async (e: React.FormEvent) => {
@@ -129,29 +124,17 @@ const RentOutYourSpace = () => {
     if (!user) {
       toast({
         title: "Authentication required",
-        description: (
-          <div className="space-y-3">
+        description: <div className="space-y-3">
             <p className="text-sm">Please sign in to submit a listing</p>
             <div className="flex space-x-3">
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => window.location.href = '/auth'}
-                className="bg-white text-destructive hover:bg-gray-100 font-semibold px-4 py-2"
-              >
+              <Button variant="secondary" size="sm" onClick={() => window.location.href = '/auth'} className="bg-white text-destructive hover:bg-gray-100 font-semibold px-4 py-2">
                 Login
               </Button>
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => window.location.href = '/auth'}
-                className="bg-white text-destructive hover:bg-gray-100 font-semibold px-4 py-2"
-              >
+              <Button variant="secondary" size="sm" onClick={() => window.location.href = '/auth'} className="bg-white text-destructive hover:bg-gray-100 font-semibold px-4 py-2">
                 Sign Up
               </Button>
             </div>
-          </div>
-        ),
+          </div>,
         variant: "destructive"
       });
       return;
@@ -300,7 +283,7 @@ const RentOutYourSpace = () => {
       <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <img alt="List your parking space in just 3 simple steps" className="w-full max-w-4xl mx-auto px-4" src="/lovable-uploads/5b75f24f-2a35-495b-8178-6fcde41d69c8.png" />
+            <img alt="List your parking space in just 3 simple steps" className="w-full max-w-4xl mx-auto px-4" src="/lovable-uploads/f1e3cfbc-e9e9-46d9-acac-f3a6ef372e06.png" />
           </div>
         </div>
       </section>
@@ -468,13 +451,7 @@ const RentOutYourSpace = () => {
                     <p className="text-sm text-gray-500 mt-2">
                       JPEG or PNG, max 3MB each
                     </p>
-                    <input 
-                      type="file" 
-                      multiple 
-                      accept="image/jpeg,image/png,image/jpg" 
-                      onChange={handleImageUpload} 
-                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
-                    />
+                    <input type="file" multiple accept="image/jpeg,image/png,image/jpg" onChange={handleImageUpload} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
                   </div>
                   
                   {uploadedImages.length > 0 && <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -550,9 +527,7 @@ const RentOutYourSpace = () => {
       <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-6">
-              What customers say about SHAZAMPARKING
-            </h2>
+            <h2 className="text-4xl font-bold text-gray-900 mb-6">What customers say about ShazamParking</h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
