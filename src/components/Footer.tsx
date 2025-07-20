@@ -71,7 +71,7 @@ const Footer = () => {
                 </a>
               </li>
               <li>
-                <a href="https://shazamparking.ae/cookies-notice/" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-primary transition-colors">
+                <a href="/cookies-notice" className="text-gray-300 hover:text-primary transition-colors">
                   Cookies Notice
                 </a>
               </li>
