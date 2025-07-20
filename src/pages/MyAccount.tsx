@@ -392,7 +392,7 @@ const MyAccount = () => {
               <CardContent className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <Card>
-                    <CardContent className="pt-6">
+                    <CardContent className="pt-6 mx-0 px-[2px]">
                       <div className="text-center space-y-4">
                         <Send className="h-8 w-8 text-primary mx-auto" />
                         <h3 className="font-semibold">Contact Admin</h3>
@@ -408,9 +408,7 @@ const MyAccount = () => {
                     </CardContent>
                   </Card>
 
-                  <Card>
-                    
-                  </Card>
+                  
                 </div>
 
                 <div className="bg-muted p-4 rounded-lg">
