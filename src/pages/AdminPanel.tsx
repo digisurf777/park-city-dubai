@@ -2015,6 +2015,15 @@ const AdminPanel = () => {
           </TabsContent>
 
           <TabsContent value="bookings" className="space-y-6">
+            <div className="bg-blue-50 p-4 rounded-lg mb-4">
+              <h3 className="font-semibold">Debug Info:</h3>
+              <p>User ID: {user?.id || 'Not logged in'}</p>
+              <p>Is Admin: {isAdmin ? 'Yes' : 'No'}</p>
+              <p>Checking Admin: {checkingAdmin ? 'Yes' : 'No'}</p>
+              <p>Total Bookings: {parkingBookings.length}</p>
+              <p>Filtered Bookings: {filteredBookings.length}</p>
+              <p>Bookings Loading: {bookingsLoading ? 'Yes' : 'No'}</p>
+            </div>
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-semibold">Parking Booking Management</h2>
               <div className="flex items-center gap-4">
@@ -2038,11 +2047,29 @@ const AdminPanel = () => {
                 </Badge>
                 <Button 
                   variant="outline" 
-                  onClick={fetchParkingBookings}
+                  onClick={() => {
+                    console.log('Manual refresh clicked - fetching bookings now...');
+                    fetchParkingBookings();
+                  }}
                   disabled={bookingsLoading}
                   className="flex items-center gap-2"
                 >
                   {bookingsLoading ? 'Loading...' : 'Refresh Bookings'}
+                </Button>
+                <Button 
+                  variant="secondary" 
+                  onClick={() => {
+                    console.log('Force reload admin data...');
+                    fetchPosts();
+                    fetchVerifications();
+                    fetchParkingListings();
+                    fetchParkingBookings();
+                    fetchAllUsers();
+                    fetchDetailedUsers();
+                  }}
+                  className="flex items-center gap-2"
+                >
+                  Force Reload All Data
                 </Button>
               </div>
             </div>
