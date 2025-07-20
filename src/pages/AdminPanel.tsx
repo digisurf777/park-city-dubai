@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Pencil, Trash2, Plus, CheckCircle, XCircle, FileText, Mail, Upload, X, Eye, Edit, Lightbulb, Camera, Settings } from 'lucide-react';
+import { Pencil, Trash2, Plus, CheckCircle, XCircle, FileText, Mail, Upload, X, Eye, Edit, Lightbulb, Camera, Settings, RefreshCw } from 'lucide-react';
 import { format } from 'date-fns';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
@@ -2048,35 +2048,39 @@ const AdminPanel = () => {
 
           <TabsContent value="bookings" className="space-y-6">
             <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-semibold">Parking Booking Management</h2>
-              <div className="flex items-center gap-4">
-                <Select 
-                  value={bookingStatusFilter || 'all'} 
-                  onValueChange={(value) => setBookingStatusFilter(value === 'all' ? '' : value)}
-                >
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Filter by status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Bookings</SelectItem>
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="confirmed">Confirmed</SelectItem>
-                    <SelectItem value="completed">Completed</SelectItem>
-                    <SelectItem value="cancelled">Cancelled</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Badge variant="outline" className="px-3 py-1">
-                  Total: {filteredBookings.length}
-                </Badge>
-                <Button 
-                  variant="outline" 
-                  onClick={fetchParkingBookings}
-                  disabled={bookingsLoading}
-                  className="flex items-center gap-2"
-                >
-                  {bookingsLoading ? 'Loading...' : 'Refresh'}
-                </Button>
-              </div>
+              <h2 className="text-2xl font-semibold">Admin Panel</h2>
+              <Button 
+                variant="outline" 
+                onClick={fetchParkingBookings}
+                disabled={bookingsLoading}
+                className="flex items-center gap-2"
+              >
+                <RefreshCw className="h-4 w-4" />
+                Refresh
+              </Button>
+            </div>
+            
+            <p className="text-muted-foreground">Manage parking bookings, listings, and users</p>
+
+            <div className="flex items-center gap-4 mb-6">
+              <Select 
+                value={bookingStatusFilter || 'all'} 
+                onValueChange={(value) => setBookingStatusFilter(value === 'all' ? '' : value)}
+              >
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="All Statuses" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Statuses</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="confirmed">Confirmed</SelectItem>
+                  <SelectItem value="completed">Completed</SelectItem>
+                  <SelectItem value="cancelled">Cancelled</SelectItem>
+                </SelectContent>
+              </Select>
+              <span className="text-sm text-muted-foreground">
+                {filteredBookings.length} bookings
+              </span>
             </div>
 
             {bookingsLoading ? (
@@ -2090,78 +2094,87 @@ const AdminPanel = () => {
             ) : (
               <div className="space-y-4">
                 {filteredBookings.map((booking: any) => (
-                  <Card key={booking.id}>
-                    <CardContent className="pt-6">
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-4">
-                            <h3 className="font-semibold text-lg">{booking.location}</h3>
+                  <Card key={booking.id} className="border border-border">
+                    <CardContent className="p-6">
+                      <div className="space-y-4">
+                        {/* Header */}
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <h3 className="font-semibold text-xl">{booking.location}</h3>
                             <Badge 
-                              variant={
-                                booking.status === 'confirmed' ? 'default' :
-                                booking.status === 'pending' ? 'secondary' :
-                                booking.status === 'cancelled' ? 'destructive' : 
-                                'outline'
-                              }
+                              variant="secondary"
+                              className={`${
+                                booking.status === 'pending' 
+                                  ? 'bg-orange-100 text-orange-800' 
+                                  : booking.status === 'confirmed'
+                                  ? 'bg-green-100 text-green-800'
+                                  : booking.status === 'cancelled'
+                                  ? 'bg-red-100 text-red-800'
+                                  : 'bg-gray-100 text-gray-800'
+                              }`}
                             >
                               {booking.status}
                             </Badge>
                           </div>
-                          
-                          <p className="text-muted-foreground mb-4">
-                            Zone: {booking.zone} • Customer: {booking.profiles?.full_name || 'mg'} (N/A)
-                          </p>
-                          
-                          <div className="grid grid-cols-4 gap-8">
-                            <div>
-                              <p className="font-medium">Start Time</p>
-                              <p className="text-muted-foreground">{format(new Date(booking.start_time), 'dd.MM.yyyy, HH:mm:ss')}</p>
-                            </div>
-                            <div>
-                              <p className="font-medium">End Time</p>
-                              <p className="text-muted-foreground">{format(new Date(booking.end_time), 'dd.MM.yyyy, HH:mm:ss')}</p>
-                            </div>
-                            <div>
-                              <p className="font-medium">Duration</p>
-                              <p className="text-muted-foreground">{booking.duration_hours} hours</p>
-                            </div>
-                            <div>
-                              <p className="font-medium">Cost</p>
-                              <p className="text-muted-foreground">₹ {booking.cost_aed} AED</p>
-                            </div>
+                          <div className="flex gap-2">
+                            <Button
+                              onClick={() => updateBookingStatus(booking.id, 'confirmed')}
+                              className="bg-green-600 hover:bg-green-700 text-white flex items-center gap-1 px-4 py-2"
+                              size="sm"
+                            >
+                              <CheckCircle className="h-4 w-4" />
+                              Confirm
+                            </Button>
+                            <Button
+                              variant="destructive"
+                              onClick={() => updateBookingStatus(booking.id, 'cancelled')}
+                              className="flex items-center gap-1 px-4 py-2"
+                              size="sm"
+                            >
+                              <XCircle className="h-4 w-4" />
+                              Deny
+                            </Button>
+                            <Button
+                              variant="outline"
+                              onClick={() => {
+                                setSelectedUserId(booking.user_id);
+                                setMessageSubject(`Booking Update - ${booking.location}`);
+                                setMessageContent(`Hello ${booking.profiles?.full_name || 'Customer'},\n\nRegarding your parking booking:\n\nLocation: ${booking.location}\nZone: ${booking.zone}\nStart: ${format(new Date(booking.start_time), 'MMM d, yyyy h:mm a')}\nEnd: ${format(new Date(booking.end_time), 'MMM d, yyyy h:mm a')}\nCost: AED ${booking.cost_aed}\n\nBest regards,\nShazam Parking Team`);
+                                const messagesTab = document.querySelector('[value="messages"]') as HTMLElement;
+                                messagesTab?.click();
+                              }}
+                              className="flex items-center gap-1 px-4 py-2"
+                              size="sm"
+                            >
+                              <Mail className="h-4 w-4" />
+                              Message
+                            </Button>
                           </div>
                         </div>
                         
-                        <div className="flex gap-3">
-                          <Button
-                            onClick={() => updateBookingStatus(booking.id, 'confirmed')}
-                            className="bg-green-600 hover:bg-green-700 text-white flex items-center gap-2"
-                          >
-                            <CheckCircle className="h-4 w-4" />
-                            Confirm
-                          </Button>
-                          <Button
-                            variant="destructive"
-                            onClick={() => updateBookingStatus(booking.id, 'cancelled')}
-                            className="flex items-center gap-2"
-                          >
-                            <XCircle className="h-4 w-4" />
-                            Deny
-                          </Button>
-                          <Button
-                            variant="outline"
-                            onClick={() => {
-                              setSelectedUserId(booking.user_id);
-                              setMessageSubject(`Booking Update - ${booking.location}`);
-                              setMessageContent(`Hello ${booking.profiles?.full_name || 'Customer'},\n\nRegarding your parking booking:\n\nLocation: ${booking.location}\nZone: ${booking.zone}\nStart: ${format(new Date(booking.start_time), 'MMM d, yyyy h:mm a')}\nEnd: ${format(new Date(booking.end_time), 'MMM d, yyyy h:mm a')}\nCost: AED ${booking.cost_aed}\n\nBest regards,\nShazam Parking Team`);
-                              const messagesTab = document.querySelector('[value="messages"]') as HTMLElement;
-                              messagesTab?.click();
-                            }}
-                            className="flex items-center gap-2"
-                          >
-                            <Mail className="h-4 w-4" />
-                            Message
-                          </Button>
+                        {/* Zone and Customer Info */}
+                        <p className="text-sm text-muted-foreground">
+                          Zone: {booking.zone} • Customer: {booking.profiles?.full_name || 'mg'} (N/A)
+                        </p>
+                        
+                        {/* Booking Details Grid */}
+                        <div className="grid grid-cols-4 gap-8 pt-2">
+                          <div>
+                            <p className="font-medium text-sm mb-1">Start Time</p>
+                            <p className="text-sm text-muted-foreground">{format(new Date(booking.start_time), 'dd.MM.yyyy, HH:mm:ss')}</p>
+                          </div>
+                          <div>
+                            <p className="font-medium text-sm mb-1">End Time</p>
+                            <p className="text-sm text-muted-foreground">{format(new Date(booking.end_time), 'dd.MM.yyyy, HH:mm:ss')}</p>
+                          </div>
+                          <div>
+                            <p className="font-medium text-sm mb-1">Duration</p>
+                            <p className="text-sm text-muted-foreground">{booking.duration_hours} hours</p>
+                          </div>
+                          <div>
+                            <p className="font-medium text-sm mb-1">Cost</p>
+                            <p className="text-sm text-muted-foreground">₹ {booking.cost_aed} AED</p>
+                          </div>
                         </div>
                       </div>
                     </CardContent>
