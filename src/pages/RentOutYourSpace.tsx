@@ -327,7 +327,7 @@ const RentOutYourSpace = () => {
                 </li>
                 <li className="flex items-center">
                   <CheckCircle className="h-6 w-6 text-primary mr-3" />
-                  Monthly tenants available
+                  Monthly, quarterly and annual rentals
                 </li>
                 <li className="flex items-center">
                   <CheckCircle className="h-6 w-6 text-primary mr-3" />
