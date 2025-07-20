@@ -76,6 +76,11 @@ interface ParkingBooking {
   status: string;
   created_at: string;
   updated_at: string;
+  profiles?: {
+    full_name: string;
+    phone: string;
+  };
+  userEmail?: string;
 }
 
 const AdminPanel = () => {
@@ -147,6 +152,32 @@ const AdminPanel = () => {
       checkAdminRole();
     }
   }, [user]);
+
+  // Set up real-time subscription for bookings
+  useEffect(() => {
+    if (!isAdmin) return;
+
+    const channel = supabase
+      .channel('admin-booking-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'parking_bookings'
+        },
+        (payload) => {
+          console.log('Real-time booking change:', payload);
+          // Refresh bookings when any change occurs
+          fetchParkingBookings();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [isAdmin]);
 
   const checkAdminRole = async () => {
     if (!user) return;
@@ -523,7 +554,7 @@ const AdminPanel = () => {
 
       if (bookingsError) throw bookingsError;
 
-      // Then, fetch profile data for each booking
+      // Then, fetch profile data and user email for each booking
       const bookingsWithProfiles = await Promise.all(
         (bookingsData || []).map(async (booking) => {
           const { data: profileData } = await supabase
@@ -532,9 +563,21 @@ const AdminPanel = () => {
             .eq('user_id', booking.user_id)
             .single();
 
+          // Get user email for sending messages
+          let userEmail = '';
+          try {
+            const { data: authData, error: authError } = await supabase.auth.admin.getUserById(booking.user_id);
+            if (!authError && authData.user) {
+              userEmail = authData.user.email || '';
+            }
+          } catch (err) {
+            console.error('Error getting user email:', err);
+          }
+
           return {
             ...booking,
-            profiles: profileData
+            profiles: profileData,
+            userEmail: userEmail
           };
         })
       );
@@ -555,6 +598,12 @@ const AdminPanel = () => {
 
   const updateBookingStatus = async (bookingId: string, status: 'confirmed' | 'cancelled' | 'completed') => {
     try {
+      // Find the booking to get user details
+      const booking = parkingBookings.find(b => b.id === bookingId);
+      if (!booking) {
+        throw new Error('Booking not found');
+      }
+
       const { error } = await supabase
         .from('parking_bookings')
         .update({ status })
@@ -562,9 +611,31 @@ const AdminPanel = () => {
 
       if (error) throw error;
 
+      // Send email notification to customer if we have their email
+      if (booking.userEmail) {
+        try {
+          const statusMessage = status === 'confirmed' 
+            ? 'Your parking booking has been confirmed!' 
+            : status === 'cancelled' 
+            ? 'Your parking booking has been cancelled.'
+            : 'Your parking has been marked as completed.';
+
+          await supabase.functions.invoke('send-message-notification', {
+            body: {
+              userEmail: booking.userEmail,
+              userName: booking.profiles?.full_name || 'Customer',
+              subject: `Booking Update - ${status.charAt(0).toUpperCase() + status.slice(1)}`,
+              message: `${statusMessage}\n\nBooking Details:\nLocation: ${booking.location}\nZone: ${booking.zone}\nStart: ${format(new Date(booking.start_time), 'MMM d, yyyy h:mm a')}\nEnd: ${format(new Date(booking.end_time), 'MMM d, yyyy h:mm a')}\nCost: AED ${booking.cost_aed}`,
+            },
+          });
+        } catch (emailError) {
+          console.error('Failed to send email notification:', emailError);
+        }
+      }
+
       toast({
         title: "Success",
-        description: `Booking ${status} successfully`,
+        description: `Booking ${status} successfully and customer notified`,
       });
 
       fetchParkingBookings();
