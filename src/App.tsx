@@ -34,7 +34,6 @@ import DIFC from "./pages/zones/DIFC";
 import Deira from "./pages/zones/Deira";
 import TermsAndConditions from "./pages/TermsAndConditions";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
-import CookiesNotice from "./pages/CookiesNotice";
 
 const queryClient = new QueryClient();
 
@@ -85,7 +84,6 @@ const App = () => (
           <Route path="/deira" element={<Deira />} />
           <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-          <Route path="/cookies-notice" element={<CookiesNotice />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

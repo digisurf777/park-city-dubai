@@ -1,11 +1,16 @@
 import { Helmet } from "react-helmet-async";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+
 const PrivacyPolicy = () => {
-  return <>
+  return (
+    <>
       <Helmet>
         <title>Privacy Policy | Shazam Parking - Dubai's Premier Parking Solution</title>
-        <meta name="description" content="Read our comprehensive privacy policy detailing how Shazam Parking collects, uses, and protects your personal data in accordance with UAE regulations." />
+        <meta
+          name="description"
+          content="Read our comprehensive privacy policy detailing how Shazam Parking collects, uses, and protects your personal data in accordance with UAE regulations."
+        />
         <meta name="keywords" content="privacy policy, data protection, UAE PDPL, personal data, Shazam Parking" />
       </Helmet>
       
@@ -15,7 +20,9 @@ const PrivacyPolicy = () => {
         <main className="pt-20">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <div className="prose prose-lg max-w-none">
-              <h1 className="text-4xl font-bold text-foreground mb-8">ShazamParking – Privacy Policy</h1>
+              <h1 className="text-4xl font-bold text-foreground mb-8">
+                Shazam Parking – Privacy Policy
+              </h1>
               
               <p className="text-muted-foreground mb-8">
                 Last Reviewed: 2 July 2025
@@ -153,6 +160,8 @@ const PrivacyPolicy = () => {
         
         <Footer />
       </div>
-    </>;
+    </>
+  );
 };
+
 export default PrivacyPolicy;
