@@ -279,11 +279,104 @@ const RentOutYourSpace = () => {
         </div>
       </section>
 
-      {/* Three Steps Section */}
+      {/* Available Parking Spots Section */}
       <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <img alt="List your parking space in just 3 simple steps" className="w-full max-w-4xl mx-auto px-4" src="/lovable-uploads/1dda1396-7e61-4941-b3c2-e7badd6fc5bc.png" />
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Available Parking Spots</h2>
+            <p className="text-lg text-gray-600">See what spots are currently available in prime Dubai locations</p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {/* Business Bay Spots */}
+            <div className="relative group cursor-pointer">
+              <div className="relative h-64 rounded-2xl overflow-hidden">
+                <img 
+                  src="https://eoknluyunximjlsnyceb.supabase.co/storage/v1/object/public/parking-images/parking-listings/1752669556698-yj0t2spk5r.jpg" 
+                  alt="Business Bay Parking" 
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+                <div className="absolute inset-0 bg-black bg-opacity-20 group-hover:bg-opacity-10 transition-all duration-300"></div>
+                <div className="absolute top-4 right-4">
+                  <span className="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                    Available
+                  </span>
+                </div>
+                <div className="absolute bottom-4 left-4">
+                  <span className="bg-black bg-opacity-60 text-white px-3 py-1 rounded-full text-sm">
+                    +5 more
+                  </span>
+                </div>
+                <div className="absolute bottom-4 right-4">
+                  <div className="text-white text-right">
+                    <p className="text-lg font-semibold">Business Bay</p>
+                    <p className="text-sm opacity-90">From AED 600/month</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Dubai Marina Spots */}
+            <div className="relative group cursor-pointer">
+              <div className="relative h-64 rounded-2xl overflow-hidden">
+                <img 
+                  src="https://eoknluyunximjlsnyceb.supabase.co/storage/v1/object/public/parking-images/parking-listings/1752670321773-449zhohebvj.jpg" 
+                  alt="Dubai Marina Parking" 
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+                <div className="absolute inset-0 bg-black bg-opacity-20 group-hover:bg-opacity-10 transition-all duration-300"></div>
+                <div className="absolute top-4 right-4">
+                  <span className="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                    Available
+                  </span>
+                </div>
+                <div className="absolute bottom-4 left-4">
+                  <span className="bg-black bg-opacity-60 text-white px-3 py-1 rounded-full text-sm">
+                    +8 more
+                  </span>
+                </div>
+                <div className="absolute bottom-4 right-4">
+                  <div className="text-white text-right">
+                    <p className="text-lg font-semibold">Dubai Marina</p>
+                    <p className="text-sm opacity-90">From AED 450/month</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Premium Locations */}
+            <div className="relative group cursor-pointer">
+              <div className="relative h-64 rounded-2xl overflow-hidden">
+                <img 
+                  src="https://eoknluyunximjlsnyceb.supabase.co/storage/v1/object/public/parking-images/parking-listings/1752668731203-6gd74ovb4no.jpg" 
+                  alt="Premium Parking" 
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+                <div className="absolute inset-0 bg-black bg-opacity-20 group-hover:bg-opacity-10 transition-all duration-300"></div>
+                <div className="absolute top-4 right-4">
+                  <span className="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                    Available
+                  </span>
+                </div>
+                <div className="absolute bottom-4 left-4">
+                  <span className="bg-black bg-opacity-60 text-white px-3 py-1 rounded-full text-sm">
+                    +2 more
+                  </span>
+                </div>
+                <div className="absolute bottom-4 right-4">
+                  <div className="text-white text-right">
+                    <p className="text-lg font-semibold">Premium Towers</p>
+                    <p className="text-sm opacity-90">From AED 1,500/month</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="text-center mt-8">
+            <button className="bg-primary text-white px-8 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors">
+              View All Available Spots
+            </button>
           </div>
         </div>
       </section>
