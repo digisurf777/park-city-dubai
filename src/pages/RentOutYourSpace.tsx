@@ -291,72 +291,12 @@ const RentOutYourSpace = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
-            {/* Step 1 */}
-            <div className="text-center">
-              <div className="relative mx-auto w-64 h-[500px] mb-8">
-                <img 
-                  src="/lovable-uploads/three-steps-mockup.png" 
-                  alt="Step 1 - List for Free"
-                  className="w-full h-full object-contain"
-                />
-                <div className="absolute inset-0 flex flex-col justify-center items-center text-center px-8">
-                  <h3 className="text-2xl font-bold text-primary mb-4">Step 1</h3>
-                  <h4 className="text-xl font-bold text-primary mb-6">List for Free</h4>
-                  <p className="text-lg font-semibold text-gray-900 mb-8">
-                    Complete listing form & sign-up for FREE
-                  </p>
-                  <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mb-4">
-                    <span className="text-white font-bold text-2xl">P</span>
-                  </div>
-                  <p className="text-primary font-bold text-lg">SHAZAMPARKING</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Step 2 */}
-            <div className="text-center">
-              <div className="relative mx-auto w-64 h-[500px] mb-8">
-                <img 
-                  src="/lovable-uploads/three-steps-mockup.png" 
-                  alt="Step 2 - Confirm Booking"
-                  className="w-full h-full object-contain"
-                />
-                <div className="absolute inset-0 flex flex-col justify-center items-center text-center px-8">
-                  <h3 className="text-2xl font-bold text-primary mb-4">Step 2</h3>
-                  <h4 className="text-xl font-bold text-primary mb-6">Confirm Booking</h4>
-                  <p className="text-lg font-semibold text-gray-900 mb-8">
-                    We find your bookings, you just approve
-                  </p>
-                  <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mb-4">
-                    <span className="text-white font-bold text-2xl">P</span>
-                  </div>
-                  <p className="text-primary font-bold text-lg">SHAZAMPARKING</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Step 3 */}
-            <div className="text-center">
-              <div className="relative mx-auto w-64 h-[500px] mb-8">
-                <img 
-                  src="/lovable-uploads/three-steps-mockup.png" 
-                  alt="Step 3 - Hand Over Card"
-                  className="w-full h-full object-contain"
-                />
-                <div className="absolute inset-0 flex flex-col justify-center items-center text-center px-8">
-                  <h3 className="text-2xl font-bold text-primary mb-4">Step 3</h3>
-                  <h4 className="text-xl font-bold text-primary mb-6">Hand Over Card</h4>
-                  <p className="text-lg font-semibold text-gray-900 mb-8">
-                    Sit Back & Relax
-                  </p>
-                  <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mb-4">
-                    <span className="text-white font-bold text-2xl">P</span>
-                  </div>
-                  <p className="text-primary font-bold text-lg">SHAZAMPARKING</p>
-                </div>
-              </div>
-            </div>
+          <div className="flex justify-center">
+            <img 
+              src="/lovable-uploads/7d8465e2-6402-46e3-bb31-11f5220bd708.png" 
+              alt="Three step process: List for Free, Confirm Booking, Hand Over Card"
+              className="max-w-full h-auto"
+            />
           </div>
         </div>
       </section>
