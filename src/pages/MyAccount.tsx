@@ -192,11 +192,18 @@ const MyAccount = () => {
   };
   const handleLogout = async () => {
     try {
+      console.log('Starting logout process...');
       await signOut();
+      console.log('Sign out completed');
       toast.success('Logged out successfully');
-      navigate('/');
+      // Force page refresh to clear all auth state
+      window.location.href = '/auth';
     } catch (error) {
+      console.error('Logout error:', error);
       toast.error('Error logging out');
+      // Force clear auth state even if signOut fails
+      localStorage.clear();
+      window.location.href = '/auth';
     }
   };
   const getStatusColor = (status: string) => {
