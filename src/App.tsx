@@ -33,6 +33,7 @@ import BusinessBay from "./pages/zones/BusinessBay";
 import DIFC from "./pages/zones/DIFC";
 import Deira from "./pages/zones/Deira";
 import TermsAndConditions from "./pages/TermsAndConditions";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 
 const queryClient = new QueryClient();
 
@@ -82,6 +83,7 @@ const App = () => (
           <Route path="/difc" element={<DIFC />} />
           <Route path="/deira" element={<Deira />} />
           <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
