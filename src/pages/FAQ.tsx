@@ -114,21 +114,13 @@ const FAQ = () => {
                             Google Reviews
                           </a>.
                         </p> : <p className="text-muted-foreground leading-relaxed">
-                           {item.answer.includes('terms') ? (
+                           {item.answer.includes('Terms and Conditions') ? (
                              <>
-                               {item.answer.split('terms and conditions')[0]}
+                               {item.answer.split('Terms and Conditions')[0]}
                                <Link to="/terms-and-conditions" className="text-primary hover:underline font-medium">
-                                 terms and conditions
+                                 Terms and Conditions
                                </Link>
-                               {item.answer.split('terms and conditions')[1]}
-                             </>
-                           ) : item.answer.includes('FAQ') ? (
-                             <>
-                               {item.answer.split('FAQ')[0]}
-                               <Link to="/faq" className="text-primary hover:underline font-medium">
-                                 FAQ
-                               </Link>
-                               {item.answer.split('FAQ')[1]}
+                               {item.answer.split('Terms and Conditions')[1]}
                              </>
                            ) : item.answer}
                          </p>}
