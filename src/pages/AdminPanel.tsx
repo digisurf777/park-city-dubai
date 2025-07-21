@@ -1591,18 +1591,18 @@ const AdminPanel = () => {
       <div className="max-w-6xl mx-auto">
         <h1 className="text-3xl font-bold mb-8">Admin Panel</h1>
         
-        <Tabs defaultValue="chat" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-7 gap-1">
-            <TabsTrigger value="chat" className="text-xs lg:text-sm bg-green-500 text-white font-bold border-2 border-green-600">
-              <MessageCircle className="h-4 w-4 mr-1" />
-              💬 LIVE CHAT
+        <Tabs defaultValue="news" className="w-full">
+          <TabsList className="flex flex-wrap w-full gap-1 h-auto p-2">
+            <TabsTrigger value="news" className="text-xs lg:text-sm">News Management</TabsTrigger>
+            <TabsTrigger value="listings" className="text-xs lg:text-sm">Parking Listings</TabsTrigger>
+            <TabsTrigger value="bookings" className="text-xs lg:text-sm">Booking Management</TabsTrigger>
+            <TabsTrigger value="verifications" className="text-xs lg:text-sm">User Verifications</TabsTrigger>
+            <TabsTrigger value="messages" className="text-xs lg:text-sm">Send Messages</TabsTrigger>
+            <TabsTrigger value="users" className="text-xs lg:text-sm">User Management</TabsTrigger>
+            <TabsTrigger value="chat" className="text-sm font-bold bg-red-500 text-white px-4 py-2 rounded border-2 border-red-700 animate-pulse">
+              <MessageCircle className="h-4 w-4 mr-2" />
+              🔥 LIVE CHAT 🔥
             </TabsTrigger>
-            <TabsTrigger value="news" className="text-xs lg:text-sm">News</TabsTrigger>
-            <TabsTrigger value="listings" className="text-xs lg:text-sm">Listings</TabsTrigger>
-            <TabsTrigger value="bookings" className="text-xs lg:text-sm">Bookings</TabsTrigger>
-            <TabsTrigger value="verifications" className="text-xs lg:text-sm">Verifications</TabsTrigger>
-            <TabsTrigger value="messages" className="text-xs lg:text-sm">Messages</TabsTrigger>
-            <TabsTrigger value="users" className="text-xs lg:text-sm">Users</TabsTrigger>
           </TabsList>
 
           <TabsContent value="news" className="space-y-6">
