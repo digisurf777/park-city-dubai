@@ -2,41 +2,41 @@ import { useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import { Toaster } from '@/components/ui/toaster';
-import { QueryClient } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { TooltipProvider } from '@/components/ui/tooltip';
 
-import Home from '@/pages/Home';
+import Index from '@/pages/Index';
 import PrivacyPolicy from '@/pages/PrivacyPolicy';
 import CookiesNotice from '@/pages/CookiesNotice';
-import ContactUs from '@/pages/ContactUs';
+import ContactAdmin from '@/pages/ContactAdmin';
 import AboutUs from '@/pages/AboutUs';
-import HowItWorks from '@/pages/HowItWorks';
-import FAQs from '@/pages/FAQs';
+import FAQ from '@/pages/FAQ';
 import NotFound from '@/pages/NotFound';
 import TermsAndConditions from '@/pages/TermsAndConditions';
 
+const queryClient = new QueryClient();
+
 function App() {
   return (
-    <QueryClient>
+    <QueryClientProvider client={queryClient}>
       <HelmetProvider>
         <TooltipProvider>
           <Toaster />
           <Router>
             <Routes>
-              <Route path="/" element={<Home />} />
+              <Route path="/" element={<Index />} />
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               <Route path="/cookies-notice" element={<CookiesNotice />} />
-              <Route path="/contact-us" element={<ContactUs />} />
+              <Route path="/contact-us" element={<ContactAdmin />} />
               <Route path="/about-us" element={<AboutUs />} />
-              <Route path="/how-it-works" element={<HowItWorks />} />
-              <Route path="/faqs" element={<FAQs />} />
+              <Route path="/faqs" element={<FAQ />} />
               <Route path="*" element={<NotFound />} />
               <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
             </Routes>
           </Router>
         </TooltipProvider>
       </HelmetProvider>
-    </QueryClient>
+    </QueryClientProvider>
   );
 }
 
