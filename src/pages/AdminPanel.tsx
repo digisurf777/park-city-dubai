@@ -1586,12 +1586,46 @@ const AdminPanel = () => {
     );
   }
 
+  console.log('=== ADMIN PANEL RENDER DEBUG ===');
+  console.log('isAdmin:', isAdmin);
+  console.log('checkingAdmin:', checkingAdmin);
+  console.log('user:', user?.email);
+
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-6xl mx-auto">
         <h1 className="text-3xl font-bold mb-8">Admin Panel</h1>
         
-        <Tabs defaultValue="news" className="w-full">
+        {/* EMERGENCY CHAT ACCESS BUTTON */}
+        <div className="mb-6 p-4 bg-red-100 border-2 border-red-500 rounded-lg">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <MessageCircle className="h-8 w-8 text-red-600 animate-bounce" />
+              <div>
+                <h2 className="text-xl font-bold text-red-800">🔥 LIVE CHAT MANAGEMENT 🔥</h2>
+                <p className="text-red-600">Click here to manage user conversations</p>
+              </div>
+            </div>
+            <Button 
+              className="bg-red-600 hover:bg-red-700 text-white font-bold px-6 py-3 text-lg animate-pulse"
+              onClick={() => {
+                console.log('Chat button clicked!');
+                const chatTab = document.querySelector('[value="chat"]') as HTMLButtonElement;
+                if (chatTab) {
+                  chatTab.click();
+                  console.log('Chat tab found and clicked');
+                } else {
+                  console.log('Chat tab not found in DOM');
+                  // Manually set the tab state
+                  window.location.hash = 'chat';
+                }
+              }}
+            >
+              OPEN LIVE CHAT 💬
+            </Button>
+          </div>
+        </div>
+        <Tabs defaultValue="chat" className="w-full">
           <TabsList className="flex flex-wrap w-full gap-1 h-auto p-2">
             <TabsTrigger value="news" className="text-xs lg:text-sm">News Management</TabsTrigger>
             <TabsTrigger value="listings" className="text-xs lg:text-sm">Parking Listings</TabsTrigger>
