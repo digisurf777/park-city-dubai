@@ -4,6 +4,7 @@ import { HelmetProvider } from 'react-helmet-async';
 import { Toaster } from '@/components/ui/toaster';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { TooltipProvider } from '@/components/ui/tooltip';
+import { AuthProvider } from '@/hooks/useAuth';
 
 import Index from '@/pages/Index';
 import PrivacyPolicy from '@/pages/PrivacyPolicy';
@@ -21,19 +22,21 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <HelmetProvider>
         <TooltipProvider>
-          <Toaster />
-          <Router>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-              <Route path="/cookies-notice" element={<CookiesNotice />} />
-              <Route path="/contact-us" element={<ContactAdmin />} />
-              <Route path="/about-us" element={<AboutUs />} />
-              <Route path="/faqs" element={<FAQ />} />
-              <Route path="*" element={<NotFound />} />
-              <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
-            </Routes>
-          </Router>
+          <AuthProvider>
+            <Toaster />
+            <Router>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                <Route path="/cookies-notice" element={<CookiesNotice />} />
+                <Route path="/contact-us" element={<ContactAdmin />} />
+                <Route path="/about-us" element={<AboutUs />} />
+                <Route path="/faqs" element={<FAQ />} />
+                <Route path="*" element={<NotFound />} />
+                <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
+              </Routes>
+            </Router>
+          </AuthProvider>
         </TooltipProvider>
       </HelmetProvider>
     </QueryClientProvider>
