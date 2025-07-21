@@ -114,13 +114,22 @@ const FAQ = () => {
                             Google Reviews
                           </a>.
                         </p> : <p className="text-muted-foreground leading-relaxed">
-                           {item.answer.includes('Terms and Conditions') ? (
+                           {item.answer.includes('Terms and Conditions') || item.answer.includes('Privacy Policy') || item.answer.includes('Cancellation Policy') || item.answer.includes('cookies notice') ? (
                              <>
-                               {item.answer.split('Terms and Conditions')[0]}
-                               <Link to="/terms-and-conditions" className="text-primary hover:underline font-medium">
-                                 Terms and Conditions
-                               </Link>
-                               {item.answer.split('Terms and Conditions')[1]}
+                               {item.answer
+                                 .split(/(Terms and Conditions|Privacy Policy|Cancellation Policy|cookies notice)/g)
+                                 .map((part, index) => {
+                                   if (part === 'Terms and Conditions') {
+                                     return <Link key={index} to="/terms-and-conditions" className="text-primary hover:underline font-medium">Terms and Conditions</Link>
+                                   } else if (part === 'Privacy Policy') {
+                                     return <Link key={index} to="/privacy-policy" className="text-primary hover:underline font-medium">Privacy Policy</Link>
+                                   } else if (part === 'Cancellation Policy') {
+                                     return <Link key={index} to="/terms-and-conditions" className="text-primary hover:underline font-medium">Cancellation Policy</Link>
+                                   } else if (part === 'cookies notice') {
+                                     return <Link key={index} to="/cookies-notice" className="text-primary hover:underline font-medium">cookies notice</Link>
+                                   }
+                                   return part
+                                 })}
                              </>
                            ) : item.answer}
                          </p>}
