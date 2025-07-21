@@ -377,7 +377,7 @@ const MyAccount = () => {
                 
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4">
                   <Card>
                     <CardContent className="pt-6 mx-0 px-[2px]">
                       <div className="text-center space-y-4">
@@ -389,27 +389,6 @@ const MyAccount = () => {
                         <Link to="/contact-admin">
                           <Button className="w-full">
                             Send Message
-                          </Button>
-                        </Link>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* ADMIN PANEL ACCESS */}
-                  <Card className="border-2 border-red-500 bg-red-50">
-                    <CardContent className="pt-6 mx-0 px-[2px]">
-                      <div className="text-center space-y-4">
-                        <div className="flex items-center justify-center">
-                          <Shield className="h-8 w-8 text-red-600 mr-2" />
-                          <MessageCircle className="h-8 w-8 text-red-600 animate-bounce" />
-                        </div>
-                        <h3 className="font-semibold text-red-800">🔥 ADMIN PANEL 🔥</h3>
-                        <p className="text-sm text-red-700 font-medium">
-                          Access the admin panel to manage live chats, bookings, and user management.
-                        </p>
-                        <Link to="/admin">
-                          <Button className="w-full bg-red-600 hover:bg-red-700 text-white font-bold animate-pulse">
-                            🚀 OPEN ADMIN PANEL
                           </Button>
                         </Link>
                       </div>
