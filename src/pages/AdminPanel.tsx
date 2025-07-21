@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Pencil, Trash2, Plus, CheckCircle, XCircle, FileText, Mail, Upload, X, Eye, Edit, Lightbulb, Camera, Settings, RefreshCw } from 'lucide-react';
+import { Pencil, Trash2, Plus, CheckCircle, XCircle, FileText, Mail, Upload, X, Eye, Edit, Lightbulb, Camera, Settings, RefreshCw, MessageCircle, Send } from 'lucide-react';
 import { format } from 'date-fns';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
@@ -83,6 +83,20 @@ interface ParkingBooking {
   userEmail?: string;
 }
 
+interface ChatMessage {
+  id: string;
+  user_id: string;
+  subject: string;
+  message: string;
+  from_admin: boolean;
+  read_status: boolean;
+  created_at: string;
+  profiles?: {
+    full_name: string;
+    user_id: string;
+  };
+}
+
 const AdminPanel = () => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -114,6 +128,15 @@ const AdminPanel = () => {
     parkingSeekers: 0
   });
   const [bookingStatusFilter, setBookingStatusFilter] = useState<string>('');
+  
+  // Chat management state
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [chatLoading, setChatLoading] = useState(true);
+  const [selectedChatUser, setSelectedChatUser] = useState<string | null>(null);
+  const [chatReply, setChatReply] = useState('');
+  const [sendingReply, setSendingReply] = useState(false);
+  const [chatUsers, setChatUsers] = useState<any[]>([]);
+  const chatMessagesEndRef = useRef<HTMLDivElement>(null);
 
   // Form state
   const [title, setTitle] = useState('');
@@ -182,6 +205,42 @@ const AdminPanel = () => {
     };
   }, [isAdmin]);
 
+  // Set up real-time subscription for chat messages
+  useEffect(() => {
+    if (!isAdmin) return;
+
+    const chatChannel = supabase
+      .channel('admin-chat-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'user_messages'
+        },
+        (payload) => {
+          console.log('=== REAL-TIME CHAT MESSAGE ===', payload);
+          fetchChatMessages();
+          fetchChatUsers();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(chatChannel);
+    };
+  }, [isAdmin]);
+
+  const scrollChatToBottom = () => {
+    chatMessagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    if (chatMessages.length > 0) {
+      scrollChatToBottom();
+    }
+  }, [chatMessages]);
+
   const checkAdminRole = async () => {
     if (!user) {
       console.log('No user found for admin check');
@@ -245,6 +304,10 @@ const AdminPanel = () => {
           fetchParkingBookings();
           fetchAllUsers();
           fetchDetailedUsers();
+          fetchChatMessages();
+          fetchChatUsers();
+          fetchChatMessages();
+          fetchChatUsers();
         }
       }
     } catch (error) {
@@ -731,6 +794,125 @@ const AdminPanel = () => {
         description: "Failed to delete parking listing",
         variant: "destructive",
       });
+    }
+  };
+
+  const fetchChatMessages = async () => {
+    try {
+      setChatLoading(true);
+      const { data: messages, error } = await supabase
+        .from('user_messages')
+        .select('*')
+        .order('created_at', { ascending: true });
+
+      if (error) throw error;
+
+      // Get user profiles separately
+      const userIds = [...new Set(messages?.map(m => m.user_id))];
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('user_id, full_name')
+        .in('user_id', userIds);
+
+      // Combine messages with profiles
+      const messagesWithProfiles = messages?.map(msg => ({
+        ...msg,
+        profiles: profiles?.find(p => p.user_id === msg.user_id) || { full_name: 'Unknown User', user_id: msg.user_id }
+      })) || [];
+
+      setChatMessages(messagesWithProfiles);
+    } catch (error) {
+      console.error('Error fetching chat messages:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch chat messages",
+        variant: "destructive",
+      });
+    } finally {
+      setChatLoading(false);
+    }
+  };
+
+  const fetchChatUsers = async () => {
+    try {
+      const { data: messages, error } = await supabase
+        .from('user_messages')
+        .select('user_id, from_admin, read_status')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      // Get user profiles
+      const userIds = [...new Set(messages?.map(m => m.user_id))];
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('user_id, full_name')
+        .in('user_id', userIds);
+      
+      // Get unique users with unread counts
+      const uniqueUsers = userIds.map(userId => {
+        const profile = profiles?.find(p => p.user_id === userId);
+        const unreadCount = messages?.filter(msg => 
+          msg.user_id === userId && 
+          !msg.from_admin && 
+          !msg.read_status
+        ).length || 0;
+
+        return {
+          user_id: userId,
+          full_name: profile?.full_name || 'Unknown User',
+          unread_count: unreadCount
+        };
+      });
+
+      setChatUsers(uniqueUsers);
+    } catch (error) {
+      console.error('Error fetching chat users:', error);
+    }
+  };
+
+  const sendChatReply = async () => {
+    if (!chatReply.trim() || !selectedChatUser) return;
+
+    try {
+      setSendingReply(true);
+      const { error } = await supabase
+        .from('user_messages')
+        .insert({
+          user_id: selectedChatUser,
+          subject: 'Admin Reply',
+          message: chatReply,
+          from_admin: true
+        });
+
+      if (error) throw error;
+
+      setChatReply('');
+      fetchChatMessages();
+      toast({
+        title: "Success",
+        description: "Reply sent successfully",
+      });
+    } catch (error) {
+      console.error('Error sending reply:', error);
+      toast({
+        title: "Error",
+        description: "Failed to send reply",
+        variant: "destructive",
+      });
+    } finally {
+      setSendingReply(false);
+    }
+  };
+
+  const markChatAsRead = async (messageId: string) => {
+    try {
+      await supabase
+        .from('user_messages')
+        .update({ read_status: true })
+        .eq('id', messageId);
+    } catch (error) {
+      console.error('Error marking message as read:', error);
     }
   };
 
@@ -1410,12 +1592,13 @@ const AdminPanel = () => {
         <h1 className="text-3xl font-bold mb-8">Admin Panel</h1>
         
         <Tabs defaultValue="news" className="w-full">
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-7">
             <TabsTrigger value="news">News Management</TabsTrigger>
             <TabsTrigger value="listings">Parking Listings</TabsTrigger>
             <TabsTrigger value="bookings">Booking Management</TabsTrigger>
             <TabsTrigger value="verifications">User Verifications</TabsTrigger>
             <TabsTrigger value="messages">Send Messages</TabsTrigger>
+            <TabsTrigger value="chat">Chat Management</TabsTrigger>
             <TabsTrigger value="users">User Management</TabsTrigger>
           </TabsList>
 
@@ -2503,6 +2686,112 @@ const AdminPanel = () => {
                     </table>
                   </div>
                 )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Chat Management Tab */}
+          <TabsContent value="chat" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <MessageCircle className="h-5 w-5" />
+                  Chat Management
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  {/* User List */}
+                  <div className="space-y-4">
+                    <h3 className="font-semibold">Active Conversations</h3>
+                    {chatUsers.length === 0 ? (
+                      <p className="text-muted-foreground text-sm">No conversations yet</p>
+                    ) : (
+                      chatUsers.map((user) => (
+                        <div
+                          key={user.user_id}
+                          className={`p-3 border rounded-lg cursor-pointer transition-colors ${
+                            selectedChatUser === user.user_id 
+                              ? 'bg-primary/10 border-primary' 
+                              : 'hover:bg-muted/50'
+                          }`}
+                          onClick={() => setSelectedChatUser(user.user_id)}
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="font-medium">{user.full_name}</span>
+                            {user.unread_count > 0 && (
+                              <Badge variant="destructive" className="text-xs">
+                                {user.unread_count}
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+
+                  {/* Chat Messages */}
+                  <div className="lg:col-span-2 space-y-4">
+                    {selectedChatUser ? (
+                      <>
+                        <div className="border rounded-lg p-4 h-96 overflow-y-auto space-y-3">
+                          {chatMessages
+                            .filter(msg => msg.user_id === selectedChatUser)
+                            .map((msg) => (
+                              <div
+                                key={msg.id}
+                                className={`flex ${msg.from_admin ? 'justify-end' : 'justify-start'}`}
+                              >
+                                <div
+                                  className={`max-w-[80%] p-3 rounded-lg ${
+                                    msg.from_admin
+                                      ? 'bg-primary text-primary-foreground'
+                                      : 'bg-muted'
+                                  }`}
+                                >
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <span className="text-sm font-medium">
+                                      {msg.from_admin ? 'Admin' : msg.profiles?.full_name || 'User'}
+                                    </span>
+                                  </div>
+                                  <p className="text-sm">{msg.message}</p>
+                                  <p className="text-xs opacity-70 mt-1">
+                                    {new Date(msg.created_at).toLocaleString()}
+                                  </p>
+                                </div>
+                              </div>
+                            ))}
+                          <div ref={chatMessagesEndRef} />
+                        </div>
+
+                        {/* Reply Input */}
+                        <div className="flex items-center space-x-2">
+                          <Input
+                            value={chatReply}
+                            onChange={(e) => setChatReply(e.target.value)}
+                            placeholder="Type your reply..."
+                            onKeyPress={(e) => e.key === 'Enter' && sendChatReply()}
+                            className="flex-1"
+                          />
+                          <Button 
+                            onClick={sendChatReply} 
+                            disabled={!chatReply.trim() || sendingReply}
+                            size="icon"
+                          >
+                            <Send className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="flex items-center justify-center h-96 text-muted-foreground">
+                        <div className="text-center">
+                          <MessageCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                          <p>Select a conversation to start chatting</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
