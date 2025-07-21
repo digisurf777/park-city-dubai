@@ -656,34 +656,30 @@ const AdminPanel = () => {
     try {
       console.log('Fetching parking bookings...');
       
-      // Fetch bookings with user profiles
-      const { data, error } = await supabase
+      // Fetch bookings first
+      const { data: bookings, error: bookingsError } = await supabase
         .from('parking_bookings')
-        .select(`
-          *,
-          profiles:user_id (
-            full_name,
-            phone
-          )
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('Error fetching bookings:', error);
-        throw error;
-      }
+      if (bookingsError) throw bookingsError;
 
-      console.log('Fetched bookings:', data);
+      // Get user profiles separately
+      const userIds = [...new Set(bookings?.map(b => b.user_id))];
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('user_id, full_name, phone')
+        .in('user_id', userIds);
 
-      // Set the bookings with fallback data
-      const processedBookings = (data || []).map(booking => ({
+      // Combine bookings with profile data
+      const processedBookings = bookings?.map(booking => ({
         ...booking,
         userEmail: 'Email not available', // Fallback since we can't access auth.admin from client
-        profiles: booking.profiles || { full_name: 'Unknown User', phone: null }
+        profiles: profiles?.find(p => p.user_id === booking.user_id) || { full_name: 'Unknown User', phone: null }
       }));
       
       setParkingBookings(processedBookings as any);
-      console.log('Processed bookings count:', processedBookings.length);
+      console.log('Processed bookings count:', processedBookings?.length || 0);
       
     } catch (error) {
       console.error('Error in fetchParkingBookings:', error);
