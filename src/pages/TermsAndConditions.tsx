@@ -211,6 +211,140 @@ const TermsAndConditions = () => {
                   10.7 In the event of any inconsistency or conflict between the English version of these Terms and any translation (including any Arabic version), the English version shall prevail and govern.
                 </p>
               </section>
+
+              <section>
+                <h2 className="text-2xl font-semibold mb-4">11. Driver Agreement</h2>
+                <p className="mb-4">
+                  11.1 These terms apply specifically to users who book parking spaces through the Site ("<strong>Drivers</strong>").
+                </p>
+                <p className="mb-4">
+                  11.2 When you book a parking space, you enter into a direct contractual relationship with the Owner of that parking space. We facilitate this booking but are not a party to the parking contract between you and the Owner.
+                </p>
+                <p className="mb-4">
+                  11.3 You agree to use the parking space only for the purpose and duration specified in your booking. You must not exceed the agreed parking period unless you have obtained additional authorization from the Owner.
+                </p>
+                <p className="mb-4">
+                  11.4 You are responsible for ensuring your vehicle is parked safely and legally within the designated parking space. You must comply with any specific instructions provided by the Owner regarding access, parking restrictions, or usage guidelines.
+                </p>
+                <p className="mb-4">
+                  11.5 Payment for parking bookings is processed through our platform. You agree to pay all applicable fees, including booking fees, parking charges, and any additional charges that may arise from your use of the parking space.
+                </p>
+                <p className="mb-4">
+                  11.6 Cancellation policies are as stated in your booking confirmation. Different Owners may have different cancellation policies, and you are bound by the specific policy applicable to your booking.
+                </p>
+                <p className="mb-4">
+                  11.7 You acknowledge that parking spaces are provided by independent Owners and that we do not guarantee the availability, condition, or suitability of any parking space for your specific needs.
+                </p>
+                <p className="mb-4">
+                  11.8 You are solely responsible for any damage to the parking space, building, or other property that occurs during your use of the parking space. You agree to indemnify the Owner and us against any claims arising from such damage.
+                </p>
+                <p className="mb-4">
+                  11.9 In case of disputes with an Owner, you agree to first attempt to resolve the matter directly with the Owner. If resolution cannot be achieved, you may contact our support team for assistance.
+                </p>
+                <p className="mb-4">
+                  11.10 You must not use the parking space for any illegal activities or purposes other than parking a motor vehicle. Commercial use of residential parking spaces is prohibited unless explicitly permitted by the Owner.
+                </p>
+              </section>
+
+              <section>
+                <h2 className="text-2xl font-semibold mb-4">12. Owner Agreement</h2>
+                <p className="mb-4">
+                  12.1 These terms apply specifically to users who list parking spaces for rent through the Site ("<strong>Owners</strong>").
+                </p>
+                <p className="mb-4">
+                  12.2 By listing a parking space on our platform, you represent and warrant that you have the legal right to rent out the parking space and that such rental does not violate any lease agreements, building regulations, or local laws.
+                </p>
+                <p className="mb-4">
+                  12.3 You are responsible for providing accurate and complete information about your parking space, including its location, dimensions, access instructions, restrictions, and availability. Any changes to this information must be updated immediately on the platform.
+                </p>
+                <p className="mb-4">
+                  12.4 You agree to honor all confirmed bookings made through our platform. Cancellation of confirmed bookings by Owners may result in penalties and may affect your listing status on the platform.
+                </p>
+                <p className="mb-4">
+                  12.5 You are responsible for maintaining your parking space in a safe and accessible condition. You must ensure that the parking space meets all applicable safety standards and building codes.
+                </p>
+                <p className="mb-4">
+                  12.6 Payment for successful bookings will be processed according to our payment schedule. We reserve the right to deduct our service fees, transaction fees, and any applicable taxes from payments due to you.
+                </p>
+                <p className="mb-4">
+                  12.7 You must not discriminate against Drivers based on race, religion, nationality, gender, age, or any other protected characteristic. All bookings must be handled fairly and in accordance with applicable anti-discrimination laws.
+                </p>
+                <p className="mb-4">
+                  12.8 You are responsible for managing access to your parking space and providing clear instructions to Drivers. This includes providing access codes, keys, or other necessary information in a timely manner.
+                </p>
+                <p className="mb-4">
+                  12.9 In case of disputes with a Driver, you agree to first attempt to resolve the matter directly with the Driver. You must report any serious incidents or damages to our support team immediately.
+                </p>
+                <p className="mb-4">
+                  12.10 You acknowledge that you are operating as an independent contractor and that we do not employ you or have an agency relationship with you. You are responsible for your own tax obligations arising from rental income.
+                </p>
+                <p className="mb-4">
+                  12.11 You must comply with all local laws, regulations, and building rules regarding the rental of parking spaces. This includes obtaining any necessary permits or approvals required for commercial use of your parking space.
+                </p>
+                <p className="mb-4">
+                  12.12 You agree to maintain appropriate insurance coverage for your parking space and to indemnify us against any claims, damages, or liabilities arising from the rental of your parking space.
+                </p>
+              </section>
+
+              <section>
+                <h2 className="text-2xl font-semibold mb-4">13. Platform Fees and Payments</h2>
+                <p className="mb-4">
+                  13.1 Our platform charges service fees for facilitating parking space bookings. These fees are clearly disclosed during the booking process and may vary depending on the type and duration of the booking.
+                </p>
+                <p className="mb-4">
+                  13.2 All payments are processed through secure third-party payment processors. We do not store your complete payment card details on our servers.
+                </p>
+                <p className="mb-4">
+                  13.3 Refunds are subject to the cancellation policy applicable to your specific booking. Processing of refunds may take 5-10 business days depending on your payment method and bank.
+                </p>
+                <p className="mb-4">
+                  13.4 In case of payment disputes, you agree to first contact our customer support team. We reserve the right to investigate and resolve payment-related issues at our discretion.
+                </p>
+                <p className="mb-4">
+                  13.5 All prices displayed on the platform are in AED (UAE Dirhams) unless otherwise specified. Prices include applicable taxes and fees unless explicitly stated otherwise.
+                </p>
+              </section>
+
+              <section>
+                <h2 className="text-2xl font-semibold mb-4">14. Data Protection and Privacy</h2>
+                <p className="mb-4">
+                  14.1 We are committed to protecting your personal data in accordance with applicable data protection laws and our Privacy Policy.
+                </p>
+                <p className="mb-4">
+                  14.2 By using our platform, you consent to the collection, use, and sharing of your personal data as described in our Privacy Policy.
+                </p>
+                <p className="mb-4">
+                  14.3 We may share necessary information between Drivers and Owners to facilitate bookings, including contact details and parking space access information.
+                </p>
+                <p className="mb-4">
+                  14.4 You have the right to access, correct, or delete your personal data subject to our data retention requirements and applicable laws.
+                </p>
+              </section>
+
+              <section>
+                <h2 className="text-2xl font-semibold mb-4">15. Contact Information</h2>
+                <p className="mb-4">
+                  15.1 For any questions, complaints, or support requests regarding these Terms and Conditions or our services, please contact us at:
+                </p>
+                <div className="mb-4 pl-4">
+                  <p><strong>Email:</strong> support@shazamparking.ae</p>
+                  <p><strong>Company:</strong> Shazam Technology Solutions – FZCO</p>
+                  <p><strong>Registration:</strong> UAE Company Registration Number 63137</p>
+                </div>
+                <p className="mb-4">
+                  15.2 We will respond to your inquiries within a reasonable timeframe, typically within 1-3 business days.
+                </p>
+                <p className="mb-4">
+                  15.3 For urgent matters or disputes that require immediate attention, please include "URGENT" in the subject line of your email.
+                </p>
+              </section>
+
+              <div className="mt-8 p-4 bg-muted rounded-lg">
+                <p className="text-sm text-muted-foreground">
+                  <strong>Last Updated:</strong> July 2025<br/>
+                  These Terms and Conditions are effective from the date of last update and supersede all previous versions.
+                </p>
+              </div>
             </div>
           </div>
         </div>
