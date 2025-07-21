@@ -259,6 +259,215 @@ const TermsAndConditions = () => {
                 </p>
               </section>
 
+              {/* OWNER AGREEMENT */}
+              <section className="mb-8 mt-12 pt-8 border-t border-muted">
+                <h1 className="text-3xl font-bold text-foreground mb-6">OWNER AGREEMENT</h1>
+                
+                <h2 className="text-2xl font-semibold text-foreground mb-4">1. These Terms</h2>
+                <p className="mb-4">
+                  1.1 Shazam Technology Solutions – FZCO, a company registered in the United Arab Emirates, with the registered number 63137 (trading as ShazamParking) ("<strong>us</strong>", "<strong>we</strong>" or "<strong>ShazamParking</strong>") provides a website ({currentDomain} ("<strong>Site</strong>")) and associated services ("<strong>Services</strong>") connecting those seeking to book parking spaces, charging points or storage spaces for vehicles and bicycles ("<strong>Drivers</strong>") with our registered owners who own and operate such parking spaces ("<strong>you</strong>" or the "<strong>Owners</strong>").
+                </p>
+                
+                <p className="mb-4">
+                  1.2 These terms and conditions will apply at any time when you use the Site or any other method of accessing the Services (including via the ShazamParking application (where applicable)). By continuing to use the Site and/or the Services, you accept these terms and conditions and they will apply to this agreement between you and us ("<strong>Agreement</strong>").
+                </p>
+                
+                <p className="mb-4">
+                  1.3 This Agreement governs the relationship between us and you in relation to the use of parking spaces, charging points or storage spaces (together, the "<strong>Parking Spaces</strong>"). When listing your Parking Spaces using the Services ("<strong>Bookings</strong>") and making available for use the Parking Spaces, you will be bound by your obligations under this Agreement.
+                </p>
+                
+                <p className="mb-4">
+                  1.4 These terms and conditions may be amended from time to time as we continually develop the services we provide. We may amend this Agreement by posting the amended terms and conditions on the Site. These amended terms and conditions take effect immediately on the day they are posted.
+                </p>
+                
+                <p className="mb-4">
+                  1.5 This Agreement is with you, the person using the Services. You will comply with the terms of this Agreement and any additional requirements in relation to the Parking Space.
+                </p>
+              </section>
+
+              <section className="mb-8">
+                <h2 className="text-2xl font-semibold text-foreground mb-4">2. Services and listing</h2>
+                
+                <p className="mb-4">
+                  2.1 In order to take Bookings for your Parking Spaces you must register an Account as set out on the Site.
+                </p>
+                
+                <p className="mb-4">
+                  2.2 We may advertise your Parking Space on the Site, the ShazamParking application and selected third party websites to increase the reach of your Parking Space to potential Drivers.
+                </p>
+                
+                <p className="mb-4">
+                  2.3 You will be required to complete your own listing for the Site. In your listing, you agree to provide all relevant information about the Parking Space including: (a) the address and a full description of the Parking Space; (b) any restrictions on the types of vehicles that are suitable for the Parking Space; (c) any other information or restrictions which apply to the Parking Space; and (d) if installed, any details relating to electric vehicle charging equipment.
+                </p>
+                
+                <p className="mb-4">
+                  2.4 You are also required to separately provide us with information before we will list the Parking Space including your name, address and telephone number.
+                </p>
+                
+                <p className="mb-4">
+                  2.5 You must provide us with any other information relating to you or the Parking Space as we may reasonably request at any time.
+                </p>
+                
+                <p className="mb-4">
+                  2.6 You are responsible for the accuracy of all information in your listing and any information you provide to us in relation to a Booking.
+                </p>
+                
+                <p className="mb-4">
+                  2.7 To the extent that you provide equipment to Drivers as part of your Parking Space offering, you agree you are responsible for that equipment and liable to the Driver for any damage or harm incurred.
+                </p>
+                
+                <p className="mb-4">
+                  2.8 We reserve the right to conduct a physical inspection of the Parking Space on reasonable prior notice and may remove your listing if the Parking Space does not conform to the information you have provided.
+                </p>
+              </section>
+
+              <section className="mb-8">
+                <h2 className="text-2xl font-semibold text-foreground mb-4">3. Our Role</h2>
+                
+                <p className="mb-4">
+                  3.1 You acknowledge that ShazamParking operates as an independent technology platform and service provider. We do not act as your agent or represent you in any capacity.
+                </p>
+                
+                <p className="mb-4">
+                  3.2 By entering into this Agreement, you grant us a limited, non-exclusive right to list your Parking Space on the Site and to license it to third-party Drivers for temporary use.
+                </p>
+                
+                <p className="mb-4">
+                  3.3 We enter into a separate Driver Agreement with each Driver under which the Driver pays a fee to us for access to services, including access to your Parking Space. Drivers do not pay you directly.
+                </p>
+                
+                <p className="mb-4">
+                  3.4 We agree, under this Agreement, to pay you the amount owed to you pursuant to the terms of this Agreement in consideration for your granting us the right to make your Parking Space available for temporary access.
+                </p>
+              </section>
+
+              <section className="mb-8">
+                <h2 className="text-2xl font-semibold text-foreground mb-4">4. Bookings, payment, and charges</h2>
+                
+                <p className="mb-4">
+                  4.1 You may make your Parking Space available for booking. Where you elect to use our booking your Parking Space will be treated as available unless you inform us otherwise.
+                </p>
+                
+                <p className="mb-4">
+                  4.2 You agree that we will manage the entire booking process and you authorise us to accept a booking for an available date without further reference to you.
+                </p>
+                
+                <p className="mb-4">
+                  <strong>Payment:</strong> Payment shall be charged from the Driver at the time of the Booking request. Once a Booking has been accepted, you will have re-confirmed the right of the Driver to occupy the Parking Space during the Booking Period.
+                </p>
+                
+                <p className="mb-4">
+                  We will transmit payment of the amount owed to you within 15 working days following the end of the first month of the Booking Period.
+                </p>
+              </section>
+
+              {/* DRIVER AGREEMENT */}
+              <section className="mb-8 mt-12 pt-8 border-t border-muted">
+                <h1 className="text-3xl font-bold text-foreground mb-6">DRIVER AGREEMENT</h1>
+                
+                <h2 className="text-2xl font-semibold text-foreground mb-4">1. These Terms</h2>
+                <p className="mb-4">
+                  1.1 Shazam Technology Solutions – FZCO, a company registered in the United Arab Emirates, with the registered number 63137 (trading as ShazamParking) ("<strong>us</strong>", "<strong>we</strong>" or "<strong>ShazamParking</strong>") provides a website ({currentDomain} ("<strong>Site</strong>")) and associated services ("<strong>Services</strong>") connecting those seeking to book parking spaces ("<strong>you</strong>" or the "<strong>Drivers</strong>") with our registered owners who own and operate such parking spaces ("<strong>Owners</strong>").
+                </p>
+                
+                <p className="mb-4">
+                  1.2 These terms and conditions will apply at any time when you use the Site or Services. By continuing to use the Site and/or the Services, you accept these terms and conditions.
+                </p>
+                
+                <p className="mb-4">
+                  1.3 This Agreement governs the relationship between us and you in relation to the booking and use of parking spaces, charging points or storage spaces.
+                </p>
+              </section>
+
+              <section className="mb-8">
+                <h2 className="text-2xl font-semibold text-foreground mb-4">2. Booking Process</h2>
+                
+                <p className="mb-4">
+                  2.1 To make a booking, you must create an Account and provide accurate information about yourself and your vehicle.
+                </p>
+                
+                <p className="mb-4">
+                  2.2 All bookings are subject to availability and acceptance by us and the Owner.
+                </p>
+                
+                <p className="mb-4">
+                  2.3 Payment is required at the time of booking and includes our service fee.
+                </p>
+                
+                <p className="mb-4">
+                  2.4 You will receive confirmation of your booking via email or through the Site.
+                </p>
+              </section>
+
+              <section className="mb-8">
+                <h2 className="text-2xl font-semibold text-foreground mb-4">3. Your Obligations as a Driver</h2>
+                
+                <p className="mb-4">
+                  3.1 You must use the parking space only for the vehicle specified in your booking.
+                </p>
+                
+                <p className="mb-4">
+                  3.2 You must comply with all rules and restrictions specified in the parking space listing.
+                </p>
+                
+                <p className="mb-4">
+                  3.3 You must not damage the parking space or any associated equipment.
+                </p>
+                
+                <p className="mb-4">
+                  3.4 You must vacate the parking space by the end of your booking period.
+                </p>
+                
+                <p className="mb-4">
+                  3.5 You are responsible for any fines or penalties incurred during your use of the parking space.
+                </p>
+              </section>
+
+              <section className="mb-8">
+                <h2 className="text-2xl font-semibold text-foreground mb-4">4. Payments and Refunds</h2>
+                
+                <p className="mb-4">
+                  4.1 All payments must be made through the Site using approved payment methods.
+                </p>
+                
+                <p className="mb-4">
+                  4.2 Refunds are subject to our cancellation policy as specified at the time of booking.
+                </p>
+                
+                <p className="mb-4">
+                  4.3 We reserve the right to charge additional fees for extended use beyond your booking period.
+                </p>
+              </section>
+
+              {/* Referral Program */}
+              <section className="mb-8 mt-12 pt-8 border-t border-muted">
+                <h2 className="text-2xl font-semibold text-foreground mb-4">Referral Program</h2>
+                
+                <p className="mb-4">
+                  We may, from time to time, operate a Driver Referral Program and an Owner Referral Program (each a "<strong>Referral Program</strong>") to reward eligible Drivers and Owners for introducing new users to the Site.
+                </p>
+                
+                <h3 className="text-xl font-semibold text-foreground mb-3">Driver Referral</h3>
+                <p className="mb-4">
+                  Under the Driver Referral Program, a Driver may refer another individual who completes a Booking for the first time using the Site. If the referred Driver completes a Booking of at least three (3) months, the referring Driver shall receive a credit of AED 50 against their next Booking, and the referred Driver shall also receive a credit of AED 50.
+                </p>
+                
+                <h3 className="text-xl font-semibold text-foreground mb-3">Owner Referral</h3>
+                <p className="mb-4">
+                  Under the Owner Referral Program, an existing Owner may refer a new Owner who lists a Parking Space and successfully completes a Booking of at least three (3) months. Once the referred Owner's Booking is complete, the referring Owner shall receive a credit or payout of AED 100.
+                </p>
+                
+                <h3 className="text-xl font-semibold text-foreground mb-3">Eligibility and Conditions</h3>
+                <ul className="list-disc pl-6 mb-6">
+                  <li>The referred Driver or Owner must not already have (or have had in 2-year period preceding the referral) an account on the Site.</li>
+                  <li>Any referral must be made through the Site's official referral link or code system, if available.</li>
+                  <li>Referral rewards shall not be available if we determine that the referral was self-created, fraudulent, or in breach of these terms.</li>
+                  <li>We reserve the right to cancel, suspend or modify any Referral Program at any time, without prior notice.</li>
+                  <li>Referral rewards are non-transferable, have no cash value unless otherwise stated.</li>
+                  <li>Our decision regarding eligibility, calculation of rewards and any related disputes shall be final and binding.</li>
+                </ul>
+              </section>
+
               <div className="bg-muted p-6 rounded-lg mt-12">
                 <p className="text-sm text-muted-foreground text-center">
                   These terms and conditions are effective as of the date of publication on our website. 
