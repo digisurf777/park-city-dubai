@@ -68,13 +68,12 @@ const ParkingCalculator = () => {
   const getCustomerPrice = (rentAfterDiscount: number) => {
     return rentAfterDiscount + 100; // +100 AED service fee for customers
   };
-
   const handleBaseRentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     // Remove leading zeros and convert to number
     const cleanValue = value.replace(/^0+/, '') || '0';
     const numericValue = Number(cleanValue);
-    
+
     // Only update if it's a valid number
     if (!isNaN(numericValue) && numericValue >= 0) {
       setBaseRent(numericValue);
@@ -190,24 +189,7 @@ const ParkingCalculator = () => {
 
       {/* Submission Summary */}
       <Card className="border-green-200 bg-green-50">
-        <CardContent className="pt-6">
-          <div className="text-center space-y-3">
-            <h3 className="text-lg font-semibold text-green-800">
-              Ready to List Your Space?
-            </h3>
-            <p className="text-sm text-green-700">
-              You've selected {selectedDurations.length} rental duration{selectedDurations.length > 1 ? 's' : ''}.
-              {selectedDurations.length > 0 && <span className="block mt-1">
-                  Estimated monthly earnings: {calculations.filter(calc => selectedDurations.includes(calc.duration)).map(calc => `${calc.netToOwner.toFixed(0)} AED`).join(' - ')}
-                </span>}
-            </p>
-            <div className="flex justify-center">
-              <Button className="bg-primary hover:bg-primary/90" onClick={() => navigate('/rent-out-your-space')}>
-                Submit Your Parking Space
-              </Button>
-            </div>
-          </div>
-        </CardContent>
+        
       </Card>
     </div>;
 };
