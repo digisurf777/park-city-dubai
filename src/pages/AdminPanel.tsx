@@ -11,8 +11,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Pencil, Trash2, Plus, CheckCircle, XCircle, FileText, Mail, Upload, X, Eye, Edit, Lightbulb, Camera, Settings, RefreshCw, MessageCircle, Send } from 'lucide-react';
+import { Pencil, Trash2, Plus, CheckCircle, XCircle, FileText, Mail, Upload, X, Eye, Edit, Lightbulb, Camera, Settings, RefreshCw, MessageCircle, Send, LogOut, Home } from 'lucide-react';
 import { format } from 'date-fns';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import '../styles/quill.css';
@@ -98,8 +100,9 @@ interface ChatMessage {
 }
 
 const AdminPanel = () => {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [posts, setPosts] = useState<NewsPost[]>([]);
   const [verifications, setVerifications] = useState<Verification[]>([]);
   const [parkingListings, setParkingListings] = useState<ParkingListing[]>([]);
@@ -314,6 +317,29 @@ const AdminPanel = () => {
       console.error('Error checking admin role:', error);
     } finally {
       setCheckingAdmin(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      console.log('Admin logging out...');
+      await signOut();
+      toast({
+        title: "Success",
+        description: "Logged out successfully",
+      });
+      // Force page refresh to clear all auth state
+      window.location.href = '/auth';
+    } catch (error) {
+      console.error('Logout error:', error);
+      toast({
+        title: "Error",
+        description: "Error logging out",
+        variant: "destructive",
+      });
+      // Force clear auth state even if signOut fails
+      localStorage.clear();
+      window.location.href = '/auth';
     }
   };
 
@@ -1596,7 +1622,19 @@ const AdminPanel = () => {
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-6xl mx-auto">
-        <h1 className="text-3xl font-bold mb-8">Admin Panel</h1>
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold">Admin Panel</h1>
+          <div className="flex gap-2">
+            <Button onClick={() => navigate('/')} variant="outline">
+              <Home className="mr-2 h-4 w-4" />
+              Home
+            </Button>
+            <Button onClick={handleLogout} variant="outline">
+              <LogOut className="mr-2 h-4 w-4" />
+              Logout
+            </Button>
+          </div>
+        </div>
         <Tabs defaultValue="chat" className="w-full">
           <TabsList className="flex flex-wrap w-full gap-1 h-auto p-2">
             <TabsTrigger value="news" className="text-xs lg:text-sm">News Management</TabsTrigger>
