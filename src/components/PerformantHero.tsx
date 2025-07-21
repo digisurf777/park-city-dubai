@@ -73,7 +73,7 @@ const PerformantHero = () => {
                   className="w-64 sm:w-80 md:w-96 lg:max-w-md h-auto transition-transform duration-300 hover:scale-105" 
                   src="/lovable-uploads/c910d35f-a4b2-4c06-88e3-7f5b16a45558.png"
                   loading="eager"
-                  fetchPriority="high"
+                  {...({ fetchpriority: 'high' })}
                   decoding="async"
                   width="384"
                   height="700"

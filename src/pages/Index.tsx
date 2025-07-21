@@ -66,14 +66,33 @@ const Index = () => {
             
             {/* Right side - Phone Image */}
             <div className="lg:flex-1 flex justify-center lg:justify-end">
-              <img 
-                alt="Shazam Parking Mobile App" 
-                className="w-64 sm:w-80 md:w-96 lg:max-w-md h-auto transition-transform duration-300 hover:scale-105" 
-                src="/lovable-uploads/c910d35f-a4b2-4c06-88e3-7f5b16a45558.png"
-                loading="eager"
-                fetchPriority="high"
-                decoding="async"
-              />
+              <picture>
+                <source 
+                  media="(max-width: 640px)" 
+                  srcSet="/lovable-uploads/c910d35f-a4b2-4c06-88e3-7f5b16a45558.png"
+                  type="image/webp"
+                  width="256"
+                  height="467"
+                />
+                <source 
+                  media="(max-width: 1024px)" 
+                  srcSet="/lovable-uploads/c910d35f-a4b2-4c06-88e3-7f5b16a45558.png"
+                  type="image/webp"
+                  width="320"
+                  height="583"
+                />
+                <img 
+                  alt="Shazam Parking Mobile App" 
+                  className="w-64 sm:w-80 md:w-96 lg:max-w-md h-auto transition-transform duration-300 hover:scale-105" 
+                  src="/lovable-uploads/c910d35f-a4b2-4c06-88e3-7f5b16a45558.png"
+                  loading="eager"
+                  {...({ fetchpriority: 'high' })}
+                  decoding="async"
+                  width="384"
+                  height="700"
+                  style={{ contentVisibility: 'auto' }}
+                />
+              </picture>
             </div>
           </div>
           
