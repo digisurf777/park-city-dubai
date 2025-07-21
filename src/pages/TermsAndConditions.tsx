@@ -212,6 +212,262 @@ const TermsAndConditions = () => {
                 </p>
               </section>
 
+              <section>
+                <h2 className="text-2xl font-semibold mb-4">11. Owner Agreement</h2>
+                <h3 className="text-xl font-semibold mb-3">1. These Terms</h3>
+                <p className="mb-4">
+                  1.1 Shazam Technology Solutions – FZCO, a company registered in the United Arab Emirates, with the registered number 63137 (trading as ShazamParking) ("<strong>us</strong>", "<strong>we</strong>" or "<strong>ShazamParking</strong>") provides a website (shazamparking.ae ("<strong>Site</strong>")) and associated services ("<strong>Services</strong>") connecting those seeking to book parking spaces, charging points or storage spaces for vehicles and bicycles ("<strong>Drivers</strong>") with our registered owners who own and operate such parking spaces ("<strong>you</strong>" or the "<strong>Owners</strong>").
+                </p>
+                <p className="mb-4">
+                  1.2 These terms and conditions will apply at any time when you use the Site or any other method of accessing the Services (including via the ShazamParking application (where applicable)). By continuing to use the Site and/or the Services, you accept these terms and conditions and they will apply to this agreement between you and us ("<strong>Agreement</strong>").
+                </p>
+                <p className="mb-4">
+                  1.3 This Agreement governs the relationship between us and you in relation to the use of parking spaces, charging points or storage spaces (together, the "<strong>Parking Spaces</strong>"). When listing your Parking Spaces using the Services ("<strong>Bookings</strong>") and making available for use the Parking Spaces, you will be bound by your obligations under this Agreement.
+                </p>
+                <p className="mb-4">
+                  1.4 These terms and conditions may be amended from time to time as we continually develop the services we provide. We may amend this Agreement by posting the amended terms and conditions on the Site. These amended terms and conditions take effect immediately on the day they are posted. Should you no longer wish to use the Services, you can simply stop using the Services. You can also log out from your account with us ("<strong>Account</strong>") and can contact us by emailing us on support@shazam.ae and request that we deactivate your Account. The terms and conditions on the Site at the time you enter into a Booking for a Parking Space or use any other Services will be the ones that apply. You may terminate this Agreement if you do not wish to be bound by any such amendments but by continuing to use our Site and/or Services, you will be deemed to have accepted the new terms.
+                </p>
+                <p className="mb-4">
+                  1.5 This Agreement is with you, the person using the Services. You will comply with the terms of this Agreement and any additional requirements in relation to the Parking Space. If you allow another person to assist with managing a Booking or Parking Space, you agree you will remain responsible for the Booking and the Parking.
+                </p>
+
+                <h3 className="text-xl font-semibold mb-3 mt-6">2. Services and listing</h3>
+                <p className="mb-4">
+                  2.1 In order to take Bookings for your Parking Spaces you must register an Account as set out on the Site.
+                </p>
+                <p className="mb-4">
+                  2.2 We may advertise your Parking Space on the Site, the ShazamParking application and selected third party websites to increase the reach of your Parking Space to potential Drivers. We will provide information to Drivers and prospective Drivers who may wish to use the Parking Space.
+                </p>
+                <p className="mb-4">
+                  2.3 You will be required to complete your own listing for the Site. In your listing, you agree to provide all relevant information about the Parking Space including:
+                </p>
+                <div className="ml-6 mb-4">
+                  <p className="mb-2">(a) the address and a full description of the Parking Space;</p>
+                  <p className="mb-2">(b) any restrictions on the types of vehicles that are suitable for the Parking Space (including maximum height limits for car parks);</p>
+                  <p className="mb-2">(c) any other information or restrictions which apply to the Parking Space (including, for example, any access restrictions) which a Driver should be aware of before booking the Parking Space; and</p>
+                  <p className="mb-2">(d) if installed, any details relating to electric vehicle charging equipment.</p>
+                </div>
+                <p className="mb-4">
+                  2.4 You are also required to separately provide us with information before we will list the Parking Space including your name, address and telephone number.
+                </p>
+                <p className="mb-4">
+                  2.5 You must provide us with any other information relating to you or the Parking Space as we may reasonably request at any time and we may also ask you to clarify any information you have provided. This may include, but is not limited to, photographic identification for you (including a valid form of government identification, passport or driving licence) and/or any contracts relating to your rent or ownership of the Parking Space.
+                </p>
+                <p className="mb-4">
+                  2.6 You are responsible for the accuracy of all information in your listing and any information you provide to us in relation to a Booking. You may be liable to the Driver if the information you provide is inaccurate, incomplete or misleading in any way.
+                </p>
+                <p className="mb-4">
+                  2.7 To the extent that you provide equipment to Drivers as part of your Parking Space offering (for example charge points) you agree you are responsible for that equipment and liable to the Driver for any damage or harm incurred as a result of the Driver using that equipment (save for where the Driver does not comply with user instruction or guidance provided, in which case the Driver shall be liable) and we will not be liable to you, the Driver or any third party.
+                </p>
+                <p className="mb-4">
+                  2.8 We reserve the right to conduct a physical inspection of the Parking Space on reasonable prior notice and may remove your listing if the Parking Space does not conform to the information you have provided, or our standards, or we believe you to be in breach of your obligations under clause 8 (Your obligations).
+                </p>
+                <p className="mb-4">
+                  2.9 In addition to advertising the Parking Space, we may be entitled to send promotional emails to Drivers (where we have the correct permissions to do so) and provide such information about your Parking Space and/or charging facilities as we may deem appropriate to promote the Site or your Parking Space.
+                </p>
+                <p className="mb-4">
+                  2.10 We may refer to you or your Parking Space at any time in the future to publicise ourselves or our Site. To the extent a Parking Space relates to a residential address, we will not identify the specific address in such publicity.
+                </p>
+                <p className="mb-4">
+                  2.11 If applicable, we may show you information or statistics about your electric vehicle charger. This information is strictly for informational purposes only and should not be relied upon for any official purposes. We take no responsibility for the accuracy of any data displayed and will in no way endorse or hold out as having verified the information provided. It remains your responsibility to ensure all the information or data provided is true and accurate.
+                </p>
+
+                <h3 className="text-xl font-semibold mb-3 mt-6">3. Our Role</h3>
+                <p className="mb-4">
+                  3.1 You acknowledge that ShazamParking operates as an independent technology platform and service provider. We do not act as your agent or represent you in any capacity. No agency, partnership, joint venture, or employment relationship is created between you and ShazamParking under this Agreement.
+                </p>
+                <p className="mb-4">
+                  3.2 By entering into this Agreement, you grant us a limited, non-exclusive right to list your Parking Space on the Site and to license it to third-party Drivers for temporary use in accordance with the terms of a separate agreement with the Driver (the "<strong>Driver Agreement</strong>"), for the period of the applicable Booking ("<strong>Booking Period</strong>").
+                </p>
+                <p className="mb-4">
+                  3.3 We enter into a separate Driver Agreement with each Driver under which the Driver, amongst other things, pays a fee to us for access to services, including (but not limited to) access to your Parking Space. Drivers do not pay you directly. You have no contractual relationship with the Driver.
+                </p>
+                <p className="mb-4">
+                  3.4 We agree, under this Agreement, to pay you the amount owed to you pursuant to the terms of this Agreement in consideration for your granting us the right to make your Parking Space available for temporary access during the Booking Period.
+                </p>
+                <p className="mb-4">
+                  3.5 The Driver's right to use your Parking Space is based on a temporary, non-exclusive licence granted by us under the Driver Agreement. You acknowledge and agree that you may not impose any terms, restrictions or conditions on the Driver beyond those clearly stated in your listing as accepted by us.
+                </p>
+
+                <h3 className="text-xl font-semibold mb-3 mt-6">4. Bookings, payment, and charges</h3>
+                <p className="mb-4">
+                  4.1 You may make your Parking Space available for booking. Where you elect to use our booking your Parking Space will be treated as available unless you inform us otherwise. It is your responsibility to ensure that you inform us of any dates your Parking Space will not be available for booking. If the availability changes at any time you must notify us as soon as practicable. Based on the available information you have provided to us, we will tailor the Site listing for your Parking Space. If you have not informed us that your Parking Space and/or charging point is unavailable for a particular date or time, then you may be liable to pay any administration costs we incur and the reasonable costs of alternative arrangements for a Driver who makes a booking for such date and time.
+                </p>
+                <p className="mb-4">
+                  4.2 You agree that we will manage the entire booking process and you authorise us to accept a booking for an available date without further reference to you.
+                </p>
+                <div className="ml-6 mb-4">
+                  <p className="mb-4"><strong>(a) Payment</strong><br/>
+                  Payment shall be charged (or pre-authorised, at our absolute discretion) from the Driver at the time of the Booking request. Once a Booking has been accepted by you in accordance with this clause 4, you will have re-confirmed the right of the Driver to occupy the Parking Space during the Booking Period. We will confirm a Booking as soon as practicable.</p>
+                  
+                  <p className="mb-4"><strong>(b) Bookings</strong></p>
+                  <div className="ml-6">
+                    <p className="mb-4">i. We request payment (or pre-authorise payment, at our absolute discretion) from a Driver in the full amount due in respect of the Booking (which includes a service fee) at the time of Booking.</p>
+                    <p className="mb-4">ii. If your Booking requires an access card/device to be provided to the Driver, we will also collect a refundable access card/device fee at the time of Booking (the "<strong>Refundable Access Charge</strong>"). You will be informed at the time of listing of the applicable access card fee charged by us in relation to services provided by us to you in handling the access card fee (the "<strong>Handling Fee</strong>").</p>
+                    <p className="mb-4">iii. In exchange for the Owner providing access to the Parking Space, we will transmit payment of the amount owed pursuant to this Agreement to the Owner within 15 working days following the end of the first month of the Booking Period.</p>
+                    <p className="mb-4">iv. The Refundable Access Charge be refunded back to the Driver unless you inform us within 48 hours of the end of the Booking Period that you have not received the access card/device or of any damage to the same.</p>
+                    <p className="mb-4">v. If there is a reported issue with the functionality, reliability or otherwise inability to use the Parking Space, access card/device or (if applicable) charging equipment, you authorise us to withhold the payment from you until we are satisfied that the Driver received a fair and reasonable service.</p>
+                  </div>
+                </div>
+                <p className="mb-4">
+                  4.3 The Owner and Driver shall arrange the physical handover and return of any access card, fob or device directly between themselves. We expect the handover to be completed through an in-person meeting at a mutually convenient location or via a reputable third-party delivery service (e.g., Careem). Delivery costs shall be borne by the Driver. We shall not be responsible for loss, damage or delay relating to any access card, fob or device.
+                </p>
+
+                <h3 className="text-xl font-semibold mb-3 mt-6">5. The Parking Space (and electric vehicle charger, if applicable) Licence for the Booking Period</h3>
+                <p className="mb-4">
+                  5.1 Before any Booking Period you must ensure that the Parking Space and charging equipment (if applicable) is in a satisfactory condition and complies with the information given in your listing. By providing information on the Parking Space and charging equipment (if applicable) to us, you warrant that the information is true and correct.
+                </p>
+                <p className="mb-4">
+                  5.2 Unless you have agreed to the Driver being given a later departure time or further Booking Period (which must be agreed through us/ the Site), if a Driver stays longer than the Booking Period, the Driver will be liable to pay the full price for any additional time stayed.
+                </p>
+                <p className="mb-4">
+                  5.3 You warrant, represent and confirm that you own the Parking Space or are authorised to allow third parties to use the Parking Space (including having the necessary permission from any relevant landlords, tenant, condominium association and/or other third parties to offer the Parking Space for use by the Drivers) and that the licence for the Driver to use the Parking Space during the Booking Period will comply with all applicable laws, rules and regulations.
+                </p>
+                <p className="mb-4">
+                  5.4 In relation to electric vehicle charging, you warrant, represent and confirm that you own or have authorisation to allow third parties use the charging point and that the use of the charging point by third parties is not in violation of any legal, contractual or other obligations you may have.
+                </p>
+                <p className="mb-4">
+                  5.5 You agree to notify us immediately and provide copies, where requested, upon receiving any notice, or correspondence from any governmental authority, landlord or condominium association (or other persons who control any condominium of which the Parking Space is a part) in connection with your use of the Parking Space for the Services.
+                </p>
+                <p className="mb-4">
+                  5.6 We will not be liable to you, the Driver or any other third party if you do not have the necessary authority referred to in clause 5.3 or clause 5.4.
+                </p>
+
+                <h3 className="text-xl font-semibold mb-3 mt-6">6. Complaints and Disputes</h3>
+                <p className="mb-4">
+                  6.1 You agree that if you have any dispute with a Driver concerning your Parking Space, associated electric vehicle charging equipment (if applicable) or any use of the Parking Space, you will attempt to resolve it in the first instance by directly communicating with the Driver via our in-Site chat.
+                </p>
+                <p className="mb-4">
+                  6.2 In the event that a dispute cannot be resolved with the Driver directly, you may refer the dispute to us or make a complaint. Similarly, a Driver may refer a dispute to us or make a complaint. We will seek to resolve the dispute between you and a Driver and we may require that a Driver makes further payment or we may require that you refund payments you have received from the relevant Booking.
+                </p>
+                <p className="mb-4">
+                  6.3 You agree that if we determine that you should make a refund or other payment to us, you will be responsible for these amounts and we may use our funds in order to settle a dispute and then deduct such funds from you as a reimbursement from you. You agree that our findings on any dispute between you and the Driver are final and that you will abide by any ruling made by us in this respect.
+                </p>
+                <p className="mb-4">
+                  6.4 You agree that the provisions in this clause will survive any termination of this Agreement.
+                </p>
+
+                <h3 className="text-xl font-semibold mb-3 mt-6">7. Cancellation</h3>
+                <p className="mb-4">
+                  7.1 If you want to cancel a Booking you must do so through the Cancellation Policy.
+                </p>
+                <p className="mb-4">
+                  7.2 We reserve the right to cancel your Account and terminate this Agreement if you do not refund a Driver within the timeframes specified in the Cancellation Policy.
+                </p>
+
+                <h3 className="text-xl font-semibold mb-3 mt-6">8. Your obligations</h3>
+                <p className="mb-4">
+                  8.1 You must:
+                </p>
+                <div className="ml-6 mb-4">
+                  <p className="mb-2">(a) honour all bookings with Drivers and ensure that the Parking Space (and electric vehicle charger, if applicable) is available for the duration of the Booking Period;</p>
+                  <p className="mb-2">(b) ensure that the Driver has access to the Parking Space and not obstruct the Driver or prevent the Driver from parking in the Parking Space;</p>
+                  <p className="mb-2">(c) not deliberately do, or omit to do, anything which will or is likely to put the Driver or their vehicle at risk;</p>
+                  <p className="mb-2">(d) provide your Parking Space in accordance with the details and information set out in your listing;</p>
+                  <p className="mb-2">(e) ensure that all information about you and your Parking Space that you provide to us for inclusion on the Site is true and accurate in all respects;</p>
+                  <p className="mb-2">(f) ensure that the Parking Space is clean, tidy and clear of rubbish at the start of the Booking Period;</p>
+                  <p className="mb-2">(g) deal with all Drivers in a professional and courteous manner;</p>
+                  <p className="mb-2">(h) deal with all queries and complaints from Drivers relating to a Parking Space or booking in a prompt and satisfactory manner;</p>
+                  <p className="mb-2">(i) be available via the Site chat platform prior to, or at, the commencement of the Booking Period;</p>
+                  <p className="mb-2">(j) if your listing includes electric vehicle charging facilities, you ensure that these are fully functioning and maintained as per the manufacturer's instructions; and</p>
+                  <p className="mb-2">(k) subject to clause 6 use your best endeavours to settle any disputes that may arise during a Booking Period.</p>
+                </div>
+                <p className="mb-4">
+                  8.2 You agree that you will not create any false account with us or use your account with us for any immoral or illegal activity or purpose including (without limit) malicious or fraudulent bookings or money laundering.
+                </p>
+                <p className="mb-4">
+                  8.3 You agree to use us as your exclusive agent for the purposes of making and accepting bookings from Introduced Drivers. For the purposes of this clause an "<strong>Introduced Driver</strong>" means any person who (a) has made a booking of your Parking Space through the Site; or (b) has made an enquiry about your Parking Space through Site; or (c) has become aware of you or your Parking Space as a result of your listing on the Site; or (d) has made you aware of their need for parking through the Site.
+                </p>
+                <p className="mb-4">
+                  8.4 All communications between Drivers and Owners must take place exclusively within the Site's chat platform. You are prohibited from sharing personal contact information, making off-platform arrangements, or circumventing fees. We can monitor and access messages. Any breach of this clause may result in Account suspension or termination, reporting to UAE authorities if fraud is suspected, and we may withhold up to 100% of any outstanding amounts otherwise due to you, at our sole discretion, based on the severity of the breach.
+                </p>
+
+                <h3 className="text-xl font-semibold mb-3 mt-6">9. Bank account details</h3>
+                <p className="mb-4">
+                  9.1 In order to register an account you may be required to provide us with bank account details, to enable us to make payments to you. If you do not provide us with bank account details you will not be able to withdraw funds from your Account. We are unable to process any payments to banks outside of the United Arab Emirates.
+                </p>
+
+                <h3 className="text-xl font-semibold mb-3 mt-6">10. Termination and suspension</h3>
+                <p className="mb-4">
+                  10.1 If you do not comply with the terms of this Agreement (including but not limited to not complying with the Cancellation Policy or not having the right to offer a Parking Space to Drivers), we may suspend or close your Account and you will not be able to use our Services (including taking and accepting Bookings).
+                </p>
+                <p className="mb-4">
+                  10.2 If we suspend your Account or access to the Site for any reason, we may refuse to provide you with any Services including the right to take or accept any further Bookings. If you attempt to avoid this by creating or attempting to create a new account, we reserve the right to terminate this Agreement and any existing Account you may have.
+                </p>
+                <p className="mb-4">
+                  10.3 If we suspend or terminate your Account, upon termination, you will no longer be able to use our Services or take or accept Bookings through us. If you have any outstanding Bookings for which Drivers have made payment directly to you, you must refund those Drivers for those Bookings in accordance with the Cancellation Policy and the Bookings cannot proceed.
+                </p>
+                <p className="mb-4">
+                  10.4 You may also terminate this Agreement at any time, but if you terminate this Agreement, you agree to honour any outstanding Bookings at the time of termination. From the date of termination, we will not confirm or accept any new bookings for the Parking Space, but the Agreement will continue in respect of those outstanding Bookings.
+                </p>
+
+                <h3 className="text-xl font-semibold mb-3 mt-6">11. Our liability to you under this Agreement</h3>
+                <p className="mb-4">
+                  11.1 If you choose to use the Site and Services, you do so at your sole risk. You acknowledge and agree that we do not have an obligation to verify or conduct background checks on any Drivers. The Site and Services are provided "as is". We make no promises that the Site or Services will meet your requirements or be available on an uninterrupted, secure, or error-free basis.
+                </p>
+                <p className="mb-4">
+                  11.2 You understand that we do not make any attempt to verify the statements of Owners and/or Drivers on the Site. You agree to take reasonable precautions in all communications and interactions with other Owners and/or Drivers on the Site and with other persons with whom you communicate or interact as a result of your use of the Site or Services.
+                </p>
+                <p className="mb-4">
+                  11.3 If we breach these terms or are otherwise liable to you for any other type of claim, we shall only be liable to you for losses up to the greater of: (a) the amount paid by the Driver in relation to the Booking giving rise to the dispute between us; or (b) AED 500, unless otherwise required by law including as relating to liability for death or personal injury caused by our negligence.
+                </p>
+                <p className="mb-4">
+                  11.4 We will not be liable for: (a) losses not caused by our breach; (b) any and all indirect losses to the fullest extent permitted by law; (c) any loss arising as a result of the accuracy, timeliness, completeness or usefulness of any information provided by us or in connection with the Site or Services; (d) failure to provide our Services or to meet any of our obligations under these terms where such failure is due to events beyond our control; (e) personal injury or property damage, of any nature whatsoever, resulting from your access to and use of the Site or Services.
+                </p>
+                <p className="mb-4">
+                  11.5 You have certain rights under the law. Nothing in these terms (including this section) is intended to or will affect these statutory rights. You agree that the above exclusions of liability are reasonable in all the circumstances, especially in light of the fact that our Services include only the provision of the Site and Services.
+                </p>
+
+                <h3 className="text-xl font-semibold mb-3 mt-6">12. Data Protection</h3>
+                <p className="mb-4">
+                  Each party shall comply with its respective obligations under the provisions of the data protection legislation or any regulations statutory instruments made under such legislation. References in this clause 12 to "data processor", "data controller" and "personal data" shall have the meanings defined in the data protection legislation. Please refer to our Privacy Policy for details of how we process and handle your data.
+                </p>
+
+                <h3 className="text-xl font-semibold mb-3 mt-6">13. Insurance</h3>
+                <p className="mb-4">
+                  13.1 You will be entirely responsible for any and all insurance that you may require for the purposes of granting any license to use your Parking Space and/or the charging point.
+                </p>
+
+                <h3 className="text-xl font-semibold mb-3 mt-6">14. Confidentiality</h3>
+                <p className="mb-4">
+                  14.1 Except as otherwise agreed in these terms and conditions, each party agrees with the other to keep secret and not share (except for with its employees, advisers and contractors) any confidential information it receives from the other party through the Services.
+                </p>
+
+                <h3 className="text-xl font-semibold mb-3 mt-6">15. General</h3>
+                <p className="mb-4">
+                  15.1 No term of this Agreement will be enforceable by any person that is not a party to it including (if you are domiciled in the UK) any enforcement through the Contract (Rights of Third Parties) Act 1999.
+                </p>
+                <p className="mb-4">
+                  15.2 You acknowledge that we may transfer our rights under the terms (and any related claims) to any third party without having to obtain your prior permission provided that this will not affect the standard of services you receive under this Agreement and that we notify you of the date on which we will transfer our rights and obligations under this Agreement to another legal entity.
+                </p>
+                <p className="mb-4">
+                  15.3 You agree that these terms are fair and reasonable in all the circumstances. However, if any provision of these terms is prohibited by law or judged by a court to be unlawful, void or unenforceable, the provision shall, to the extent required, be severed from these terms and rendered ineffective as far as possible without modifying the remaining provisions of these terms.
+                </p>
+                <p className="mb-4">
+                  15.4 If you breach these terms and we take no action against you, we will still be entitled to use our rights and remedies in any other situation where you breach these terms.
+                </p>
+                <p className="mb-4">
+                  15.5 You agree that your right to access and use the Services is also subject to applicable law and any rules or policies applied by the relevant App Store from which you access the ShazamParking application (when and if available).
+                </p>
+
+                <h3 className="text-xl font-semibold mb-3 mt-6">16. Governing Law and Jurisdiction</h3>
+                <p className="mb-4">
+                  16.1 This Agreement and any non-contractual obligations connected with it shall be governed by and construed according to the laws of England and Wales.
+                </p>
+                <p className="mb-4">
+                  16.2 The parties to this Agreement irrevocably agree that the courts of the Dubai International Financial Centre shall have the exclusive jurisdiction and no other court is to have jurisdiction to: (a) determine any claim, dispute or difference arising under or in connection with this Agreement, any non-contractual obligations connected with it, or in connection with the negotiation, existence, legal validity, enforceability or termination of this Agreement; or (b) grant interim remedies, or other provisions or protective relief.
+                </p>
+                <p className="mb-4">
+                  16.3 The parties to this Agreement submit to the exclusive jurisdiction of the courts of the Dubai International Financial Centre and any Proceedings may be brought against the parties to this Agreement or any of them or any of their respective assets in such courts.
+                </p>
+                <p className="mb-4">
+                  16.4 This clause 16 shall survive the expiration or termination of this Agreement and, in such event, shall be treated as an independent agreement. This clause shall not be regarded as invalid, non-existent or ineffective in the event that the rest of this Agreement is invalid or did not come into existence or has become ineffective, and it shall for that purpose be treated as a distinct agreement.
+                </p>
+                <p className="mb-4">
+                  16.5 In the event of any inconsistency or conflict between the English version of this Agreement and any translation (including any Arabic version), the English version shall prevail and govern.
+                </p>
+              </section>
+
               <div className="mt-8 p-4 bg-muted rounded-lg">
                 <p className="text-sm text-muted-foreground">
                   <strong>Last Updated:</strong> July 2025<br/>
