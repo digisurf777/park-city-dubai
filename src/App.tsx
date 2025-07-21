@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import TawkToChat from "@/components/TawkToChat";
+import ChatWidget from "@/components/ChatWidget";
 import LavableHome from "./pages/LavableHome";
 import LavableFAQ from "./pages/LavableFAQ";
 import Index from "./pages/Index";
@@ -44,9 +45,10 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <AuthProvider>
-            <TawkToChat />
-            <Routes>
+        <AuthProvider>
+          <TawkToChat />
+          <ChatWidget />
+          <Routes>
               {/* Lavable Routes */}
               <Route path="/lavable" element={<LavableHome />} />
               <Route path="/lavable/faq" element={<LavableFAQ />} />
