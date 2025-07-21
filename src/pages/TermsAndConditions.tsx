@@ -214,35 +214,18 @@ const TermsAndConditions = () => {
 
               <section>
                 <h2 className="text-2xl font-semibold mb-4">11. Driver Agreement</h2>
+                <h3 className="text-xl font-semibold mb-3">1. These Terms</h3>
                 <p className="mb-4">
-                  11.1 These terms apply specifically to users who book parking spaces through the Site ("<strong>Drivers</strong>").
+                  1.1 Shazam Technology Solutions – FZCO, a company registered in the United Arab Emirates, with the registered number 63137 (trading as ShazamParking) ("<strong>us</strong>", "<strong>we</strong>" or "<strong>ShazamParking</strong>") provides a website (shazamparking.ae ("<strong>Site</strong>")) and associated services connecting our ShazamParking registered owners who have a parking space, charging point or storage spaces for vehicles and bicycles ("<strong>Owners</strong>") with those seeking to book such parking space, charging point or storage spaces ("<strong>Services</strong>"). These terms and conditions apply to all Services provided or arranged by ShazamParking to or for you, the recipient of the Services ("<strong>Driver</strong>" or "<strong>you</strong>").
                 </p>
                 <p className="mb-4">
-                  11.2 When you book a parking space, you enter into a direct contractual relationship with the Owner of that parking space. We facilitate this booking but are not a party to the parking contract between you and the Owner.
+                  1.2 These terms and conditions will apply at any time when you use the Site or any other method of accessing the Services (including via the ShazamParking application). By continuing to use the Site or the Services, you accept these terms and conditions and they will apply to the agreement between you and us (the "<strong>Agreement</strong>").
                 </p>
                 <p className="mb-4">
-                  11.3 You agree to use the parking space only for the purpose and duration specified in your booking. You must not exceed the agreed parking period unless you have obtained additional authorization from the Owner.
+                  1.3 This Agreement governs the relationship between us and you in relation to the use of parking spaces, charging points or storage spaces (together, the "<strong>Parking Spaces</strong>"). When making bookings for Parking Spaces using the Services ("<strong>Bookings</strong>") and using the Parking Spaces, you will be bound by your obligations under this Agreement and any additional obligations included in a listing relating to a Parking Space.
                 </p>
                 <p className="mb-4">
-                  11.4 You are responsible for ensuring your vehicle is parked safely and legally within the designated parking space. You must comply with any specific instructions provided by the Owner regarding access, parking restrictions, or usage guidelines.
-                </p>
-                <p className="mb-4">
-                  11.5 Payment for parking bookings is processed through our platform. You agree to pay all applicable fees, including booking fees, parking charges, and any additional charges that may arise from your use of the parking space.
-                </p>
-                <p className="mb-4">
-                  11.6 Cancellation policies are as stated in your booking confirmation. Different Owners may have different cancellation policies, and you are bound by the specific policy applicable to your booking.
-                </p>
-                <p className="mb-4">
-                  11.7 You acknowledge that parking spaces are provided by independent Owners and that we do not guarantee the availability, condition, or suitability of any parking space for your specific needs.
-                </p>
-                <p className="mb-4">
-                  11.8 You are solely responsible for any damage to the parking space, building, or other property that occurs during your use of the parking space. You agree to indemnify the Owner and us against any claims arising from such damage.
-                </p>
-                <p className="mb-4">
-                  11.9 In case of disputes with an Owner, you agree to first attempt to resolve the matter directly with the Owner. If resolution cannot be achieved, you may contact our support team for assistance.
-                </p>
-                <p className="mb-4">
-                  11.10 You must not use the parking space for any illegal activities or purposes other than parking a motor vehicle. Commercial use of residential parking spaces is prohibited unless explicitly permitted by the Owner.
+                  1.4 These terms and conditions may be amended from time to time, as we continually develop the services we provide. We may amend this Agreement by posting a revised version on the Site. The revised terms will become effective at the time of posting or such later date as may be specified in the revised terms.
                 </p>
               </section>
 
