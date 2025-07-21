@@ -3,6 +3,32 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- Performance optimizations -->
+    <meta name="theme-color" content="#4ECDC4" />
+    <link rel="dns-prefetch" href="//fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    
+    <!-- Critical CSS for hero section -->
+    <style>
+      body { 
+        margin: 0; 
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background-color: #4ECDC4;
+      }
+      .hero-loading {
+        min-height: 100vh;
+        background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), #4ECDC4;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        font-weight: bold;
+      }
+    </style>
+    
     <title>Shazam Parking - Dubai's Trusted Parking Platform</title>
     <meta name="description" content="Find and book parking spaces in Dubai with Shazam Parking. List your parking space and start earning monthly income. Secure, convenient, and trusted by Dubai residents." />
     <meta name="author" content="Shazam Parking" />
@@ -57,7 +83,9 @@
   </head>
 
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div class="hero-loading">Loading...</div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
