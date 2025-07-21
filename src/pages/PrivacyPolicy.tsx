@@ -31,7 +31,7 @@ const PrivacyPolicy = () => {
               <div className="space-y-8 text-foreground">
                 <section>
                   <p>
-                    This Privacy Policy outlines how Shazam Technology Solutions – FZCO ("<strong>Shazam</strong>", "<strong>we</strong>", "<strong>us</strong>", or "<strong>our</strong>"), a company registered in the United Arab Emirates with license number 63137, collects, uses, discloses, and protects personal data obtained through the use of our website (the "<strong>Website</strong>").
+                    This Privacy Policy outlines how Shazam Technology Solutions – FZCO ("<strong>Shazam</strong>", "<strong>we</strong>", "<strong>us</strong>", or "<strong>our</strong>"), a company registered in the United Arab Emirates with license number 63137, collects, uses, discloses, and protects personal data obtained through the use of www.shazamparking.ae (the "<strong>Website</strong>").
                   </p>
                   <p>
                     Shazam is committed to safeguarding the personal data of all users in accordance with all relevant standards, laws and regulations including the UAE Federal Decree-Law No. 45 of 2021 on the Protection of Personal Data (PDPL), and other relevant data protection regulations applicable in the free zones.
@@ -48,7 +48,7 @@ const PrivacyPolicy = () => {
                 <section>
                   <h2 className="text-2xl font-semibold mb-4">2. Types of Personal Data We May Collect</h2>
                   <p>
-                    While our website functions primarily as a parking solution platform, we may collect the following categories of personal data:
+                    While Shazam.ae functions primarily as a passive, informational portal, we may collect the following categories of personal data:
                   </p>
                   <ul className="list-disc pl-6 space-y-2">
                     <li>Identifying information: name, email address (if provided via contact)</li>
