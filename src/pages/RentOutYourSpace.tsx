@@ -293,8 +293,8 @@ const RentOutYourSpace = () => {
 
           <div className="flex justify-center">
             <img 
-              src="/lovable-uploads/7d8465e2-6402-46e3-bb31-11f5220bd708.png" 
-              alt="Three step process: List for Free, Confirm Booking, Hand Over Card"
+              src="/lovable-uploads/90ac71db-2b33-4d06-8b4e-7fdb761027f4.png" 
+              alt="Three step process: List for Free, Confirm Booking, Facilitate Access"
               className="max-w-full h-auto"
             />
           </div>
