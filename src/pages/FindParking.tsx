@@ -9,6 +9,7 @@ import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import OptimizedImage from "@/components/OptimizedImage";
 import { useSearchParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import dubaiMarinaZone from "@/assets/zones/dubai-marina-real.jpg";
@@ -198,12 +199,12 @@ const FindParking = () => {
           return <div key={zone.slug} className="relative group overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-all duration-300">
                 {/* Zone Image */}
                 <div className="relative h-64 overflow-hidden">
-                  <img 
+                  <OptimizedImage 
                     src={zoneImages[zone.slug as keyof typeof zoneImages]} 
                     alt={zone.name} 
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
-                    loading="lazy"
-                    decoding="async"
+                    className="w-full h-full group-hover:scale-105 transition-transform duration-300" 
+                    priority={zone.slug === 'dubai-marina'}
+                    aspectRatio="16/9"
                   />
                   <div className="absolute inset-0 bg-black/30"></div>
                   
@@ -234,21 +235,25 @@ const FindParking = () => {
               {filteredSpots.map(spot => <Card key={spot.id} className="overflow-hidden hover:shadow-lg transition-shadow">
                   {/* Image carousel */}
                   <div className="relative h-48 overflow-hidden">
-                    {spot.images && spot.images.length > 0 ? <div className="flex transition-transform duration-300 ease-in-out h-full">
-                        <img 
+                    {spot.images && spot.images.length > 0 ? (
+                      <div className="flex transition-transform duration-300 ease-in-out h-full">
+                        <OptimizedImage 
                           src={spot.images[0]} 
-                          alt={spot.name} 
-                          className="w-full h-full object-cover flex-shrink-0" 
-                          loading="lazy"
-                          decoding="async"
+                          alt={spot.title || spot.name} 
+                          className="w-full h-full flex-shrink-0" 
+                          aspectRatio="16/9"
+                          fallbackSrc="/lovable-uploads/25cbaba8-3854-4bb0-9a3f-f044623c6db8.png"
                         />
-                      </div> : <img 
-                          src={spot.image} 
-                          alt={spot.name} 
-                          className="w-full h-full object-cover" 
-                          loading="lazy"
-                          decoding="async"
-                        />}
+                      </div>
+                    ) : (
+                      <OptimizedImage 
+                        src={spot.image || "/lovable-uploads/25cbaba8-3854-4bb0-9a3f-f044623c6db8.png"} 
+                        alt={spot.title || spot.name} 
+                        className="w-full h-full" 
+                        aspectRatio="16/9"
+                        fallbackSrc="/lovable-uploads/25cbaba8-3854-4bb0-9a3f-f044623c6db8.png"
+                      />
+                    )}
                     {spot.images && spot.images.length > 1 && <div className="absolute bottom-2 left-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
                         +{spot.images.length - 1} more
                       </div>}

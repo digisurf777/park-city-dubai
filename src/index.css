@@ -399,3 +399,68 @@ All colors MUST be HSL.
     transition: none !important;
   }
 }
+
+/* Enhanced mobile optimizations for faster loading */
+@media (max-width: 768px) {
+  /* Optimize images for mobile */
+  img {
+    image-rendering: optimizeSpeed;
+    image-rendering: -webkit-optimize-contrast;
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Reduce animation complexity on mobile for better performance */
+  @media (prefers-reduced-motion: no-preference) {
+    * {
+      animation-duration: 0.2s !important;
+      transition-duration: 0.2s !important;
+    }
+  }
+
+  /* Optimize touch targets */
+  button, a, [role="button"], .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+    touch-action: manipulation;
+  }
+
+  /* Improve scrolling performance */
+  * {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+
+  /* Optimize font rendering for mobile */
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeSpeed;
+  }
+
+  /* Reduce layout shifts with contain property */
+  .mobile-optimized {
+    contain: layout style paint;
+  }
+
+  /* Critical resource hints for better loading */
+  .preload-hint {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 200px;
+  }
+  
+  /* Optimize card components for mobile */
+  .card {
+    will-change: transform;
+    transform: translateZ(0);
+  }
+  
+  /* Reduce blur and shadow effects on mobile */
+  .backdrop-blur-sm {
+    backdrop-filter: blur(2px);
+  }
+  
+  .shadow-lg {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  }
+}
