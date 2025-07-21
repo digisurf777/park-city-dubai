@@ -105,7 +105,7 @@ const FAQ = () => {
                     <AccordionContent className="pb-6">
                       {item.question === "⭐️ Can I leave a review?" ? <p className="text-muted-foreground leading-relaxed">
                           Yes. We value your feedback. Drivers and owners can leave a review after each completed booking. We also encourage you to share your experience on{" "}
-                          <a href="https://www.trustpilot.com/review/www.shazam.ae" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-medium">
+                          <a href="https://www.trustpilot.com/evaluate/shazam.ae" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-medium">
                             Trustpilot
                           </a>
                           {" "}and{" "}
@@ -130,7 +130,7 @@ const FAQ = () => {
               Don't just take our word for it - see what drivers and parking space owners have to say about ShazamParking
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <a href="https://www.trustpilot.com/review/www.shazam.ae" target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center bg-primary text-primary-foreground px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors font-medium shadow-lg">
+              <a href="https://www.trustpilot.com/evaluate/shazam.ae" target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center bg-primary text-primary-foreground px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors font-medium shadow-lg">
                 ⭐ Review us on Trustpilot
               </a>
               <a href="https://www.google.com/search?q=shazamparking+reviews" target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-lg">

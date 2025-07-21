@@ -4,7 +4,6 @@ import { Card } from "@/components/ui/card";
 import { MapPin, Search, CreditCard, Car, DollarSign, Clock, Shield, Quote } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import OptimizedImage from "@/components/OptimizedImage";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import useSEO from "@/hooks/useSEO";
@@ -67,12 +66,13 @@ const Index = () => {
             
             {/* Right side - Phone Image */}
             <div className="lg:flex-1 flex justify-center lg:justify-end">
-              <OptimizedImage 
-                src="/lovable-uploads/c910d35f-a4b2-4c06-88e3-7f5b16a45558.png"
+              <img 
                 alt="Shazam Parking Mobile App" 
                 className="w-64 sm:w-80 md:w-96 lg:max-w-md h-auto transition-transform duration-300 hover:scale-105" 
-                priority={true}
-                aspectRatio="auto"
+                src="/lovable-uploads/c910d35f-a4b2-4c06-88e3-7f5b16a45558.png"
+                loading="eager"
+                fetchPriority="high"
+                decoding="async"
               />
             </div>
           </div>
@@ -158,12 +158,12 @@ const Index = () => {
           }}>
                 <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 group">
                   <div className="relative aspect-video">
-                    <OptimizedImage 
+                    <img 
                       src={location.image} 
                       alt={location.name} 
-                      className="w-full h-full transition-transform duration-500 group-hover:scale-110" 
-                      priority={index < 3}
-                      aspectRatio="16/9"
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
+                      loading="lazy"
+                      decoding="async"
                     />
                     <div className="absolute inset-0 bg-black bg-opacity-40 transition-opacity duration-300 group-hover:bg-opacity-30"></div>
                     <div className="absolute inset-0 flex flex-col items-center justify-center text-white p-4 sm:p-6">
@@ -381,14 +381,15 @@ IS HERE TO HELP YOU</motion.p>
           }} viewport={{
             once: true
           }} className="order-first lg:order-last">
-              <motion.div whileHover={{ scale: 1.05 }} transition={{ duration: 0.3 }}>
-                <OptimizedImage 
-                  src={luxuryCar} 
-                  alt="Luxury car in Dubai" 
-                  className="w-full rounded-lg shadow-lg" 
-                  aspectRatio="16/9"
-                />
-              </motion.div>
+              <motion.img 
+                whileHover={{ scale: 1.05 }} 
+                transition={{ duration: 0.3 }} 
+                src={luxuryCar} 
+                alt="Luxury car in Dubai" 
+                className="w-full rounded-lg shadow-lg" 
+                loading="lazy"
+                decoding="async"
+              />
             </motion.div>
           </div>
         </div>
@@ -399,11 +400,12 @@ IS HERE TO HELP YOU</motion.p>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             <div className="order-2 lg:order-1">
-              <OptimizedImage 
+              <img 
                 src={dubaihero} 
                 alt="Dubai UAE skyline" 
                 className="w-full rounded-lg shadow-lg" 
-                aspectRatio="16/9"
+                loading="lazy"
+                decoding="async"
               />
             </div>
             <div className="order-1 lg:order-2 text-center lg:text-left">
@@ -447,11 +449,12 @@ ShazamParking</p>
             <h3 className="text-lg sm:text-xl lg:text-2xl text-gray-700 mb-6 sm:mb-8 px-4">
               We are the quickest, easiest, and the most secure way to rent a parking space in Dubai!
             </h3>
-            <OptimizedImage 
+            <img 
               src={businessMan} 
               alt="Successful businessman" 
               className="mx-auto rounded-lg shadow-lg max-w-2xl w-full" 
-              aspectRatio="16/9"
+              loading="lazy"
+              decoding="async"
             />
           </div>
         </div>
@@ -466,12 +469,7 @@ ShazamParking</p>
             </h2>
           </div>
           <div className="flex justify-center">
-            <OptimizedImage 
-              src="/lovable-uploads/e36f8df6-09a1-434e-aac9-f077569e37a1.png"
-              alt="Three simple steps to rent parking" 
-              className="max-w-4xl w-full" 
-              aspectRatio="auto"
-            />
+            <img alt="Three simple steps to rent parking" className="max-w-4xl w-full" src="/lovable-uploads/e36f8df6-09a1-434e-aac9-f077569e37a1.png" />
           </div>
         </div>
       </section>
