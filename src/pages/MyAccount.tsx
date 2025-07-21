@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
-import { Loader2, User, History, LogOut, Shield, Mail, Home, MessageSquare, Send, Car, ParkingCircle } from 'lucide-react';
+import { Loader2, User, History, LogOut, Shield, Mail, Home, MessageSquare, Send, Car, ParkingCircle, MessageCircle } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import VerificationPanel from '@/components/VerificationPanel';
 import UserInbox from '@/components/UserInbox';
@@ -388,7 +388,26 @@ const MyAccount = () => {
                     </CardContent>
                   </Card>
 
-                  
+                  {/* ADMIN PANEL ACCESS */}
+                  <Card className="border-2 border-red-500 bg-red-50">
+                    <CardContent className="pt-6 mx-0 px-[2px]">
+                      <div className="text-center space-y-4">
+                        <div className="flex items-center justify-center">
+                          <Shield className="h-8 w-8 text-red-600 mr-2" />
+                          <MessageCircle className="h-8 w-8 text-red-600 animate-bounce" />
+                        </div>
+                        <h3 className="font-semibold text-red-800">🔥 ADMIN PANEL 🔥</h3>
+                        <p className="text-sm text-red-700 font-medium">
+                          Access the admin panel to manage live chats, bookings, and user management.
+                        </p>
+                        <Link to="/admin">
+                          <Button className="w-full bg-red-600 hover:bg-red-700 text-white font-bold animate-pulse">
+                            🚀 OPEN ADMIN PANEL
+                          </Button>
+                        </Link>
+                      </div>
+                    </CardContent>
+                  </Card>
                 </div>
 
                 <div className="bg-muted p-4 rounded-lg">

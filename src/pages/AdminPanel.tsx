@@ -1590,6 +1590,12 @@ const AdminPanel = () => {
   console.log('isAdmin:', isAdmin);
   console.log('checkingAdmin:', checkingAdmin);
   console.log('user:', user?.email);
+  console.log('Current URL:', window.location.href);
+
+  // Add a simple alert to test if this component is loading
+  if (typeof window !== 'undefined') {
+    console.log('AdminPanel component is rendering');
+  }
 
   return (
     <div className="min-h-screen bg-background p-6">
