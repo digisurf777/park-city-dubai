@@ -69,9 +69,10 @@ const ImageZoomModal = ({ isOpen, onClose, images, initialIndex, spotName }: Ima
             variant="ghost"
             size="icon"
             onClick={onClose}
-            className="text-white hover:bg-white/20"
+            className="text-white hover:bg-white/30 bg-black/70 border-2 border-white/50 hover:border-white/80 h-12 w-12 md:h-10 md:w-10 shadow-lg backdrop-blur-sm transition-all duration-200 hover:scale-110"
+            aria-label="Close image viewer"
           >
-            <X className="h-6 w-6" />
+            <X className="h-7 w-7 md:h-6 md:w-6 stroke-2" />
           </Button>
         </div>
 
