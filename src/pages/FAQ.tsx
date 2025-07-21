@@ -122,6 +122,14 @@ const FAQ = () => {
                                </Link>
                                {item.answer.split('terms and conditions')[1]}
                              </>
+                           ) : item.answer.includes('FAQ') ? (
+                             <>
+                               {item.answer.split('FAQ')[0]}
+                               <Link to="/faq" className="text-primary hover:underline font-medium">
+                                 FAQ
+                               </Link>
+                               {item.answer.split('FAQ')[1]}
+                             </>
                            ) : item.answer}
                          </p>}
                     </AccordionContent>
