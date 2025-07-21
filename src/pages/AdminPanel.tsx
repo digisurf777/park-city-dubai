@@ -1592,14 +1592,17 @@ const AdminPanel = () => {
         <h1 className="text-3xl font-bold mb-8">Admin Panel</h1>
         
         <Tabs defaultValue="news" className="w-full">
-          <TabsList className="grid w-full grid-cols-7">
-            <TabsTrigger value="news">News Management</TabsTrigger>
-            <TabsTrigger value="listings">Parking Listings</TabsTrigger>
-            <TabsTrigger value="bookings">Booking Management</TabsTrigger>
-            <TabsTrigger value="verifications">User Verifications</TabsTrigger>
-            <TabsTrigger value="messages">Send Messages</TabsTrigger>
-            <TabsTrigger value="chat">Chat Management</TabsTrigger>
-            <TabsTrigger value="users">User Management</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-7 gap-1">
+            <TabsTrigger value="news" className="text-xs lg:text-sm">News</TabsTrigger>
+            <TabsTrigger value="listings" className="text-xs lg:text-sm">Listings</TabsTrigger>
+            <TabsTrigger value="bookings" className="text-xs lg:text-sm">Bookings</TabsTrigger>
+            <TabsTrigger value="verifications" className="text-xs lg:text-sm">Verifications</TabsTrigger>
+            <TabsTrigger value="messages" className="text-xs lg:text-sm">Messages</TabsTrigger>
+            <TabsTrigger value="chat" className="text-xs lg:text-sm bg-green-100 border-green-300">
+              <MessageCircle className="h-4 w-4 mr-1" />
+              Chat
+            </TabsTrigger>
+            <TabsTrigger value="users" className="text-xs lg:text-sm">Users</TabsTrigger>
           </TabsList>
 
           <TabsContent value="news" className="space-y-6">
