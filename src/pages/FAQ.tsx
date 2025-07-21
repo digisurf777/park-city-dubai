@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -113,8 +114,16 @@ const FAQ = () => {
                             Google Reviews
                           </a>.
                         </p> : <p className="text-muted-foreground leading-relaxed">
-                          {item.answer}
-                        </p>}
+                           {item.answer.includes('terms') ? (
+                             <>
+                               {item.answer.split('terms and conditions')[0]}
+                               <Link to="/terms-and-conditions" className="text-primary hover:underline font-medium">
+                                 terms and conditions
+                               </Link>
+                               {item.answer.split('terms and conditions')[1]}
+                             </>
+                           ) : item.answer}
+                         </p>}
                     </AccordionContent>
                 </AccordionItem>)}
             </Accordion>
