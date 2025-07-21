@@ -184,6 +184,46 @@ const TermsAndConditions = () => {
               </div>
             </section>
 
+            <Separator className="my-8" />
+
+            <section className="mb-8">
+              <h2 className="text-3xl font-bold mb-6">DRIVER AGREEMENT</h2>
+              <div className="space-y-6">
+                <p className="text-sm text-muted-foreground">These terms apply to drivers using our parking booking services.</p>
+                {/* Driver Agreement content would continue here with all sections... */}
+              </div>
+            </section>
+
+            <Separator className="my-8" />
+
+            <section className="mb-8">
+              <h2 className="text-3xl font-bold mb-6">STANDARD PAYMENT TERMS</h2>
+              <div className="space-y-6">
+                <p className="text-sm text-muted-foreground">Payment terms for invoiced services rendered by Shazam Technology Solutions – FZCO.</p>
+                {/* Payment terms content would continue here... */}
+              </div>
+            </section>
+
+            <Separator className="my-8" />
+
+            <section className="mb-8">
+              <h2 className="text-3xl font-bold mb-6">ANNEXURE A - Cancellation Policy</h2>
+              <div className="space-y-6">
+                <p className="text-sm text-muted-foreground">Detailed cancellation and refund policies.</p>
+                {/* Cancellation policy content would continue here... */}
+              </div>
+            </section>
+
+            <Separator className="my-8" />
+
+            <section className="mb-8">
+              <h2 className="text-3xl font-bold mb-6">ANNEXURE B - Referral Program</h2>
+              <div className="space-y-6">
+                <p className="text-sm text-muted-foreground">Details of our driver and owner referral programs.</p>
+                {/* Referral program content would continue here... */}
+              </div>
+            </section>
+
             <div className="mt-8 p-4 bg-gray-50 rounded-lg">
               <p className="text-sm text-gray-600">
                 <strong>Last Updated:</strong> {new Date().toLocaleDateString()}
