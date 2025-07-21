@@ -212,8 +212,15 @@ const AdminPanel = () => {
   useEffect(() => {
     if (!isAdmin) return;
 
+    console.log('🔄 Setting up real-time chat subscription...');
+    
     const chatChannel = supabase
-      .channel('admin-chat-changes')
+      .channel('admin-chat-changes', {
+        config: {
+          broadcast: { self: true },
+          presence: { key: 'admin' }
+        }
+      })
       .on(
         'postgres_changes',
         {
@@ -222,14 +229,24 @@ const AdminPanel = () => {
           table: 'user_messages'
         },
         (payload) => {
-          console.log('=== REAL-TIME CHAT MESSAGE ===', payload);
-          fetchChatMessages();
-          fetchChatUsers();
+          console.log('🔥 REAL-TIME CHAT MESSAGE RECEIVED:', payload);
+          console.log('Event type:', payload.eventType);
+          console.log('Message data:', payload.new);
+          
+          // Immediately refresh chat data when new message arrives
+          setTimeout(() => {
+            console.log('📱 Refreshing chat data...');
+            fetchChatMessages();
+            fetchChatUsers();
+          }, 100);
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('💡 Chat channel subscription status:', status);
+      });
 
     return () => {
+      console.log('🔌 Cleaning up chat subscription...');
       supabase.removeChannel(chatChannel);
     };
   }, [isAdmin]);
@@ -821,6 +838,7 @@ const AdminPanel = () => {
 
   const fetchChatMessages = async () => {
     try {
+      console.log('🔄 Fetching chat messages...');
       setChatLoading(true);
       const { data: messages, error } = await supabase
         .from('user_messages')
@@ -828,6 +846,11 @@ const AdminPanel = () => {
         .order('created_at', { ascending: true });
 
       if (error) throw error;
+      
+      console.log('💬 Fetched messages count:', messages?.length || 0);
+      if (messages && messages.length > 0) {
+        console.log('📝 Latest message:', messages[messages.length - 1]);
+      }
 
       // Get user profiles separately
       const userIds = [...new Set(messages?.map(m => m.user_id))];
@@ -842,9 +865,10 @@ const AdminPanel = () => {
         profiles: profiles?.find(p => p.user_id === msg.user_id) || { full_name: 'Unknown User', user_id: msg.user_id }
       })) || [];
 
+      console.log('👥 Messages with profiles:', messagesWithProfiles.length);
       setChatMessages(messagesWithProfiles);
     } catch (error) {
-      console.error('Error fetching chat messages:', error);
+      console.error('❌ Error fetching chat messages:', error);
       toast({
         title: "Error",
         description: "Failed to fetch chat messages",
