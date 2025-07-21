@@ -28,6 +28,15 @@ export const useSEO = ({
       <meta name="description" content={description} />
       <meta name="keywords" content={keywords} />
       
+      {/* Performance optimizations */}
+      <link rel="preconnect" href="https://fonts.googleapis.com" />
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      <link rel="dns-prefetch" href="//images.unsplash.com" />
+      
+      {/* Resource hints for critical images */}
+      <link rel="preload" as="image" href="/lovable-uploads/25c56481-0d03-4055-bd47-67635ac0d1b0.png" />
+      <link rel="preload" as="image" href="/lovable-uploads/c910d35f-a4b2-4c06-88e3-7f5b16a45558.png" />
+      
       {/* Open Graph */}
       <meta property="og:title" content={title} />
       <meta property="og:description" content={description} />

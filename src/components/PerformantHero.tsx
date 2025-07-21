@@ -3,13 +3,23 @@ import { Link } from "react-router-dom";
 
 const PerformantHero = () => {
   return (
-    <section 
-      className="relative min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat bg-fixed" 
-      style={{
-        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('/lovable-uploads/25c56481-0d03-4055-bd47-67635ac0d1b0.png')`,
-        backgroundSize: 'cover'
-      }}
-    >
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      {/* Preload critical background image */}
+      <link 
+        rel="preload" 
+        as="image" 
+        href="/lovable-uploads/25c56481-0d03-4055-bd47-67635ac0d1b0.png"
+        fetchPriority="high"
+      />
+      
+      {/* Optimized background with better performance */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('/lovable-uploads/25c56481-0d03-4055-bd47-67635ac0d1b0.png')`,
+          willChange: 'transform'
+        }}
+      />
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-white z-10">
         <div className="flex flex-col lg:flex-row items-center justify-between min-h-screen pt-20 sm:pt-24 lg:pt-0 py-8 sm:py-16 lg:py-[141px]">
           {/* Left side - Text */}
@@ -44,8 +54,11 @@ const PerformantHero = () => {
               alt="Shazam Parking Mobile App" 
               className="w-64 sm:w-80 md:w-96 lg:max-w-md h-auto transition-transform duration-300 hover:scale-105" 
               src="/lovable-uploads/c910d35f-a4b2-4c06-88e3-7f5b16a45558.png"
-              loading="lazy"
+              loading="eager"
+              fetchPriority="high"
               decoding="async"
+              width="384"
+              height="auto"
             />
           </div>
         </div>

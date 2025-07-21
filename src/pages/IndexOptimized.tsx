@@ -1,8 +1,12 @@
+import { lazy, Suspense } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PerformantHero from "@/components/PerformantHero";
-import PopularLocations from "@/components/PopularLocations";
+import CriticalCSS from "@/components/CriticalCSS";
 import useSEO from "@/hooks/useSEO";
+
+// Lazy load non-critical components
+const PopularLocations = lazy(() => import("@/components/PopularLocations"));
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Search, CreditCard, Car, DollarSign, Clock, Shield, Quote } from "lucide-react";
@@ -21,14 +25,17 @@ const IndexOptimized = () => {
 
   return (
     <div className="min-h-screen bg-white">
+      <CriticalCSS />
       {seoData}
       <Navbar />
       
       {/* Performance Optimized Hero */}
       <PerformantHero />
 
-      {/* Popular Parking Locations */}
-      <PopularLocations />
+      {/* Popular Parking Locations - Lazy loaded */}
+      <Suspense fallback={<div className="h-96 bg-gray-50 animate-pulse" />}>
+        <PopularLocations />
+      </Suspense>
 
       {/* How It Works Strip - Simplified */}
       <section className="py-12 sm:py-16 lg:py-20 bg-gray-50">
@@ -101,6 +108,8 @@ const IndexOptimized = () => {
                 className="w-full rounded-lg shadow-lg transition-transform duration-300 hover:scale-105" 
                 loading="lazy"
                 decoding="async"
+                width="600"
+                height="400"
               />
             </div>
           </div>
