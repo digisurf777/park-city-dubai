@@ -198,13 +198,7 @@ const FindParking = () => {
           return <div key={zone.slug} className="relative group overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-all duration-300">
                 {/* Zone Image */}
                 <div className="relative h-64 overflow-hidden">
-                  <img 
-                    src={zoneImages[zone.slug as keyof typeof zoneImages]} 
-                    alt={zone.name} 
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
-                    loading="lazy"
-                    decoding="async"
-                  />
+                  <img src={zoneImages[zone.slug as keyof typeof zoneImages]} alt={zone.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" decoding="async" />
                   <div className="absolute inset-0 bg-black/30"></div>
                   
                   {/* Zone Title Overlay */}
@@ -229,67 +223,8 @@ const FindParking = () => {
         {loading ? <div id="listings-section" className="mt-16 text-center">
             <p className="text-muted-foreground">Loading parking spots...</p>
           </div> : filteredSpots.length > 0 ? <div id="listings-section" className="mt-16">
-            <h3 className="text-2xl font-bold text-foreground mb-8 text-center">Available Parking Spots</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredSpots.map(spot => <Card key={spot.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                  {/* Image carousel */}
-                  <div className="relative h-48 overflow-hidden">
-                    {spot.images && spot.images.length > 0 ? <div className="flex transition-transform duration-300 ease-in-out h-full">
-                        <img 
-                          src={spot.images[0]} 
-                          alt={spot.name} 
-                          className="w-full h-full object-cover flex-shrink-0" 
-                          loading="lazy"
-                          decoding="async"
-                        />
-                      </div> : <img 
-                          src={spot.image} 
-                          alt={spot.name} 
-                          className="w-full h-full object-cover" 
-                          loading="lazy"
-                          decoding="async"
-                        />}
-                    {spot.images && spot.images.length > 1 && <div className="absolute bottom-2 left-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
-                        +{spot.images.length - 1} more
-                      </div>}
-                    {spot.available ? <Badge className="absolute top-2 right-2 bg-green-500">Available</Badge> : <Badge className="absolute top-2 right-2 bg-red-500">Unavailable</Badge>}
-                  </div>
-                  <div className="p-4">
-                    <h4 className="font-semibold text-lg mb-2">{spot.name}</h4>
-                    <div className="flex items-center text-muted-foreground mb-3">
-                      <MapPin className="h-4 w-4 mr-1" />
-                      <span className="text-sm">{spot.district}</span>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <div className="text-lg font-semibold text-primary">
-                        AED {spot.price}
-                        <span className="text-sm text-muted-foreground font-normal">/month</span>
-                      </div>
-                      
-                      {/* Multi-month pricing */}
-                      <div className="text-xs text-muted-foreground space-y-1">
-                        <div className="flex justify-between">
-                          <span>3 months:</span>
-                          <span className="font-medium">AED {Math.round(((spot.price - 100) * 0.95) * 3 + (100 * 3))}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>6 months:</span>
-                          <span className="font-medium">AED {Math.round(((spot.price - 100) * 0.90) * 6 + (100 * 6))}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>12 months:</span>
-                          <span className="font-medium">AED {Math.round(((spot.price - 100) * 0.85) * 12 + (100 * 12))}</span>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <Button size="sm" disabled={!spot.available} className={cn(spot.available ? "bg-primary hover:bg-primary/90" : "bg-muted text-muted-foreground cursor-not-allowed")}>
-                      {spot.available ? "Reserve" : "Unavailable"}
-                    </Button>
-                  </div>
-                </Card>)}
-            </div>
+            
+            
           </div> : <div id="listings-section" className="mt-16 text-center">
             <p className="text-muted-foreground">No parking spots found matching your criteria.</p>
           </div>}
