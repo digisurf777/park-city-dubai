@@ -283,7 +283,7 @@ const RentOutYourSpace = () => {
       <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <img alt="List your parking space in just 3 simple steps" className="w-full max-w-4xl mx-auto px-4" src="/lovable-uploads/f1e3cfbc-e9e9-46d9-acac-f3a6ef372e06.png" />
+            <img alt="List your parking space in just 3 simple steps" className="w-full max-w-4xl mx-auto px-4" src="/lovable-uploads/1dda1396-7e61-4941-b3c2-e7badd6fc5bc.png" />
           </div>
         </div>
       </section>
