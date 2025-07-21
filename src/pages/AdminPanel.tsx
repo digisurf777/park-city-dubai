@@ -172,6 +172,7 @@ const AdminPanel = () => {
   const [listingImages, setListingImages] = useState<string[]>([]);
   const [newImageUrl, setNewImageUrl] = useState('');
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [newMessageAlert, setNewMessageAlert] = useState<string | null>(null);
   const listingFileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -233,6 +234,22 @@ const AdminPanel = () => {
           console.log('Event type:', payload.eventType);
           console.log('Message data:', payload.new);
           
+          // Play notification sound for new client messages
+          if (payload.eventType === 'INSERT' && !payload.new.from_admin) {
+            playNotificationSound();
+            // Show browser notification
+            showBrowserNotification(payload.new);
+            
+            // Show visual alert
+            setNewMessageAlert(`New message from user: ${payload.new.message.substring(0, 30)}...`);
+            setTimeout(() => setNewMessageAlert(null), 5000);
+            
+            // Auto-select the user if no user is currently selected
+            if (!selectedChatUser) {
+              setSelectedChatUser(payload.new.user_id);
+            }
+          }
+          
           // Immediately refresh chat data when new message arrives
           setTimeout(() => {
             console.log('📱 Refreshing chat data...');
@@ -250,6 +267,39 @@ const AdminPanel = () => {
       supabase.removeChannel(chatChannel);
     };
   }, [isAdmin]);
+
+  // Sound notification function
+  const playNotificationSound = () => {
+    try {
+      const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp3Z5REAtuqOXuul8eBS2Q2O/JdCgELITO8tiJOAgoaLvt559NEAxPqOPwtmMcBjiS2fLOeS0GJ');
+      audio.volume = 0.3;
+      audio.play().catch(e => console.log('Audio play failed:', e));
+    } catch (error) {
+      console.log('Sound notification failed:', error);
+    }
+  };
+
+  // Browser notification function
+  const showBrowserNotification = (messageData: any) => {
+    if (!('Notification' in window)) return;
+    
+    if (Notification.permission === 'granted') {
+      new Notification('New Chat Message', {
+        body: `${messageData.message.substring(0, 50)}...`,
+        icon: '/favicon.ico',
+        badge: '/favicon.ico'
+      });
+    } else if (Notification.permission !== 'denied') {
+      Notification.requestPermission().then(permission => {
+        if (permission === 'granted') {
+          new Notification('New Chat Message', {
+            body: `${messageData.message.substring(0, 50)}...`,
+            icon: '/favicon.ico'
+          });
+        }
+      });
+    }
+  };
 
   const scrollChatToBottom = () => {
     chatMessagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -1646,6 +1696,24 @@ const AdminPanel = () => {
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-6xl mx-auto">
+        {/* New Message Alert */}
+        {newMessageAlert && (
+          <div className="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg flex items-center justify-between animate-pulse">
+            <div className="flex items-center gap-2">
+              <MessageCircle className="h-5 w-5" />
+              <span className="font-medium">🔔 {newMessageAlert}</span>
+            </div>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => setNewMessageAlert(null)}
+              className="text-green-700 hover:text-green-900"
+            >
+              ✕
+            </Button>
+          </div>
+        )}
+        
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold">Admin Panel</h1>
           <div className="flex gap-2">
