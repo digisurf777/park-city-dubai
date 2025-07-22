@@ -260,7 +260,7 @@ const MyAccount = () => {
              <p className="font-semibold">{listing.price_per_hour} AED/hour</p>
            </div>
            {listing.price_per_day && <div>
-               <p className="text-muted-foreground">Daily Rate</p>
+               
                <p className="font-semibold">{listing.price_per_day} AED/day</p>
              </div>}
            {listing.price_per_month && <div>
