@@ -276,7 +276,7 @@ const MyAccount = () => {
       </div>;
   }
   return <div className="min-h-screen bg-background pt-20 animate-zoom-slow">
-      <div className="max-w-4xl mx-auto p-6">
+      <div className="max-w-6xl mx-auto p-6">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold">My Account</h1>
           <div className="flex gap-2">
@@ -291,178 +291,192 @@ const MyAccount = () => {
           </div>
         </div>
 
-        <Tabs defaultValue="profile" className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="profile">
-              <User className="mr-2 h-4 w-4" />
-              Profile
-            </TabsTrigger>
-            <TabsTrigger value="verification" className={verificationStatus === 'pending' || verificationStatus === null ? 'bg-orange-500/10 text-orange-700 dark:text-orange-300 border-orange-500/20' : ''}>
-              <Shield className="mr-2 h-4 w-4" />
-              Verification
-              {(verificationStatus === 'pending' || verificationStatus === null) && <Badge variant="destructive" className="ml-2 h-5 w-5 p-0 text-xs">!</Badge>}
-            </TabsTrigger>
-            <TabsTrigger value="inbox">
-              <Mail className="mr-2 h-4 w-4" />
-              Inbox
-            </TabsTrigger>
-            <TabsTrigger value="contact">
-              <MessageSquare className="mr-2 h-4 w-4" />
-              Contact
-            </TabsTrigger>
-            <TabsTrigger value="history">
-              <History className="mr-2 h-4 w-4" />
-              History
-            </TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="profile">
+        <div className="flex gap-6">
+          {/* Sidebar */}
+          <div className="w-64 flex-shrink-0">
             <Card>
-              <CardHeader>
-                <CardTitle>Profile Information</CardTitle>
-                <CardDescription>
-                  Update your personal information
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={updateProfile} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input id="email" type="email" value={user.email || ''} disabled className="bg-muted" />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="full_name">Full Name</Label>
-                    <Input id="full_name" type="text" value={profile?.full_name || ''} onChange={e => setProfile(prev => prev ? {
-                    ...prev,
-                    full_name: e.target.value
-                  } : null)} />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="phone">Phone Number</Label>
-                    <Input id="phone" type="tel" value={profile?.phone || ''} onChange={e => setProfile(prev => prev ? {
-                    ...prev,
-                    phone: e.target.value
-                  } : null)} placeholder="+971 50 123 4567" />
-                  </div>
-
-                  
-                  <Button type="submit" disabled={updating}>
-                    {updating ? <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Updating...
-                      </> : 'Update Profile'}
-                  </Button>
-                </form>
+              <CardContent className="p-0">
+                <Tabs defaultValue="profile" orientation="vertical" className="w-full">
+                  <TabsList className="grid w-full grid-rows-5 h-auto gap-1 p-2 bg-transparent">
+                    <TabsTrigger value="profile" className="w-full justify-start text-left data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                      <User className="mr-2 h-4 w-4" />
+                      Profile
+                    </TabsTrigger>
+                    <TabsTrigger value="verification" className={`w-full justify-start text-left data-[state=active]:bg-primary data-[state=active]:text-primary-foreground ${verificationStatus === 'pending' || verificationStatus === null ? 'bg-orange-500/10 text-orange-700 dark:text-orange-300 border border-orange-500/20' : ''}`}>
+                      <Shield className="mr-2 h-4 w-4" />
+                      Verification
+                      {(verificationStatus === 'pending' || verificationStatus === null) && <Badge variant="destructive" className="ml-2 h-4 w-4 p-0 text-xs">!</Badge>}
+                    </TabsTrigger>
+                    <TabsTrigger value="inbox" className="w-full justify-start text-left data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                      <Mail className="mr-2 h-4 w-4" />
+                      Inbox
+                    </TabsTrigger>
+                    <TabsTrigger value="contact" className="w-full justify-start text-left data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                      <MessageSquare className="mr-2 h-4 w-4" />
+                      Contact
+                    </TabsTrigger>
+                    <TabsTrigger value="history" className="w-full justify-start text-left data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                      <History className="mr-2 h-4 w-4" />
+                      History
+                    </TabsTrigger>
+                  </TabsList>
+                </Tabs>
               </CardContent>
             </Card>
-          </TabsContent>
-          
-          <TabsContent value="verification">
-            <VerificationPanel />
-          </TabsContent>
-          
-          <TabsContent value="inbox">
-            <UserInbox />
-          </TabsContent>
-          
-          <TabsContent value="contact">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <MessageSquare className="h-5 w-5" />
-                  Contact & Support
-                </CardTitle>
-                
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Card>
-                    <CardContent className="pt-6 mx-0 px-[2px]">
-                      <div className="text-center space-y-4">
-                        <Send className="h-8 w-8 text-primary mx-auto" />
-                        <h3 className="font-semibold">Contact Admin</h3>
-                        <p className="text-sm text-muted-foreground">
-                          Send a direct message to our administrators for support or questions.
-                        </p>
-                        <Link to="/contact-admin">
-                          <Button className="w-full">
-                            Send Message
-                          </Button>
-                        </Link>
-                      </div>
-                    </CardContent>
-                  </Card>
+          </div>
 
-                  {/* ADMIN PANEL ACCESS */}
-                  <Card className="border-2 border-red-500 bg-red-50">
-                    <CardContent className="pt-6 mx-0 px-[2px]">
-                      <div className="text-center space-y-4">
-                        <div className="flex items-center justify-center">
-                          <Shield className="h-8 w-8 text-red-600 mr-2" />
-                          <MessageCircle className="h-8 w-8 text-red-600 animate-bounce" />
-                        </div>
-                        <h3 className="font-semibold text-red-800">🔥 ADMIN PANEL 🔥</h3>
-                        <p className="text-sm text-red-700 font-medium">
-                          Access the admin panel to manage live chats, bookings, and user management.
-                        </p>
-                        <Link to="/admin">
-                          <Button className="w-full bg-red-600 hover:bg-red-700 text-white font-bold animate-pulse">
-                            🚀 OPEN ADMIN PANEL
-                          </Button>
-                        </Link>
+          {/* Main Content */}
+          <div className="flex-1">
+            <Tabs defaultValue="profile" orientation="vertical" className="w-full">
+              <TabsContent value="profile">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Profile Information</CardTitle>
+                    <CardDescription>
+                      Update your personal information
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <form onSubmit={updateProfile} className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="email">Email</Label>
+                        <Input id="email" type="email" value={user.email || ''} disabled className="bg-muted" />
                       </div>
-                    </CardContent>
-                  </Card>
-                </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="full_name">Full Name</Label>
+                        <Input id="full_name" type="text" value={profile?.full_name || ''} onChange={e => setProfile(prev => prev ? {
+                        ...prev,
+                        full_name: e.target.value
+                      } : null)} />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="phone">Phone Number</Label>
+                        <Input id="phone" type="tel" value={profile?.phone || ''} onChange={e => setProfile(prev => prev ? {
+                        ...prev,
+                        phone: e.target.value
+                      } : null)} placeholder="+971 50 123 4567" />
+                      </div>
 
-                <div className="bg-muted p-4 rounded-lg">
-                  <h4 className="font-medium mb-2">Email Support</h4>
-                  <p className="text-sm text-muted-foreground">
-                    For urgent matters, you can also reach us directly at{' '}
-                    <a href="mailto:support@shazam.ae" className="text-primary hover:underline">
-                      support@shazam.ae
-                    </a>
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
-          <TabsContent value="history">
-            <Card>
-              <CardHeader>
-                <CardTitle>Parking History</CardTitle>
-                <CardDescription>
-                  View your parking bookings and listings
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {parkingHistory.length === 0 ? <p className="text-muted-foreground text-center py-8">
-                    No parking activity yet. Start by booking a space or listing your parking!
-                  </p> : <div className="space-y-4">
-                    {parkingHistory.map(item => <div key={`${item.type}-${item.id}`} className="border rounded-lg p-4">
-                        <div className="flex justify-between items-start mb-2">
-                          <div>
-                            <div className="flex items-center gap-2 mb-1">
-                              {item.type === 'booking' ? <Car className="h-4 w-4 text-blue-600" /> : <ParkingCircle className="h-4 w-4 text-green-600" />}
-                              <h3 className="font-semibold">{item.title}</h3>
-                            </div>
-                            <p className="text-sm text-muted-foreground">{item.zone}</p>
+                      
+                      <Button type="submit" disabled={updating}>
+                        {updating ? <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Updating...
+                          </> : 'Update Profile'}
+                      </Button>
+                    </form>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+              
+              <TabsContent value="verification">
+                <VerificationPanel />
+              </TabsContent>
+              
+              <TabsContent value="inbox">
+                <UserInbox />
+              </TabsContent>
+              
+              <TabsContent value="contact">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <MessageSquare className="h-5 w-5" />
+                      Contact & Support
+                    </CardTitle>
+                    
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <Card>
+                        <CardContent className="pt-6 mx-0 px-[2px]">
+                          <div className="text-center space-y-4">
+                            <Send className="h-8 w-8 text-primary mx-auto" />
+                            <h3 className="font-semibold">Contact Admin</h3>
+                            <p className="text-sm text-muted-foreground">
+                              Send a direct message to our administrators for support or questions.
+                            </p>
+                            <Link to="/contact-admin">
+                              <Button className="w-full">
+                                Send Message
+                              </Button>
+                            </Link>
                           </div>
-                          <Badge className={getStatusColor(item.status)}>
-                            {getStatusText(item.status)}
-                          </Badge>
-                        </div>
-                        
-                        {renderHistoryItemDetails(item)}
-                      </div>)}
-                  </div>}
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+                        </CardContent>
+                      </Card>
+
+                      {/* ADMIN PANEL ACCESS */}
+                      <Card className="border-2 border-red-500 bg-red-50">
+                        <CardContent className="pt-6 mx-0 px-[2px]">
+                          <div className="text-center space-y-4">
+                            <div className="flex items-center justify-center">
+                              <Shield className="h-8 w-8 text-red-600 mr-2" />
+                              <MessageCircle className="h-8 w-8 text-red-600 animate-bounce" />
+                            </div>
+                            <h3 className="font-semibold text-red-800">🔥 ADMIN PANEL 🔥</h3>
+                            <p className="text-sm text-red-700 font-medium">
+                              Access the admin panel to manage live chats, bookings, and user management.
+                            </p>
+                            <Link to="/admin">
+                              <Button className="w-full bg-red-600 hover:bg-red-700 text-white font-bold animate-pulse">
+                                🚀 OPEN ADMIN PANEL
+                              </Button>
+                            </Link>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+
+                    <div className="bg-muted p-4 rounded-lg">
+                      <h4 className="font-medium mb-2">Email Support</h4>
+                      <p className="text-sm text-muted-foreground">
+                        For urgent matters, you can also reach us directly at{' '}
+                        <a href="mailto:support@shazam.ae" className="text-primary hover:underline">
+                          support@shazam.ae
+                        </a>
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+              
+              <TabsContent value="history">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Parking History</CardTitle>
+                    <CardDescription>
+                      View your parking bookings and listings
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {parkingHistory.length === 0 ? <p className="text-muted-foreground text-center py-8">
+                        No parking activity yet. Start by booking a space or listing your parking!
+                      </p> : <div className="space-y-4">
+                        {parkingHistory.map(item => <div key={`${item.type}-${item.id}`} className="border rounded-lg p-4">
+                            <div className="flex justify-between items-start mb-2">
+                              <div>
+                                <div className="flex items-center gap-2 mb-1">
+                                  {item.type === 'booking' ? <Car className="h-4 w-4 text-blue-600" /> : <ParkingCircle className="h-4 w-4 text-green-600" />}
+                                  <h3 className="font-semibold">{item.title}</h3>
+                                </div>
+                                <p className="text-sm text-muted-foreground">{item.zone}</p>
+                              </div>
+                              <Badge className={getStatusColor(item.status)}>
+                                {getStatusText(item.status)}
+                              </Badge>
+                            </div>
+                            
+                            {renderHistoryItemDetails(item)}
+                          </div>)}
+                      </div>}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
+          </div>
+        </div>
       </div>
     </div>;
 };
