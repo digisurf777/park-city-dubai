@@ -396,9 +396,7 @@ const MyAccount = () => {
                      </Button>
                      <div className="flex items-center space-x-2">
                        <Switch checked={isParkingOwner} onCheckedChange={setIsParkingOwner} id="parking-owner" />
-                       <Label htmlFor="parking-owner" className="text-sm">
-                         I'm a parking owner
-                       </Label>
+                       
                      </div>
                    </div>
                  </form>
