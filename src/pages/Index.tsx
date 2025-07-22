@@ -10,7 +10,7 @@ import useSEO from "@/hooks/useSEO";
 import dubaihero from "@/assets/dubai-skyline-hero.jpg";
 import luxuryCar from "@/assets/luxury-car-dubai.png";
 import businessMan from "@/assets/business-man.jpg";
-import phoneLogo from "@/assets/phone-logo.png";
+import parkingGarageHero from "@/assets/parking-garage-hero.jpg";
 import dubaiMarinaZone from "@/assets/zones/dubai-marina.jpg";
 import downtownZone from "/lovable-uploads/f676da2a-39c9-4211-8561-5b884e0ceed8.png";
 import palmJumeirahZone from "/lovable-uploads/atlantis-hotel-hero.jpg";
@@ -34,7 +34,7 @@ const Index = () => {
         <link 
           rel="preload" 
           as="image" 
-          href="/lovable-uploads/90403224-511f-4ee9-aa32-8a976c1571e7.png"
+          href={parkingGarageHero}
           fetchPriority="high"
         />
         <link 
@@ -48,7 +48,7 @@ const Index = () => {
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat will-change-transform" 
           style={{
-            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/lovable-uploads/90403224-511f-4ee9-aa32-8a976c1571e7.png')`
+            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${parkingGarageHero})`
           }}
         />
         
