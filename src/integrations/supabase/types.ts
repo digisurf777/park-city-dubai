@@ -67,39 +67,58 @@ export type Database = {
       }
       driver_owner_messages: {
         Row: {
+          admin_flagged: boolean
+          booking_id: string
+          contains_violation: boolean
           created_at: string
           driver_id: string
           from_driver: boolean
           id: string
-          listing_id: string
+          is_expired: boolean
+          listing_id: string | null
           message: string
           owner_id: string
           read_status: boolean
           updated_at: string
         }
         Insert: {
+          admin_flagged?: boolean
+          booking_id: string
+          contains_violation?: boolean
           created_at?: string
           driver_id: string
           from_driver?: boolean
           id?: string
-          listing_id: string
+          is_expired?: boolean
+          listing_id?: string | null
           message: string
           owner_id: string
           read_status?: boolean
           updated_at?: string
         }
         Update: {
+          admin_flagged?: boolean
+          booking_id?: string
+          contains_violation?: boolean
           created_at?: string
           driver_id?: string
           from_driver?: boolean
           id?: string
-          listing_id?: string
+          is_expired?: boolean
+          listing_id?: string | null
           message?: string
           owner_id?: string
           read_status?: boolean
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "driver_owner_messages_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "parking_bookings"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "driver_owner_messages_listing_id_fkey"
             columns: ["listing_id"]
@@ -463,6 +482,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      expire_booking_chats: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       has_role: {
         Args: {
           _user_id: string

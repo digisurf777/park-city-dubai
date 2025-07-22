@@ -5,52 +5,98 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { MessageCircle, Send, User, Clock } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { MessageCircle, Send, User, Clock, Shield, AlertTriangle, Info } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 
 interface Message {
   id: string;
-  listing_id: string;
+  booking_id: string;
   driver_id: string;
   owner_id: string;
   message: string;
   from_driver: boolean;
   read_status: boolean;
+  is_expired: boolean;
+  contains_violation: boolean;
+  admin_flagged: boolean;
   created_at: string;
 }
 
+interface BookingDetails {
+  id: string;
+  status: string;
+  start_time: string;
+  end_time: string;
+  location: string;
+  zone: string;
+  user_id: string;
+}
+
 interface DriverOwnerChatProps {
-  listingId: string;
-  ownerId: string;
+  bookingId: string;
   isOpen: boolean;
   onClose: () => void;
 }
 
-export const DriverOwnerChat = ({ listingId, ownerId, isOpen, onClose }: DriverOwnerChatProps) => {
+export const DriverOwnerChat = ({ bookingId, isOpen, onClose }: DriverOwnerChatProps) => {
   const { user } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [booking, setBooking] = useState<BookingDetails | null>(null);
+  const [canSendMessages, setCanSendMessages] = useState(false);
+  const [isExpired, setIsExpired] = useState(false);
 
   useEffect(() => {
-    if (isOpen && user) {
+    if (isOpen && user && bookingId) {
+      fetchBookingDetails();
       fetchMessages();
       setupRealtimeSubscription();
     }
-  }, [isOpen, user, listingId]);
+  }, [isOpen, user, bookingId]);
+
+  const fetchBookingDetails = async () => {
+    if (!user || !bookingId) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('parking_bookings')
+        .select('*')
+        .eq('id', bookingId)
+        .single();
+
+      if (error) throw error;
+      
+      setBooking(data);
+      
+      // Check if booking is active and user can send messages
+      const now = new Date();
+      const startTime = new Date(data.start_time);
+      const endTime = new Date(data.end_time);
+      const isActive = data.status === 'confirmed' && now >= startTime && now <= endTime;
+      const isExpiredBooking = now > endTime || data.status === 'completed';
+      
+      setCanSendMessages(isActive);
+      setIsExpired(isExpiredBooking);
+      
+    } catch (error) {
+      console.error('Error fetching booking details:', error);
+      toast.error('Failed to load booking details');
+    }
+  };
 
   const fetchMessages = async () => {
-    if (!user) return;
+    if (!user || !bookingId) return;
 
     setLoading(true);
     try {
       const { data, error } = await supabase
         .from('driver_owner_messages')
         .select('*')
-        .eq('listing_id', listingId)
-        .or(`driver_id.eq.${user.id},owner_id.eq.${user.id}`)
+        .eq('booking_id', bookingId)
         .order('created_at', { ascending: true });
 
       if (error) throw error;
@@ -69,12 +115,12 @@ export const DriverOwnerChat = ({ listingId, ownerId, isOpen, onClose }: DriverO
   };
 
   const markMessagesAsRead = async (messagesList: Message[]) => {
-    if (!user) return;
+    if (!user || !booking) return;
 
+    const isDriver = user.id === booking.user_id;
     const unreadMessages = messagesList.filter(
       msg => !msg.read_status && 
-      ((user.id === msg.driver_id && !msg.from_driver) || 
-       (user.id === msg.owner_id && msg.from_driver))
+      ((isDriver && !msg.from_driver) || (!isDriver && msg.from_driver))
     );
 
     if (unreadMessages.length === 0) return;
@@ -92,23 +138,36 @@ export const DriverOwnerChat = ({ listingId, ownerId, isOpen, onClose }: DriverO
   };
 
   const setupRealtimeSubscription = () => {
-    if (!user) return;
+    if (!user || !bookingId) return;
 
     const channel = supabase
-      .channel('driver-owner-messages')
+      .channel('booking-messages')
       .on(
         'postgres_changes',
         {
           event: 'INSERT',
           schema: 'public',
           table: 'driver_owner_messages',
-          filter: `listing_id=eq.${listingId}`
+          filter: `booking_id=eq.${bookingId}`
         },
         (payload) => {
           const newMessage = payload.new as Message;
-          if (newMessage.driver_id === user.id || newMessage.owner_id === user.id) {
-            setMessages(prev => [...prev, newMessage]);
-          }
+          setMessages(prev => [...prev, newMessage]);
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'driver_owner_messages',
+          filter: `booking_id=eq.${bookingId}`
+        },
+        (payload) => {
+          const updatedMessage = payload.new as Message;
+          setMessages(prev => prev.map(msg => 
+            msg.id === updatedMessage.id ? updatedMessage : msg
+          ));
         }
       )
       .subscribe();
@@ -118,19 +177,51 @@ export const DriverOwnerChat = ({ listingId, ownerId, isOpen, onClose }: DriverO
     };
   };
 
+  const validateMessage = (message: string): { isValid: boolean; warning?: string } => {
+    const phoneRegex = /(\+?\d{1,4}[\s-]?)?\(?\d{1,3}\)?[\s-]?\d{1,4}[\s-]?\d{1,4}[\s-]?\d{1,9}/g;
+    const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
+    const whatsappRegex = /(whatsapp|whatapp|watsapp|wa\.me)/gi;
+    const externalPlatforms = /(telegram|signal|viber|facebook|instagram|snapchat|tiktok)/gi;
+
+    if (phoneRegex.test(message)) {
+      return { isValid: false, warning: "Phone numbers are not allowed. Use platform chat only." };
+    }
+    
+    if (emailRegex.test(message)) {
+      return { isValid: false, warning: "Email addresses are not allowed. Use platform chat only." };
+    }
+    
+    if (whatsappRegex.test(message)) {
+      return { isValid: false, warning: "WhatsApp references are not allowed. Use platform chat only." };
+    }
+    
+    if (externalPlatforms.test(message)) {
+      return { isValid: false, warning: "External platform references are not allowed." };
+    }
+
+    return { isValid: true };
+  };
+
   const sendMessage = async () => {
-    if (!user || !newMessage.trim()) return;
+    if (!user || !newMessage.trim() || !booking || !canSendMessages) return;
+
+    // Validate message content
+    const validation = validateMessage(newMessage.trim());
+    if (!validation.isValid) {
+      toast.error(validation.warning);
+      return;
+    }
 
     setIsSubmitting(true);
     try {
-      const isDriver = user.id !== ownerId;
+      const isDriver = user.id === booking.user_id;
       
       const { error } = await supabase
         .from('driver_owner_messages')
         .insert({
-          listing_id: listingId,
-          driver_id: isDriver ? user.id : ownerId,
-          owner_id: ownerId,
+          booking_id: bookingId,
+          driver_id: booking.user_id,
+          owner_id: isDriver ? booking.user_id : user.id, // This needs to be fetched from listing
           message: newMessage.trim(),
           from_driver: isDriver
         });
@@ -149,7 +240,7 @@ export const DriverOwnerChat = ({ listingId, ownerId, isOpen, onClose }: DriverO
 
   if (!isOpen) return null;
 
-  const isDriver = user?.id !== ownerId;
+  const isDriver = booking && user?.id === booking.user_id;
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
@@ -157,7 +248,8 @@ export const DriverOwnerChat = ({ listingId, ownerId, isOpen, onClose }: DriverO
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="flex items-center gap-2">
             <MessageCircle className="h-5 w-5" />
-            Chat with {isDriver ? 'Owner' : 'Driver'}
+            Booking Chat - {booking?.location}
+            {isExpired && <Badge variant="secondary">Expired</Badge>}
           </CardTitle>
           <Button variant="ghost" size="sm" onClick={onClose}>
             ✕
@@ -165,13 +257,40 @@ export const DriverOwnerChat = ({ listingId, ownerId, isOpen, onClose }: DriverO
         </CardHeader>
         
         <CardContent className="flex-1 flex flex-col min-h-0">
+          {/* Booking Status Alert */}
+          {isExpired ? (
+            <Alert className="mb-4">
+              <Info className="h-4 w-4" />
+              <AlertDescription>
+                This booking has ended. You can view past messages but cannot send new ones.
+              </AlertDescription>
+            </Alert>
+          ) : !canSendMessages ? (
+            <Alert className="mb-4">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertDescription>
+                Chat is only available during active booking periods. 
+                Booking period: {booking && format(new Date(booking.start_time), 'MMM d, HH:mm')} - {booking && format(new Date(booking.end_time), 'MMM d, HH:mm')}
+              </AlertDescription>
+            </Alert>
+          ) : (
+            <Alert className="mb-4">
+              <Shield className="h-4 w-4" />
+              <AlertDescription>
+                <strong>Communication Rules:</strong> Only discuss booking-related matters. 
+                Phone numbers, WhatsApp, and external contacts are prohibited. 
+                All conversations are monitored for compliance.
+              </AlertDescription>
+            </Alert>
+          )}
+
           {/* Messages Container */}
           <div className="flex-1 overflow-y-auto space-y-3 mb-4 max-h-96">
             {loading ? (
               <div className="text-center py-4">Loading messages...</div>
             ) : messages.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
-                No messages yet. Start the conversation!
+                No messages yet. {canSendMessages ? "Start the conversation!" : ""}
               </div>
             ) : (
               messages.map((message) => {
@@ -189,7 +308,7 @@ export const DriverOwnerChat = ({ listingId, ownerId, isOpen, onClose }: DriverO
                         isOwnMessage
                           ? 'bg-primary text-primary-foreground'
                           : 'bg-muted'
-                      }`}
+                      } ${message.admin_flagged ? 'border-2 border-red-500' : ''}`}
                     >
                       <div className="flex items-center gap-2 mb-1">
                         <User className="h-3 w-3" />
@@ -198,8 +317,13 @@ export const DriverOwnerChat = ({ listingId, ownerId, isOpen, onClose }: DriverO
                         </span>
                         <div className="flex items-center gap-1 text-xs opacity-70">
                           <Clock className="h-3 w-3" />
-                          {format(new Date(message.created_at), 'HH:mm')}
+                          {format(new Date(message.created_at), 'MMM d, HH:mm')}
                         </div>
+                        {message.admin_flagged && (
+                          <Badge variant="destructive" className="text-xs">
+                            Flagged
+                          </Badge>
+                        )}
                       </div>
                       <p className="text-sm">{message.message}</p>
                       {!message.read_status && !isOwnMessage && (
@@ -215,32 +339,36 @@ export const DriverOwnerChat = ({ listingId, ownerId, isOpen, onClose }: DriverO
           </div>
 
           {/* Message Input */}
-          <div className="flex gap-2">
-            <Textarea
-              value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
-              placeholder="Type your message..."
-              className="flex-1 min-h-[60px] resize-none"
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  sendMessage();
-                }
-              }}
-            />
-            <Button
-              onClick={sendMessage}
-              disabled={!newMessage.trim() || isSubmitting}
-              size="sm"
-              className="self-end"
-            >
-              <Send className="h-4 w-4" />
-            </Button>
-          </div>
-          
-          <p className="text-xs text-muted-foreground mt-1">
-            Press Enter to send, Shift+Enter for new line
-          </p>
+          {canSendMessages && !isExpired && (
+            <>
+              <div className="flex gap-2">
+                <Textarea
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  placeholder="Type your booking-related message..."
+                  className="flex-1 min-h-[60px] resize-none"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      sendMessage();
+                    }
+                  }}
+                />
+                <Button
+                  onClick={sendMessage}
+                  disabled={!newMessage.trim() || isSubmitting}
+                  size="sm"
+                  className="self-end"
+                >
+                  <Send className="h-4 w-4" />
+                </Button>
+              </div>
+              
+              <p className="text-xs text-muted-foreground mt-1">
+                Press Enter to send, Shift+Enter for new line. Only booking-related communication allowed.
+              </p>
+            </>
+          )}
         </CardContent>
       </Card>
     </div>

@@ -4,15 +4,13 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
-import { MapPin, Search, X, Car, CreditCard, Ruler, MessageCircle } from "lucide-react";
+import { MapPin, Search, X, Car, CreditCard, Ruler } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useSearchParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { DriverOwnerChat } from "@/components/DriverOwnerChat";
-import { useAuth } from "@/hooks/useAuth";
 import dubaiMarinaZone from "@/assets/zones/dubai-marina-real.jpg";
 import downtownZone from "/lovable-uploads/f676da2a-39c9-4211-8561-5b884e0ceed8.png";
 import dubaiHeroImage from "@/assets/dubai-daytime-hero.jpg";
@@ -24,7 +22,6 @@ const FindParking = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
-  const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDistricts, setSelectedDistricts] = useState<string[]>([]);
@@ -32,8 +29,6 @@ const FindParking = () => {
   const [showAvailableOnly, setShowAvailableOnly] = useState(false);
   const [parkingSpots, setParkingSpots] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [chatOpen, setChatOpen] = useState(false);
-  const [selectedListing, setSelectedListing] = useState<any>(null);
   const districtZones = [{
     name: "Dubai Marina",
     slug: "dubai-marina"
@@ -280,29 +275,14 @@ const FindParking = () => {
                     )}
                     
                     <div className="flex gap-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="flex-1"
-                        onClick={() => {
-                          setSelectedListing(spot);
-                          setChatOpen(true);
-                        }}
-                        disabled={!user}
-                      >
-                        <MessageCircle className="h-4 w-4 mr-1" />
-                        Contact Owner
-                      </Button>
                       <Button size="sm" className="flex-1">
                         Book Now
                       </Button>
                     </div>
                     
-                    {!user && (
-                      <p className="text-xs text-muted-foreground mt-2 text-center">
-                        Please login to contact owner
-                      </p>
-                    )}
+                    <p className="text-xs text-muted-foreground mt-2 text-center">
+                      Chat with owner available during active bookings only
+                    </p>
                   </div>
                 </Card>
               ))}
@@ -317,18 +297,6 @@ const FindParking = () => {
 
       <Footer />
 
-      {/* Driver-Owner Chat Modal */}
-      {selectedListing && (
-        <DriverOwnerChat
-          listingId={selectedListing.id}
-          ownerId={selectedListing.owner_id || "owner-placeholder"}
-          isOpen={chatOpen}
-          onClose={() => {
-            setChatOpen(false);
-            setSelectedListing(null);
-          }}
-        />
-      )}
     </div>;
 };
 export default FindParking;

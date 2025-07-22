@@ -13,7 +13,7 @@ import { Loader2, User, History, LogOut, Shield, Mail, Home, MessageSquare, Send
 import { useNavigate, Link } from 'react-router-dom';
 import VerificationPanel from '@/components/VerificationPanel';
 import UserInbox from '@/components/UserInbox';
-import { ChatHistory } from '@/components/ChatHistory';
+import { ActiveBookingChats } from '@/components/ActiveBookingChats';
 interface Profile {
   id: string;
   full_name: string;
@@ -373,7 +373,7 @@ const MyAccount = () => {
           </TabsContent>
           
           <TabsContent value="chats">
-            <ChatHistory />
+            <ActiveBookingChats />
           </TabsContent>
           
           <TabsContent value="contact">
