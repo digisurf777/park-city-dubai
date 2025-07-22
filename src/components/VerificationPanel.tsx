@@ -219,7 +219,13 @@ const VerificationPanel = () => {
               }))} placeholder="Enter your full name" />
                 </div>
 
-                
+                <div className="space-y-2">
+                  <Label htmlFor="nationality">Nationality</Label>
+                  <Input id="nationality" value={formData.nationality} onChange={e => setFormData(prev => ({
+                ...prev,
+                nationality: e.target.value
+              }))} placeholder="Enter your nationality" />
+                </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="documentType">Document Type</Label>
