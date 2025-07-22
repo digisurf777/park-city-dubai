@@ -48,7 +48,7 @@ const Index = () => {
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat will-change-transform" 
           style={{
-            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('/lovable-uploads/90403224-511f-4ee9-aa32-8a976c1571e7.png')`
+            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/lovable-uploads/90403224-511f-4ee9-aa32-8a976c1571e7.png')`
           }}
         />
         
