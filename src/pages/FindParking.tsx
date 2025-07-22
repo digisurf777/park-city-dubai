@@ -225,14 +225,12 @@ const FindParking = () => {
           </div> : filteredSpots.length > 0 ? <div id="listings-section" className="mt-16">
             
             
-            
           </div> : <div id="listings-section" className="mt-16 text-center">
             <p className="text-muted-foreground">No parking spots found matching your criteria.</p>
           </div>}
       </div>
 
       <Footer />
-
     </div>;
 };
 export default FindParking;

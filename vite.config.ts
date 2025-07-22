@@ -26,25 +26,19 @@ export default defineConfig(({ mode }) => ({
         manualChunks: {
           'vendor': ['react', 'react-dom'],
           'router': ['react-router-dom'],
-          'ui': ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-select'],
+          'ui': ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu'],
           'icons': ['lucide-react'],
-          'supabase': ['@supabase/supabase-js'],
-          'forms': ['react-hook-form', '@hookform/resolvers'],
-          'query': ['@tanstack/react-query']
+          'supabase': ['@supabase/supabase-js']
         }
       }
     },
-    // Enable compression and tree shaking
+    // Enable compression
     minify: 'esbuild',
-    target: 'es2020',
+    target: 'es2015',
     // Optimize chunk size
-    chunkSizeWarningLimit: 500,
+    chunkSizeWarningLimit: 1000,
     // Source map for debugging (disable in production)
-    sourcemap: false,
-    // CSS code splitting
-    cssCodeSplit: true,
-    // Remove unused CSS
-    cssMinify: true
+    sourcemap: false
   },
   // Optimize deps
   optimizeDeps: {

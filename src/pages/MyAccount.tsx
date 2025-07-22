@@ -10,11 +10,9 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
 import { Loader2, User, History, LogOut, Shield, Mail, Home, MessageSquare, Send, Car, ParkingCircle, MessageCircle } from 'lucide-react';
-import { useNavigate, Link, useSearchParams } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import VerificationPanel from '@/components/VerificationPanel';
 import UserInbox from '@/components/UserInbox';
-import { ActiveBookingChats } from '@/components/ActiveBookingChats';
-import { MyListings } from '@/components/MyListings';
 interface Profile {
   id: string;
   full_name: string;
@@ -59,7 +57,6 @@ const MyAccount = () => {
     signOut
   } = useAuth();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -68,7 +65,6 @@ const MyAccount = () => {
   const [parkingHistory, setParkingHistory] = useState<ParkingHistoryItem[]>([]);
   const [verificationStatus, setVerificationStatus] = useState<string | null>(null);
   const [isParkingOwner, setIsParkingOwner] = useState<boolean>(false);
-  const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'profile');
 
   // Redirect if not logged in
   if (!user) {
@@ -234,40 +230,44 @@ const MyAccount = () => {
   const renderHistoryItemDetails = (item: ParkingHistoryItem) => {
     if (item.type === 'booking') {
       const booking = item.details as ParkingBooking;
-      return <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 lg:gap-4 text-xs lg:text-sm">
-           <div>
-             <p className="text-muted-foreground">Start Time</p>
-             <p className="break-words">{new Date(booking.start_time).toLocaleString()}</p>
-           </div>
-           <div>
-             <p className="text-muted-foreground">End Time</p>
-             <p className="break-words">{new Date(booking.end_time).toLocaleString()}</p>
-           </div>
-           <div>
-             <p className="text-muted-foreground">Duration</p>
-             <p>{booking.duration_hours} hours</p>
-           </div>
-           <div>
-             <p className="text-muted-foreground">Cost</p>
-             <p className="font-semibold">{booking.cost_aed} AED</p>
-           </div>
-         </div>;
+      return <div className="grid grid-cols-2 gap-4 text-sm">
+          <div>
+            <p className="text-muted-foreground">Start Time</p>
+            <p>{new Date(booking.start_time).toLocaleString()}</p>
+          </div>
+          <div>
+            <p className="text-muted-foreground">End Time</p>
+            <p>{new Date(booking.end_time).toLocaleString()}</p>
+          </div>
+          <div>
+            <p className="text-muted-foreground">Duration</p>
+            <p>{booking.duration_hours} hours</p>
+          </div>
+          <div>
+            <p className="text-muted-foreground">Cost</p>
+            <p className="font-semibold">{booking.cost_aed} AED</p>
+          </div>
+        </div>;
     } else {
       const listing = item.details as ParkingListing;
-      return <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 lg:gap-4 text-xs lg:text-sm">
-           {listing.price_per_day && <div>
-               <p className="text-muted-foreground">Daily Rate</p>
-               <p className="font-semibold">{listing.price_per_day} AED/day</p>
-             </div>}
-           {listing.price_per_month && <div>
-               <p className="text-muted-foreground">Monthly Rate</p>
-               <p className="font-semibold">{listing.price_per_month} AED/month</p>
-             </div>}
-           <div>
-             <p className="text-muted-foreground">Created</p>
-             <p>{new Date(listing.created_at).toLocaleDateString()}</p>
-           </div>
-         </div>;
+      return <div className="grid grid-cols-2 gap-4 text-sm">
+          <div>
+            <p className="text-muted-foreground">Hourly Rate</p>
+            <p className="font-semibold">{listing.price_per_hour} AED/hour</p>
+          </div>
+          {listing.price_per_day && <div>
+              <p className="text-muted-foreground">Daily Rate</p>
+              <p className="font-semibold">{listing.price_per_day} AED/day</p>
+            </div>}
+          {listing.price_per_month && <div>
+              <p className="text-muted-foreground">Monthly Rate</p>
+              <p className="font-semibold">{listing.price_per_month} AED/month</p>
+            </div>}
+          <div>
+            <p className="text-muted-foreground">Created</p>
+            <p>{new Date(listing.created_at).toLocaleDateString()}</p>
+          </div>
+        </div>;
     }
   };
   if (loading) {
@@ -276,82 +276,42 @@ const MyAccount = () => {
       </div>;
   }
   return <div className="min-h-screen bg-background pt-20 animate-zoom-slow">
-      <div className="max-w-4xl mx-auto p-4 lg:p-6">
-        <div className="flex flex-col space-y-4 mb-6 lg:flex-row lg:justify-between lg:items-center lg:space-y-0">
-          <h1 className="text-2xl lg:text-3xl font-bold">My Account</h1>
+      <div className="max-w-4xl mx-auto p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold">My Account</h1>
           <div className="flex gap-2">
-            <Button onClick={() => navigate('/')} variant="outline" size="sm" className="flex-1 lg:flex-initial">
+            <Button onClick={() => navigate('/')} variant="outline">
               <Home className="mr-2 h-4 w-4" />
-              <span>Home</span>
+              Home
             </Button>
-            <Button onClick={handleLogout} variant="outline" size="sm" className="flex-1 lg:flex-initial">
+            <Button onClick={handleLogout} variant="outline">
               <LogOut className="mr-2 h-4 w-4" />
-              <span>Logout</span>
+              Logout
             </Button>
           </div>
         </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          {/* Mobile Tab Navigation */}
-          <div className="lg:hidden mb-6">
-            <div className="grid grid-cols-2 gap-2 mb-4">
-              <Button variant={activeTab === 'profile' ? 'default' : 'outline'} onClick={() => setActiveTab('profile')} className="flex items-center gap-2 h-12">
-                <User className="h-4 w-4" />
-                Profile
-              </Button>
-              <Button variant={activeTab === 'verification' ? 'default' : 'outline'} onClick={() => setActiveTab('verification')} className={`flex items-center gap-2 h-12 relative ${verificationStatus === 'pending' || verificationStatus === null ? 'border-orange-500/20' : ''}`}>
-                <Shield className="h-4 w-4" />
-                Verify
-                {(verificationStatus === 'pending' || verificationStatus === null) && <div className="absolute -top-1 -right-1 h-3 w-3 bg-destructive rounded-full"></div>}
-              </Button>
-            </div>
-            <div className="grid grid-cols-1 gap-2 mb-4">
-              <Button variant={activeTab === 'listings' ? 'default' : 'outline'} onClick={() => setActiveTab('listings')} className="flex items-center gap-2 h-12">
-                <Home className="h-4 w-4" />
-                Listings
-              </Button>
-            </div>
-            <div className="grid grid-cols-3 gap-2">
-              <Button variant={activeTab === 'chats' ? 'default' : 'outline'} onClick={() => setActiveTab('chats')} className="flex items-center gap-2 h-12">
-                <MessageCircle className="h-4 w-4" />
-                Chats
-              </Button>
-              <Button variant={activeTab === 'contact' ? 'default' : 'outline'} onClick={() => setActiveTab('contact')} className="flex items-center gap-2 h-12">
-                <MessageSquare className="h-4 w-4" />
-                Contact
-              </Button>
-              <Button variant={activeTab === 'history' ? 'default' : 'outline'} onClick={() => setActiveTab('history')} className="flex items-center gap-2 h-12">
-                <History className="h-4 w-4" />
-                History
-              </Button>
-            </div>
-          </div>
-
-          {/* Desktop Tab Navigation */}
-          <TabsList className="hidden lg:grid w-full grid-cols-6 gap-1 h-auto p-1">
-            <TabsTrigger value="profile" className="flex items-center gap-2 py-2">
-              <User className="h-4 w-4" />
+        <Tabs defaultValue="profile" className="w-full">
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="profile">
+              <User className="mr-2 h-4 w-4" />
               Profile
             </TabsTrigger>
-            <TabsTrigger value="verification" className={`flex items-center gap-2 py-2 ${verificationStatus === 'pending' || verificationStatus === null ? 'bg-orange-500/10 text-orange-700 dark:text-orange-300 border-orange-500/20' : ''}`}>
-              <Shield className="h-4 w-4" />
+            <TabsTrigger value="verification" className={verificationStatus === 'pending' || verificationStatus === null ? 'bg-orange-500/10 text-orange-700 dark:text-orange-300 border-orange-500/20' : ''}>
+              <Shield className="mr-2 h-4 w-4" />
               Verification
               {(verificationStatus === 'pending' || verificationStatus === null) && <Badge variant="destructive" className="ml-2 h-5 w-5 p-0 text-xs">!</Badge>}
             </TabsTrigger>
-            <TabsTrigger value="listings" className="flex items-center gap-2 py-2">
-              <Home className="h-4 w-4" />
-              My Listings
+            <TabsTrigger value="inbox">
+              <Mail className="mr-2 h-4 w-4" />
+              Inbox
             </TabsTrigger>
-            <TabsTrigger value="chats" className="flex items-center gap-2 py-2">
-              <MessageCircle className="h-4 w-4" />
-              Chats
-            </TabsTrigger>
-            <TabsTrigger value="contact" className="flex items-center gap-2 py-2">
-              <MessageSquare className="h-4 w-4" />
+            <TabsTrigger value="contact">
+              <MessageSquare className="mr-2 h-4 w-4" />
               Contact
             </TabsTrigger>
-            <TabsTrigger value="history" className="flex items-center gap-2 py-2">
-              <History className="h-4 w-4" />
+            <TabsTrigger value="history">
+              <History className="mr-2 h-4 w-4" />
               History
             </TabsTrigger>
           </TabsList>
@@ -387,34 +347,24 @@ const MyAccount = () => {
                   } : null)} placeholder="+971 50 123 4567" />
                   </div>
 
-                   <div className="flex gap-2">
-                     <Button type="submit" disabled={updating} className="flex-1">
-                       {updating ? <>
-                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                           Updating...
-                         </> : 'Update Profile'}
-                     </Button>
-                     <div className="flex items-center space-x-2">
-                       
-                       
-                     </div>
-                   </div>
-                 </form>
-               </CardContent>
-             </Card>
-           </TabsContent>
+                  
+                  <Button type="submit" disabled={updating}>
+                    {updating ? <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Updating...
+                      </> : 'Update Profile'}
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+          </TabsContent>
           
           <TabsContent value="verification">
             <VerificationPanel />
           </TabsContent>
           
-          <TabsContent value="listings">
-            <MyListings />
-          </TabsContent>
-          
-          
-          <TabsContent value="chats">
-            <ActiveBookingChats />
+          <TabsContent value="inbox">
+            <UserInbox />
           </TabsContent>
           
           <TabsContent value="contact">
@@ -426,71 +376,89 @@ const MyAccount = () => {
                 </CardTitle>
                 
               </CardHeader>
-               <CardContent className="space-y-4">
-                 <Card>
-                   <CardContent className="pt-4">
-                     <div className="text-center space-y-3">
-                       <Send className="h-8 w-8 text-primary mx-auto" />
-                       <h3 className="font-semibold">Contact Admin</h3>
-                       <p className="text-sm text-muted-foreground">
-                         Send a direct message to our administrators for support or questions.
-                       </p>
-                       <Link to="/contact-admin">
-                         <Button className="w-full">
-                           Send Message
-                         </Button>
-                       </Link>
-                     </div>
-                   </CardContent>
-                 </Card>
+              <CardContent className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Card>
+                    <CardContent className="pt-6 mx-0 px-[2px]">
+                      <div className="text-center space-y-4">
+                        <Send className="h-8 w-8 text-primary mx-auto" />
+                        <h3 className="font-semibold">Contact Admin</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Send a direct message to our administrators for support or questions.
+                        </p>
+                        <Link to="/contact-admin">
+                          <Button className="w-full">
+                            Send Message
+                          </Button>
+                        </Link>
+                      </div>
+                    </CardContent>
+                  </Card>
 
-                 <div className="bg-muted p-4 rounded-lg">
-                   <h4 className="font-medium mb-2">Email Support</h4>
-                   <p className="text-sm text-muted-foreground">
-                     For urgent matters, you can also reach us directly at{' '}
-                     <a href="mailto:support@shazam.ae" className="text-primary hover:underline">
-                       support@shazam.ae
-                     </a>
-                   </p>
-                 </div>
-               </CardContent>
-             </Card>
-           </TabsContent>
-           
-           <TabsContent value="history">
-             <Card>
-               <CardHeader>
-                 <CardTitle>Parking History</CardTitle>
-                 <CardDescription>
-                   View your parking bookings and listings
-                 </CardDescription>
-               </CardHeader>
-               <CardContent>
-                 {parkingHistory.length === 0 ? <p className="text-muted-foreground text-center py-8">
-                     No parking activity yet. Start by booking a space or listing your parking!
-                   </p> : <div className="space-y-4">
-                     {parkingHistory.map(item => <div key={`${item.type}-${item.id}`} className="border rounded-lg p-3 lg:p-4">
-                         <div className="flex flex-col space-y-2 lg:flex-row lg:justify-between lg:items-start lg:space-y-0 mb-2">
-                           <div className="flex-1">
-                             <div className="flex items-center gap-2 mb-1">
-                               {item.type === 'booking' ? <Car className="h-4 w-4 text-blue-600" /> : <ParkingCircle className="h-4 w-4 text-green-600" />}
-                               <h3 className="font-semibold text-sm lg:text-base">{item.title}</h3>
-                             </div>
-                             <p className="text-xs lg:text-sm text-muted-foreground">{item.zone}</p>
-                           </div>
-                            <Badge className={getStatusColor(item.status)}>
-                              {getStatusText(item.status)}
-                            </Badge>
-                         </div>
-                         
-                         <div className="lg:hidden">
-                           {renderHistoryItemDetails(item)}
-                         </div>
-                         <div className="hidden lg:block">
-                           {renderHistoryItemDetails(item)}
-                         </div>
-                       </div>)}
-                   </div>}
+                  {/* ADMIN PANEL ACCESS */}
+                  <Card className="border-2 border-red-500 bg-red-50">
+                    <CardContent className="pt-6 mx-0 px-[2px]">
+                      <div className="text-center space-y-4">
+                        <div className="flex items-center justify-center">
+                          <Shield className="h-8 w-8 text-red-600 mr-2" />
+                          <MessageCircle className="h-8 w-8 text-red-600 animate-bounce" />
+                        </div>
+                        <h3 className="font-semibold text-red-800">🔥 ADMIN PANEL 🔥</h3>
+                        <p className="text-sm text-red-700 font-medium">
+                          Access the admin panel to manage live chats, bookings, and user management.
+                        </p>
+                        <Link to="/admin">
+                          <Button className="w-full bg-red-600 hover:bg-red-700 text-white font-bold animate-pulse">
+                            🚀 OPEN ADMIN PANEL
+                          </Button>
+                        </Link>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <div className="bg-muted p-4 rounded-lg">
+                  <h4 className="font-medium mb-2">Email Support</h4>
+                  <p className="text-sm text-muted-foreground">
+                    For urgent matters, you can also reach us directly at{' '}
+                    <a href="mailto:support@shazam.ae" className="text-primary hover:underline">
+                      support@shazam.ae
+                    </a>
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          <TabsContent value="history">
+            <Card>
+              <CardHeader>
+                <CardTitle>Parking History</CardTitle>
+                <CardDescription>
+                  View your parking bookings and listings
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {parkingHistory.length === 0 ? <p className="text-muted-foreground text-center py-8">
+                    No parking activity yet. Start by booking a space or listing your parking!
+                  </p> : <div className="space-y-4">
+                    {parkingHistory.map(item => <div key={`${item.type}-${item.id}`} className="border rounded-lg p-4">
+                        <div className="flex justify-between items-start mb-2">
+                          <div>
+                            <div className="flex items-center gap-2 mb-1">
+                              {item.type === 'booking' ? <Car className="h-4 w-4 text-blue-600" /> : <ParkingCircle className="h-4 w-4 text-green-600" />}
+                              <h3 className="font-semibold">{item.title}</h3>
+                            </div>
+                            <p className="text-sm text-muted-foreground">{item.zone}</p>
+                          </div>
+                          <Badge className={getStatusColor(item.status)}>
+                            {getStatusText(item.status)}
+                          </Badge>
+                        </div>
+                        
+                        {renderHistoryItemDetails(item)}
+                      </div>)}
+                  </div>}
               </CardContent>
             </Card>
           </TabsContent>

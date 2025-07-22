@@ -57,44 +57,34 @@ const ProductPage = () => {
   const spot = parkingSpots.find(s => s.id === parseInt(id || "1")) || parkingSpots[0];
 
   const durationOptions = [
-    { months: 1, multiplier: 1.0, label: "1 Month" },
-    { months: 3, multiplier: 0.95, label: "3 Months" },
-    { months: 6, multiplier: 0.90, label: "6 Months" },
-    { months: 12, multiplier: 0.85, label: "12 Months" }
+    { months: 1, discount: 0, label: "1 Month" },
+    { months: 3, discount: 0.05, label: "3 Months" },
+    { months: 6, discount: 0.10, label: "6 Months" },
+    { months: 12, discount: 0.15, label: "12 Months" }
   ];
 
   const calculatePrice = () => {
     const baseRent = spot.price;
     const selectedOption = durationOptions.find(opt => opt.months === selectedDuration);
-    const multiplier = selectedOption?.multiplier || 1.0;
+    const discount = selectedOption?.discount || 0;
     
-    let totalPrice: number;
-    let savings: number = 0;
+    // Apply discount to base rent
+    const rentAfterDiscount = baseRent * (1 - discount);
     
-    if (selectedDuration === 1) {
-      // For 1 month: base rent + 100 AED service fee
-      totalPrice = baseRent + 100;
-    } else {
-      // For 3, 6, 12 months: use the correct formula
-      // ((Listing Price – 100) × multiplier) × Number of Months + (100 × Number of Months)
-      const discountedAmount = (baseRent - 100) * multiplier;
-      totalPrice = (discountedAmount * selectedDuration) + (100 * selectedDuration);
-      
-      // Calculate savings compared to regular monthly rate
-      const regularTotal = (baseRent + 100) * selectedDuration;
-      savings = regularTotal - totalPrice;
-    }
+    // Customer pays the discounted rent + 100 AED service fee
+    const customerPrice = rentAfterDiscount + 100;
     
-    const monthlyRate = totalPrice / selectedDuration;
-    const discountPercentage = selectedDuration === 1 ? 0 : Math.round((savings / ((baseRent + 100) * selectedDuration)) * 100);
+    // Calculate total for the duration
+    const totalPrice = customerPrice * selectedDuration;
+    const discountAmount = baseRent * discount * selectedDuration;
     
     return {
       basePrice: baseRent * selectedDuration,
-      discountAmount: savings,
-      totalPrice: Math.round(totalPrice),
-      discount: discountPercentage,
-      monthlyCustomerPrice: Math.round(monthlyRate),
-      monthlyRentAfterDiscount: Math.round(monthlyRate - 100)
+      discountAmount,
+      totalPrice,
+      discount: discount * 100,
+      monthlyCustomerPrice: customerPrice,
+      monthlyRentAfterDiscount: rentAfterDiscount
     };
   };
 
@@ -341,7 +331,7 @@ const ProductPage = () => {
                         {option.months === 1 ? (
                           <div className="text-sm opacity-75">AED {(spot.price + 100).toFixed(0)}/month</div>
                         ) : (
-                          <div className="text-sm font-medium">{((1 - option.multiplier) * 100).toFixed(0)}% OFF</div>
+                          <div className="text-sm font-medium">{(option.discount * 100)}% OFF</div>
                         )}
                       </CardContent>
                     </Card>

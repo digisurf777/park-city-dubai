@@ -8,7 +8,6 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import useSEO from "@/hooks/useSEO";
 import dubaihero from "@/assets/dubai-skyline-hero.jpg";
-import secureParking from "@/assets/secure-parking-hero.jpg";
 import luxuryCar from "@/assets/luxury-car-dubai.png";
 import businessMan from "@/assets/business-man.jpg";
 import phoneLogo from "@/assets/phone-logo.png";
@@ -33,7 +32,7 @@ const Index = () => {
       <section 
         className="relative min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat" 
         style={{
-          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url(${secureParking})`,
+          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('/lovable-uploads/25c56481-0d03-4055-bd47-67635ac0d1b0.png')`,
           backgroundSize: 'cover'
         }}
       >
@@ -67,33 +66,14 @@ const Index = () => {
             
             {/* Right side - Phone Image */}
             <div className="lg:flex-1 flex justify-center lg:justify-end">
-              <picture>
-                <source 
-                  media="(max-width: 640px)" 
-                  srcSet="/lovable-uploads/c910d35f-a4b2-4c06-88e3-7f5b16a45558.png"
-                  type="image/webp"
-                  width="256"
-                  height="467"
-                />
-                <source 
-                  media="(max-width: 1024px)" 
-                  srcSet="/lovable-uploads/c910d35f-a4b2-4c06-88e3-7f5b16a45558.png"
-                  type="image/webp"
-                  width="320"
-                  height="583"
-                />
-                <img 
-                  alt="Shazam Parking Mobile App" 
-                  className="w-64 sm:w-80 md:w-96 lg:max-w-md h-auto transition-transform duration-300 hover:scale-105" 
-                  src="/lovable-uploads/c910d35f-a4b2-4c06-88e3-7f5b16a45558.png"
-                  loading="eager"
-                  {...({ fetchpriority: 'high' })}
-                  decoding="async"
-                  width="384"
-                  height="700"
-                  style={{ contentVisibility: 'auto' }}
-                />
-              </picture>
+              <img 
+                alt="Shazam Parking Mobile App" 
+                className="w-64 sm:w-80 md:w-96 lg:max-w-md h-auto transition-transform duration-300 hover:scale-105" 
+                src="/lovable-uploads/c910d35f-a4b2-4c06-88e3-7f5b16a45558.png"
+                loading="eager"
+                fetchPriority="high"
+                decoding="async"
+              />
             </div>
           </div>
           

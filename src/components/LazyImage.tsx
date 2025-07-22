@@ -56,7 +56,7 @@ const LazyImage = ({
         width={width}
         height={height}
         loading={loading}
-        {...(fetchPriority !== 'auto' && { fetchpriority: fetchPriority })}
+        fetchPriority={fetchPriority}
         onLoad={handleLoad}
         onError={handleError}
         decoding="async"
