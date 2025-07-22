@@ -13,6 +13,7 @@ import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 import luxuryCar from "@/assets/luxury-car-dubai.png";
 import phoneLogo from "@/assets/phone-logo.png";
 import ReCAPTCHA from 'react-google-recaptcha';
@@ -20,12 +21,9 @@ const RentOutYourSpace = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
-  const {
-    user
-  } = useAuth();
-  const {
-    toast
-  } = useToast();
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const navigate = useNavigate();
   const [monthlyPrice, setMonthlyPrice] = useState<number>(300);
   const [uploadedImages, setUploadedImages] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -250,6 +248,11 @@ const RentOutYourSpace = () => {
       // Reset reCAPTCHA
       recaptchaRef.current?.reset();
       setRecaptchaToken(null);
+
+      // Redirect to account page to view the submitted listing
+      setTimeout(() => {
+        navigate('/my-account?tab=listings');
+      }, 2000);
     } catch (error) {
       console.error('Error submitting listing:', error);
       toast({

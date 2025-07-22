@@ -10,10 +10,11 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
 import { Loader2, User, History, LogOut, Shield, Mail, Home, MessageSquare, Send, Car, ParkingCircle, MessageCircle } from 'lucide-react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import VerificationPanel from '@/components/VerificationPanel';
 import UserInbox from '@/components/UserInbox';
 import { ActiveBookingChats } from '@/components/ActiveBookingChats';
+import { MyListings } from '@/components/MyListings';
 interface Profile {
   id: string;
   full_name: string;
@@ -53,11 +54,9 @@ interface ParkingHistoryItem {
   details: ParkingBooking | ParkingListing;
 }
 const MyAccount = () => {
-  const {
-    user,
-    signOut
-  } = useAuth();
+  const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -66,6 +65,7 @@ const MyAccount = () => {
   const [parkingHistory, setParkingHistory] = useState<ParkingHistoryItem[]>([]);
   const [verificationStatus, setVerificationStatus] = useState<string | null>(null);
   const [isParkingOwner, setIsParkingOwner] = useState<boolean>(false);
+  const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'profile');
 
   // Redirect if not logged in
   if (!user) {
@@ -292,8 +292,8 @@ const MyAccount = () => {
           </div>
         </div>
 
-        <Tabs defaultValue="profile" className="w-full">
-          <TabsList className="grid w-full grid-cols-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-7">
             <TabsTrigger value="profile">
               <User className="mr-2 h-4 w-4" />
               Profile
@@ -302,6 +302,10 @@ const MyAccount = () => {
               <Shield className="mr-2 h-4 w-4" />
               Verification
               {(verificationStatus === 'pending' || verificationStatus === null) && <Badge variant="destructive" className="ml-2 h-5 w-5 p-0 text-xs">!</Badge>}
+            </TabsTrigger>
+            <TabsTrigger value="listings">
+              <Home className="mr-2 h-4 w-4" />
+              My Listings
             </TabsTrigger>
             <TabsTrigger value="inbox">
               <Mail className="mr-2 h-4 w-4" />
@@ -366,6 +370,10 @@ const MyAccount = () => {
           
           <TabsContent value="verification">
             <VerificationPanel />
+          </TabsContent>
+          
+          <TabsContent value="listings">
+            <MyListings />
           </TabsContent>
           
           <TabsContent value="inbox">
