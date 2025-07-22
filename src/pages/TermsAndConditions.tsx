@@ -1,10 +1,8 @@
 import { Helmet } from "react-helmet-async";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-
 const TermsAndConditions = () => {
-  return (
-    <>
+  return <>
       <Helmet>
         <title>Terms and Conditions | ShazamParking</title>
         <meta name="description" content="ShazamParking Terms and Conditions - Read our complete terms of service, user agreements, and legal policies for parking booking and listing services in Dubai, UAE." />
@@ -297,7 +295,7 @@ const TermsAndConditions = () => {
                   4.2 You agree that we will manage the entire booking process and you authorise us to accept a booking for an available date without further reference to you.
                 </p>
                 <div className="ml-6 mb-4">
-                  <p className="mb-4"><strong>(a) Payment</strong><br/>
+                  <p className="mb-4"><strong>(a) Payment</strong><br />
                   Payment shall be charged (or pre-authorised, at our absolute discretion) from the Driver at the time of the Booking request. Once a Booking has been accepted by you in accordance with this clause 4, you will have re-confirmed the right of the Driver to occupy the Parking Space during the Booking Period. We will confirm a Booking as soon as practicable.</p>
                   
                   <p className="mb-4"><strong>(b) Bookings</strong></p>
@@ -524,17 +522,17 @@ const TermsAndConditions = () => {
                 <p className="mb-4">If your Booking Request has been accepted, you will receive a booking confirmation via email and/or through your Account, which includes access details and a link to the in-Site chat where you may coordinate directly with the Owner to access the Parking Space.</p>
                 <p className="mb-4">If the Parking Space is not available, then we will either:</p>
                 <div className="ml-6 mb-4">
-                  <p className="mb-2">refund the charged amount (if payment was collected), or</p>
-                  <p className="mb-2">cancel the pre-authorisation hold (if applicable),</p>
-                  <p className="mb-2">in both cases within ten (10) working days.</p>
+                  <p className="mb-2">- refund the charged amount (if payment was collected), or</p>
+                  <p className="mb-2">- cancel the pre-authorisation hold (if applicable),</p>
+                  <p className="mb-2">- in both cases within ten (10) working days.</p>
                 </div>
 
                 <p className="mb-4"><strong>4.2 Access Cards and Deposits</strong></p>
                 <p className="mb-4">In cases where access to the Parking Space requires a physical access card or device, a separate access card fee will be charged at the time of the Booking Request (the "<strong>Refundable Access Charge</strong>").</p>
                 <p className="mb-4">The Refundable Access Charge will be refunded to you within ten (10) working days after the end of the Booking Period, but only if the Owner confirms that:</p>
                 <div className="ml-6 mb-4">
-                  <p className="mb-2">the access card or device has been returned in good condition, and</p>
-                  <p className="mb-2">no damage has occurred to the Parking Space.</p>
+                  <p className="mb-2">- the access card or device has been returned in good condition, and</p>
+                  <p className="mb-2">- no damage has occurred to the Parking Space.</p>
                 </div>
                 <p className="mb-4">If the Owner reports any issues or non-return of the access card/device, the Refundable Access Charge may be withheld in part or in full at our sole discretion.</p>
 
@@ -931,7 +929,7 @@ const TermsAndConditions = () => {
 
               <div className="mt-8 p-4 bg-muted rounded-lg">
                 <p className="text-sm text-muted-foreground">
-                  <strong>Last Updated:</strong> July 2025<br/>
+                  <strong>Last Updated:</strong> July 2025<br />
                   These Terms and Conditions are effective from the date of last update and supersede all previous versions.
                 </p>
               </div>
@@ -941,8 +939,6 @@ const TermsAndConditions = () => {
         
         <Footer />
       </div>
-    </>
-  );
+    </>;
 };
-
 export default TermsAndConditions;
