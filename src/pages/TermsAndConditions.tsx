@@ -878,11 +878,11 @@ const TermsAndConditions = () => {
                   Where a booking is cancelled, disrupted, or refunded due to Owner misconduct or failure to comply with obligations, including but not limited to:
                 </p>
                 <div className="ml-6 mb-4">
-                  <p className="mb-2">the building not permitting tenant parking;</p>
-                  <p className="mb-2">landlord or strata restrictions that were not disclosed;</p>
-                  <p className="mb-2">failure to obtain or maintain required approvals;</p>
-                  <p className="mb-2">breach of lease, building rules, or contractual representations; and/or</p>
-                  <p className="mb-2">false, misleading, or materially incomplete listing information,</p>
+                  <p className="mb-2">(a) the building not permitting tenant parking;</p>
+                  <p className="mb-2">(b) landlord or strata restrictions that were not disclosed;</p>
+                  <p className="mb-2">(c) failure to obtain or maintain required approvals;</p>
+                  <p className="mb-2">(d) breach of lease, building rules, or contractual representations; and/or</p>
+                  <p className="mb-2">(e) false, misleading, or materially incomplete listing information,</p>
                 </div>
                 <p className="mb-4">
                   the Owner shall be liable to pay us a minimum of 20% or the fee for the entire Booking Period and any other reasonable administrative expenses incurred by us.
@@ -891,8 +891,8 @@ const TermsAndConditions = () => {
                   This amount shall be payable within 5 business days of demand, and we may deduct the amount from:
                 </p>
                 <div className="ml-6 mb-4">
-                  <p className="mb-2">any pending or future Owner payouts; and/or</p>
-                  <p className="mb-2">the payment method linked to the Owner account.</p>
+                  <p className="mb-2">(a) any pending or future Owner payouts; and/or</p>
+                  <p className="mb-2">(b) the payment method linked to the Owner account.</p>
                 </div>
                 <p className="mb-4">
                   This obligation is in addition to any other remedies or delisting action that we may take.
