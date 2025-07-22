@@ -255,12 +255,8 @@ const MyAccount = () => {
     } else {
       const listing = item.details as ParkingListing;
       return <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 lg:gap-4 text-xs lg:text-sm">
-           <div>
-             
-             <p className="font-semibold">{listing.price_per_hour} AED/hour</p>
-           </div>
            {listing.price_per_day && <div>
-               
+               <p className="text-muted-foreground">Daily Rate</p>
                <p className="font-semibold">{listing.price_per_day} AED/day</p>
              </div>}
            {listing.price_per_month && <div>
@@ -309,14 +305,10 @@ const MyAccount = () => {
                 {(verificationStatus === 'pending' || verificationStatus === null) && <div className="absolute -top-1 -right-1 h-3 w-3 bg-destructive rounded-full"></div>}
               </Button>
             </div>
-            <div className="grid grid-cols-2 gap-2 mb-4">
+            <div className="grid grid-cols-1 gap-2 mb-4">
               <Button variant={activeTab === 'listings' ? 'default' : 'outline'} onClick={() => setActiveTab('listings')} className="flex items-center gap-2 h-12">
                 <Home className="h-4 w-4" />
                 Listings
-              </Button>
-              <Button variant={activeTab === 'inbox' ? 'default' : 'outline'} onClick={() => setActiveTab('inbox')} className="flex items-center gap-2 h-12">
-                <Mail className="h-4 w-4" />
-                Inbox
               </Button>
             </div>
             <div className="grid grid-cols-3 gap-2">
@@ -336,7 +328,7 @@ const MyAccount = () => {
           </div>
 
           {/* Desktop Tab Navigation */}
-          <TabsList className="hidden lg:grid w-full grid-cols-7 gap-1 h-auto p-1">
+          <TabsList className="hidden lg:grid w-full grid-cols-6 gap-1 h-auto p-1">
             <TabsTrigger value="profile" className="flex items-center gap-2 py-2">
               <User className="h-4 w-4" />
               Profile
@@ -349,10 +341,6 @@ const MyAccount = () => {
             <TabsTrigger value="listings" className="flex items-center gap-2 py-2">
               <Home className="h-4 w-4" />
               My Listings
-            </TabsTrigger>
-            <TabsTrigger value="inbox" className="flex items-center gap-2 py-2">
-              <Mail className="h-4 w-4" />
-              Inbox
             </TabsTrigger>
             <TabsTrigger value="chats" className="flex items-center gap-2 py-2">
               <MessageCircle className="h-4 w-4" />
@@ -426,9 +414,6 @@ const MyAccount = () => {
             <MyListings />
           </TabsContent>
           
-          <TabsContent value="inbox">
-            <UserInbox />
-          </TabsContent>
           
           <TabsContent value="chats">
             <ActiveBookingChats />
