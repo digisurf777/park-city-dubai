@@ -34,7 +34,7 @@ const Index = () => {
         <link 
           rel="preload" 
           as="image" 
-          href="/lovable-uploads/25c56481-0d03-4055-bd47-67635ac0d1b0.png"
+          href="/lovable-uploads/90403224-511f-4ee9-aa32-8a976c1571e7.png"
           fetchPriority="high"
         />
         <link 
@@ -48,7 +48,7 @@ const Index = () => {
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat will-change-transform" 
           style={{
-            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('/lovable-uploads/25c56481-0d03-4055-bd47-67635ac0d1b0.png')`
+            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('/lovable-uploads/90403224-511f-4ee9-aa32-8a976c1571e7.png')`
           }}
         />
         
