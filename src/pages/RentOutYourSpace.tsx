@@ -279,9 +279,87 @@ const RentOutYourSpace = () => {
         </div>
       </section>
 
-      {/* Available Parking Spots Section */}
+      {/* How It Works Section */}
       <section className="py-20 bg-gray-50">
-        
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-gray-900 mb-6">
+              How It Works
+            </h2>
+            <p className="text-xl text-gray-600">
+              Start earning from your parking space in just 3 simple steps
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
+            {/* Step 1 */}
+            <div className="text-center">
+              <div className="mb-8 flex justify-center">
+                <img 
+                  src="/lovable-uploads/f2b05b16-f129-4bca-b1b7-97d9dc47dd5d.png" 
+                  alt="Step 1: List for Free"
+                  className="w-64 h-auto"
+                />
+              </div>
+              <div className="bg-white rounded-lg p-6 shadow-lg">
+                <h3 className="text-2xl font-bold text-primary mb-2">Step 1</h3>
+                <h4 className="text-xl font-semibold text-gray-900 mb-4">List for Free</h4>
+                <p className="text-gray-600 text-lg leading-relaxed">
+                  Complete listing form & sign-up for FREE
+                </p>
+              </div>
+            </div>
+
+            {/* Step 2 */}
+            <div className="text-center">
+              <div className="mb-8 flex justify-center">
+                <div className="relative">
+                  <img 
+                    src="/lovable-uploads/f2b05b16-f129-4bca-b1b7-97d9dc47dd5d.png" 
+                    alt="Step 2: Confirm Booking"
+                    className="w-64 h-auto"
+                  />
+                  {/* We'll use the same image but show different content */}
+                </div>
+              </div>
+              <div className="bg-white rounded-lg p-6 shadow-lg">
+                <h3 className="text-2xl font-bold text-primary mb-2">Step 2</h3>
+                <h4 className="text-xl font-semibold text-gray-900 mb-4">Confirm Booking</h4>
+                <p className="text-gray-600 text-lg leading-relaxed">
+                  We verify the driver and send you the request – you can approve or reject
+                </p>
+              </div>
+            </div>
+
+            {/* Step 3 */}
+            <div className="text-center">
+              <div className="mb-8 flex justify-center">
+                <img 
+                  src="/lovable-uploads/f2b05b16-f129-4bca-b1b7-97d9dc47dd5d.png" 
+                  alt="Step 3: Facilitate Access"
+                  className="w-64 h-auto"
+                />
+              </div>
+              <div className="bg-white rounded-lg p-6 shadow-lg">
+                <h3 className="text-2xl font-bold text-primary mb-2">Step 3</h3>
+                <h4 className="text-xl font-semibold text-gray-900 mb-4">Facilitate Access</h4>
+                <p className="text-gray-600 text-lg leading-relaxed">
+                  Arrange access to the parking bay. Then sit back and relax.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* CTA Button */}
+          <div className="text-center mt-12">
+            <Button 
+              className="bg-primary hover:bg-primary/90 text-white px-8 py-4 text-lg font-semibold"
+              onClick={() => document.getElementById('form')?.scrollIntoView({ behavior: 'smooth' })}
+            >
+              Start Listing Your Space
+            </Button>
+          </div>
+        </div>
       </section>
 
       {/* Why List With Us Section */}
