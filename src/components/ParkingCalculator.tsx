@@ -191,8 +191,7 @@ const ParkingCalculator = () => {
 
           {cardRequired && <div className="mt-3 p-4 bg-amber-50 rounded-lg">
               <p className="text-sm text-amber-800">
-                <strong>Card Fee Details:</strong> 100 AED monthly fee applies when access card is required. 
-                500 AED deposit is refundable when card is returned.
+                <strong>Card Fee Details:</strong> AED100 one-off fee applies when access card is required. This amount will only be removed from the final monthly payment applicable to the booking. The above calculation shows an average net amount. The AED500 card fee is refundable once the driver returns the access device.
               </p>
             </div>}
         </CardContent>
