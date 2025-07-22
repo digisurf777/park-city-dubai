@@ -13,6 +13,7 @@ import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 import luxuryCar from "@/assets/luxury-car-dubai.png";
 import phoneLogo from "@/assets/phone-logo.png";
 import ReCAPTCHA from 'react-google-recaptcha';
@@ -20,12 +21,9 @@ const RentOutYourSpace = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
-  const {
-    user
-  } = useAuth();
-  const {
-    toast
-  } = useToast();
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const navigate = useNavigate();
   const [monthlyPrice, setMonthlyPrice] = useState<number>(300);
   const [uploadedImages, setUploadedImages] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -169,67 +167,90 @@ const RentOutYourSpace = () => {
       const imageUrls = await uploadImagesToStorage(uploadedImages);
 
       // Upload ID document
-      const idFileName = `id-${Date.now()}-${idDocument.name}`;
+      const idFileName = `${user.id}/${Date.now()}-${idDocument.name}`;
       const {
         data: idData,
         error: idError
       } = await supabase.storage.from('verification-docs').upload(idFileName, idDocument);
-      if (idError) throw idError;
+      if (idError) {
+        console.error('ID upload error:', idError);
+        throw new Error(`Failed to upload ID document: ${idError.message}`);
+      }
 
       // Create listing in database
-      const {
-        error: insertError
-      } = await supabase.from('parking_listings').insert({
+      const listingData = {
         owner_id: user.id,
         title: `${formData.bayType} parking in ${formData.buildingName}`,
         description: formData.notes || `${formData.bayType} parking space in ${formData.buildingName}, ${formData.district}`,
         address: `${formData.buildingName}, ${formData.district}`,
         zone: formData.district,
         price_per_hour: Number((monthlyPrice / 720).toFixed(2)),
-        // Approximate hourly rate
         price_per_month: monthlyPrice,
         features: [formData.bayType],
         images: imageUrls,
         contact_phone: formData.phone,
-        contact_email: formData.email,
+        contact_email: user.email,
         status: 'pending'
-      });
-      if (insertError) throw insertError;
+      };
+
+      console.log('Inserting listing data:', listingData);
+      
+      const {
+        data: insertedListing,
+        error: insertError
+      } = await supabase.from('parking_listings').insert(listingData).select().single();
+      
+      if (insertError) {
+        console.error('Insert error:', insertError);
+        throw new Error(`Failed to create listing: ${insertError.message}`);
+      }
+
+      console.log('Listing created successfully:', insertedListing);
 
       // Send admin notification
-      await supabase.functions.invoke('send-admin-notification', {
-        body: {
-          type: 'parking_listing',
-          userEmail: formData.email,
-          userName: formData.fullName,
-          details: {
-            buildingName: formData.buildingName,
-            district: formData.district,
-            bayType: formData.bayType,
-            monthlyPrice: monthlyPrice,
-            accessDeviceDeposit: formData.accessDeviceDeposit,
-            phone: formData.phone,
-            notes: formData.notes
+      try {
+        await supabase.functions.invoke('send-admin-notification', {
+          body: {
+            type: 'parking_listing',
+            userEmail: user.email,
+            userName: user.user_metadata?.full_name || 'User',
+            details: {
+              buildingName: formData.buildingName,
+              district: formData.district,
+              bayType: formData.bayType,
+              monthlyPrice: monthlyPrice,
+              accessDeviceDeposit: formData.accessDeviceDeposit,
+              phone: formData.phone,
+              notes: formData.notes
+            }
           }
-        }
-      });
+        });
+      } catch (notificationError) {
+        console.error('Failed to send admin notification:', notificationError);
+        // Don't fail the whole process if notification fails
+      }
 
       // Send customer confirmation email
-      await supabase.functions.invoke('send-customer-confirmation', {
-        body: {
-          userEmail: formData.email,
-          userName: formData.fullName,
-          listingDetails: {
-            buildingName: formData.buildingName,
-            district: formData.district,
-            bayType: formData.bayType,
-            monthlyPrice: monthlyPrice
+      try {
+        await supabase.functions.invoke('send-customer-confirmation', {
+          body: {
+            userEmail: user.email,
+            userName: user.user_metadata?.full_name || 'User',
+            listingDetails: {
+              buildingName: formData.buildingName,
+              district: formData.district,
+              bayType: formData.bayType,
+              monthlyPrice: monthlyPrice
+            }
           }
-        }
-      });
+        });
+      } catch (confirmationError) {
+        console.error('Failed to send customer confirmation:', confirmationError);
+        // Don't fail the whole process if confirmation email fails
+      }
       toast({
-        title: "Listing submitted successfully",
-        description: "Our team will review your listing within 24 hours"
+        title: "✅ Listing Submitted Successfully!",
+        description: "Your parking space has been submitted for review. Our team will review it within 24 hours and you'll be redirected to your account.",
       });
 
       // Reset form
@@ -250,6 +271,11 @@ const RentOutYourSpace = () => {
       // Reset reCAPTCHA
       recaptchaRef.current?.reset();
       setRecaptchaToken(null);
+
+      // Redirect to account page to view the submitted listing
+      setTimeout(() => {
+        navigate('/my-account?tab=listings');
+      }, 2000);
     } catch (error) {
       console.error('Error submitting listing:', error);
       toast({
@@ -287,39 +313,16 @@ const RentOutYourSpace = () => {
               How It Works
             </h2>
             <p className="text-xl text-gray-600">
-              Start earning from your parking space in just 3 simple steps
+              Three simple steps to start earning from your parking space
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
-            {/* Step 1 */}
-            <div className="text-center">
-              
-            </div>
-
-            {/* Step 2 */}
-            <div className="text-center">
-              
-            </div>
-
-            {/* Step 3 */}
-            <div className="text-center">
-              
-            </div>
-          </div>
-
-          {/* Single Phone Mockup Image */}
-          <div className="mt-12 flex justify-center">
-            <img src="/lovable-uploads/f2b05b16-f129-4bca-b1b7-97d9dc47dd5d.png" alt="Shazam Parking App Steps" className="max-w-4xl w-full h-auto" />
-          </div>
-
-          {/* CTA Button */}
-          <div className="text-center mt-12">
-            <Button className="bg-primary hover:bg-primary/90 text-white px-8 py-4 text-lg font-semibold" onClick={() => document.getElementById('form')?.scrollIntoView({
-            behavior: 'smooth'
-          })}>
-              Start Listing Your Space
-            </Button>
+          <div className="flex justify-center">
+            <img 
+              src="/lovable-uploads/90ac71db-2b33-4d06-8b4e-7fdb761027f4.png" 
+              alt="Three step process: List for Free, Confirm Booking, Facilitate Access"
+              className="max-w-full h-auto"
+            />
           </div>
         </div>
       </section>

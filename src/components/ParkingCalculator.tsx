@@ -43,7 +43,18 @@ const ParkingCalculator = () => {
       const rentAfterDiscount = baseRent * (1 - duration.discount);
       const shazamFee = rentAfterDiscount * 0.20; // 20% commission
       const cardFee = cardRequired ? 100 : 0; // 100 AED card fee when access card is required
-      const netToOwner = rentAfterDiscount - shazamFee - cardFee;
+      
+      let netToOwner;
+      if (duration.value === 1) {
+        // For 1 month: simple calculation
+        netToOwner = rentAfterDiscount - shazamFee - cardFee;
+      } else {
+        // For 3, 6 & 12 months: (Rent after discount – Shazam Fee) × number of months – AED 100 (if Access Card) ÷ number of months
+        const totalEarnings = (rentAfterDiscount - shazamFee) * duration.value;
+        const totalWithCardFee = totalEarnings - (cardRequired ? 100 : 0);
+        netToOwner = totalWithCardFee / duration.value;
+      }
+
       return {
         duration: duration.value,
         discount: duration.discount * 100,
@@ -146,7 +157,7 @@ const ParkingCalculator = () => {
                   <th className="text-left p-2">Customer Pays*</th>
                   <th className="text-left p-2">Shazam Fee (20%)</th>
                   {cardRequired && <th className="text-left p-2">Card Fee</th>}
-                  <th className="text-left p-2 font-semibold">Net to You</th>
+                  <th className="text-left p-2 font-semibold">👉 Average Net to You</th>
                 </tr>
               </thead>
               <tbody>
@@ -180,8 +191,7 @@ const ParkingCalculator = () => {
 
           {cardRequired && <div className="mt-3 p-4 bg-amber-50 rounded-lg">
               <p className="text-sm text-amber-800">
-                <strong>Card Fee Details:</strong> 100 AED monthly fee applies when access card is required. 
-                500 AED deposit is refundable when card is returned.
+                <strong>Card Fee Details:</strong> AED100 one-off fee applies when access card is required. This amount will only be removed from the final monthly payment applicable to the booking. The above calculation shows an average net amount. The AED500 card fee is refundable once the driver returns the access device.
               </p>
             </div>}
         </CardContent>

@@ -1,24 +1,28 @@
 import { useState, useCallback } from 'react';
 
-interface LazyImageProps {
+interface OptimizedImageProps {
   src: string;
   alt: string;
   className?: string;
   width?: number;
   height?: number;
   loading?: 'lazy' | 'eager';
-  fetchPriority?: 'high' | 'low' | 'auto';
+  priority?: boolean;
+  sizes?: string;
+  srcSet?: string;
 }
 
-const LazyImage = ({ 
+const OptimizedImage = ({ 
   src, 
   alt, 
   className = '', 
   width, 
   height, 
   loading = 'lazy',
-  fetchPriority = 'auto'
-}: LazyImageProps) => {
+  priority = false,
+  sizes,
+  srcSet
+}: OptimizedImageProps) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
 
@@ -56,14 +60,19 @@ const LazyImage = ({
         width={width}
         height={height}
         loading={loading}
-        {...(fetchPriority !== 'auto' && { fetchpriority: fetchPriority })}
+        {...(priority && { fetchpriority: 'high' })}
         onLoad={handleLoad}
         onError={handleError}
         decoding="async"
-        style={{ contentVisibility: 'auto' }}
+        {...(sizes && { sizes })}
+        {...(srcSet && { srcSet })}
+        style={{ 
+          contentVisibility: 'auto',
+          containIntrinsicSize: width && height ? `${width}px ${height}px` : 'none'
+        }}
       />
     </div>
   );
 };
 
-export default LazyImage;
+export default OptimizedImage;
