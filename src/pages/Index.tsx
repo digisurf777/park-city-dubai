@@ -8,6 +8,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import useSEO from "@/hooks/useSEO";
 import dubaihero from "@/assets/dubai-skyline-hero.jpg";
+import secureParking from "@/assets/secure-parking-hero.jpg";
 import luxuryCar from "@/assets/luxury-car-dubai.png";
 import businessMan from "@/assets/business-man.jpg";
 import phoneLogo from "@/assets/phone-logo.png";
@@ -32,7 +33,7 @@ const Index = () => {
       <section 
         className="relative min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat" 
         style={{
-          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('/lovable-uploads/25c56481-0d03-4055-bd47-67635ac0d1b0.png')`,
+          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url(${secureParking})`,
           backgroundSize: 'cover'
         }}
       >
