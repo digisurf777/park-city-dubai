@@ -294,17 +294,15 @@ const RentOutYourSpace = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
             {/* Step 1 */}
             <div className="text-center">
-              <div className="mb-8 flex justify-center">
-                <img 
-                  src="/lovable-uploads/f2b05b16-f129-4bca-b1b7-97d9dc47dd5d.png" 
-                  alt="Step 1: List for Free"
-                  className="w-64 h-auto"
-                />
-              </div>
               <div className="bg-white rounded-lg p-6 shadow-lg">
-                <h3 className="text-2xl font-bold text-primary mb-2">Step 1</h3>
-                <h4 className="text-xl font-semibold text-gray-900 mb-4">List for Free</h4>
-                <p className="text-gray-600 text-lg leading-relaxed">
+                <div className="mb-6">
+                  <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="text-2xl font-bold text-primary">1</span>
+                  </div>
+                  <h3 className="text-xl font-bold text-primary mb-2">Step 1</h3>
+                  <h4 className="text-lg font-semibold text-gray-900 mb-4">List for Free</h4>
+                </div>
+                <p className="text-gray-600 text-base leading-relaxed">
                   Complete listing form & sign-up for FREE
                 </p>
               </div>
@@ -312,20 +310,15 @@ const RentOutYourSpace = () => {
 
             {/* Step 2 */}
             <div className="text-center">
-              <div className="mb-8 flex justify-center">
-                <div className="relative">
-                  <img 
-                    src="/lovable-uploads/f2b05b16-f129-4bca-b1b7-97d9dc47dd5d.png" 
-                    alt="Step 2: Confirm Booking"
-                    className="w-64 h-auto"
-                  />
-                  {/* We'll use the same image but show different content */}
-                </div>
-              </div>
               <div className="bg-white rounded-lg p-6 shadow-lg">
-                <h3 className="text-2xl font-bold text-primary mb-2">Step 2</h3>
-                <h4 className="text-xl font-semibold text-gray-900 mb-4">Confirm Booking</h4>
-                <p className="text-gray-600 text-lg leading-relaxed">
+                <div className="mb-6">
+                  <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="text-2xl font-bold text-primary">2</span>
+                  </div>
+                  <h3 className="text-xl font-bold text-primary mb-2">Step 2</h3>
+                  <h4 className="text-lg font-semibold text-gray-900 mb-4">Confirm Booking</h4>
+                </div>
+                <p className="text-gray-600 text-base leading-relaxed">
                   We verify the driver and send you the request – you can approve or reject
                 </p>
               </div>
@@ -333,21 +326,28 @@ const RentOutYourSpace = () => {
 
             {/* Step 3 */}
             <div className="text-center">
-              <div className="mb-8 flex justify-center">
-                <img 
-                  src="/lovable-uploads/f2b05b16-f129-4bca-b1b7-97d9dc47dd5d.png" 
-                  alt="Step 3: Facilitate Access"
-                  className="w-64 h-auto"
-                />
-              </div>
               <div className="bg-white rounded-lg p-6 shadow-lg">
-                <h3 className="text-2xl font-bold text-primary mb-2">Step 3</h3>
-                <h4 className="text-xl font-semibold text-gray-900 mb-4">Facilitate Access</h4>
-                <p className="text-gray-600 text-lg leading-relaxed">
+                <div className="mb-6">
+                  <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="text-2xl font-bold text-primary">3</span>
+                  </div>
+                  <h3 className="text-xl font-bold text-primary mb-2">Step 3</h3>
+                  <h4 className="text-lg font-semibold text-gray-900 mb-4">Facilitate Access</h4>
+                </div>
+                <p className="text-gray-600 text-base leading-relaxed">
                   Arrange access to the parking bay. Then sit back and relax.
                 </p>
               </div>
             </div>
+          </div>
+
+          {/* Single Phone Mockup Image */}
+          <div className="mt-12 flex justify-center">
+            <img 
+              src="/lovable-uploads/f2b05b16-f129-4bca-b1b7-97d9dc47dd5d.png" 
+              alt="Shazam Parking App Steps"
+              className="max-w-4xl w-full h-auto"
+            />
           </div>
 
           {/* CTA Button */}
