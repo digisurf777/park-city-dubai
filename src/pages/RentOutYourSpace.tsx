@@ -167,67 +167,90 @@ const RentOutYourSpace = () => {
       const imageUrls = await uploadImagesToStorage(uploadedImages);
 
       // Upload ID document
-      const idFileName = `id-${Date.now()}-${idDocument.name}`;
+      const idFileName = `${user.id}/${Date.now()}-${idDocument.name}`;
       const {
         data: idData,
         error: idError
       } = await supabase.storage.from('verification-docs').upload(idFileName, idDocument);
-      if (idError) throw idError;
+      if (idError) {
+        console.error('ID upload error:', idError);
+        throw new Error(`Failed to upload ID document: ${idError.message}`);
+      }
 
       // Create listing in database
-      const {
-        error: insertError
-      } = await supabase.from('parking_listings').insert({
+      const listingData = {
         owner_id: user.id,
         title: `${formData.bayType} parking in ${formData.buildingName}`,
         description: formData.notes || `${formData.bayType} parking space in ${formData.buildingName}, ${formData.district}`,
         address: `${formData.buildingName}, ${formData.district}`,
         zone: formData.district,
         price_per_hour: Number((monthlyPrice / 720).toFixed(2)),
-        // Approximate hourly rate
         price_per_month: monthlyPrice,
         features: [formData.bayType],
         images: imageUrls,
         contact_phone: formData.phone,
-        contact_email: formData.email,
+        contact_email: user.email,
         status: 'pending'
-      });
-      if (insertError) throw insertError;
+      };
+
+      console.log('Inserting listing data:', listingData);
+      
+      const {
+        data: insertedListing,
+        error: insertError
+      } = await supabase.from('parking_listings').insert(listingData).select().single();
+      
+      if (insertError) {
+        console.error('Insert error:', insertError);
+        throw new Error(`Failed to create listing: ${insertError.message}`);
+      }
+
+      console.log('Listing created successfully:', insertedListing);
 
       // Send admin notification
-      await supabase.functions.invoke('send-admin-notification', {
-        body: {
-          type: 'parking_listing',
-          userEmail: formData.email,
-          userName: formData.fullName,
-          details: {
-            buildingName: formData.buildingName,
-            district: formData.district,
-            bayType: formData.bayType,
-            monthlyPrice: monthlyPrice,
-            accessDeviceDeposit: formData.accessDeviceDeposit,
-            phone: formData.phone,
-            notes: formData.notes
+      try {
+        await supabase.functions.invoke('send-admin-notification', {
+          body: {
+            type: 'parking_listing',
+            userEmail: user.email,
+            userName: user.user_metadata?.full_name || 'User',
+            details: {
+              buildingName: formData.buildingName,
+              district: formData.district,
+              bayType: formData.bayType,
+              monthlyPrice: monthlyPrice,
+              accessDeviceDeposit: formData.accessDeviceDeposit,
+              phone: formData.phone,
+              notes: formData.notes
+            }
           }
-        }
-      });
+        });
+      } catch (notificationError) {
+        console.error('Failed to send admin notification:', notificationError);
+        // Don't fail the whole process if notification fails
+      }
 
       // Send customer confirmation email
-      await supabase.functions.invoke('send-customer-confirmation', {
-        body: {
-          userEmail: formData.email,
-          userName: formData.fullName,
-          listingDetails: {
-            buildingName: formData.buildingName,
-            district: formData.district,
-            bayType: formData.bayType,
-            monthlyPrice: monthlyPrice
+      try {
+        await supabase.functions.invoke('send-customer-confirmation', {
+          body: {
+            userEmail: user.email,
+            userName: user.user_metadata?.full_name || 'User',
+            listingDetails: {
+              buildingName: formData.buildingName,
+              district: formData.district,
+              bayType: formData.bayType,
+              monthlyPrice: monthlyPrice
+            }
           }
-        }
-      });
+        });
+      } catch (confirmationError) {
+        console.error('Failed to send customer confirmation:', confirmationError);
+        // Don't fail the whole process if confirmation email fails
+      }
       toast({
-        title: "Listing submitted successfully",
-        description: "Our team will review your listing within 24 hours"
+        title: "✅ Listing Submitted Successfully!",
+        description: "Your parking space has been submitted for review. Our team will review it within 24 hours and you'll be redirected to your account.",
       });
 
       // Reset form
