@@ -283,45 +283,115 @@ const MyAccount = () => {
           <div className="flex gap-2">
             <Button onClick={() => navigate('/')} variant="outline" size="sm" className="flex-1 lg:flex-initial">
               <Home className="mr-2 h-4 w-4" />
-              <span className="lg:inline">Home</span>
+              <span>Home</span>
             </Button>
             <Button onClick={handleLogout} variant="outline" size="sm" className="flex-1 lg:flex-initial">
               <LogOut className="mr-2 h-4 w-4" />
-              <span className="lg:inline">Logout</span>
+              <span>Logout</span>
             </Button>
           </div>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-7 gap-1 h-auto p-1">
-            <TabsTrigger value="profile" className="flex flex-col lg:flex-row items-center gap-1 lg:gap-2 py-2 lg:py-1.5 text-xs lg:text-sm min-h-[60px] lg:min-h-[40px]">
+          {/* Mobile Tab Navigation */}
+          <div className="lg:hidden mb-6">
+            <div className="grid grid-cols-2 gap-2 mb-4">
+              <Button 
+                variant={activeTab === 'profile' ? 'default' : 'outline'} 
+                onClick={() => setActiveTab('profile')}
+                className="flex items-center gap-2 h-12"
+              >
+                <User className="h-4 w-4" />
+                Profile
+              </Button>
+              <Button 
+                variant={activeTab === 'verification' ? 'default' : 'outline'} 
+                onClick={() => setActiveTab('verification')}
+                className={`flex items-center gap-2 h-12 relative ${verificationStatus === 'pending' || verificationStatus === null ? 'border-orange-500/20' : ''}`}
+              >
+                <Shield className="h-4 w-4" />
+                Verify
+                {(verificationStatus === 'pending' || verificationStatus === null) && 
+                  <div className="absolute -top-1 -right-1 h-3 w-3 bg-destructive rounded-full"></div>
+                }
+              </Button>
+            </div>
+            <div className="grid grid-cols-2 gap-2 mb-4">
+              <Button 
+                variant={activeTab === 'listings' ? 'default' : 'outline'} 
+                onClick={() => setActiveTab('listings')}
+                className="flex items-center gap-2 h-12"
+              >
+                <Home className="h-4 w-4" />
+                Listings
+              </Button>
+              <Button 
+                variant={activeTab === 'inbox' ? 'default' : 'outline'} 
+                onClick={() => setActiveTab('inbox')}
+                className="flex items-center gap-2 h-12"
+              >
+                <Mail className="h-4 w-4" />
+                Inbox
+              </Button>
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              <Button 
+                variant={activeTab === 'chats' ? 'default' : 'outline'} 
+                onClick={() => setActiveTab('chats')}
+                className="flex items-center gap-2 h-12"
+              >
+                <MessageCircle className="h-4 w-4" />
+                Chats
+              </Button>
+              <Button 
+                variant={activeTab === 'contact' ? 'default' : 'outline'} 
+                onClick={() => setActiveTab('contact')}
+                className="flex items-center gap-2 h-12"
+              >
+                <MessageSquare className="h-4 w-4" />
+                Contact
+              </Button>
+              <Button 
+                variant={activeTab === 'history' ? 'default' : 'outline'} 
+                onClick={() => setActiveTab('history')}
+                className="flex items-center gap-2 h-12"
+              >
+                <History className="h-4 w-4" />
+                History
+              </Button>
+            </div>
+          </div>
+
+          {/* Desktop Tab Navigation */}
+          <TabsList className="hidden lg:grid w-full grid-cols-7 gap-1 h-auto p-1">
+            <TabsTrigger value="profile" className="flex items-center gap-2 py-2">
               <User className="h-4 w-4" />
-              <span className="lg:inline">Profile</span>
+              Profile
             </TabsTrigger>
-            <TabsTrigger value="verification" className={`flex flex-col lg:flex-row items-center gap-1 lg:gap-2 py-2 lg:py-1.5 text-xs lg:text-sm min-h-[60px] lg:min-h-[40px] ${verificationStatus === 'pending' || verificationStatus === null ? 'bg-orange-500/10 text-orange-700 dark:text-orange-300 border-orange-500/20' : ''}`}>
+            <TabsTrigger value="verification" className={`flex items-center gap-2 py-2 ${verificationStatus === 'pending' || verificationStatus === null ? 'bg-orange-500/10 text-orange-700 dark:text-orange-300 border-orange-500/20' : ''}`}>
               <Shield className="h-4 w-4" />
-              <span className="lg:inline">Verify</span>
-              {(verificationStatus === 'pending' || verificationStatus === null) && <Badge variant="destructive" className="ml-1 h-4 w-4 p-0 text-xs lg:ml-2 lg:h-5 lg:w-5">!</Badge>}
+              Verification
+              {(verificationStatus === 'pending' || verificationStatus === null) && <Badge variant="destructive" className="ml-2 h-5 w-5 p-0 text-xs">!</Badge>}
             </TabsTrigger>
-            <TabsTrigger value="listings" className="flex flex-col lg:flex-row items-center gap-1 lg:gap-2 py-2 lg:py-1.5 text-xs lg:text-sm min-h-[60px] lg:min-h-[40px]">
+            <TabsTrigger value="listings" className="flex items-center gap-2 py-2">
               <Home className="h-4 w-4" />
-              <span className="lg:inline">Listings</span>
+              My Listings
             </TabsTrigger>
-            <TabsTrigger value="inbox" className="flex flex-col lg:flex-row items-center gap-1 lg:gap-2 py-2 lg:py-1.5 text-xs lg:text-sm min-h-[60px] lg:min-h-[40px]">
+            <TabsTrigger value="inbox" className="flex items-center gap-2 py-2">
               <Mail className="h-4 w-4" />
-              <span className="lg:inline">Inbox</span>
+              Inbox
             </TabsTrigger>
-            <TabsTrigger value="chats" className="flex flex-col lg:flex-row items-center gap-1 lg:gap-2 py-2 lg:py-1.5 text-xs lg:text-sm min-h-[60px] lg:min-h-[40px]">
+            <TabsTrigger value="chats" className="flex items-center gap-2 py-2">
               <MessageCircle className="h-4 w-4" />
-              <span className="lg:inline">Chats</span>
+              Chats
             </TabsTrigger>
-            <TabsTrigger value="contact" className="flex flex-col lg:flex-row items-center gap-1 lg:gap-2 py-2 lg:py-1.5 text-xs lg:text-sm min-h-[60px] lg:min-h-[40px]">
+            <TabsTrigger value="contact" className="flex items-center gap-2 py-2">
               <MessageSquare className="h-4 w-4" />
-              <span className="lg:inline">Contact</span>
+              Contact
             </TabsTrigger>
-            <TabsTrigger value="history" className="flex flex-col lg:flex-row items-center gap-1 lg:gap-2 py-2 lg:py-1.5 text-xs lg:text-sm min-h-[60px] lg:min-h-[40px]">
+            <TabsTrigger value="history" className="flex items-center gap-2 py-2">
               <History className="h-4 w-4" />
-              <span className="lg:inline">History</span>
+              History
             </TabsTrigger>
           </TabsList>
           
@@ -356,17 +426,28 @@ const MyAccount = () => {
                   } : null)} placeholder="+971 50 123 4567" />
                   </div>
 
-                  
-                  <Button type="submit" disabled={updating}>
-                    {updating ? <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Updating...
-                      </> : 'Update Profile'}
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-          </TabsContent>
+                   <div className="flex gap-2">
+                     <Button type="submit" disabled={updating} className="flex-1">
+                       {updating ? <>
+                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                           Updating...
+                         </> : 'Update Profile'}
+                     </Button>
+                     <div className="flex items-center space-x-2">
+                       <Switch 
+                         checked={isParkingOwner} 
+                         onCheckedChange={setIsParkingOwner}
+                         id="parking-owner"
+                       />
+                       <Label htmlFor="parking-owner" className="text-sm">
+                         I'm a parking owner
+                       </Label>
+                     </div>
+                   </div>
+                 </form>
+               </CardContent>
+             </Card>
+           </TabsContent>
           
           <TabsContent value="verification">
             <VerificationPanel />
@@ -393,48 +474,46 @@ const MyAccount = () => {
                 </CardTitle>
                 
               </CardHeader>
-              <CardContent className="space-y-6">
-                 <div className="grid grid-cols-1 gap-4">
-                   <Card>
-                     <CardContent className="pt-6 px-4">
-                       <div className="text-center space-y-4">
-                         <Send className="h-8 w-8 text-primary mx-auto" />
-                         <h3 className="font-semibold">Contact Admin</h3>
-                         <p className="text-sm text-muted-foreground">
-                           Send a direct message to our administrators for support or questions.
-                         </p>
-                         <Link to="/contact-admin">
-                           <Button className="w-full">
-                             Send Message
-                           </Button>
-                         </Link>
-                       </div>
-                     </CardContent>
-                   </Card>
-                 </div>
+               <CardContent className="space-y-4">
+                 <Card>
+                   <CardContent className="pt-4">
+                     <div className="text-center space-y-3">
+                       <Send className="h-8 w-8 text-primary mx-auto" />
+                       <h3 className="font-semibold">Contact Admin</h3>
+                       <p className="text-sm text-muted-foreground">
+                         Send a direct message to our administrators for support or questions.
+                       </p>
+                       <Link to="/contact-admin">
+                         <Button className="w-full">
+                           Send Message
+                         </Button>
+                       </Link>
+                     </div>
+                   </CardContent>
+                 </Card>
 
-                <div className="bg-muted p-4 rounded-lg">
-                  <h4 className="font-medium mb-2">Email Support</h4>
-                  <p className="text-sm text-muted-foreground">
-                    For urgent matters, you can also reach us directly at{' '}
-                    <a href="mailto:support@shazam.ae" className="text-primary hover:underline">
-                      support@shazam.ae
-                    </a>
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
-          <TabsContent value="history">
-            <Card>
-              <CardHeader>
-                <CardTitle>Parking History</CardTitle>
-                <CardDescription>
-                  View your parking bookings and listings
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
+                 <div className="bg-muted p-4 rounded-lg">
+                   <h4 className="font-medium mb-2">Email Support</h4>
+                   <p className="text-sm text-muted-foreground">
+                     For urgent matters, you can also reach us directly at{' '}
+                     <a href="mailto:support@shazam.ae" className="text-primary hover:underline">
+                       support@shazam.ae
+                     </a>
+                   </p>
+                 </div>
+               </CardContent>
+             </Card>
+           </TabsContent>
+           
+           <TabsContent value="history">
+             <Card>
+               <CardHeader>
+                 <CardTitle>Parking History</CardTitle>
+                 <CardDescription>
+                   View your parking bookings and listings
+                 </CardDescription>
+               </CardHeader>
+               <CardContent>
                  {parkingHistory.length === 0 ? <p className="text-muted-foreground text-center py-8">
                      No parking activity yet. Start by booking a space or listing your parking!
                    </p> : <div className="space-y-4">
