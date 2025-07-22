@@ -31,22 +31,22 @@ interface ParkingBookingModalProps {
 const DURATION_OPTIONS = [{
   months: 1,
   label: "1 Month",
-  discount: 0,
+  multiplier: 1.0,
   description: "Monthly rate"
 }, {
   months: 3,
   label: "3 Months",
-  discount: 5,
+  multiplier: 0.95,
   description: "5% OFF"
 }, {
   months: 6,
   label: "6 Months",
-  discount: 10,
+  multiplier: 0.90,
   description: "10% OFF"
 }, {
   months: 12,
   label: "12 Months",
-  discount: 15,
+  multiplier: 0.85,
   description: "15% OFF"
 }];
 export const ParkingBookingModal = ({
@@ -82,18 +82,31 @@ export const ParkingBookingModal = ({
   }, [isOpen]);
   if (!parkingSpot) return null;
   const calculateTotal = () => {
-    const basePrice = parkingSpot.price * selectedDuration.months;
-    const discountAmount = basePrice * selectedDuration.discount / 100;
+    // Use the correct formula: ((Listing Price – 100) × multiplier) × Number of Months + (100 × Number of Months)
+    let finalPrice: number;
+    let savings: number = 0;
+    
+    if (selectedDuration.months === 1) {
+      // For 1 month, use the original price
+      finalPrice = parkingSpot.price;
+    } else {
+      // For 3, 6, 12 months, use the formula
+      const discountedAmount = (parkingSpot.price - 100) * selectedDuration.multiplier;
+      finalPrice = (discountedAmount * selectedDuration.months) + (100 * selectedDuration.months);
+      
+      // Calculate savings compared to regular monthly rate
+      const regularTotal = parkingSpot.price * selectedDuration.months;
+      savings = regularTotal - finalPrice;
+    }
+    
     return {
-      basePrice,
-      discountAmount,
-      finalPrice: basePrice - discountAmount,
-      savings: discountAmount
+      basePrice: parkingSpot.price * selectedDuration.months,
+      finalPrice: Math.round(finalPrice),
+      savings: Math.round(savings)
     };
   };
   const {
     basePrice,
-    discountAmount,
     finalPrice,
     savings
   } = calculateTotal();
@@ -300,7 +313,7 @@ export const ParkingBookingModal = ({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {DURATION_OPTIONS.map(option => <Button key={option.months} variant={selectedDuration.months === option.months ? "default" : "outline"} className="flex flex-col h-auto py-4 px-4 text-center" onClick={() => setSelectedDuration(option)}>
                     <span className="font-semibold">{option.label}</span>
-                    {option.discount > 0 && <span className="text-xs text-green-600 font-medium">
+                    {option.months > 1 && <span className="text-xs text-green-600 font-medium">
                         {option.description}
                       </span>}
                   </Button>)}
@@ -324,9 +337,9 @@ export const ParkingBookingModal = ({
                     <span>AED {basePrice.toLocaleString()}</span>
                   </div>
                   
-                  {selectedDuration.discount > 0 && <div className="flex justify-between text-sm text-green-600">
-                      <span>{selectedDuration.discount}% discount</span>
-                      <span>-AED {discountAmount.toLocaleString()}</span>
+                  {savings > 0 && <div className="flex justify-between text-sm text-green-600">
+                      <span>Bulk rental discount</span>
+                      <span>-AED {savings.toLocaleString()}</span>
                     </div>}
                   
                   <hr className="my-2" />
@@ -337,7 +350,7 @@ export const ParkingBookingModal = ({
                   </div>
                   
                   {savings > 0 && <p className="text-sm text-green-600 font-medium">
-                      You save AED {savings.toLocaleString()} with {selectedDuration.discount}% OFF
+                      You save AED {savings.toLocaleString()} with bulk rental pricing
                     </p>}
                 </div>
               </CardContent>
