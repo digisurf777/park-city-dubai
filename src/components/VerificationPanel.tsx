@@ -235,10 +235,10 @@ const VerificationPanel = () => {
                 ...prev,
                 nationality: value
               }))}>
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select your nationality" />
                     </SelectTrigger>
-                    <SelectContent className="bg-background border border-border max-h-60 overflow-y-auto z-50">
+                    <SelectContent className="bg-white border border-gray-300 shadow-lg max-h-60 overflow-y-auto z-[9999]" position="popper">
                       <SelectItem value="Afghan">Afghan</SelectItem>
                       <SelectItem value="Albanian">Albanian</SelectItem>
                       <SelectItem value="Algerian">Algerian</SelectItem>
