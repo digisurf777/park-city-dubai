@@ -9,6 +9,7 @@ import { ArrowLeft, Calendar, Clock } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
+import "../styles/quill.css";
 
 interface NewsPost {
   id: string;
