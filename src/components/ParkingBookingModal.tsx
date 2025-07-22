@@ -334,7 +334,7 @@ export const ParkingBookingModal = ({
                   </div>
                   
                   {savings > 0 && <p className="text-sm text-green-600 font-medium">
-                      You save AED {savings.toLocaleString()} with bulk rental pricing
+                      You save AED {savings.toLocaleString()} with long term rental pricing
                     </p>}
                 </div>
               </CardContent>
