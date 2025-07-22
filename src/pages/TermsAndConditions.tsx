@@ -827,9 +827,9 @@ const TermsAndConditions = () => {
                   Owners may only cancel a confirmed booking before the Booking Period begins and only where:
                 </p>
                 <div className="ml-6 mb-4">
-                  <p className="mb-2">Access is legally or physically restricted;</p>
-                  <p className="mb-2">Force majeure applies; or</p>
-                  <p className="mb-2">Building policies or legal issues prevent fulfilment.</p>
+                  <p className="mb-2">(a) Access is legally or physically restricted;</p>
+                  <p className="mb-2">(b) Force majeure applies; or</p>
+                  <p className="mb-2">(c) Building policies or legal issues prevent fulfilment.</p>
                 </div>
                 <p className="mb-4">
                   Cancellations must be made by email to us and the Driver. In these cases, the Driver will receive a full refund.
@@ -846,8 +846,8 @@ const TermsAndConditions = () => {
                   Refunds are issued net of:
                 </p>
                 <div className="ml-6 mb-4">
-                  <p className="mb-2">Credit card transaction fees; and</p>
-                  <p className="mb-2">Reasonable administrative fees (not exceeding 10% of the price of the Booking Period), unless otherwise required by law.</p>
+                  <p className="mb-2">(a) Credit card transaction fees; and</p>
+                  <p className="mb-2">(b) Reasonable administrative fees (not exceeding 10% of the price of the Booking Period), unless otherwise        required by law.</p>
                 </div>
                 <p className="mb-4">
                   Refunds will only be issued to the original payment method.
@@ -856,8 +856,8 @@ const TermsAndConditions = () => {
                   The Access Card Fee is refundable only if:
                 </p>
                 <div className="ml-6 mb-4">
-                  <p className="mb-2">Access devices are returned in good condition; and</p>
-                  <p className="mb-2">No claims are made within 48 hours post-rental.</p>
+                  <p className="mb-2">(a) Access devices are returned in good condition; and</p>
+                  <p className="mb-2">(b) No claims are made within 48 hours post-rental.</p>
                 </div>
 
                 <h3 className="text-xl font-semibold mb-3">6. Abuse and Enforcement</h3>
