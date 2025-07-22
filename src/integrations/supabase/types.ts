@@ -251,40 +251,64 @@ export type Database = {
       }
       parking_bookings: {
         Row: {
+          confirmation_deadline: string | null
           cost_aed: number
           created_at: string
           duration_hours: number
           end_time: string
           id: string
           location: string
+          payment_amount_cents: number | null
+          payment_link_url: string | null
+          payment_status: string | null
+          payment_type: string | null
           start_time: string
           status: string
+          stripe_customer_id: string | null
+          stripe_payment_intent_id: string | null
+          stripe_subscription_id: string | null
           updated_at: string
           user_id: string
           zone: string
         }
         Insert: {
+          confirmation_deadline?: string | null
           cost_aed: number
           created_at?: string
           duration_hours: number
           end_time: string
           id?: string
           location: string
+          payment_amount_cents?: number | null
+          payment_link_url?: string | null
+          payment_status?: string | null
+          payment_type?: string | null
           start_time: string
           status?: string
+          stripe_customer_id?: string | null
+          stripe_payment_intent_id?: string | null
+          stripe_subscription_id?: string | null
           updated_at?: string
           user_id: string
           zone: string
         }
         Update: {
+          confirmation_deadline?: string | null
           cost_aed?: number
           created_at?: string
           duration_hours?: number
           end_time?: string
           id?: string
           location?: string
+          payment_amount_cents?: number | null
+          payment_link_url?: string | null
+          payment_status?: string | null
+          payment_type?: string | null
           start_time?: string
           status?: string
+          stripe_customer_id?: string | null
+          stripe_payment_intent_id?: string | null
+          stripe_subscription_id?: string | null
           updated_at?: string
           user_id?: string
           zone?: string
@@ -483,6 +507,10 @@ export type Database = {
     }
     Functions: {
       expire_booking_chats: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      expire_unconfirmed_bookings: {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
