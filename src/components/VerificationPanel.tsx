@@ -238,7 +238,7 @@ const VerificationPanel = () => {
                     <SelectTrigger>
                       <SelectValue placeholder="Select your nationality" />
                     </SelectTrigger>
-                    <SelectContent className="bg-background border border-border max-h-60 overflow-y-auto">
+                    <SelectContent className="bg-background border border-border max-h-60 overflow-y-auto z-50">
                       <SelectItem value="Afghan">Afghan</SelectItem>
                       <SelectItem value="Albanian">Albanian</SelectItem>
                       <SelectItem value="Algerian">Algerian</SelectItem>
