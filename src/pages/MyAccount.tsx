@@ -228,100 +228,100 @@ const MyAccount = () => {
   const getStatusText = (status: string) => {
     return status.charAt(0).toUpperCase() + status.slice(1);
   };
-  const renderHistoryItemDetails = (item: ParkingHistoryItem) => {
-    if (item.type === 'booking') {
-      const booking = item.details as ParkingBooking;
-      return <div className="grid grid-cols-2 gap-4 text-sm">
-          <div>
-            <p className="text-muted-foreground">Start Time</p>
-            <p>{new Date(booking.start_time).toLocaleString()}</p>
-          </div>
-          <div>
-            <p className="text-muted-foreground">End Time</p>
-            <p>{new Date(booking.end_time).toLocaleString()}</p>
-          </div>
-          <div>
-            <p className="text-muted-foreground">Duration</p>
-            <p>{booking.duration_hours} hours</p>
-          </div>
-          <div>
-            <p className="text-muted-foreground">Cost</p>
-            <p className="font-semibold">{booking.cost_aed} AED</p>
-          </div>
-        </div>;
-    } else {
-      const listing = item.details as ParkingListing;
-      return <div className="grid grid-cols-2 gap-4 text-sm">
-          <div>
-            <p className="text-muted-foreground">Hourly Rate</p>
-            <p className="font-semibold">{listing.price_per_hour} AED/hour</p>
-          </div>
-          {listing.price_per_day && <div>
-              <p className="text-muted-foreground">Daily Rate</p>
-              <p className="font-semibold">{listing.price_per_day} AED/day</p>
-            </div>}
-          {listing.price_per_month && <div>
-              <p className="text-muted-foreground">Monthly Rate</p>
-              <p className="font-semibold">{listing.price_per_month} AED/month</p>
-            </div>}
-          <div>
-            <p className="text-muted-foreground">Created</p>
-            <p>{new Date(listing.created_at).toLocaleDateString()}</p>
-          </div>
-        </div>;
-    }
-  };
+   const renderHistoryItemDetails = (item: ParkingHistoryItem) => {
+     if (item.type === 'booking') {
+       const booking = item.details as ParkingBooking;
+       return <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 lg:gap-4 text-xs lg:text-sm">
+           <div>
+             <p className="text-muted-foreground">Start Time</p>
+             <p className="break-words">{new Date(booking.start_time).toLocaleString()}</p>
+           </div>
+           <div>
+             <p className="text-muted-foreground">End Time</p>
+             <p className="break-words">{new Date(booking.end_time).toLocaleString()}</p>
+           </div>
+           <div>
+             <p className="text-muted-foreground">Duration</p>
+             <p>{booking.duration_hours} hours</p>
+           </div>
+           <div>
+             <p className="text-muted-foreground">Cost</p>
+             <p className="font-semibold">{booking.cost_aed} AED</p>
+           </div>
+         </div>;
+     } else {
+       const listing = item.details as ParkingListing;
+       return <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 lg:gap-4 text-xs lg:text-sm">
+           <div>
+             <p className="text-muted-foreground">Hourly Rate</p>
+             <p className="font-semibold">{listing.price_per_hour} AED/hour</p>
+           </div>
+           {listing.price_per_day && <div>
+               <p className="text-muted-foreground">Daily Rate</p>
+               <p className="font-semibold">{listing.price_per_day} AED/day</p>
+             </div>}
+           {listing.price_per_month && <div>
+               <p className="text-muted-foreground">Monthly Rate</p>
+               <p className="font-semibold">{listing.price_per_month} AED/month</p>
+             </div>}
+           <div>
+             <p className="text-muted-foreground">Created</p>
+             <p>{new Date(listing.created_at).toLocaleDateString()}</p>
+           </div>
+         </div>;
+     }
+   };
   if (loading) {
     return <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin" />
       </div>;
   }
   return <div className="min-h-screen bg-background pt-20 animate-zoom-slow">
-      <div className="max-w-4xl mx-auto p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold">My Account</h1>
+      <div className="max-w-4xl mx-auto p-4 lg:p-6">
+        <div className="flex flex-col space-y-4 mb-6 lg:flex-row lg:justify-between lg:items-center lg:space-y-0">
+          <h1 className="text-2xl lg:text-3xl font-bold">My Account</h1>
           <div className="flex gap-2">
-            <Button onClick={() => navigate('/')} variant="outline">
+            <Button onClick={() => navigate('/')} variant="outline" size="sm" className="flex-1 lg:flex-initial">
               <Home className="mr-2 h-4 w-4" />
-              Home
+              <span className="lg:inline">Home</span>
             </Button>
-            <Button onClick={handleLogout} variant="outline">
+            <Button onClick={handleLogout} variant="outline" size="sm" className="flex-1 lg:flex-initial">
               <LogOut className="mr-2 h-4 w-4" />
-              Logout
+              <span className="lg:inline">Logout</span>
             </Button>
           </div>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-7">
-            <TabsTrigger value="profile">
-              <User className="mr-2 h-4 w-4" />
-              Profile
+          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-7 gap-1 h-auto p-1">
+            <TabsTrigger value="profile" className="flex flex-col lg:flex-row items-center gap-1 lg:gap-2 py-2 lg:py-1.5 text-xs lg:text-sm min-h-[60px] lg:min-h-[40px]">
+              <User className="h-4 w-4" />
+              <span className="lg:inline">Profile</span>
             </TabsTrigger>
-            <TabsTrigger value="verification" className={verificationStatus === 'pending' || verificationStatus === null ? 'bg-orange-500/10 text-orange-700 dark:text-orange-300 border-orange-500/20' : ''}>
-              <Shield className="mr-2 h-4 w-4" />
-              Verification
-              {(verificationStatus === 'pending' || verificationStatus === null) && <Badge variant="destructive" className="ml-2 h-5 w-5 p-0 text-xs">!</Badge>}
+            <TabsTrigger value="verification" className={`flex flex-col lg:flex-row items-center gap-1 lg:gap-2 py-2 lg:py-1.5 text-xs lg:text-sm min-h-[60px] lg:min-h-[40px] ${verificationStatus === 'pending' || verificationStatus === null ? 'bg-orange-500/10 text-orange-700 dark:text-orange-300 border-orange-500/20' : ''}`}>
+              <Shield className="h-4 w-4" />
+              <span className="lg:inline">Verify</span>
+              {(verificationStatus === 'pending' || verificationStatus === null) && <Badge variant="destructive" className="ml-1 h-4 w-4 p-0 text-xs lg:ml-2 lg:h-5 lg:w-5">!</Badge>}
             </TabsTrigger>
-            <TabsTrigger value="listings">
-              <Home className="mr-2 h-4 w-4" />
-              My Listings
+            <TabsTrigger value="listings" className="flex flex-col lg:flex-row items-center gap-1 lg:gap-2 py-2 lg:py-1.5 text-xs lg:text-sm min-h-[60px] lg:min-h-[40px]">
+              <Home className="h-4 w-4" />
+              <span className="lg:inline">Listings</span>
             </TabsTrigger>
-            <TabsTrigger value="inbox">
-              <Mail className="mr-2 h-4 w-4" />
-              Inbox
+            <TabsTrigger value="inbox" className="flex flex-col lg:flex-row items-center gap-1 lg:gap-2 py-2 lg:py-1.5 text-xs lg:text-sm min-h-[60px] lg:min-h-[40px]">
+              <Mail className="h-4 w-4" />
+              <span className="lg:inline">Inbox</span>
             </TabsTrigger>
-            <TabsTrigger value="chats">
-              <MessageCircle className="mr-2 h-4 w-4" />
-              Chats
+            <TabsTrigger value="chats" className="flex flex-col lg:flex-row items-center gap-1 lg:gap-2 py-2 lg:py-1.5 text-xs lg:text-sm min-h-[60px] lg:min-h-[40px]">
+              <MessageCircle className="h-4 w-4" />
+              <span className="lg:inline">Chats</span>
             </TabsTrigger>
-            <TabsTrigger value="contact">
-              <MessageSquare className="mr-2 h-4 w-4" />
-              Contact
+            <TabsTrigger value="contact" className="flex flex-col lg:flex-row items-center gap-1 lg:gap-2 py-2 lg:py-1.5 text-xs lg:text-sm min-h-[60px] lg:min-h-[40px]">
+              <MessageSquare className="h-4 w-4" />
+              <span className="lg:inline">Contact</span>
             </TabsTrigger>
-            <TabsTrigger value="history">
-              <History className="mr-2 h-4 w-4" />
-              History
+            <TabsTrigger value="history" className="flex flex-col lg:flex-row items-center gap-1 lg:gap-2 py-2 lg:py-1.5 text-xs lg:text-sm min-h-[60px] lg:min-h-[40px]">
+              <History className="h-4 w-4" />
+              <span className="lg:inline">History</span>
             </TabsTrigger>
           </TabsList>
           
@@ -394,24 +394,24 @@ const MyAccount = () => {
                 
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 gap-4">
-                  <Card>
-                    <CardContent className="pt-6 mx-0 px-[2px]">
-                      <div className="text-center space-y-4">
-                        <Send className="h-8 w-8 text-primary mx-auto" />
-                        <h3 className="font-semibold">Contact Admin</h3>
-                        <p className="text-sm text-muted-foreground">
-                          Send a direct message to our administrators for support or questions.
-                        </p>
-                        <Link to="/contact-admin">
-                          <Button className="w-full">
-                            Send Message
-                          </Button>
-                        </Link>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
+                 <div className="grid grid-cols-1 gap-4">
+                   <Card>
+                     <CardContent className="pt-6 px-4">
+                       <div className="text-center space-y-4">
+                         <Send className="h-8 w-8 text-primary mx-auto" />
+                         <h3 className="font-semibold">Contact Admin</h3>
+                         <p className="text-sm text-muted-foreground">
+                           Send a direct message to our administrators for support or questions.
+                         </p>
+                         <Link to="/contact-admin">
+                           <Button className="w-full">
+                             Send Message
+                           </Button>
+                         </Link>
+                       </div>
+                     </CardContent>
+                   </Card>
+                 </div>
 
                 <div className="bg-muted p-4 rounded-lg">
                   <h4 className="font-medium mb-2">Email Support</h4>
@@ -435,26 +435,31 @@ const MyAccount = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {parkingHistory.length === 0 ? <p className="text-muted-foreground text-center py-8">
-                    No parking activity yet. Start by booking a space or listing your parking!
-                  </p> : <div className="space-y-4">
-                    {parkingHistory.map(item => <div key={`${item.type}-${item.id}`} className="border rounded-lg p-4">
-                        <div className="flex justify-between items-start mb-2">
-                          <div>
-                            <div className="flex items-center gap-2 mb-1">
-                              {item.type === 'booking' ? <Car className="h-4 w-4 text-blue-600" /> : <ParkingCircle className="h-4 w-4 text-green-600" />}
-                              <h3 className="font-semibold">{item.title}</h3>
-                            </div>
-                            <p className="text-sm text-muted-foreground">{item.zone}</p>
-                          </div>
-                          <Badge className={getStatusColor(item.status)}>
-                            {getStatusText(item.status)}
-                          </Badge>
-                        </div>
-                        
-                        {renderHistoryItemDetails(item)}
-                      </div>)}
-                  </div>}
+                 {parkingHistory.length === 0 ? <p className="text-muted-foreground text-center py-8">
+                     No parking activity yet. Start by booking a space or listing your parking!
+                   </p> : <div className="space-y-4">
+                     {parkingHistory.map(item => <div key={`${item.type}-${item.id}`} className="border rounded-lg p-3 lg:p-4">
+                         <div className="flex flex-col space-y-2 lg:flex-row lg:justify-between lg:items-start lg:space-y-0 mb-2">
+                           <div className="flex-1">
+                             <div className="flex items-center gap-2 mb-1">
+                               {item.type === 'booking' ? <Car className="h-4 w-4 text-blue-600" /> : <ParkingCircle className="h-4 w-4 text-green-600" />}
+                               <h3 className="font-semibold text-sm lg:text-base">{item.title}</h3>
+                             </div>
+                             <p className="text-xs lg:text-sm text-muted-foreground">{item.zone}</p>
+                           </div>
+                            <Badge className={getStatusColor(item.status)}>
+                              {getStatusText(item.status)}
+                            </Badge>
+                         </div>
+                         
+                         <div className="lg:hidden">
+                           {renderHistoryItemDetails(item)}
+                         </div>
+                         <div className="hidden lg:block">
+                           {renderHistoryItemDetails(item)}
+                         </div>
+                       </div>)}
+                   </div>}
               </CardContent>
             </Card>
           </TabsContent>
