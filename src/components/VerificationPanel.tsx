@@ -67,8 +67,18 @@ const VerificationPanel = () => {
     fileInput?.click();
   };
   const uploadDocument = async () => {
+    console.log('Form data:', formData);
+    console.log('User:', user);
+    
     if (!formData.file || !formData.fullName || !formData.nationality || !formData.documentType || !user) {
-      toast.error('Please fill all fields and select a file');
+      const missingFields = [];
+      if (!formData.file) missingFields.push('Document file');
+      if (!formData.fullName) missingFields.push('Full name');
+      if (!formData.nationality) missingFields.push('Nationality');
+      if (!formData.documentType) missingFields.push('Document type');
+      if (!user) missingFields.push('User authentication');
+      
+      toast.error(`Please fill the following fields: ${missingFields.join(', ')}`);
       return;
     }
     setUploading(true);
