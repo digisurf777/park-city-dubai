@@ -4,13 +4,15 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
-import { MapPin, Search, X, Car, CreditCard, Ruler } from "lucide-react";
+import { MapPin, Search, X, Car, CreditCard, Ruler, MessageCircle } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useSearchParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { DriverOwnerChat } from "@/components/DriverOwnerChat";
+import { useAuth } from "@/hooks/useAuth";
 import dubaiMarinaZone from "@/assets/zones/dubai-marina-real.jpg";
 import downtownZone from "/lovable-uploads/f676da2a-39c9-4211-8561-5b884e0ceed8.png";
 import dubaiHeroImage from "@/assets/dubai-daytime-hero.jpg";
@@ -22,6 +24,7 @@ const FindParking = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+  const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDistricts, setSelectedDistricts] = useState<string[]>([]);
@@ -29,6 +32,8 @@ const FindParking = () => {
   const [showAvailableOnly, setShowAvailableOnly] = useState(false);
   const [parkingSpots, setParkingSpots] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [chatOpen, setChatOpen] = useState(false);
+  const [selectedListing, setSelectedListing] = useState<any>(null);
   const districtZones = [{
     name: "Dubai Marina",
     slug: "dubai-marina"
@@ -220,17 +225,110 @@ const FindParking = () => {
         </div>
 
         {/* Parking Listings Section */}
-        {loading ? <div id="listings-section" className="mt-16 text-center">
+        {loading ? (
+          <div id="listings-section" className="mt-16 text-center">
             <p className="text-muted-foreground">Loading parking spots...</p>
-          </div> : filteredSpots.length > 0 ? <div id="listings-section" className="mt-16">
+          </div>
+        ) : filteredSpots.length > 0 ? (
+          <div id="listings-section" className="mt-16">
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-bold text-foreground mb-4">Available Parking Spots</h2>
+              <p className="text-muted-foreground">Found {filteredSpots.length} parking spots</p>
+            </div>
             
-            
-          </div> : <div id="listings-section" className="mt-16 text-center">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredSpots.map((spot) => (
+                <Card key={spot.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+                  <div className="relative h-48">
+                    <img 
+                      src={spot.image} 
+                      alt={spot.name}
+                      className="w-full h-full object-cover"
+                    />
+                    <Badge className="absolute top-2 right-2" variant={spot.available ? "default" : "secondary"}>
+                      {spot.available ? "Available" : "Unavailable"}
+                    </Badge>
+                  </div>
+                  
+                  <div className="p-4">
+                    <h3 className="font-semibold text-lg mb-2">{spot.name}</h3>
+                    <div className="flex items-center gap-1 text-muted-foreground mb-2">
+                      <MapPin className="h-4 w-4" />
+                      <span className="text-sm">{spot.district}</span>
+                    </div>
+                    
+                    <div className="flex items-center justify-between mb-3">
+                      <div>
+                        <span className="text-2xl font-bold text-primary">{spot.price} AED</span>
+                        <span className="text-sm text-muted-foreground">/month</span>
+                      </div>
+                    </div>
+                    
+                    {spot.specs && spot.specs.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mb-3">
+                        {spot.specs.slice(0, 2).map((spec, index) => (
+                          <Badge key={index} variant="outline" className="text-xs">
+                            {spec}
+                          </Badge>
+                        ))}
+                        {spot.specs.length > 2 && (
+                          <Badge variant="outline" className="text-xs">
+                            +{spot.specs.length - 2} more
+                          </Badge>
+                        )}
+                      </div>
+                    )}
+                    
+                    <div className="flex gap-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="flex-1"
+                        onClick={() => {
+                          setSelectedListing(spot);
+                          setChatOpen(true);
+                        }}
+                        disabled={!user}
+                      >
+                        <MessageCircle className="h-4 w-4 mr-1" />
+                        Contact Owner
+                      </Button>
+                      <Button size="sm" className="flex-1">
+                        Book Now
+                      </Button>
+                    </div>
+                    
+                    {!user && (
+                      <p className="text-xs text-muted-foreground mt-2 text-center">
+                        Please login to contact owner
+                      </p>
+                    )}
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div id="listings-section" className="mt-16 text-center">
             <p className="text-muted-foreground">No parking spots found matching your criteria.</p>
-          </div>}
+          </div>
+        )}
       </div>
 
       <Footer />
+
+      {/* Driver-Owner Chat Modal */}
+      {selectedListing && (
+        <DriverOwnerChat
+          listingId={selectedListing.id}
+          ownerId={selectedListing.owner_id || "owner-placeholder"}
+          isOpen={chatOpen}
+          onClose={() => {
+            setChatOpen(false);
+            setSelectedListing(null);
+          }}
+        />
+      )}
     </div>;
 };
 export default FindParking;

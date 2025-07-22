@@ -65,6 +65,50 @@ export type Database = {
         }
         Relationships: []
       }
+      driver_owner_messages: {
+        Row: {
+          created_at: string
+          driver_id: string
+          from_driver: boolean
+          id: string
+          listing_id: string
+          message: string
+          owner_id: string
+          read_status: boolean
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          driver_id: string
+          from_driver?: boolean
+          id?: string
+          listing_id: string
+          message: string
+          owner_id: string
+          read_status?: boolean
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          driver_id?: string
+          from_driver?: boolean
+          id?: string
+          listing_id?: string
+          message?: string
+          owner_id?: string
+          read_status?: boolean
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "driver_owner_messages_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "parking_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       news: {
         Row: {
           content: string

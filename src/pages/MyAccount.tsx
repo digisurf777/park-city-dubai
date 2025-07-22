@@ -13,6 +13,7 @@ import { Loader2, User, History, LogOut, Shield, Mail, Home, MessageSquare, Send
 import { useNavigate, Link } from 'react-router-dom';
 import VerificationPanel from '@/components/VerificationPanel';
 import UserInbox from '@/components/UserInbox';
+import { ChatHistory } from '@/components/ChatHistory';
 interface Profile {
   id: string;
   full_name: string;
@@ -292,7 +293,7 @@ const MyAccount = () => {
         </div>
 
         <Tabs defaultValue="profile" className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="profile">
               <User className="mr-2 h-4 w-4" />
               Profile
@@ -305,6 +306,10 @@ const MyAccount = () => {
             <TabsTrigger value="inbox">
               <Mail className="mr-2 h-4 w-4" />
               Inbox
+            </TabsTrigger>
+            <TabsTrigger value="chats">
+              <MessageCircle className="mr-2 h-4 w-4" />
+              Chats
             </TabsTrigger>
             <TabsTrigger value="contact">
               <MessageSquare className="mr-2 h-4 w-4" />
@@ -365,6 +370,10 @@ const MyAccount = () => {
           
           <TabsContent value="inbox">
             <UserInbox />
+          </TabsContent>
+          
+          <TabsContent value="chats">
+            <ChatHistory />
           </TabsContent>
           
           <TabsContent value="contact">
