@@ -10,34 +10,37 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 
-interface NewsPost {
+interface BlogPost {
   id: string;
   title: string;
+  slug: string;
+  excerpt: string | null;
   content: string;
-  image_url: string | null;
-  publication_date: string;
+  featured_image_url: string | null;
+  author: string;
+  published_date: string;
+  category: string;
+  status: string;
+  meta_title: string | null;
+  meta_description: string | null;
   created_at: string;
   updated_at: string;
-  tags?: string[] | null;
-  meta_title?: string | null;
-  meta_description?: string | null;
-  status?: string;
 }
 
 const NewsArticle = () => {
-  const { slug: id } = useParams();
-  const [article, setArticle] = useState<NewsPost | null>(null);
+  const { slug } = useParams();
+  const [article, setArticle] = useState<BlogPost | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchArticle = async () => {
-      if (!id) return;
+      if (!slug) return;
       
       try {
         const { data, error } = await supabase
-          .from('news')
+          .from('blog_posts')
           .select('*')
-          .eq('id', id)
+          .eq('slug', slug)
           .eq('status', 'published')
           .single();
 
@@ -56,7 +59,7 @@ const NewsArticle = () => {
     };
 
     fetchArticle();
-  }, [id]);
+  }, [slug]);
 
   if (loading) {
     return (
@@ -99,11 +102,11 @@ const NewsArticle = () => {
         <meta name="description" content={article.meta_description || article.content.replace(/<[^>]*>/g, '').substring(0, 150)} />
         <meta property="og:title" content={article.meta_title || article.title} />
         <meta property="og:description" content={article.meta_description || article.content.replace(/<[^>]*>/g, '').substring(0, 150)} />
-        <meta property="og:image" content={article.image_url || '/news/hero.jpg'} />
+        <meta property="og:image" content={article.featured_image_url || '/news/hero.jpg'} />
         <meta property="og:type" content="article" />
-        <meta name="article:published_time" content={article.publication_date} />
-        <meta name="keywords" content={article.tags?.join(', ') || 'Dubai parking, news, ShazamParking'} />
-        <link rel="canonical" href={`https://shazamparking.ae/news/${id}`} />
+        <meta name="article:published_time" content={article.published_date} />
+        <meta name="keywords" content={`${article.category}, Dubai parking, news, ShazamParking`} />
+        <link rel="canonical" href={`https://shazamparking.ae/news/${slug}`} />
       </Helmet>
       <Navbar />
       
@@ -128,31 +131,28 @@ const NewsArticle = () => {
           <div className="flex items-center gap-6 text-muted-foreground mb-6">
             <div className="flex items-center gap-2">
               <Calendar className="h-4 w-4" />
-              <span>{format(new Date(article.publication_date), 'MMMM d, yyyy')}</span>
+              <span>{format(new Date(article.published_date), 'MMMM d, yyyy')}</span>
             </div>
             <div className="flex items-center gap-2">
               <Clock className="h-4 w-4" />
               <span>{Math.ceil(article.content.replace(/<[^>]*>/g, '').length / 200)} min read</span>
             </div>
+            <span>By {article.author}</span>
           </div>
 
-          {/* Tags */}
-          {article.tags && article.tags.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-6">
-              {article.tags.map((tag, index) => (
-                <Badge key={index} variant="secondary" className="text-xs">
-                  {tag}
-                </Badge>
-              ))}
-            </div>
-          )}
+          {/* Category */}
+          <div className="flex flex-wrap gap-2 mb-6">
+            <Badge variant="secondary" className="text-xs">
+              {article.category}
+            </Badge>
+          </div>
         </div>
 
         {/* Featured Image */}
-        {article.image_url && (
+        {article.featured_image_url && (
           <div className="relative aspect-video mb-8 rounded-xl overflow-hidden shadow-lg">
             <img
-              src={article.image_url}
+              src={article.featured_image_url}
               alt={article.title}
               className="w-full h-full object-cover"
             />
