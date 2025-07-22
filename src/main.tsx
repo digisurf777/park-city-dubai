@@ -4,6 +4,7 @@ import { HelmetProvider } from "react-helmet-async";
 import App from "./App.tsx";
 import "./index.css";
 import CriticalCSS from "./components/CriticalCSS.tsx";
+import PreloadResources from "./components/PreloadResources.tsx";
 
 // Performance optimizations
 const root = createRoot(document.getElementById("root")!);
@@ -32,6 +33,7 @@ root.render(
   <StrictMode>
     <HelmetProvider>
       <CriticalCSS />
+      <PreloadResources />
       <App />
     </HelmetProvider>
   </StrictMode>

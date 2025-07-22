@@ -2,37 +2,60 @@ import { useEffect } from 'react';
 
 // Critical CSS for above-the-fold content
 const criticalCSS = `
+  /* Critical font face for immediate text rendering */
+  @font-face {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiA.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  }
+  
   /* Critical styles for hero section */
   .hero-critical {
     min-height: 100vh;
-    background-color: #1a1a1a;
+    background: linear-gradient(135deg, hsl(174 66% 56%) 0%, hsl(174 66% 46%) 100%);
     position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
+    contain: layout style paint;
   }
-  
-  /* Critical font loading */
-  @font-display: swap;
   
   /* Prevent layout shift */
   .hero-text {
-    font-size: 3rem;
+    font-size: clamp(2rem, 5vw, 4rem);
     line-height: 1.1;
     font-weight: 900;
     margin-bottom: 1rem;
+    font-family: 'Inter', sans-serif;
+    contain: layout style;
   }
   
-  @media (min-width: 640px) {
-    .hero-text {
-      font-size: 4rem;
-    }
+  /* Critical button styles */
+  .btn-critical {
+    background: hsl(174 66% 56%);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    transition: background-color 0.2s;
+    contain: layout style;
   }
   
-  @media (min-width: 1024px) {
-    .hero-text {
-      font-size: 6rem;
-    }
+  /* Optimize images for LCP */
+  img {
+    content-visibility: auto;
+    contain-intrinsic-size: 1px 1000px;
+  }
+  
+  /* Critical layout containers */
+  .container-critical {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+    contain: layout;
   }
 `;
 
