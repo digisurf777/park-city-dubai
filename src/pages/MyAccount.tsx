@@ -54,7 +54,10 @@ interface ParkingHistoryItem {
   details: ParkingBooking | ParkingListing;
 }
 const MyAccount = () => {
-  const { user, signOut } = useAuth();
+  const {
+    user,
+    signOut
+  } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(true);
@@ -228,10 +231,10 @@ const MyAccount = () => {
   const getStatusText = (status: string) => {
     return status.charAt(0).toUpperCase() + status.slice(1);
   };
-   const renderHistoryItemDetails = (item: ParkingHistoryItem) => {
-     if (item.type === 'booking') {
-       const booking = item.details as ParkingBooking;
-       return <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 lg:gap-4 text-xs lg:text-sm">
+  const renderHistoryItemDetails = (item: ParkingHistoryItem) => {
+    if (item.type === 'booking') {
+      const booking = item.details as ParkingBooking;
+      return <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 lg:gap-4 text-xs lg:text-sm">
            <div>
              <p className="text-muted-foreground">Start Time</p>
              <p className="break-words">{new Date(booking.start_time).toLocaleString()}</p>
@@ -249,11 +252,11 @@ const MyAccount = () => {
              <p className="font-semibold">{booking.cost_aed} AED</p>
            </div>
          </div>;
-     } else {
-       const listing = item.details as ParkingListing;
-       return <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 lg:gap-4 text-xs lg:text-sm">
+    } else {
+      const listing = item.details as ParkingListing;
+      return <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 lg:gap-4 text-xs lg:text-sm">
            <div>
-             <p className="text-muted-foreground">Hourly Rate</p>
+             
              <p className="font-semibold">{listing.price_per_hour} AED/hour</p>
            </div>
            {listing.price_per_day && <div>
@@ -269,8 +272,8 @@ const MyAccount = () => {
              <p>{new Date(listing.created_at).toLocaleDateString()}</p>
            </div>
          </div>;
-     }
-   };
+    }
+  };
   if (loading) {
     return <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin" />
@@ -296,66 +299,36 @@ const MyAccount = () => {
           {/* Mobile Tab Navigation */}
           <div className="lg:hidden mb-6">
             <div className="grid grid-cols-2 gap-2 mb-4">
-              <Button 
-                variant={activeTab === 'profile' ? 'default' : 'outline'} 
-                onClick={() => setActiveTab('profile')}
-                className="flex items-center gap-2 h-12"
-              >
+              <Button variant={activeTab === 'profile' ? 'default' : 'outline'} onClick={() => setActiveTab('profile')} className="flex items-center gap-2 h-12">
                 <User className="h-4 w-4" />
                 Profile
               </Button>
-              <Button 
-                variant={activeTab === 'verification' ? 'default' : 'outline'} 
-                onClick={() => setActiveTab('verification')}
-                className={`flex items-center gap-2 h-12 relative ${verificationStatus === 'pending' || verificationStatus === null ? 'border-orange-500/20' : ''}`}
-              >
+              <Button variant={activeTab === 'verification' ? 'default' : 'outline'} onClick={() => setActiveTab('verification')} className={`flex items-center gap-2 h-12 relative ${verificationStatus === 'pending' || verificationStatus === null ? 'border-orange-500/20' : ''}`}>
                 <Shield className="h-4 w-4" />
                 Verify
-                {(verificationStatus === 'pending' || verificationStatus === null) && 
-                  <div className="absolute -top-1 -right-1 h-3 w-3 bg-destructive rounded-full"></div>
-                }
+                {(verificationStatus === 'pending' || verificationStatus === null) && <div className="absolute -top-1 -right-1 h-3 w-3 bg-destructive rounded-full"></div>}
               </Button>
             </div>
             <div className="grid grid-cols-2 gap-2 mb-4">
-              <Button 
-                variant={activeTab === 'listings' ? 'default' : 'outline'} 
-                onClick={() => setActiveTab('listings')}
-                className="flex items-center gap-2 h-12"
-              >
+              <Button variant={activeTab === 'listings' ? 'default' : 'outline'} onClick={() => setActiveTab('listings')} className="flex items-center gap-2 h-12">
                 <Home className="h-4 w-4" />
                 Listings
               </Button>
-              <Button 
-                variant={activeTab === 'inbox' ? 'default' : 'outline'} 
-                onClick={() => setActiveTab('inbox')}
-                className="flex items-center gap-2 h-12"
-              >
+              <Button variant={activeTab === 'inbox' ? 'default' : 'outline'} onClick={() => setActiveTab('inbox')} className="flex items-center gap-2 h-12">
                 <Mail className="h-4 w-4" />
                 Inbox
               </Button>
             </div>
             <div className="grid grid-cols-3 gap-2">
-              <Button 
-                variant={activeTab === 'chats' ? 'default' : 'outline'} 
-                onClick={() => setActiveTab('chats')}
-                className="flex items-center gap-2 h-12"
-              >
+              <Button variant={activeTab === 'chats' ? 'default' : 'outline'} onClick={() => setActiveTab('chats')} className="flex items-center gap-2 h-12">
                 <MessageCircle className="h-4 w-4" />
                 Chats
               </Button>
-              <Button 
-                variant={activeTab === 'contact' ? 'default' : 'outline'} 
-                onClick={() => setActiveTab('contact')}
-                className="flex items-center gap-2 h-12"
-              >
+              <Button variant={activeTab === 'contact' ? 'default' : 'outline'} onClick={() => setActiveTab('contact')} className="flex items-center gap-2 h-12">
                 <MessageSquare className="h-4 w-4" />
                 Contact
               </Button>
-              <Button 
-                variant={activeTab === 'history' ? 'default' : 'outline'} 
-                onClick={() => setActiveTab('history')}
-                className="flex items-center gap-2 h-12"
-              >
+              <Button variant={activeTab === 'history' ? 'default' : 'outline'} onClick={() => setActiveTab('history')} className="flex items-center gap-2 h-12">
                 <History className="h-4 w-4" />
                 History
               </Button>
@@ -434,11 +407,7 @@ const MyAccount = () => {
                          </> : 'Update Profile'}
                      </Button>
                      <div className="flex items-center space-x-2">
-                       <Switch 
-                         checked={isParkingOwner} 
-                         onCheckedChange={setIsParkingOwner}
-                         id="parking-owner"
-                       />
+                       <Switch checked={isParkingOwner} onCheckedChange={setIsParkingOwner} id="parking-owner" />
                        <Label htmlFor="parking-owner" className="text-sm">
                          I'm a parking owner
                        </Label>
