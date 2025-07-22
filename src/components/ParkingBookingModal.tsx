@@ -85,20 +85,18 @@ export const ParkingBookingModal = ({
     // Use the correct formula: ((Listing Price – 100) × multiplier) × Number of Months + (100 × Number of Months)
     let finalPrice: number;
     let savings: number = 0;
-    
     if (selectedDuration.months === 1) {
       // For 1 month, use the original price
       finalPrice = parkingSpot.price;
     } else {
       // For 3, 6, 12 months, use the formula
       const discountedAmount = (parkingSpot.price - 100) * selectedDuration.multiplier;
-      finalPrice = (discountedAmount * selectedDuration.months) + (100 * selectedDuration.months);
-      
+      finalPrice = discountedAmount * selectedDuration.months + 100 * selectedDuration.months;
+
       // Calculate savings compared to regular monthly rate
       const regularTotal = parkingSpot.price * selectedDuration.months;
       savings = regularTotal - finalPrice;
     }
-    
     return {
       basePrice: parkingSpot.price * selectedDuration.months,
       finalPrice: Math.round(finalPrice),
@@ -114,29 +112,17 @@ export const ParkingBookingModal = ({
     if (!user) {
       toast({
         title: "Authentication Required",
-        description: (
-          <div className="space-y-3">
+        description: <div className="space-y-3">
             <p className="text-sm">Please log in to submit a booking request.</p>
             <div className="flex space-x-3">
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => window.location.href = '/auth'}
-                className="bg-white text-destructive hover:bg-gray-100 font-semibold px-4 py-2"
-              >
+              <Button variant="secondary" size="sm" onClick={() => window.location.href = '/auth'} className="bg-white text-destructive hover:bg-gray-100 font-semibold px-4 py-2">
                 Login
               </Button>
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => window.location.href = '/auth'}
-                className="bg-white text-destructive hover:bg-gray-100 font-semibold px-4 py-2"
-              >
+              <Button variant="secondary" size="sm" onClick={() => window.location.href = '/auth'} className="bg-white text-destructive hover:bg-gray-100 font-semibold px-4 py-2">
                 Sign Up
               </Button>
             </div>
-          </div>
-        ),
+          </div>,
         variant: "destructive"
       });
       return;
@@ -253,9 +239,7 @@ export const ParkingBookingModal = ({
               {parkingSpot.description && <p className="text-sm text-muted-foreground mb-4">{parkingSpot.description}</p>}
               
               {parkingSpot.specs && parkingSpot.specs.length > 0 && <div className="flex flex-wrap gap-2">
-                  {parkingSpot.specs.map((spec, index) => (
-                    <Badge key={index} variant="secondary" className="text-xs">{spec}</Badge>
-                  ))}
+                  {parkingSpot.specs.map((spec, index) => <Badge key={index} variant="secondary" className="text-xs">{spec}</Badge>)}
                 </div>}
 
               {/* Benefits Section */}
@@ -373,9 +357,7 @@ export const ParkingBookingModal = ({
                 <div className="text-sm text-blue-800">
                   <p className="font-medium mb-2">📋 Booking Process:</p>
                   <p className="text-xs">All bookings subject to final confirmation of availability.</p>
-                  {isWithin7Days && <p className="text-orange-600 font-medium text-xs mt-2">
-                      • Bookings within 7 days require manual approval
-                    </p>}
+                  {isWithin7Days}
                 </div>
               </CardContent>
             </Card>
