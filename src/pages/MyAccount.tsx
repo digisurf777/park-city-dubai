@@ -395,7 +395,7 @@ const MyAccount = () => {
                          </> : 'Update Profile'}
                      </Button>
                      <div className="flex items-center space-x-2">
-                       <Switch checked={isParkingOwner} onCheckedChange={setIsParkingOwner} id="parking-owner" />
+                       
                        
                      </div>
                    </div>
