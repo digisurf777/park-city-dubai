@@ -6,23 +6,18 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Logo and Description */}
           <div className="col-span-1 md:col-span-2">
-            <Link 
-              to="/" 
-              className="flex items-center space-x-2"
-              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            >
-              <img 
-                src="/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.png" 
-                alt="Shazam Parking" 
-                className="h-10 w-auto" 
-              />
+            <Link to="/" className="flex items-center space-x-2" onClick={() => window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+          })}>
+              <img src="/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.png" alt="Shazam Parking" className="h-10 w-auto" />
             </Link>
             <p className="text-gray-300 mb-6 max-w-md">
               Dubai's premier parking solution. Fixed prices and absolute convenience for all your parking needs.
             </p>
             <div className="flex items-center text-gray-300">
               <Mail className="h-4 w-4 mr-2" />
-              <span>support@shazam.ae</span>
+              <span>support@shazamparking.ae</span>
             </div>
           </div>
 
