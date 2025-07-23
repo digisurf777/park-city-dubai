@@ -158,14 +158,9 @@ export const ParkingBookingModal = ({
       setBookingReference(data.bookingId?.slice(0, 8).toUpperCase() || "");
       setShowConfirmation(true);
       
-      // Open payment link in new tab
-      if (data.paymentUrl) {
-        window.open(data.paymentUrl, '_blank');
-      }
-      
       toast({
         title: "Booking Submitted Successfully",
-        description: "Please complete your payment setup to secure your parking space. Check your email for details.",
+        description: "Please check your email for the payment link to complete your booking.",
       });
     } catch (error: any) {
       console.error('Error submitting booking:', error);
@@ -193,10 +188,10 @@ export const ParkingBookingModal = ({
             <h2 className="text-2xl font-bold mb-4 text-green-600">✅ Booking Submitted Successfully!</h2>
             
             <div className="bg-green-50 p-6 rounded-lg mb-4">
-              <h3 className="font-semibold mb-3 text-green-800">✅ Payment Link Sent!</h3>
+              <h3 className="font-semibold mb-3 text-green-800">✅ Payment Link Sent to Email!</h3>
               <ul className="text-left space-y-2 max-w-md mx-auto text-green-700">
                 <li>• A secure payment link has been sent to your email</li>
-                <li>• Payment window opened in a new tab</li>
+                <li>• Check your inbox for payment instructions</li>
                 <li>• Complete payment setup to secure your space</li>
               </ul>
             </div>

@@ -85,11 +85,6 @@ const handler = async (req: Request): Promise<Response> => {
       const session = await stripe.checkout.sessions.create({
         customer: customer.id,
         locale: 'en',
-        currency_options: {
-          aed: {
-            unit_amount: Math.round(amount * 100),
-          },
-        },
         payment_intent_data: {
           setup_future_usage: 'off_session',
         },

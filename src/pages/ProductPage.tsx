@@ -147,7 +147,7 @@ const ProductPage = () => {
       
       toast({
         title: "Booking Request Submitted!",
-        description: "We'll contact you within 2 working days to confirm availability.",
+        description: "Check your email for the payment link to complete your booking.",
       });
 
     } catch (error: any) {
