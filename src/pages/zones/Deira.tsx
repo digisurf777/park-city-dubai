@@ -4,10 +4,12 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Search, Car, CreditCard, Ruler, MapPin, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, Car, CreditCard, Ruler, MapPin, ChevronLeft, ChevronRight, Mail } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ParkingBookingModal } from "@/components/ParkingBookingModal";
@@ -15,6 +17,8 @@ import ImageZoomModal from "@/components/ImageZoomModal";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import deiraHero from "@/assets/zones/deira-real.jpg";
 const Deira = () => {
+  const { toast } = useToast();
+  const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [priceRange, setPriceRange] = useState([0, 500]);
   const [showAvailableOnly, setShowAvailableOnly] = useState(false);
@@ -29,6 +33,37 @@ const Deira = () => {
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [selectedSpotName, setSelectedSpotName] = useState("");
+
+  const testEmail = async () => {
+    if (!user?.email) {
+      toast({
+        title: "Error",
+        description: "Please log in to test email functionality",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase.functions.invoke('test-email', {
+        body: { email: user.email },
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Test Email Sent!",
+        description: `Test email sent to ${user.email}. Check your inbox.`,
+      });
+    } catch (error) {
+      console.error('Test email error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to send test email. Check console for details.",
+        variant: "destructive",
+      });
+    }
+  };
   useEffect(() => {
     fetchParkingSpots();
   }, []);
@@ -163,7 +198,22 @@ const Deira = () => {
       </div>
 
       <div className="sticky top-20 z-40 bg-white border-b shadow-sm">
-        
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex flex-wrap gap-4 items-center justify-between">
+            <div className="flex items-center gap-4">
+              <h3 className="text-lg font-semibold">Test Email System</h3>
+              <Button 
+                onClick={testEmail}
+                variant="outline" 
+                size="sm"
+                className="flex items-center gap-2"
+              >
+                <Mail className="h-4 w-4" />
+                Test Email
+              </Button>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
