@@ -176,8 +176,8 @@ const handler = async (req: Request): Promise<Response> => {
         <div style="background-color: #dbeafe; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center;">
           <h3 style="color: #1e40af; margin-top: 0;">Complete Your Payment</h3>
           ${paymentData.payment_type === 'one_time' 
-            ? '<p style="color: #1e40af; margin-bottom: 15px;">Your payment will be pre-authorized (not charged immediately). We will confirm your booking within 2 days.</p>'
-            : '<p style="color: #1e40af; margin-bottom: 15px;">Set up your monthly subscription with a 2-day trial period. Billing starts after we confirm your booking.</p>'
+            ? '<p style="color: #1e40af; margin-bottom: 15px;">Your payment will be pre-authorized (not charged immediately). We will confirm your booking shortly.</p>'
+            : '<p style="color: #1e40af; margin-bottom: 15px;">Set up your monthly subscription. Billing starts after we confirm your booking.</p>'
           }
           <a href="${paymentData.payment_url}" style="background-color: #16a34a; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">Complete Payment Setup</a>
         </div>
@@ -186,8 +186,8 @@ const handler = async (req: Request): Promise<Response> => {
           <p style="color: #92400e; font-weight: bold; margin: 0;">⏰ Important Timeline:</p>
           <p style="color: #92400e; margin: 5px 0 0 0;">
             • Complete payment setup as soon as possible<br>
-            • We will review and confirm your booking within 2 business days<br>
-            • If not confirmed by ${new Date(paymentData.confirmation_deadline).toLocaleDateString()}, the payment will be automatically refunded
+            • We will review and confirm your booking shortly<br>
+            • If not confirmed, the payment will be automatically refunded
           </p>
         </div>
         
@@ -195,7 +195,7 @@ const handler = async (req: Request): Promise<Response> => {
         <ul>
           <li>Complete your payment setup using the link above</li>
           <li>Our team will review your booking request</li>
-          <li>You'll receive confirmation within 2 business days</li>
+          <li>You'll receive confirmation shortly</li>
           <li>If approved, ${paymentData.payment_type === 'one_time' ? 'your payment will be processed' : 'your subscription will begin'}</li>
           <li>If not approved, you'll receive a full refund automatically</li>
         </ul>
