@@ -107,8 +107,8 @@ const handler = async (req: Request): Promise<Response> => {
           },
         ],
         mode: 'payment',
-        success_url: `https://1f056007-f350-4973-ab3d-3d7b5c7cd1db.lovableproject.com/payment-success?booking_id=${bookingId}`,
-        cancel_url: `https://1f056007-f350-4973-ab3d-3d7b5c7cd1db.lovableproject.com/find-a-parking-space`,
+        success_url: `https://shazamparking.ae/payment-success?booking_id=${bookingId}`,
+        cancel_url: `https://shazamparking.ae/find-a-parking-space`,
         metadata: {
           booking_id: bookingId,
           payment_type: 'one_time',
@@ -148,13 +148,18 @@ const handler = async (req: Request): Promise<Response> => {
         ],
         mode: 'subscription',
         subscription_data: {
+          trial_settings: {
+            end_behavior: {
+              missing_payment_method: 'cancel',
+            },
+          },
           metadata: {
             booking_id: bookingId,
             duration: duration.toString(),
           },
         },
-        success_url: `https://1f056007-f350-4973-ab3d-3d7b5c7cd1db.lovableproject.com/payment-success?booking_id=${bookingId}`,
-        cancel_url: `https://1f056007-f350-4973-ab3d-3d7b5c7cd1db.lovableproject.com/find-a-parking-space`,
+        success_url: `https://shazamparking.ae/payment-success?booking_id=${bookingId}`,
+        cancel_url: `https://shazamparking.ae/find-a-parking-space`,
         metadata: {
           booking_id: bookingId,
           payment_type: 'recurring',

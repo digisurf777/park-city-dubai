@@ -83,12 +83,10 @@ const handler = async (req: Request): Promise<Response> => {
         );
       }
     } else if (booking.payment_type === 'recurring' && booking.stripe_subscription_id) {
-      // For recurring payments, remove trial period to start billing
-      console.log("Activating subscription:", booking.stripe_subscription_id);
+      // For recurring payments, confirm the subscription is active
+      console.log("Checking subscription:", booking.stripe_subscription_id);
       
-      const subscription = await stripe.subscriptions.update(booking.stripe_subscription_id, {
-        trial_end: 'now', // End trial period and start billing immediately
-      });
+      const subscription = await stripe.subscriptions.retrieve(booking.stripe_subscription_id);
 
       if (subscription.status === 'active') {
         // Update booking status to confirmed
