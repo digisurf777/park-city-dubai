@@ -35,6 +35,13 @@ const handler = async (req: Request): Promise<Response> => {
       Deno.env.get("SUPABASE_ANON_KEY") ?? ""
     );
 
+    // Initialize Supabase service client for database operations (bypasses RLS)
+    const supabaseServiceClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      { auth: { persistSession: false } }
+    );
+
     // Get authenticated user
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
@@ -64,8 +71,8 @@ const handler = async (req: Request): Promise<Response> => {
     const endDate = new Date(startDate);
     endDate.setMonth(endDate.getMonth() + duration);
 
-    // Insert booking into database
-    const { data: booking, error: insertError } = await supabaseClient
+    // Insert booking into database using service role to bypass RLS
+    const { data: booking, error: insertError } = await supabaseServiceClient
       .from("parking_bookings")
       .insert([
         {
