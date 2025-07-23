@@ -30,37 +30,34 @@ const Index = () => {
       <Navbar />
       
       {/* Hero Section - Simplified animations for better performance */}
-      <section 
-        className="relative min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat" 
-        style={{
-          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url(${secureParking})`,
-          backgroundSize: 'cover'
-        }}
-      >
+      <section className="relative min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat" style={{
+      backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url(${secureParking})`,
+      backgroundSize: 'cover'
+    }}>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-white z-10">
           <div className="flex flex-col lg:flex-row items-center justify-between min-h-screen pt-20 sm:pt-24 lg:pt-0 py-8 sm:py-16 lg:py-[141px]">
             {/* Left side - Text */}
             <div className="text-center lg:text-left lg:flex-1 mb-8 lg:mb-0 mt-8 sm:mt-16 lg:mt-0 animate-fade-in">
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black leading-tight px-2 lg:px-0 mb-4">
                 <span className="block text-white" style={{
-                  textShadow: '3px 3px 12px rgba(0, 0, 0, 0.9), 0 0 30px rgba(0, 0, 0, 0.7)'
-                }}>
+                textShadow: '3px 3px 12px rgba(0, 0, 0, 0.9), 0 0 30px rgba(0, 0, 0, 0.7)'
+              }}>
                   YOUR TRUSTED
                 </span>
                 <span className="block text-primary font-black" style={{
-                  textShadow: '2px 2px 8px rgba(0, 0, 0, 0.5)'
-                }}>
+                textShadow: '2px 2px 8px rgba(0, 0, 0, 0.5)'
+              }}>
                   PARKING PLATFORM
                 </span>
                 <span className="block text-white" style={{
-                  textShadow: '3px 3px 12px rgba(0, 0, 0, 0.9), 0 0 30px rgba(0, 0, 0, 0.7)'
-                }}>
+                textShadow: '3px 3px 12px rgba(0, 0, 0, 0.9), 0 0 30px rgba(0, 0, 0, 0.7)'
+              }}>
                   IN DUBAI
                 </span>
               </h1>
               <p className="text-lg sm:text-xl text-white/90 mt-4 px-2 lg:px-0" style={{
-                textShadow: '2px 2px 8px rgba(0, 0, 0, 0.7)'
-              }}>
+              textShadow: '2px 2px 8px rgba(0, 0, 0, 0.7)'
+            }}>
                 List your parking space in minutes and start earning every month.
               </p>
             </div>
@@ -68,31 +65,13 @@ const Index = () => {
             {/* Right side - Phone Image */}
             <div className="lg:flex-1 flex justify-center lg:justify-end">
               <picture>
-                <source 
-                  media="(max-width: 640px)" 
-                  srcSet="/lovable-uploads/c910d35f-a4b2-4c06-88e3-7f5b16a45558.png"
-                  type="image/webp"
-                  width="256"
-                  height="467"
-                />
-                <source 
-                  media="(max-width: 1024px)" 
-                  srcSet="/lovable-uploads/c910d35f-a4b2-4c06-88e3-7f5b16a45558.png"
-                  type="image/webp"
-                  width="320"
-                  height="583"
-                />
-                <img 
-                  alt="Shazam Parking Mobile App" 
-                  className="w-64 sm:w-80 md:w-96 lg:max-w-md h-auto transition-transform duration-300 hover:scale-105" 
-                  src="/lovable-uploads/c910d35f-a4b2-4c06-88e3-7f5b16a45558.png"
-                  loading="eager"
-                  {...({ fetchpriority: 'high' })}
-                  decoding="async"
-                  width="384"
-                  height="700"
-                  style={{ contentVisibility: 'auto' }}
-                />
+                <source media="(max-width: 640px)" srcSet="/lovable-uploads/c910d35f-a4b2-4c06-88e3-7f5b16a45558.png" type="image/webp" width="256" height="467" />
+                <source media="(max-width: 1024px)" srcSet="/lovable-uploads/c910d35f-a4b2-4c06-88e3-7f5b16a45558.png" type="image/webp" width="320" height="583" />
+                <img alt="Shazam Parking Mobile App" className="w-64 sm:w-80 md:w-96 lg:max-w-md h-auto transition-transform duration-300 hover:scale-105" src="/lovable-uploads/c910d35f-a4b2-4c06-88e3-7f5b16a45558.png" loading="eager" {...{
+                fetchpriority: 'high'
+              }} decoding="async" width="384" height="700" style={{
+                contentVisibility: 'auto'
+              }} />
               </picture>
             </div>
           </div>
@@ -178,13 +157,7 @@ const Index = () => {
           }}>
                 <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 group">
                   <div className="relative aspect-video">
-                    <img 
-                      src={location.image} 
-                      alt={location.name} 
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
-                      loading="lazy"
-                      decoding="async"
-                    />
+                    <img src={location.image} alt={location.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy" decoding="async" />
                     <div className="absolute inset-0 bg-black bg-opacity-40 transition-opacity duration-300 group-hover:bg-opacity-30"></div>
                     <div className="absolute inset-0 flex flex-col items-center justify-center text-white p-4 sm:p-6">
                       <motion.h3 initial={{
@@ -401,15 +374,11 @@ IS HERE TO HELP YOU</motion.p>
           }} viewport={{
             once: true
           }} className="order-first lg:order-last">
-              <motion.img 
-                whileHover={{ scale: 1.05 }} 
-                transition={{ duration: 0.3 }} 
-                src={luxuryCar} 
-                alt="Luxury car in Dubai" 
-                className="w-full rounded-lg shadow-lg" 
-                loading="lazy"
-                decoding="async"
-              />
+              <motion.img whileHover={{
+              scale: 1.05
+            }} transition={{
+              duration: 0.3
+            }} src={luxuryCar} alt="Luxury car in Dubai" className="w-full rounded-lg shadow-lg" loading="lazy" decoding="async" />
             </motion.div>
           </div>
         </div>
@@ -420,20 +389,13 @@ IS HERE TO HELP YOU</motion.p>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             <div className="order-2 lg:order-1">
-              <img 
-                src={dubaihero} 
-                alt="Dubai UAE skyline" 
-                className="w-full rounded-lg shadow-lg" 
-                loading="lazy"
-                decoding="async"
-              />
+              <img src={dubaihero} alt="Dubai UAE skyline" className="w-full rounded-lg shadow-lg" loading="lazy" decoding="async" />
             </div>
             <div className="order-1 lg:order-2 text-center lg:text-left">
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 sm:mb-6">
                 Are you looking for a parking space?
               </h2>
-              <p className="text-base sm:text-lg lg:text-xl text-gray-600 mb-6 sm:mb-8 uppercase font-semibold">FIND YOUR SPACE WITH  
-ShazamParking</p>
+              <p className="text-base sm:text-lg lg:text-xl text-gray-600 mb-6 sm:mb-8 uppercase font-semibold">FIND YOUR SPACE WITH   ShazamParking</p>
               <Link to="/find-parking">
                 <Button className="bg-primary hover:bg-primary/90 text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg w-full sm:w-auto">
                   Book a Space
@@ -469,13 +431,7 @@ ShazamParking</p>
             <h3 className="text-lg sm:text-xl lg:text-2xl text-gray-700 mb-6 sm:mb-8 px-4">
               We are the quickest, easiest, and the most secure way to rent a parking space in Dubai!
             </h3>
-            <img 
-              src={businessMan} 
-              alt="Successful businessman" 
-              className="mx-auto rounded-lg shadow-lg max-w-2xl w-full" 
-              loading="lazy"
-              decoding="async"
-            />
+            <img src={businessMan} alt="Successful businessman" className="mx-auto rounded-lg shadow-lg max-w-2xl w-full" loading="lazy" decoding="async" />
           </div>
         </div>
       </section>
