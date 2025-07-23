@@ -125,7 +125,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Send confirmation email to admin with payment details
     const adminEmailResponse = await resend.emails.send({
-      from: "ShazamParking <noreply@shazamparking.com>",
+      from: "ShazamParking <onboarding@resend.dev>",
       to: ["shazamparkingdubai@gmail.com"],
       subject: "New Parking Booking with Payment Link",
       html: `
@@ -161,7 +161,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Send enhanced confirmation email to customer with payment link
     const customerEmailResponse = await resend.emails.send({
-      from: "ShazamParking <noreply@shazamparking.com>",
+      from: "ShazamParking <onboarding@resend.dev>",
       to: [user.email],
       subject: "Complete Your Parking Booking Payment",
       html: `
