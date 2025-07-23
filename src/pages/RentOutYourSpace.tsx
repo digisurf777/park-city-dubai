@@ -292,7 +292,7 @@ const RentOutYourSpace = () => {
       
       {/* Hero Section */}
       <section className="relative min-h-[70vh] flex items-center justify-center bg-cover bg-center bg-no-repeat" style={{
-      backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url(${luxuryCar})`
+      backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url(/lovable-uploads/d672c78d-465f-41e0-9e3d-cd28db512923.png)`
     }}>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
           <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
