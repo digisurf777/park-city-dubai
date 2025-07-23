@@ -566,7 +566,7 @@ const RentOutYourSpace = () => {
       </section>
 
       {/* Floating CTA Button */}
-      <div className="fixed bottom-6 right-6 z-50">
+      <div className="fixed bottom-6 right-6 z-50 md:bottom-6 bottom-20">
         <Button className="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-full shadow-lg" onClick={() => document.getElementById('form')?.scrollIntoView({
         behavior: 'smooth'
       })}>
