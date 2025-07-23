@@ -142,12 +142,6 @@ const handler = async (req: Request): Promise<Response> => {
         <p><strong>Payment Type:</strong> ${paymentData.payment_type === 'one_time' ? 'One-time Payment' : 'Monthly Recurring'}</p>
         <p><strong>Notes:</strong> ${notes || "None"}</p>
         <p><strong>Status:</strong> Payment Link Sent</p>
-        <p><strong>Confirmation Deadline:</strong> ${new Date(paymentData.confirmation_deadline).toLocaleDateString()}</p>
-        
-        <div style="background-color: #fef3c7; padding: 15px; border-radius: 5px; margin: 15px 0;">
-          <p style="color: #92400e; font-weight: bold; margin: 0;">⚠️ Action Required:</p>
-          <p style="color: #92400e; margin: 5px 0 0 0;">Customer has been sent a payment link. You have 2 days to confirm or reject this booking in the admin panel.</p>
-        </div>
         
         <p><a href="${req.headers.get("origin")}/admin" style="background-color: #3b82f6; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Review in Admin Panel</a></p>
       `,
