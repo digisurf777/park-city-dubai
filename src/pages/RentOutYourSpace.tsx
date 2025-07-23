@@ -21,8 +21,12 @@ const RentOutYourSpace = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
-  const { user } = useAuth();
-  const { toast } = useToast();
+  const {
+    user
+  } = useAuth();
+  const {
+    toast
+  } = useToast();
   const navigate = useNavigate();
   const [monthlyPrice, setMonthlyPrice] = useState<number>(300);
   const [uploadedImages, setUploadedImages] = useState<File[]>([]);
@@ -192,19 +196,15 @@ const RentOutYourSpace = () => {
         contact_email: user.email,
         status: 'pending'
       };
-
       console.log('Inserting listing data:', listingData);
-      
       const {
         data: insertedListing,
         error: insertError
       } = await supabase.from('parking_listings').insert(listingData).select().single();
-      
       if (insertError) {
         console.error('Insert error:', insertError);
         throw new Error(`Failed to create listing: ${insertError.message}`);
       }
-
       console.log('Listing created successfully:', insertedListing);
 
       // Send admin notification
@@ -250,7 +250,7 @@ const RentOutYourSpace = () => {
       }
       toast({
         title: "✅ Listing Submitted Successfully!",
-        description: "Your parking space has been submitted for review. Our team will review it within 24 hours and you'll be redirected to your account.",
+        description: "Your parking space has been submitted for review. Our team will review it within 24 hours and you'll be redirected to your account."
       });
 
       // Reset form
@@ -318,11 +318,7 @@ const RentOutYourSpace = () => {
           </div>
 
           <div className="flex justify-center">
-            <img 
-              src="/lovable-uploads/90ac71db-2b33-4d06-8b4e-7fdb761027f4.png" 
-              alt="Three step process: List for Free, Confirm Booking, Facilitate Access"
-              className="max-w-full h-auto"
-            />
+            <img src="/lovable-uploads/90ac71db-2b33-4d06-8b4e-7fdb761027f4.png" alt="Three step process: List for Free, Confirm Booking, Facilitate Access" className="max-w-full h-auto" />
           </div>
         </div>
       </section>
@@ -504,26 +500,7 @@ const RentOutYourSpace = () => {
                 </div>
               </div>
 
-              <div>
-                <Label htmlFor="idDocument" className="text-base font-medium">
-                  ID Document (Driving License, ID, or Passport) *
-                </Label>
-                <div className="mt-2">
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary transition-colors relative">
-                    <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                    <p className="text-gray-600 text-sm">
-                      {idDocument ? idDocument.name : "Click to upload your ID document"}
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      JPEG or PNG, max 3MB
-                    </p>
-                    <input type="file" accept="image/jpeg,image/png" onChange={handleIdUpload} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" required />
-                  </div>
-                  {idDocument && <div className="mt-3 p-3 bg-green-50 rounded-lg border border-green-200">
-                      <p className="text-sm text-green-700 font-medium">✓ ID document uploaded: {idDocument.name}</p>
-                    </div>}
-                </div>
-              </div>
+              
 
               <div>
                 <Label htmlFor="notes" className="text-base font-medium">
