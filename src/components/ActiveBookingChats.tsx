@@ -17,6 +17,9 @@ interface ActiveBooking {
   status: string;
   cost_aed: number;
   user_id: string;
+  payment_status: string;
+  payment_link_url: string | null;
+  confirmation_deadline: string | null;
   unread_messages: number;
   has_chat: boolean;
   is_active: boolean;
@@ -41,12 +44,12 @@ export const ActiveBookingChats = () => {
 
     setLoading(true);
     try {
-      // Get confirmed bookings for the current user
+      // Get bookings for the current user (both confirmed and pending)
       const { data: bookingsData, error: bookingsError } = await supabase
         .from('parking_bookings')
         .select('*')
         .eq('user_id', user.id)
-        .eq('status', 'confirmed')
+        .in('status', ['confirmed', 'pending'])
         .order('start_time', { ascending: true });
 
       if (bookingsError) throw bookingsError;
@@ -154,9 +157,9 @@ export const ActiveBookingChats = () => {
           ) : bookings.length === 0 ? (
             <div className="text-center py-8">
               <MessageCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <p className="text-muted-foreground">No confirmed bookings</p>
+              <p className="text-muted-foreground">No bookings found</p>
               <p className="text-sm text-muted-foreground mt-1">
-                Chat with owners will be available once you have confirmed bookings
+                Make a booking request to start chatting with parking owners
               </p>
             </div>
           ) : (
@@ -165,7 +168,11 @@ export const ActiveBookingChats = () => {
                 <Card 
                   key={booking.id} 
                   className={`hover:shadow-md transition-shadow ${
-                    booking.is_active ? 'border-green-200 bg-green-50/50' : 'border-orange-200 bg-orange-50/50'
+                    booking.status === 'confirmed' && booking.is_active 
+                      ? 'border-green-200 bg-green-50/50' 
+                      : booking.status === 'pending' 
+                      ? 'border-yellow-200 bg-yellow-50/50' 
+                      : 'border-orange-200 bg-orange-50/50'
                   }`}
                 >
                   <CardContent className="p-4">
@@ -179,10 +186,20 @@ export const ActiveBookingChats = () => {
                             </Badge>
                           )}
                           <Badge 
-                            variant={booking.is_active ? "default" : "secondary"} 
+                            variant={
+                              booking.status === 'pending' 
+                                ? "outline" 
+                                : booking.is_active 
+                                ? "default" 
+                                : "secondary"
+                            } 
                             className="text-xs"
                           >
-                            {booking.is_active ? "Active Now" : "Upcoming"}
+                            {booking.status === 'pending' 
+                              ? "Pending Payment" 
+                              : booking.is_active 
+                              ? "Active Now" 
+                              : "Upcoming"}
                           </Badge>
                         </div>
                         
@@ -205,7 +222,29 @@ export const ActiveBookingChats = () => {
                           </span>
                         </div>
 
-                        {booking.is_active && (
+                        {booking.status === 'pending' && (
+                          <div className="bg-yellow-100 border border-yellow-200 rounded p-2 mb-3">
+                            <p className="text-xs text-yellow-800 font-medium">
+                              💳 Payment Required - Complete payment to confirm your booking
+                            </p>
+                            {booking.confirmation_deadline && (
+                              <p className="text-xs text-yellow-700 mt-1">
+                                Expires: {format(new Date(booking.confirmation_deadline), 'MMM d, HH:mm')}
+                              </p>
+                            )}
+                            {booking.payment_link_url && (
+                              <Button 
+                                size="sm" 
+                                className="mt-2" 
+                                onClick={() => window.open(booking.payment_link_url!, '_blank')}
+                              >
+                                Complete Payment
+                              </Button>
+                            )}
+                          </div>
+                        )}
+
+                        {booking.status === 'confirmed' && booking.is_active && (
                           <div className="bg-green-100 border border-green-200 rounded p-2 mb-3">
                             <p className="text-xs text-green-800 font-medium">
                               🟢 Chat is active - You can communicate with the owner
@@ -213,7 +252,7 @@ export const ActiveBookingChats = () => {
                           </div>
                         )}
 
-                        {!booking.is_active && new Date() < new Date(booking.start_time) && (
+                        {booking.status === 'confirmed' && !booking.is_active && new Date() < new Date(booking.start_time) && (
                           <div className="bg-orange-100 border border-orange-200 rounded p-2 mb-3">
                             <p className="text-xs text-orange-800">
                               ⏳ Chat will be available when booking starts
@@ -221,20 +260,32 @@ export const ActiveBookingChats = () => {
                           </div>
                         )}
 
-                        {booking.has_chat && (
+                        {booking.has_chat && booking.status === 'confirmed' && (
                           <p className="text-xs text-muted-foreground">
                             {booking.unread_messages > 0 ? "New messages available" : "Chat history available"}
+                          </p>
+                        )}
+
+                        {booking.status === 'pending' && (
+                          <p className="text-xs text-muted-foreground">
+                            Chat will be available after payment confirmation
                           </p>
                         )}
                       </div>
                       
                       <Button 
-                        variant={booking.is_active ? "default" : "secondary"}
+                        variant={booking.status === 'confirmed' && booking.is_active ? "default" : "secondary"}
                         size="sm"
                         onClick={() => openChat(booking.id)}
-                        disabled={!booking.is_active && new Date() < new Date(booking.start_time)}
+                        disabled={booking.status === 'pending' || (!booking.is_active && new Date() < new Date(booking.start_time))}
                       >
-                        {booking.is_active ? "Chat Now" : booking.has_chat ? "View Chat" : "Chat Unavailable"}
+                        {booking.status === 'pending' 
+                          ? "Payment Required" 
+                          : booking.is_active 
+                          ? "Chat Now" 
+                          : booking.has_chat 
+                          ? "View Chat" 
+                          : "Chat Unavailable"}
                       </Button>
                     </div>
                   </CardContent>
