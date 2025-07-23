@@ -148,7 +148,6 @@ const handler = async (req: Request): Promise<Response> => {
         ],
         mode: 'subscription',
         subscription_data: {
-          trial_period_days: 0, // No trial period
           metadata: {
             booking_id: bookingId,
             duration: duration.toString(),
