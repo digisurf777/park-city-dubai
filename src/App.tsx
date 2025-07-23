@@ -40,6 +40,7 @@ const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const CookiesNotice = lazy(() => import("./pages/CookiesNotice"));
 const LavableHome = lazy(() => import("./pages/LavableHome"));
 const LavableFAQ = lazy(() => import("./pages/LavableFAQ"));
+const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -72,12 +73,13 @@ const App = () => (
             <Routes>
                 {/* Lavable Routes */}
                 <Route path="/lavable" element={<LavableHome />} />
-                <Route path="/lavable/faq" element={<LavableFAQ />} />
-                
-                <Route path="/" element={<Index />} />
-                <Route path="/find-parking" element={<FindParking />} />
-                <Route path="/find-a-parking-space" element={<FindParking />} />
-                <Route path="/about-us" element={<AboutUs />} />
+                 <Route path="/lavable/faq" element={<LavableFAQ />} />
+                 
+                 <Route path="/" element={<Index />} />
+                 <Route path="/find-parking" element={<FindParking />} />
+                 <Route path="/find-a-parking-space" element={<FindParking />} />
+                 <Route path="/payment-success" element={<PaymentSuccess />} />
+                 <Route path="/about-us" element={<AboutUs />} />
                 <Route path="/faq" element={<FAQ />} />
                 <Route path="/news" element={<News />} />
                 <Route path="/news/:slug" element={<NewsArticle />} />

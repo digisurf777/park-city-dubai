@@ -138,15 +138,14 @@ export const ParkingBookingModal = ({
     setIsSubmitting(true);
     try {
       const bookingData = {
-        parkingSpotId: parkingSpot.id.toString(),
-        parkingSpotName: parkingSpot.name,
         startDate: startDate.toISOString(),
         duration: selectedDuration.months,
-        totalPrice: finalPrice,
-        userEmail: user.email || "",
-        userName: user.user_metadata?.full_name || user.email || "",
-        userPhone: userPhone,
-        notes: notes
+        userPhone,
+        notes,
+        zone: "Find Parking Page",
+        location: parkingSpot.name,
+        costAed: finalPrice,
+        parkingSpotName: parkingSpot.name,
       };
       const {
         data,
@@ -158,9 +157,15 @@ export const ParkingBookingModal = ({
       console.log('Booking request submitted:', data);
       setBookingReference(data.bookingId?.slice(0, 8).toUpperCase() || "");
       setShowConfirmation(true);
+      
+      // Open payment link in new tab
+      if (data.paymentUrl) {
+        window.open(data.paymentUrl, '_blank');
+      }
+      
       toast({
-        title: "Booking Request Submitted!",
-        description: "We'll contact you within 2 working days to confirm availability."
+        title: "Booking Submitted Successfully",
+        description: "Please complete your payment setup to secure your parking space. Check your email for details.",
       });
     } catch (error: any) {
       console.error('Error submitting booking:', error);
@@ -185,14 +190,24 @@ export const ParkingBookingModal = ({
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <Check className="w-8 h-8 text-green-600" />
             </div>
-            <h2 className="text-2xl font-bold mb-4 text-green-600">✅ Your booking request has been submitted!</h2>
+            <h2 className="text-2xl font-bold mb-4 text-green-600">✅ Booking Submitted Successfully!</h2>
             
-            <div className="bg-muted/50 p-6 rounded-lg mb-6">
-              <h3 className="font-semibold mb-3">What happens next:</h3>
-              <ul className="text-left space-y-2 max-w-md mx-auto">
-                <li>• We will contact you within <strong>2 working days</strong> to confirm availability</li>
-                <li>• You'll receive a payment link after confirmation</li>
-                <li>• <strong>No charges have been made at this time</strong></li>
+            <div className="bg-green-50 p-6 rounded-lg mb-4">
+              <h3 className="font-semibold mb-3 text-green-800">✅ Payment Link Sent!</h3>
+              <ul className="text-left space-y-2 max-w-md mx-auto text-green-700">
+                <li>• A secure payment link has been sent to your email</li>
+                <li>• Payment window opened in a new tab</li>
+                <li>• Complete payment setup to secure your space</li>
+              </ul>
+            </div>
+
+            <div className="bg-blue-50 p-6 rounded-lg mb-6">
+              <h3 className="font-semibold mb-3 text-blue-800">Next Steps:</h3>
+              <ul className="text-left space-y-2 max-w-md mx-auto text-blue-700">
+                <li>• Complete your payment setup using the link</li>
+                <li>• We'll review and confirm within 2 business days</li>
+                <li>• Automatic refund if booking is not approved</li>
+                <li>• Check your email for detailed instructions</li>
               </ul>
             </div>
 
