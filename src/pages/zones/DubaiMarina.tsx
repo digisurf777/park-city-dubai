@@ -317,7 +317,7 @@ const DubaiMarina = () => {
           <div className="text-center text-white px-4">
             <h1 className="text-5xl md:text-6xl font-bold mb-4">Parking Spaces in Dubai Marina</h1>
             <p className="text-xl md:text-2xl opacity-90">Picturesque waterfront district with stunning skyline</p>
-            <p className="text-lg md:text-xl opacity-80 mt-2">Secure monthly bays from AED {minPrice}</p>
+            <p className="text-lg md:text-xl opacity-80 mt-2">Secure monthly bays to AED700</p>
           </div>
         </div>
       </div>
