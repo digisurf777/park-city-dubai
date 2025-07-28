@@ -5,6 +5,8 @@ import App from "./App.tsx";
 import "./index.css";
 import CriticalCSS from "./components/CriticalCSS.tsx";
 import PreloadResources from "./components/PreloadResources.tsx";
+import ServiceWorkerRegister from "./components/ServiceWorkerRegister.tsx";
+import AdvancedPreloader from "./components/AdvancedPreloader.tsx";
 
 // Performance optimizations
 const root = createRoot(document.getElementById("root")!);
@@ -32,8 +34,10 @@ preloadResources();
 root.render(
   <StrictMode>
     <HelmetProvider>
+      <ServiceWorkerRegister />
       <CriticalCSS />
       <PreloadResources />
+      <AdvancedPreloader />
       <App />
     </HelmetProvider>
   </StrictMode>

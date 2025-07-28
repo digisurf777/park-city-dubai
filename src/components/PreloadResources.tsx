@@ -27,28 +27,10 @@ const PreloadResources = () => {
       document.head.appendChild(link);
     });
 
-    // Optimize third-party script loading
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting && entry.intersectionRatio > 0.1) {
-          // Load TawkTo chat after user starts scrolling
-          const tawkScript = document.createElement('script');
-          tawkScript.async = true;
-          tawkScript.src = 'https://embed.tawk.to/669e2eabeaf3bd8d4d15776a/1i37fgn8s';
-          tawkScript.charset = 'UTF-8';
-          tawkScript.setAttribute('crossorigin', '*');
-          document.head.appendChild(tawkScript);
-          
-          observer.disconnect();
-        }
-      });
-    }, { threshold: 0.1 });
+    // Remove TawkTo loading from here - now handled by OptimizedTawkTo component
 
-    // Start observing after a small delay
-    const target = document.querySelector('#scroll-trigger') || document.body;
-    setTimeout(() => observer.observe(target), 1000);
-
-    return () => observer.disconnect();
+    // Cleanup function (observer no longer needed)
+    return () => {};
   }, []);
 
   return (
