@@ -2125,12 +2125,10 @@ const AdminPanel = () => {
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-semibold">Parking Listings</h2>
               <div className="flex gap-2">
-                {!isCreatingListing && (
-                  <Button onClick={handleCreateListing} className="flex items-center gap-2">
-                    <Plus className="h-4 w-4" />
-                    Add New Listing
-                  </Button>
-                )}
+                <Button onClick={handleCreateListing} className="flex items-center gap-2">
+                  <Plus className="h-4 w-4" />
+                  Add New Listing
+                </Button>
                 {(editingListing || isCreatingListing) && (
                   <Button variant="outline" onClick={resetListingForm}>
                     Cancel
