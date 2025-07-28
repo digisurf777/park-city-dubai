@@ -1391,26 +1391,116 @@ const AdminPanel = () => {
     setIsPreviewMode(false);
   };
 
+  const compressImage = (file: File, maxSizeMB: number = 5): Promise<File> => {
+    return new Promise((resolve) => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+
+      img.onload = () => {
+        // Calculate new dimensions while maintaining aspect ratio
+        let { width, height } = img;
+        const maxDimension = 1920; // Max width or height
+
+        if (width > maxDimension || height > maxDimension) {
+          if (width > height) {
+            height = (height * maxDimension) / width;
+            width = maxDimension;
+          } else {
+            width = (width * maxDimension) / height;
+            height = maxDimension;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        ctx?.drawImage(img, 0, 0, width, height);
+
+        // Try different quality levels until we get under the size limit
+        let quality = 0.9;
+        const tryCompress = () => {
+          canvas.toBlob((blob) => {
+            if (blob && (blob.size <= maxSizeMB * 1024 * 1024 || quality <= 0.1)) {
+              const compressedFile = new File([blob], file.name, {
+                type: file.type,
+                lastModified: Date.now(),
+              });
+              resolve(compressedFile);
+            } else {
+              quality -= 0.1;
+              tryCompress();
+            }
+          }, file.type, quality);
+        };
+        tryCompress();
+      };
+
+      img.src = URL.createObjectURL(file);
+    });
+  };
+
+  const formatFileSize = (bytes: number): string => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
   const handleImageUpload = async (file: File) => {
     if (!file) return;
 
-    const maxSize = 2 * 1024 * 1024; // 2MB
-    if (file.size > maxSize) {
-      toast({
-        title: "Error",
-        description: "Image size must be less than 2MB",
-        variant: "destructive",
-      });
-      return;
-    }
-
+    const maxSize = 10 * 1024 * 1024; // 10MB - increased from 2MB
     const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    
     if (!allowedTypes.includes(file.type)) {
       toast({
         title: "Error",
         description: "Only JPG, PNG, and WebP images are allowed",
         variant: "destructive",
       });
+      return;
+    }
+
+    // Show file size to user
+    console.log(`Original file size: ${formatFileSize(file.size)}`);
+
+    let processedFile = file;
+
+    // If file is larger than 5MB, compress it
+    if (file.size > 5 * 1024 * 1024) {
+      try {
+        setImageUploading(true);
+        toast({
+          title: "Compressing image...",
+          description: `Original size: ${formatFileSize(file.size)}. Please wait.`,
+        });
+        
+        processedFile = await compressImage(file, 5);
+        console.log(`Compressed file size: ${formatFileSize(processedFile.size)}`);
+        
+        toast({
+          title: "Image compressed",
+          description: `New size: ${formatFileSize(processedFile.size)}`,
+        });
+      } catch (error) {
+        console.error('Compression failed:', error);
+        toast({
+          title: "Compression failed",
+          description: "Using original image. Upload may be slower.",
+          variant: "destructive",
+        });
+      }
+    }
+
+    // Final size check with better error message
+    if (processedFile.size > maxSize) {
+      toast({
+        title: "File too large",
+        description: `Image size is ${formatFileSize(processedFile.size)}. Maximum allowed is ${formatFileSize(maxSize)}. Please use a smaller image.`,
+        variant: "destructive",
+      });
+      setImageUploading(false);
       return;
     }
 
