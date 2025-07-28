@@ -56,10 +56,29 @@ const handler = async (req: Request): Promise<Response> => {
     console.log("reCAPTCHA verification result:", verificationResult);
 
     if (verificationResult.success) {
+      // For reCAPTCHA v3, check the score (0.0 to 1.0, higher is better)
+      const score = verificationResult.score || 0;
+      const minScore = 0.5; // Adjust this threshold as needed
+      
+      if (score < minScore) {
+        console.log("reCAPTCHA score too low:", score);
+        return new Response(
+          JSON.stringify({ 
+            success: false, 
+            error: "reCAPTCHA score too low",
+            score: score
+          }),
+          {
+            status: 400,
+            headers: { "Content-Type": "application/json", ...corsHeaders },
+          }
+        );
+      }
+
       return new Response(
         JSON.stringify({ 
           success: true, 
-          score: verificationResult.score || null,
+          score: score,
           message: "reCAPTCHA verification successful"
         }),
         {

@@ -16,7 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import luxuryCar from "@/assets/luxury-car-dubai.png";
 import phoneLogo from "@/assets/phone-logo.png";
-import ReCAPTCHA from 'react-google-recaptcha';
+import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 
 const RentOutYourSpace = () => {
   useEffect(() => {
@@ -32,8 +32,7 @@ const RentOutYourSpace = () => {
   const [monthlyPrice, setMonthlyPrice] = useState<number>(300);
   const [uploadedImages, setUploadedImages] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
-  const recaptchaRef = useRef<ReCAPTCHA>(null);
+  const { executeRecaptcha } = useGoogleReCaptcha();
   const [idDocument, setIdDocument] = useState<File | null>(null);
   const [formData, setFormData] = useState({
     fullName: "",
@@ -191,11 +190,10 @@ const RentOutYourSpace = () => {
       navigate('/auth');
       return;
     }
-    
-    if (!recaptchaToken) {
+    if (!executeRecaptcha) {
       toast({
         title: "Verification required",
-        description: "Please complete the reCAPTCHA verification",
+        description: "reCAPTCHA not available. Please try again.",
         variant: "destructive"
       });
       return;
@@ -220,6 +218,9 @@ const RentOutYourSpace = () => {
     }
     setIsSubmitting(true);
     try {
+      // Execute reCAPTCHA v3
+      const recaptchaToken = await executeRecaptcha('rent_space');
+      
       // Verify reCAPTCHA first
       const { data: recaptchaResult, error: recaptchaError } = await supabase.functions.invoke('verify-recaptcha', {
         body: { token: recaptchaToken }
@@ -231,8 +232,6 @@ const RentOutYourSpace = () => {
           description: "reCAPTCHA verification failed. Please try again.",
           variant: "destructive"
         });
-        recaptchaRef.current?.reset();
-        setRecaptchaToken(null);
         setIsSubmitting(false);
         return;
       }
@@ -338,9 +337,7 @@ const RentOutYourSpace = () => {
       setIdDocument(null);
       setMonthlyPrice(300);
 
-      // Reset reCAPTCHA
-      recaptchaRef.current?.reset();
-      setRecaptchaToken(null);
+      setIsSubmitting(false);
 
       // Redirect to account page to view the submitted listing
       setTimeout(() => {
@@ -620,15 +617,8 @@ const RentOutYourSpace = () => {
               </div>
 
               
-               <div className="flex justify-center">
-                 <ReCAPTCHA
-                   ref={recaptchaRef}
-                   sitekey="6LduLpIrAAAAADwcAv1FqqGD3U8mAIXeOaR9g_bc"
-                   onChange={(token) => setRecaptchaToken(token)}
-                 />
-              </div>
 
-              <Button type="submit" disabled={isSubmitting || !recaptchaToken} className="w-full bg-primary hover:bg-primary/90 text-white py-4 text-lg font-semibold disabled:opacity-50">
+              <Button type="submit" disabled={isSubmitting} className="w-full bg-primary hover:bg-primary/90 text-white py-4 text-lg font-semibold disabled:opacity-50">
                 {isSubmitting ? "Submitting..." : "Submit Listing"}
               </Button>
             </form>

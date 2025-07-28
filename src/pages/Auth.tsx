@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -7,10 +7,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { Loader2, User, Building, Mail } from 'lucide-react';
-import ReCAPTCHA from 'react-google-recaptcha';
+import { Loader2, Mail } from 'lucide-react';
+import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 
 const Auth = () => {
   const [loading, setLoading] = useState(false);
@@ -19,9 +18,8 @@ const Auth = () => {
   const [resetEmail, setResetEmail] = useState('');
   const [loginForm, setLoginForm] = useState({ email: '', password: '' });
   const [signupForm, setSignupForm] = useState({ email: '', password: '', confirmPassword: '', fullName: '' });
-  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
   const [rateLimited, setRateLimited] = useState(false);
-  const recaptchaRef = useRef<ReCAPTCHA>(null);
+  const { executeRecaptcha } = useGoogleReCaptcha();
   const { signIn, signUp, resetPassword, user } = useAuth();
   const navigate = useNavigate();
 
@@ -34,14 +32,17 @@ const Auth = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!recaptchaToken) {
-      toast.error('Please complete the reCAPTCHA verification');
+    if (!executeRecaptcha) {
+      toast.error('reCAPTCHA not available. Please try again.');
       return;
     }
     
     setLoading(true);
     
     try {
+      // Execute reCAPTCHA v3
+      const recaptchaToken = await executeRecaptcha('login');
+      
       // Verify reCAPTCHA first
       const { data: recaptchaResult, error: recaptchaError } = await supabase.functions.invoke('verify-recaptcha', {
         body: { token: recaptchaToken }
@@ -49,8 +50,6 @@ const Auth = () => {
 
       if (recaptchaError || !recaptchaResult?.success) {
         toast.error('reCAPTCHA verification failed. Please try again.');
-        recaptchaRef.current?.reset();
-        setRecaptchaToken(null);
         setLoading(false);
         return;
       }
@@ -74,9 +73,6 @@ const Auth = () => {
       toast.error('An error occurred during login');
     } finally {
       setLoading(false);
-      // Reset reCAPTCHA
-      recaptchaRef.current?.reset();
-      setRecaptchaToken(null);
     }
   };
 
@@ -87,9 +83,8 @@ const Auth = () => {
     if (loading || rateLimited) {
       return;
     }
-    
-    if (!recaptchaToken) {
-      toast.error('Please complete the reCAPTCHA verification');
+    if (!executeRecaptcha) {
+      toast.error('reCAPTCHA not available. Please try again.');
       return;
     }
     
@@ -106,6 +101,9 @@ const Auth = () => {
     setLoading(true);
     
     try {
+      // Execute reCAPTCHA v3
+      const recaptchaToken = await executeRecaptcha('signup');
+      
       // Verify reCAPTCHA first
       const { data: recaptchaResult, error: recaptchaError } = await supabase.functions.invoke('verify-recaptcha', {
         body: { token: recaptchaToken }
@@ -113,8 +111,6 @@ const Auth = () => {
 
       if (recaptchaError || !recaptchaResult?.success) {
         toast.error('reCAPTCHA verification failed. Please try again.');
-        recaptchaRef.current?.reset();
-        setRecaptchaToken(null);
         setLoading(false);
         return;
       }
@@ -229,15 +225,7 @@ const Auth = () => {
                     />
                   </div>
                   
-                  <div className="flex justify-center">
-                     <ReCAPTCHA
-                       ref={recaptchaRef}
-                       sitekey="6LduLpIrAAAAADwcAv1FqqGD3U8mAIXeOaR9g_bc"
-                       onChange={(token) => setRecaptchaToken(token)}
-                     />
-                  </div>
-                  
-                  <Button type="submit" className="w-full" disabled={loading || !recaptchaToken}>
+                  <Button type="submit" className="w-full" disabled={loading}>
                     {loading ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -357,15 +345,7 @@ const Auth = () => {
                     />
                   </div>
                   
-                  <div className="flex justify-center">
-                     <ReCAPTCHA
-                       ref={recaptchaRef}
-                       sitekey="6LduLpIrAAAAADwcAv1FqqGD3U8mAIXeOaR9g_bc"
-                       onChange={(token) => setRecaptchaToken(token)}
-                     />
-                  </div>
-                  
-                  <Button type="submit" className="w-full" disabled={loading || rateLimited || !recaptchaToken}>
+                  <Button type="submit" className="w-full" disabled={loading || rateLimited}>
                     {loading ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
