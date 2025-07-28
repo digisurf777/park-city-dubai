@@ -270,8 +270,8 @@ const PalmJumeirah = () => {
                   </div>
 
 
-                  <Button className="w-full bg-destructive hover:bg-destructive text-destructive-foreground font-semibold py-2 px-4 rounded-lg cursor-not-allowed" disabled>
-                    Currently Booked
+                  <Button onClick={() => handleReserveClick(spot)} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-2 px-4 rounded-lg transition-colors">
+                    Reserve Now
                   </Button>
                 </div>
               </Card>)}
