@@ -269,15 +269,6 @@ const PalmJumeirah = () => {
                     <span className="text-2xl font-bold text-primary">From AED {spot.price}/month</span>
                   </div>
 
-                  {/* Benefits */}
-                  <div className="mb-4 space-y-2">
-                    <h4 className="text-sm font-semibold text-foreground">Benefits:</h4>
-                    <ul className="text-xs text-muted-foreground space-y-1">
-                      <li>• Pre-booked parking space</li>
-                      <li>• Fixed price - no increases during the fixed rental period</li>
-                      <li>• Customer support</li>
-                    </ul>
-                  </div>
 
                   <Button onClick={() => handleReserveClick(spot)} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-2 px-4 rounded-lg transition-colors">
                     Reserve Now

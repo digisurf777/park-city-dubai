@@ -267,19 +267,6 @@ const ProductPage = () => {
             </p>
 
             {/* Benefits */}
-            <div className="mt-8">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center">
-                  <Check className="h-4 w-4 text-primary" />
-                </div>
-                <h3 className="text-lg font-semibold">Benefits:</h3>
-              </div>
-              <ul className="space-y-2 text-muted-foreground">
-                <li>• Pre-booked parking space</li>
-                <li>• Fixed price - no increases during the fixed rental period</li>
-                <li>• Customer support</li>
-              </ul>
-            </div>
           </div>
 
           {/* Right Column - Booking Form */}
