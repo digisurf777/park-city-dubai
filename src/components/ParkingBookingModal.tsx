@@ -145,7 +145,7 @@ export const ParkingBookingModal = ({
         zone: "Find Parking Page",
         location: parkingSpot.name,
         costAed: finalPrice,
-        parkingSpotName: parkingSpot.name,
+        parkingSpotName: parkingSpot.name
       };
       const {
         data,
@@ -157,10 +157,9 @@ export const ParkingBookingModal = ({
       console.log('Booking request submitted:', data);
       setBookingReference(data.bookingId?.slice(0, 8).toUpperCase() || "");
       setShowConfirmation(true);
-      
       toast({
         title: "Booking Submitted Successfully",
-        description: "Please check your email for the payment link to complete your booking.",
+        description: "Please check your email for the payment link to complete your booking."
       });
     } catch (error: any) {
       console.error('Error submitting booking:', error);
@@ -249,7 +248,7 @@ export const ParkingBookingModal = ({
               {parkingSpot.description && <p className="text-sm text-muted-foreground mb-4">{parkingSpot.description}</p>}
               
               {parkingSpot.specs && parkingSpot.specs.length > 0 && <div className="flex flex-wrap gap-2">
-                  {parkingSpot.specs.map((spec, index) => <Badge key={index} variant="secondary" className="text-xs">{spec}</Badge>)}
+                  {parkingSpot.specs.map((spec, index) => {})}
                 </div>}
 
               {/* Benefits Section */}
