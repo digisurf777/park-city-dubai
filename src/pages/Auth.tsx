@@ -63,7 +63,6 @@ const Auth = () => {
     if (loading || rateLimited) {
       return;
     }
-    setLoading(true);
     
     if (signupForm.password !== signupForm.confirmPassword) {
       toast.error('Passwords do not match');
