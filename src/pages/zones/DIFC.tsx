@@ -306,7 +306,7 @@ const DIFC = () => {
                     <span className="text-2xl font-bold text-primary">From AED {spot.price}/month</span>
                   </div>
 
-                  {spot.specs && spot.specs.length > 0}
+                  
 
 
                   <Button onClick={() => handleReserveClick(spot)} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-2 px-4 rounded-lg transition-colors">

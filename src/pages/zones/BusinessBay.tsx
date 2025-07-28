@@ -286,11 +286,6 @@ const BusinessBay = () => {
                     <span className="text-2xl font-bold text-primary">From AED {spot.price}/month</span>
                   </div>
 
-                  {spot.specs && spot.specs.length > 0 && <div className="flex flex-wrap gap-2 mb-4">
-                      {spot.specs.map((feature, index) => <Badge key={index} variant="secondary" className="text-xs">
-                          {feature}
-                        </Badge>)}
-                    </div>}
 
 
                   <Button onClick={() => handleReserveClick(spot)} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-2 px-4 rounded-lg transition-colors">
