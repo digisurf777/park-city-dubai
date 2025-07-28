@@ -221,7 +221,7 @@ const DIFC = () => {
           <div className="text-center text-white px-4">
             <h1 className="text-5xl md:text-6xl font-bold mb-4">Parking Spaces in DIFC</h1>
             <p className="text-xl md:text-2xl opacity-90">Global financial hub with premium office towers</p>
-            <p className="text-lg md:text-xl opacity-80 mt-2">Secure monthly bays from AED {minPrice}</p>
+            <p className="text-lg md:text-xl opacity-80 mt-2">Secure monthly bays to AED800</p>
           </div>
         </div>
       </div>
