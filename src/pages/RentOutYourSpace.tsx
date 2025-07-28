@@ -125,24 +125,73 @@ const RentOutYourSpace = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) {
+    console.log('Form submission started');
+    
+    // Validate required fields
+    if (!formData.fullName.trim()) {
       toast({
-        title: "Authentication required",
-        description: <div className="space-y-3">
-            <p className="text-sm">Please sign in to submit a listing</p>
-            <div className="flex space-x-3">
-              <Button variant="secondary" size="sm" onClick={() => window.location.href = '/auth'} className="bg-white text-destructive hover:bg-gray-100 font-semibold px-4 py-2">
-                Login
-              </Button>
-              <Button variant="secondary" size="sm" onClick={() => window.location.href = '/auth'} className="bg-white text-destructive hover:bg-gray-100 font-semibold px-4 py-2">
-                Sign Up
-              </Button>
-            </div>
-          </div>,
+        title: "Full name required",
+        description: "Please enter your full name",
         variant: "destructive"
       });
       return;
     }
+    
+    if (!formData.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      toast({
+        title: "Valid email required", 
+        description: "Please enter a valid email address",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (!formData.phone.trim()) {
+      toast({
+        title: "Phone number required",
+        description: "Please enter your phone number",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (!formData.buildingName.trim()) {
+      toast({
+        title: "Building name required",
+        description: "Please enter the building name",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (!formData.district) {
+      toast({
+        title: "District required", 
+        description: "Please select a district",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (!formData.bayType) {
+      toast({
+        title: "Bay type required",
+        description: "Please select a bay type",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to submit a listing",
+        variant: "destructive"
+      });
+      navigate('/auth');
+      return;
+    }
+    
     if (!recaptchaToken) {
       toast({
         title: "Verification required",
@@ -151,6 +200,7 @@ const RentOutYourSpace = () => {
       });
       return;
     }
+    
     if (uploadedImages.length === 0) {
       toast({
         title: "Images required",
@@ -159,6 +209,7 @@ const RentOutYourSpace = () => {
       });
       return;
     }
+    
     if (!idDocument) {
       toast({
         title: "ID document required",
@@ -519,7 +570,47 @@ const RentOutYourSpace = () => {
                 </div>
               </div>
 
-              
+              {/* ID Document Upload */}
+              <div>
+                <Label htmlFor="idDocument" className="text-base font-medium">
+                  ID Document (Required) *
+                </Label>
+                <div className="mt-2">
+                  <div className="relative border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary transition-colors">
+                    <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                    <p className="text-gray-600 text-sm">
+                      Upload your Emirates ID or Passport
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      PDF, JPEG or PNG, max 3MB
+                    </p>
+                    <input 
+                      type="file" 
+                      accept="image/jpeg,image/png,image/jpg,application/pdf" 
+                      onChange={handleIdUpload} 
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
+                    />
+                  </div>
+                  
+                  {idDocument && (
+                    <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg flex items-center justify-between">
+                      <div className="flex items-center">
+                        <CheckCircle className="h-5 w-5 text-green-600 mr-2" />
+                        <span className="text-sm text-green-800">{idDocument.name}</span>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setIdDocument(null)}
+                        className="h-6 w-6 p-0 text-green-600 hover:text-green-800"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </div>
 
               <div>
                 <Label htmlFor="notes" className="text-base font-medium">
