@@ -230,11 +230,11 @@ const Auth = () => {
                   </div>
                   
                   <div className="flex justify-center">
-                    <ReCAPTCHA
-                      ref={recaptchaRef}
-                      sitekey="6Ld9JHQrAAAAAFy0tCtaL4NdLcJpA9mrcP_trg1B"
-                      onChange={(token) => setRecaptchaToken(token)}
-                    />
+                     <ReCAPTCHA
+                       ref={recaptchaRef}
+                       sitekey="YOUR_V2_SITE_KEY_HERE"
+                       onChange={(token) => setRecaptchaToken(token)}
+                     />
                   </div>
                   
                   <Button type="submit" className="w-full" disabled={loading || !recaptchaToken}>
@@ -358,11 +358,11 @@ const Auth = () => {
                   </div>
                   
                   <div className="flex justify-center">
-                    <ReCAPTCHA
-                      ref={recaptchaRef}
-                      sitekey="6Ld9JHQrAAAAAFy0tCtaL4NdLcJpA9mrcP_trg1B"
-                      onChange={(token) => setRecaptchaToken(token)}
-                    />
+                     <ReCAPTCHA
+                       ref={recaptchaRef}
+                       sitekey="YOUR_V2_SITE_KEY_HERE"
+                       onChange={(token) => setRecaptchaToken(token)}
+                     />
                   </div>
                   
                   <Button type="submit" className="w-full" disabled={loading || rateLimited || !recaptchaToken}>

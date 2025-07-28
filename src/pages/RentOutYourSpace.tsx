@@ -530,11 +530,11 @@ const RentOutYourSpace = () => {
 
               
               <div className="flex justify-center">
-                <ReCAPTCHA
-                  ref={recaptchaRef}
-                  sitekey="6Ld9JHQrAAAAAFy0tCtaL4NdLcJpA9mrcP_trg1B"
-                  onChange={(token) => setRecaptchaToken(token)}
-                />
+                 <ReCAPTCHA
+                   ref={recaptchaRef}
+                   sitekey="YOUR_V2_SITE_KEY_HERE"
+                   onChange={(token) => setRecaptchaToken(token)}
+                 />
               </div>
 
               <Button type="submit" disabled={isSubmitting || !recaptchaToken} className="w-full bg-primary hover:bg-primary/90 text-white py-4 text-lg font-semibold disabled:opacity-50">
