@@ -167,6 +167,23 @@ const RentOutYourSpace = () => {
     }
     setIsSubmitting(true);
     try {
+      // Verify reCAPTCHA first
+      const { data: recaptchaResult, error: recaptchaError } = await supabase.functions.invoke('verify-recaptcha', {
+        body: { token: recaptchaToken }
+      });
+
+      if (recaptchaError || !recaptchaResult?.success) {
+        toast({
+          title: "Verification failed",
+          description: "reCAPTCHA verification failed. Please try again.",
+          variant: "destructive"
+        });
+        recaptchaRef.current?.reset();
+        setRecaptchaToken(null);
+        setIsSubmitting(false);
+        return;
+      }
+
       // Upload images to storage
       const imageUrls = await uploadImagesToStorage(uploadedImages);
 

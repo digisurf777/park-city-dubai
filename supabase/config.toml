@@ -5,3 +5,6 @@ verify_jwt = true
 
 [functions.submit-booking-request]
 verify_jwt = true
+
+[functions.verify-recaptcha]
+verify_jwt = false

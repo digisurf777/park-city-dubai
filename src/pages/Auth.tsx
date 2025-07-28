@@ -2,6 +2,7 @@
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -42,6 +43,18 @@ const Auth = () => {
     setLoading(true);
     
     try {
+      // Verify reCAPTCHA first
+      const { data: recaptchaResult, error: recaptchaError } = await supabase.functions.invoke('verify-recaptcha', {
+        body: { token: recaptchaToken }
+      });
+
+      if (recaptchaError || !recaptchaResult?.success) {
+        toast.error('reCAPTCHA verification failed. Please try again.');
+        recaptchaRef.current?.reset();
+        setRecaptchaToken(null);
+        return;
+      }
+
       const { error } = await signIn(loginForm.email, loginForm.password);
       
       if (error) {
@@ -75,6 +88,11 @@ const Auth = () => {
       return;
     }
     
+    if (!recaptchaToken) {
+      toast.error('Please complete the reCAPTCHA verification');
+      return;
+    }
+    
     if (signupForm.password !== signupForm.confirmPassword) {
       toast.error('Passwords do not match');
       return;
@@ -88,6 +106,18 @@ const Auth = () => {
     setLoading(true);
     
     try {
+      // Verify reCAPTCHA first
+      const { data: recaptchaResult, error: recaptchaError } = await supabase.functions.invoke('verify-recaptcha', {
+        body: { token: recaptchaToken }
+      });
+
+      if (recaptchaError || !recaptchaResult?.success) {
+        toast.error('reCAPTCHA verification failed. Please try again.');
+        recaptchaRef.current?.reset();
+        setRecaptchaToken(null);
+        return;
+      }
+
       const { error } = await signUp(signupForm.email, signupForm.password, signupForm.fullName, 'seeker');
       
       if (error) {
@@ -326,8 +356,15 @@ const Auth = () => {
                   />
                 </div>
                 
+                <div className="flex justify-center">
+                  <ReCAPTCHA
+                    ref={recaptchaRef}
+                    sitekey="6Ld9JHQrAAAAAFy0tCtaL4NdLcJpA9mrcP_trg1B"
+                    onChange={(token) => setRecaptchaToken(token)}
+                  />
+                </div>
                 
-                <Button type="submit" className="w-full" disabled={loading || rateLimited}>
+                <Button type="submit" className="w-full" disabled={loading || rateLimited || !recaptchaToken}>
                   {loading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
