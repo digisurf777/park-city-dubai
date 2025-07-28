@@ -16,15 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import luxuryCar from "@/assets/luxury-car-dubai.png";
 import phoneLogo from "@/assets/phone-logo.png";
-
-declare global {
-  interface Window {
-    grecaptcha: {
-      ready: (callback: () => void) => void;
-      execute: (siteKey: string, options: { action: string }) => Promise<string>;
-    };
-  }
-}
+import ReCAPTCHA from 'react-google-recaptcha';
 
 const RentOutYourSpace = () => {
   useEffect(() => {
@@ -40,6 +32,8 @@ const RentOutYourSpace = () => {
   const [monthlyPrice, setMonthlyPrice] = useState<number>(300);
   const [uploadedImages, setUploadedImages] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
   const [idDocument, setIdDocument] = useState<File | null>(null);
   const [formData, setFormData] = useState({
     fullName: "",
@@ -129,20 +123,6 @@ const RentOutYourSpace = () => {
     return Promise.all(uploadPromises);
   };
 
-  const executeRecaptcha = async (): Promise<string | null> => {
-    return new Promise((resolve) => {
-      if (window.grecaptcha && window.grecaptcha.ready) {
-        window.grecaptcha.ready(() => {
-          window.grecaptcha.execute('6Ld9JHQrAAAAAFy0tCtaL4NdLcJpA9mrcP_trg1B', { action: 'submit_listing' }).then((token: string) => {
-            resolve(token);
-          });
-        });
-      } else {
-        resolve(null);
-      }
-    });
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) {
@@ -159,6 +139,14 @@ const RentOutYourSpace = () => {
               </Button>
             </div>
           </div>,
+        variant: "destructive"
+      });
+      return;
+    }
+    if (!recaptchaToken) {
+      toast({
+        title: "Verification required",
+        description: "Please complete the reCAPTCHA verification",
         variant: "destructive"
       });
       return;
@@ -181,18 +169,6 @@ const RentOutYourSpace = () => {
     }
     setIsSubmitting(true);
     try {
-      // Get reCAPTCHA token
-      const recaptchaToken = await executeRecaptcha();
-      if (!recaptchaToken) {
-        toast({
-          title: "Verification failed",
-          description: "reCAPTCHA verification failed. Please try again.",
-          variant: "destructive"
-        });
-        setIsSubmitting(false);
-        return;
-      }
-
       // Verify reCAPTCHA first
       const { data: recaptchaResult, error: recaptchaError } = await supabase.functions.invoke('verify-recaptcha', {
         body: { token: recaptchaToken }
@@ -204,6 +180,8 @@ const RentOutYourSpace = () => {
           description: "reCAPTCHA verification failed. Please try again.",
           variant: "destructive"
         });
+        recaptchaRef.current?.reset();
+        setRecaptchaToken(null);
         setIsSubmitting(false);
         return;
       }
@@ -309,6 +287,10 @@ const RentOutYourSpace = () => {
       setIdDocument(null);
       setMonthlyPrice(300);
 
+      // Reset reCAPTCHA
+      recaptchaRef.current?.reset();
+      setRecaptchaToken(null);
+
       // Redirect to account page to view the submitted listing
       setTimeout(() => {
         navigate('/my-account?tab=listings');
@@ -324,14 +306,8 @@ const RentOutYourSpace = () => {
       setIsSubmitting(false);
     }
   };
-  return <>
-      <script
-        src="https://www.google.com/recaptcha/api.js?render=6Ld9JHQrAAAAAFy0tCtaL4NdLcJpA9mrcP_trg1B"
-        async
-        defer
-      ></script>
-      <div className="min-h-screen bg-white animate-zoom-slow">
-        <Navbar />
+  return <div className="min-h-screen bg-white animate-zoom-slow">
+      <Navbar />
       
       {/* Hero Section */}
       <section className="relative min-h-[70vh] flex items-center justify-center bg-cover bg-center bg-no-repeat" style={{
@@ -553,8 +529,15 @@ const RentOutYourSpace = () => {
               </div>
 
               
+              <div className="flex justify-center">
+                <ReCAPTCHA
+                  ref={recaptchaRef}
+                  sitekey="6Ld9JHQrAAAAAFy0tCtaL4NdLcJpA9mrcP_trg1B"
+                  onChange={(token) => setRecaptchaToken(token)}
+                />
+              </div>
 
-              <Button type="submit" disabled={isSubmitting} className="w-full bg-primary hover:bg-primary/90 text-white py-4 text-lg font-semibold disabled:opacity-50">
+              <Button type="submit" disabled={isSubmitting || !recaptchaToken} className="w-full bg-primary hover:bg-primary/90 text-white py-4 text-lg font-semibold disabled:opacity-50">
                 {isSubmitting ? "Submitting..." : "Submit Listing"}
               </Button>
             </form>
@@ -614,7 +597,6 @@ const RentOutYourSpace = () => {
 
       <Footer />
     </div>
-  </>
 };
 
 export default RentOutYourSpace;
