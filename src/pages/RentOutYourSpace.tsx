@@ -612,10 +612,9 @@ const RentOutYourSpace = () => {
         </Button>
       </div>
 
-        <Footer />
-      </div>
-    </>
-  );
+      <Footer />
+    </div>
+  </>
 };
 
 export default RentOutYourSpace;
