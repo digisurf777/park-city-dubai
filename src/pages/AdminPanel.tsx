@@ -171,6 +171,7 @@ const AdminPanel = () => {
   const [listingContactPhone, setListingContactPhone] = useState('');
   const [listingImages, setListingImages] = useState<string[]>([]);
   const [newImageUrl, setNewImageUrl] = useState('');
+  const [isCreatingListing, setIsCreatingListing] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [newMessageAlert, setNewMessageAlert] = useState<string | null>(null);
   const listingFileInputRef = useRef<HTMLInputElement>(null);
@@ -517,8 +518,25 @@ const AdminPanel = () => {
     setNewImageUrl('');
   };
 
+  const handleCreateListing = () => {
+    setIsCreatingListing(true);
+    setEditingListing(null);
+    // Clear all form fields for new listing
+    setListingTitle('');
+    setListingDescription('');
+    setListingAddress('');
+    setListingZone('');
+    setListingPricePerHour(0);
+    setListingPricePerMonth(0);
+    setListingContactEmail('');
+    setListingContactPhone('');
+    setListingImages([]);
+    setNewImageUrl('');
+  };
+
   const resetListingForm = () => {
     setEditingListing(null);
+    setIsCreatingListing(false);
     setListingTitle('');
     setListingDescription('');
     setListingAddress('');
@@ -696,8 +714,6 @@ const AdminPanel = () => {
   };
 
   const handleSaveListing = async () => {
-    if (!editingListing) return;
-
     if (!listingTitle.trim() || !listingAddress.trim() || !listingZone.trim()) {
       toast({
         title: "Error",
@@ -718,18 +734,29 @@ const AdminPanel = () => {
         contact_email: listingContactEmail.trim() || null,
         contact_phone: listingContactPhone.trim() || null,
         images: listingImages.length > 0 ? listingImages : null,
+        status: 'approved', // Admin created listings are auto-approved
+        owner_id: user?.id, // Admin is the owner
       };
 
-      const { error } = await supabase
-        .from('parking_listings')
-        .update(listingData)
-        .eq('id', editingListing.id);
+      let result;
+      if (editingListing) {
+        // Update existing listing
+        result = await supabase
+          .from('parking_listings')
+          .update(listingData)
+          .eq('id', editingListing.id);
+      } else {
+        // Create new listing
+        result = await supabase
+          .from('parking_listings')
+          .insert([listingData]);
+      }
 
-      if (error) throw error;
+      if (result.error) throw result.error;
 
       toast({
         title: "Success",
-        description: "Parking listing updated successfully",
+        description: editingListing ? "Parking listing updated successfully" : "Parking listing created successfully",
       });
 
       resetListingForm();
@@ -737,7 +764,7 @@ const AdminPanel = () => {
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to update parking listing",
+        description: editingListing ? "Failed to update parking listing" : "Failed to create parking listing",
         variant: "destructive",
       });
     }
@@ -2097,17 +2124,25 @@ const AdminPanel = () => {
           <TabsContent value="listings" className="space-y-6">
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-semibold">Parking Listings</h2>
-              {editingListing && (
-                <Button variant="outline" onClick={resetListingForm}>
-                  Cancel Edit
-                </Button>
-              )}
+              <div className="flex gap-2">
+                {!isCreatingListing && (
+                  <Button onClick={handleCreateListing} className="flex items-center gap-2">
+                    <Plus className="h-4 w-4" />
+                    Add New Listing
+                  </Button>
+                )}
+                {(editingListing || isCreatingListing) && (
+                  <Button variant="outline" onClick={resetListingForm}>
+                    Cancel
+                  </Button>
+                )}
+              </div>
             </div>
 
-            {editingListing && (
+            {(editingListing || isCreatingListing) && (
               <Card className="mb-6">
                 <CardHeader>
-                  <CardTitle>Edit Parking Listing</CardTitle>
+                  <CardTitle>{editingListing ? 'Edit Parking Listing' : 'Add New Parking Listing'}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -2294,7 +2329,7 @@ const AdminPanel = () => {
 
                   <div className="flex gap-2">
                     <Button onClick={handleSaveListing}>
-                      Save Changes
+                      {editingListing ? 'Save Changes' : 'Create Listing'}
                     </Button>
                     <Button variant="outline" onClick={resetListingForm}>
                       Cancel
