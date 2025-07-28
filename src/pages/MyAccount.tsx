@@ -244,10 +244,6 @@ const MyAccount = () => {
              <p className="break-words">{new Date(booking.end_time).toLocaleString()}</p>
            </div>
            <div>
-             <p className="text-muted-foreground">Duration</p>
-             
-           </div>
-           <div>
              <p className="text-muted-foreground">Cost</p>
              <p className="font-semibold">{booking.cost_aed} AED</p>
            </div>
