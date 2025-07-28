@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import { Loader2, Mail } from 'lucide-react';
-import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
+
 
 const Auth = () => {
   const [loading, setLoading] = useState(false);
@@ -19,7 +19,6 @@ const Auth = () => {
   const [loginForm, setLoginForm] = useState({ email: '', password: '' });
   const [signupForm, setSignupForm] = useState({ email: '', password: '', confirmPassword: '', fullName: '' });
   const [rateLimited, setRateLimited] = useState(false);
-  const { executeRecaptcha } = useGoogleReCaptcha();
   const { signIn, signUp, resetPassword, user } = useAuth();
   const navigate = useNavigate();
 
@@ -32,28 +31,9 @@ const Auth = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!executeRecaptcha) {
-      toast.error('reCAPTCHA not available. Please try again.');
-      return;
-    }
-    
     setLoading(true);
     
     try {
-      // Execute reCAPTCHA v3
-      const recaptchaToken = await executeRecaptcha('login');
-      
-      // Verify reCAPTCHA first
-      const { data: recaptchaResult, error: recaptchaError } = await supabase.functions.invoke('verify-recaptcha', {
-        body: { token: recaptchaToken }
-      });
-
-      if (recaptchaError || !recaptchaResult?.success) {
-        toast.error('reCAPTCHA verification failed. Please try again.');
-        setLoading(false);
-        return;
-      }
-
       const { error } = await signIn(loginForm.email, loginForm.password);
       
       if (error) {
@@ -83,10 +63,7 @@ const Auth = () => {
     if (loading || rateLimited) {
       return;
     }
-    if (!executeRecaptcha) {
-      toast.error('reCAPTCHA not available. Please try again.');
-      return;
-    }
+    setLoading(true);
     
     if (signupForm.password !== signupForm.confirmPassword) {
       toast.error('Passwords do not match');
@@ -101,20 +78,6 @@ const Auth = () => {
     setLoading(true);
     
     try {
-      // Execute reCAPTCHA v3
-      const recaptchaToken = await executeRecaptcha('signup');
-      
-      // Verify reCAPTCHA first
-      const { data: recaptchaResult, error: recaptchaError } = await supabase.functions.invoke('verify-recaptcha', {
-        body: { token: recaptchaToken }
-      });
-
-      if (recaptchaError || !recaptchaResult?.success) {
-        toast.error('reCAPTCHA verification failed. Please try again.');
-        setLoading(false);
-        return;
-      }
-
       const { error } = await signUp(signupForm.email, signupForm.password, signupForm.fullName, 'seeker');
       
       if (error) {

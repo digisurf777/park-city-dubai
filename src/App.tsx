@@ -9,7 +9,6 @@ import { AuthProvider } from "@/hooks/useAuth";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import TawkToChat from "@/components/TawkToChat";
 import ChatWidget from "@/components/ChatWidget";
-import ReCaptchaProvider from "@/components/ReCaptchaProvider";
 import PerformanceOptimizer from "@/components/PerformanceOptimizer";
 
 // Lazy load components for better performance
@@ -67,7 +66,6 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
         <AuthProvider>
-          <ReCaptchaProvider>
           <PerformanceOptimizer />
           <TawkToChat />
           <ChatWidget />
@@ -116,8 +114,7 @@ const App = () => (
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>
-          </ReCaptchaProvider>
-        </AuthProvider>
+          </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>
     </HelmetProvider>

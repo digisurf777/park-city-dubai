@@ -16,7 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import luxuryCar from "@/assets/luxury-car-dubai.png";
 import phoneLogo from "@/assets/phone-logo.png";
-import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
+
 
 const RentOutYourSpace = () => {
   useEffect(() => {
@@ -32,7 +32,6 @@ const RentOutYourSpace = () => {
   const [monthlyPrice, setMonthlyPrice] = useState<number>(300);
   const [uploadedImages, setUploadedImages] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { executeRecaptcha } = useGoogleReCaptcha();
   const [idDocument, setIdDocument] = useState<File | null>(null);
   const [formData, setFormData] = useState({
     fullName: "",
@@ -190,14 +189,6 @@ const RentOutYourSpace = () => {
       navigate('/auth');
       return;
     }
-    if (!executeRecaptcha) {
-      toast({
-        title: "Verification required",
-        description: "reCAPTCHA not available. Please try again.",
-        variant: "destructive"
-      });
-      return;
-    }
     
     if (uploadedImages.length === 0) {
       toast({
@@ -218,24 +209,6 @@ const RentOutYourSpace = () => {
     }
     setIsSubmitting(true);
     try {
-      // Execute reCAPTCHA v3
-      const recaptchaToken = await executeRecaptcha('rent_space');
-      
-      // Verify reCAPTCHA first
-      const { data: recaptchaResult, error: recaptchaError } = await supabase.functions.invoke('verify-recaptcha', {
-        body: { token: recaptchaToken }
-      });
-
-      if (recaptchaError || !recaptchaResult?.success) {
-        toast({
-          title: "Verification failed",
-          description: "reCAPTCHA verification failed. Please try again.",
-          variant: "destructive"
-        });
-        setIsSubmitting(false);
-        return;
-      }
-
       // Upload images to storage
       const imageUrls = await uploadImagesToStorage(uploadedImages);
 
