@@ -529,10 +529,10 @@ const RentOutYourSpace = () => {
               </div>
 
               
-              <div className="flex justify-center">
+               <div className="flex justify-center">
                  <ReCAPTCHA
                    ref={recaptchaRef}
-                   sitekey="YOUR_V2_SITE_KEY_HERE"
+                   sitekey="6LduLpIrAAAAADwcAv1FqqGD3U8mAIXeOaR9g_bc"
                    onChange={(token) => setRecaptchaToken(token)}
                  />
               </div>
