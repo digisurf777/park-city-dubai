@@ -338,19 +338,18 @@ export const ParkingBookingModal = ({
             </div>
 
             {/* Important Notice */}
-            <Card className="bg-blue-50 border-blue-200">
+            <Card className="bg-red-50 border-red-200">
               <CardContent className="p-4">
-                <div className="text-sm text-blue-800">
-                  <p className="font-medium mb-2">📋 Booking Process:</p>
-                  <p className="text-xs">All bookings subject to final confirmation of availability.</p>
-                  {isWithin7Days}
+                <div className="text-sm text-red-800">
+                  <p className="font-medium mb-2">🚫 Currently Unavailable:</p>
+                  <p className="text-xs">All parking spots are currently booked. Please check back later for availability.</p>
                 </div>
               </CardContent>
             </Card>
 
             {/* Reserve Button */}
-            <Button onClick={handleReserve} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-4 text-lg" size="lg" disabled={!startDate || isSubmitting}>
-              {isSubmitting ? "Submitting..." : "👉 Submit Booking Request"}
+            <Button className="w-full bg-destructive hover:bg-destructive text-destructive-foreground font-semibold py-4 text-lg cursor-not-allowed" size="lg" disabled>
+              🚫 All Spots Currently Booked
             </Button>
 
             <p className="text-xs text-muted-foreground text-center">
