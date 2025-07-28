@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,7 +8,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import { Loader2, Mail } from 'lucide-react';
-
 
 const Auth = () => {
   const [loading, setLoading] = useState(false);
@@ -30,7 +28,6 @@ const Auth = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     setLoading(true);
     
     try {
@@ -154,182 +151,182 @@ const Auth = () => {
             Log in to your account or create a new one
           </CardDescription>
         </CardHeader>
-          <CardContent>
-            <Tabs defaultValue="login" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="login">Login</TabsTrigger>
-                <TabsTrigger value="signup">Sign Up</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="login">
-                <form onSubmit={handleLogin} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="login-email">Email</Label>
-                    <Input
-                      id="login-email"
-                      type="email"
-                      placeholder="Enter your email"
-                      value={loginForm.email}
-                      onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })}
-                      required
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="login-password">Password</Label>
-                    <Input
-                      id="login-password"
-                      type="password"
-                      placeholder="Enter your password"
-                      value={loginForm.password}
-                      onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
-                      required
-                    />
-                  </div>
-                  
-                  <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Logging in...
-                      </>
-                    ) : (
-                      'Log In'
-                    )}
-                  </Button>
-                  
-                  <div className="text-center">
-                    <Button
-                      type="button"
-                      variant="link"
-                      className="text-sm p-0"
-                      onClick={() => setShowResetForm(!showResetForm)}
-                    >
-                      Forgot your password?
-                    </Button>
-                  </div>
-                  
-                  {showResetForm && (
-                    <form onSubmit={handleResetPassword} className="mt-4 space-y-4 p-4 border rounded-lg bg-muted/50">
-                      <div className="space-y-2">
-                        <Label htmlFor="reset-email">Email for password reset</Label>
-                        <Input
-                          id="reset-email"
-                          type="email"
-                          placeholder="Enter your email"
-                          value={resetEmail}
-                          onChange={(e) => setResetEmail(e.target.value)}
-                          required
-                        />
-                      </div>
-                      <div className="flex gap-2">
-                        <Button type="submit" className="flex-1" disabled={resetLoading}>
-                          {resetLoading ? (
-                            <>
-                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                              Sending...
-                            </>
-                          ) : (
-                            'Send Reset Email'
-                          )}
-                        </Button>
-                        <Button 
-                          type="button" 
-                          variant="outline" 
-                          onClick={() => setShowResetForm(false)}
-                        >
-                          Cancel
-                        </Button>
-                      </div>
-                    </form>
+        <CardContent>
+          <Tabs defaultValue="login" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="login">Login</TabsTrigger>
+              <TabsTrigger value="signup">Sign Up</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="login">
+              <form onSubmit={handleLogin} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="login-email">Email</Label>
+                  <Input
+                    id="login-email"
+                    type="email"
+                    placeholder="Enter your email"
+                    value={loginForm.email}
+                    onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })}
+                    required
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="login-password">Password</Label>
+                  <Input
+                    id="login-password"
+                    type="password"
+                    placeholder="Enter your password"
+                    value={loginForm.password}
+                    onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
+                    required
+                  />
+                </div>
+                
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Logging in...
+                    </>
+                  ) : (
+                    'Log In'
                   )}
-                </form>
-              </TabsContent>
-              
-              <TabsContent value="signup">
-                <form onSubmit={handleSignup} className="space-y-4">
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
-                    <div className="flex items-center gap-2 text-blue-800">
-                      <Mail className="h-4 w-4" />
-                      <span className="text-sm font-medium">Email confirmation required</span>
+                </Button>
+                
+                <div className="text-center">
+                  <Button
+                    type="button"
+                    variant="link"
+                    className="text-sm p-0"
+                    onClick={() => setShowResetForm(!showResetForm)}
+                  >
+                    Forgot your password?
+                  </Button>
+                </div>
+                
+                {showResetForm && (
+                  <form onSubmit={handleResetPassword} className="mt-4 space-y-4 p-4 border rounded-lg bg-muted/50">
+                    <div className="space-y-2">
+                      <Label htmlFor="reset-email">Email for password reset</Label>
+                      <Input
+                        id="reset-email"
+                        type="email"
+                        placeholder="Enter your email"
+                        value={resetEmail}
+                        onChange={(e) => setResetEmail(e.target.value)}
+                        required
+                      />
                     </div>
-                    <p className="text-xs text-blue-700 mt-1">
-                      After registration you must confirm your email address before logging in.
+                    <div className="flex gap-2">
+                      <Button type="submit" className="flex-1" disabled={resetLoading}>
+                        {resetLoading ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Sending...
+                          </>
+                        ) : (
+                          'Send Reset Email'
+                        )}
+                      </Button>
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        onClick={() => setShowResetForm(false)}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </form>
+                )}
+              </form>
+            </TabsContent>
+            
+            <TabsContent value="signup">
+              <form onSubmit={handleSignup} className="space-y-4">
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+                  <div className="flex items-center gap-2 text-blue-800">
+                    <Mail className="h-4 w-4" />
+                    <span className="text-sm font-medium">Email confirmation required</span>
+                  </div>
+                  <p className="text-xs text-blue-700 mt-1">
+                    After registration you must confirm your email address before logging in.
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="signup-name">Full Name</Label>
+                  <Input
+                    id="signup-name"
+                    type="text"
+                    placeholder="Enter your full name"
+                    value={signupForm.fullName}
+                    onChange={(e) => setSignupForm({ ...signupForm, fullName: e.target.value })}
+                    required
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="signup-email">Email Address</Label>
+                  <Input
+                    id="signup-email"
+                    type="email"
+                    placeholder="Enter your email address"
+                    value={signupForm.email}
+                    onChange={(e) => setSignupForm({ ...signupForm, email: e.target.value })}
+                    required
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="signup-password">Password</Label>
+                  <Input
+                    id="signup-password"
+                    type="password"
+                    placeholder="Choose a password (min. 6 characters)"
+                    value={signupForm.password}
+                    onChange={(e) => setSignupForm({ ...signupForm, password: e.target.value })}
+                    required
+                    minLength={6}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="signup-confirm-password">Confirm Password</Label>
+                  <Input
+                    id="signup-confirm-password"
+                    type="password"
+                    placeholder="Confirm your password"
+                    value={signupForm.confirmPassword}
+                    onChange={(e) => setSignupForm({ ...signupForm, confirmPassword: e.target.value })}
+                    required
+                  />
+                </div>
+                
+                <Button type="submit" className="w-full" disabled={loading || rateLimited}>
+                  {loading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Creating account...
+                    </>
+                  ) : rateLimited ? (
+                    'Rate Limited - Please Wait'
+                  ) : (
+                    'Create Account'
+                  )}
+                </Button>
+                
+                {rateLimited && (
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mt-2">
+                    <p className="text-xs text-yellow-700">
+                      Too many signup attempts detected. Please wait a few minutes before trying again.
                     </p>
                   </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-name">Full Name</Label>
-                    <Input
-                      id="signup-name"
-                      type="text"
-                      placeholder="Enter your full name"
-                      value={signupForm.fullName}
-                      onChange={(e) => setSignupForm({ ...signupForm, fullName: e.target.value })}
-                      required
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-email">Email Address</Label>
-                    <Input
-                      id="signup-email"
-                      type="email"
-                      placeholder="Enter your email address"
-                      value={signupForm.email}
-                      onChange={(e) => setSignupForm({ ...signupForm, email: e.target.value })}
-                      required
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-password">Password</Label>
-                    <Input
-                      id="signup-password"
-                      type="password"
-                      placeholder="Choose a password (min. 6 characters)"
-                      value={signupForm.password}
-                      onChange={(e) => setSignupForm({ ...signupForm, password: e.target.value })}
-                      required
-                      minLength={6}
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-confirm-password">Confirm Password</Label>
-                    <Input
-                      id="signup-confirm-password"
-                      type="password"
-                      placeholder="Confirm your password"
-                      value={signupForm.confirmPassword}
-                      onChange={(e) => setSignupForm({ ...signupForm, confirmPassword: e.target.value })}
-                      required
-                    />
-                  </div>
-                  
-                  <Button type="submit" className="w-full" disabled={loading || rateLimited}>
-                    {loading ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Creating account...
-                      </>
-                    ) : rateLimited ? (
-                      'Rate Limited - Please Wait'
-                    ) : (
-                      'Create Account'
-                    )}
-                  </Button>
-                  
-                  {rateLimited && (
-                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mt-2">
-                      <p className="text-xs text-yellow-700">
-                        Too many signup attempts detected. Please wait a few minutes before trying again.
-                      </p>
-                    </div>
-                  )}
-                </form>
-              </TabsContent>
-            </Tabs>
+                )}
+              </form>
+            </TabsContent>
+          </Tabs>
         </CardContent>
       </Card>
     </div>
