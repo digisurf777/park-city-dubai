@@ -17,8 +17,12 @@ import ImageZoomModal from "@/components/ImageZoomModal";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import deiraHero from "@/assets/zones/deira-real.jpg";
 const Deira = () => {
-  const { toast } = useToast();
-  const { user } = useAuth();
+  const {
+    toast
+  } = useToast();
+  const {
+    user
+  } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [priceRange, setPriceRange] = useState([0, 500]);
   const [showAvailableOnly, setShowAvailableOnly] = useState(false);
@@ -33,34 +37,35 @@ const Deira = () => {
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [selectedSpotName, setSelectedSpotName] = useState("");
-
   const testEmail = async () => {
     if (!user?.email) {
       toast({
         title: "Error",
         description: "Please log in to test email functionality",
-        variant: "destructive",
+        variant: "destructive"
       });
       return;
     }
-
     try {
-      const { data, error } = await supabase.functions.invoke('test-email', {
-        body: { email: user.email },
+      const {
+        data,
+        error
+      } = await supabase.functions.invoke('test-email', {
+        body: {
+          email: user.email
+        }
       });
-
       if (error) throw error;
-
       toast({
         title: "Test Email Sent!",
-        description: `Test email sent to ${user.email}. Check your inbox.`,
+        description: `Test email sent to ${user.email}. Check your inbox.`
       });
     } catch (error) {
       console.error('Test email error:', error);
       toast({
         title: "Error",
         description: "Failed to send test email. Check console for details.",
-        variant: "destructive",
+        variant: "destructive"
       });
     }
   };
@@ -161,7 +166,6 @@ const Deira = () => {
     setSelectedSpot(spot);
     setIsBookingModalOpen(true);
   };
-
   const handleImageClick = (spot: any, imageIndex: number) => {
     setSelectedImages(spot.images && spot.images.length > 0 ? spot.images : [spot.image]);
     setSelectedImageIndex(imageIndex);
@@ -201,16 +205,8 @@ const Deira = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex flex-wrap gap-4 items-center justify-between">
             <div className="flex items-center gap-4">
-              <h3 className="text-lg font-semibold">Test Email System</h3>
-              <Button 
-                onClick={testEmail}
-                variant="outline" 
-                size="sm"
-                className="flex items-center gap-2"
-              >
-                <Mail className="h-4 w-4" />
-                Test Email
-              </Button>
+              
+              
             </div>
           </div>
         </div>
@@ -237,12 +233,7 @@ const Deira = () => {
                 {/* Image carousel */}
                 <div className="relative w-full h-64 overflow-hidden group">
                   {spot.images && spot.images.length > 0 ? <>
-                      <img 
-                        src={spot.images[currentImageIndexes[spot.id] || 0]} 
-                        alt={`${spot.name} - Image ${(currentImageIndexes[spot.id] || 0) + 1}`} 
-                        className="w-full h-full object-cover cursor-pointer" 
-                        onClick={() => handleImageClick(spot, currentImageIndexes[spot.id] || 0)}
-                      />
+                      <img src={spot.images[currentImageIndexes[spot.id] || 0]} alt={`${spot.name} - Image ${(currentImageIndexes[spot.id] || 0) + 1}`} className="w-full h-full object-cover cursor-pointer" onClick={() => handleImageClick(spot, currentImageIndexes[spot.id] || 0)} />
                       {spot.images.length > 1 && <>
                           {/* Navigation buttons */}
                           <button onClick={e => {
@@ -274,12 +265,7 @@ const Deira = () => {
                             {(currentImageIndexes[spot.id] || 0) + 1} / {spot.images.length}
                           </div>
                         </>}
-                    </> : <img 
-                      src={spot.image} 
-                      alt={spot.name} 
-                      className="w-full h-full object-cover cursor-pointer" 
-                      onClick={() => handleImageClick(spot, 0)}
-                    />}
+                    </> : <img src={spot.image} alt={spot.name} className="w-full h-full object-cover cursor-pointer" onClick={() => handleImageClick(spot, 0)} />}
                 </div>
 
                 <div className="p-6">
@@ -311,13 +297,7 @@ const Deira = () => {
       <Footer />
 
       <ParkingBookingModal isOpen={isBookingModalOpen} onClose={() => setIsBookingModalOpen(false)} parkingSpot={selectedSpot} />
-      <ImageZoomModal 
-        isOpen={isImageModalOpen} 
-        onClose={() => setIsImageModalOpen(false)} 
-        images={selectedImages}
-        initialIndex={selectedImageIndex}
-        spotName={selectedSpotName}
-      />
+      <ImageZoomModal isOpen={isImageModalOpen} onClose={() => setIsImageModalOpen(false)} images={selectedImages} initialIndex={selectedImageIndex} spotName={selectedSpotName} />
     </div>;
 };
 export default Deira;
