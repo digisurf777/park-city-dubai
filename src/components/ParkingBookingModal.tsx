@@ -248,9 +248,7 @@ export const ParkingBookingModal = ({
               {parkingSpot.description && <p className="text-sm text-muted-foreground mb-4">{parkingSpot.description}</p>}
               
               {parkingSpot.specs && parkingSpot.specs.length > 0 && <div className="flex flex-wrap gap-2">
-                  {parkingSpot.specs.map((spec, index) => (
-                    <span key={index} className="text-xs bg-secondary px-2 py-1 rounded">{spec}</span>
-                  ))}
+                  {parkingSpot.specs.map((spec, index) => {})}
                 </div>}
 
             </div>
