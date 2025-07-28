@@ -9,7 +9,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import TawkToChat from "@/components/TawkToChat";
 import ChatWidget from "@/components/ChatWidget";
-import PerformanceOptimizer from "@/components/PerformanceOptimizer";
+
 
 // Lazy load components for better performance
 const Index = lazy(() => import("./pages/Index"));
@@ -66,7 +66,6 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
         <AuthProvider>
-          <PerformanceOptimizer />
           <TawkToChat />
           <ChatWidget />
           <Suspense fallback={<LoadingFallback />}>
