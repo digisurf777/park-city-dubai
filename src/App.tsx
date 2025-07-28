@@ -7,12 +7,12 @@ import { HelmetProvider } from "react-helmet-async";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import OptimizedTawkTo from "@/components/OptimizedTawkTo";
+import TawkToChat from "@/components/TawkToChat";
 import ChatWidget from "@/components/ChatWidget";
 import PerformanceOptimizer from "@/components/PerformanceOptimizer";
 
 // Lazy load components for better performance
-const Index = lazy(() => import("./pages/IndexOptimized"));
+const Index = lazy(() => import("./pages/Index"));
 const FindParking = lazy(() => import("./pages/FindParking"));
 const AboutUs = lazy(() => import("./pages/AboutUs"));
 const FAQ = lazy(() => import("./pages/FAQ"));
@@ -67,7 +67,7 @@ const App = () => (
         <BrowserRouter>
         <AuthProvider>
           <PerformanceOptimizer />
-          <OptimizedTawkTo />
+          <TawkToChat />
           <ChatWidget />
           <Suspense fallback={<LoadingFallback />}>
             <Routes>

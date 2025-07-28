@@ -20,95 +20,31 @@ export default defineConfig(({ mode }) => ({
     },
   },
   build: {
-    // Advanced performance optimizations
+    // Performance optimizations
     rollupOptions: {
       output: {
-        manualChunks: (id) => {
-          // Vendor chunks
-          if (id.includes('node_modules')) {
-            if (id.includes('react') || id.includes('react-dom')) {
-              return 'vendor-react';
-            }
-            if (id.includes('react-router')) {
-              return 'vendor-router';
-            }
-            if (id.includes('@radix-ui')) {
-              return 'vendor-ui';
-            }
-            if (id.includes('lucide-react')) {
-              return 'vendor-icons';
-            }
-            if (id.includes('@supabase')) {
-              return 'vendor-supabase';
-            }
-            if (id.includes('react-hook-form') || id.includes('@hookform')) {
-              return 'vendor-forms';
-            }
-            if (id.includes('@tanstack')) {
-              return 'vendor-query';
-            }
-            if (id.includes('framer-motion')) {
-              return 'vendor-animation';
-            }
-            return 'vendor-misc';
-          }
-          
-          // Route-based chunks
-          if (id.includes('/pages/zones/')) {
-            return 'routes-zones';
-          }
-          if (id.includes('/pages/') && (id.includes('Admin') || id.includes('My'))) {
-            return 'routes-protected';
-          }
-          if (id.includes('/pages/')) {
-            return 'routes-public';
-          }
-          
-          // Component chunks
-          if (id.includes('/components/ui/')) {
-            return 'components-ui';
-          }
-          if (id.includes('/components/') && (id.includes('Chat') || id.includes('Modal'))) {
-            return 'components-interactive';
-          }
-        },
-        // Optimize chunk naming
-        chunkFileNames: (chunkInfo) => {
-          const facadeModuleId = chunkInfo.facadeModuleId ? chunkInfo.facadeModuleId.split('/').pop() : 'chunk';
-          return `assets/[name]-[hash].js`;
-        },
-        // Optimize asset naming
-        assetFileNames: (assetInfo) => {
-          if (!assetInfo.name) return `assets/[name]-[hash][extname]`;
-          const info = assetInfo.name.split('.');
-          const ext = info[info.length - 1];
-          if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(ext)) {
-            return `assets/images/[name]-[hash][extname]`;
-          }
-          if (/css/i.test(ext)) {
-            return `assets/css/[name]-[hash][extname]`;
-          }
-          return `assets/[name]-[hash][extname]`;
+        manualChunks: {
+          'vendor': ['react', 'react-dom'],
+          'router': ['react-router-dom'],
+          'ui': ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-select'],
+          'icons': ['lucide-react'],
+          'supabase': ['@supabase/supabase-js'],
+          'forms': ['react-hook-form', '@hookform/resolvers'],
+          'query': ['@tanstack/react-query']
         }
       }
     },
-    // Enable advanced compression
+    // Enable compression and tree shaking
     minify: 'esbuild',
     target: 'es2020',
-    // Optimize chunk size more aggressively
-    chunkSizeWarningLimit: 300,
-    // Disable source maps in production
+    // Optimize chunk size
+    chunkSizeWarningLimit: 500,
+    // Source map for debugging (disable in production)
     sourcemap: false,
-    // Enable CSS code splitting
+    // CSS code splitting
     cssCodeSplit: true,
-    // Advanced CSS minification
-    cssMinify: 'esbuild',
-    // Reduce asset inline threshold
-    assetsInlineLimit: 2048,
-    // Enable module preload polyfill
-    modulePreload: {
-      polyfill: true
-    }
+    // Remove unused CSS
+    cssMinify: true
   },
   // Optimize deps
   optimizeDeps: {
