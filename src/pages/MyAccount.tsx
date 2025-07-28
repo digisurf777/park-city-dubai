@@ -245,7 +245,7 @@ const MyAccount = () => {
            </div>
            <div>
              <p className="text-muted-foreground">Duration</p>
-             <p>{booking.duration_hours} hours</p>
+             
            </div>
            <div>
              <p className="text-muted-foreground">Cost</p>
