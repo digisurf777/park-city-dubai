@@ -106,9 +106,7 @@ const ContactAdmin = () => {
             <h1 className="text-3xl font-bold mb-4">Contact Support</h1>
             <p className="text-muted-foreground text-lg mb-4">
               We're here to help! Send us a message through the form below or email us directly at{' '}
-              <a href="mailto:support@shazam.ae" className="text-primary hover:underline font-medium">
-                support@shazam.ae
-              </a>
+              <a href="mailto:support@shazam.ae" className="text-primary hover:underline font-medium">support@shazamparking.ae</a>
             </p>
             <p className="text-sm text-muted-foreground">
               Have any questions? Feel free to send a direct email to{' '}
