@@ -16,8 +16,6 @@ import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import luxuryCar from "@/assets/luxury-car-dubai.png";
 import phoneLogo from "@/assets/phone-logo.png";
-
-
 const RentOutYourSpace = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -120,11 +118,10 @@ const RentOutYourSpace = () => {
     });
     return Promise.all(uploadPromises);
   };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log('Form submission started');
-    
+
     // Validate required fields
     if (!formData.fullName.trim()) {
       toast({
@@ -134,16 +131,14 @@ const RentOutYourSpace = () => {
       });
       return;
     }
-    
     if (!formData.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       toast({
-        title: "Valid email required", 
+        title: "Valid email required",
         description: "Please enter a valid email address",
         variant: "destructive"
       });
       return;
     }
-    
     if (!formData.phone.trim()) {
       toast({
         title: "Phone number required",
@@ -152,7 +147,6 @@ const RentOutYourSpace = () => {
       });
       return;
     }
-    
     if (!formData.buildingName.trim()) {
       toast({
         title: "Building name required",
@@ -161,16 +155,14 @@ const RentOutYourSpace = () => {
       });
       return;
     }
-    
     if (!formData.district) {
       toast({
-        title: "District required", 
+        title: "District required",
         description: "Please select a district",
         variant: "destructive"
       });
       return;
     }
-    
     if (!formData.bayType) {
       toast({
         title: "Bay type required",
@@ -179,7 +171,6 @@ const RentOutYourSpace = () => {
       });
       return;
     }
-
     if (!user) {
       toast({
         title: "Authentication required",
@@ -189,7 +180,6 @@ const RentOutYourSpace = () => {
       navigate('/auth');
       return;
     }
-    
     if (uploadedImages.length === 0) {
       toast({
         title: "Images required",
@@ -198,7 +188,6 @@ const RentOutYourSpace = () => {
       });
       return;
     }
-    
     if (!idDocument) {
       toast({
         title: "ID document required",
@@ -309,7 +298,6 @@ const RentOutYourSpace = () => {
       setUploadedImages([]);
       setIdDocument(null);
       setMonthlyPrice(300);
-
       setIsSubmitting(false);
 
       // Redirect to account page to view the submitted listing
@@ -541,46 +529,7 @@ const RentOutYourSpace = () => {
               </div>
 
               {/* ID Document Upload */}
-              <div>
-                <Label htmlFor="idDocument" className="text-base font-medium">
-                  ID Document (Required) *
-                </Label>
-                <div className="mt-2">
-                  <div className="relative border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary transition-colors">
-                    <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                    <p className="text-gray-600 text-sm">
-                      Upload your Emirates ID or Passport
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      PDF, JPEG or PNG, max 3MB
-                    </p>
-                    <input 
-                      type="file" 
-                      accept="image/jpeg,image/png,image/jpg,application/pdf" 
-                      onChange={handleIdUpload} 
-                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
-                    />
-                  </div>
-                  
-                  {idDocument && (
-                    <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg flex items-center justify-between">
-                      <div className="flex items-center">
-                        <CheckCircle className="h-5 w-5 text-green-600 mr-2" />
-                        <span className="text-sm text-green-800">{idDocument.name}</span>
-                      </div>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setIdDocument(null)}
-                        className="h-6 w-6 p-0 text-green-600 hover:text-green-800"
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              </div>
+              
 
               <div>
                 <Label htmlFor="notes" className="text-base font-medium">
@@ -650,7 +599,6 @@ const RentOutYourSpace = () => {
       </div>
 
       <Footer />
-    </div>
+    </div>;
 };
-
 export default RentOutYourSpace;
