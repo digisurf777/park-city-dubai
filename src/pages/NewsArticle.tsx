@@ -26,7 +26,7 @@ interface NewsPost {
 }
 
 const NewsArticle = () => {
-  const { slug: id } = useParams();
+  const { id } = useParams();
   const [article, setArticle] = useState<NewsPost | null>(null);
   const [loading, setLoading] = useState(true);
 
