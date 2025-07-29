@@ -110,9 +110,7 @@ const ContactAdmin = () => {
             </p>
             <p className="text-sm text-muted-foreground">
               Have any questions? Feel free to send a direct email to{' '}
-              <a href="mailto:support@shazam.ae" className="text-primary hover:underline">
-                support@shazam.ae
-              </a>{' '}
+              <a href="mailto:support@shazam.ae" className="text-primary hover:underline">support@shazamparking.ae</a>{' '}
               and we'll get back to you as soon as possible.
             </p>
           </div>
