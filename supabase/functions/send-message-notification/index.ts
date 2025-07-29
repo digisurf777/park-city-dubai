@@ -26,8 +26,8 @@ const handler = async (req: Request): Promise<Response> => {
     const { userEmail, userName, subject, message }: MessageNotificationRequest = await req.json();
 
     const emailResponse = await resend.emails.send({
-      from: "Shazam Parking <onboarding@resend.dev>",
-      to: ["digisurf777@gmail.com"],
+      from: "ShazamParking <support@shazamparking.ae>",
+      to: ["admin@shazamparking.ae"],
       subject: `[SUPPORT] New Message: ${subject}`,
       replyTo: userEmail,
       html: `

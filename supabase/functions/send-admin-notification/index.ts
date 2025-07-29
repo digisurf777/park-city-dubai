@@ -110,8 +110,8 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     const emailResponse = await resend.emails.send({
-      from: "ShazamParking Admin <onboarding@resend.dev>",
-      to: ["support@shazam.ae"], // Changed to support@shazam.ae
+      from: "ShazamParking Admin <support@shazamparking.ae>",
+      to: ["admin@shazamparking.ae"],
       subject: subject,
       html: htmlContent,
     });
