@@ -79,7 +79,7 @@ const Index = () => {
           {/* CTA Button - Centered */}
           <div className="flex justify-center mt-8 sm:mt-12 lg:absolute lg:bottom-20 lg:left-1/2 lg:transform lg:-translate-x-1/2 px-4">
             <Link to="/my-account">
-              <Button className="bg-primary hover:bg-primary/90 text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-full w-full sm:w-auto shadow-lg transition-all duration-300 hover:scale-105">
+              <Button className="bg-primary hover:bg-primary/90 text-white px-6 py-3 text-base sm:text-lg font-semibold rounded-full w-full sm:w-auto shadow-lg transition-all duration-300 hover:scale-105 sm:px-[35px] sm:py-[18px] my-0 mx-0">
                 LOGIN / SIGN UP
               </Button>
             </Link>
