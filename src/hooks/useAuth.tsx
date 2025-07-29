@@ -50,13 +50,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const signUp = async (email: string, password: string, fullName: string, userType: string = 'renter') => {
-    const redirectUrl = `${window.location.origin}/email-confirmed`;
-    
+    // First, try to create the user account without email confirmation
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: redirectUrl,
+        emailRedirectTo: `${window.location.origin}/email-confirmed`,
         data: {
           full_name: fullName,
           user_type: userType
@@ -66,9 +65,45 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     console.log('Signup result:', { data, error });
 
-    // Send admin notification after successful signup (only if no error)
+    // Check for rate limiting specifically
+    if (error && (
+      error.message.includes('email rate limit exceeded') || 
+      error.message.includes('429') || 
+      error.code === 'over_email_send_rate_limit'
+    )) {
+      console.log('Rate limit detected, but user may have been created');
+      
+      // If user was created but email failed due to rate limiting, 
+      // we'll handle it gracefully
+      if (data.user && !data.user.email_confirmed_at) {
+        try {
+          // Send admin notification for the new user
+          await supabase.functions.invoke('send-admin-signup-notification', {
+            body: {
+              email: email,
+              fullName: fullName,
+              userType: userType
+            }
+          });
+          console.log('Admin notification sent successfully');
+        } catch (emailError) {
+          console.error('Failed to send admin notification:', emailError);
+        }
+        
+        // Return a specific rate limit error
+        return { 
+          error: { 
+            message: 'Account created but email verification is delayed due to high demand. Please wait a few minutes and try logging in.',
+            code: 'email_rate_limited_but_user_created'
+          } 
+        };
+      }
+    }
+
+    // For successful signup, send notifications
     if (!error && data.user) {
       try {
+        // Send admin notification
         await supabase.functions.invoke('send-admin-signup-notification', {
           body: {
             email: email,

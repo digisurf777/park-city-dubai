@@ -8,3 +8,6 @@ verify_jwt = true
 
 [functions.verify-recaptcha]
 verify_jwt = false
+
+[functions.send-verification-email-custom]
+verify_jwt = false

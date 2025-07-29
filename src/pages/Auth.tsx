@@ -34,13 +34,26 @@ const Auth = () => {
       const { error } = await signIn(loginForm.email, loginForm.password);
       
       if (error) {
-        if (error.message.includes('Email not confirmed')) {
-          toast.error(error.message, {
-            duration: 5000,
-            description: 'Check your inbox and click the confirmation link.'
+        if (error.message.includes('Email not confirmed') || error.message.includes('email_not_confirmed')) {
+          toast.error('Email Not Verified', {
+            duration: 10000,
+            description: 'You must verify your email address before logging in. Check your inbox and click the verification link.'
+          });
+        } else if (error.message.includes('Invalid login credentials') || error.message.includes('invalid_credentials')) {
+          toast.error('Invalid Login', {
+            duration: 8000,
+            description: 'Please check your email and password. If you just registered, make sure you verified your email first.'
+          });
+        } else if (error.message.includes('Too many requests') || error.message.includes('429')) {
+          toast.error('Too Many Login Attempts', {
+            duration: 12000,
+            description: 'Please wait a few minutes before trying to log in again.'
           });
         } else {
-          toast.error(error.message || 'Error during login');
+          toast.error('Login Failed', {
+            duration: 8000,
+            description: error.message || 'Please check your credentials and try again.'
+          });
         }
       } else {
         toast.success('Logged in successfully!');
@@ -78,39 +91,67 @@ const Auth = () => {
       
       if (error) {
         if (error.message.includes('already registered')) {
-          toast.error('This email address is already registered');
-        } else if (error.message.includes('email rate limit exceeded') || error.message.includes('429') || error.code === 'over_email_send_rate_limit') {
-          // Handle rate limit error
+          toast.error('This email address is already registered', {
+            duration: 8000,
+            description: 'Try logging in instead, or use a different email address.'
+          });
+        } else if (error.code === 'email_rate_limited_but_user_created') {
+          // Special handling for rate limit with user created
           setRateLimited(true);
-          toast.error('Email system temporarily busy', {
-            duration: 15000,
-            description: 'Your account may have been created but email confirmation is delayed. Try logging in after a few minutes.'
+          toast.warning('Account Created - Email Delayed', {
+            duration: 20000,
+            description: 'Your account has been created successfully, but email verification is delayed due to high demand. You can try logging in after a few minutes.'
           });
           
-          // Clear the form since account might be created
+          // Clear the form since account was created
           setSignupForm({ email: '', password: '', confirmPassword: '', fullName: '' });
+          
+          // Reset rate limit after 3 minutes
+          setTimeout(() => {
+            setRateLimited(false);
+          }, 3 * 60 * 1000);
+        } else if (error.message.includes('email rate limit exceeded') || error.message.includes('429') || error.code === 'over_email_send_rate_limit') {
+          // Handle pure rate limit error
+          setRateLimited(true);
+          toast.error('Email System Busy', {
+            duration: 15000,
+            description: 'Too many email requests. Please wait a few minutes before trying again.'
+          });
           
           // Reset rate limit after 5 minutes
           setTimeout(() => {
             setRateLimited(false);
           }, 5 * 60 * 1000);
+        } else if (error.message.includes('email') || error.message.includes('Email')) {
+          toast.error('Email Delivery Issue', {
+            duration: 10000,
+            description: error.message + ' Please check your email address and try again.'
+          });
+        } else if (error.message.includes('password') || error.message.includes('Password')) {
+          toast.error('Password Issue', {
+            duration: 8000,
+            description: error.message + ' Please choose a stronger password.'
+          });
         } else {
-          toast.error(error.message || 'Error during registration');
+          toast.error('Registration Failed', {
+            duration: 10000,
+            description: error.message || 'An unexpected error occurred. Please try again.'
+          });
         }
       } else {
-        toast.success('Account created successfully!', {
-          duration: 6000,
-          description: 'Check your inbox and confirm your email address before logging in.'
+        toast.success('Account Created Successfully!', {
+          duration: 8000,
+          description: 'Check your inbox for a verification email. You must verify your email before logging in.'
         });
         setSignupForm({ email: '', password: '', confirmPassword: '', fullName: '' });
         
-        // Show additional info about email confirmation
+        // Show additional guidance about email verification
         setTimeout(() => {
-          toast.info('Important!', {
-            duration: 8000,
-            description: 'You must confirm your email address before you can log in. Also check your spam folder.'
+          toast.info('Email Verification Required', {
+            duration: 12000,
+            description: 'Please check your email (including spam folder) and click the verification link to activate your account.'
           });
-        }, 2000);
+        }, 3000);
       }
     } catch (error) {
       toast.error('An error occurred during registration');
