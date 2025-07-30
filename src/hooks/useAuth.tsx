@@ -50,12 +50,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const signUp = async (email: string, password: string, fullName: string, userType: string = 'renter') => {
-    // First, try to create the user account without email confirmation
+    // Create user account without requiring immediate email confirmation
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: `${window.location.origin}/email-confirmed`,
         data: {
           full_name: fullName,
           user_type: userType
@@ -65,44 +64,30 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     console.log('Signup result:', { data, error });
 
-    // Check for rate limiting specifically
-    if (error && (
-      error.message.includes('email rate limit exceeded') || 
-      error.message.includes('429') || 
-      error.code === 'over_email_send_rate_limit'
-    )) {
-      console.log('Rate limit detected, but user may have been created');
-      
-      // If user was created but email failed due to rate limiting, 
-      // we'll handle it gracefully
-      if (data.user && !data.user.email_confirmed_at) {
-        try {
-          // Send admin notification for the new user
-          await supabase.functions.invoke('send-admin-signup-notification', {
-            body: {
-              email: email,
-              fullName: fullName,
-              userType: userType
-            }
-          });
-          console.log('Admin notification sent successfully');
-        } catch (emailError) {
-          console.error('Failed to send admin notification:', emailError);
-        }
-        
-        // Return a specific rate limit error
-        return { 
-          error: { 
-            message: 'Account created but email verification is delayed due to high demand. Please wait a few minutes and try logging in.',
-            code: 'email_rate_limited_but_user_created'
-          } 
-        };
-      }
-    }
-
-    // For successful signup, send notifications
+    // Handle successful signup
     if (!error && data.user) {
       try {
+        // Generate verification token and send custom verification email
+        const verificationToken = crypto.randomUUID();
+        const verificationUrl = `${window.location.origin}/email-confirmed?token=${verificationToken}&email=${encodeURIComponent(email)}`;
+        
+        console.log('Sending custom verification email to:', email);
+        
+        // Send custom verification email
+        const emailResult = await supabase.functions.invoke('send-verification-email-custom', {
+          body: {
+            email: email,
+            fullName: fullName,
+            token: verificationToken
+          }
+        });
+        
+        if (emailResult.error) {
+          console.error('Failed to send verification email:', emailResult.error);
+        } else {
+          console.log('Verification email sent successfully');
+        }
+
         // Send admin notification
         await supabase.functions.invoke('send-admin-signup-notification', {
           body: {
@@ -112,10 +97,32 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           }
         });
         console.log('Admin notification sent successfully');
+        
       } catch (emailError) {
-        console.error('Failed to send admin notification:', emailError);
+        console.error('Failed to send emails:', emailError);
         // Don't fail the signup if email fails
       }
+      
+      // Return success with custom message about email verification
+      return { 
+        error: null,
+        message: 'Account created successfully! Please check your email for a verification link.'
+      };
+    }
+
+    // Check for rate limiting specifically
+    if (error && (
+      error.message.includes('email rate limit exceeded') || 
+      error.message.includes('429') || 
+      error.code === 'over_email_send_rate_limit'
+    )) {
+      console.log('Rate limit detected during signup');
+      return { 
+        error: { 
+          message: 'Too many signup attempts. Please wait a few minutes before trying again.',
+          code: 'signup_rate_limited'
+        } 
+      };
     }
     
     return { error };

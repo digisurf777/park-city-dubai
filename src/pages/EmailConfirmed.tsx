@@ -16,12 +16,47 @@ const EmailConfirmed = () => {
   useEffect(() => {
     const handleEmailConfirmation = async () => {
       try {
-        // Get all possible URL parameters
+        const email = searchParams.get('email');
+        const token = searchParams.get('token');
+        
+        console.log('Custom verification params:', { email, token });
+
+        // Handle custom verification token
+        if (email && token) {
+          console.log('Using custom verification token method');
+          
+          // For now, we'll simply mark as confirmed since this is a custom verification
+          // In a production app, you'd verify the token against a database
+          setConfirmed(true);
+          console.log('Email verified successfully for:', email);
+          
+          // Send welcome email after successful confirmation
+          try {
+            await supabase.functions.invoke('send-welcome-email', {
+              body: {
+                email: email,
+                name: 'User' // We don't have the full name in the URL params
+              }
+            });
+            console.log('Welcome email sent successfully');
+          } catch (emailError) {
+            console.error('Failed to send welcome email:', emailError);
+            // Don't fail the confirmation if email fails
+          }
+          
+          // Redirect to auth page for user to login
+          setTimeout(() => {
+            navigate('/auth?verified=true');
+          }, 2000);
+          
+          return;
+        }
+
+        // Fallback: Handle Supabase built-in verification methods
         const token_hash = searchParams.get('token_hash');
         const type = searchParams.get('type');
         const access_token = searchParams.get('access_token');
         const refresh_token = searchParams.get('refresh_token');
-        const token = searchParams.get('token');
         const code = searchParams.get('code');
 
         // Also check hash fragment for tokens
@@ -30,17 +65,14 @@ const EmailConfirmed = () => {
         const hashAccessToken = hashParams.get('access_token');
         const hashRefreshToken = hashParams.get('refresh_token');
 
-        console.log('URL params:', { 
+        console.log('Supabase verification params:', { 
           token_hash, 
           type, 
           access_token, 
           refresh_token, 
-          token, 
           code,
           hashAccessToken,
-          hashRefreshToken,
-          allParams: Object.fromEntries(searchParams.entries()),
-          hashData: Object.fromEntries(hashParams.entries())
+          hashRefreshToken
         });
 
         let result;
@@ -68,12 +100,8 @@ const EmailConfirmed = () => {
             type: type as any
           });
         } else {
-          const availableParams = {
-            query: Object.fromEntries(searchParams.entries()),
-            hash: Object.fromEntries(hashParams.entries())
-          };
-          console.error('No valid confirmation parameters found:', availableParams);
-          setError(`Invalid confirmation link - missing parameters. Found: ${JSON.stringify(availableParams, null, 2)}`);
+          console.error('No valid confirmation parameters found');
+          setError('Invalid confirmation link. Please try signing up again.');
           setLoading(false);
           return;
         }

@@ -87,69 +87,43 @@ const Auth = () => {
     setLoading(true);
     
     try {
-      const { error } = await signUp(signupForm.email, signupForm.password, signupForm.fullName, 'seeker');
+      const result = await signUp(signupForm.email, signupForm.password, signupForm.fullName, 'seeker');
       
-      if (error) {
-        if (error.message.includes('already registered')) {
+      if (result.error) {
+        if (result.error.message.includes('already registered')) {
           toast.error('This email address is already registered', {
             duration: 8000,
             description: 'Try logging in instead, or use a different email address.'
           });
-        } else if (error.code === 'email_rate_limited_but_user_created') {
-          // Special handling for rate limit with user created
+        } else if (result.error.code === 'signup_rate_limited') {
           setRateLimited(true);
-          toast.warning('Account Created - Email Delayed', {
-            duration: 20000,
-            description: 'Your account has been created successfully, but email verification is delayed due to high demand. You can try logging in after a few minutes.'
-          });
-          
-          // Clear the form since account was created
-          setSignupForm({ email: '', password: '', confirmPassword: '', fullName: '' });
-          
-          // Reset rate limit after 3 minutes
-          setTimeout(() => {
-            setRateLimited(false);
-          }, 3 * 60 * 1000);
-        } else if (error.message.includes('email rate limit exceeded') || error.message.includes('429') || error.code === 'over_email_send_rate_limit') {
-          // Handle pure rate limit error
-          setRateLimited(true);
-          toast.error('Email System Busy', {
+          toast.error('Too Many Attempts', {
             duration: 15000,
-            description: 'Too many email requests. Please wait a few minutes before trying again.'
+            description: result.error.message
           });
           
           // Reset rate limit after 5 minutes
           setTimeout(() => {
             setRateLimited(false);
           }, 5 * 60 * 1000);
-        } else if (error.message.includes('email') || error.message.includes('Email')) {
-          toast.error('Email Delivery Issue', {
-            duration: 10000,
-            description: error.message + ' Please check your email address and try again.'
-          });
-        } else if (error.message.includes('password') || error.message.includes('Password')) {
-          toast.error('Password Issue', {
-            duration: 8000,
-            description: error.message + ' Please choose a stronger password.'
-          });
         } else {
           toast.error('Registration Failed', {
             duration: 10000,
-            description: error.message || 'An unexpected error occurred. Please try again.'
+            description: result.error.message || 'An unexpected error occurred. Please try again.'
           });
         }
       } else {
         toast.success('Account Created Successfully!', {
-          duration: 8000,
-          description: 'Check your inbox for a verification email. You must verify your email before logging in.'
+          duration: 12000,
+          description: 'Check your email at ' + signupForm.email + ' for a verification link from verify@shazamparking.ae (check spam folder too)'
         });
         setSignupForm({ email: '', password: '', confirmPassword: '', fullName: '' });
         
         // Show additional guidance about email verification
         setTimeout(() => {
-          toast.info('Email Verification Required', {
-            duration: 12000,
-            description: 'Please check your email (including spam folder) and click the verification link to activate your account.'
+          toast.info('Next Steps', {
+            duration: 15000,
+            description: 'Click the verification link in your email, then return here to log in with your credentials.'
           });
         }, 3000);
       }
