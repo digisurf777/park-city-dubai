@@ -275,7 +275,7 @@ const Deira = () => {
                   </p>
 
                   <div className="mb-4">
-                    <span className="text-2xl font-bold text-primary">From AED {spot.price}/month</span>
+                    <span className="text-2xl font-bold text-primary">AED {spot.price}/month</span>
                   </div>
 
 
