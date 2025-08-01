@@ -29,63 +29,70 @@ const handler = async (req: Request): Promise<Response> => {
     const emailResponse = await resend.emails.send({
       from: "Shazam Parking <noreply@shazamparking.ae>",
       to: [email],
-      subject: "Potwierdź swoje konto - Shazam Parking",
+      subject: "Welcome to Shazam Parking - Confirm Your Email",
       html: `
         <!DOCTYPE html>
-        <html>
+        <html lang="en">
         <head>
-          <meta charset="utf-8">
+          <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Potwierdź swoje konto</title>
+          <title>Welcome to Shazam Parking!</title>
         </head>
-        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
-            <h1 style="color: white; margin: 0; font-size: 28px;">Witaj w Shazam Parking!</h1>
-          </div>
-          
-          <div style="background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; border: 1px solid #e0e0e0;">
-            <h2 style="color: #333; margin-top: 0;">Cześć ${fullName}!</h2>
+        <body style="margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif; background-color: #f8f9fa;">
+          <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
             
-            <p style="font-size: 16px; margin-bottom: 25px;">
-              Dziękujemy za rejestrację w Shazam Parking. Aby ukończyć proces rejestracji i aktywować swoje konto, 
-              kliknij poniższy przycisk:
-            </p>
-            
-            <div style="text-align: center; margin: 30px 0;">
-              <a href="${confirmationUrl}" 
-                 style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-                        color: white; 
-                        text-decoration: none; 
-                        padding: 15px 30px; 
-                        border-radius: 25px; 
-                        font-weight: bold; 
-                        font-size: 16px; 
-                        display: inline-block; 
-                        transition: transform 0.2s;">
-                Potwierdź swoje konto
-              </a>
+            <!-- Header with brand colors -->
+            <div style="background: linear-gradient(135deg, #4ECDC4 0%, #44A08D 100%); padding: 40px 32px; text-align: center;">
+              <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 700; line-height: 1.2;">
+                Welcome to Shazam Parking!
+              </h1>
             </div>
             
-            <p style="font-size: 14px; color: #666; border-top: 1px solid #e0e0e0; padding-top: 20px; margin-top: 30px;">
-              Jeśli nie rejestrowałeś się w Shazam Parking, zignoruj tę wiadomość.
-            </p>
+            <!-- Main Content -->
+            <div style="padding: 40px 32px;">
+              <h2 style="color: #202020; margin: 0 0 16px 0; font-size: 24px; font-weight: 600;">
+                Hello ${fullName}!
+              </h2>
+              
+              <p style="color: #555555; margin: 0 0 24px 0; font-size: 16px; line-height: 1.6;">
+                Thank you for registering with Shazam Parking. To complete your registration and activate your account, please confirm your email address by clicking the button below.
+              </p>
+              
+              <!-- CTA Button -->
+              <div style="text-align: center; margin: 32px 0;">
+                <a href="${confirmationUrl}" 
+                   style="display: inline-block; background-color: #4ECDC4; color: #ffffff; text-decoration: none; padding: 16px 32px; border-radius: 8px; font-weight: 600; font-size: 16px; transition: background-color 0.3s ease;">
+                  Confirm Your Account
+                </a>
+              </div>
+              
+              <p style="color: #777777; margin: 24px 0 0 0; font-size: 14px; line-height: 1.5;">
+                If you didn't register for Shazam Parking, please ignore this message.
+              </p>
+              
+              <p style="color: #777777; margin: 12px 0 0 0; font-size: 14px; line-height: 1.5;">
+                This link is valid for 24 hours. If you can't click the button, copy and paste the following link into your browser:
+              </p>
+              
+              <div style="background-color: #f8f9fa; padding: 16px; border-radius: 6px; margin: 16px 0; border-left: 4px solid #4ECDC4;">
+                <p style="margin: 0; font-size: 14px; color: #555555; word-break: break-all;">
+                  <a href="${confirmationUrl}" style="color: #4ECDC4; text-decoration: none;">
+                    ${confirmationUrl}
+                  </a>
+                </p>
+              </div>
+            </div>
             
-            <p style="font-size: 14px; color: #666;">
-              Link jest ważny przez 24 godziny. Jeśli nie możesz kliknąć przycisku, skopiuj i wklej poniższy link do przeglądarki:
-            </p>
-            
-            <p style="font-size: 12px; color: #888; word-break: break-all; background: #f0f0f0; padding: 10px; border-radius: 5px;">
-              ${confirmationUrl}
-            </p>
-            
-            <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 30px 0;">
-            
-            <div style="text-align: center;">
-              <p style="margin: 0; color: #666; font-size: 14px;">
-                <strong>Shazam Parking</strong><br>
-                Najłatwiejszy sposób na znalezienie parkingu w Dubaju
+            <!-- Footer -->
+            <div style="background-color: #f8f9fa; padding: 32px; text-align: center; border-top: 1px solid #e9ecef;">
+              <p style="margin: 0; font-size: 16px; font-weight: 600; color: #202020;">
+                Shazam Parking
+              </p>
+              <p style="margin: 8px 0 0 0; font-size: 14px; color: #777777;">
+                The easiest way to find parking in Dubai
               </p>
             </div>
+            
           </div>
         </body>
         </html>
