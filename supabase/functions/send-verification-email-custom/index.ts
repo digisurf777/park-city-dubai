@@ -31,7 +31,7 @@ const handler = async (req: Request): Promise<Response> => {
     
     console.log(`Sending custom verification email to: ${email}`);
 
-    const verificationUrl = `${Deno.env.get('SUPABASE_URL')?.replace('/rest/v1', '')}/auth/v1/verify?token=${token}&type=signup&redirect_to=${encodeURIComponent('https://swiftlaces.com/email-confirmed')}`;
+    const verificationUrl = `${Deno.env.get('SUPABASE_URL')?.replace('/rest/v1', '')}/auth/v1/verify?token=${token}&type=signup&redirect_to=${encodeURIComponent('https://shazamparking.ae/email-confirmed')}`;
 
     const emailResponse = await resend.emails.send({
       from: "ShazamParking <verify@shazamparking.ae>",
