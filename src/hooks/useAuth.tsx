@@ -51,14 +51,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const signUp = async (email: string, password: string, fullName: string, userType: string = 'renter') => {
-    // Use native Supabase verification with proper redirect
-    const redirectUrl = `https://shazamparking.ae/email-confirmed`;
-    
+    // First create the user account
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: redirectUrl,
         data: {
           full_name: fullName,
           user_type: userType
@@ -71,6 +68,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     // Handle successful signup
     if (!error && data.user) {
       try {
+        // Generate confirmation URL
+        const baseUrl = 'https://shazamparking.ae';
+        const confirmationUrl = `${baseUrl}/email-confirmed?token_hash=${data.user.id}&type=signup&redirect_to=${baseUrl}`;
+        
+        // Send custom confirmation email
+        await supabase.functions.invoke('send-signup-confirmation', {
+          body: {
+            email: email,
+            fullName: fullName,
+            confirmationUrl: confirmationUrl
+          }
+        });
+        console.log('Confirmation email sent successfully');
+        
         // Send admin notification
         await supabase.functions.invoke('send-admin-signup-notification', {
           body: {
@@ -82,14 +93,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         console.log('Admin notification sent successfully');
         
       } catch (emailError) {
-        console.error('Failed to send admin notification:', emailError);
+        console.error('Failed to send emails:', emailError);
         // Don't fail the signup if email fails
       }
       
       // Return success with message about email verification
       return { 
         error: null,
-        message: 'Account created successfully! Please check your email for a verification link.'
+        message: 'Konto zostało utworzone pomyślnie! Sprawdź swoją skrzynkę e-mail, aby potwierdzić adres.'
       };
     }
 
