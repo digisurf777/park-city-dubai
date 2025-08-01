@@ -337,19 +337,34 @@ export const ParkingBookingModal = ({
               <Textarea placeholder="Any special requirements or notes..." value={notes} onChange={e => setNotes(e.target.value)} className="min-h-[80px]" />
             </div>
 
-            {/* Important Notice */}
-            <Card className="bg-red-50 border-red-200">
-              <CardContent className="p-4">
-                <div className="text-sm text-red-800">
-                  <p className="font-medium mb-2">🚫 Currently Unavailable:</p>
-                  <p className="text-xs">All parking spots are currently booked. Please check back later for availability.</p>
-                </div>
-              </CardContent>
-            </Card>
+            {/* Submit Warning */}
+            {isWithin7Days && <Card className="bg-yellow-50 border-yellow-200">
+                <CardContent className="p-4">
+                  <div className="text-sm text-yellow-800">
+                    <p className="font-medium mb-2">⚠️ Short Notice Booking:</p>
+                    <p className="text-xs">Bookings starting within 7 days may require additional confirmation time.</p>
+                  </div>
+                </CardContent>
+              </Card>}
 
             {/* Reserve Button */}
-            <Button className="w-full bg-destructive hover:bg-destructive text-destructive-foreground font-semibold py-4 text-lg cursor-not-allowed" size="lg" disabled>
-              🚫 All Spots Currently Booked
+            <Button 
+              className="w-full font-semibold py-4 text-lg" 
+              size="lg" 
+              onClick={handleReserve}
+              disabled={isSubmitting || !startDate}
+            >
+              {isSubmitting ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Processing...
+                </>
+              ) : (
+                <>
+                  <Car className="mr-2 h-5 w-5" />
+                  Request Booking - AED {finalPrice.toLocaleString()}
+                </>
+              )}
             </Button>
 
             <p className="text-xs text-muted-foreground text-center">
