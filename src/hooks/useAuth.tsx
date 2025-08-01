@@ -51,11 +51,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const signUp = async (email: string, password: string, fullName: string, userType: string = 'renter') => {
-    // First create the user account
+    // First create the user account with disabled email confirmation to prevent double emails
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
+        emailRedirectTo: undefined, // Disable automatic email sending
         data: {
           full_name: fullName,
           user_type: userType
@@ -104,22 +105,57 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       };
     }
 
-    // Check for rate limiting specifically
-    if (error && (
-      error.message.includes('email rate limit exceeded') || 
-      error.message.includes('429') || 
-      error.code === 'over_email_send_rate_limit'
-    )) {
-      console.log('Rate limit detected during signup');
+    // Enhanced error handling for various scenarios
+    if (error) {
+      console.log('Signup error:', error);
+      
+      // Check for rate limiting
+      if (error.message.includes('email rate limit exceeded') || 
+          error.message.includes('429') || 
+          error.message.includes('too many') ||
+          error.code === 'over_email_send_rate_limit' ||
+          error.code === 'email_rate_limit_exceeded') {
+        return { 
+          error: { 
+            message: 'Za dużo prób rejestracji. Proszę poczekać kilka minut przed ponowną próbą.',
+            code: 'signup_rate_limited'
+          } 
+        };
+      }
+      
+      // Check for existing user
+      if (error.message.includes('already registered') || 
+          error.message.includes('already exists') ||
+          error.code === 'email_address_already_exists') {
+        return { 
+          error: { 
+            message: 'Ten adres e-mail jest już zarejestrowany. Spróbuj się zalogować.',
+            code: 'user_already_exists'
+          } 
+        };
+      }
+      
+      // Check for weak password
+      if (error.message.includes('password') && 
+          (error.message.includes('weak') || error.message.includes('short'))) {
+        return { 
+          error: { 
+            message: 'Hasło jest za słabe. Użyj co najmniej 6 znaków.',
+            code: 'weak_password'
+          } 
+        };
+      }
+      
+      // Default error message
       return { 
         error: { 
-          message: 'Too many signup attempts. Please wait a few minutes before trying again.',
-          code: 'signup_rate_limited'
+          message: 'Wystąpił błąd podczas rejestracji. Spróbuj ponownie.',
+          code: 'signup_error'
         } 
       };
     }
     
-    return { error };
+    return { error: null };
   };
 
   const signIn = async (email: string, password: string) => {
