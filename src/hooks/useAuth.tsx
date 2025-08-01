@@ -50,11 +50,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const signUp = async (email: string, password: string, fullName: string, userType: string = 'renter') => {
-    // Create user account without requiring immediate email confirmation
+    // Use native Supabase verification with proper redirect
+    const redirectUrl = `${window.location.origin}/email-confirmed`;
+    
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
+        emailRedirectTo: redirectUrl,
         data: {
           full_name: fullName,
           user_type: userType
@@ -67,27 +70,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     // Handle successful signup
     if (!error && data.user) {
       try {
-        // Generate verification token and send custom verification email
-        const verificationToken = crypto.randomUUID();
-        const verificationUrl = `${window.location.origin}/email-confirmed?token=${verificationToken}&email=${encodeURIComponent(email)}`;
-        
-        console.log('Sending custom verification email to:', email);
-        
-        // Send custom verification email
-        const emailResult = await supabase.functions.invoke('send-verification-email-custom', {
-          body: {
-            email: email,
-            fullName: fullName,
-            token: verificationToken
-          }
-        });
-        
-        if (emailResult.error) {
-          console.error('Failed to send verification email:', emailResult.error);
-        } else {
-          console.log('Verification email sent successfully');
-        }
-
         // Send admin notification
         await supabase.functions.invoke('send-admin-signup-notification', {
           body: {
@@ -99,11 +81,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         console.log('Admin notification sent successfully');
         
       } catch (emailError) {
-        console.error('Failed to send emails:', emailError);
+        console.error('Failed to send admin notification:', emailError);
         // Don't fail the signup if email fails
       }
       
-      // Return success with custom message about email verification
+      // Return success with message about email verification
       return { 
         error: null,
         message: 'Account created successfully! Please check your email for a verification link.'
