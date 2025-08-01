@@ -78,7 +78,7 @@ const Deira = () => {
       const {
         data,
         error
-      } = await supabase.from("parking_listings").select("*").eq("zone", "Deira").eq("status", "approved");
+      } = await supabase.from("parking_listings").select("*").ilike("zone", "%deira%").eq("status", "approved");
       console.log("Supabase query result:", {
         data,
         error

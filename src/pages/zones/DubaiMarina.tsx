@@ -51,7 +51,7 @@ const DubaiMarina = () => {
       const {
         data,
         error
-      } = await supabase.from('parking_listings').select('*').eq('zone', 'Dubai Marina').eq('status', 'approved');
+      } = await supabase.from('parking_listings').select('*').ilike('zone', '%dubai%marina%').eq('status', 'approved');
       console.log('Supabase query result:', {
         data,
         error

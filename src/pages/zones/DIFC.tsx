@@ -52,7 +52,7 @@ const DIFC = () => {
       const {
         data,
         error
-      } = await supabase.from("parking_listings").select("*").eq("zone", "DIFC").eq("status", "approved");
+      } = await supabase.from("parking_listings").select("*").ilike("zone", "%difc%").eq("status", "approved");
       console.log("Supabase query result:", {
         data,
         error

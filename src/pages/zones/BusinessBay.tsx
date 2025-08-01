@@ -52,7 +52,7 @@ const BusinessBay = () => {
       const {
         data,
         error
-      } = await supabase.from("parking_listings").select("*").eq("zone", "Business Bay").eq("status", "approved");
+      } = await supabase.from("parking_listings").select("*").ilike("zone", "%business%bay%").eq("status", "approved");
       console.log("Supabase query result:", {
         data,
         error

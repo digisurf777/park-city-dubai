@@ -38,7 +38,7 @@ const PalmJumeirah = () => {
       const {
         data,
         error
-      } = await supabase.from("parking_listings").select("*").eq("zone", "Palm Jumeirah").eq("status", "approved");
+      } = await supabase.from("parking_listings").select("*").ilike("zone", "%palm%jumeirah%").eq("status", "approved");
       console.log("Supabase query result:", {
         data,
         error

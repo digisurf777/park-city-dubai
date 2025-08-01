@@ -52,7 +52,7 @@ const Downtown = () => {
       const {
         data,
         error
-      } = await supabase.from('parking_listings').select('*').eq('zone', 'Downtown').eq('status', 'approved');
+      } = await supabase.from('parking_listings').select('*').ilike('zone', '%downtown%').eq('status', 'approved');
       console.log('Supabase query result:', {
         data,
         error
