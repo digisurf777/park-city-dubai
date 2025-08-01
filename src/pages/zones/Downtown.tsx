@@ -68,7 +68,7 @@ const Downtown = () => {
         image: spot.images && spot.images.length > 0 ? spot.images[0] : "/lovable-uploads/161ee737-1491-45d6-a5e3-a642b7ff0806.png",
         images: spot.images || [],
         specs: spot.features || ["Access Card", "Covered", "2.1m Height"],
-        available: true,
+        available: true, // All spots are now available for booking
         address: spot.address,
         description: spot.description
       }));

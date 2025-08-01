@@ -224,7 +224,7 @@ export const ParkingBookingModal = ({
   return <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[95vh] overflow-y-auto mx-4 sm:mx-auto">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold">Reserve Parking Space</DialogTitle>
+          <DialogTitle className="text-2xl font-bold text-green-600">✅ Reserve Parking Space - All Bookings Available!</DialogTitle>
         </DialogHeader>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
@@ -368,7 +368,7 @@ export const ParkingBookingModal = ({
             </Button>
 
             <p className="text-xs text-muted-foreground text-center">
-              No charges will be made at this time. Payment link will be provided after confirmation.
+              ✅ All bookings are now available! Payment link will be provided after confirmation.
             </p>
           </div>
         </div>
