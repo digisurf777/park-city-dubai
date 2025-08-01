@@ -68,6 +68,7 @@ export const ParkingBookingModal = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [bookingReference, setBookingReference] = useState("");
+  const [paymentUrl, setPaymentUrl] = useState("");
   useEffect(() => {
     if (!isOpen) {
       setStartDate(undefined);
@@ -78,6 +79,7 @@ export const ParkingBookingModal = ({
       setIsSubmitting(false);
       setShowConfirmation(false);
       setBookingReference("");
+      setPaymentUrl("");
     }
   }, [isOpen]);
   if (!parkingSpot) return null;
@@ -156,6 +158,7 @@ export const ParkingBookingModal = ({
       if (error) throw error;
       console.log('Booking request submitted:', data);
       setBookingReference(data.bookingId?.slice(0, 8).toUpperCase() || "");
+      setPaymentUrl(data.paymentUrl || "");
       setShowConfirmation(true);
       toast({
         title: "Booking Submitted Successfully",
@@ -204,6 +207,20 @@ export const ParkingBookingModal = ({
                 <li>• Check your email for detailed instructions</li>
               </ul>
             </div>
+
+            {paymentUrl && (
+              <div className="bg-green-50 p-6 rounded-lg mb-6 border border-green-200">
+                <h3 className="font-semibold mb-3 text-green-800">💳 Complete Your Payment</h3>
+                <p className="text-sm text-green-700 mb-4">Click the button below to complete your payment setup:</p>
+                <Button 
+                  onClick={() => window.open(paymentUrl, '_blank')} 
+                  className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3"
+                  size="lg"
+                >
+                  Complete Payment Setup
+                </Button>
+              </div>
+            )}
 
             {bookingReference && <p className="text-muted-foreground mb-6">
                 Booking Reference: <strong>{bookingReference}</strong>
