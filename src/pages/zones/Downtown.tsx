@@ -175,9 +175,9 @@ const Downtown = () => {
       }}></div>
         <div className="relative z-10 flex items-center justify-center h-full">
           <div className="text-center text-white px-4">
-            <h1 className="text-5xl md:text-6xl font-bold mb-4">Parking Spaces in Downtown Dubai</h1>
-            <p className="text-xl md:text-2xl opacity-90">Home to Burj Khalifa, Dubai Fountain, and Dubai Mall</p>
-            <p className="text-lg md:text-xl opacity-80 mt-2">Secure monthly bays to AED700</p>
+            <h1 className="text-5xl md:text-6xl font-bold mb-4">Downtown Dubai</h1>
+            <p className="text-xl md:text-2xl opacity-90 mb-4">As the corporate heart of Dubai, Downtown is a hub for government offices, commercial towers, and prestigious brands. It's frequented by those working in Emaar Square, Boulevard Plaza, and nearby hospitality or retail sectors.</p>
+            <p className="text-lg md:text-xl opacity-80 font-semibold">Secure a monthly parking bay from AED750.</p>
           </div>
         </div>
       </div>
