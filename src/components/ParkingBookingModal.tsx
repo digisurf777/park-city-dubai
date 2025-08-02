@@ -352,10 +352,13 @@ const calculateTotal = () => {
                   
                   <div className="bg-blue-50 p-3 rounded-lg mt-3">
                     <p className="text-sm text-blue-700 font-medium">
-                      💳 Monthly Billing: You'll be charged AED {monthlyRate.toLocaleString()} each month for {selectedDuration.months} months
+                      💳 {selectedDuration.months === 1 
+                        ? `One-time payment: You'll be charged AED ${monthlyRate.toLocaleString()} once for 1 month` 
+                        : `Monthly Billing: You'll be charged AED ${monthlyRate.toLocaleString()} each month for ${selectedDuration.months} months`
+                      }
                     </p>
                     <p className="text-xs text-blue-600 mt-1">
-                      Total commitment: AED {totalCommitment.toLocaleString()} over {selectedDuration.months} months
+                      Total commitment: AED {totalCommitment.toLocaleString()} over {selectedDuration.months} {selectedDuration.months === 1 ? 'month' : 'months'}
                     </p>
                   </div>
                   
