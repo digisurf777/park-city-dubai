@@ -320,10 +320,10 @@ const calculateTotal = () => {
             {/* Price Breakdown */}
             <Card>
               <CardContent className="p-4">
-                <h4 className="font-semibold mb-3 flex items-center gap-2">
-                  <CreditCard className="h-4 w-4" />
-                  Monthly Billing Plan
-                </h4>
+                 <h4 className="font-semibold mb-3 flex items-center gap-2">
+                   <CreditCard className="h-4 w-4" />
+                   Price Breakdown
+                 </h4>
                 
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
@@ -345,20 +345,17 @@ const calculateTotal = () => {
                   
                   <hr className="my-2" />
                   
-                  <div className="flex justify-between font-bold text-lg text-blue-600">
-                    <span>First month payment</span>
-                    <span>AED {firstMonthPayment.toLocaleString()}</span>
-                  </div>
+                   <div className="flex justify-between font-bold text-lg text-blue-600">
+                     <span>Total payable now</span>
+                     <span>AED {totalCommitment.toLocaleString()}</span>
+                   </div>
                   
                   <div className="bg-blue-50 p-3 rounded-lg mt-3">
                     <p className="text-sm text-blue-700 font-medium">
-                      💳 {selectedDuration.months === 1 
-                        ? `One-time payment: You'll be charged AED ${monthlyRate.toLocaleString()} once for 1 month` 
-                        : `Monthly Billing: You'll be charged AED ${monthlyRate.toLocaleString()} each month for ${selectedDuration.months} months`
-                      }
+                      💳 Upfront Payment: You'll pay AED {totalCommitment.toLocaleString()} once for {selectedDuration.months} {selectedDuration.months === 1 ? 'month' : 'months'}
                     </p>
                     <p className="text-xs text-blue-600 mt-1">
-                      Total commitment: AED {totalCommitment.toLocaleString()} over {selectedDuration.months} {selectedDuration.months === 1 ? 'month' : 'months'}
+                      Discounted monthly rate: AED {monthlyRate.toLocaleString()}/month × {selectedDuration.months} {selectedDuration.months === 1 ? 'month' : 'months'}
                     </p>
                   </div>
                   
@@ -405,10 +402,10 @@ const calculateTotal = () => {
                   Processing...
                 </>
               ) : (
-                <>
-                  <Car className="mr-2 h-5 w-5" />
-                  Request Booking - First Month: AED {firstMonthPayment.toLocaleString()}
-                </>
+                 <>
+                   <Car className="mr-2 h-5 w-5" />
+                   Request Booking - Total: AED {totalCommitment.toLocaleString()}
+                 </>
               )}
             </Button>
 
