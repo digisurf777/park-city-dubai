@@ -83,32 +83,37 @@ export const ParkingBookingModal = ({
     }
   }, [isOpen]);
   if (!parkingSpot) return null;
-  const calculateTotal = () => {
-    // Use the correct formula: ((Listing Price – 100) × multiplier) × Number of Months + (100 × Number of Months)
-    let finalPrice: number;
-    let savings: number = 0;
+const calculateTotal = () => {
+    // Calculate the discounted monthly rate based on commitment length
+    let monthlyRate: number;
+    let monthlyDiscount: number = 0;
+    
     if (selectedDuration.months === 1) {
       // For 1 month, use the original price
-      finalPrice = parkingSpot.price;
+      monthlyRate = parkingSpot.price;
     } else {
-      // For 3, 6, 12 months, use the formula
+      // For 3, 6, 12 months, apply discount to get monthly rate
       const discountedAmount = (parkingSpot.price - 100) * selectedDuration.multiplier;
-      finalPrice = discountedAmount * selectedDuration.months + 100 * selectedDuration.months;
-
-      // Calculate savings compared to regular monthly rate
-      const regularTotal = parkingSpot.price * selectedDuration.months;
-      savings = regularTotal - finalPrice;
+      monthlyRate = discountedAmount + 100;
+      
+      // Calculate monthly savings compared to regular monthly rate
+      monthlyDiscount = parkingSpot.price - monthlyRate;
     }
+    
     return {
-      basePrice: parkingSpot.price * selectedDuration.months,
-      finalPrice: Math.round(finalPrice),
-      savings: Math.round(savings)
+      baseMonthlyPrice: parkingSpot.price,
+      monthlyRate: Math.round(monthlyRate),
+      monthlyDiscount: Math.round(monthlyDiscount),
+      firstMonthPayment: Math.round(monthlyRate), // Only charge first month
+      totalCommitment: Math.round(monthlyRate * selectedDuration.months)
     };
   };
   const {
-    basePrice,
-    finalPrice,
-    savings
+    baseMonthlyPrice,
+    monthlyRate,
+    monthlyDiscount,
+    firstMonthPayment,
+    totalCommitment
   } = calculateTotal();
   const handleReserve = async () => {
     if (!user) {
@@ -146,7 +151,9 @@ export const ParkingBookingModal = ({
         notes,
         zone: "Find Parking Page",
         location: parkingSpot.name,
-        costAed: finalPrice,
+        costAed: firstMonthPayment, // Only charge first month
+        monthlyRate: monthlyRate, // Send monthly rate for subscription setup
+        totalCommitment: totalCommitment, // Total commitment amount
         parkingSpotName: parkingSpot.name
       };
       const {
@@ -315,30 +322,48 @@ export const ParkingBookingModal = ({
               <CardContent className="p-4">
                 <h4 className="font-semibold mb-3 flex items-center gap-2">
                   <CreditCard className="h-4 w-4" />
-                  Price Breakdown
+                  Monthly Billing Plan
                 </h4>
                 
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
-                    <span>Base price ({selectedDuration.months} month{selectedDuration.months > 1 ? 's' : ''})</span>
-                    <span>AED {basePrice.toLocaleString()}</span>
+                    <span>Regular monthly rate</span>
+                    <span>AED {baseMonthlyPrice.toLocaleString()}</span>
                   </div>
                   
-                  {savings > 0 && <div className="flex justify-between text-sm text-green-600">
-                      <span>Bulk rental discount</span>
-                      <span>-AED {savings.toLocaleString()}</span>
-                    </div>}
+                  {monthlyDiscount > 0 && (
+                    <div className="flex justify-between text-sm text-green-600">
+                      <span>Commitment discount ({selectedDuration.months} months)</span>
+                      <span>-AED {monthlyDiscount.toLocaleString()}/month</span>
+                    </div>
+                  )}
+                  
+                  <div className="flex justify-between text-sm font-medium">
+                    <span>Your monthly rate</span>
+                    <span>AED {monthlyRate.toLocaleString()}/month</span>
+                  </div>
                   
                   <hr className="my-2" />
                   
-                  <div className="flex justify-between font-bold text-lg">
-                    <span>Total</span>
-                    <span>AED {finalPrice.toLocaleString()}</span>
+                  <div className="flex justify-between font-bold text-lg text-blue-600">
+                    <span>First month payment</span>
+                    <span>AED {firstMonthPayment.toLocaleString()}</span>
                   </div>
                   
-                  {savings > 0 && <p className="text-sm text-green-600 font-medium">
-                      You save AED {savings.toLocaleString()} with long term rental pricing
-                    </p>}
+                  <div className="bg-blue-50 p-3 rounded-lg mt-3">
+                    <p className="text-sm text-blue-700 font-medium">
+                      💳 Monthly Billing: You'll be charged AED {monthlyRate.toLocaleString()} each month for {selectedDuration.months} months
+                    </p>
+                    <p className="text-xs text-blue-600 mt-1">
+                      Total commitment: AED {totalCommitment.toLocaleString()} over {selectedDuration.months} months
+                    </p>
+                  </div>
+                  
+                  {monthlyDiscount > 0 && (
+                    <p className="text-sm text-green-600 font-medium">
+                      You save AED {(monthlyDiscount * selectedDuration.months).toLocaleString()} with this {selectedDuration.months}-month commitment
+                    </p>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -379,7 +404,7 @@ export const ParkingBookingModal = ({
               ) : (
                 <>
                   <Car className="mr-2 h-5 w-5" />
-                  Request Booking - AED {finalPrice.toLocaleString()}
+                  Request Booking - First Month: AED {firstMonthPayment.toLocaleString()}
                 </>
               )}
             </Button>

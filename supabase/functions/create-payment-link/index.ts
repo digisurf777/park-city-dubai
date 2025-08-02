@@ -9,7 +9,8 @@ const corsHeaders = {
 
 interface PaymentLinkRequest {
   bookingId: string;
-  amount: number;
+  amount: number; // First month payment
+  monthlyRate: number; // Monthly subscription rate
   duration: number;
   parkingSpotName: string;
   userEmail: string;
@@ -33,9 +34,9 @@ const handler = async (req: Request): Promise<Response> => {
       { auth: { persistSession: false } }
     );
 
-    const { bookingId, amount, duration, parkingSpotName, userEmail }: PaymentLinkRequest = await req.json();
+    const { bookingId, amount, monthlyRate, duration, parkingSpotName, userEmail }: PaymentLinkRequest = await req.json();
     
-    console.log("Payment request details:", { bookingId, amount, duration, parkingSpotName, userEmail });
+    console.log("Payment request details:", { bookingId, amount, monthlyRate, duration, parkingSpotName, userEmail });
 
     // Find or create Stripe customer
     let customer;
@@ -64,11 +65,11 @@ const handler = async (req: Request): Promise<Response> => {
     confirmationDeadline.setDate(confirmationDeadline.getDate() + 2);
 
     if (duration === 1) {
-      // One-time payment with manual capture (pre-authorization)
+      // One-time payment for 1 month
       paymentType = 'one_time';
       
       const paymentIntent = await stripe.paymentIntents.create({
-        amount: Math.round(amount * 100), // Convert to cents
+        amount: Math.round(amount * 100), // Convert to cents (first month only)
         currency: 'aed',
         customer: customer.id,
         capture_method: 'manual', // Pre-authorize but don't capture
@@ -113,18 +114,18 @@ const handler = async (req: Request): Promise<Response> => {
       paymentUrl = session.url || "";
       
     } else {
-      // Recurring monthly payments with trial period
+      // Monthly recurring payments (commitment-based)
       paymentType = 'recurring';
       
-      // Create a product and price for the recurring payment
+      // Create a product and price for the recurring payment using monthlyRate
       const product = await stripe.products.create({
-        name: `${parkingSpotName} - Monthly Parking`,
-        description: `Monthly parking subscription for ${parkingSpotName}`,
+        name: `${parkingSpotName} - Monthly Parking (${duration} Month Commitment)`,
+        description: `Monthly parking subscription for ${parkingSpotName} with ${duration}-month commitment`,
       });
 
       const price = await stripe.prices.create({
         currency: 'aed',
-        unit_amount: Math.round(amount * 100), // Monthly amount in cents
+        unit_amount: Math.round(monthlyRate * 100), // Monthly rate in cents
         recurring: {
           interval: 'month',
         },
@@ -146,6 +147,7 @@ const handler = async (req: Request): Promise<Response> => {
           metadata: {
             booking_id: bookingId,
             duration: duration.toString(),
+            commitment_months: duration.toString(),
           },
         },
         success_url: `https://shazamparking.ae/payment-success?booking_id=${bookingId}`,
@@ -153,6 +155,7 @@ const handler = async (req: Request): Promise<Response> => {
         metadata: {
           booking_id: bookingId,
           payment_type: 'recurring',
+          commitment_months: duration.toString(),
         },
       });
 
@@ -169,7 +172,7 @@ const handler = async (req: Request): Promise<Response> => {
         payment_status: 'pending',
         payment_type: paymentType,
         payment_link_url: paymentUrl,
-        payment_amount_cents: Math.round(amount * 100),
+        payment_amount_cents: Math.round(amount * 100), // First month payment only
         confirmation_deadline: confirmationDeadline.toISOString(),
         updated_at: new Date().toISOString(),
       })
