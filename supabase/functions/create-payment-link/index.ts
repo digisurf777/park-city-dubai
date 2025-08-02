@@ -132,7 +132,7 @@ const handler = async (req: Request): Promise<Response> => {
         product: product.id,
       });
 
-      // Create checkout session for subscription
+      // Create checkout session for subscription with limited billing cycles
       const session = await stripe.checkout.sessions.create({
         customer: customer.id,
         locale: 'en',
@@ -149,6 +149,8 @@ const handler = async (req: Request): Promise<Response> => {
             duration: duration.toString(),
             commitment_months: duration.toString(),
           },
+          billing_cycle_anchor: undefined, // Start immediately
+          proration_behavior: 'none',
         },
         success_url: `https://shazamparking.ae/payment-success?booking_id=${bookingId}`,
         cancel_url: `https://shazamparking.ae/find-a-parking-space`,
