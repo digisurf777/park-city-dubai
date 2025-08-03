@@ -64,105 +64,58 @@ const handler = async (req: Request): Promise<Response> => {
     const confirmationDeadline = new Date();
     confirmationDeadline.setDate(confirmationDeadline.getDate() + 2);
 
-    if (duration === 1) {
-      // One-time payment for 1 month
-      paymentType = 'one_time';
-      
-      const paymentIntent = await stripe.paymentIntents.create({
-        amount: Math.round(amount * 100), // Convert to cents (first month only)
-        currency: 'aed',
-        customer: customer.id,
-        capture_method: 'manual', // Pre-authorize but don't capture
-        description: `Parking booking for ${parkingSpotName} - ${duration} month`,
-        metadata: {
-          booking_id: bookingId,
-          duration: duration.toString(),
-        },
-      });
+    // Create one-time payment for all durations (upfront payment for full period)
+    paymentType = 'one_time';
+    const totalAmount = monthlyRate * duration; // Full amount for the entire period
+    
+    console.log(`Creating one-time payment for ${duration} months, total: AED ${totalAmount}`);
+    
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: Math.round(totalAmount * 100), // Convert to fils (full period amount)
+      currency: 'aed',
+      customer: customer.id,
+      capture_method: 'manual', // Pre-authorize but don't capture
+      description: `Parking booking for ${parkingSpotName} - ${duration} ${duration === 1 ? 'month' : 'months'}`,
+      metadata: {
+        booking_id: bookingId,
+        duration: duration.toString(),
+        monthly_rate: monthlyRate.toString(),
+      },
+    });
 
-      paymentIntentId = paymentIntent.id;
-      
-      // Create checkout session for the payment intent
-      const session = await stripe.checkout.sessions.create({
-        customer: customer.id,
-        locale: 'en',
-        payment_intent_data: {
-          setup_future_usage: 'off_session',
-        },
-        line_items: [
-          {
-            price_data: {
-              currency: 'aed',
-              product_data: {
-                name: `${parkingSpotName} - ${duration} Month Parking`,
-                description: `Secure parking space for ${duration} month`,
-              },
-              unit_amount: Math.round(amount * 100),
+    paymentIntentId = paymentIntent.id;
+    
+    // Create checkout session for the payment intent
+    const session = await stripe.checkout.sessions.create({
+      customer: customer.id,
+      locale: 'en',
+      payment_intent_data: {
+        setup_future_usage: 'off_session',
+      },
+      line_items: [
+        {
+          price_data: {
+            currency: 'aed',
+            product_data: {
+              name: `${parkingSpotName} - ${duration} ${duration === 1 ? 'Month' : 'Months'} Parking`,
+              description: `Secure parking space for ${duration} ${duration === 1 ? 'month' : 'months'}${duration > 1 ? ` (${duration} × AED ${monthlyRate}/month)` : ''}`,
             },
-            quantity: 1,
+            unit_amount: Math.round(totalAmount * 100),
           },
-        ],
-        mode: 'payment',
-        success_url: `https://shazamparking.ae/payment-success?booking_id=${bookingId}`,
-        cancel_url: `https://shazamparking.ae/find-a-parking-space`,
-        metadata: {
-          booking_id: bookingId,
-          payment_type: 'one_time',
+          quantity: 1,
         },
-      });
+      ],
+      mode: 'payment',
+      success_url: `https://shazamparking.ae/payment-success?booking_id=${bookingId}`,
+      cancel_url: `https://shazamparking.ae/find-a-parking-space`,
+      metadata: {
+        booking_id: bookingId,
+        payment_type: 'one_time',
+        duration: duration.toString(),
+      },
+    });
 
-      paymentUrl = session.url || "";
-      
-    } else {
-      // Monthly recurring payments (commitment-based)
-      paymentType = 'recurring';
-      
-      // Create a product and price for the recurring payment using monthlyRate
-      const product = await stripe.products.create({
-        name: `${parkingSpotName} - Monthly Parking (${duration} Month Commitment)`,
-        description: `Monthly parking subscription for ${parkingSpotName} with ${duration}-month commitment`,
-      });
-
-      const price = await stripe.prices.create({
-        currency: 'aed',
-        unit_amount: Math.round(monthlyRate * 100), // Monthly rate in cents
-        recurring: {
-          interval: 'month',
-        },
-        product: product.id,
-      });
-
-      // Create checkout session for subscription with limited billing cycles
-      const session = await stripe.checkout.sessions.create({
-        customer: customer.id,
-        locale: 'en',
-        line_items: [
-          {
-            price: price.id,
-            quantity: 1,
-          },
-        ],
-        mode: 'subscription',
-        subscription_data: {
-          metadata: {
-            booking_id: bookingId,
-            duration: duration.toString(),
-            commitment_months: duration.toString(),
-          },
-          billing_cycle_anchor: undefined, // Start immediately
-          proration_behavior: 'none',
-        },
-        success_url: `https://shazamparking.ae/payment-success?booking_id=${bookingId}`,
-        cancel_url: `https://shazamparking.ae/find-a-parking-space`,
-        metadata: {
-          booking_id: bookingId,
-          payment_type: 'recurring',
-          commitment_months: duration.toString(),
-        },
-      });
-
-      paymentUrl = session.url || "";
-    }
+    paymentUrl = session.url || "";
 
     // Update booking record with payment details
     const { error: updateError } = await supabaseServiceClient
@@ -174,7 +127,7 @@ const handler = async (req: Request): Promise<Response> => {
         payment_status: 'pending',
         payment_type: paymentType,
         payment_link_url: paymentUrl,
-        payment_amount_cents: Math.round(amount * 100), // First month payment only
+        payment_amount_cents: Math.round(totalAmount * 100), // Full period payment
         confirmation_deadline: confirmationDeadline.toISOString(),
         updated_at: new Date().toISOString(),
       })
