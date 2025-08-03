@@ -260,7 +260,7 @@ const handler = async (req: Request): Promise<Response> => {
                         <div style="background-color: #d1ecf1; padding: 15px; border-radius: 5px; margin: 20px 0;">
                           <p style="color: #0c5460; margin: 0;">
                             <strong>📞 Need Help?</strong><br>
-                            Contact us at <a href="mailto:support@shazamparking.ae" style="color: #0099cc;">support@shazamparking.ae</a><br>
+                            Contact us at <a href="mailto:shazamparkingdubai@gmail.com" style="color: #0099cc;">shazamparkingdubai@gmail.com</a><br>
                             Call us: +971 XX XXX XXXX (Available 24/7)
                           </p>
                         </div>
