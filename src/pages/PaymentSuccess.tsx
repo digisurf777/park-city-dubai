@@ -100,8 +100,8 @@ export default function PaymentSuccess() {
               <div className="text-center pt-4 border-t">
                 <p className="text-sm text-gray-600">
                   Questions? Contact us at{" "}
-                  <a href="mailto:shazamparkingdubai@gmail.com" className="text-blue-600 hover:underline">
-                    shazamparkingdubai@gmail.com
+                  <a href="mailto:support@shazamparking.ae" className="text-blue-600 hover:underline">
+                    support@shazamparking.ae
                   </a>
                 </p>
               </div>

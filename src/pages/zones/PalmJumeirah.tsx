@@ -180,9 +180,9 @@ const PalmJumeirah = () => {
       }}></div>
         <div className="relative z-10 flex items-center justify-center h-full">
           <div className="text-center text-white px-4">
-            <h1 className="text-5xl md:text-6xl font-bold mb-4">Parking Spaces in Palm Jumeirah</h1>
-            <p className="text-xl md:text-2xl opacity-90">Luxury island living with world-class amenities</p>
-            <p className="text-lg md:text-xl opacity-80 mt-2">Secure monthly bays to AED700</p>
+            <h1 className="text-5xl md:text-6xl font-bold mb-4">Palm Jumeirah</h1>
+            <p className="text-xl md:text-2xl opacity-90 mb-4">Golden Mile, Shoreline, and Nakheel Mall house a mix of boutique offices, clinics, and wellness spaces. The area sees regular activity from residents, business owners, and staff who operate across the island's connected communities.</p>
+            <p className="text-lg md:text-xl opacity-80 font-semibold">Secure a monthly parking bay from AED850.</p>
           </div>
         </div>
       </div>

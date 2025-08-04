@@ -68,6 +68,36 @@ const handler = async (req: Request): Promise<Response> => {
           })
           .eq('id', bookingId);
 
+        // Get customer details for confirmation email
+        const { data: profile } = await supabaseServiceClient
+          .from('profiles')
+          .select('full_name, user_id')
+          .eq('user_id', booking.user_id)
+          .single();
+
+        const { data: user } = await supabaseServiceClient.auth.admin.getUserById(booking.user_id);
+
+        // Send booking confirmation email
+        if (user && user.user && profile) {
+          try {
+            await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/send-booking-confirmation`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${Deno.env.get('SUPABASE_ANON_KEY')}`,
+              },
+              body: JSON.stringify({
+                bookingId: booking.id,
+                customerEmail: user.user.email,
+                customerName: profile.full_name || 'Customer',
+              }),
+            });
+            console.log("Booking confirmation email sent");
+          } catch (emailError) {
+            console.error("Failed to send confirmation email:", emailError);
+          }
+        }
+
         console.log("One-time payment confirmed successfully");
         
         return new Response(
@@ -98,6 +128,36 @@ const handler = async (req: Request): Promise<Response> => {
             updated_at: new Date().toISOString(),
           })
           .eq('id', bookingId);
+
+        // Get customer details for confirmation email
+        const { data: profile } = await supabaseServiceClient
+          .from('profiles')
+          .select('full_name, user_id')
+          .eq('user_id', booking.user_id)
+          .single();
+
+        const { data: user } = await supabaseServiceClient.auth.admin.getUserById(booking.user_id);
+
+        // Send booking confirmation email
+        if (user && user.user && profile) {
+          try {
+            await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/send-booking-confirmation`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${Deno.env.get('SUPABASE_ANON_KEY')}`,
+              },
+              body: JSON.stringify({
+                bookingId: booking.id,
+                customerEmail: user.user.email,
+                customerName: profile.full_name || 'Customer',
+              }),
+            });
+            console.log("Booking confirmation email sent");
+          } catch (emailError) {
+            console.error("Failed to send confirmation email:", emailError);
+          }
+        }
 
         console.log("Recurring payment confirmed successfully");
         

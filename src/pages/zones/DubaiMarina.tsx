@@ -315,9 +315,9 @@ const DubaiMarina = () => {
       }}></div>
         <div className="relative z-10 flex items-center justify-center h-full">
           <div className="text-center text-white px-4">
-            <h1 className="text-5xl md:text-6xl font-bold mb-4">Parking Spaces in Dubai Marina</h1>
-            <p className="text-xl md:text-2xl opacity-90">Picturesque waterfront district with stunning skyline</p>
-            <p className="text-lg md:text-xl opacity-80 mt-2">Secure monthly bays to AED700</p>
+            <h1 className="text-5xl md:text-6xl font-bold mb-4">Dubai Marina</h1>
+            <p className="text-xl md:text-2xl opacity-90 mb-4">This vibrant waterfront district blends lifestyle with business. With offices in Marina Plaza and Al Habtoor Tower, as well as frequent movement between JBR, JLT, and Media City, many rely on being close to where they live or work.</p>
+            <p className="text-lg md:text-xl opacity-80 font-semibold">Secure a monthly parking bay from AED600.</p>
           </div>
         </div>
       </div>

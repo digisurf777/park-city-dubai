@@ -51,12 +51,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const signUp = async (email: string, password: string, fullName: string, userType: string = 'renter') => {
-    // Create the user account with email confirmation enabled but custom redirect
+    // Create the user account but disable automatic email confirmation
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: 'https://shazamparking.ae/email-confirmed',
+        emailRedirectTo: undefined, // Disable automatic email
         data: {
           full_name: fullName,
           user_type: userType
@@ -69,6 +69,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     // Handle successful signup
     if (!error && data.user) {
       try {
+        // Generate a proper confirmation URL
+        const baseUrl = 'https://shazamparking.ae';
+        const confirmationUrl = `${baseUrl}/email-confirmed?token_hash=${data.user.id}&type=signup&redirect_to=${baseUrl}`;
+        
+        // Send our custom confirmation email
+        await supabase.functions.invoke('send-signup-confirmation', {
+          body: {
+            email: email,
+            fullName: fullName,
+            confirmationUrl: confirmationUrl
+          }
+        });
+        console.log('Custom confirmation email sent successfully');
+        
         // Send admin notification
         await supabase.functions.invoke('send-admin-signup-notification', {
           body: {
@@ -169,12 +183,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const resetPassword = async (email: string) => {
-    const redirectUrl = `https://shazamparking.ae/auth`;
-    
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: redirectUrl,
-    });
-    return { error };
+    try {
+      console.log('Attempting password reset for:', email);
+      
+      const { data, error } = await supabase.functions.invoke('send-password-reset', {
+        body: { email }
+      });
+
+      console.log('Password reset response:', { data, error });
+
+      if (error) {
+        console.error('Error invoking password reset function:', error);
+        return { error: { message: 'Failed to send password reset email. Please try again.' } };
+      }
+
+      return { error: null };
+    } catch (error: any) {
+      console.error('Password reset error:', error);
+      return { error: { message: 'Failed to send password reset email. Please try again.' } };
+    }
   };
 
   const value = {
