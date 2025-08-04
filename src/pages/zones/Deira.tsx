@@ -194,9 +194,9 @@ const Deira = () => {
       }}></div>
         <div className="relative z-10 flex items-center justify-center h-full">
           <div className="text-center text-white px-4">
-            <h1 className="text-5xl md:text-6xl font-bold mb-4">Deira</h1>
-            <p className="text-xl md:text-2xl opacity-90 mb-4">One of Dubai's oldest commercial quarters, Deira remains a critical base for logistics firms, retail traders, and financial service providers. The workforce here spans both established businesses and day-to-day operators who keep the city moving.</p>
-            <p className="text-lg md:text-xl opacity-80 font-semibold">Secure a monthly parking bay from AED500.</p>
+            <h1 className="text-5xl md:text-6xl font-bold mb-4">Parking Spaces in Deira</h1>
+            <p className="text-xl md:text-2xl opacity-90">Historic district with traditional markets and culture</p>
+            <p className="text-lg md:text-xl opacity-80 mt-2">Secure monthly bays to AED400</p>
           </div>
         </div>
       </div>

@@ -68,7 +68,6 @@ export const ParkingBookingModal = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [bookingReference, setBookingReference] = useState("");
-  const [paymentUrl, setPaymentUrl] = useState("");
   useEffect(() => {
     if (!isOpen) {
       setStartDate(undefined);
@@ -79,41 +78,35 @@ export const ParkingBookingModal = ({
       setIsSubmitting(false);
       setShowConfirmation(false);
       setBookingReference("");
-      setPaymentUrl("");
     }
   }, [isOpen]);
   if (!parkingSpot) return null;
-const calculateTotal = () => {
-    // Calculate the discounted monthly rate based on commitment length
-    let monthlyRate: number;
-    let monthlyDiscount: number = 0;
-    
+  const calculateTotal = () => {
+    // Use the correct formula: ((Listing Price – 100) × multiplier) × Number of Months + (100 × Number of Months)
+    let finalPrice: number;
+    let savings: number = 0;
     if (selectedDuration.months === 1) {
       // For 1 month, use the original price
-      monthlyRate = parkingSpot.price;
+      finalPrice = parkingSpot.price;
     } else {
-      // For 3, 6, 12 months, apply discount to get monthly rate
+      // For 3, 6, 12 months, use the formula
       const discountedAmount = (parkingSpot.price - 100) * selectedDuration.multiplier;
-      monthlyRate = discountedAmount + 100;
-      
-      // Calculate monthly savings compared to regular monthly rate
-      monthlyDiscount = parkingSpot.price - monthlyRate;
+      finalPrice = discountedAmount * selectedDuration.months + 100 * selectedDuration.months;
+
+      // Calculate savings compared to regular monthly rate
+      const regularTotal = parkingSpot.price * selectedDuration.months;
+      savings = regularTotal - finalPrice;
     }
-    
     return {
-      baseMonthlyPrice: parkingSpot.price,
-      monthlyRate: Math.round(monthlyRate),
-      monthlyDiscount: Math.round(monthlyDiscount),
-      firstMonthPayment: Math.round(monthlyRate), // Only charge first month
-      totalCommitment: Math.round(monthlyRate * selectedDuration.months)
+      basePrice: parkingSpot.price * selectedDuration.months,
+      finalPrice: Math.round(finalPrice),
+      savings: Math.round(savings)
     };
   };
   const {
-    baseMonthlyPrice,
-    monthlyRate,
-    monthlyDiscount,
-    firstMonthPayment,
-    totalCommitment
+    basePrice,
+    finalPrice,
+    savings
   } = calculateTotal();
   const handleReserve = async () => {
     if (!user) {
@@ -151,9 +144,7 @@ const calculateTotal = () => {
         notes,
         zone: "Find Parking Page",
         location: parkingSpot.name,
-        costAed: firstMonthPayment, // Only charge first month
-        monthlyRate: monthlyRate, // Send monthly rate for subscription setup
-        totalCommitment: totalCommitment, // Total commitment amount
+        costAed: finalPrice,
         parkingSpotName: parkingSpot.name
       };
       const {
@@ -165,7 +156,6 @@ const calculateTotal = () => {
       if (error) throw error;
       console.log('Booking request submitted:', data);
       setBookingReference(data.bookingId?.slice(0, 8).toUpperCase() || "");
-      setPaymentUrl(data.paymentUrl || "");
       setShowConfirmation(true);
       toast({
         title: "Booking Submitted Successfully",
@@ -215,20 +205,6 @@ const calculateTotal = () => {
               </ul>
             </div>
 
-            {paymentUrl && (
-              <div className="bg-green-50 p-6 rounded-lg mb-6 border border-green-200">
-                <h3 className="font-semibold mb-3 text-green-800">💳 Complete Your Payment</h3>
-                <p className="text-sm text-green-700 mb-4">Click the button below to complete your payment setup:</p>
-                <Button 
-                  onClick={() => window.open(paymentUrl, '_blank')} 
-                  className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3"
-                  size="lg"
-                >
-                  Complete Payment Setup
-                </Button>
-              </div>
-            )}
-
             {bookingReference && <p className="text-muted-foreground mb-6">
                 Booking Reference: <strong>{bookingReference}</strong>
               </p>}
@@ -248,7 +224,7 @@ const calculateTotal = () => {
   return <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[95vh] overflow-y-auto mx-4 sm:mx-auto">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-green-600">✅ Reserve Parking Space - All Bookings Available!</DialogTitle>
+          <DialogTitle className="text-2xl font-bold">Reserve Parking Space</DialogTitle>
         </DialogHeader>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
@@ -320,50 +296,32 @@ const calculateTotal = () => {
             {/* Price Breakdown */}
             <Card>
               <CardContent className="p-4">
-                 <h4 className="font-semibold mb-3 flex items-center gap-2">
-                   <CreditCard className="h-4 w-4" />
-                   Price Breakdown
-                 </h4>
+                <h4 className="font-semibold mb-3 flex items-center gap-2">
+                  <CreditCard className="h-4 w-4" />
+                  Price Breakdown
+                </h4>
                 
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
-                    <span>Regular monthly rate</span>
-                    <span>AED {baseMonthlyPrice.toLocaleString()}</span>
+                    <span>Base price ({selectedDuration.months} month{selectedDuration.months > 1 ? 's' : ''})</span>
+                    <span>AED {basePrice.toLocaleString()}</span>
                   </div>
                   
-                  {monthlyDiscount > 0 && (
-                    <div className="flex justify-between text-sm text-green-600">
-                      <span>Commitment discount ({selectedDuration.months} months)</span>
-                      <span>-AED {monthlyDiscount.toLocaleString()}/month</span>
-                    </div>
-                  )}
-                  
-                  <div className="flex justify-between text-sm font-medium">
-                    <span>Your monthly rate</span>
-                    <span>AED {monthlyRate.toLocaleString()}/month</span>
-                  </div>
+                  {savings > 0 && <div className="flex justify-between text-sm text-green-600">
+                      <span>Bulk rental discount</span>
+                      <span>-AED {savings.toLocaleString()}</span>
+                    </div>}
                   
                   <hr className="my-2" />
                   
-                   <div className="flex justify-between font-bold text-lg text-blue-600">
-                     <span>Total payable now</span>
-                     <span>AED {totalCommitment.toLocaleString()}</span>
-                   </div>
-                  
-                  <div className="bg-blue-50 p-3 rounded-lg mt-3">
-                    <p className="text-sm text-blue-700 font-medium">
-                      💳 Upfront Payment: You'll pay AED {totalCommitment.toLocaleString()} once for {selectedDuration.months} {selectedDuration.months === 1 ? 'month' : 'months'}
-                    </p>
-                    <p className="text-xs text-blue-600 mt-1">
-                      Discounted monthly rate: AED {monthlyRate.toLocaleString()}/month × {selectedDuration.months} {selectedDuration.months === 1 ? 'month' : 'months'}
-                    </p>
+                  <div className="flex justify-between font-bold text-lg">
+                    <span>Total</span>
+                    <span>AED {finalPrice.toLocaleString()}</span>
                   </div>
                   
-                  {monthlyDiscount > 0 && (
-                    <p className="text-sm text-green-600 font-medium">
-                      You save AED {(monthlyDiscount * selectedDuration.months).toLocaleString()} with this {selectedDuration.months}-month commitment
-                    </p>
-                  )}
+                  {savings > 0 && <p className="text-sm text-green-600 font-medium">
+                      You save AED {savings.toLocaleString()} with long term rental pricing
+                    </p>}
                 </div>
               </CardContent>
             </Card>
@@ -379,38 +337,23 @@ const calculateTotal = () => {
               <Textarea placeholder="Any special requirements or notes..." value={notes} onChange={e => setNotes(e.target.value)} className="min-h-[80px]" />
             </div>
 
-            {/* Submit Warning */}
-            {isWithin7Days && <Card className="bg-yellow-50 border-yellow-200">
-                <CardContent className="p-4">
-                  <div className="text-sm text-yellow-800">
-                    <p className="font-medium mb-2">⚠️ Short Notice Booking:</p>
-                    <p className="text-xs">Bookings starting within 7 days may require additional confirmation time.</p>
-                  </div>
-                </CardContent>
-              </Card>}
+            {/* Important Notice */}
+            <Card className="bg-red-50 border-red-200">
+              <CardContent className="p-4">
+                <div className="text-sm text-red-800">
+                  <p className="font-medium mb-2">🚫 Currently Unavailable:</p>
+                  <p className="text-xs">All parking spots are currently booked. Please check back later for availability.</p>
+                </div>
+              </CardContent>
+            </Card>
 
             {/* Reserve Button */}
-            <Button 
-              className="w-full font-semibold py-4 text-lg" 
-              size="lg" 
-              onClick={handleReserve}
-              disabled={isSubmitting || !startDate}
-            >
-              {isSubmitting ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  Processing...
-                </>
-              ) : (
-                 <>
-                   <Car className="mr-2 h-5 w-5" />
-                   Request Booking - Total: AED {totalCommitment.toLocaleString()}
-                 </>
-              )}
+            <Button className="w-full bg-destructive hover:bg-destructive text-destructive-foreground font-semibold py-4 text-lg cursor-not-allowed" size="lg" disabled>
+              🚫 All Spots Currently Booked
             </Button>
 
             <p className="text-xs text-muted-foreground text-center">
-              ✅ All bookings are now available! Payment link will be provided after confirmation.
+              No charges will be made at this time. Payment link will be provided after confirmation.
             </p>
           </div>
         </div>
