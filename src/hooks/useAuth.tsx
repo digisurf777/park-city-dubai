@@ -183,21 +183,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const resetPassword = async (email: string) => {
-    try {
-      const { data, error } = await supabase.functions.invoke('send-password-reset', {
-        body: { email }
-      });
-
-      if (error) {
-        console.error('Error invoking password reset function:', error);
-        return { error: { message: 'Failed to send password reset email. Please try again.' } };
-      }
-
-      return { error: null };
-    } catch (error: any) {
-      console.error('Password reset error:', error);
-      return { error: { message: 'Failed to send password reset email. Please try again.' } };
-    }
+    const redirectUrl = `https://shazamparking.ae/auth`;
+    
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: redirectUrl,
+    });
+    return { error };
   };
 
   const value = {
