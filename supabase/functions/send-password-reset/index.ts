@@ -55,6 +55,8 @@ const handler = async (req: Request): Promise<Response> => {
       }
     });
 
+    console.log('Generated reset link:', { data, error });
+
     if (error) {
       console.error('Error generating reset link:', error);
       throw new Error('Failed to generate reset link');
