@@ -178,17 +178,17 @@ const handler = async (req: Request): Promise<Response> => {
       console.log("Admin notification sent successfully");
     }
 
-    // Send enhanced confirmation email to customer with payment link
+    // Email 1: Booking Request Received (Pre-Authorization)
     const customerEmailResponse = await resend.emails.send({
-      from: "ShazamParking <onboarding@resend.dev>",
+      from: "ShazamParking <support@shazamparking.ae>",
       to: [user.email],
-      subject: "Complete Your Parking Booking Payment - ShazamParking",
+      subject: "Your Booking Request Has Been Received",
       html: `
         <!DOCTYPE html>
         <html lang="en" style="font-family: Arial, sans-serif;">
           <head>
             <meta charset="UTF-8" />
-            <title>Complete Your Parking Booking</title>
+            <title>Booking Request Received</title>
           </head>
           <body style="margin: 0; padding: 0; background-color: #f9f9f9;">
             <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f9f9f9;">
@@ -198,80 +198,59 @@ const handler = async (req: Request): Promise<Response> => {
                     <tr>
                       <td style="padding: 20px; text-align: center; background-color: #0099cc;">
                         <img src="https://shazamparking.ae/wp-content/uploads/2024/11/shazam-logo-blue.png" alt="Shazam Parking Logo" width="140" style="margin-bottom: 10px;" />
-                        <h1 style="color: white; margin: 0; font-size: 24px;">Booking Confirmation</h1>
+                        <h1 style="color: white; margin: 0; font-size: 24px;">Booking Request Received</h1>
                       </td>
                     </tr>
                     <tr>
                       <td style="padding: 30px 40px; text-align: left;">
-                        <h2 style="color: #333333; margin-top: 0;">Dear ${customerName}! 👋</h2>
+                        <h2 style="color: #333333; margin-top: 0;">Dear ${customerName},</h2>
+                        
                         <p style="font-size: 16px; color: #555555; line-height: 1.6;">
-                          Thank you for choosing ShazamParking! Your booking request has been received and we've created a secure payment link for you.
+                          Thank you for booking with ShazamParking.
+                        </p>
+                        
+                        <p style="font-size: 16px; color: #555555; line-height: 1.6;">
+                          We've received your request and your payment card has been securely pre-authorized for the rental amount. 
+                          <strong>Please note that this is not yet a confirmation of your booking.</strong>
+                        </p>
+                        
+                        <p style="font-size: 16px; color: #555555; line-height: 1.6;">
+                          We are now contacting the space owner to verify availability. You will receive an update within 48 hours. 
+                          If the space is confirmed, your card will be charged and your booking finalized. 
+                          If it's no longer available, the pre-authorization will be released and no payment will be taken.
                         </p>
 
                         <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #0099cc;">
                           <h3 style="color: #0099cc; margin-top: 0;">Booking Details:</h3>
                           <table style="width: 100%; color: #333;">
                             <tr><td><strong>Reference Number:</strong></td><td>${booking.id}</td></tr>
-                            <tr><td><strong>Customer Name:</strong></td><td>${customerName}</td></tr>
-                            <tr><td><strong>Email:</strong></td><td>${user.email}</td></tr>
-                            <tr><td><strong>Phone:</strong></td><td>${customerPhone}</td></tr>
                             <tr><td><strong>Parking Spot:</strong></td><td>${parkingSpotName}</td></tr>
                             <tr><td><strong>Zone:</strong></td><td>${zone}</td></tr>
                             <tr><td><strong>Location:</strong></td><td>${location}</td></tr>
                             <tr><td><strong>Start Date:</strong></td><td>${new Date(startDate).toLocaleDateString()}</td></tr>
                             <tr><td><strong>Duration:</strong></td><td>${duration} month(s)</td></tr>
-                             <tr><td><strong>First Month Payment:</strong></td><td>${costAed} AED</td></tr>
-                             <tr><td><strong>Monthly Rate:</strong></td><td>${monthlyRate} AED/month</td></tr>
-                             <tr><td><strong>Total Commitment:</strong></td><td>${totalCommitment} AED over ${duration} months</td></tr>
-                            <tr><td><strong>Payment Type:</strong></td><td>${paymentData.payment_type === 'one_time' ? 'One-time Payment' : 'Monthly Recurring Payments'}</td></tr>
-                            ${notes ? `<tr><td><strong>Notes:</strong></td><td>${notes}</td></tr>` : ''}
+                            <tr><td><strong>Amount:</strong></td><td>${costAed} AED</td></tr>
                           </table>
                         </div>
                         
                         <div style="background-color: #dbeafe; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center;">
-                          <h3 style="color: #1e40af; margin-top: 0;">Complete Your Payment</h3>
-                          ${paymentData.payment_type === 'one_time' 
-                            ? '<p style="color: #1e40af; margin-bottom: 15px;">Your payment will be pre-authorized (not charged immediately). We will confirm your booking shortly.</p>'
-                            : '<p style="color: #1e40af; margin-bottom: 15px;">Set up your monthly subscription. Billing starts after we confirm your booking.</p>'
-                          }
+                          <h3 style="color: #1e40af; margin-top: 0;">Complete Your Payment Setup</h3>
+                          <p style="color: #1e40af; margin-bottom: 15px;">
+                            Please complete your payment setup to secure your booking request.
+                          </p>
                           <a href="${paymentData.payment_url}" style="background-color: #16a34a; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">Complete Payment Setup</a>
                         </div>
                         
-                        <div style="background-color: #fef3c7; padding: 15px; border-radius: 5px; margin: 15px 0;">
-                          <p style="color: #92400e; font-weight: bold; margin: 0;">⏰ Important Timeline:</p>
-                          <p style="color: #92400e; margin: 5px 0 0 0;">
-                            • Complete payment setup as soon as possible<br>
-                            • We will review and confirm your booking shortly<br>
-                            • If not confirmed, the payment will be automatically refunded
-                          </p>
-                        </div>
+                        <p style="font-size: 16px; color: #555555; line-height: 1.6;">
+                          Thank you for choosing ShazamParking.
+                        </p>
                         
-                        <div style="background-color: #e8f4fd; padding: 20px; border-radius: 8px; margin: 20px 0;">
-                          <h3 style="color: #007bff; margin-top: 0;">What happens next?</h3>
-                          <ol style="margin: 0; padding-left: 20px; color: #333; line-height: 1.6;">
-                            <li>Complete your payment setup using the link above</li>
-                            <li>Our team will review your booking request</li>
-                            <li>You'll receive confirmation shortly</li>
-                            <li>If approved, ${paymentData.payment_type === 'one_time' ? 'your payment will be processed' : 'your subscription will begin'}</li>
-                            <li>If not approved, you'll receive a full refund automatically</li>
-                          </ol>
-                        </div>
-                        
-                        <div style="background-color: #d1ecf1; padding: 15px; border-radius: 5px; margin: 20px 0;">
-                          <p style="color: #0c5460; margin: 0;">
-                            <strong>📞 Need Help?</strong><br>
-                            Contact us at <a href="mailto:shazamparkingdubai@gmail.com" style="color: #0099cc;">shazamparkingdubai@gmail.com</a><br>
-                            Call us: +971 XX XXX XXXX (Available 24/7)
-                          </p>
-                        </div>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td style="padding: 20px 40px; text-align: center; font-size: 12px; color: #999999;">
-                        Thank you for choosing ShazamParking!<br />
-                        <br />
-                        Best regards,<br />
-                        <strong>The ShazamParking Team</strong>
+                        <p style="font-size: 16px; color: #555555; line-height: 1.6;">
+                          Best regards,<br>
+                          The ShazamParking Team<br>
+                          <a href="mailto:support@shazamparking.ae" style="color: #0099cc;">support@shazamparking.ae</a><br>
+                          <a href="https://www.shazamparking.ae" style="color: #0099cc;">www.shazamparking.ae</a>
+                        </p>
                       </td>
                     </tr>
                   </table>
