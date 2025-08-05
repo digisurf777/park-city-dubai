@@ -9,42 +9,43 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
-interface MessageNotificationRequest {
+interface BookingRejectionRequest {
   email: string;
-  recipientName?: string;
+  bookingId: string;
 }
 
 const handler = async (req: Request): Promise<Response> => {
-  // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { email, recipientName }: MessageNotificationRequest = await req.json();
+    const { email, bookingId }: BookingRejectionRequest = await req.json();
 
     const emailResponse = await resend.emails.send({
       from: "ShazamParking <support@shazamparking.ae>",
       to: [email],
-      subject: "You Have a New Message on ShazamParking",
+      subject: "Unfortunately, Your Booking Could Not Be Confirmed",
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <h1 style="color: #007bff; text-align: center;">💬 New Message</h1>
+          <h1 style="color: #dc3545; text-align: center;">❌ Booking Could Not Be Confirmed</h1>
           
-          <p>Dear ${recipientName || 'Customer'},</p>
+          <p>Dear Customer,</p>
           
-          <p><strong>You've received a new message on your ShazamParking account.</strong></p>
+          <p><strong>Unfortunately, the space you selected is no longer available.</strong></p>
+          
+          <p>Your booking request has been cancelled and no charges have been made. The card pre-authorization has now been released.</p>
+          
+          <p>We're sorry for the inconvenience and appreciate your understanding.</p>
           
           <div style="text-align: center; margin: 30px 0;">
-            <a href="https://shazamparking.ae/login" 
+            <a href="https://shazamparking.ae" 
                style="background-color: #007bff; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">
-              View Messages
+              Find Another Space
             </a>
           </div>
           
-          <p>We recommend checking your messages regularly to stay up to date.</p>
-          
-          <p>If you have any questions, we're here to help.</p>
+          <p>If you need help finding a suitable alternative, feel free to contact us anytime.</p>
           
           <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;" />
           
@@ -58,7 +59,21 @@ const handler = async (req: Request): Promise<Response> => {
       `,
     });
 
-    console.log("Message notification email sent successfully:", emailResponse);
+    // Also send admin notification
+    await resend.emails.send({
+      from: "ShazamParking <support@shazamparking.ae>",
+      to: ["support@shazamparking.ae"],
+      subject: `Booking Rejected: ${bookingId}`,
+      html: `
+        <h2>Booking Rejected</h2>
+        <p><strong>Booking ID:</strong> ${bookingId}</p>
+        <p><strong>Customer Email:</strong> ${email}</p>
+        <p><strong>Status:</strong> Rejected - Authorization released</p>
+        <p><strong>Time:</strong> ${new Date().toLocaleString()}</p>
+      `,
+    });
+
+    console.log("Booking rejection email sent successfully:", emailResponse);
 
     return new Response(JSON.stringify(emailResponse), {
       status: 200,
@@ -68,7 +83,7 @@ const handler = async (req: Request): Promise<Response> => {
       },
     });
   } catch (error: any) {
-    console.error("Error in send-message-notification function:", error);
+    console.error("Error in send-booking-rejection function:", error);
     return new Response(
       JSON.stringify({ error: error.message }),
       {

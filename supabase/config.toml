@@ -1,7 +1,55 @@
 project_id = "eoknluyunximjlsnyceb"
 
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 15
+
+[studio]
+enabled = true
+port = 54323
+api_url = "http://127.0.0.1:54321"
+
+[auth]
+enabled = true
+port = 54324
+external_url = "http://127.0.0.1:54324"
+jwt_expiry = 3600
+refresh_token_rotation_enabled = true
+refresh_token_reuse_interval = 10
+enable_manual_linking = false
+
+[edge_functions]
+enabled = true
+port = 54325
+
+[functions.send-signup-confirmation]
+verify_jwt = false
+
+[functions.send-admin-signup-notification]
+verify_jwt = false
+
+[functions.send-password-reset]
+verify_jwt = false
+
+[functions.send-booking-confirmation]
+verify_jwt = false
+
+[functions.send-booking-rejection]
+verify_jwt = false
+
+[functions.send-booking-request]
+verify_jwt = false
+
 [functions.send-message-notification]
-verify_jwt = true
+verify_jwt = false
 
 [functions.submit-booking-request]
 verify_jwt = true
