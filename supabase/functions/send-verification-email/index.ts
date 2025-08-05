@@ -28,8 +28,8 @@ const handler = async (req: Request): Promise<Response> => {
     const documentTypeFormatted = documentType.replace('_', ' ').toUpperCase();
 
     const emailResponse = await resend.emails.send({
-      from: "ShazamParking <support@shazamparking.ae>",
-      to: ["admin@shazamparking.ae"],
+      from: "ShazamParking <digisurf7777@gmail.com>",
+      to: ["dgsarp777@gmail.com"],
       subject: "New User Verification Submission",
       html: `
         <h1>New User Verification Submission</h1>

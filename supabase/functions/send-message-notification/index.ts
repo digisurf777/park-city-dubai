@@ -10,8 +10,10 @@ const corsHeaders = {
 };
 
 interface MessageNotificationRequest {
-  email: string;
-  recipientName?: string;
+  userEmail: string;
+  userName: string;
+  subject: string;
+  message: string;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -21,40 +23,26 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { email, recipientName }: MessageNotificationRequest = await req.json();
+    const { userEmail, userName, subject, message }: MessageNotificationRequest = await req.json();
 
     const emailResponse = await resend.emails.send({
-      from: "ShazamParking <support@shazamparking.ae>",
-      to: [email],
-      subject: "You Have a New Message on ShazamParking",
+      from: "Shazam Parking <onboarding@resend.dev>",
+      to: ["digisurf777@gmail.com"],
+      subject: `[SUPPORT] New Message: ${subject}`,
+      replyTo: userEmail,
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <h1 style="color: #007bff; text-align: center;">💬 New Message</h1>
-          
-          <p>Dear ${recipientName || 'Customer'},</p>
-          
-          <p><strong>You've received a new message on your ShazamParking account.</strong></p>
-          
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="https://shazamparking.ae/login" 
-               style="background-color: #007bff; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">
-              View Messages
-            </a>
-          </div>
-          
-          <p>We recommend checking your messages regularly to stay up to date.</p>
-          
-          <p>If you have any questions, we're here to help.</p>
-          
-          <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;" />
-          
-          <p style="color: #666; font-size: 14px; text-align: center;">
-            Best regards,<br>
-            The ShazamParking Team<br>
-            <a href="mailto:support@shazamparking.ae">support@shazamparking.ae</a><br>
-            <a href="https://shazamparking.ae">www.shazamparking.ae</a>
-          </p>
+        <h1>New support message from ${userEmail}</h1>
+        <p><strong>From:</strong> ${userEmail}</p>
+        <p><strong>Subject:</strong> ${subject}</p>
+        <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <p>${message.replace(/\n/g, '<br>')}</p>
         </div>
+        <p><strong>Please forward this to support@shazam.ae or respond directly to the customer.</strong></p>
+        
+        <hr style="margin: 30px 0;" />
+        <p style="color: #666; font-size: 12px;">
+          This is an automated email from the Shazam Parking support system.
+        </p>
       `,
     });
 

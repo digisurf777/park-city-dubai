@@ -6,7 +6,6 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { CalendarIcon, Car, CreditCard, Ruler, ArrowLeft, Check } from "lucide-react";
-import { ShareButton } from "@/components/ShareButton";
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { format } from "date-fns";
@@ -244,20 +243,8 @@ const ProductPage = () => {
               </Badge>
             </div>
 
-            <div className="flex items-start justify-between mb-4">
-              <div>
-                <h1 className="text-3xl font-bold mb-2">{spot.name}</h1>
-                <p className="text-lg text-muted-foreground">{spot.district}</p>
-              </div>
-              <ShareButton
-                title={spot.name}
-                description={`Found this great parking space: ${spot.name} for AED ${spot.price + 100}/month in ${spot.district}. ${spot.description}`}
-                price={spot.price + 100}
-                location={spot.district}
-                size="default"
-                variant="outline"
-              />
-            </div>
+            <h1 className="text-3xl font-bold mb-2">{spot.name}</h1>
+            <p className="text-lg text-muted-foreground mb-4">{spot.district}</p>
 
             {/* Specs */}
             <div className="flex items-center gap-6 mb-6 text-muted-foreground">

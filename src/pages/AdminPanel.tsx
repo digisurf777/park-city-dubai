@@ -171,7 +171,6 @@ const AdminPanel = () => {
   const [listingContactPhone, setListingContactPhone] = useState('');
   const [listingImages, setListingImages] = useState<string[]>([]);
   const [newImageUrl, setNewImageUrl] = useState('');
-  const [isCreatingListing, setIsCreatingListing] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [newMessageAlert, setNewMessageAlert] = useState<string | null>(null);
   const listingFileInputRef = useRef<HTMLInputElement>(null);
@@ -518,25 +517,8 @@ const AdminPanel = () => {
     setNewImageUrl('');
   };
 
-  const handleCreateListing = () => {
-    setIsCreatingListing(true);
-    setEditingListing(null);
-    // Clear all form fields for new listing
-    setListingTitle('');
-    setListingDescription('');
-    setListingAddress('');
-    setListingZone('');
-    setListingPricePerHour(0);
-    setListingPricePerMonth(0);
-    setListingContactEmail('');
-    setListingContactPhone('');
-    setListingImages([]);
-    setNewImageUrl('');
-  };
-
   const resetListingForm = () => {
     setEditingListing(null);
-    setIsCreatingListing(false);
     setListingTitle('');
     setListingDescription('');
     setListingAddress('');
@@ -714,6 +696,8 @@ const AdminPanel = () => {
   };
 
   const handleSaveListing = async () => {
+    if (!editingListing) return;
+
     if (!listingTitle.trim() || !listingAddress.trim() || !listingZone.trim()) {
       toast({
         title: "Error",
@@ -734,29 +718,18 @@ const AdminPanel = () => {
         contact_email: listingContactEmail.trim() || null,
         contact_phone: listingContactPhone.trim() || null,
         images: listingImages.length > 0 ? listingImages : null,
-        status: 'approved', // Admin created listings are auto-approved
-        owner_id: user?.id, // Admin is the owner
       };
 
-      let result;
-      if (editingListing) {
-        // Update existing listing
-        result = await supabase
-          .from('parking_listings')
-          .update(listingData)
-          .eq('id', editingListing.id);
-      } else {
-        // Create new listing
-        result = await supabase
-          .from('parking_listings')
-          .insert([listingData]);
-      }
+      const { error } = await supabase
+        .from('parking_listings')
+        .update(listingData)
+        .eq('id', editingListing.id);
 
-      if (result.error) throw result.error;
+      if (error) throw error;
 
       toast({
         title: "Success",
-        description: editingListing ? "Parking listing updated successfully" : "Parking listing created successfully",
+        description: "Parking listing updated successfully",
       });
 
       resetListingForm();
@@ -764,7 +737,7 @@ const AdminPanel = () => {
     } catch (error) {
       toast({
         title: "Error",
-        description: editingListing ? "Failed to update parking listing" : "Failed to create parking listing",
+        description: "Failed to update parking listing",
         variant: "destructive",
       });
     }
@@ -1418,116 +1391,26 @@ const AdminPanel = () => {
     setIsPreviewMode(false);
   };
 
-  const compressImage = (file: File, maxSizeMB: number = 5): Promise<File> => {
-    return new Promise((resolve) => {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      const img = new Image();
-
-      img.onload = () => {
-        // Calculate new dimensions while maintaining aspect ratio
-        let { width, height } = img;
-        const maxDimension = 1920; // Max width or height
-
-        if (width > maxDimension || height > maxDimension) {
-          if (width > height) {
-            height = (height * maxDimension) / width;
-            width = maxDimension;
-          } else {
-            width = (width * maxDimension) / height;
-            height = maxDimension;
-          }
-        }
-
-        canvas.width = width;
-        canvas.height = height;
-        ctx?.drawImage(img, 0, 0, width, height);
-
-        // Try different quality levels until we get under the size limit
-        let quality = 0.9;
-        const tryCompress = () => {
-          canvas.toBlob((blob) => {
-            if (blob && (blob.size <= maxSizeMB * 1024 * 1024 || quality <= 0.1)) {
-              const compressedFile = new File([blob], file.name, {
-                type: file.type,
-                lastModified: Date.now(),
-              });
-              resolve(compressedFile);
-            } else {
-              quality -= 0.1;
-              tryCompress();
-            }
-          }, file.type, quality);
-        };
-        tryCompress();
-      };
-
-      img.src = URL.createObjectURL(file);
-    });
-  };
-
-  const formatFileSize = (bytes: number): string => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  };
-
   const handleImageUpload = async (file: File) => {
     if (!file) return;
 
-    const maxSize = 10 * 1024 * 1024; // 10MB - increased from 2MB
+    const maxSize = 2 * 1024 * 1024; // 2MB
+    if (file.size > maxSize) {
+      toast({
+        title: "Error",
+        description: "Image size must be less than 2MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
-    
     if (!allowedTypes.includes(file.type)) {
       toast({
         title: "Error",
         description: "Only JPG, PNG, and WebP images are allowed",
         variant: "destructive",
       });
-      return;
-    }
-
-    // Show file size to user
-    console.log(`Original file size: ${formatFileSize(file.size)}`);
-
-    let processedFile = file;
-
-    // If file is larger than 5MB, compress it
-    if (file.size > 5 * 1024 * 1024) {
-      try {
-        setImageUploading(true);
-        toast({
-          title: "Compressing image...",
-          description: `Original size: ${formatFileSize(file.size)}. Please wait.`,
-        });
-        
-        processedFile = await compressImage(file, 5);
-        console.log(`Compressed file size: ${formatFileSize(processedFile.size)}`);
-        
-        toast({
-          title: "Image compressed",
-          description: `New size: ${formatFileSize(processedFile.size)}`,
-        });
-      } catch (error) {
-        console.error('Compression failed:', error);
-        toast({
-          title: "Compression failed",
-          description: "Using original image. Upload may be slower.",
-          variant: "destructive",
-        });
-      }
-    }
-
-    // Final size check with better error message
-    if (processedFile.size > maxSize) {
-      toast({
-        title: "File too large",
-        description: `Image size is ${formatFileSize(processedFile.size)}. Maximum allowed is ${formatFileSize(maxSize)}. Please use a smaller image.`,
-        variant: "destructive",
-      });
-      setImageUploading(false);
       return;
     }
 
@@ -2124,23 +2007,17 @@ const AdminPanel = () => {
           <TabsContent value="listings" className="space-y-6">
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-semibold">Parking Listings</h2>
-              <div className="flex gap-2">
-                <Button onClick={handleCreateListing} className="flex items-center gap-2">
-                  <Plus className="h-4 w-4" />
-                  Add New Listing
+              {editingListing && (
+                <Button variant="outline" onClick={resetListingForm}>
+                  Cancel Edit
                 </Button>
-                {(editingListing || isCreatingListing) && (
-                  <Button variant="outline" onClick={resetListingForm}>
-                    Cancel
-                  </Button>
-                )}
-              </div>
+              )}
             </div>
 
-            {(editingListing || isCreatingListing) && (
+            {editingListing && (
               <Card className="mb-6">
                 <CardHeader>
-                  <CardTitle>{editingListing ? 'Edit Parking Listing' : 'Add New Parking Listing'}</CardTitle>
+                  <CardTitle>Edit Parking Listing</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -2327,7 +2204,7 @@ const AdminPanel = () => {
 
                   <div className="flex gap-2">
                     <Button onClick={handleSaveListing}>
-                      {editingListing ? 'Save Changes' : 'Create Listing'}
+                      Save Changes
                     </Button>
                     <Button variant="outline" onClick={resetListingForm}>
                       Cancel

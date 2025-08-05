@@ -6,7 +6,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Home, Calendar, MapPin, Eye, Edit, Trash } from "lucide-react";
 import { format } from "date-fns";
-import { ShareButton } from "@/components/ShareButton";
 
 interface ParkingListing {
   id: string;
@@ -205,17 +204,6 @@ export const MyListings = () => {
                     </div>
                     
                     <div className="flex gap-1 ml-4">
-                      {listing.status === 'approved' && (
-                        <ShareButton
-                          title={listing.title}
-                          description={`Check out this parking space: ${listing.title} for AED ${listing.price_per_month}/month in ${listing.zone}`}
-                          url={`${window.location.origin}/product/${listing.id}`}
-                          price={listing.price_per_month}
-                          location={listing.zone}
-                          size="sm"
-                          variant="ghost"
-                        />
-                      )}
                       {listing.images && listing.images.length > 0 && (
                         <Button variant="ghost" size="sm">
                           <Eye className="h-4 w-4" />

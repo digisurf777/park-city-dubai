@@ -1,24 +1,14 @@
-User-agent: *
+User-agent: Googlebot
 Allow: /
 
-# Sitemap
-Sitemap: https://shazamparking.ae/sitemap.xml
+User-agent: Bingbot
+Allow: /
 
-# Disallow admin and auth pages from crawling
-Disallow: /admin-panel
-Disallow: /my-account
-Disallow: /auth
-Disallow: /email-confirmed
-Disallow: /payment-success
+User-agent: Twitterbot
+Allow: /
 
-# Allow all other pages
-Allow: /find-parking
-Allow: /rent-out-your-space
-Allow: /about-us
-Allow: /faq
-Allow: /calculator
-Allow: /news
-Allow: /zones/
-Allow: /privacy-policy
-Allow: /terms-and-conditions
-Allow: /cookies-notice
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: *
+Allow: /

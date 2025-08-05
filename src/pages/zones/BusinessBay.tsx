@@ -52,7 +52,7 @@ const BusinessBay = () => {
       const {
         data,
         error
-      } = await supabase.from("parking_listings").select("*").ilike("zone", "%business%bay%").eq("status", "approved");
+      } = await supabase.from("parking_listings").select("*").eq("zone", "Business Bay").eq("status", "approved");
       console.log("Supabase query result:", {
         data,
         error
@@ -199,9 +199,9 @@ const BusinessBay = () => {
       }}></div>
         <div className="relative z-10 flex items-center justify-center h-full">
           <div className="text-center text-white px-4">
-            <h1 className="text-5xl md:text-6xl font-bold mb-4">Business Bay</h1>
-            <p className="text-xl md:text-2xl opacity-90 mb-4">Business Bay brings together startups, SMEs, and large corporates across hundreds of commercial towers. Professionals here often navigate busy schedules between client meetings, coworking spaces, and high-rise offices along Al A'amal Street and Marasi Drive.</p>
-            <p className="text-lg md:text-xl opacity-80 font-semibold">Secure a monthly parking bay from AED650.</p>
+            <h1 className="text-5xl md:text-6xl font-bold mb-4">Parking Spaces in Business Bay</h1>
+            <p className="text-xl md:text-2xl opacity-90">Central business district with modern skyscrapers</p>
+            <p className="text-lg md:text-xl opacity-80 mt-2">Secure monthly bays to AED600</p>
           </div>
         </div>
       </div>
@@ -283,13 +283,13 @@ const BusinessBay = () => {
                   </p>
 
                   <div className="mb-4">
-                    <span className="text-2xl font-bold text-primary">AED {spot.price}/month</span>
+                    <span className="text-2xl font-bold text-primary">From AED {spot.price}/month</span>
                   </div>
 
 
 
-                  <Button onClick={() => handleReserveClick(spot)} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-2 px-4 rounded-lg transition-colors">
-                    Reserve Now
+                  <Button className="w-full bg-destructive hover:bg-destructive text-destructive-foreground font-semibold py-2 px-4 rounded-lg cursor-not-allowed" disabled>
+                    Currently Booked
                   </Button>
                 </div>
               </Card>)}

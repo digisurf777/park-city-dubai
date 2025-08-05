@@ -9,9 +9,7 @@ interface BookingRequest {
   notes?: string;
   zone: string;
   location: string;
-  costAed: number; // First month payment only
-  monthlyRate: number; // Monthly rate for subscription
-  totalCommitment: number; // Total commitment amount
+  costAed: number;
   parkingSpotName: string;
 }
 
@@ -64,8 +62,6 @@ const handler = async (req: Request): Promise<Response> => {
       zone,
       location,
       costAed,
-      monthlyRate,
-      totalCommitment,
       parkingSpotName,
     }: BookingRequest = await req.json();
 
@@ -124,8 +120,7 @@ const handler = async (req: Request): Promise<Response> => {
       },
       body: JSON.stringify({
         bookingId: booking.id,
-        amount: costAed, // First month payment
-        monthlyRate: monthlyRate, // Monthly subscription rate
+        amount: costAed,
         duration: duration,
         parkingSpotName: parkingSpotName,
         userEmail: user.email,
@@ -160,9 +155,7 @@ const handler = async (req: Request): Promise<Response> => {
         <p><strong>Location:</strong> ${location}</p>
         <p><strong>Start Date:</strong> ${new Date(startDate).toLocaleDateString()}</p>
         <p><strong>Duration:</strong> ${duration} month(s)</p>
-        <p><strong>First Month Payment:</strong> ${costAed} AED</p>
-        <p><strong>Monthly Rate:</strong> ${monthlyRate} AED/month</p>
-        <p><strong>Total Commitment:</strong> ${totalCommitment} AED over ${duration} months</p>
+        <p><strong>Total Cost:</strong> ${costAed} AED</p>
         <p><strong>Payment Type:</strong> ${paymentData.payment_type === 'one_time' ? 'One-time Payment' : 'Monthly Recurring'}</p>
         <p><strong>Notes:</strong> ${notes || "None"}</p>
         <p><strong>Status:</strong> Payment Link Sent</p>
@@ -220,9 +213,7 @@ const handler = async (req: Request): Promise<Response> => {
                             <tr><td><strong>Location:</strong></td><td>${location}</td></tr>
                             <tr><td><strong>Start Date:</strong></td><td>${new Date(startDate).toLocaleDateString()}</td></tr>
                             <tr><td><strong>Duration:</strong></td><td>${duration} month(s)</td></tr>
-                             <tr><td><strong>First Month Payment:</strong></td><td>${costAed} AED</td></tr>
-                             <tr><td><strong>Monthly Rate:</strong></td><td>${monthlyRate} AED/month</td></tr>
-                             <tr><td><strong>Total Commitment:</strong></td><td>${totalCommitment} AED over ${duration} months</td></tr>
+                            <tr><td><strong>Total Cost:</strong></td><td>${costAed} AED</td></tr>
                             <tr><td><strong>Payment Type:</strong></td><td>${paymentData.payment_type === 'one_time' ? 'One-time Payment' : 'Monthly Recurring Payments'}</td></tr>
                             ${notes ? `<tr><td><strong>Notes:</strong></td><td>${notes}</td></tr>` : ''}
                           </table>

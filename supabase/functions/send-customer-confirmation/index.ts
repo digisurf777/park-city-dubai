@@ -67,7 +67,7 @@ const handler = async (req: Request): Promise<Response> => {
           </div>
 
           <div style="text-align: center; margin: 30px 0;">
-            <a href="https://shazamparking.ae/my-account" 
+            <a href="https://swiftlaces.com/my-account" 
                style="background-color: #28a745; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">
               View Your Listing Status
             </a>
@@ -102,7 +102,7 @@ const handler = async (req: Request): Promise<Response> => {
     `;
 
     const emailResponse = await resend.emails.send({
-      from: "ShazamParking <support@shazamparking.ae>",
+      from: "ShazamParking <onboarding@resend.dev>",
       to: [userEmail],
       subject: subject,
       html: htmlContent,

@@ -52,7 +52,7 @@ const DIFC = () => {
       const {
         data,
         error
-      } = await supabase.from("parking_listings").select("*").ilike("zone", "%difc%").eq("status", "approved");
+      } = await supabase.from("parking_listings").select("*").eq("zone", "DIFC").eq("status", "approved");
       console.log("Supabase query result:", {
         data,
         error
@@ -219,9 +219,9 @@ const DIFC = () => {
       }}></div>
         <div className="relative z-10 flex items-center justify-center h-full">
           <div className="text-center text-white px-4">
-            <h1 className="text-5xl md:text-6xl font-bold mb-4">DIFC</h1>
-            <p className="text-xl md:text-2xl opacity-90 mb-4">A globally recognised financial centre, DIFC is home to leading law firms, banks, consultancies, and investment institutions. The area attracts daily professionals who value efficiency, proximity to their office, and smooth day-to-day routines.</p>
-            <p className="text-lg md:text-xl opacity-80 font-semibold">Secure a monthly parking bay from AED850.</p>
+            <h1 className="text-5xl md:text-6xl font-bold mb-4">Parking Spaces in DIFC</h1>
+            <p className="text-xl md:text-2xl opacity-90">Global financial hub with premium office towers</p>
+            <p className="text-lg md:text-xl opacity-80 mt-2">Secure monthly bays to AED800</p>
           </div>
         </div>
       </div>
@@ -303,14 +303,14 @@ const DIFC = () => {
                   </p>
 
                   <div className="mb-4">
-                    <span className="text-2xl font-bold text-primary">AED {spot.price}/month</span>
+                    <span className="text-2xl font-bold text-primary">From AED {spot.price}/month</span>
                   </div>
 
                   
 
 
-                  <Button onClick={() => handleReserveClick(spot)} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-2 px-4 rounded-lg transition-colors">
-                    Reserve Now
+                  <Button className="w-full bg-destructive hover:bg-destructive text-destructive-foreground font-semibold py-2 px-4 rounded-lg cursor-not-allowed" disabled>
+                    Currently Booked
                   </Button>
                 </div>
               </Card>)}

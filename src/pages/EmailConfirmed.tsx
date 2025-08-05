@@ -16,11 +16,12 @@ const EmailConfirmed = () => {
   useEffect(() => {
     const handleEmailConfirmation = async () => {
       try {
-        // Handle Supabase native verification methods
+        // Get all possible URL parameters
         const token_hash = searchParams.get('token_hash');
         const type = searchParams.get('type');
         const access_token = searchParams.get('access_token');
         const refresh_token = searchParams.get('refresh_token');
+        const token = searchParams.get('token');
         const code = searchParams.get('code');
 
         // Also check hash fragment for tokens
@@ -29,14 +30,17 @@ const EmailConfirmed = () => {
         const hashAccessToken = hashParams.get('access_token');
         const hashRefreshToken = hashParams.get('refresh_token');
 
-        console.log('Supabase verification params:', { 
+        console.log('URL params:', { 
           token_hash, 
           type, 
           access_token, 
           refresh_token, 
+          token, 
           code,
           hashAccessToken,
-          hashRefreshToken
+          hashRefreshToken,
+          allParams: Object.fromEntries(searchParams.entries()),
+          hashData: Object.fromEntries(hashParams.entries())
         });
 
         let result;
@@ -64,8 +68,12 @@ const EmailConfirmed = () => {
             type: type as any
           });
         } else {
-          console.error('No valid confirmation parameters found');
-          setError('Invalid confirmation link. Please try signing up again.');
+          const availableParams = {
+            query: Object.fromEntries(searchParams.entries()),
+            hash: Object.fromEntries(hashParams.entries())
+          };
+          console.error('No valid confirmation parameters found:', availableParams);
+          setError(`Invalid confirmation link - missing parameters. Found: ${JSON.stringify(availableParams, null, 2)}`);
           setLoading(false);
           return;
         }

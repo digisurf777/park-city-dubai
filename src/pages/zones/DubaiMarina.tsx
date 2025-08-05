@@ -51,7 +51,7 @@ const DubaiMarina = () => {
       const {
         data,
         error
-      } = await supabase.from('parking_listings').select('*').ilike('zone', '%dubai%marina%').eq('status', 'approved');
+      } = await supabase.from('parking_listings').select('*').eq('zone', 'Dubai Marina').eq('status', 'approved');
       console.log('Supabase query result:', {
         data,
         error
@@ -315,9 +315,9 @@ const DubaiMarina = () => {
       }}></div>
         <div className="relative z-10 flex items-center justify-center h-full">
           <div className="text-center text-white px-4">
-            <h1 className="text-5xl md:text-6xl font-bold mb-4">Dubai Marina</h1>
-            <p className="text-xl md:text-2xl opacity-90 mb-4">This vibrant waterfront district blends lifestyle with business. With offices in Marina Plaza and Al Habtoor Tower, as well as frequent movement between JBR, JLT, and Media City, many rely on being close to where they live or work.</p>
-            <p className="text-lg md:text-xl opacity-80 font-semibold">Secure a monthly parking bay from AED600.</p>
+            <h1 className="text-5xl md:text-6xl font-bold mb-4">Parking Spaces in Dubai Marina</h1>
+            <p className="text-xl md:text-2xl opacity-90">Picturesque waterfront district with stunning skyline</p>
+            <p className="text-lg md:text-xl opacity-80 mt-2">Secure monthly bays to AED700</p>
           </div>
         </div>
       </div>
@@ -407,14 +407,14 @@ const DubaiMarina = () => {
 
                 {/* Price prominently displayed */}
                 <div className="mb-4">
-                  <span className="text-2xl font-bold text-primary">AED {spot.price}/month</span>
+                  <span className="text-2xl font-bold text-primary">From AED {spot.price}/month</span>
                 </div>
 
 
 
                 {/* Reserve Now Button */}
-                <Button onClick={() => handleReserveClick(spot)} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3">
-                  Reserve Now
+                <Button className="w-full bg-destructive hover:bg-destructive text-destructive-foreground font-semibold py-3 cursor-not-allowed" disabled>
+                  Currently Booked
                 </Button>
               </div>
             </Card>)}

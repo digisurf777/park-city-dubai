@@ -8,7 +8,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import { Loader2, Mail } from 'lucide-react';
-import { Separator } from '@/components/ui/separator';
 
 const Auth = () => {
   const [loading, setLoading] = useState(false);
@@ -18,8 +17,7 @@ const Auth = () => {
   const [loginForm, setLoginForm] = useState({ email: '', password: '' });
   const [signupForm, setSignupForm] = useState({ email: '', password: '', confirmPassword: '', fullName: '' });
   const [rateLimited, setRateLimited] = useState(false);
-  const [googleLoading, setGoogleLoading] = useState(false);
-  const { signIn, signUp, signInWithGoogle, resetPassword, user } = useAuth();
+  const { signIn, signUp, resetPassword, user } = useAuth();
   const navigate = useNavigate();
 
   // Redirect if already logged in
@@ -36,26 +34,13 @@ const Auth = () => {
       const { error } = await signIn(loginForm.email, loginForm.password);
       
       if (error) {
-        if (error.message.includes('Email not confirmed') || error.message.includes('email_not_confirmed')) {
-          toast.error('Email Not Verified', {
-            duration: 10000,
-            description: 'You must verify your email address before logging in. Check your inbox and click the verification link.'
-          });
-        } else if (error.message.includes('Invalid login credentials') || error.message.includes('invalid_credentials')) {
-          toast.error('Invalid Login', {
-            duration: 8000,
-            description: 'Please check your email and password. If you just registered, make sure you verified your email first.'
-          });
-        } else if (error.message.includes('Too many requests') || error.message.includes('429')) {
-          toast.error('Too Many Login Attempts', {
-            duration: 12000,
-            description: 'Please wait a few minutes before trying to log in again.'
+        if (error.message.includes('Email not confirmed')) {
+          toast.error(error.message, {
+            duration: 5000,
+            description: 'Check your inbox and click the confirmation link.'
           });
         } else {
-          toast.error('Login Failed', {
-            duration: 8000,
-            description: error.message || 'Please check your credentials and try again.'
-          });
+          toast.error(error.message || 'Error during login');
         }
       } else {
         toast.success('Logged in successfully!');
@@ -89,45 +74,43 @@ const Auth = () => {
     setLoading(true);
     
     try {
-      const result = await signUp(signupForm.email, signupForm.password, signupForm.fullName, 'seeker');
+      const { error } = await signUp(signupForm.email, signupForm.password, signupForm.fullName, 'seeker');
       
-      if (result.error) {
-        if (result.error.message.includes('already registered')) {
-          toast.error('This email address is already registered', {
-            duration: 8000,
-            description: 'Try logging in instead, or use a different email address.'
-          });
-        } else if (result.error.code === 'signup_rate_limited') {
+      if (error) {
+        if (error.message.includes('already registered')) {
+          toast.error('This email address is already registered');
+        } else if (error.message.includes('email rate limit exceeded') || error.message.includes('429') || error.code === 'over_email_send_rate_limit') {
+          // Handle rate limit error
           setRateLimited(true);
-          toast.error('Too Many Attempts', {
+          toast.error('Email system temporarily busy', {
             duration: 15000,
-            description: result.error.message
+            description: 'Your account may have been created but email confirmation is delayed. Try logging in after a few minutes.'
           });
+          
+          // Clear the form since account might be created
+          setSignupForm({ email: '', password: '', confirmPassword: '', fullName: '' });
           
           // Reset rate limit after 5 minutes
           setTimeout(() => {
             setRateLimited(false);
           }, 5 * 60 * 1000);
         } else {
-          toast.error('Registration Failed', {
-            duration: 10000,
-            description: result.error.message || 'An unexpected error occurred. Please try again.'
-          });
+          toast.error(error.message || 'Error during registration');
         }
       } else {
-        toast.success('Account Created Successfully!', {
-          duration: 12000,
-          description: 'Check your email at ' + signupForm.email + ' for a verification link from verify@shazamparking.ae (check spam folder too)'
+        toast.success('Account created successfully!', {
+          duration: 6000,
+          description: 'Check your inbox and confirm your email address before logging in.'
         });
         setSignupForm({ email: '', password: '', confirmPassword: '', fullName: '' });
         
-        // Show additional guidance about email verification
+        // Show additional info about email confirmation
         setTimeout(() => {
-          toast.info('Next Steps', {
-            duration: 15000,
-            description: 'Click the verification link in your email, then return here to log in with your credentials.'
+          toast.info('Important!', {
+            duration: 8000,
+            description: 'You must confirm your email address before you can log in. Also check your spam folder.'
           });
-        }, 3000);
+        }, 2000);
       }
     } catch (error) {
       toast.error('An error occurred during registration');
@@ -156,22 +139,6 @@ const Auth = () => {
       toast.error('An error occurred while sending password reset email');
     } finally {
       setResetLoading(false);
-    }
-  };
-
-  const handleGoogleSignIn = async () => {
-    setGoogleLoading(true);
-    try {
-      const { error } = await signInWithGoogle();
-      if (error) {
-        toast.error('Google Sign In Failed', {
-          description: error.message || 'Please try again.'
-        });
-      }
-    } catch (error) {
-      toast.error('An error occurred with Google Sign In');
-    } finally {
-      setGoogleLoading(false);
     }
   };
 
@@ -226,47 +193,6 @@ const Auth = () => {
                   ) : (
                     'Log In'
                   )}
-                </Button>
-
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <Separator className="w-full" />
-                  </div>
-                  <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
-                  </div>
-                </div>
-
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full"
-                  onClick={handleGoogleSignIn}
-                  disabled={googleLoading}
-                >
-                  {googleLoading ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  ) : (
-                    <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
-                      <path
-                        fill="currentColor"
-                        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                      />
-                      <path
-                        fill="currentColor"
-                        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                      />
-                      <path
-                        fill="currentColor"
-                        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                      />
-                      <path
-                        fill="currentColor"
-                        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                      />
-                    </svg>
-                  )}
-                  Continue with Google
                 </Button>
                 
                 <div className="text-center">
@@ -389,43 +315,6 @@ const Auth = () => {
                   ) : (
                     'Create Account'
                   )}
-                </Button>
-
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <Separator className="w-full" />
-                  </div>
-                  <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
-                  </div>
-                </div>
-
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full"
-                  onClick={handleGoogleSignIn}
-                  disabled={googleLoading || rateLimited}
-                >
-                  {googleLoading ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  ) : (
-                    <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
-                      <path
-                        fill="currentColor"
-                        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                      />
-                      <path
-                        fill="currentColor"
-                        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                      />
-                      <path
-                        fill="currentColor"
-                        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                      />
-                    </svg>
-                  )}
-                  Continue with Google
                 </Button>
                 
                 {rateLimited && (

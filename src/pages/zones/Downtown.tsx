@@ -52,7 +52,7 @@ const Downtown = () => {
       const {
         data,
         error
-      } = await supabase.from('parking_listings').select('*').ilike('zone', '%downtown%').eq('status', 'approved');
+      } = await supabase.from('parking_listings').select('*').eq('zone', 'Downtown').eq('status', 'approved');
       console.log('Supabase query result:', {
         data,
         error
@@ -68,7 +68,7 @@ const Downtown = () => {
         image: spot.images && spot.images.length > 0 ? spot.images[0] : "/lovable-uploads/161ee737-1491-45d6-a5e3-a642b7ff0806.png",
         images: spot.images || [],
         specs: spot.features || ["Access Card", "Covered", "2.1m Height"],
-        available: true, // All spots are now available for booking
+        available: true,
         address: spot.address,
         description: spot.description
       }));
@@ -175,9 +175,9 @@ const Downtown = () => {
       }}></div>
         <div className="relative z-10 flex items-center justify-center h-full">
           <div className="text-center text-white px-4">
-            <h1 className="text-5xl md:text-6xl font-bold mb-4">Downtown Dubai</h1>
-            <p className="text-xl md:text-2xl opacity-90 mb-4">As the corporate heart of Dubai, Downtown is a hub for government offices, commercial towers, and prestigious brands. It's frequented by those working in Emaar Square, Boulevard Plaza, and nearby hospitality or retail sectors.</p>
-            <p className="text-lg md:text-xl opacity-80 font-semibold">Secure a monthly parking bay from AED750.</p>
+            <h1 className="text-5xl md:text-6xl font-bold mb-4">Parking Spaces in Downtown Dubai</h1>
+            <p className="text-xl md:text-2xl opacity-90">Home to Burj Khalifa, Dubai Fountain, and Dubai Mall</p>
+            <p className="text-lg md:text-xl opacity-80 mt-2">Secure monthly bays to AED700</p>
           </div>
         </div>
       </div>
@@ -267,13 +267,13 @@ const Downtown = () => {
 
                 {/* Price prominently displayed */}
                 <div className="mb-4">
-                  <span className="text-2xl font-bold text-primary">AED {spot.price}/month</span>
+                  <span className="text-2xl font-bold text-primary">From AED {spot.price}/month</span>
                 </div>
 
 
                 {/* Reserve Now Button */}
-                <Button onClick={() => handleReserveClick(spot)} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
-                  Reserve Now
+                <Button className="w-full bg-destructive hover:bg-destructive text-destructive-foreground cursor-not-allowed" disabled>
+                  Currently Booked
                 </Button>
               </div>
             </Card>)}
