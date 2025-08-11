@@ -16,6 +16,8 @@ import { useToast } from "@/hooks/use-toast";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ImageZoomModal from "@/components/ImageZoomModal";
+import { useFeatureFlags } from "@/hooks/useFeatureFlags";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 const ProductPage = () => {
   const { id } = useParams();
@@ -29,6 +31,7 @@ const ProductPage = () => {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [bookingReference, setBookingReference] = useState("");
   const [showImageModal, setShowImageModal] = useState(false);
+  const { previewMode } = useFeatureFlags();
 
   // Mock data - in real app, fetch by ID
   const parkingSpots = [
@@ -101,6 +104,15 @@ const ProductPage = () => {
   const pricing = calculatePrice();
 
   const handleSubmitBookingRequest = async () => {
+    if (previewMode) {
+      console.info('PreviewMode blocked booking', { spotId: spot.id });
+      toast({
+        title: "Reservations paused",
+        description: "Reservations are paused right now.",
+      });
+      return;
+    }
+
     if (!user) {
       toast({
         title: "Authentication Required",
@@ -244,6 +256,9 @@ const ProductPage = () => {
             </div>
 
             <h1 className="text-3xl font-bold mb-2">{spot.name}</h1>
+            {previewMode && (
+              <Badge variant="secondary" className="mb-4">Preview mode — bookings temporarily disabled</Badge>
+            )}
             <p className="text-lg text-muted-foreground mb-4">{spot.district}</p>
 
             {/* Specs */}
@@ -405,14 +420,23 @@ const ProductPage = () => {
                 </div>
               </Card>
 
-              <Button 
-                onClick={handleSubmitBookingRequest}
-                className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-medium touch-manipulation"
-                disabled={!startDate || isSubmitting}
-                size="lg"
-              >
-                {isSubmitting ? "Submitting..." : "👉 Submit Booking Request"}
-              </Button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    onClick={handleSubmitBookingRequest}
+                    className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-medium touch-manipulation"
+                    disabled={previewMode || !startDate || isSubmitting}
+                    size="lg"
+                  >
+                    {previewMode ? "Reservations paused" : (isSubmitting ? "Submitting..." : "👉 Submit Booking Request")}
+                  </Button>
+                </TooltipTrigger>
+                {previewMode && (
+                  <TooltipContent>
+                    Reservations are paused right now.
+                  </TooltipContent>
+                )}
+              </Tooltip>
 
               <p className="text-xs text-muted-foreground text-center mt-3">
                 No charges will be made at this time. Payment link will be provided after confirmation.

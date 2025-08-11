@@ -11,6 +11,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useSearchParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useFeatureFlags } from "@/hooks/useFeatureFlags";
 import dubaiMarinaZone from "@/assets/zones/dubai-marina-real.jpg";
 import downtownZone from "/lovable-uploads/f676da2a-39c9-4211-8561-5b884e0ceed8.png";
 import dubaiHeroImage from "@/assets/dubai-daytime-hero.jpg";
@@ -22,6 +23,7 @@ const FindParking = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+  const { previewMode } = useFeatureFlags();
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDistricts, setSelectedDistricts] = useState<string[]>([]);
@@ -91,10 +93,9 @@ const FindParking = () => {
     try {
       setLoading(true);
       console.log('Fetching parking spots from database...');
-      const {
-        data,
-        error
-      } = await supabase.from('parking_listings').select('*').eq('status', 'approved');
+      const { data, error } = previewMode
+        ? await supabase.from('parking_listings').select('*')
+        : await supabase.from('parking_listings').select('*').eq('status', 'approved');
       console.log('Database query result:', {
         data,
         error,
@@ -120,7 +121,7 @@ const FindParking = () => {
           image: listing.images && listing.images.length > 0 ? listing.images[0] : "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
           images: listing.images || [],
           specs: listing.features || ["Access Card", "Secure"],
-          available: listing.status === 'approved'
+          available: previewMode ? false : listing.status === 'approved'
         };
       }) || [];
       console.log('Transformed data:', transformedData);
@@ -131,11 +132,19 @@ const FindParking = () => {
       setLoading(false);
     }
   };
+
+  // Refetch when preview mode changes to adjust visibility
+  useEffect(() => {
+    fetchParkingSpots();
+  }, [previewMode]);
   const districts = ["Palm Jumeirah", "Dubai Marina", "Downtown", "DIFC", "Business Bay", "JLT", "Barsha Heights", "Deira"];
   const toggleDistrict = (district: string) => {
     setSelectedDistricts(prev => prev.includes(district) ? prev.filter(d => d !== district) : [...prev, district]);
   };
   const handleSelectZone = (districtSlug: string) => {
+    if (previewMode) {
+      console.info('PreviewMode zone click', { zone: districtSlug });
+    }
     // Navigate to dedicated zone page
     window.location.href = `/zones/${districtSlug}`;
   };

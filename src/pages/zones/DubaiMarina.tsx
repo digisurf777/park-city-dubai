@@ -13,6 +13,7 @@ import Footer from "@/components/Footer";
 import { ParkingBookingModal } from "@/components/ParkingBookingModal";
 import ImageZoomModal from "@/components/ImageZoomModal";
 import dubaiMarinaHero from "@/assets/zones/dubai-marina-real.jpg";
+import { useFeatureFlags } from "@/hooks/useFeatureFlags";
 const DubaiMarina = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [priceRange, setPriceRange] = useState([0, 20000]);
@@ -28,6 +29,7 @@ const DubaiMarina = () => {
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [selectedSpotName, setSelectedSpotName] = useState("");
+  const { previewMode } = useFeatureFlags();
   useEffect(() => {
     fetchParkingSpots();
 
@@ -48,10 +50,9 @@ const DubaiMarina = () => {
   const fetchParkingSpots = async () => {
     console.log('Fetching parking spots for Dubai Marina...');
     try {
-      const {
-        data,
-        error
-      } = await supabase.from('parking_listings').select('*').eq('zone', 'Dubai Marina').eq('status', 'approved');
+      const { data, error } = previewMode
+        ? await supabase.from('parking_listings').select('*').eq('zone', 'Dubai Marina')
+        : await supabase.from('parking_listings').select('*').eq('zone', 'Dubai Marina').eq('status', 'approved');
       console.log('Supabase query result:', {
         data,
         error
@@ -68,7 +69,7 @@ const DubaiMarina = () => {
         images: spot.images || [],
         // Pass the full images array
         specs: spot.features || ["Access Card", "Covered", "2.1m Height"],
-        available: true,
+        available: !previewMode,
         address: spot.address,
         description: spot.description
       }));
@@ -412,10 +413,17 @@ const DubaiMarina = () => {
 
 
 
-                {/* Reserve Now Button */}
-                <Button className="w-full bg-destructive hover:bg-destructive text-destructive-foreground font-semibold py-3 cursor-not-allowed" disabled>
-                  Currently Booked
-                </Button>
+                {previewMode ? (
+                  <Link to={`/parking/${spot.id}`} onClick={() => console.info('PreviewMode reserve click', { spotId: spot.id })}>
+                    <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3">
+                      Reserve Space
+                    </Button>
+                  </Link>
+                ) : (
+                  <Button className="w-full bg-destructive hover:bg-destructive text-destructive-foreground font-semibold py-3 cursor-not-allowed" disabled>
+                    Currently Booked
+                  </Button>
+                )}
               </div>
             </Card>)}
         </div>}

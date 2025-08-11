@@ -14,6 +14,7 @@ import { ParkingBookingModal } from "@/components/ParkingBookingModal";
 import ImageZoomModal from "@/components/ImageZoomModal";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import downtownHero from "/lovable-uploads/f676da2a-39c9-4211-8561-5b884e0ceed8.png";
+import { useFeatureFlags } from "@/hooks/useFeatureFlags";
 const Downtown = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [priceRange, setPriceRange] = useState([0, 20000]);
@@ -29,6 +30,7 @@ const Downtown = () => {
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [selectedSpotName, setSelectedSpotName] = useState("");
+  const { previewMode } = useFeatureFlags();
   useEffect(() => {
     fetchParkingSpots();
 
@@ -49,10 +51,9 @@ const Downtown = () => {
   const fetchParkingSpots = async () => {
     console.log('Fetching parking spots for Downtown...');
     try {
-      const {
-        data,
-        error
-      } = await supabase.from('parking_listings').select('*').eq('zone', 'Downtown').eq('status', 'approved');
+      const { data, error } = previewMode
+        ? await supabase.from('parking_listings').select('*').eq('zone', 'Downtown')
+        : await supabase.from('parking_listings').select('*').eq('zone', 'Downtown').eq('status', 'approved');
       console.log('Supabase query result:', {
         data,
         error
@@ -68,7 +69,7 @@ const Downtown = () => {
         image: spot.images && spot.images.length > 0 ? spot.images[0] : "/lovable-uploads/161ee737-1491-45d6-a5e3-a642b7ff0806.png",
         images: spot.images || [],
         specs: spot.features || ["Access Card", "Covered", "2.1m Height"],
-        available: true,
+        available: !previewMode,
         address: spot.address,
         description: spot.description
       }));
@@ -271,10 +272,17 @@ const Downtown = () => {
                 </div>
 
 
-                {/* Reserve Now Button */}
-                <Button className="w-full bg-destructive hover:bg-destructive text-destructive-foreground cursor-not-allowed" disabled>
-                  Currently Booked
-                </Button>
+                {previewMode ? (
+                  <Link to={`/parking/${spot.id}`} onClick={() => console.info('PreviewMode reserve click', { spotId: spot.id })}>
+                    <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold">
+                      Reserve Space
+                    </Button>
+                  </Link>
+                ) : (
+                  <Button className="w-full bg-destructive hover:bg-destructive text-destructive-foreground cursor-not-allowed" disabled>
+                    Currently Booked
+                  </Button>
+                )}
               </div>
             </Card>)}
           </div>}
