@@ -6,7 +6,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { CalendarIcon, Car, CreditCard, Ruler, ArrowLeft, Check } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -33,31 +33,45 @@ const ProductPage = () => {
   const [showImageModal, setShowImageModal] = useState(false);
   const { previewMode } = useFeatureFlags();
 
-  // Mock data - in real app, fetch by ID
-  const parkingSpots = [
-    {
-      id: 1,
-      name: "Marina Gate Parking Bay",
-      district: "Dubai Marina",
-      price: 450,
-      image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
-      specs: ["Compact Size", "Access Card", "2.1m Height"],
-      available: true,
-      description: "Secure underground parking bay in the heart of Dubai Marina. Easy access to metro, shopping, and dining. 24/7 security and CCTV monitoring."
-    },
-    {
-      id: 2,
-      name: "DIFC Gate Village Bay",
-      district: "DIFC",
-      price: 650,
-      image: "/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.png",
-      specs: ["Large Size", "Remote Access", "3.0m Height"],
-      available: true,
-      description: "Premium parking space in DIFC Gate Village. Perfect for business professionals with covered parking and elevator access."
-    }
-  ];
+  const [spot, setSpot] = useState<any | null>(null);
+  const [loadingSpot, setLoadingSpot] = useState(true);
 
-  const spot = parkingSpots.find(s => s.id === parseInt(id || "1")) || parkingSpots[0];
+  useEffect(() => {
+    const fetchSpot = async () => {
+      if (!id) return;
+      try {
+        const { data, error } = await supabase
+          .from('parking_listings')
+          .select('*')
+          .eq('id', id)
+          .maybeSingle();
+        if (error) throw error;
+        if (data) {
+          const transformed = {
+            id: data.id,
+            name: data.title,
+            district: data.zone,
+            price: data.price_per_month || 0,
+            image: data.images && data.images.length > 0 ? data.images[0] : '/lovable-uploads/747c1f5d-d6b2-4f6a-94a2-aca1927ee856.png',
+            images: data.images || [],
+            specs: (data.features && data.features.length >= 3 ? data.features : ["Covered", "CCTV", "24/7 Access"]) as string[],
+            available: false,
+            address: data.address,
+            description: data.description || ''
+          };
+          setSpot(transformed);
+        } else {
+          setSpot(null);
+        }
+      } catch (e) {
+        console.error('Error loading spot', e);
+        setSpot(null);
+      } finally {
+        setLoadingSpot(false);
+      }
+    };
+    fetchSpot();
+  }, [id]);
 
   const durationOptions = [
     { months: 1, multiplier: 1.0, label: "1 Month" },
@@ -101,7 +115,7 @@ const ProductPage = () => {
     };
   };
 
-  const pricing = calculatePrice();
+  const pricing = spot ? calculatePrice() : { basePrice: 0, discountAmount: 0, totalPrice: 0, discount: 0, monthlyCustomerPrice: 0, monthlyRentAfterDiscount: 0 };
 
   const handleSubmitBookingRequest = async () => {
     if (previewMode) {
@@ -177,6 +191,30 @@ const ProductPage = () => {
   // Check if start date is within 7 days
   const isWithin7Days = startDate ? 
     (startDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24) <= 7 : false;
+
+  if (loadingSpot) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+          <p className="text-muted-foreground">Loading space details...</p>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (!spot) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+          <p className="text-muted-foreground">Space not found.</p>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   if (showConfirmation) {
     return (
@@ -452,7 +490,7 @@ const ProductPage = () => {
       <ImageZoomModal
         isOpen={showImageModal}
         onClose={() => setShowImageModal(false)}
-        images={[spot.image]}
+        images={spot.images && spot.images.length > 0 ? spot.images : [spot.image]}
         initialIndex={0}
         spotName={spot.name}
       />
