@@ -80,45 +80,43 @@ const DIFC = () => {
 
       console.log("Transformed data:", transformedData);
 
-      // If no data from database, use demo data
-      if (transformedData.length === 0) {
-        console.log("No data from database, using demo data");
-        setParkingSpots([
-          {
-            id: 1,
-            name: "Index Tower",
-            district: "DIFC",
-            price: 1200,
-            image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
-            specs: ["Premium", "24/7 Security", "Concierge"],
-            available: !previewMode,
-            address: "Index Tower, DIFC",
-            description: "Premium parking space in Index Tower with 24/7 security and concierge services in the heart of DIFC."
-          },
-          {
-            id: 2,
-            name: "Gate Village",
-            district: "DIFC",
-            price: 1500,
-            image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
-            specs: ["Underground", "CCTV", "Premium"],
-            available: !previewMode,
-            address: "Gate Village, DIFC",
-            description: "Secure underground parking in the prestigious Gate Village with CCTV surveillance and premium amenities."
-          }
-        ]);
-      } else {
-        setParkingSpots(transformedData);
-      }
+      // Always show transformed data (real data from database when available)
+      setParkingSpots(transformedData.length > 0 ? transformedData : [
+        {
+          id: "demo-1",
+          name: "Index Tower",
+          district: "DIFC",
+          price: 1200,
+          image: "/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.png",
+          images: ["/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.png", "/lovable-uploads/90ac71db-2b33-4d06-8b4e-7fdb761027f4.png"],
+          specs: ["Premium", "24/7 Security", "Concierge"],
+          available: !previewMode,
+          address: "Index Tower, DIFC",
+          description: "Premium parking space in Index Tower with 24/7 security and concierge services in the heart of DIFC."
+        },
+        {
+          id: "demo-2",
+          name: "Gate Village",
+          district: "DIFC",
+          price: 1500,
+          image: "/lovable-uploads/90ac71db-2b33-4d06-8b4e-7fdb761027f4.png",
+          images: ["/lovable-uploads/90ac71db-2b33-4d06-8b4e-7fdb761027f4.png", "/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.png"],
+          specs: ["Underground", "CCTV", "Premium"],
+          available: !previewMode,
+          address: "Gate Village, DIFC",
+          description: "Secure underground parking in the prestigious Gate Village with CCTV surveillance and premium amenities."
+        }
+      ]);
     } catch (error) {
       console.error("Error fetching parking spots:", error);
       setParkingSpots([
         {
-          id: 1,
+          id: "demo-1",
           name: "Index Tower",
           district: "DIFC",
           price: 1200,
-          image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
+          image: "/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.png",
+          images: ["/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.png", "/lovable-uploads/90ac71db-2b33-4d06-8b4e-7fdb761027f4.png"],
           specs: ["Premium", "24/7 Security", "Concierge"],
           available: !previewMode,
           address: "Index Tower, DIFC",

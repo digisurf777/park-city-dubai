@@ -79,79 +79,44 @@ const BusinessBay = () => {
 
       console.log("Transformed data:", transformedData);
 
-      if (transformedData.length === 0) {
-        console.log("No data from database, using demo data");
-        setParkingSpots([
-          {
-            id: 1,
-            name: "Zada Tower",
-            district: "Business Bay",
-            price: 4000,
-            image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
-            specs: ["Premium", "Ultra Luxury", "24/7 Security"],
-            available: !previewMode,
-            address: "Zada Tower, Business Bay",
-            description: "Ultra-premium parking space in the luxury Zada Tower with top-tier amenities and 24/7 security."
-          },
-          {
-            id: 2,
-            name: "Millenium Binghatti Residence",
-            district: "Business Bay",
-            price: 1000,
-            image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
-            specs: ["Residential", "Modern", "Secure"],
-            available: !previewMode,
-            address: "Millenium Binghatti Residence, Business Bay",
-            description: "Modern residential parking in Millenium Binghatti with secure access and contemporary amenities."
-          },
-          {
-            id: 3,
-            name: "Reva Residence DAMAC",
-            district: "Business Bay",
-            price: 600,
-            image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
-            specs: ["DAMAC Quality", "Covered", "24/7"],
-            available: !previewMode,
-            address: "Reva Residence DAMAC, Business Bay",
-            description: "Quality DAMAC parking with covered spaces and 24/7 access in the heart of Business Bay."
-          },
-          {
-            id: 4,
-            name: "Bellevue Towers",
-            district: "Business Bay",
-            price: 950,
-            image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
-            specs: ["Space 24", "Secured", "Covered"],
-            available: !previewMode,
-            address: "Bellevue Towers, Business Bay",
-            description: "Space 24 - Secured covered parking space available for rent with accessible 24/7 access."
-          },
-          {
-            id: 5,
-            name: "SOL Avenue",
-            district: "Business Bay",
-            price: 900,
-            image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
-            specs: ["Secure", "Covered", "Concierge"],
-            available: !previewMode,
-            address: "SOL Avenue, Business Bay",
-            description: "Secure and covered parking with 24-hour security and concierge services providing added protection."
-          },
-          {
-            id: 6,
-            name: "Tower A DAMAC Towers by Paramount",
-            district: "Business Bay",
-            price: 1000,
-            image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
-            specs: ["DAMAC Premium", "24/7 Access", "Covered"],
-            available: !previewMode,
-            address: "Tower A, DAMAC Towers by Paramount, Business Bay",
-            description: "Secure and covered parking space in DAMAC Towers with 24/7 access for ultimate convenience."
-          }
-        ]);
-      } else {
-        setParkingSpots(transformedData);
-      }
+      setParkingSpots(transformedData.length > 0 ? transformedData : [
+        {
+          id: "demo-1",
+          name: "Zada Tower",
+          district: "Business Bay",
+          price: 4000,
+          image: "/lovable-uploads/5b75f24f-2a35-495b-8178-6fcde41d69c8.png",
+          images: ["/lovable-uploads/5b75f24f-2a35-495b-8178-6fcde41d69c8.png", "/lovable-uploads/63d539ac-8cbb-46b2-aa39-3de0695ef8c9.png"],
+          specs: ["Premium", "Ultra Luxury", "24/7 Security"],
+          available: !previewMode,
+          address: "Zada Tower, Business Bay",
+          description: "Ultra-premium parking space in the luxury Zada Tower with top-tier amenities and 24/7 security."
+        },
+        {
+          id: "demo-2",
+          name: "Millenium Binghatti Residence",
+          district: "Business Bay",
+          price: 1000,
+          image: "/lovable-uploads/63d539ac-8cbb-46b2-aa39-3de0695ef8c9.png",
+          images: ["/lovable-uploads/63d539ac-8cbb-46b2-aa39-3de0695ef8c9.png", "/lovable-uploads/5b75f24f-2a35-495b-8178-6fcde41d69c8.png"],
+          specs: ["Residential", "Modern", "Secure"],
+          available: !previewMode,
+          address: "Millenium Binghatti Residence, Business Bay",
+          description: "Modern residential parking in Millenium Binghatti with secure access and contemporary amenities."
+        },
+        {
+          id: "demo-3",
+          name: "Reva Residence DAMAC",
+          district: "Business Bay",
+          price: 600,
+          image: "/lovable-uploads/5b75f24f-2a35-495b-8178-6fcde41d69c8.png",
+          images: ["/lovable-uploads/5b75f24f-2a35-495b-8178-6fcde41d69c8.png", "/lovable-uploads/63d539ac-8cbb-46b2-aa39-3de0695ef8c9.png"],
+          specs: ["DAMAC Quality", "Covered", "24/7"],
+          available: !previewMode,
+          address: "Reva Residence DAMAC, Business Bay",
+          description: "Quality DAMAC parking with covered spaces and 24/7 access in the heart of Business Bay."
+        }
+      ]);
     } catch (error) {
       console.error("Error fetching parking spots:", error);
       setParkingSpots([

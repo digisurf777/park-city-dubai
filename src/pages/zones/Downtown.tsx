@@ -75,57 +75,62 @@ const Downtown = () => {
       }));
       console.log('Transformed data:', transformedData);
 
-      // If no data from database, use demo data
-      if (transformedData.length === 0) {
-        console.log('No data from database, using demo data');
-        setParkingSpots([{
-          id: 1,
+      // Always show transformed data (real data from database when available)
+      setParkingSpots(transformedData.length > 0 ? transformedData : [
+        {
+          id: "demo-1",
           name: "The Lofts Central Tower",
           district: "Downtown",
           price: 250,
-          image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
+          image: "/lovable-uploads/25c56481-0d03-4055-bd47-67635ac0d1b0.png",
+          images: ["/lovable-uploads/25c56481-0d03-4055-bd47-67635ac0d1b0.png", "/lovable-uploads/32249908-791f-4751-bdaa-b25414bbcd86.png"],
           specs: ["Access Card", "Covered", "2.5m Height"],
-          available: true,
+          available: !previewMode,
           address: "The Lofts Central Tower, Downtown Dubai",
           description: "Prime downtown parking in The Lofts Central Tower. Secure underground parking with 24/7 access and CCTV surveillance."
-        }, {
-          id: 2,
+        },
+        {
+          id: "demo-2",
           name: "Burj Vista",
           district: "Downtown",
           price: 860,
-          image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
+          image: "/lovable-uploads/32249908-791f-4751-bdaa-b25414bbcd86.png",
+          images: ["/lovable-uploads/32249908-791f-4751-bdaa-b25414bbcd86.png", "/lovable-uploads/25c56481-0d03-4055-bd47-67635ac0d1b0.png"],
           specs: ["CCTV", "24h Security", "Concierge"],
-          available: true,
+          available: !previewMode,
           address: "Burj Vista, Downtown Dubai",
           description: "Basement-level parking space in the heart of Downtown. CCTV surveillance, 24-hour maintenance, and concierge services available."
-        }]);
-      } else {
-        setParkingSpots(transformedData);
-      }
+        }
+      ]);
     } catch (error) {
       console.error('Error fetching parking spots:', error);
       // Fallback to demo data if database query fails
-      setParkingSpots([{
-        id: 1,
-        name: "The Lofts Central Tower",
-        district: "Downtown",
-        price: 250,
-        image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
-        specs: ["Access Card", "Covered", "2.5m Height"],
-        available: true,
-        address: "The Lofts Central Tower, Downtown Dubai",
-        description: "Prime downtown parking with 24/7 security and premium amenities."
-      }, {
-        id: 2,
-        name: "Burj Vista",
-        district: "Downtown",
-        price: 860,
-        image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
-        specs: ["CCTV", "24h Security", "Concierge"],
-        available: true,
-        address: "Burj Vista, Downtown Dubai",
-        description: "Basement-level parking with CCTV surveillance and concierge services."
-      }]);
+      setParkingSpots([
+        {
+          id: "demo-1",
+          name: "The Lofts Central Tower",
+          district: "Downtown",
+          price: 250,
+          image: "/lovable-uploads/25c56481-0d03-4055-bd47-67635ac0d1b0.png",
+          images: ["/lovable-uploads/25c56481-0d03-4055-bd47-67635ac0d1b0.png", "/lovable-uploads/32249908-791f-4751-bdaa-b25414bbcd86.png"],
+          specs: ["Access Card", "Covered", "2.5m Height"],
+          available: !previewMode,
+          address: "The Lofts Central Tower, Downtown Dubai",
+          description: "Prime downtown parking with 24/7 security and premium amenities."
+        },
+        {
+          id: "demo-2",
+          name: "Burj Vista",
+          district: "Downtown",
+          price: 860,
+          image: "/lovable-uploads/32249908-791f-4751-bdaa-b25414bbcd86.png",
+          images: ["/lovable-uploads/32249908-791f-4751-bdaa-b25414bbcd86.png", "/lovable-uploads/25c56481-0d03-4055-bd47-67635ac0d1b0.png"],
+          specs: ["CCTV", "24h Security", "Concierge"],
+          available: !previewMode,
+          address: "Burj Vista, Downtown Dubai",
+          description: "Basement-level parking with CCTV surveillance and concierge services."
+        }
+      ]);
     } finally {
       setLoading(false);
     }

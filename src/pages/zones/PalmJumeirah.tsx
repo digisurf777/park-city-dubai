@@ -78,22 +78,24 @@ const PalmJumeirah = () => {
             description: "Secure parking space in East Golf Tower with 24/7 access and premium amenities in the heart of Palm Jumeirah."
           },
           {
-            id: 2,
+            id: "demo-2",
             name: "Shoreline Apartments",
             district: "Palm Jumeirah",
             price: 900,
-            image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
+            image: "/lovable-uploads/20c287e2-e6e7-4c77-9fb2-30d50523dbca.png",
+            images: ["/lovable-uploads/20c287e2-e6e7-4c77-9fb2-30d50523dbca.png", "/lovable-uploads/1dda1396-7e61-4941-b3c2-e7badd6fc5bc.png"],
             specs: ["Underground", "24/7 Security", "CCTV"],
             available: !previewMode,
             address: "Shoreline Apartments, Palm Jumeirah",
             description: "Secure underground parking in the heart of Palm Jumeirah with 24/7 security and CCTV surveillance."
           },
           {
-            id: 3,
+            id: "demo-3",
             name: "The Palm Tower",
             district: "Palm Jumeirah",
             price: 800,
-            image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
+            image: "/lovable-uploads/1dda1396-7e61-4941-b3c2-e7badd6fc5bc.png",
+            images: ["/lovable-uploads/1dda1396-7e61-4941-b3c2-e7badd6fc5bc.png", "/lovable-uploads/20c287e2-e6e7-4c77-9fb2-30d50523dbca.png"],
             specs: ["Underground", "24/7 Security", "Premium"],
             available: !previewMode,
             address: "The Palm Tower, Palm Jumeirah",
