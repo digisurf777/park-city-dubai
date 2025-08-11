@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -13,180 +14,141 @@ import Footer from "@/components/Footer";
 import { ParkingBookingModal } from "@/components/ParkingBookingModal";
 import ImageZoomModal from "@/components/ImageZoomModal";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-import difcHero from "/lovable-uploads/63d539ac-8cbb-46b2-aa39-3de0695ef8c9.png";
+import difcHero from "@/assets/zones/difc-real.jpg";
+import { useFeatureFlags } from "@/hooks/useFeatureFlags";
+
 const DIFC = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [priceRange, setPriceRange] = useState([0, 1500]);
+  const [priceRange, setPriceRange] = useState([0, 2000]);
   const [showAvailableOnly, setShowAvailableOnly] = useState(false);
   const [parkingSpots, setParkingSpots] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedSpot, setSelectedSpot] = useState<any>(null);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
-  const [currentImageIndexes, setCurrentImageIndexes] = useState<{
-    [key: string]: number;
-  }>({});
+  const [currentImageIndexes, setCurrentImageIndexes] = useState<{ [key: string]: number }>({});
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [selectedSpotName, setSelectedSpotName] = useState("");
-  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+  const { previewMode } = useFeatureFlags();
+
   useEffect(() => {
     fetchParkingSpots();
 
     // Set up real-time subscription to parking_listings changes
-    const channel = supabase.channel('parking-listings-difc').on('postgres_changes', {
-      event: '*',
-      schema: 'public',
-      table: 'parking_listings'
-    }, payload => {
-      console.log('Real-time parking listing change in DIFC:', payload);
-      // Refetch data when any parking listing changes
-      fetchParkingSpots();
-    }).subscribe();
+    const channel = supabase
+      .channel('parking-listings-difc')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'parking_listings'
+      }, (payload) => {
+        console.log('Real-time parking listing change in DIFC:', payload);
+        // Refetch data when any parking listing changes
+        fetchParkingSpots();
+      })
+      .subscribe();
+
     return () => {
       supabase.removeChannel(channel);
     };
   }, []);
+
   const fetchParkingSpots = async () => {
     console.log("Fetching parking spots for DIFC...");
     try {
-      const {
-        data,
-        error
-      } = await supabase.from("parking_listings").select("*").eq("zone", "DIFC").eq("status", "approved");
-      console.log("Supabase query result:", {
-        data,
-        error
-      });
+      const { data, error } = previewMode 
+        ? await supabase.from("parking_listings").select("*").eq("zone", "DIFC")
+        : await supabase.from("parking_listings").select("*").eq("zone", "DIFC").eq("status", "approved");
+      
+      console.log("Supabase query result:", { data, error });
       if (error) throw error;
+
+      // Transform data to match UI expectations
       const transformedData = data.map(spot => ({
         id: spot.id,
         name: spot.title,
         district: "DIFC",
         price: spot.price_per_month || 0,
-        image: spot.images && spot.images.length > 0 ? spot.images[0] : "/lovable-uploads/645ad921-4efc-4172-858a-ce781e236f08.png",
+        image: spot.images && spot.images.length > 0 ? spot.images[0] : "/lovable-uploads/161ee737-1491-45d6-a5e3-a642b7ff0806.png",
         images: spot.images || [],
         specs: spot.features || ["Access Card", "Covered", "2.1m Height"],
-        available: true,
+        available: !previewMode, // In preview mode, all spaces show as unavailable
         address: spot.address,
         description: spot.description
       }));
+
       console.log("Transformed data:", transformedData);
+
+      // If no data from database, use demo data
       if (transformedData.length === 0) {
         console.log("No data from database, using demo data");
-        setParkingSpots([{
-          id: 1,
-          name: "Sky Gardens DIFC",
-          district: "DIFC",
-          price: 500,
-          image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
-          specs: ["Sky Gardens", "Premium", "24/7 Security"],
-          available: true,
-          address: "Sky Gardens DIFC, DIFC",
-          description: "Premium parking space in Sky Gardens DIFC with 24/7 security and modern amenities."
-        }, {
-          id: 2,
-          name: "Index Tower",
-          district: "DIFC",
-          price: 750,
-          image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
-          specs: ["Premium Tower", "Basement", "Concierge"],
-          available: true,
-          address: "Index Tower, DIFC",
-          description: "Basement parking in the highly sought-after Index Tower with 24-hour security, concierge, and easy elevator access."
-        }, {
-          id: 3,
-          name: "Burj Daman",
-          district: "DIFC",
-          price: 700,
-          image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
-          specs: ["Landmark", "Secure", "Premium"],
-          available: true,
-          address: "Burj Daman, DIFC",
-          description: "Premium secure parking in the landmark Burj Daman tower with excellent DIFC access."
-        }, {
-          id: 4,
-          name: "Aspin Commercial Tower (3A-31)",
-          district: "DIFC",
-          price: 600,
-          image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
-          specs: ["Commercial", "Space 3A-31", "Secure"],
-          available: true,
-          address: "Aspin Commercial Tower, DIFC",
-          description: "Space 3A-31 in Aspin Commercial Tower with secure access and professional amenities."
-        }, {
-          id: 5,
-          name: "Aspin Commercial Tower (5A-25)",
-          district: "DIFC",
-          price: 600,
-          image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
-          specs: ["Commercial", "Space 5A-25", "Secure"],
-          available: true,
-          address: "Aspin Commercial Tower, DIFC",
-          description: "Space 5A-25 in Aspin Commercial Tower with secure parking and business district access."
-        }, {
-          id: 6,
-          name: "DAMAC Park Towers",
-          district: "DIFC",
-          price: 650,
-          image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
-          specs: ["DAMAC Quality", "Space P2 088", "Secure"],
-          available: true,
-          address: "DAMAC Park Towers, DIFC",
-          description: "Space P2 088 - Secure parking in DAMAC Park Towers with quality amenities and professional access."
-        }, {
-          id: 7,
-          name: "Sky Gardens DIFC (Ground Floor)",
-          district: "DIFC",
-          price: 650,
-          image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
-          specs: ["Ground Floor", "Exit Access", "Premium"],
-          available: true,
-          address: "Sky Gardens DIFC, DIFC",
-          description: "Ground floor parking close to the exit in Sky Gardens DIFC with premium access and convenience."
-        }, {
-          id: 8,
-          name: "Limestone House 5F2",
-          district: "DIFC",
-          price: 550,
-          image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
-          specs: ["Space 2176", "Secured", "Covered"],
-          available: true,
-          address: "Limestone House, DIFC",
-          description: "Space number 2176 - Secured covered parking space available for rent with professional access."
-        }]);
+        setParkingSpots([
+          {
+            id: 1,
+            name: "Index Tower",
+            district: "DIFC",
+            price: 1200,
+            image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
+            specs: ["Premium", "24/7 Security", "Concierge"],
+            available: !previewMode,
+            address: "Index Tower, DIFC",
+            description: "Premium parking space in Index Tower with 24/7 security and concierge services in the heart of DIFC."
+          },
+          {
+            id: 2,
+            name: "Gate Village",
+            district: "DIFC",
+            price: 1500,
+            image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
+            specs: ["Underground", "CCTV", "Premium"],
+            available: !previewMode,
+            address: "Gate Village, DIFC",
+            description: "Secure underground parking in the prestigious Gate Village with CCTV surveillance and premium amenities."
+          }
+        ]);
       } else {
         setParkingSpots(transformedData);
       }
     } catch (error) {
       console.error("Error fetching parking spots:", error);
-      setParkingSpots([{
-        id: 1,
-        name: "Sky Gardens DIFC",
-        district: "DIFC",
-        price: 500,
-        image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
-        specs: ["Sky Gardens", "Premium", "24/7 Security"],
-        available: true,
-        address: "Sky Gardens DIFC, DIFC",
-        description: "Premium parking space in Sky Gardens DIFC with 24/7 security and modern amenities."
-      }]);
+      setParkingSpots([
+        {
+          id: 1,
+          name: "Index Tower",
+          district: "DIFC",
+          price: 1200,
+          image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
+          specs: ["Premium", "24/7 Security", "Concierge"],
+          available: !previewMode,
+          address: "Index Tower, DIFC",
+          description: "Premium parking space in Index Tower with 24/7 security and concierge services in the heart of DIFC."
+        }
+      ]);
     } finally {
       setLoading(false);
     }
   };
+
   const clearFilters = () => {
     setSearchTerm("");
-    setPriceRange([0, 1500]);
+    setPriceRange([0, 2000]);
     setShowAvailableOnly(false);
   };
+
   const filteredSpots = parkingSpots.filter(spot => {
     const matchesSearch = spot.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesPrice = spot.price >= priceRange[0] && spot.price <= priceRange[1];
     const matchesAvailability = !showAvailableOnly || spot.available;
     return matchesSearch && matchesPrice && matchesAvailability;
   });
+
   const minPrice = parkingSpots.length > 0 ? Math.min(...parkingSpots.map(spot => spot.price)) : 0;
+
   const handleReserveClick = (spot: any) => {
+    if (previewMode) {
+      console.log('Preview mode: Zone click telemetry', { zone: 'DIFC', spotId: spot.id, spotName: spot.name });
+    }
     setSelectedSpot(spot);
     setIsBookingModalOpen(true);
   };
@@ -197,39 +159,47 @@ const DIFC = () => {
     setSelectedSpotName(spot.name);
     setIsImageModalOpen(true);
   };
+
   const nextImage = (spotId: string, totalImages: number) => {
     setCurrentImageIndexes(prev => ({
       ...prev,
       [spotId]: ((prev[spotId] || 0) + 1) % totalImages
     }));
   };
+
   const prevImage = (spotId: string, totalImages: number) => {
     setCurrentImageIndexes(prev => ({
       ...prev,
       [spotId]: ((prev[spotId] || 0) - 1 + totalImages) % totalImages
     }));
   };
-  return <div className="min-h-screen bg-background">
+
+  return (
+    <div className="min-h-screen bg-background">
       <Navbar />
       
+      {/* Hero Section */}
       <div className="relative h-[400px]">
         <div className="absolute inset-0 bg-black/35"></div>
-        <div className="absolute inset-0 bg-cover bg-center" style={{
-        backgroundImage: `url(${difcHero})`
-      }}></div>
+        <div 
+          className="absolute inset-0 bg-cover bg-center" 
+          style={{ backgroundImage: `url(${difcHero})` }}
+        ></div>
         <div className="relative z-10 flex items-center justify-center h-full">
           <div className="text-center text-white px-4">
             <h1 className="text-5xl md:text-6xl font-bold mb-4">Parking Spaces in DIFC</h1>
-            <p className="text-xl md:text-2xl opacity-90">Global financial hub with premium office towers</p>
-            <p className="text-lg md:text-xl opacity-80 mt-2">Secure monthly bays to AED800</p>
+            <p className="text-xl md:text-2xl opacity-90">Dubai's premier financial district</p>
+            <p className="text-lg md:text-xl opacity-80 mt-2">Secure monthly bays to AED1200</p>
           </div>
         </div>
       </div>
 
+      {/* Filter Bar */}
       <div className="sticky top-20 z-40 bg-white border-b shadow-sm">
         
       </div>
 
+      {/* Results Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-6">
           <h2 className="text-2xl font-bold text-foreground mb-2">Available Parking Spaces</h2>
@@ -238,62 +208,88 @@ const DIFC = () => {
           </p>
         </div>
 
-        {loading ? <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3].map(i => <Card key={i} className="overflow-hidden animate-pulse">
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3].map(i => (
+              <Card key={i} className="overflow-hidden animate-pulse">
                 <div className="aspect-video bg-gray-200"></div>
                 <div className="p-6">
                   <div className="h-4 bg-gray-200 rounded mb-2"></div>
                   <div className="h-3 bg-gray-200 rounded w-2/3"></div>
                 </div>
-              </Card>)}
-          </div> : <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredSpots.map(spot => <Card key={spot.id} className="overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredSpots.map(spot => (
+              <Card key={spot.id} className="overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
                 {/* Image carousel */}
                 <div className="relative w-full h-64 overflow-hidden group">
-                  {spot.images && spot.images.length > 0 ? <>
+                  {spot.images && spot.images.length > 0 ? (
+                    <>
                       <img 
                         src={spot.images[currentImageIndexes[spot.id] || 0]} 
                         alt={`${spot.name} - Image ${(currentImageIndexes[spot.id] || 0) + 1}`} 
                         className="w-full h-full object-cover cursor-pointer" 
                         onClick={() => handleImageClick(spot, currentImageIndexes[spot.id] || 0)}
                       />
-                      {spot.images.length > 1 && <>
+                      {spot.images.length > 1 && (
+                        <>
                           {/* Navigation buttons */}
-                          <button onClick={e => {
-                  e.stopPropagation();
-                  prevImage(spot.id, spot.images.length);
-                }} className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              prevImage(spot.id, spot.images.length);
+                            }}
+                            className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
                             <ChevronLeft className="h-4 w-4" />
                           </button>
-                          <button onClick={e => {
-                  e.stopPropagation();
-                  nextImage(spot.id, spot.images.length);
-                }} className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              nextImage(spot.id, spot.images.length);
+                            }}
+                            className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
                             <ChevronRight className="h-4 w-4" />
                           </button>
                           
                           {/* Image indicator dots */}
                           <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-1">
-                            {spot.images.map((_: any, index: number) => <button key={index} onClick={e => {
-                    e.stopPropagation();
-                    setCurrentImageIndexes(prev => ({
-                      ...prev,
-                      [spot.id]: index
-                    }));
-                  }} className={`w-2 h-2 rounded-full transition-colors ${(currentImageIndexes[spot.id] || 0) === index ? 'bg-white' : 'bg-white/50'}`} />)}
+                            {spot.images.map((_: any, index: number) => (
+                              <button
+                                key={index}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setCurrentImageIndexes(prev => ({
+                                    ...prev,
+                                    [spot.id]: index
+                                  }));
+                                }}
+                                className={`w-2 h-2 rounded-full transition-colors ${
+                                  (currentImageIndexes[spot.id] || 0) === index ? 'bg-white' : 'bg-white/50'
+                                }`}
+                              />
+                            ))}
                           </div>
                           
                           {/* Image counter */}
                           <div className="absolute top-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
                             {(currentImageIndexes[spot.id] || 0) + 1} / {spot.images.length}
                           </div>
-                        </>}
-                    </> : <img 
+                        </>
+                      )}
+                    </>
+                  ) : (
+                    <img 
                       src={spot.image} 
                       alt={spot.name} 
                       className="w-full h-full object-cover cursor-pointer" 
                       onClick={() => handleImageClick(spot, 0)}
-                    />}
+                    />
+                  )}
                 </div>
 
                 <div className="p-6">
@@ -306,35 +302,52 @@ const DIFC = () => {
                     <span className="text-2xl font-bold text-primary">From AED {spot.price}/month</span>
                   </div>
 
-                  
-
-
-                  <Button className="w-full bg-destructive hover:bg-destructive text-destructive-foreground font-semibold py-2 px-4 rounded-lg cursor-not-allowed" disabled>
-                    Currently Booked
-                  </Button>
+                  {previewMode ? (
+                    <Link to={`/parking/${spot.id}`} onClick={() => console.info('PreviewMode reserve click', { spotId: spot.id })}>
+                      <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold">
+                        Reserve Space
+                      </Button>
+                    </Link>
+                  ) : (
+                    <Button 
+                      className="w-full bg-destructive hover:bg-destructive text-destructive-foreground cursor-not-allowed" 
+                      disabled
+                    >
+                      Currently Booked
+                    </Button>
+                  )}
                 </div>
-              </Card>)}
-          </div>}
+              </Card>
+            ))}
+          </div>
+        )}
 
-        {!loading && filteredSpots.length === 0 && <div className="text-center py-12">
+        {!loading && filteredSpots.length === 0 && (
+          <div className="text-center py-12">
             <p className="text-muted-foreground text-lg">No parking spaces found matching your criteria.</p>
             <Button variant="outline" className="mt-4" onClick={clearFilters}>
               Clear filters
             </Button>
-          </div>}
+          </div>
+        )}
       </div>
 
       <Footer />
 
-      <ParkingBookingModal isOpen={isBookingModalOpen} onClose={() => setIsBookingModalOpen(false)} parkingSpot={selectedSpot} />
-      
-      <ImageZoomModal
-        isOpen={isImageModalOpen}
-        onClose={() => setIsImageModalOpen(false)}
+      <ParkingBookingModal
+        isOpen={isBookingModalOpen}
+        onClose={() => setIsBookingModalOpen(false)}
+        parkingSpot={selectedSpot}
+      />
+      <ImageZoomModal 
+        isOpen={isImageModalOpen} 
+        onClose={() => setIsImageModalOpen(false)} 
         images={selectedImages}
         initialIndex={selectedImageIndex}
         spotName={selectedSpotName}
       />
-    </div>;
+    </div>
+  );
 };
+
 export default DIFC;

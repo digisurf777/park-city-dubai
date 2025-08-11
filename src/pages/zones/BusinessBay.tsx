@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -14,6 +15,8 @@ import { ParkingBookingModal } from "@/components/ParkingBookingModal";
 import ImageZoomModal from "@/components/ImageZoomModal";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import businessBayHero from "@/assets/zones/business-bay-real.jpg";
+import { useFeatureFlags } from "@/hooks/useFeatureFlags";
+
 const BusinessBay = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [priceRange, setPriceRange] = useState([0, 5000]);
@@ -22,42 +25,45 @@ const BusinessBay = () => {
   const [loading, setLoading] = useState(true);
   const [selectedSpot, setSelectedSpot] = useState<any>(null);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
-  const [currentImageIndexes, setCurrentImageIndexes] = useState<{
-    [key: string]: number;
-  }>({});
+  const [currentImageIndexes, setCurrentImageIndexes] = useState<{ [key: string]: number }>({});
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [selectedSpotName, setSelectedSpotName] = useState("");
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+  const { previewMode } = useFeatureFlags();
+
   useEffect(() => {
     fetchParkingSpots();
 
     // Set up real-time subscription to parking_listings changes
-    const channel = supabase.channel('parking-listings-business-bay').on('postgres_changes', {
-      event: '*',
-      schema: 'public',
-      table: 'parking_listings'
-    }, payload => {
-      console.log('Real-time parking listing change in Business Bay:', payload);
-      // Refetch data when any parking listing changes
-      fetchParkingSpots();
-    }).subscribe();
+    const channel = supabase
+      .channel('parking-listings-business-bay')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'parking_listings'
+      }, (payload) => {
+        console.log('Real-time parking listing change in Business Bay:', payload);
+        // Refetch data when any parking listing changes
+        fetchParkingSpots();
+      })
+      .subscribe();
+
     return () => {
       supabase.removeChannel(channel);
     };
   }, []);
+
   const fetchParkingSpots = async () => {
     console.log("Fetching parking spots for Business Bay...");
     try {
-      const {
-        data,
-        error
-      } = await supabase.from("parking_listings").select("*").eq("zone", "Business Bay").eq("status", "approved");
-      console.log("Supabase query result:", {
-        data,
-        error
-      });
+      const { data, error } = previewMode 
+        ? await supabase.from("parking_listings").select("*").eq("zone", "Business Bay")
+        : await supabase.from("parking_listings").select("*").eq("zone", "Business Bay").eq("status", "approved");
+      
+      console.log("Supabase query result:", { data, error });
       if (error) throw error;
+
       const transformedData = data.map(spot => ({
         id: spot.id,
         name: spot.title,
@@ -66,107 +72,125 @@ const BusinessBay = () => {
         image: spot.images && spot.images.length > 0 ? spot.images[0] : "/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.png",
         images: spot.images || [],
         specs: spot.features || ["Access Card", "Covered", "2.1m Height"],
-        available: true,
+        available: !previewMode, // In preview mode, all spaces show as unavailable
         address: spot.address,
         description: spot.description
       }));
+
       console.log("Transformed data:", transformedData);
+
       if (transformedData.length === 0) {
         console.log("No data from database, using demo data");
-        setParkingSpots([{
+        setParkingSpots([
+          {
+            id: 1,
+            name: "Zada Tower",
+            district: "Business Bay",
+            price: 4000,
+            image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
+            specs: ["Premium", "Ultra Luxury", "24/7 Security"],
+            available: !previewMode,
+            address: "Zada Tower, Business Bay",
+            description: "Ultra-premium parking space in the luxury Zada Tower with top-tier amenities and 24/7 security."
+          },
+          {
+            id: 2,
+            name: "Millenium Binghatti Residence",
+            district: "Business Bay",
+            price: 1000,
+            image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
+            specs: ["Residential", "Modern", "Secure"],
+            available: !previewMode,
+            address: "Millenium Binghatti Residence, Business Bay",
+            description: "Modern residential parking in Millenium Binghatti with secure access and contemporary amenities."
+          },
+          {
+            id: 3,
+            name: "Reva Residence DAMAC",
+            district: "Business Bay",
+            price: 600,
+            image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
+            specs: ["DAMAC Quality", "Covered", "24/7"],
+            available: !previewMode,
+            address: "Reva Residence DAMAC, Business Bay",
+            description: "Quality DAMAC parking with covered spaces and 24/7 access in the heart of Business Bay."
+          },
+          {
+            id: 4,
+            name: "Bellevue Towers",
+            district: "Business Bay",
+            price: 950,
+            image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
+            specs: ["Space 24", "Secured", "Covered"],
+            available: !previewMode,
+            address: "Bellevue Towers, Business Bay",
+            description: "Space 24 - Secured covered parking space available for rent with accessible 24/7 access."
+          },
+          {
+            id: 5,
+            name: "SOL Avenue",
+            district: "Business Bay",
+            price: 900,
+            image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
+            specs: ["Secure", "Covered", "Concierge"],
+            available: !previewMode,
+            address: "SOL Avenue, Business Bay",
+            description: "Secure and covered parking with 24-hour security and concierge services providing added protection."
+          },
+          {
+            id: 6,
+            name: "Tower A DAMAC Towers by Paramount",
+            district: "Business Bay",
+            price: 1000,
+            image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
+            specs: ["DAMAC Premium", "24/7 Access", "Covered"],
+            available: !previewMode,
+            address: "Tower A, DAMAC Towers by Paramount, Business Bay",
+            description: "Secure and covered parking space in DAMAC Towers with 24/7 access for ultimate convenience."
+          }
+        ]);
+      } else {
+        setParkingSpots(transformedData);
+      }
+    } catch (error) {
+      console.error("Error fetching parking spots:", error);
+      setParkingSpots([
+        {
           id: 1,
           name: "Zada Tower",
           district: "Business Bay",
           price: 4000,
           image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
           specs: ["Premium", "Ultra Luxury", "24/7 Security"],
-          available: true,
+          available: !previewMode,
           address: "Zada Tower, Business Bay",
           description: "Ultra-premium parking space in the luxury Zada Tower with top-tier amenities and 24/7 security."
-        }, {
-          id: 2,
-          name: "Millenium Binghatti Residence",
-          district: "Business Bay",
-          price: 1000,
-          image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
-          specs: ["Residential", "Modern", "Secure"],
-          available: true,
-          address: "Millenium Binghatti Residence, Business Bay",
-          description: "Modern residential parking in Millenium Binghatti with secure access and contemporary amenities."
-        }, {
-          id: 3,
-          name: "Reva Residence DAMAC",
-          district: "Business Bay",
-          price: 600,
-          image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
-          specs: ["DAMAC Quality", "Covered", "24/7"],
-          available: true,
-          address: "Reva Residence DAMAC, Business Bay",
-          description: "Quality DAMAC parking with covered spaces and 24/7 access in the heart of Business Bay."
-        }, {
-          id: 4,
-          name: "Bellevue Towers",
-          district: "Business Bay",
-          price: 950,
-          image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
-          specs: ["Space 24", "Secured", "Covered"],
-          available: true,
-          address: "Bellevue Towers, Business Bay",
-          description: "Space 24 - Secured covered parking space available for rent with accessible 24/7 access."
-        }, {
-          id: 5,
-          name: "SOL Avenue",
-          district: "Business Bay",
-          price: 900,
-          image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
-          specs: ["Secure", "Covered", "Concierge"],
-          available: true,
-          address: "SOL Avenue, Business Bay",
-          description: "Secure and covered parking with 24-hour security and concierge services providing added protection."
-        }, {
-          id: 6,
-          name: "Tower A DAMAC Towers by Paramount",
-          district: "Business Bay",
-          price: 1000,
-          image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
-          specs: ["DAMAC Premium", "24/7 Access", "Covered"],
-          available: true,
-          address: "Tower A, DAMAC Towers by Paramount, Business Bay",
-          description: "Secure and covered parking space in DAMAC Towers with 24/7 access for ultimate convenience."
-        }]);
-      } else {
-        setParkingSpots(transformedData);
-      }
-    } catch (error) {
-      console.error("Error fetching parking spots:", error);
-      setParkingSpots([{
-        id: 1,
-        name: "Zada Tower",
-        district: "Business Bay",
-        price: 4000,
-        image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
-        specs: ["Premium", "Ultra Luxury", "24/7 Security"],
-        available: true,
-        address: "Zada Tower, Business Bay",
-        description: "Ultra-premium parking space in the luxury Zada Tower with top-tier amenities and 24/7 security."
-      }]);
+        }
+      ]);
     } finally {
       setLoading(false);
     }
   };
+
   const clearFilters = () => {
     setSearchTerm("");
     setPriceRange([0, 5000]);
     setShowAvailableOnly(false);
   };
+
   const filteredSpots = parkingSpots.filter(spot => {
     const matchesSearch = spot.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesPrice = spot.price >= priceRange[0] && spot.price <= priceRange[1];
     const matchesAvailability = !showAvailableOnly || spot.available;
     return matchesSearch && matchesPrice && matchesAvailability;
   });
+
   const minPrice = parkingSpots.length > 0 ? Math.min(...parkingSpots.map(spot => spot.price)) : 0;
+
   const handleReserveClick = (spot: any) => {
+    if (previewMode) {
+      console.log('Preview mode: Zone click telemetry', { zone: 'Business Bay', spotId: spot.id, spotName: spot.name });
+    }
     setSelectedSpot(spot);
     setIsBookingModalOpen(true);
   };
@@ -177,26 +201,31 @@ const BusinessBay = () => {
     setSelectedSpotName(spot.name);
     setIsImageModalOpen(true);
   };
+
   const nextImage = (spotId: string, totalImages: number) => {
     setCurrentImageIndexes(prev => ({
       ...prev,
       [spotId]: ((prev[spotId] || 0) + 1) % totalImages
     }));
   };
+
   const prevImage = (spotId: string, totalImages: number) => {
     setCurrentImageIndexes(prev => ({
       ...prev,
       [spotId]: ((prev[spotId] || 0) - 1 + totalImages) % totalImages
     }));
   };
-  return <div className="min-h-screen bg-background">
+
+  return (
+    <div className="min-h-screen bg-background">
       <Navbar />
       
       <div className="relative h-[400px]">
         <div className="absolute inset-0 bg-black/35"></div>
-        <div className="absolute inset-0 bg-cover bg-center" style={{
-        backgroundImage: `url(${businessBayHero})`
-      }}></div>
+        <div 
+          className="absolute inset-0 bg-cover bg-center" 
+          style={{ backgroundImage: `url(${businessBayHero})` }}
+        ></div>
         <div className="relative z-10 flex items-center justify-center h-full">
           <div className="text-center text-white px-4">
             <h1 className="text-5xl md:text-6xl font-bold mb-4">Parking Spaces in Business Bay</h1>
@@ -218,62 +247,88 @@ const BusinessBay = () => {
           </p>
         </div>
 
-        {loading ? <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3].map(i => <Card key={i} className="overflow-hidden animate-pulse">
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3].map(i => (
+              <Card key={i} className="overflow-hidden animate-pulse">
                 <div className="aspect-video bg-gray-200"></div>
                 <div className="p-6">
                   <div className="h-4 bg-gray-200 rounded mb-2"></div>
                   <div className="h-3 bg-gray-200 rounded w-2/3"></div>
                 </div>
-              </Card>)}
-          </div> : <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredSpots.map(spot => <Card key={spot.id} className="overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredSpots.map(spot => (
+              <Card key={spot.id} className="overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
                 {/* Image carousel */}
                 <div className="relative w-full h-64 overflow-hidden group">
-                  {spot.images && spot.images.length > 0 ? <>
-                  <img 
-                    src={spot.images[currentImageIndexes[spot.id] || 0]} 
-                    alt={`${spot.name} - Image ${(currentImageIndexes[spot.id] || 0) + 1}`} 
-                    className="w-full h-full object-cover cursor-pointer" 
-                    onClick={() => handleImageClick(spot, currentImageIndexes[spot.id] || 0)}
-                  />
-                      {spot.images.length > 1 && <>
+                  {spot.images && spot.images.length > 0 ? (
+                    <>
+                      <img 
+                        src={spot.images[currentImageIndexes[spot.id] || 0]} 
+                        alt={`${spot.name} - Image ${(currentImageIndexes[spot.id] || 0) + 1}`} 
+                        className="w-full h-full object-cover cursor-pointer" 
+                        onClick={() => handleImageClick(spot, currentImageIndexes[spot.id] || 0)}
+                      />
+                      {spot.images.length > 1 && (
+                        <>
                           {/* Navigation buttons */}
-                          <button onClick={e => {
-                  e.stopPropagation();
-                  prevImage(spot.id, spot.images.length);
-                }} className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              prevImage(spot.id, spot.images.length);
+                            }}
+                            className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
                             <ChevronLeft className="h-4 w-4" />
                           </button>
-                          <button onClick={e => {
-                  e.stopPropagation();
-                  nextImage(spot.id, spot.images.length);
-                }} className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              nextImage(spot.id, spot.images.length);
+                            }}
+                            className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
                             <ChevronRight className="h-4 w-4" />
                           </button>
                           
                           {/* Image indicator dots */}
                           <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-1">
-                            {spot.images.map((_: any, index: number) => <button key={index} onClick={e => {
-                    e.stopPropagation();
-                    setCurrentImageIndexes(prev => ({
-                      ...prev,
-                      [spot.id]: index
-                    }));
-                  }} className={`w-2 h-2 rounded-full transition-colors ${(currentImageIndexes[spot.id] || 0) === index ? 'bg-white' : 'bg-white/50'}`} />)}
+                            {spot.images.map((_: any, index: number) => (
+                              <button
+                                key={index}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setCurrentImageIndexes(prev => ({
+                                    ...prev,
+                                    [spot.id]: index
+                                  }));
+                                }}
+                                className={`w-2 h-2 rounded-full transition-colors ${
+                                  (currentImageIndexes[spot.id] || 0) === index ? 'bg-white' : 'bg-white/50'
+                                }`}
+                              />
+                            ))}
                           </div>
                           
                           {/* Image counter */}
                           <div className="absolute top-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
                             {(currentImageIndexes[spot.id] || 0) + 1} / {spot.images.length}
                           </div>
-                        </>}
-                    </> : <img 
+                        </>
+                      )}
+                    </>
+                  ) : (
+                    <img 
                       src={spot.image} 
                       alt={spot.name} 
                       className="w-full h-full object-cover cursor-pointer" 
                       onClick={() => handleImageClick(spot, 0)}
-                    />}
+                    />
+                  )}
                 </div>
 
                 <div className="p-6">
@@ -286,26 +341,43 @@ const BusinessBay = () => {
                     <span className="text-2xl font-bold text-primary">From AED {spot.price}/month</span>
                   </div>
 
-
-
-                  <Button className="w-full bg-destructive hover:bg-destructive text-destructive-foreground font-semibold py-2 px-4 rounded-lg cursor-not-allowed" disabled>
-                    Currently Booked
-                  </Button>
+                  {previewMode ? (
+                    <Link to={`/parking/${spot.id}`} onClick={() => console.info('PreviewMode reserve click', { spotId: spot.id })}>
+                      <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold">
+                        Reserve Space
+                      </Button>
+                    </Link>
+                  ) : (
+                    <Button 
+                      className="w-full bg-destructive hover:bg-destructive text-destructive-foreground font-semibold py-2 px-4 rounded-lg cursor-not-allowed" 
+                      disabled
+                    >
+                      Currently Booked
+                    </Button>
+                  )}
                 </div>
-              </Card>)}
-          </div>}
+              </Card>
+            ))}
+          </div>
+        )}
 
-        {!loading && filteredSpots.length === 0 && <div className="text-center py-12">
+        {!loading && filteredSpots.length === 0 && (
+          <div className="text-center py-12">
             <p className="text-muted-foreground text-lg">No parking spaces found matching your criteria.</p>
             <Button variant="outline" className="mt-4" onClick={clearFilters}>
               Clear filters
             </Button>
-          </div>}
+          </div>
+        )}
       </div>
 
       <Footer />
 
-      <ParkingBookingModal isOpen={isBookingModalOpen} onClose={() => setIsBookingModalOpen(false)} parkingSpot={selectedSpot} />
+      <ParkingBookingModal
+        isOpen={isBookingModalOpen}
+        onClose={() => setIsBookingModalOpen(false)}
+        parkingSpot={selectedSpot}
+      />
       
       <ImageZoomModal
         isOpen={isImageModalOpen}
@@ -314,6 +386,8 @@ const BusinessBay = () => {
         initialIndex={selectedImageIndex}
         spotName={selectedSpotName}
       />
-    </div>;
+    </div>
+  );
 };
+
 export default BusinessBay;
