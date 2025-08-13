@@ -505,26 +505,12 @@ const ProductPage: React.FC = () => {
                        );
                      })()}
 
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button 
-                            onClick={handleSubmitBookingRequest}
-                            disabled={!startDate || isSubmitting}
-                            className="w-full"
-                            size="lg"
-                          >
-                            {isSubmitting ? 'Submitting...' : `Reserve Space - AED ${calculateTotal().finalPrice.toLocaleString()}`}
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Submit your booking request</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
+                    <div className="w-full bg-red-500 text-white py-4 rounded-lg text-center font-semibold text-lg">
+                      Currently Booked
+                    </div>
 
-                    <p className="text-xs text-muted-foreground text-center">
-                      No charges will be made at this time. Payment link will be provided after confirmation.
+                    <p className="text-xs text-red-600 text-center font-medium">
+                      This parking space is currently occupied and not available for booking.
                     </p>
                   </CardContent>
                 )}
