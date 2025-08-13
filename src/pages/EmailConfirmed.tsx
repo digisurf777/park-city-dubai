@@ -1,124 +1,139 @@
-
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 const EmailConfirmed = () => {
   const [loading, setLoading] = useState(true);
   const [confirmed, setConfirmed] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   useEffect(() => {
-    const handleEmailConfirmation = async () => {
+    const confirmEmail = async () => {
       try {
-        // Get all possible URL parameters
+        // Get tokens from URL parameters
         const token_hash = searchParams.get('token_hash');
         const type = searchParams.get('type');
         const access_token = searchParams.get('access_token');
         const refresh_token = searchParams.get('refresh_token');
-        const token = searchParams.get('token');
-        const code = searchParams.get('code');
 
-        // Also check hash fragment for tokens
+        // Check URL hash for additional parameters
         const hash = window.location.hash.substring(1);
         const hashParams = new URLSearchParams(hash);
         const hashAccessToken = hashParams.get('access_token');
         const hashRefreshToken = hashParams.get('refresh_token');
+        const hashTokenHash = hashParams.get('token_hash');
+        const hashType = hashParams.get('type');
 
-        console.log('URL params:', { 
-          token_hash, 
-          type, 
-          access_token, 
-          refresh_token, 
-          token, 
-          code,
-          hashAccessToken,
-          hashRefreshToken,
-          allParams: Object.fromEntries(searchParams.entries()),
-          hashData: Object.fromEntries(hashParams.entries())
+        console.log('Confirmation parameters:', {
+          token_hash: token_hash || hashTokenHash,
+          type: type || hashType,
+          access_token: access_token || hashAccessToken,
+          refresh_token: refresh_token || hashRefreshToken
         });
 
-        let result;
-
-        // Try different confirmation methods in order of preference
-        if (access_token && refresh_token) {
-          console.log('Using direct access token method');
-          result = await supabase.auth.setSession({
-            access_token,
-            refresh_token
+        // Try to set session if we have tokens
+        if ((access_token && refresh_token) || (hashAccessToken && hashRefreshToken)) {
+          const { error } = await supabase.auth.setSession({
+            access_token: access_token || hashAccessToken!,
+            refresh_token: refresh_token || hashRefreshToken!
           });
-        } else if (hashAccessToken && hashRefreshToken) {
-          console.log('Using hash fragment token method');
-          result = await supabase.auth.setSession({
-            access_token: hashAccessToken,
-            refresh_token: hashRefreshToken
-          });
-        } else if (code) {
-          console.log('Using OAuth code exchange method');
-          result = await supabase.auth.exchangeCodeForSession(code);
-        } else if (token_hash && type) {
-          console.log('Using token hash verification method');
-          result = await supabase.auth.verifyOtp({
-            token_hash,
-            type: type as any
-          });
-        } else {
-          const availableParams = {
-            query: Object.fromEntries(searchParams.entries()),
-            hash: Object.fromEntries(hashParams.entries())
-          };
-          console.error('No valid confirmation parameters found:', availableParams);
-          setError(`Invalid confirmation link - missing parameters. Found: ${JSON.stringify(availableParams, null, 2)}`);
-          setLoading(false);
-          return;
-        }
 
-        console.log('Confirmation result:', result);
-
-        if (result.error) {
-          console.error('Confirmation error:', result.error);
-          setError(result.error.message || 'Confirmation failed');
-        } else if (result.data?.user) {
-          setConfirmed(true);
-          console.log('User confirmed successfully:', result.data.user.email);
-          
-          // Send welcome email after successful confirmation
-          try {
-            await supabase.functions.invoke('send-welcome-email', {
-              body: {
-                email: result.data.user.email,
-                name: result.data.user.user_metadata?.full_name || 'User'
-              }
-            });
-            console.log('Welcome email sent successfully');
-          } catch (emailError) {
-            console.error('Failed to send welcome email:', emailError);
-            // Don't fail the confirmation if email fails
+          if (error) {
+            console.error('Session error:', error);
+            setError(error.message);
+          } else {
+            setConfirmed(true);
+            toast.success('Email confirmed successfully!');
+            // Send welcome email after successful confirmation
+            try {
+              await supabase.functions.invoke('send-welcome-email', {
+                body: { email: (await supabase.auth.getUser()).data.user?.email }
+              });
+            } catch (emailError) {
+              console.log('Welcome email failed:', emailError);
+              // Don't show error to user for welcome email failure
+            }
           }
-          
-          // Redirect to home after success
-          setTimeout(() => {
-            navigate('/');
-          }, 2000);
-        } else {
-          console.error('No user data in result:', result);
-          setError('Confirmation succeeded but no user data received');
+        } 
+        // Try to exchange code for session if we have token_hash
+        else if ((token_hash && type) || (hashTokenHash && hashType)) {
+          const { error } = await supabase.auth.exchangeCodeForSession(
+            token_hash || hashTokenHash!
+          );
+
+          if (error) {
+            console.error('Code exchange error:', error);
+            setError(error.message);
+          } else {
+            setConfirmed(true);
+            toast.success('Email confirmed successfully!');
+            // Send welcome email after successful confirmation
+            try {
+              await supabase.functions.invoke('send-welcome-email', {
+                body: { email: (await supabase.auth.getUser()).data.user?.email }
+              });
+            } catch (emailError) {
+              console.log('Welcome email failed:', emailError);
+              // Don't show error to user for welcome email failure
+            }
+          }
         }
-      } catch (err: any) {
-        console.error('Confirmation error:', err);
-        setError(err.message || 'An error occurred while confirming your email');
+        // Try OTP verification as fallback
+        else {
+          const token = searchParams.get('token') || hashParams.get('token');
+          const email = searchParams.get('email') || hashParams.get('email');
+          
+          if (token && email) {
+            const { error } = await supabase.auth.verifyOtp({
+              token_hash: token,
+              type: 'email',
+              email: email
+            });
+
+            if (error) {
+              console.error('OTP verification error:', error);
+              setError(error.message);
+            } else {
+              setConfirmed(true);
+              toast.success('Email confirmed successfully!');
+              // Send welcome email after successful confirmation
+              try {
+                await supabase.functions.invoke('send-welcome-email', {
+                  body: { email: email }
+                });
+              } catch (emailError) {
+                console.log('Welcome email failed:', emailError);
+                // Don't show error to user for welcome email failure
+              }
+            }
+          } else {
+            setError('Invalid confirmation link. Please try registering again.');
+          }
+        }
+      } catch (err) {
+        console.error('Email confirmation error:', err);
+        setError('Failed to confirm email. Please try again.');
       } finally {
         setLoading(false);
       }
     };
 
-    handleEmailConfirmation();
-  }, [searchParams]);
+    confirmEmail();
+
+    // Auto-redirect to home after successful confirmation
+    if (confirmed) {
+      const timer = setTimeout(() => {
+        navigate('/');
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [searchParams, navigate, confirmed]);
 
   const handleLoginRedirect = () => {
     navigate('/auth');
@@ -128,9 +143,37 @@ const EmailConfirmed = () => {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center px-4">
         <Card className="w-full max-w-md">
-          <CardContent className="flex flex-col items-center justify-center py-8">
-            <Loader2 className="h-8 w-8 animate-spin mb-4" />
-            <p>Confirming email address...</p>
+          <CardContent className="pt-6">
+            <div className="text-center space-y-4">
+              <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
+              <p className="text-muted-foreground">Confirming your email...</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (confirmed) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center px-4">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle className="text-center flex items-center justify-center gap-2 text-green-600">
+              <CheckCircle className="h-6 w-6" />
+              Email Confirmed!
+            </CardTitle>
+            <CardDescription className="text-center">
+              Your email has been successfully confirmed. You can now log in to your account.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button
+              onClick={() => navigate('/')}
+              className="w-full"
+            >
+              Go to Homepage
+            </Button>
           </CardContent>
         </Card>
       </div>
@@ -140,50 +183,31 @@ const EmailConfirmed = () => {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4">
       <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <CardTitle className="flex items-center justify-center gap-2">
-            {confirmed ? (
-              <>
-                <CheckCircle className="h-6 w-6 text-green-600" />
-                Email Confirmed!
-              </>
-            ) : (
-              <>
-                <XCircle className="h-6 w-6 text-red-600" />
-                Confirmation Failed
-              </>
-            )}
+        <CardHeader>
+          <CardTitle className="text-center flex items-center justify-center gap-2 text-red-600">
+            <XCircle className="h-6 w-6" />
+            Confirmation Failed
           </CardTitle>
-          <CardDescription>
-            {confirmed 
-              ? "Your email address has been successfully confirmed."
-              : "There was a problem confirming your email address."
-            }
+          <CardDescription className="text-center">
+            {error || 'We were unable to confirm your email address.'}
           </CardDescription>
         </CardHeader>
-        <CardContent className="text-center space-y-4">
-          {confirmed ? (
-            <>
-              <p className="text-sm text-muted-foreground">
-                Welcome to Shazam Parking! Your account is now active and ready to use.
-              </p>
-              <Button onClick={() => navigate('/')} className="w-full">
-                Go to Shazam Parking
-              </Button>
-            </>
-          ) : (
-            <>
-              <p className="text-sm text-red-600">
-                {error || "The confirmation link is invalid or expired."}
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Please try registering again or contact support if this problem persists.
-              </p>
-              <Button onClick={() => navigate('/auth')} variant="outline" className="w-full">
-                Back to Registration
-              </Button>
-            </>
-          )}
+        <CardContent className="space-y-4">
+          <p className="text-sm text-muted-foreground text-center">
+            This could be because:
+          </p>
+          <ul className="text-sm text-muted-foreground space-y-1">
+            <li>• The confirmation link has expired</li>
+            <li>• The link has already been used</li>
+            <li>• There was a technical issue</li>
+          </ul>
+          <Button
+            onClick={handleLoginRedirect}
+            className="w-full"
+            variant="outline"
+          >
+            Back to Registration
+          </Button>
         </CardContent>
       </Card>
     </div>
