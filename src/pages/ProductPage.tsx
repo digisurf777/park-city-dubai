@@ -371,24 +371,49 @@ const ProductPage: React.FC = () => {
                   <CardDescription>Choose your rental duration and start date</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
+                  {/* Start Date Selection - Moved to Top */}
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Start Date *</label>
+                    <Calendar
+                      mode="single"
+                      selected={startDate}
+                      onSelect={setStartDate}
+                      disabled={(date) => {
+                        const today = new Date();
+                        const minDate = new Date();
+                        minDate.setDate(today.getDate() + 3); // 3 days from today
+                        return date < minDate;
+                      }}
+                      className="rounded-md border pointer-events-auto w-full"
+                    />
+                  </div>
+
                   {/* Rental Duration Selection */}
                   <div>
                     <label className="text-sm font-medium mb-3 block">Rental Duration</label>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="grid grid-cols-2 gap-3">
                       {DURATION_OPTIONS.map(option => (
                         <Button
                           key={option.months}
                           variant={selectedDuration.months === option.months ? "default" : "outline"}
                           className={`flex flex-col h-auto py-4 px-4 text-center relative ${
-                            selectedDuration.months === option.months 
-                              ? "bg-primary text-primary-foreground border-2 border-primary" 
-                              : "hover:border-primary"
-                          } ${option.months === 3 ? "border-2 border-cyan-400 bg-cyan-50 hover:bg-cyan-100" : ""}`}
+                            selectedDuration.months === option.months && option.months === 3
+                              ? "bg-cyan-400 text-white border-2 border-cyan-400" 
+                              : selectedDuration.months === option.months 
+                                ? "bg-primary text-primary-foreground border-2 border-primary" 
+                                : option.months === 3 
+                                  ? "border-2 border-cyan-400 bg-cyan-50 hover:bg-cyan-100" 
+                                  : "hover:border-primary"
+                          }`}
                           onClick={() => setSelectedDuration(option)}
                         >
                           <span className="font-semibold text-base">{option.label}</span>
                           {option.months > 1 && (
-                            <span className="text-xs text-green-600 font-medium mt-1">
+                            <span className={`text-xs font-medium mt-1 ${
+                              selectedDuration.months === option.months && option.months === 3 
+                                ? "text-white" 
+                                : "text-green-600"
+                            }`}>
                               {option.description}
                             </span>
                           )}
@@ -454,23 +479,6 @@ const ProductPage: React.FC = () => {
                       </CardContent>
                     </Card>
                   )}
-
-                  {/* Start Date Selection */}
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">Start Date *</label>
-                    <Calendar
-                      mode="single"
-                      selected={startDate}
-                      onSelect={setStartDate}
-                      disabled={(date) => {
-                        const today = new Date();
-                        const minDate = new Date();
-                        minDate.setDate(today.getDate() + 2);
-                        return date < minDate;
-                      }}
-                      className="rounded-md border pointer-events-auto"
-                    />
-                  </div>
 
                   <div>
                     <label className="text-sm font-medium mb-2 block">Phone Number (Optional)</label>
