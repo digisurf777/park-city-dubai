@@ -9,11 +9,15 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
-interface MessageNotificationRequest {
+interface BookingReceivedRequest {
   userEmail: string;
-  userName: string;
-  subject: string;
-  message: string;
+  userName?: string;
+  bookingDetails: {
+    location: string;
+    startDate: string;
+    endDate: string;
+    amount: string;
+  };
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -23,16 +27,16 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { userEmail, userName, subject, message }: MessageNotificationRequest = await req.json();
+    const { userEmail, userName, bookingDetails }: BookingReceivedRequest = await req.json();
 
     const emailResponse = await resend.emails.send({
       from: "ShazamParking <noreply@shazamparking.ae>",
       to: [userEmail],
-      subject: "You Have a New Message on ShazamParking",
+      subject: "Your Booking Request Has Been Received",
       html: `
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #ffffff;">
           <div style="text-align: center; margin-bottom: 30px; padding: 20px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 12px;">
-            <h1 style="color: white; font-size: 24px; margin: 0; font-weight: bold;">📩 New Message</h1>
+            <h1 style="color: white; font-size: 24px; margin: 0; font-weight: bold;">✅ Booking Request Received</h1>
             <p style="color: rgba(255,255,255,0.9); font-size: 14px; margin: 10px 0 0 0;">ShazamParking</p>
           </div>
           
@@ -42,36 +46,33 @@ const handler = async (req: Request): Promise<Response> => {
             </h2>
             
             <p style="color: #4b5563; line-height: 1.6; margin-bottom: 20px; font-size: 16px;">
-              You've received a new message on your ShazamParking account.
+              <strong>Thank you for booking with ShazamParking.</strong>
             </p>
             
-            <div style="background: #f0f9ff; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #0ea5e9;">
-              <h3 style="color: #0c4a6e; margin: 0 0 10px 0; font-size: 16px;">📧 Message Details:</h3>
-              <p style="color: #0c4a6e; margin: 5px 0;"><strong>Subject:</strong> ${subject}</p>
-              <div style="background: white; padding: 15px; border-radius: 6px; margin: 15px 0;">
-                <p style="color: #374151; margin: 0; line-height: 1.6;">${message.replace(/\n/g, '<br>')}</p>
+            <div style="background: #ecfdf5; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #10b981;">
+              <h3 style="color: #065f46; margin: 0 0 15px 0; font-size: 16px;">📍 Booking Details:</h3>
+              <div style="color: #065f46; line-height: 1.6;">
+                <p style="margin: 5px 0;"><strong>Location:</strong> ${bookingDetails.location}</p>
+                <p style="margin: 5px 0;"><strong>Start:</strong> ${bookingDetails.startDate}</p>
+                <p style="margin: 5px 0;"><strong>End:</strong> ${bookingDetails.endDate}</p>
+                <p style="margin: 5px 0;"><strong>Amount:</strong> ${bookingDetails.amount}</p>
               </div>
             </div>
             
-            <p style="color: #4b5563; line-height: 1.6; margin: 15px 0; font-size: 16px;">
-              To view and reply, please log in and visit the Messages section at:
-            </p>
-            
-            <div style="text-align: center; margin: 25px 0;">
-              <a href="https://www.shazamparking.ae/auth" 
-                 style="background: #10b981; color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block; font-size: 16px;">
-                View Messages
-              </a>
-            </div>
-            
             <div style="background: #fef3c7; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #f59e0b;">
-              <p style="color: #92400e; margin: 0; font-size: 14px; line-height: 1.5;">
-                <strong>💡 Tip:</strong> We recommend checking your messages regularly to stay up to date.
-              </p>
+              <h3 style="color: #92400e; margin: 0 0 10px 0; font-size: 16px;">⏳ What Happens Next:</h3>
+              <ul style="color: #b45309; margin: 0; padding-left: 20px; line-height: 1.6;">
+                <li>We've received your request and your payment card has been securely <strong>pre-authorized</strong> for the rental amount</li>
+                <li><strong>Please note:</strong> This is not yet a confirmation of your booking</li>
+                <li>We are now contacting the space owner to verify availability</li>
+                <li>You will receive an update within <strong>48 hours</strong></li>
+                <li>If the space is confirmed, your card will be charged and your booking finalized</li>
+                <li>If it's no longer available, the pre-authorization will be released and no payment will be taken</li>
+              </ul>
             </div>
             
             <p style="color: #4b5563; line-height: 1.6; margin: 20px 0 0 0; font-size: 16px;">
-              If you have any questions, we're here to help.
+              Thank you for choosing ShazamParking.
             </p>
           </div>
           
@@ -93,9 +94,13 @@ const handler = async (req: Request): Promise<Response> => {
       `,
     });
 
-    console.log("Message notification email sent successfully:", emailResponse);
+    console.log("Booking received email sent successfully:", emailResponse);
 
-    return new Response(JSON.stringify(emailResponse), {
+    return new Response(JSON.stringify({
+      success: true,
+      message: "Booking received email sent successfully",
+      emailId: emailResponse.data?.id
+    }), {
       status: 200,
       headers: {
         "Content-Type": "application/json",
@@ -103,9 +108,12 @@ const handler = async (req: Request): Promise<Response> => {
       },
     });
   } catch (error: any) {
-    console.error("Error in send-message-notification function:", error);
+    console.error("Error in send-booking-received function:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({
+        success: false,
+        error: error.message
+      }),
       {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },

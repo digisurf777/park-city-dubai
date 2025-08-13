@@ -9,11 +9,9 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
-interface MessageNotificationRequest {
-  userEmail: string;
-  userName: string;
-  subject: string;
-  message: string;
+interface PasswordResetRequest {
+  email: string;
+  resetUrl: string;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -23,68 +21,56 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { userEmail, userName, subject, message }: MessageNotificationRequest = await req.json();
+    const { email, resetUrl }: PasswordResetRequest = await req.json();
 
     const emailResponse = await resend.emails.send({
       from: "ShazamParking <noreply@shazamparking.ae>",
-      to: [userEmail],
-      subject: "You Have a New Message on ShazamParking",
+      to: [email],
+      subject: "Reset Your ShazamParking Password",
       html: `
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #ffffff;">
           <div style="text-align: center; margin-bottom: 30px; padding: 20px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 12px;">
-            <h1 style="color: white; font-size: 24px; margin: 0; font-weight: bold;">📩 New Message</h1>
-            <p style="color: rgba(255,255,255,0.9); font-size: 14px; margin: 10px 0 0 0;">ShazamParking</p>
+            <h1 style="color: white; font-size: 24px; margin: 0; font-weight: bold;">Password Reset Request</h1>
+            <p style="color: rgba(255,255,255,0.9); font-size: 14px; margin: 10px 0 0 0;">ShazamParking Account Recovery</p>
           </div>
           
           <div style="background: #f8fafc; padding: 30px; border-radius: 12px; margin-bottom: 30px; border-left: 4px solid #10b981;">
-            <h2 style="color: #1f2937; font-size: 18px; margin: 0 0 15px 0;">
-              Dear ${userName || 'Customer'},
-            </h2>
+            <h2 style="color: #1f2937; font-size: 18px; margin: 0 0 15px 0;">Dear User,</h2>
             
             <p style="color: #4b5563; line-height: 1.6; margin-bottom: 20px; font-size: 16px;">
-              You've received a new message on your ShazamParking account.
+              You have requested to reset your password for your ShazamParking account.
             </p>
             
-            <div style="background: #f0f9ff; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #0ea5e9;">
-              <h3 style="color: #0c4a6e; margin: 0 0 10px 0; font-size: 16px;">📧 Message Details:</h3>
-              <p style="color: #0c4a6e; margin: 5px 0;"><strong>Subject:</strong> ${subject}</p>
-              <div style="background: white; padding: 15px; border-radius: 6px; margin: 15px 0;">
-                <p style="color: #374151; margin: 0; line-height: 1.6;">${message.replace(/\n/g, '<br>')}</p>
-              </div>
-            </div>
-            
-            <p style="color: #4b5563; line-height: 1.6; margin: 15px 0; font-size: 16px;">
-              To view and reply, please log in and visit the Messages section at:
+            <p style="color: #4b5563; line-height: 1.6; margin-bottom: 25px; font-size: 16px;">
+              To proceed, please click the link below:
             </p>
             
-            <div style="text-align: center; margin: 25px 0;">
-              <a href="https://www.shazamparking.ae/auth" 
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${resetUrl}" 
                  style="background: #10b981; color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block; font-size: 16px;">
-                View Messages
+                👉 Reset Password
               </a>
             </div>
             
-            <div style="background: #fef3c7; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #f59e0b;">
-              <p style="color: #92400e; margin: 0; font-size: 14px; line-height: 1.5;">
-                <strong>💡 Tip:</strong> We recommend checking your messages regularly to stay up to date.
+            <div style="background: #fef2f2; padding: 20px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #ef4444;">
+              <p style="color: #991b1b; margin: 0; font-size: 14px; line-height: 1.5;">
+                <strong>Security Notice:</strong> If you did not initiate this request, please ignore this email. For your security, the link will expire in 24 hours.
               </p>
             </div>
             
             <p style="color: #4b5563; line-height: 1.6; margin: 20px 0 0 0; font-size: 16px;">
-              If you have any questions, we're here to help.
+              Should you require any further assistance, feel free to contact us at 
+              <a href="mailto:support@shazamparking.ae" style="color: #10b981; text-decoration: none; font-weight: 600;">support@shazamparking.ae</a>.
             </p>
           </div>
           
           <div style="border-top: 2px solid #e5e7eb; padding-top: 25px; margin-top: 30px; text-align: center;">
             <p style="color: #6b7280; font-size: 14px; margin: 0 0 10px 0; font-weight: 600;">
-              Best regards,<br>
+              Warm regards,<br>
               The ShazamParking Team
             </p>
             <div style="margin-top: 15px;">
               <p style="color: #9ca3af; font-size: 12px; margin: 0;">
-                <a href="mailto:support@shazamparking.ae" style="color: #10b981; text-decoration: none;">support@shazamparking.ae</a>
-              </p>
-              <p style="color: #9ca3af; font-size: 12px; margin: 5px 0 0 0;">
                 <a href="https://www.shazamparking.ae" style="color: #10b981; text-decoration: none;">www.shazamparking.ae</a>
               </p>
             </div>
@@ -93,9 +79,13 @@ const handler = async (req: Request): Promise<Response> => {
       `,
     });
 
-    console.log("Message notification email sent successfully:", emailResponse);
+    console.log("Password reset email sent successfully:", emailResponse);
 
-    return new Response(JSON.stringify(emailResponse), {
+    return new Response(JSON.stringify({
+      success: true,
+      message: "Password reset email sent successfully",
+      emailId: emailResponse.data?.id
+    }), {
       status: 200,
       headers: {
         "Content-Type": "application/json",
@@ -103,9 +93,12 @@ const handler = async (req: Request): Promise<Response> => {
       },
     });
   } catch (error: any) {
-    console.error("Error in send-message-notification function:", error);
+    console.error("Error in send-password-reset function:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({
+        success: false,
+        error: error.message
+      }),
       {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },
