@@ -1,122 +1,134 @@
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { CalendarIcon, Car, CreditCard, Ruler, ArrowLeft, Check } from "lucide-react";
-import { useState } from "react";
-import { useParams, Link } from "react-router-dom";
-import { format } from "date-fns";
-import { cn } from "@/lib/utils";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
-import { useToast } from "@/hooks/use-toast";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import ImageZoomModal from "@/components/ImageZoomModal";
-import { useFeatureFlags } from "@/hooks/useFeatureFlags";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { CalendarDays, Clock, MapPin, Star, Zap, Shield, Wifi, Car, Phone, MessageSquare, X, ChevronLeft, ChevronRight, ZoomIn, Camera } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Calendar } from '@/components/ui/calendar';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { useFeatureFlags } from '@/hooks/useFeatureFlags';
+import ImageZoomModal from '@/components/ImageZoomModal';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
+import { logPhotoRepairReport } from '@/utils/photoRepair';
 
-const ProductPage = () => {
-  const { id } = useParams();
-  const { user } = useAuth();
+const ProductPage: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const { toast } = useToast();
-  const [startDate, setStartDate] = useState<Date>();
-  const [selectedDuration, setSelectedDuration] = useState<number>(12);
-  const [userPhone, setUserPhone] = useState("");
-  const [notes, setNotes] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showConfirmation, setShowConfirmation] = useState(false);
-  const [bookingReference, setBookingReference] = useState("");
-  const [showImageModal, setShowImageModal] = useState(false);
-  const { previewMode } = useFeatureFlags();
+  const { previewMode, previewModePhotos } = useFeatureFlags();
+  
+  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
+  const [selectedDuration, setSelectedDuration] = useState<string>('');
+  const [userPhone, setUserPhone] = useState<string>('');
+  const [notes, setNotes] = useState<string>('');
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [showConfirmation, setShowConfirmation] = useState<boolean>(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState<number>(0);
+  const [showImageModal, setShowImageModal] = useState<boolean>(false);
+  const [parkingListing, setParkingListing] = useState<any>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string>('');
 
-  // Mock data - in real app, fetch by ID
-  const parkingSpots = [
-    {
-      id: 1,
-      name: "Marina Gate Parking Bay",
-      district: "Dubai Marina",
-      price: 450,
-      image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
-      specs: ["Compact Size", "Access Card", "2.1m Height"],
-      available: true,
-      description: "Secure underground parking bay in the heart of Dubai Marina. Easy access to metro, shopping, and dining. 24/7 security and CCTV monitoring."
-    },
-    {
-      id: 2,
-      name: "DIFC Gate Village Bay",
-      district: "DIFC",
-      price: 650,
-      image: "/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.png",
-      specs: ["Large Size", "Remote Access", "3.0m Height"],
-      available: true,
-      description: "Premium parking space in DIFC Gate Village. Perfect for business professionals with covered parking and elevator access."
-    }
-  ];
+  // Fetch parking listing from database
+  useEffect(() => {
+    const fetchParkingListing = async () => {
+      if (!id) {
+        setError('No parking listing ID provided');
+        setLoading(false);
+        return;
+      }
 
-  const spot = parkingSpots.find(s => s.id === parseInt(id || "1")) || parkingSpots[0];
+      try {
+        const { data, error: fetchError } = await supabase
+          .from('parking_listings')
+          .select('*')
+          .eq('id', id)
+          .single();
 
-  const durationOptions = [
-    { months: 1, multiplier: 1.0, label: "1 Month" },
-    { months: 3, multiplier: 0.95, label: "3 Months" },
-    { months: 6, multiplier: 0.90, label: "6 Months" },
-    { months: 12, multiplier: 0.85, label: "12 Months" }
-  ];
-
-  const calculatePrice = () => {
-    const baseRent = spot.price;
-    const selectedOption = durationOptions.find(opt => opt.months === selectedDuration);
-    const multiplier = selectedOption?.multiplier || 1.0;
-    
-    let totalPrice: number;
-    let savings: number = 0;
-    
-    if (selectedDuration === 1) {
-      // For 1 month: base rent + 100 AED service fee
-      totalPrice = baseRent + 100;
-    } else {
-      // For 3, 6, 12 months: use the correct formula
-      // ((Listing Price – 100) × multiplier) × Number of Months + (100 × Number of Months)
-      const discountedAmount = (baseRent - 100) * multiplier;
-      totalPrice = (discountedAmount * selectedDuration) + (100 * selectedDuration);
-      
-      // Calculate savings compared to regular monthly rate
-      const regularTotal = (baseRent + 100) * selectedDuration;
-      savings = regularTotal - totalPrice;
-    }
-    
-    const monthlyRate = totalPrice / selectedDuration;
-    const discountPercentage = selectedDuration === 1 ? 0 : Math.round((savings / ((baseRent + 100) * selectedDuration)) * 100);
-    
-    return {
-      basePrice: baseRent * selectedDuration,
-      discountAmount: savings,
-      totalPrice: Math.round(totalPrice),
-      discount: discountPercentage,
-      monthlyCustomerPrice: Math.round(monthlyRate),
-      monthlyRentAfterDiscount: Math.round(monthlyRate - 100)
+        if (fetchError) {
+          console.error('Error fetching parking listing:', fetchError);
+          setError('Failed to load parking listing');
+        } else if (data) {
+          setParkingListing(data);
+        } else {
+          setError('Parking listing not found');
+        }
+      } catch (err) {
+        console.error('Error:', err);
+        setError('Failed to load parking listing');
+      } finally {
+        setLoading(false);
+      }
     };
-  };
 
-  const pricing = calculatePrice();
+    fetchParkingListing();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading parking space...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !parkingListing) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Card className="w-full max-w-md">
+          <CardContent className="pt-6">
+            <div className="text-center">
+              <MapPin className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+              <h3 className="text-lg font-semibold mb-2">Parking Space Not Found</h3>
+              <p className="text-muted-foreground mb-4">
+                {error || "The parking space you're looking for doesn't exist or has been removed."}
+              </p>
+              <Button onClick={() => navigate('/')} className="w-full">
+                Back to Home
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  const calculatePrice = (duration: string): number => {
+    const hours = parseInt(duration);
+    const basePrice = parkingListing.price_per_hour || 15;
+    
+    if (hours >= 24) {
+      // Use daily rate if available, otherwise calculate from hourly
+      const days = Math.ceil(hours / 24);
+      return parkingListing.price_per_day 
+        ? days * parkingListing.price_per_day 
+        : days * basePrice * 20; // 20 AED per day fallback
+    } else if (hours >= 168) {
+      // Use monthly rate if available, otherwise calculate from hourly
+      const weeks = Math.ceil(hours / 168);
+      return parkingListing.price_per_month 
+        ? weeks * (parkingListing.price_per_month / 4) 
+        : weeks * basePrice * 140; // 140 AED per week fallback
+    } else {
+      // Hourly rate
+      return hours * basePrice;
+    }
+  };
 
   const handleSubmitBookingRequest = async () => {
     if (previewMode) {
-      console.info('PreviewMode blocked booking', { spotId: spot.id });
       toast({
-        title: "Reservations paused",
-        description: "Reservations are paused right now.",
-      });
-      return;
-    }
-
-    if (!user) {
-      toast({
-        title: "Authentication Required",
-        description: "Please log in to submit a booking request.",
+        title: "Preview Mode",
+        description: "Bookings are temporarily disabled in preview mode.",
         variant: "destructive",
       });
       return;
@@ -124,8 +136,8 @@ const ProductPage = () => {
 
     if (!startDate) {
       toast({
-        title: "Start Date Required",
-        description: "Please select a start date for your booking.",
+        title: "Date Required",
+        description: "Please select a start date.",
         variant: "destructive",
       });
       return;
@@ -134,39 +146,34 @@ const ProductPage = () => {
     setIsSubmitting(true);
 
     try {
-      const bookingData = {
-        parkingSpotId: spot.id.toString(),
-        parkingSpotName: spot.name,
-        startDate: startDate.toISOString(),
-        duration: selectedDuration,
-        totalPrice: pricing.totalPrice,
-        userEmail: user.email || "",
-        userName: user.user_metadata?.full_name || user.email || "",
-        userPhone: userPhone,
-        notes: notes,
-      };
+      const endDate = new Date(startDate);
+      endDate.setHours(endDate.getHours() + parseInt(selectedDuration));
 
       const { data, error } = await supabase.functions.invoke('submit-booking-request', {
-        body: bookingData,
+        body: {
+          booking_id: id,
+          start_time: startDate.toISOString(),
+          duration_hours: parseInt(selectedDuration),
+          cost_aed: calculatePrice(selectedDuration),
+          location: parkingListing.title,
+          zone: parkingListing.zone,
+          user_phone: userPhone,
+          notes: notes,
+        },
       });
 
       if (error) throw error;
 
-      console.log('Booking request submitted:', data);
-      
-      setBookingReference(data.bookingId?.slice(0, 8).toUpperCase() || "");
       setShowConfirmation(true);
-      
       toast({
-        title: "Booking Request Submitted!",
-        description: "Check your email for the payment link to complete your booking.",
+        title: "Success!",
+        description: "Your booking request has been submitted.",
       });
-
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error submitting booking:', error);
       toast({
-        title: "Submission Failed",
-        description: error.message || "Failed to submit booking request. Please try again.",
+        title: "Error",
+        description: "Failed to submit booking request. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -174,49 +181,48 @@ const ProductPage = () => {
     }
   };
 
-  // Check if start date is within 7 days
-  const isWithin7Days = startDate ? 
-    (startDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24) <= 7 : false;
+  const getImages = () => {
+    if (previewModePhotos && parkingListing.images && parkingListing.images.length > 0) {
+      return parkingListing.images;
+    }
+    // Fallback to a default placeholder if no images or not in preview mode
+    return ['/placeholder.svg'];
+  };
+
+  const images = getImages();
+
+  const nextImage = () => {
+    setCurrentImageIndex((prev) => (prev + 1) % images.length);
+  };
+
+  const prevImage = () => {
+    setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
+  };
+
+  const handleImageError = (imageUrl: string) => {
+    logPhotoRepairReport(imageUrl, 'broken_url', id);
+  };
 
   if (showConfirmation) {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24">
-          <Card className="p-8 text-center">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Check className="w-8 h-8 text-green-600" />
-            </div>
-            <h1 className="text-3xl font-bold mb-4 text-green-600">✅ Your booking request has been submitted!</h1>
-            
-            <div className="bg-muted/50 p-6 rounded-lg mb-6">
-              <h3 className="font-semibold mb-3">What happens next:</h3>
-              <ul className="text-left space-y-2 max-w-md mx-auto">
-                <li>• We will contact you within <strong>2 working days</strong> to confirm availability</li>
-                <li>• You'll receive a payment link after confirmation</li>
-                <li>• <strong>No charges have been made at this time</strong></li>
-              </ul>
-            </div>
-
-            {bookingReference && (
-              <p className="text-muted-foreground mb-6">
-                Booking Reference: <strong>{bookingReference}</strong>
-              </p>
-            )}
-
-            <div className="space-y-4">
-              <Button 
-                onClick={() => setShowConfirmation(false)}
-                variant="outline"
-              >
-                Submit Another Request
-              </Button>
-              <div>
-                <Link to="/find-a-parking-space">
-                  <Button>Browse More Spaces</Button>
-                </Link>
+          <Card className="w-full max-w-md mx-auto">
+            <CardContent className="pt-6">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <div className="w-8 h-8 bg-green-500 rounded-full"></div>
+                </div>
+                <h3 className="text-lg font-semibold mb-2">Booking Request Submitted!</h3>
+                <p className="text-muted-foreground mb-4">
+                  We'll review your request and get back to you within 24 hours.
+                </p>
+                <Button onClick={() => navigate('/')} className="w-full">
+                  Back to Home
+                </Button>
               </div>
-            </div>
+            </CardContent>
           </Card>
         </div>
         <Footer />
@@ -225,238 +231,222 @@ const ProductPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background animate-zoom-slow">
-      <Navbar />
-      
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24">
-        {/* Back Button */}
-        <Link 
-          to="/find-a-parking-space" 
-          className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to listings
-        </Link>
+    <TooltipProvider>
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Product Images */}
+            <div className="space-y-4">
+              <div className="space-y-4">
+                <div className="relative aspect-video overflow-hidden rounded-lg bg-muted">
+                  <img
+                    src={images[currentImageIndex]}
+                    alt={`${parkingListing.title} - View ${currentImageIndex + 1}`}
+                    className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                    onError={() => handleImageError(images[currentImageIndex])}
+                  />
+                  
+                  {images.length > 1 && (
+                    <>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="absolute left-2 top-1/2 -translate-y-1/2 bg-background/80 hover:bg-background"
+                        onClick={prevImage}
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="absolute right-2 top-1/2 -translate-y-1/2 bg-background/80 hover:bg-background"
+                        onClick={nextImage}
+                      >
+                        <ChevronRight className="h-4 w-4" />
+                      </Button>
+                    </>
+                  )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Left Column - Product Info */}
-          <div>
-            <div 
-              className="relative aspect-video mb-6 rounded-lg overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
-              onClick={() => setShowImageModal(true)}
-            >
-              <img
-                src={spot.image}
-                alt={spot.name}
-                className="w-full h-full object-cover"
-              />
-              <Badge className="absolute top-4 left-4 bg-primary text-primary-foreground">
-                From AED {spot.price + 100} / month
-              </Badge>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="absolute top-2 right-2 bg-background/80 hover:bg-background"
+                    onClick={() => setShowImageModal(true)}
+                  >
+                    <ZoomIn className="h-4 w-4" />
+                  </Button>
+
+                  {images.length > 1 && (
+                    <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
+                      {images.map((_, index) => (
+                        <button
+                          key={index}
+                          className={`w-2 h-2 rounded-full transition-colors ${
+                            index === currentImageIndex ? 'bg-white' : 'bg-white/50'
+                          }`}
+                          onClick={() => setCurrentImageIndex(index)}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Product Info */}
+              <Card>
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <CardTitle className="text-2xl">{parkingListing.title}</CardTitle>
+                      <CardDescription className="text-lg mt-1">
+                        <MapPin className="inline h-4 w-4 mr-1" />
+                        {parkingListing.zone}
+                      </CardDescription>
+                    </div>
+                    <div className="text-right">
+                      <Badge variant={previewMode ? "destructive" : "secondary"} 
+                             className={previewMode ? "bg-red-100 text-red-800" : "bg-green-100 text-green-800"}>
+                        {previewMode ? "Currently Booked" : "Available"}
+                      </Badge>
+                    </div>
+                  </div>
+                </CardHeader>
+
+                <CardContent className="space-y-6">
+                  <div>
+                    <h3 className="font-semibold mb-2">Description</h3>
+                    <p className="text-muted-foreground">{parkingListing.description || 'Secure parking space with convenient access.'}</p>
+                  </div>
+
+                  {parkingListing.features && parkingListing.features.length > 0 && (
+                    <div>
+                      <h3 className="font-semibold mb-3">Features</h3>
+                      <div className="flex flex-wrap gap-2">
+                        {parkingListing.features.map((feature: string, index: number) => (
+                          <Badge key={index} variant="outline">{feature}</Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <div>
+                    <h3 className="font-semibold mb-2">Location</h3>
+                    <p className="text-muted-foreground text-sm">{parkingListing.address}</p>
+                  </div>
+
+                  <div className="pt-4 border-t">
+                    <div className="flex items-center justify-between">
+                      <span className="text-2xl font-bold text-primary">{parkingListing.price_per_hour} AED/hour</span>
+                      <Badge variant="outline" className="bg-blue-50 text-blue-700">
+                        Zone: {parkingListing.zone}
+                      </Badge>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
 
-            <h1 className="text-3xl font-bold mb-2">{spot.name}</h1>
-            {previewMode && (
-              <Badge variant="secondary" className="mb-4">Preview mode — bookings temporarily disabled</Badge>
-            )}
-            <p className="text-lg text-muted-foreground mb-4">{spot.district}</p>
-
-            {/* Specs */}
-            <div className="flex items-center gap-6 mb-6 text-muted-foreground">
-              <div className="flex items-center gap-2">
-                <Car className="h-5 w-5" />
-                <span>{spot.specs[0]}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CreditCard className="h-5 w-5" />
-                <span>{spot.specs[1]}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Ruler className="h-5 w-5" />
-                <span>{spot.specs[2]}</span>
-              </div>
-            </div>
-
-            <p className="text-muted-foreground leading-relaxed">
-              {spot.description}
-            </p>
-
-            {/* Benefits */}
-          </div>
-
-          {/* Right Column - Booking Form */}
-          <div>
-            <Card className="p-6">
-              <h2 className="text-2xl font-bold mb-6">Reserve Your Space</h2>
-              
-              {/* Start Date */}
-              <div className="mb-6">
-                <label className="text-sm font-medium mb-2 block">Start Date</label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-full justify-start text-left font-normal h-12 touch-manipulation",
-                        !startDate && "text-muted-foreground"
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {startDate ? format(startDate, "dd.MM.yyyy") : "Select start date"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
+            {/* Booking Form */}
+            <div>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Book This Space</CardTitle>
+                  <CardDescription>Select your preferred date and duration</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Start Date</label>
                     <Calendar
                       mode="single"
                       selected={startDate}
                       onSelect={setStartDate}
-                      disabled={(date) => {
-                        const today = new Date();
-                        const minDate = new Date();
-                        minDate.setDate(today.getDate() + 2);
-                        return date < minDate;
-                      }}
-                      initialFocus
-                      className={cn("p-3 pointer-events-auto")}
+                      disabled={(date) => date < new Date()}
+                      className="rounded-md border"
                     />
-                  </PopoverContent>
-                </Popover>
-              </div>
-
-              {/* Rental Duration */}
-              <div className="mb-6">
-                <label className="text-sm font-medium mb-4 block">Rental Duration</label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {durationOptions.map((option) => (
-                    <Card
-                      key={option.months}
-                      className={cn(
-                        "cursor-pointer transition-all border-2 touch-manipulation min-h-[80px]",
-                        selectedDuration === option.months
-                          ? "border-primary bg-primary text-primary-foreground"
-                          : "border-border hover:border-primary/50"
-                      )}
-                      onClick={() => setSelectedDuration(option.months)}
-                    >
-                      <CardContent className="p-4 text-center">
-                        <div className="font-semibold mb-1">{option.label}</div>
-                        {option.months === 1 ? (
-                          <div className="text-sm opacity-75">AED {(spot.price + 100).toFixed(0)}/month</div>
-                        ) : (
-                          <div className="text-sm font-medium">{((1 - option.multiplier) * 100).toFixed(0)}% OFF</div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </div>
-
-              {/* Additional Fields */}
-              <div className="mb-6">
-                <label className="text-sm font-medium mb-2 block">Phone Number (Optional)</label>
-                <Input
-                  type="tel"
-                  placeholder="Your phone number"
-                  value={userPhone}
-                  onChange={(e) => setUserPhone(e.target.value)}
-                  className="h-12"
-                />
-              </div>
-
-              <div className="mb-6">
-                <label className="text-sm font-medium mb-2 block">Notes (Optional)</label>
-                <Textarea
-                  placeholder="Any special requirements or notes..."
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  className="min-h-[80px]"
-                />
-              </div>
-
-              {/* Price Summary */}
-              <Card className="bg-muted/50 p-4 mb-6">
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">Monthly Rate (after discount):</span>
-                    <span className="font-medium">AED {pricing.monthlyRentAfterDiscount.toFixed(0)}</span>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">Service Fee:</span>
-                    <span className="font-medium">+AED 100/month</span>
+
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Duration (hours)</label>
+                    <Select value={selectedDuration} onValueChange={setSelectedDuration}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select duration" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1">1 hour</SelectItem>
+                        <SelectItem value="2">2 hours</SelectItem>
+                        <SelectItem value="4">4 hours</SelectItem>
+                        <SelectItem value="8">8 hours</SelectItem>
+                        <SelectItem value="24">1 day</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">Monthly Cost to You:</span>
-                    <span className="font-medium">AED {pricing.monthlyCustomerPrice.toFixed(0)}</span>
+
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Phone Number (Optional)</label>
+                    <Input
+                      type="tel"
+                      placeholder="Your phone number"
+                      value={userPhone}
+                      onChange={(e) => setUserPhone(e.target.value)}
+                    />
                   </div>
-                  <hr className="my-2" />
-                  <div className="flex justify-between items-center">
-                    <span className="font-medium">Total for {selectedDuration} month{selectedDuration > 1 ? 's' : ''}:</span>
-                    <span className="text-2xl font-bold text-primary">
-                      AED {pricing.totalPrice.toFixed(0)}
-                    </span>
+
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Additional Notes (Optional)</label>
+                    <Textarea
+                      placeholder="Any special requirements..."
+                      value={notes}
+                      onChange={(e) => setNotes(e.target.value)}
+                    />
                   </div>
-                  {pricing.discount > 0 && (
-                    <div className="text-sm text-green-600">
-                      You save AED {pricing.discountAmount.toFixed(0)} with {pricing.discount}% OFF
+
+                  {selectedDuration && (
+                    <div className="p-4 bg-muted rounded-lg">
+                      <div className="flex justify-between items-center">
+                        <span className="font-medium">Total Cost:</span>
+                        <span className="text-xl font-bold text-primary">
+                          {calculatePrice(selectedDuration)} AED
+                        </span>
+                      </div>
                     </div>
                   )}
-                </div>
+
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button 
+                          onClick={handleSubmitBookingRequest}
+                          disabled={!startDate || !selectedDuration || isSubmitting || previewMode}
+                          className="w-full"
+                          size="lg"
+                        >
+                          {isSubmitting ? 'Submitting...' : previewMode ? 'Currently Booked' : 'Reserve This Space'}
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{previewMode ? 'This space is currently booked - bookings are temporarily disabled' : 'Submit your booking request'}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </CardContent>
               </Card>
-
-              {/* Important Notice */}
-              <Card className="bg-blue-50 border-blue-200 p-4 mb-6">
-                <div className="text-sm text-blue-800">
-                  <p className="font-medium mb-2">📋 Booking Process:</p>
-                  <ul className="space-y-1 text-xs">
-                    <li>• Your booking request will be reviewed</li>
-                    <li>• We'll contact you within 2 working days</li>
-                    <li>• Payment will be requested only after confirmation</li>
-                    {isWithin7Days && (
-                      <li className="text-orange-600 font-medium">
-                        • Bookings within 7 days require manual approval
-                      </li>
-                    )}
-                  </ul>
-                </div>
-              </Card>
-
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button 
-                    onClick={handleSubmitBookingRequest}
-                    className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-medium touch-manipulation"
-                    disabled={previewMode || !startDate || isSubmitting}
-                    size="lg"
-                  >
-                    {previewMode ? "Reservations paused" : (isSubmitting ? "Submitting..." : "👉 Submit Booking Request")}
-                  </Button>
-                </TooltipTrigger>
-                {previewMode && (
-                  <TooltipContent>
-                    Reservations are paused right now.
-                  </TooltipContent>
-                )}
-              </Tooltip>
-
-              <p className="text-xs text-muted-foreground text-center mt-3">
-                No charges will be made at this time. Payment link will be provided after confirmation.
-              </p>
-            </Card>
+            </div>
           </div>
         </div>
+
+        <Footer />
       </div>
 
-      <Footer />
-      
-      {/* Image Zoom Modal */}
       <ImageZoomModal
         isOpen={showImageModal}
         onClose={() => setShowImageModal(false)}
-        images={[spot.image]}
-        initialIndex={0}
-        spotName={spot.name}
+        images={images}
+        initialIndex={currentImageIndex}
+        spotName={parkingListing.title}
       />
-    </div>
+    </TooltipProvider>
   );
 };
 
