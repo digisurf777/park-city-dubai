@@ -16,6 +16,19 @@ const EmailConfirmed = () => {
   useEffect(() => {
     const confirmEmail = async () => {
       try {
+        // Check if user is already authenticated
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (session && session.user && !sessionError) {
+          // User is already logged in, consider this a success
+          setConfirmed(true);
+          toast.success('Welcome! You are successfully logged in.');
+          setTimeout(() => {
+            navigate('/my-account');
+          }, 1500);
+          return;
+        }
+
         // Get tokens from URL parameters
         const token_hash = searchParams.get('token_hash');
         const type = searchParams.get('type');
@@ -46,20 +59,12 @@ const EmailConfirmed = () => {
 
           if (error) {
             console.error('Session error:', error);
-            setError(error.message);
+            // If session setting fails, try manual login
+            handleExpiredLink();
+            return;
           } else {
             setConfirmed(true);
             toast.success('Email confirmed successfully! Redirecting to your account...');
-            // Send welcome email after successful confirmation
-            try {
-              await supabase.functions.invoke('send-welcome-email', {
-                body: { email: (await supabase.auth.getUser()).data.user?.email }
-              });
-            } catch (emailError) {
-              console.log('Welcome email failed:', emailError);
-              // Don't show error to user for welcome email failure
-            }
-            // Redirect to account page after short delay
             setTimeout(() => {
               navigate('/my-account');
             }, 1500);
@@ -73,71 +78,34 @@ const EmailConfirmed = () => {
 
           if (error) {
             console.error('Code exchange error:', error);
-            setError(error.message);
+            handleExpiredLink();
+            return;
           } else {
             setConfirmed(true);
-            toast.success('Email confirmed successfully!');
-            // Send welcome email after successful confirmation
-            try {
-              await supabase.functions.invoke('send-welcome-email', {
-                body: { email: (await supabase.auth.getUser()).data.user?.email }
-              });
-            } catch (emailError) {
-              console.log('Welcome email failed:', emailError);
-              // Don't show error to user for welcome email failure
-            }
+            toast.success('Email confirmed successfully! Redirecting to your account...');
+            setTimeout(() => {
+              navigate('/my-account');
+            }, 1500);
           }
         }
-        // Try OTP verification as fallback
+        // If no valid tokens, show helpful message
         else {
-          const token = searchParams.get('token') || hashParams.get('token');
-          const email = searchParams.get('email') || hashParams.get('email');
-          
-          if (token && email) {
-            const { error } = await supabase.auth.verifyOtp({
-              token_hash: token,
-              type: 'email',
-              email: email
-            });
-
-            if (error) {
-              console.error('OTP verification error:', error);
-              setError(error.message);
-            } else {
-              setConfirmed(true);
-              toast.success('Email confirmed successfully!');
-              // Send welcome email after successful confirmation
-              try {
-                await supabase.functions.invoke('send-welcome-email', {
-                  body: { email: email }
-                });
-              } catch (emailError) {
-                console.log('Welcome email failed:', emailError);
-                // Don't show error to user for welcome email failure
-              }
-            }
-          } else {
-            setError('Invalid confirmation link. Please try registering again.');
-          }
+          handleExpiredLink();
         }
       } catch (err) {
         console.error('Email confirmation error:', err);
-        setError('Failed to confirm email. Please try again.');
+        handleExpiredLink();
       } finally {
         setLoading(false);
       }
     };
 
-    confirmEmail();
+    const handleExpiredLink = () => {
+      setError('Your confirmation link has expired or is invalid. Please sign in to your account or register again if you need a new confirmation email.');
+    };
 
-    // Auto-redirect to home after successful confirmation
-    if (confirmed) {
-      const timer = setTimeout(() => {
-        navigate('/');
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [searchParams, navigate, confirmed]);
+    confirmEmail();
+  }, [searchParams, navigate]);
 
   const handleLoginRedirect = () => {
     navigate('/auth');
@@ -197,21 +165,26 @@ const EmailConfirmed = () => {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <p className="text-sm text-muted-foreground text-center">
-            This could be because:
-          </p>
-          <ul className="text-sm text-muted-foreground space-y-1">
-            <li>• The confirmation link has expired</li>
-            <li>• The link has already been used</li>
-            <li>• There was a technical issue</li>
-          </ul>
-          <Button
-            onClick={handleLoginRedirect}
-            className="w-full"
-            variant="outline"
-          >
-            Back to Registration
-          </Button>
+          <div className="space-y-4">
+            <p className="text-sm text-center">
+              Don't worry! If you already have an account, you can sign in directly.
+            </p>
+            <div className="space-y-2">
+              <Button
+                onClick={() => navigate('/auth')}
+                className="w-full"
+              >
+                Sign In to Your Account
+              </Button>
+              <Button
+                onClick={() => navigate('/auth')}
+                className="w-full"
+                variant="outline"
+              >
+                Create New Account
+              </Button>
+            </div>
+          </div>
         </CardContent>
       </Card>
     </div>
