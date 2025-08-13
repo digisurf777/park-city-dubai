@@ -68,6 +68,15 @@ const Auth = () => {
     }
   };
 
+  const validatePassword = (password: string) => {
+    const hasLowercase = /[a-z]/.test(password);
+    const hasUppercase = /[A-Z]/.test(password);
+    const hasDigit = /\d/.test(password);
+    const hasSymbol = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]/.test(password);
+    
+    return hasLowercase && hasUppercase && hasDigit && hasSymbol && password.length >= 6;
+  };
+
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -81,8 +90,8 @@ const Auth = () => {
       return;
     }
     
-    if (signupForm.password.length < 6) {
-      toast.error('Password must be at least 6 characters');
+    if (!validatePassword(signupForm.password)) {
+      toast.error('Lowercase, uppercase letters, digits and symbols');
       return;
     }
     
