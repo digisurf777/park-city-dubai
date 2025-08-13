@@ -15,7 +15,7 @@ import { ParkingBookingModal } from "@/components/ParkingBookingModal";
 import ImageZoomModal from "@/components/ImageZoomModal";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import businessBayHero from "@/assets/zones/business-bay-real.jpg";
-import { useFeatureFlags } from "@/hooks/useFeatureFlags";
+
 
 const BusinessBay = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -30,7 +30,7 @@ const BusinessBay = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [selectedSpotName, setSelectedSpotName] = useState("");
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
-  const { previewMode } = useFeatureFlags();
+  
 
   useEffect(() => {
     fetchParkingSpots();
@@ -58,10 +58,7 @@ const BusinessBay = () => {
     console.log("Fetching parking spots for Business Bay...");
     try {
       // For security: Only fetch contact info if user is authenticated
-      const { data, error } = previewMode 
-        ? await supabase.from("parking_listings").select("*").eq("zone", "Business Bay")
-        : await supabase.from("parking_listings").select("id, title, description, address, zone, features, images, price_per_hour, price_per_day, price_per_month, availability_schedule, status, created_at, updated_at").eq("zone", "Business Bay").eq("status", "approved");
-      
+      const { data, error } = await supabase.from("parking_listings").select("id, title, description, address, zone, features, images, price_per_hour, price_per_day, price_per_month, availability_schedule, status, created_at, updated_at").eq("zone", "Business Bay").eq("status", "approved");
       console.log("Supabase query result:", { data, error });
       if (error) throw error;
 
@@ -73,7 +70,7 @@ const BusinessBay = () => {
         image: spot.images && spot.images.length > 0 ? spot.images[0] : "/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.png",
         images: spot.images || [],
         specs: spot.features || ["Access Card", "Covered", "2.1m Height"],
-        available: !previewMode, // In preview mode, all spaces show as unavailable
+        available: true,
         address: spot.address,
         description: spot.description
       }));
@@ -89,7 +86,7 @@ const BusinessBay = () => {
           image: "/lovable-uploads/5b75f24f-2a35-495b-8178-6fcde41d69c8.png",
           images: ["/lovable-uploads/5b75f24f-2a35-495b-8178-6fcde41d69c8.png", "/lovable-uploads/63d539ac-8cbb-46b2-aa39-3de0695ef8c9.png"],
           specs: ["Premium", "Ultra Luxury", "24/7 Security"],
-          available: !previewMode,
+          available: true,
           address: "Zada Tower, Business Bay",
           description: "Ultra-premium parking space in the luxury Zada Tower with top-tier amenities and 24/7 security."
         },
@@ -101,7 +98,7 @@ const BusinessBay = () => {
           image: "/lovable-uploads/63d539ac-8cbb-46b2-aa39-3de0695ef8c9.png",
           images: ["/lovable-uploads/63d539ac-8cbb-46b2-aa39-3de0695ef8c9.png", "/lovable-uploads/5b75f24f-2a35-495b-8178-6fcde41d69c8.png"],
           specs: ["Residential", "Modern", "Secure"],
-          available: !previewMode,
+          available: true,
           address: "Millenium Binghatti Residence, Business Bay",
           description: "Modern residential parking in Millenium Binghatti with secure access and contemporary amenities."
         },
@@ -113,7 +110,7 @@ const BusinessBay = () => {
           image: "/lovable-uploads/5b75f24f-2a35-495b-8178-6fcde41d69c8.png",
           images: ["/lovable-uploads/5b75f24f-2a35-495b-8178-6fcde41d69c8.png", "/lovable-uploads/63d539ac-8cbb-46b2-aa39-3de0695ef8c9.png"],
           specs: ["DAMAC Quality", "Covered", "24/7"],
-          available: !previewMode,
+          available: true,
           address: "Reva Residence DAMAC, Business Bay",
           description: "Quality DAMAC parking with covered spaces and 24/7 access in the heart of Business Bay."
         }
@@ -128,7 +125,7 @@ const BusinessBay = () => {
           price: 4000,
           image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
           specs: ["Premium", "Ultra Luxury", "24/7 Security"],
-          available: !previewMode,
+          available: true,
           address: "Zada Tower, Business Bay",
           description: "Ultra-premium parking space in the luxury Zada Tower with top-tier amenities and 24/7 security."
         }
@@ -154,9 +151,6 @@ const BusinessBay = () => {
   const minPrice = parkingSpots.length > 0 ? Math.min(...parkingSpots.map(spot => spot.price)) : 0;
 
   const handleReserveClick = (spot: any) => {
-    if (previewMode) {
-      console.log('Preview mode: Zone click telemetry', { zone: 'Business Bay', spotId: spot.id, spotName: spot.name });
-    }
     setSelectedSpot(spot);
     setIsBookingModalOpen(true);
   };
@@ -307,20 +301,12 @@ const BusinessBay = () => {
                     <span className="text-2xl font-bold text-primary">From AED {spot.price}/month</span>
                   </div>
 
-                  {previewMode ? (
-                    <Link to={`/parking/${spot.id}`} onClick={() => console.info('PreviewMode reserve click', { spotId: spot.id })}>
-                      <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold">
-                        Reserve Space
-                      </Button>
-                    </Link>
-                  ) : (
-                    <Button 
-                      className="w-full bg-destructive hover:bg-destructive text-destructive-foreground font-semibold py-2 px-4 rounded-lg cursor-not-allowed" 
-                      disabled
-                    >
-                      Currently Booked
-                    </Button>
-                  )}
+                  <Button 
+                    onClick={() => handleReserveClick(spot)}
+                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
+                  >
+                    Reserve Space
+                  </Button>
                 </div>
               </Card>
             ))}

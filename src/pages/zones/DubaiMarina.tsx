@@ -13,7 +13,7 @@ import Footer from "@/components/Footer";
 import { ParkingBookingModal } from "@/components/ParkingBookingModal";
 import ImageZoomModal from "@/components/ImageZoomModal";
 import dubaiMarinaHero from "@/assets/zones/dubai-marina-real.jpg";
-import { useFeatureFlags } from "@/hooks/useFeatureFlags";
+
 const DubaiMarina = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [priceRange, setPriceRange] = useState([0, 20000]);
@@ -29,7 +29,7 @@ const DubaiMarina = () => {
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [selectedSpotName, setSelectedSpotName] = useState("");
-  const { previewMode } = useFeatureFlags();
+  
   useEffect(() => {
     fetchParkingSpots();
 

@@ -11,7 +11,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { useFeatureFlags } from '@/hooks/useFeatureFlags';
+
 import ImageZoomModal from '@/components/ImageZoomModal';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -21,7 +21,7 @@ const ProductPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { previewMode, previewModePhotos } = useFeatureFlags();
+  
   
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [selectedDuration, setSelectedDuration] = useState<any>({ months: 1, label: "1 Month", multiplier: 1.0, description: "Monthly rate" });
@@ -139,15 +139,6 @@ const ProductPage: React.FC = () => {
   };
 
   const handleSubmitBookingRequest = async () => {
-    if (previewMode) {
-      toast({
-        title: "Preview Mode",
-        description: "Bookings are temporarily disabled in preview mode.",
-        variant: "destructive",
-      });
-      return;
-    }
-
     if (!startDate) {
       toast({
         title: "Date Required",
@@ -195,10 +186,10 @@ const ProductPage: React.FC = () => {
   };
 
   const getImages = () => {
-    if (previewModePhotos && parkingListing.images && parkingListing.images.length > 0) {
+    if (parkingListing.images && parkingListing.images.length > 0) {
       return parkingListing.images;
     }
-    // Fallback to a default placeholder if no images or not in preview mode
+    // Fallback to a default placeholder if no images
     return ['/placeholder.svg'];
   };
 
@@ -319,9 +310,8 @@ const ProductPage: React.FC = () => {
                       </CardDescription>
                     </div>
                     <div className="text-right">
-                      <Badge variant={previewMode ? "destructive" : "secondary"} 
-                             className={previewMode ? "bg-red-100 text-red-800" : "bg-green-100 text-green-800"}>
-                        {previewMode ? "Currently Booked" : "Available"}
+                      <Badge variant="secondary" className="bg-green-100 text-green-800">
+                        Available
                       </Badge>
                     </div>
                   </div>
@@ -491,15 +481,15 @@ const ProductPage: React.FC = () => {
                       <TooltipTrigger asChild>
                         <Button 
                           onClick={handleSubmitBookingRequest}
-                          disabled={!startDate || isSubmitting || previewMode}
+                          disabled={!startDate || isSubmitting}
                           className="w-full"
                           size="lg"
                         >
-                          {isSubmitting ? 'Submitting...' : previewMode ? 'Currently Booked' : `Reserve Space - AED ${calculateTotal().finalPrice.toLocaleString()}`}
+                          {isSubmitting ? 'Submitting...' : `Reserve Space - AED ${calculateTotal().finalPrice.toLocaleString()}`}
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p>{previewMode ? 'This space is currently booked - bookings are temporarily disabled' : 'Submit your booking request'}</p>
+                        <p>Submit your booking request</p>
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>

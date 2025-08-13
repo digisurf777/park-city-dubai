@@ -15,7 +15,7 @@ import { ParkingBookingModal } from "@/components/ParkingBookingModal";
 import ImageZoomModal from "@/components/ImageZoomModal";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import palmJumeirahHero from "/lovable-uploads/atlantis-hotel-hero.jpg";
-import { useFeatureFlags } from "@/hooks/useFeatureFlags";
+
 
 const PalmJumeirah = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -30,7 +30,7 @@ const PalmJumeirah = () => {
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [selectedSpotName, setSelectedSpotName] = useState("");
-  const { previewMode } = useFeatureFlags();
+  
 
   useEffect(() => {
     fetchParkingSpots();
@@ -39,10 +39,7 @@ const PalmJumeirah = () => {
   const fetchParkingSpots = async () => {
     console.log("Fetching parking spots for Palm Jumeirah...");
     try {
-      // For security: Only fetch contact info if user is authenticated
-      const { data, error } = previewMode 
-        ? await supabase.from("parking_listings").select("*").eq("zone", "Palm Jumeirah")
-        : await supabase.from("parking_listings").select("id, title, description, address, zone, features, images, price_per_hour, price_per_day, price_per_month, availability_schedule, status, created_at, updated_at").eq("zone", "Palm Jumeirah").eq("status", "approved");
+      const { data, error } = await supabase.from("parking_listings").select("id, title, description, address, zone, features, images, price_per_hour, price_per_day, price_per_month, availability_schedule, status, created_at, updated_at").eq("zone", "Palm Jumeirah").eq("status", "approved");
       
       console.log("Supabase query result:", { data, error });
       if (error) throw error;
@@ -56,7 +53,7 @@ const PalmJumeirah = () => {
         image: spot.images && spot.images.length > 0 ? spot.images[0] : "/lovable-uploads/ba4a4def-2cd7-4e97-89d5-074c13f0bbe8.png",
         images: spot.images || [],
         specs: spot.features || ["Access Card", "Covered", "2.1m Height"],
-        available: !previewMode, // In preview mode, all spaces show as unavailable
+        available: true,
         address: spot.address,
         description: spot.description
       }));
@@ -74,7 +71,7 @@ const PalmJumeirah = () => {
             price: 500,
             image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
             specs: ["Covered", "24/7 Security", "Premium"],
-            available: !previewMode,
+            available: true,
             address: "East Golf Tower, Palm Jumeirah",
             description: "Secure parking space in East Golf Tower with 24/7 access and premium amenities in the heart of Palm Jumeirah."
           },
@@ -86,7 +83,7 @@ const PalmJumeirah = () => {
             image: "/lovable-uploads/20c287e2-e6e7-4c77-9fb2-30d50523dbca.png",
             images: ["/lovable-uploads/20c287e2-e6e7-4c77-9fb2-30d50523dbca.png", "/lovable-uploads/1dda1396-7e61-4941-b3c2-e7badd6fc5bc.png"],
             specs: ["Underground", "24/7 Security", "CCTV"],
-            available: !previewMode,
+            available: true,
             address: "Shoreline Apartments, Palm Jumeirah",
             description: "Secure underground parking in the heart of Palm Jumeirah with 24/7 security and CCTV surveillance."
           },
@@ -98,7 +95,7 @@ const PalmJumeirah = () => {
             image: "/lovable-uploads/1dda1396-7e61-4941-b3c2-e7badd6fc5bc.png",
             images: ["/lovable-uploads/1dda1396-7e61-4941-b3c2-e7badd6fc5bc.png", "/lovable-uploads/20c287e2-e6e7-4c77-9fb2-30d50523dbca.png"],
             specs: ["Underground", "24/7 Security", "Premium"],
-            available: !previewMode,
+            available: true,
             address: "The Palm Tower, Palm Jumeirah",
             description: "Underground parking garage in The Palm Tower, in the heart of Palm Jumeirah with 24/7 security."
           }
@@ -116,7 +113,7 @@ const PalmJumeirah = () => {
           price: 500,
           image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
           specs: ["Covered", "24/7 Security", "Premium"],
-          available: !previewMode,
+          available: true,
           address: "East Golf Tower, Palm Jumeirah",
           description: "Secure parking space in East Golf Tower with 24/7 access and premium amenities in the heart of Palm Jumeirah."
         },
@@ -127,7 +124,7 @@ const PalmJumeirah = () => {
           price: 900,
           image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
           specs: ["Underground", "24/7 Security", "CCTV"],
-          available: !previewMode,
+          available: true,
           address: "Shoreline Apartments, Palm Jumeirah",
           description: "Secure underground parking in the heart of Palm Jumeirah with 24/7 security and CCTV surveillance."
         },
@@ -138,7 +135,7 @@ const PalmJumeirah = () => {
           price: 800,
           image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
           specs: ["Underground", "24/7 Security", "Premium"],
-          available: !previewMode,
+          available: true,
           address: "The Palm Tower, Palm Jumeirah",
           description: "Underground parking garage in The Palm Tower, in the heart of Palm Jumeirah with 24/7 security."
         }
@@ -164,9 +161,6 @@ const PalmJumeirah = () => {
   const minPrice = parkingSpots.length > 0 ? Math.min(...parkingSpots.map(spot => spot.price)) : 0;
 
   const handleReserveClick = (spot: any) => {
-    if (previewMode) {
-      console.log('Preview mode: Zone click telemetry', { zone: 'Palm Jumeirah', spotId: spot.id, spotName: spot.name });
-    }
     setSelectedSpot(spot);
     setIsBookingModalOpen(true);
   };

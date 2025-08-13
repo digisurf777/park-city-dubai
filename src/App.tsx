@@ -10,8 +10,6 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import TawkToChat from "@/components/TawkToChat";
 import ChatWidget from "@/components/ChatWidget";
 import PerformanceOptimizer from "@/components/PerformanceOptimizer";
-import { FeatureFlagsProvider } from "@/context/FeatureFlagsContext";
-import PreviewModeBanner from "@/components/PreviewModeBanner";
 // Lazy load components for better performance
 const Index = lazy(() => import("./pages/Index"));
 const FindParking = lazy(() => import("./pages/FindParking"));
@@ -63,8 +61,6 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <HelmetProvider>
       <TooltipProvider>
-        <FeatureFlagsProvider>
-          <PreviewModeBanner />
           <Toaster />
           <Sonner />
         <BrowserRouter>
@@ -119,7 +115,6 @@ const App = () => (
             </Suspense>
           </AuthProvider>
         </BrowserRouter>
-        </FeatureFlagsProvider>
       </TooltipProvider>
     </HelmetProvider>
   </QueryClientProvider>

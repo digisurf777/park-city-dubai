@@ -16,7 +16,7 @@ import { ParkingBookingModal } from "@/components/ParkingBookingModal";
 import ImageZoomModal from "@/components/ImageZoomModal";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import deiraHero from "@/assets/zones/deira-real.jpg";
-import { useFeatureFlags } from "@/hooks/useFeatureFlags";
+
 
 const Deira = () => {
   const { toast } = useToast();
@@ -33,7 +33,7 @@ const Deira = () => {
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [selectedSpotName, setSelectedSpotName] = useState("");
-  const { previewMode } = useFeatureFlags();
+  
 
   const testEmail = async () => {
     if (!user?.email) {

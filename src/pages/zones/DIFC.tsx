@@ -15,7 +15,7 @@ import { ParkingBookingModal } from "@/components/ParkingBookingModal";
 import ImageZoomModal from "@/components/ImageZoomModal";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import difcHero from "@/assets/zones/difc-real.jpg";
-import { useFeatureFlags } from "@/hooks/useFeatureFlags";
+
 
 const DIFC = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -30,7 +30,7 @@ const DIFC = () => {
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [selectedSpotName, setSelectedSpotName] = useState("");
-  const { previewMode } = useFeatureFlags();
+  
 
   useEffect(() => {
     fetchParkingSpots();
@@ -58,9 +58,7 @@ const DIFC = () => {
     console.log("Fetching parking spots for DIFC...");
     try {
       // For security: Only fetch contact info if user is authenticated
-      const { data, error } = previewMode 
-        ? await supabase.from("parking_listings").select("*").eq("zone", "DIFC")
-        : await supabase.from("parking_listings").select("id, title, description, address, zone, features, images, price_per_hour, price_per_day, price_per_month, availability_schedule, status, created_at, updated_at").eq("zone", "DIFC").eq("status", "approved");
+      const { data, error } = await supabase.from("parking_listings").select("id, title, description, address, zone, features, images, price_per_hour, price_per_day, price_per_month, availability_schedule, status, created_at, updated_at").eq("zone", "DIFC").eq("status", "approved");
       
       console.log("Supabase query result:", { data, error });
       if (error) throw error;
@@ -74,7 +72,7 @@ const DIFC = () => {
         image: spot.images && spot.images.length > 0 ? spot.images[0] : "/lovable-uploads/161ee737-1491-45d6-a5e3-a642b7ff0806.png",
         images: spot.images || [],
         specs: spot.features || ["Access Card", "Covered", "2.1m Height"],
-        available: !previewMode, // In preview mode, all spaces show as unavailable
+        available: true,
         address: spot.address,
         description: spot.description
       }));
@@ -91,7 +89,7 @@ const DIFC = () => {
           image: "/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.png",
           images: ["/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.png", "/lovable-uploads/90ac71db-2b33-4d06-8b4e-7fdb761027f4.png"],
           specs: ["Premium", "24/7 Security", "Concierge"],
-          available: !previewMode,
+          available: true,
           address: "Index Tower, DIFC",
           description: "Premium parking space in Index Tower with 24/7 security and concierge services in the heart of DIFC."
         },
@@ -103,7 +101,7 @@ const DIFC = () => {
           image: "/lovable-uploads/90ac71db-2b33-4d06-8b4e-7fdb761027f4.png",
           images: ["/lovable-uploads/90ac71db-2b33-4d06-8b4e-7fdb761027f4.png", "/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.png"],
           specs: ["Underground", "CCTV", "Premium"],
-          available: !previewMode,
+          available: true,
           address: "Gate Village, DIFC",
           description: "Secure underground parking in the prestigious Gate Village with CCTV surveillance and premium amenities."
         }
@@ -119,7 +117,7 @@ const DIFC = () => {
           image: "/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.png",
           images: ["/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.png", "/lovable-uploads/90ac71db-2b33-4d06-8b4e-7fdb761027f4.png"],
           specs: ["Premium", "24/7 Security", "Concierge"],
-          available: !previewMode,
+          available: true,
           address: "Index Tower, DIFC",
           description: "Premium parking space in Index Tower with 24/7 security and concierge services in the heart of DIFC."
         }
@@ -145,9 +143,6 @@ const DIFC = () => {
   const minPrice = parkingSpots.length > 0 ? Math.min(...parkingSpots.map(spot => spot.price)) : 0;
 
   const handleReserveClick = (spot: any) => {
-    if (previewMode) {
-      console.log('Preview mode: Zone click telemetry', { zone: 'DIFC', spotId: spot.id, spotName: spot.name });
-    }
     setSelectedSpot(spot);
     setIsBookingModalOpen(true);
   };
@@ -301,20 +296,12 @@ const DIFC = () => {
                     <span className="text-2xl font-bold text-primary">From AED {spot.price}/month</span>
                   </div>
 
-                  {previewMode ? (
-                    <Link to={`/parking/${spot.id}`} onClick={() => console.info('PreviewMode reserve click', { spotId: spot.id })}>
-                      <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold">
-                        Reserve Space
-                      </Button>
-                    </Link>
-                  ) : (
-                    <Button 
-                      className="w-full bg-destructive hover:bg-destructive text-destructive-foreground cursor-not-allowed" 
-                      disabled
-                    >
-                      Currently Booked
-                    </Button>
-                  )}
+                  <Button 
+                    onClick={() => handleReserveClick(spot)}
+                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
+                  >
+                    Reserve Space
+                  </Button>
                 </div>
               </Card>
             ))}
