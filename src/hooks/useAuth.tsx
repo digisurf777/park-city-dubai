@@ -55,7 +55,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     
     console.log('Starting signup with redirect URL:', redirectUrl);
     
-    // Disable Supabase's built-in email confirmation to use our custom function
+    // Use Supabase's native email confirmation
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -70,12 +70,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     console.log('Signup result:', { data, error });
 
-    // Always send custom confirmation email if signup succeeded
-    if (!error && data?.user) {
-      console.log('Sending custom confirmation email...');
+    // If Supabase's native email fails, try custom confirmation email as fallback
+    if (error && error.message.includes('Error sending confirmation email') && data?.user) {
+      console.log('Supabase email failed, trying custom confirmation email...');
       try {
-        // Use the actual confirmation tokens from Supabase response
-        const confirmationUrl = `${redirectUrl}?token_hash=${data.user.email_confirmed_at ? '' : 'confirm'}&type=signup&user_id=${data.user.id}`;
+        const confirmationUrl = `${redirectUrl}?token_hash=confirm&type=signup&user_id=${data.user.id}`;
         
         const emailResult = await supabase.functions.invoke('send-confirmation-email', {
           body: {
