@@ -194,8 +194,8 @@ const BusinessBay = () => {
         <div className="relative z-10 flex items-center justify-center h-full">
           <div className="text-center text-white px-4">
             <h1 className="text-5xl md:text-6xl font-bold mb-4">Parking Spaces in Business Bay</h1>
-            <p className="text-xl md:text-2xl opacity-90">Central business district with modern skyscrapers</p>
-            <p className="text-lg md:text-xl opacity-80 mt-2">Secure monthly bays to AED600</p>
+            <p className="text-xl md:text-2xl opacity-90 mb-4">Business Bay brings together startups, SMEs, and large corporates across hundreds of commercial towers. Professionals here often navigate busy schedules between client meetings, coworking spaces, and high-rise offices along Al A'amal Street and Marasi Drive.</p>
+            <p className="text-lg md:text-xl font-semibold bg-black/20 inline-block px-4 py-2 rounded-lg">Secure a monthly parking bay from AED650</p>
           </div>
         </div>
       </div>

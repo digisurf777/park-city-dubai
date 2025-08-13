@@ -186,8 +186,8 @@ const DIFC = () => {
         <div className="relative z-10 flex items-center justify-center h-full">
           <div className="text-center text-white px-4">
             <h1 className="text-5xl md:text-6xl font-bold mb-4">Parking Spaces in DIFC</h1>
-            <p className="text-xl md:text-2xl opacity-90">Dubai's premier financial district</p>
-            <p className="text-lg md:text-xl opacity-80 mt-2">Secure monthly bays to AED1200</p>
+            <p className="text-xl md:text-2xl opacity-90 mb-4">A globally recognised financial centre, DIFC is home to leading law firms, banks, consultancies, and investment institutions. The area attracts daily professionals who value efficiency, proximity to their office, and smooth day-to-day routines.</p>
+            <p className="text-lg md:text-xl font-semibold bg-black/20 inline-block px-4 py-2 rounded-lg">Secure a monthly parking bay from AED850</p>
           </div>
         </div>
       </div>
