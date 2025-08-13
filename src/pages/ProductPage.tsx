@@ -24,7 +24,7 @@ const ProductPage: React.FC = () => {
   const { previewMode, previewModePhotos } = useFeatureFlags();
   
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
-  const [selectedDuration, setSelectedDuration] = useState<string>('');
+  const [selectedDuration, setSelectedDuration] = useState<any>({ months: 1, label: "1 Month", multiplier: 1.0, description: "Monthly rate" });
   const [userPhone, setUserPhone] = useState<string>('');
   const [notes, setNotes] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -34,6 +34,13 @@ const ProductPage: React.FC = () => {
   const [parkingListing, setParkingListing] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>('');
+  
+  const DURATION_OPTIONS = [
+    { months: 1, label: "1 Month", multiplier: 1.0, description: "Monthly rate" },
+    { months: 3, label: "3 Months", multiplier: 0.95, description: "5% OFF" },
+    { months: 6, label: "6 Months", multiplier: 0.90, description: "10% OFF" },
+    { months: 12, label: "12 Months", multiplier: 0.85, description: "15% OFF" }
+  ];
 
   // Fetch parking listing from database
   useEffect(() => {
@@ -102,26 +109,33 @@ const ProductPage: React.FC = () => {
     );
   }
 
-  const calculatePrice = (duration: string): number => {
-    const hours = parseInt(duration);
-    const basePrice = parkingListing.price_per_hour || 15;
+  const calculateTotal = () => {
+    if (!parkingListing?.price_per_month) return { basePrice: 0, finalPrice: 0, savings: 0, monthlyRate: 0 };
     
-    if (hours >= 24) {
-      // Use daily rate if available, otherwise calculate from hourly
-      const days = Math.ceil(hours / 24);
-      return parkingListing.price_per_day 
-        ? days * parkingListing.price_per_day 
-        : days * basePrice * 20; // 20 AED per day fallback
-    } else if (hours >= 168) {
-      // Use monthly rate if available, otherwise calculate from hourly
-      const weeks = Math.ceil(hours / 168);
-      return parkingListing.price_per_month 
-        ? weeks * (parkingListing.price_per_month / 4) 
-        : weeks * basePrice * 140; // 140 AED per week fallback
+    const baseMonthlyPrice = parkingListing.price_per_month;
+    let finalPrice: number;
+    let savings: number = 0;
+    
+    if (selectedDuration.months === 1) {
+      finalPrice = baseMonthlyPrice;
     } else {
-      // Hourly rate
-      return hours * basePrice;
+      // Apply the discount formula: ((Listing Price – 100) × multiplier) × Number of Months + (100 × Number of Months)
+      const discountedAmount = (baseMonthlyPrice - 100) * selectedDuration.multiplier;
+      finalPrice = discountedAmount * selectedDuration.months + (100 * selectedDuration.months);
+      
+      // Calculate savings compared to regular monthly rate
+      const regularTotal = baseMonthlyPrice * selectedDuration.months;
+      savings = regularTotal - finalPrice;
     }
+    
+    const monthlyRate = finalPrice / selectedDuration.months;
+    
+    return {
+      basePrice: baseMonthlyPrice * selectedDuration.months,
+      finalPrice: Math.round(finalPrice),
+      savings: Math.round(savings),
+      monthlyRate: Math.round(monthlyRate)
+    };
   };
 
   const handleSubmitBookingRequest = async () => {
@@ -146,19 +160,18 @@ const ProductPage: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      const endDate = new Date(startDate);
-      endDate.setHours(endDate.getHours() + parseInt(selectedDuration));
-
+      const { finalPrice } = calculateTotal();
+      
       const { data, error } = await supabase.functions.invoke('submit-booking-request', {
         body: {
-          booking_id: id,
-          start_time: startDate.toISOString(),
-          duration_hours: parseInt(selectedDuration),
-          cost_aed: calculatePrice(selectedDuration),
-          location: parkingListing.title,
+          startDate: startDate.toISOString(),
+          duration: selectedDuration.months,
+          userPhone,
+          notes,
           zone: parkingListing.zone,
-          user_phone: userPhone,
-          notes: notes,
+          location: parkingListing.title,
+          costAed: finalPrice,
+          parkingSpotName: parkingListing.title
         },
       });
 
@@ -338,7 +351,9 @@ const ProductPage: React.FC = () => {
 
                   <div className="pt-4 border-t">
                     <div className="flex items-center justify-between">
-                      <span className="text-2xl font-bold text-primary">{parkingListing.price_per_hour} AED/hour</span>
+                      <span className="text-2xl font-bold text-primary">
+                        From AED {parkingListing.price_per_month}/month
+                      </span>
                       <Badge variant="outline" className="bg-blue-50 text-blue-700">
                         Zone: {parkingListing.zone}
                       </Badge>
@@ -352,35 +367,109 @@ const ProductPage: React.FC = () => {
             <div>
               <Card>
                 <CardHeader>
-                  <CardTitle>Book This Space</CardTitle>
-                  <CardDescription>Select your preferred date and duration</CardDescription>
+                  <CardTitle>Reserve This Space</CardTitle>
+                  <CardDescription>Choose your rental duration and start date</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
+                  {/* Rental Duration Selection */}
                   <div>
-                    <label className="text-sm font-medium mb-2 block">Start Date</label>
+                    <label className="text-sm font-medium mb-3 block">Rental Duration</label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {DURATION_OPTIONS.map(option => (
+                        <Button
+                          key={option.months}
+                          variant={selectedDuration.months === option.months ? "default" : "outline"}
+                          className={`flex flex-col h-auto py-4 px-4 text-center relative ${
+                            selectedDuration.months === option.months 
+                              ? "bg-primary text-primary-foreground border-2 border-primary" 
+                              : "hover:border-primary"
+                          } ${option.months === 3 ? "border-2 border-cyan-400 bg-cyan-50 hover:bg-cyan-100" : ""}`}
+                          onClick={() => setSelectedDuration(option)}
+                        >
+                          <span className="font-semibold text-base">{option.label}</span>
+                          {option.months > 1 && (
+                            <span className="text-xs text-green-600 font-medium mt-1">
+                              {option.description}
+                            </span>
+                          )}
+                        </Button>
+                      ))}
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      Or choose Monthly Rolling (subject to availability)
+                    </p>
+                  </div>
+
+                  {/* Monthly Billing Plan */}
+                  {selectedDuration.months > 1 && (
+                    <Card className="bg-gray-50">
+                      <CardContent className="p-4">
+                        <div className="flex items-center gap-2 mb-3">
+                          <div className="w-5 h-5 border-2 border-gray-400 rounded flex items-center justify-center">
+                            <div className="w-2 h-2 bg-gray-600 rounded-sm"></div>
+                          </div>
+                          <h4 className="font-semibold text-gray-800">Monthly Billing Plan</h4>
+                        </div>
+                        
+                        {(() => {
+                          const { basePrice, finalPrice, savings, monthlyRate } = calculateTotal();
+                          const regularMonthlyRate = parkingListing?.price_per_month || 0;
+                          const commitmentDiscount = (regularMonthlyRate - monthlyRate);
+                          
+                          return (
+                            <div className="space-y-2 text-sm">
+                              <div className="flex justify-between">
+                                <span>Regular monthly rate</span>
+                                <span>AED {regularMonthlyRate}</span>
+                              </div>
+                              {commitmentDiscount > 0 && (
+                                <div className="flex justify-between text-green-600">
+                                  <span>Commitment discount ({selectedDuration.months} months)</span>
+                                  <span>-AED {Math.round(commitmentDiscount)}/month</span>
+                                </div>
+                              )}
+                              <div className="flex justify-between font-medium">
+                                <span>Your monthly rate</span>
+                                <span>AED {monthlyRate}/month</span>
+                              </div>
+                              <hr className="my-2" />
+                              <div className="flex justify-between text-blue-600 font-semibold text-lg">
+                                <span>First month payment</span>
+                                <span>AED {monthlyRate}</span>
+                              </div>
+                              <div className="text-xs text-blue-600 mt-2">
+                                — Monthly Billing: You'll be charged AED {monthlyRate} each month for {selectedDuration.months} months
+                              </div>
+                              <div className="text-xs text-blue-600">
+                                Total commitment: AED {finalPrice.toLocaleString()} over {selectedDuration.months} months
+                              </div>
+                              {savings > 0 && (
+                                <div className="text-green-600 font-medium text-sm mt-2">
+                                  You save AED {savings.toLocaleString()} with this {selectedDuration.months}-month commitment
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })()}
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* Start Date Selection */}
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Start Date *</label>
                     <Calendar
                       mode="single"
                       selected={startDate}
                       onSelect={setStartDate}
-                      disabled={(date) => date < new Date()}
-                      className="rounded-md border"
+                      disabled={(date) => {
+                        const today = new Date();
+                        const minDate = new Date();
+                        minDate.setDate(today.getDate() + 2);
+                        return date < minDate;
+                      }}
+                      className="rounded-md border pointer-events-auto"
                     />
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">Duration (hours)</label>
-                    <Select value={selectedDuration} onValueChange={setSelectedDuration}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select duration" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="1">1 hour</SelectItem>
-                        <SelectItem value="2">2 hours</SelectItem>
-                        <SelectItem value="4">4 hours</SelectItem>
-                        <SelectItem value="8">8 hours</SelectItem>
-                        <SelectItem value="24">1 day</SelectItem>
-                      </SelectContent>
-                    </Select>
                   </div>
 
                   <div>
@@ -402,27 +491,33 @@ const ProductPage: React.FC = () => {
                     />
                   </div>
 
-                  {selectedDuration && (
-                    <div className="p-4 bg-muted rounded-lg">
-                      <div className="flex justify-between items-center">
-                        <span className="font-medium">Total Cost:</span>
-                        <span className="text-xl font-bold text-primary">
-                          {calculatePrice(selectedDuration)} AED
-                        </span>
+                  {/* Total Cost Display */}
+                  {(() => {
+                    const { finalPrice } = calculateTotal();
+                    return (
+                      <div className="p-4 bg-muted rounded-lg">
+                        <div className="flex justify-between items-center">
+                          <span className="font-medium">
+                            {selectedDuration.months === 1 ? "Monthly Cost:" : `Total Cost (${selectedDuration.months} months):`}
+                          </span>
+                          <span className="text-xl font-bold text-primary">
+                            AED {finalPrice.toLocaleString()}
+                          </span>
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    );
+                  })()}
 
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Button 
                           onClick={handleSubmitBookingRequest}
-                          disabled={!startDate || !selectedDuration || isSubmitting || previewMode}
+                          disabled={!startDate || isSubmitting || previewMode}
                           className="w-full"
                           size="lg"
                         >
-                          {isSubmitting ? 'Submitting...' : previewMode ? 'Currently Booked' : 'Reserve This Space'}
+                          {isSubmitting ? 'Submitting...' : previewMode ? 'Currently Booked' : `Reserve Space - AED ${calculateTotal().finalPrice.toLocaleString()}`}
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent>
@@ -430,6 +525,10 @@ const ProductPage: React.FC = () => {
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
+
+                  <p className="text-xs text-muted-foreground text-center">
+                    No charges will be made at this time. Payment link will be provided after confirmation.
+                  </p>
                 </CardContent>
               </Card>
             </div>
