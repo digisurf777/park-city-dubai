@@ -198,17 +198,17 @@ const Deira = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
       
-      <div className="relative h-[400px]">
+      <div className="relative h-[300px] sm:h-[400px]">
         <div className="absolute inset-0 bg-black/35"></div>
         <div 
           className="absolute inset-0 bg-cover bg-center" 
           style={{ backgroundImage: `url(${deiraHero})` }}
         ></div>
         <div className="relative z-10 flex items-center justify-center h-full">
-          <div className="text-center text-white px-4">
-            <h1 className="text-5xl md:text-6xl font-bold mb-4">Parking Spaces in Deira</h1>
-            <p className="text-xl md:text-2xl opacity-90 mb-4">One of Dubai's oldest commercial quarters, Deira remains a critical base for logistics firms, retail traders, and financial service providers. The workforce here spans both established businesses and day-to-day operators who keep the city moving.</p>
-            <p className="text-lg md:text-xl font-semibold bg-black/20 inline-block px-4 py-2 rounded-lg">Secure a monthly parking bay from AED500</p>
+          <div className="text-center text-white px-4 max-w-4xl mx-auto">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 leading-tight">Deira</h1>
+            <p className="text-base sm:text-lg md:text-xl lg:text-2xl opacity-90 mb-4 leading-relaxed">One of Dubai's oldest commercial quarters, Deira remains a critical base for logistics firms, retail traders, and financial service providers. The workforce here spans both established businesses and day-to-day operators who keep the city moving.</p>
+            <p className="text-sm sm:text-base md:text-lg lg:text-xl font-semibold bg-black/20 inline-block px-3 py-2 sm:px-4 rounded-lg">Secure a monthly parking bay from AED500</p>
           </div>
         </div>
       </div>
@@ -232,23 +232,10 @@ const Deira = () => {
           </p>
         </div>
 
-        {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3].map(i => (
-              <Card key={i} className="overflow-hidden animate-pulse">
-                <div className="aspect-video bg-gray-200"></div>
-                <div className="p-6">
-                  <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                  <div className="h-3 bg-gray-200 rounded w-2/3"></div>
-                </div>
-              </Card>
-            ))}
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {filteredSpots.map(spot => (
               <Card key={spot.id} className="overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-                <div className="relative w-full h-64 overflow-hidden group">
+                <div className="relative w-full h-48 sm:h-56 md:h-64 overflow-hidden group">
                   {spot.images && spot.images.length > 0 ? (
                     <>
                       <img 
@@ -315,29 +302,28 @@ const Deira = () => {
                   )}
                 </div>
 
-                <div className="p-6">
-                  <h3 className="text-xl font-bold text-foreground mb-2">{spot.name}</h3>
-                  <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
+                <div className="p-4 sm:p-6">
+                  <h3 className="text-lg sm:text-xl font-bold text-foreground mb-2">{spot.name}</h3>
+                  <p className="text-sm text-muted-foreground mb-4 leading-relaxed line-clamp-3">
                     {spot.description || "Secure underground parking space. 24/7 access, covered area."}
                   </p>
 
                   <div className="mb-4">
-                    <span className="text-2xl font-bold text-primary">From AED {spot.price}/month</span>
+                    <span className="text-xl sm:text-2xl font-bold text-primary">From AED {spot.price}/month</span>
                   </div>
 
                   <Button 
                     onClick={() => handleReserveClick(spot)}
-                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
+                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-2 sm:py-3 text-sm sm:text-base touch-target"
                   >
                     Reserve Space
                   </Button>
                 </div>
               </Card>
             ))}
-          </div>
-        )}
+        </div>
 
-        {!loading && filteredSpots.length === 0 && (
+        {filteredSpots.length === 0 && (
           <div className="text-center py-12">
             <p className="text-muted-foreground text-lg">No parking spaces found matching your criteria.</p>
             <Button variant="outline" className="mt-4" onClick={clearFilters}>
