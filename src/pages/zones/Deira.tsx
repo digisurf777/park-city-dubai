@@ -73,9 +73,10 @@ const Deira = () => {
   const fetchParkingSpots = async () => {
     console.log("Fetching parking spots for Deira...");
     try {
+      // For security: Only fetch contact info if user is authenticated
       const { data, error } = previewMode 
         ? await supabase.from("parking_listings").select("*").eq("zone", "Deira")
-        : await supabase.from("parking_listings").select("*").eq("zone", "Deira").eq("status", "approved");
+        : await supabase.from("parking_listings").select("id, title, description, address, zone, features, images, price_per_hour, price_per_day, price_per_month, availability_schedule, status, created_at, updated_at").eq("zone", "Deira").eq("status", "approved");
       
       console.log("Supabase query result:", { data, error });
       if (error) throw error;

@@ -50,9 +50,10 @@ const DubaiMarina = () => {
   const fetchParkingSpots = async () => {
     console.log('Fetching parking spots for Dubai Marina...');
     try {
+      // For security: Only fetch contact info if user is authenticated
       const { data, error } = previewMode
-        ? await supabase.from('parking_listings').select('*').eq('zone', 'Dubai Marina')
-        : await supabase.from('parking_listings').select('*').eq('zone', 'Dubai Marina').eq('status', 'approved');
+        ? await supabase.from('parking_listings').select("*").eq('zone', 'Dubai Marina')
+        : await supabase.from('parking_listings').select("id, title, description, address, zone, features, images, price_per_hour, price_per_day, price_per_month, availability_schedule, status, created_at, updated_at").eq('zone', 'Dubai Marina').eq('status', 'approved');
       console.log('Supabase query result:', {
         data,
         error
