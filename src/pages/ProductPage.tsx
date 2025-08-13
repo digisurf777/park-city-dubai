@@ -1,14 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { CalendarDays, Clock, MapPin, Star, Zap, Shield, Wifi, Car, Phone, MessageSquare, X, ChevronLeft, ChevronRight, ZoomIn, Camera } from 'lucide-react';
+import { CalendarDays, Clock, MapPin, Star, Zap, Shield, Wifi, Car, ChevronLeft, ChevronRight, ZoomIn, Camera } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Calendar } from '@/components/ui/calendar';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -25,8 +22,6 @@ const ProductPage: React.FC = () => {
   
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [selectedDuration, setSelectedDuration] = useState<any>({ months: 1, label: "1 Month", multiplier: 1.0, description: "Monthly rate" });
-  const [userPhone, setUserPhone] = useState<string>('');
-  const [notes, setNotes] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [showConfirmation, setShowConfirmation] = useState<boolean>(false);
   const [currentImageIndex, setCurrentImageIndex] = useState<number>(0);
@@ -157,8 +152,6 @@ const ProductPage: React.FC = () => {
         body: {
           startDate: startDate.toISOString(),
           duration: selectedDuration.months,
-          userPhone,
-          notes,
           zone: parkingListing.zone,
           location: parkingListing.title,
           costAed: finalPrice,
