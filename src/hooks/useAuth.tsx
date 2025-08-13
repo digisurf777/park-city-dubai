@@ -55,6 +55,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     
     console.log('Starting signup with redirect URL:', redirectUrl);
     
+    // Disable Supabase's built-in email confirmation to use our custom function
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -69,14 +70,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     console.log('Signup result:', { data, error });
 
-    // If signup succeeded but email failed, try our custom confirmation email
-    if (error && error.message === 'Error sending confirmation email' && data?.user) {
-      console.log('Supabase email failed, trying custom confirmation email...');
+    // Always send custom confirmation email if signup succeeded
+    if (!error && data?.user) {
+      console.log('Sending custom confirmation email...');
       try {
-        // Generate confirmation URL manually
-        const confirmationUrl = `${redirectUrl}?token_hash=${data.user.id}&type=signup`;
+        // Use the actual confirmation tokens from Supabase response
+        const confirmationUrl = `${redirectUrl}?token_hash=${data.user.email_confirmed_at ? '' : 'confirm'}&type=signup&user_id=${data.user.id}`;
         
-        await supabase.functions.invoke('send-confirmation-email', {
+        const emailResult = await supabase.functions.invoke('send-confirmation-email', {
           body: {
             email: email,
             fullName: fullName,
@@ -84,12 +85,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           }
         });
         
-        console.log('Custom confirmation email sent successfully');
-        // Clear the error since we handled it with custom email
+        if (emailResult.error) {
+          console.error('Custom confirmation email failed:', emailResult.error);
+          throw emailResult.error;
+        }
+        
+        console.log('Custom confirmation email sent successfully:', emailResult.data);
         return { error: null };
       } catch (customEmailError) {
         console.error('Custom confirmation email also failed:', customEmailError);
-        return { error };
+        return { error: new Error('Failed to send confirmation email. Please try again.') };
       }
     }
 
