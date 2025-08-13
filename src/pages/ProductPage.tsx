@@ -148,15 +148,6 @@ const ProductPage: React.FC = () => {
       return;
     }
 
-    if (!userPhone) {
-      toast({
-        title: "Phone Number Required",
-        description: "Please enter your phone number.",
-        variant: "destructive",
-      });
-      return;
-    }
-
     setIsSubmitting(true);
 
     try {
@@ -481,47 +472,16 @@ const ProductPage: React.FC = () => {
                             AED {finalPrice.toLocaleString()}
                           </span>
                         </div>
-                      </div>
-                    );
-                  })()}
-
-                  {/* Phone Number Input */}
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">Phone Number *</label>
-                    <div className="relative">
-                      <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        type="tel"
-                        placeholder="Enter your phone number"
-                        value={userPhone}
-                        onChange={(e) => setUserPhone(e.target.value)}
-                        className="pl-10"
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  {/* Notes/Comments */}
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">Notes (Optional)</label>
-                    <div className="relative">
-                      <MessageSquare className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Textarea
-                        placeholder="Any special requirements or comments..."
-                        value={notes}
-                        onChange={(e) => setNotes(e.target.value)}
-                        rows={3}
-                        className="pl-10 resize-none"
-                      />
-                    </div>
-                  </div>
+                       </div>
+                     );
+                   })()}
 
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Button 
                           onClick={handleSubmitBookingRequest}
-                          disabled={!startDate || !userPhone || isSubmitting}
+                          disabled={!startDate || isSubmitting}
                           className="w-full"
                           size="lg"
                         >
