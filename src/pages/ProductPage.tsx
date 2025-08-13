@@ -303,8 +303,8 @@ const ProductPage: React.FC = () => {
                       </CardDescription>
                     </div>
                     <div className="text-right">
-                      <Badge variant="secondary" className="bg-green-100 text-green-800">
-                        Available
+                      <Badge variant="destructive" className="bg-red-100 text-red-800">
+                        Currently Booked
                       </Badge>
                     </div>
                   </div>
