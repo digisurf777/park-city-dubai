@@ -480,25 +480,6 @@ const ProductPage: React.FC = () => {
                     </Card>
                   )}
 
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">Phone Number (Optional)</label>
-                    <Input
-                      type="tel"
-                      placeholder="Your phone number"
-                      value={userPhone}
-                      onChange={(e) => setUserPhone(e.target.value)}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">Additional Notes (Optional)</label>
-                    <Textarea
-                      placeholder="Any special requirements..."
-                      value={notes}
-                      onChange={(e) => setNotes(e.target.value)}
-                    />
-                  </div>
-
                   {/* Total Cost Display */}
                   {(() => {
                     const { finalPrice } = calculateTotal();
