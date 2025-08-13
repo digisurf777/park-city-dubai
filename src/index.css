@@ -140,6 +140,11 @@ All colors MUST be HSL.
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     touch-action: manipulation; /* Prevents zoom on double tap */
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+    scroll-behavior: smooth;
+    overflow-x: hidden; /* Prevent horizontal scroll */
   }
 
   /* Mobile touch targets - minimum 44px for accessibility */
@@ -218,5 +223,44 @@ All colors MUST be HSL.
   /* Touch-friendly navigation */
   .touch-manipulation {
     touch-action: manipulation;
+  }
+  
+  /* Mobile-specific improvements */
+  @media (max-width: 768px) {
+    /* Improve touch targets */
+    button, input, select, textarea, a {
+      min-height: 44px;
+      touch-action: manipulation;
+    }
+    
+    /* Better mobile scroll behavior */
+    .mobile-scroll {
+      -webkit-overflow-scrolling: touch;
+      overflow-scrolling: touch;
+    }
+    
+    /* Prevent zoom on input focus */
+    input, select, textarea {
+      font-size: 16px;
+    }
+    
+    /* Better mobile card spacing */
+    .card-mobile {
+      margin: 0.5rem;
+      padding: 1rem;
+    }
+    
+    /* Mobile-friendly button spacing */
+    .btn-mobile {
+      padding: 0.75rem 1.5rem;
+      min-height: 48px;
+    }
+    
+    /* Improved mobile navigation */
+    .mobile-nav {
+      padding: 1rem;
+      max-height: calc(100vh - 4rem);
+      overflow-y: auto;
+    }
   }
 }

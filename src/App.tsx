@@ -10,6 +10,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import TawkToChat from "@/components/TawkToChat";
 import ChatWidget from "@/components/ChatWidget";
 import PerformanceOptimizer from "@/components/PerformanceOptimizer";
+import { MobileOptimizations } from "@/components/MobileOptimizations";
 // Lazy load components for better performance
 const Index = lazy(() => import("./pages/Index"));
 const FindParking = lazy(() => import("./pages/FindParking"));
@@ -61,8 +62,9 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <HelmetProvider>
       <TooltipProvider>
-          <Toaster />
-          <Sonner />
+        <MobileOptimizations />
+        <Toaster />
+        <Sonner />
         <BrowserRouter>
         <AuthProvider>
           <PerformanceOptimizer />

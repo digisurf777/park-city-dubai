@@ -157,18 +157,18 @@ const FindParking = () => {
   return <div className="min-h-screen bg-background animate-zoom-slow">
       <Navbar />
       
-      {/* Hero Section */}
-      <div className="relative h-[500px] bg-gradient-to-r from-primary/10 to-primary/5">
+      {/* Hero Section - Mobile Optimized */}
+      <div className="relative h-[400px] sm:h-[500px] lg:h-[600px] bg-gradient-to-r from-primary/10 to-primary/5">
         <div className="absolute inset-0 bg-black/40"></div>
         <div className="absolute inset-0 bg-cover bg-center" style={{
         backgroundImage: `url(${dubaiHeroImage})`
       }}></div>
-        <div className="relative z-10 flex items-center justify-center h-full">
-          <div className="text-center text-white px-4 max-w-4xl">
-            <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
+        <div className="relative z-10 flex items-center justify-center h-full px-4">
+          <div className="text-center text-white max-w-4xl">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6 leading-tight">
               We are the quickest, easiest, and the most secure way to rent a parking space in Dubai!
             </h1>
-            <p className="text-lg md:text-xl opacity-90">Browse secure monthly bays across Dubai</p>
+            <p className="text-base sm:text-lg md:text-xl opacity-90">Browse secure monthly bays across Dubai</p>
           </div>
         </div>
       </div>
@@ -178,14 +178,14 @@ const FindParking = () => {
         
       </div>
 
-      {/* District Selector Section */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-foreground mb-4">Choose Your Zone</h2>
-          <p className="text-muted-foreground text-lg">Select a zone to find parking spaces in that area</p>
+      {/* District Selector Section - Mobile Optimized */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        <div className="text-center mb-8 sm:mb-12">
+          <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3 sm:mb-4">Choose Your Zone</h2>
+          <p className="text-muted-foreground text-base sm:text-lg">Select a zone to find parking spaces in that area</p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
           {districtZones.map(zone => {
           const zoneImages = {
             'dubai-marina': dubaiMarinaZone,
@@ -195,23 +195,23 @@ const FindParking = () => {
             'difc': difcZone,
             'deira': deiraZone
           };
-          return <div key={zone.slug} className="relative group overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-all duration-300">
+          return <div key={zone.slug} className="relative group overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 touch-manipulation">
                 {/* Zone Image */}
-                <div className="relative h-64 overflow-hidden">
+                <div className="relative h-48 sm:h-56 lg:h-64 overflow-hidden">
                   <img src={zoneImages[zone.slug as keyof typeof zoneImages]} alt={zone.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" decoding="async" />
                   <div className="absolute inset-0 bg-black/30"></div>
                   
                   {/* Zone Title Overlay */}
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <h3 className="text-2xl font-bold text-white text-center px-4">
+                    <h3 className="text-xl sm:text-2xl font-bold text-white text-center px-4">
                       {zone.name}
                     </h3>
                   </div>
                 </div>
                 
                 {/* Select Zone Button */}
-                <div className="absolute bottom-4 left-4 right-4">
-                  <Button onClick={() => handleSelectZone(zone.slug)} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium">
+                <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 right-3 sm:right-4">
+                  <Button onClick={() => handleSelectZone(zone.slug)} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium min-h-[44px] touch-manipulation">
                     Select zone
                   </Button>
                 </div>

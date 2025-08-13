@@ -45,9 +45,9 @@ const Hero = () => {
           </div>
         </div>
 
-        {/* Search Card */}
-        <Card className="backdrop-blur-md bg-white/80 border-white/20 shadow-2xl p-8 mb-12 max-w-4xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        {/* Search Card - Mobile Optimized */}
+        <Card className="backdrop-blur-md bg-white/80 border-white/20 shadow-2xl p-4 sm:p-6 lg:p-8 mb-8 sm:mb-12 max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
                 <MapPin className="h-4 w-4 text-primary" />
@@ -55,7 +55,7 @@ const Hero = () => {
               </label>
               <Input
                 placeholder="Enter area or landmark"
-                className="border-gray-200 focus:border-primary focus:ring-primary"
+                className="border-gray-200 focus:border-primary focus:ring-primary min-h-[44px] text-base"
               />
             </div>
             <div className="space-y-2">
@@ -65,7 +65,7 @@ const Hero = () => {
               </label>
               <Input
                 type="date"
-                className="border-gray-200 focus:border-primary focus:ring-primary"
+                className="border-gray-200 focus:border-primary focus:ring-primary min-h-[44px] text-base"
               />
             </div>
             <div className="space-y-2">
@@ -73,7 +73,7 @@ const Hero = () => {
                 <Clock className="h-4 w-4 text-primary" />
                 Duration
               </label>
-              <select className="w-full h-10 px-3 py-2 border border-gray-200 rounded-md focus:border-primary focus:ring-primary focus:outline-none">
+              <select className="w-full min-h-[44px] px-3 py-2 border border-gray-200 rounded-md focus:border-primary focus:ring-primary focus:outline-none text-base">
                 <option>1 hour</option>
                 <option>2 hours</option>
                 <option>4 hours</option>
@@ -86,7 +86,7 @@ const Hero = () => {
                 <Car className="h-4 w-4 text-primary" />
                 Type
               </label>
-              <select className="w-full h-10 px-3 py-2 border border-gray-200 rounded-md focus:border-primary focus:ring-primary focus:outline-none">
+              <select className="w-full min-h-[44px] px-3 py-2 border border-gray-200 rounded-md focus:border-primary focus:ring-primary focus:outline-none text-base">
                 <option>Any</option>
                 <option>Covered</option>
                 <option>Open</option>
@@ -94,27 +94,27 @@ const Hero = () => {
               </select>
             </div>
           </div>
-          <Button className="w-full md:w-auto bg-primary hover:bg-primary/90 text-white px-12 py-3 text-lg font-semibold">
+          <Button className="w-full bg-primary hover:bg-primary/90 text-white px-6 sm:px-12 py-3 sm:py-4 text-base sm:text-lg font-semibold min-h-[48px] touch-manipulation">
             Find Parking Spots
           </Button>
         </Card>
 
-        {/* Feature Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="backdrop-blur-md bg-white/60 border-white/20 p-6 hover:bg-white/70 transition-all duration-300">
-            <div className="text-primary text-4xl mb-4">🚗</div>
-            <h3 className="text-xl font-semibold mb-2">Instant Booking</h3>
-            <p className="text-gray-600">Reserve your spot in seconds with real-time availability</p>
+        {/* Feature Cards - Mobile Optimized */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          <Card className="backdrop-blur-md bg-white/60 border-white/20 p-4 sm:p-6 hover:bg-white/70 transition-all duration-300 touch-manipulation">
+            <div className="text-primary text-3xl sm:text-4xl mb-3 sm:mb-4">🚗</div>
+            <h3 className="text-lg sm:text-xl font-semibold mb-2">Instant Booking</h3>
+            <p className="text-gray-600 text-sm sm:text-base">Reserve your spot in seconds with real-time availability</p>
           </Card>
-          <Card className="backdrop-blur-md bg-white/60 border-white/20 p-6 hover:bg-white/70 transition-all duration-300">
-            <div className="text-primary text-4xl mb-4">💰</div>
-            <h3 className="text-xl font-semibold mb-2">Best Prices</h3>
-            <p className="text-gray-600">Save up to 60% compared to traditional parking</p>
+          <Card className="backdrop-blur-md bg-white/60 border-white/20 p-4 sm:p-6 hover:bg-white/70 transition-all duration-300 touch-manipulation">
+            <div className="text-primary text-3xl sm:text-4xl mb-3 sm:mb-4">💰</div>
+            <h3 className="text-lg sm:text-xl font-semibold mb-2">Best Prices</h3>
+            <p className="text-gray-600 text-sm sm:text-base">Save up to 60% compared to traditional parking</p>
           </Card>
-          <Card className="backdrop-blur-md bg-white/60 border-white/20 p-6 hover:bg-white/70 transition-all duration-300">
-            <div className="text-primary text-4xl mb-4">🔒</div>
-            <h3 className="text-xl font-semibold mb-2">Secure & Safe</h3>
-            <p className="text-gray-600">All locations verified and monitored for your safety</p>
+          <Card className="backdrop-blur-md bg-white/60 border-white/20 p-4 sm:p-6 hover:bg-white/70 transition-all duration-300 touch-manipulation sm:col-span-2 lg:col-span-1">
+            <div className="text-primary text-3xl sm:text-4xl mb-3 sm:mb-4">🔒</div>
+            <h3 className="text-lg sm:text-xl font-semibold mb-2">Secure & Safe</h3>
+            <p className="text-gray-600 text-sm sm:text-base">All locations verified and monitored for your safety</p>
           </Card>
         </div>
       </div>
