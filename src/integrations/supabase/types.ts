@@ -375,6 +375,39 @@ export type Database = {
         }
         Relationships: []
       }
+      photo_repair_reports: {
+        Row: {
+          car_park_id: string | null
+          created_at: string
+          error_type: string
+          failing_url: string
+          id: string
+          page_path: string | null
+          space_id: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          car_park_id?: string | null
+          created_at?: string
+          error_type?: string
+          failing_url: string
+          id?: string
+          page_path?: string | null
+          space_id?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          car_park_id?: string | null
+          created_at?: string
+          error_type?: string
+          failing_url?: string
+          id?: string
+          page_path?: string | null
+          space_id?: string | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
