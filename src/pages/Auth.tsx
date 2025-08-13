@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,19 +8,32 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
-import { Loader2, Mail } from 'lucide-react';
+import { Loader2, Mail, Lock } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [resetLoading, setResetLoading] = useState(false);
   const [showResetForm, setShowResetForm] = useState(false);
+  const [showPasswordUpdate, setShowPasswordUpdate] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [loginForm, setLoginForm] = useState({ email: '', password: '' });
   const [signupForm, setSignupForm] = useState({ email: '', password: '', confirmPassword: '', fullName: '' });
   const [rateLimited, setRateLimited] = useState(false);
-  const { signIn, signUp, resetPassword, user } = useAuth();
+  const { signIn, signUp, resetPassword, updatePassword, user } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  // Check for password reset token
+  useEffect(() => {
+    const type = searchParams.get('type');
+    if (type === 'recovery') {
+      setShowPasswordUpdate(true);
+      toast.info('Please set your new password');
+    }
+  }, [searchParams]);
 
   // Redirect if already logged in
   if (user) {
@@ -132,7 +145,7 @@ const Auth = () => {
         toast.error(error.message || 'Error sending password reset email');
       } else {
         toast.success('Password reset email sent!', {
-          description: 'Check your inbox.'
+          description: 'Check your inbox for the reset link.'
         });
         setResetEmail('');
         setShowResetForm(false);
@@ -141,6 +154,40 @@ const Auth = () => {
       toast.error('An error occurred while sending password reset email');
     } finally {
       setResetLoading(false);
+    }
+  };
+
+  const handleUpdatePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (newPassword !== confirmPassword) {
+      toast.error('Passwords do not match');
+      return;
+    }
+    
+    if (newPassword.length < 6) {
+      toast.error('Password must be at least 6 characters');
+      return;
+    }
+    
+    setLoading(true);
+    
+    try {
+      const { error } = await updatePassword(newPassword);
+      
+      if (error) {
+        toast.error(error.message || 'Error updating password');
+      } else {
+        toast.success('Password updated successfully!');
+        setShowPasswordUpdate(false);
+        setNewPassword('');
+        setConfirmPassword('');
+        navigate('/');
+      }
+    } catch (error) {
+      toast.error('An error occurred while updating password');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -162,6 +209,76 @@ const Auth = () => {
       toast.error('Google authentication failed');
     }
   };
+
+  // Show password update form if coming from reset link
+  if (showPasswordUpdate) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center px-4 animate-zoom-slow">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle className="text-center flex items-center justify-center gap-2">
+              <Lock className="h-5 w-5" />
+              Set New Password
+            </CardTitle>
+            <CardDescription className="text-center">
+              Enter your new password below
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleUpdatePassword} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="new-password">New Password</Label>
+                <Input
+                  id="new-password"
+                  type="password"
+                  placeholder="Enter new password (min. 6 characters)"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  required
+                  minLength={6}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="confirm-new-password">Confirm New Password</Label>
+                <Input
+                  id="confirm-new-password"
+                  type="password"
+                  placeholder="Confirm new password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                />
+              </div>
+              
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Updating Password...
+                  </>
+                ) : (
+                  'Update Password'
+                )}
+              </Button>
+              
+              <Button 
+                type="button" 
+                variant="outline" 
+                className="w-full"
+                onClick={() => {
+                  setShowPasswordUpdate(false);
+                  navigate('/auth');
+                }}
+              >
+                Back to Login
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4 animate-zoom-slow">
