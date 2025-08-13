@@ -52,6 +52,8 @@ export const ParkingBookingModal = ({
   onClose,
   parkingSpot
 }: ParkingBookingModalProps) => {
+  // Disable all bookings - show as currently booked
+  const isCurrentlyBooked = true;
   const {
     user
   } = useAuth();
@@ -216,122 +218,33 @@ export const ParkingBookingModal = ({
   return <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[95vh] overflow-y-auto mx-4 sm:mx-auto">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold">Reserve Parking Space</DialogTitle>
+          <DialogTitle className="text-2xl font-bold text-red-600">Space Currently Booked</DialogTitle>
         </DialogHeader>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-          {/* Left Column - Parking Details */}
-          <div className="space-y-4">
-            <div className="relative">
-              {parkingSpot.images && parkingSpot.images.length > 0 ? <div className="space-y-2">
-                  <img src={parkingSpot.images[0]} alt={parkingSpot.name} className="w-full h-48 object-cover rounded-lg" />
-                  {parkingSpot.images.length > 1 && <div className="grid grid-cols-2 gap-2">
-                      {parkingSpot.images.slice(1).map((image, index) => <img key={index + 1} src={image} alt={`${parkingSpot.name} - Image ${index + 2}`} className="w-full h-24 object-cover rounded-lg" />)}
-                    </div>}
-                </div> : <img src={parkingSpot.image} alt={parkingSpot.name} className="w-full h-48 object-cover rounded-lg" />}
-            </div>
-            
-            <div>
-              <h3 className="text-xl font-bold mb-2">{parkingSpot.name}</h3>
-              {parkingSpot.address && <div className="flex items-center gap-2 text-muted-foreground mb-2">
-                  <MapPin className="h-4 w-4" />
-                  <span className="text-sm">{parkingSpot.address}</span>
-                </div>}
-              {parkingSpot.description && <p className="text-sm text-muted-foreground mb-4">{parkingSpot.description}</p>}
-              
-
-            </div>
+        <div className="text-center p-8">
+          <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <Car className="w-10 h-10 text-red-500" />
+          </div>
+          
+          <h3 className="text-xl font-semibold text-red-700 mb-4">This parking space is currently occupied</h3>
+          
+          <div className="bg-red-50 p-6 rounded-lg mb-6 border border-red-200">
+            <p className="text-red-700 mb-4">
+              <strong>{parkingSpot?.name}</strong> is currently booked and not available for new reservations.
+            </p>
+            <p className="text-red-600 text-sm">
+              All parking spaces are currently occupied. Please check back later or explore other locations.
+            </p>
           </div>
 
-          {/* Right Column - Booking Form */}
-          <div className="space-y-6">
-            {/* Start Date Selection */}
-            <div>
-              <label className="block text-sm font-medium mb-2">Start Date *</label>
-              <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" className={cn("w-full justify-start text-left font-normal h-12", !startDate && "text-muted-foreground")}>
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {startDate ? format(startDate, "PPP") : "Select start date"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar mode="single" selected={startDate} onSelect={date => {
-                  setStartDate(date);
-                  setIsCalendarOpen(false);
-                }} disabled={date => {
-                  const today = new Date();
-                  const minDate = new Date();
-                  minDate.setDate(today.getDate() + 2);
-                  return date < minDate;
-                }} initialFocus className="pointer-events-auto" />
-                </PopoverContent>
-              </Popover>
-            </div>
-
-            {/* Duration Selection */}
-            <div>
-              <label className="block text-sm font-medium mb-2">Rental Duration</label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {DURATION_OPTIONS.map(option => <Button key={option.months} variant={selectedDuration.months === option.months ? "default" : "outline"} className="flex flex-col h-auto py-4 px-4 text-center" onClick={() => setSelectedDuration(option)}>
-                    <span className="font-semibold">{option.label}</span>
-                    {option.months > 1 && <span className="text-xs text-green-600 font-medium">
-                        {option.description}
-                      </span>}
-                  </Button>)}
-              </div>
-              <p className="text-xs text-muted-foreground mt-2">
-                Or choose Monthly Rolling (subject to availability)
-              </p>
-            </div>
-
-            {/* Price Breakdown */}
-            <Card>
-              <CardContent className="p-4">
-                <h4 className="font-semibold mb-3 flex items-center gap-2">
-                  <CreditCard className="h-4 w-4" />
-                  Price Breakdown
-                </h4>
-                
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>Base price ({selectedDuration.months} month{selectedDuration.months > 1 ? 's' : ''})</span>
-                    <span>AED {basePrice.toLocaleString()}</span>
-                  </div>
-                  
-                  {savings > 0 && <div className="flex justify-between text-sm text-green-600">
-                      <span>Bulk rental discount</span>
-                      <span>-AED {savings.toLocaleString()}</span>
-                    </div>}
-                  
-                  <hr className="my-2" />
-                  
-                  <div className="flex justify-between font-bold text-lg">
-                    <span>Total</span>
-                    <span>AED {finalPrice.toLocaleString()}</span>
-                  </div>
-                  
-                  {savings > 0 && <p className="text-sm text-green-600 font-medium">
-                      You save AED {savings.toLocaleString()} with long term rental pricing
-                    </p>}
-                </div>
-              </CardContent>
-            </Card>
-
-
-            {/* Reserve Button */}
+          <div className="space-y-4">
             <Button 
-              onClick={handleReserve} 
-              disabled={isSubmitting} 
-              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-4 text-lg" 
-              size="lg"
+              onClick={onClose} 
+              variant="outline" 
+              className="border-red-500 text-red-700 hover:bg-red-50"
             >
-              {isSubmitting ? "Submitting..." : `Reserve Space - AED ${finalPrice.toLocaleString()}`}
+              Find Other Spaces
             </Button>
-
-            <p className="text-xs text-muted-foreground text-center">
-              No charges will be made at this time. Payment link will be provided after confirmation.
-            </p>
           </div>
         </div>
       </DialogContent>
