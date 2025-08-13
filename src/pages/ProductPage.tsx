@@ -404,7 +404,7 @@ const ProductPage: React.FC = () => {
                     </p>
                   </div>
 
-                  {/* Monthly Billing Plan */}
+                  {/* Pricing Breakdown */}
                   {selectedDuration.months > 1 && (
                     <Card className="bg-gray-50">
                       <CardContent className="p-4">
@@ -412,7 +412,7 @@ const ProductPage: React.FC = () => {
                           <div className="w-5 h-5 border-2 border-gray-400 rounded flex items-center justify-center">
                             <div className="w-2 h-2 bg-gray-600 rounded-sm"></div>
                           </div>
-                          <h4 className="font-semibold text-gray-800">Monthly Billing Plan</h4>
+                          <h4 className="font-semibold text-gray-800">Pricing Breakdown</h4>
                         </div>
                         
                         {(() => {
@@ -442,7 +442,7 @@ const ProductPage: React.FC = () => {
                                 <span>AED {monthlyRate}</span>
                               </div>
                               <div className="text-xs text-blue-600 mt-2">
-                                — Monthly Billing: You'll be charged AED {monthlyRate} each month for {selectedDuration.months} months
+                                — You'll be charged AED {monthlyRate} each month for {selectedDuration.months} months
                               </div>
                               <div className="text-xs text-blue-600">
                                 Total commitment: AED {finalPrice.toLocaleString()} over {selectedDuration.months} months
