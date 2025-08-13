@@ -333,17 +333,6 @@ const ProductPage: React.FC = () => {
                     <p className="text-muted-foreground">{parkingListing.description || 'Secure parking space with convenient access.'}</p>
                   </div>
 
-                  {parkingListing.features && parkingListing.features.length > 0 && (
-                    <div>
-                      <h3 className="font-semibold mb-3">Features</h3>
-                      <div className="flex flex-wrap gap-2">
-                        {parkingListing.features.map((feature: string, index: number) => (
-                          <Badge key={index} variant="outline">{feature}</Badge>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
                   <div>
                     <h3 className="font-semibold mb-2">Location</h3>
                     <p className="text-muted-foreground text-sm">{parkingListing.address}</p>
