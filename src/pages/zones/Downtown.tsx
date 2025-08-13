@@ -52,9 +52,7 @@ const Downtown = () => {
     console.log('Fetching parking spots for Downtown...');
     try {
       // For security: Only fetch contact info if user is authenticated
-      const { data, error } = previewMode
-        ? await supabase.from('parking_listings').select("*").eq('zone', 'Downtown')
-        : await supabase.from('parking_listings').select("id, title, description, address, zone, features, images, price_per_hour, price_per_day, price_per_month, availability_schedule, status, created_at, updated_at").eq('zone', 'Downtown').eq('status', 'approved');
+      const { data, error } = await supabase.from('parking_listings').select("id, title, description, address, zone, features, images, price_per_hour, price_per_day, price_per_month, availability_schedule, status, created_at, updated_at").eq('zone', 'Downtown').eq('status', 'approved');
       console.log('Supabase query result:', {
         data,
         error
@@ -70,7 +68,7 @@ const Downtown = () => {
         image: spot.images && spot.images.length > 0 ? spot.images[0] : "/lovable-uploads/161ee737-1491-45d6-a5e3-a642b7ff0806.png",
         images: spot.images || [],
         specs: spot.features || ["Access Card", "Covered", "2.1m Height"],
-        available: !previewMode,
+        available: true,
         address: spot.address,
         description: spot.description
       }));
@@ -86,7 +84,7 @@ const Downtown = () => {
           image: "/lovable-uploads/25c56481-0d03-4055-bd47-67635ac0d1b0.png",
           images: ["/lovable-uploads/25c56481-0d03-4055-bd47-67635ac0d1b0.png", "/lovable-uploads/32249908-791f-4751-bdaa-b25414bbcd86.png"],
           specs: ["Access Card", "Covered", "2.5m Height"],
-          available: !previewMode,
+          available: true,
           address: "The Lofts Central Tower, Downtown Dubai",
           description: "Prime downtown parking in The Lofts Central Tower. Secure underground parking with 24/7 access and CCTV surveillance."
         },
@@ -98,7 +96,7 @@ const Downtown = () => {
           image: "/lovable-uploads/32249908-791f-4751-bdaa-b25414bbcd86.png",
           images: ["/lovable-uploads/32249908-791f-4751-bdaa-b25414bbcd86.png", "/lovable-uploads/25c56481-0d03-4055-bd47-67635ac0d1b0.png"],
           specs: ["CCTV", "24h Security", "Concierge"],
-          available: !previewMode,
+          available: true,
           address: "Burj Vista, Downtown Dubai",
           description: "Basement-level parking space in the heart of Downtown. CCTV surveillance, 24-hour maintenance, and concierge services available."
         }
@@ -115,7 +113,7 @@ const Downtown = () => {
           image: "/lovable-uploads/25c56481-0d03-4055-bd47-67635ac0d1b0.png",
           images: ["/lovable-uploads/25c56481-0d03-4055-bd47-67635ac0d1b0.png", "/lovable-uploads/32249908-791f-4751-bdaa-b25414bbcd86.png"],
           specs: ["Access Card", "Covered", "2.5m Height"],
-          available: !previewMode,
+          available: true,
           address: "The Lofts Central Tower, Downtown Dubai",
           description: "Prime downtown parking with 24/7 security and premium amenities."
         },
@@ -127,7 +125,7 @@ const Downtown = () => {
           image: "/lovable-uploads/32249908-791f-4751-bdaa-b25414bbcd86.png",
           images: ["/lovable-uploads/32249908-791f-4751-bdaa-b25414bbcd86.png", "/lovable-uploads/25c56481-0d03-4055-bd47-67635ac0d1b0.png"],
           specs: ["CCTV", "24h Security", "Concierge"],
-          available: !previewMode,
+          available: true,
           address: "Burj Vista, Downtown Dubai",
           description: "Basement-level parking with CCTV surveillance and concierge services."
         }
@@ -278,17 +276,12 @@ const Downtown = () => {
                 </div>
 
 
-                {previewMode ? (
-                  <Link to={`/parking/${spot.id}`} onClick={() => console.info('PreviewMode reserve click', { spotId: spot.id })}>
-                    <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold">
-                      Reserve Space
-                    </Button>
-                  </Link>
-                ) : (
-                  <Button className="w-full bg-destructive hover:bg-destructive text-destructive-foreground cursor-not-allowed" disabled>
-                    Currently Booked
-                  </Button>
-                )}
+                <Button 
+                  onClick={() => handleReserveClick(spot)}
+                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
+                >
+                  Reserve Space
+                </Button>
               </div>
             </Card>)}
           </div>}

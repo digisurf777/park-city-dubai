@@ -74,10 +74,7 @@ const Deira = () => {
     console.log("Fetching parking spots for Deira...");
     try {
       // For security: Only fetch contact info if user is authenticated
-      const { data, error } = previewMode 
-        ? await supabase.from("parking_listings").select("*").eq("zone", "Deira")
-        : await supabase.from("parking_listings").select("id, title, description, address, zone, features, images, price_per_hour, price_per_day, price_per_month, availability_schedule, status, created_at, updated_at").eq("zone", "Deira").eq("status", "approved");
-      
+      const { data, error } = await supabase.from("parking_listings").select("id, title, description, address, zone, features, images, price_per_hour, price_per_day, price_per_month, availability_schedule, status, created_at, updated_at").eq("zone", "Deira").eq("status", "approved");
       console.log("Supabase query result:", { data, error });
       if (error) throw error;
 
@@ -89,7 +86,7 @@ const Deira = () => {
         image: spot.images && spot.images.length > 0 ? spot.images[0] : "/lovable-uploads/747c1f5d-d6b2-4f6a-94a2-aca1927ee856.png",
         images: spot.images || [],
         specs: spot.features || ["Access Card", "Covered", "2.1m Height"],
-        available: !previewMode, // In preview mode, all spaces show as unavailable
+        available: true,
         address: spot.address,
         description: spot.description
       }));
@@ -106,7 +103,7 @@ const Deira = () => {
             price: 200,
             image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
             specs: ["Underground", "Secure", "Al Mulla Plaza"],
-            available: !previewMode,
+            available: true,
             address: "Abraj Al Mamzar, Deira",
             description: "Secure underground parking close to Al Mulla Plaza with convenient access and safety features."
           },
@@ -117,7 +114,7 @@ const Deira = () => {
             price: 300,
             image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
             specs: ["Covered", "Elevator Access", "CCTV"],
-            available: !previewMode,
+            available: true,
             address: "Al Meraikhi Tower 2, Deira",
             description: "Convenient covered parking space in Al Meraikhi Tower 2 with easy elevator access and CCTV surveillance."
           }
@@ -135,7 +132,7 @@ const Deira = () => {
           price: 200,
           image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
           specs: ["Underground", "Secure", "Al Mulla Plaza"],
-          available: !previewMode,
+          available: true,
           address: "Abraj Al Mamzar, Deira",
           description: "Secure underground parking close to Al Mulla Plaza with convenient access and safety features."
         },
@@ -146,7 +143,7 @@ const Deira = () => {
           price: 300,
           image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
           specs: ["Covered", "Elevator Access", "CCTV"],
-          available: !previewMode,
+          available: true,
           address: "Al Meraikhi Tower 2, Deira",
           description: "Convenient covered parking space in Al Meraikhi Tower 2 with easy elevator access and CCTV surveillance."
         }
@@ -172,9 +169,6 @@ const Deira = () => {
   const minPrice = parkingSpots.length > 0 ? Math.min(...parkingSpots.map(spot => spot.price)) : 0;
 
   const handleReserveClick = (spot: any) => {
-    if (previewMode) {
-      console.log('Preview mode: Zone click telemetry', { zone: 'Deira', spotId: spot.id, spotName: spot.name });
-    }
     setSelectedSpot(spot);
     setIsBookingModalOpen(true);
   };
@@ -331,20 +325,12 @@ const Deira = () => {
                     <span className="text-2xl font-bold text-primary">From AED {spot.price}/month</span>
                   </div>
 
-                  {previewMode ? (
-                    <Link to={`/parking/${spot.id}`} onClick={() => console.info('PreviewMode reserve click', { spotId: spot.id })}>
-                      <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold">
-                        Reserve Space
-                      </Button>
-                    </Link>
-                  ) : (
-                    <Button 
-                      className="w-full bg-destructive hover:bg-destructive text-destructive-foreground font-semibold py-2 px-4 rounded-lg cursor-not-allowed" 
-                      disabled
-                    >
-                      Currently Booked
-                    </Button>
-                  )}
+                  <Button 
+                    onClick={() => handleReserveClick(spot)}
+                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
+                  >
+                    Reserve Space
+                  </Button>
                 </div>
               </Card>
             ))}

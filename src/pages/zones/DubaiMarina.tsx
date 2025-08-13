@@ -51,9 +51,7 @@ const DubaiMarina = () => {
     console.log('Fetching parking spots for Dubai Marina...');
     try {
       // For security: Only fetch contact info if user is authenticated
-      const { data, error } = previewMode
-        ? await supabase.from('parking_listings').select("*").eq('zone', 'Dubai Marina')
-        : await supabase.from('parking_listings').select("id, title, description, address, zone, features, images, price_per_hour, price_per_day, price_per_month, availability_schedule, status, created_at, updated_at").eq('zone', 'Dubai Marina').eq('status', 'approved');
+      const { data, error } = await supabase.from('parking_listings').select("id, title, description, address, zone, features, images, price_per_hour, price_per_day, price_per_month, availability_schedule, status, created_at, updated_at").eq('zone', 'Dubai Marina').eq('status', 'approved');
       console.log('Supabase query result:', {
         data,
         error
@@ -70,7 +68,7 @@ const DubaiMarina = () => {
         images: spot.images || [],
         // Pass the full images array
         specs: spot.features || ["Access Card", "Covered", "2.1m Height"],
-        available: !previewMode,
+        available: true,
         address: spot.address,
         description: spot.description
       }));
@@ -88,7 +86,7 @@ const DubaiMarina = () => {
             image: "/lovable-uploads/25c56481-0d03-4055-bd47-67635ac0d1b0.png",
             images: ["/lovable-uploads/25c56481-0d03-4055-bd47-67635ac0d1b0.png", "/lovable-uploads/32249908-791f-4751-bdaa-b25414bbcd86.png"],
             specs: ["Access Card", "Covered", "24/7 Access"],
-            available: !previewMode,
+            available: true,
             address: "LIV Residence, Dubai Marina",
             description: "Covered parking in LIV Residence tower. 24/7 access and secure entry. Ideal for residents or nearby tenants."
           },
@@ -100,7 +98,7 @@ const DubaiMarina = () => {
             image: "/lovable-uploads/32249908-791f-4751-bdaa-b25414bbcd86.png",
             images: ["/lovable-uploads/32249908-791f-4751-bdaa-b25414bbcd86.png", "/lovable-uploads/bff8556c-9c7b-4765-820d-b007ca48c5ac.png"],
             specs: ["Access Card", "Basement", "Prime Location"],
-            available: !previewMode,
+            available: true,
             address: "Marina Plaza, Dubai Marina",
             description: "Prime location in Marina Plaza. Basement parking with access control. Great for office tenants or regular visitors."
           },
@@ -112,7 +110,7 @@ const DubaiMarina = () => {
             image: "/lovable-uploads/bff8556c-9c7b-4765-820d-b007ca48c5ac.png",
             images: ["/lovable-uploads/bff8556c-9c7b-4765-820d-b007ca48c5ac.png", "/lovable-uploads/cc70ca6e-a718-4baf-b612-9ddb5c9f07d4.png"],
             specs: ["Access Card", "Indoor", "Metro Access"],
-            available: !previewMode,
+            available: true,
             address: "Marina Diamond 2, Dubai Marina",
             description: "Indoor parking in Marina Diamond 2, secure access and great location next to metro."
           },
@@ -124,7 +122,7 @@ const DubaiMarina = () => {
             image: "/lovable-uploads/cc70ca6e-a718-4baf-b612-9ddb5c9f07d4.png",
             images: ["/lovable-uploads/cc70ca6e-a718-4baf-b612-9ddb5c9f07d4.png", "/lovable-uploads/161ee737-1491-45d6-a5e3-a642b7ff0806.png"],
             specs: ["Access Card", "Indoor", "Second Slot"],
-            available: !previewMode,
+            available: true,
             address: "Marina Diamond 2, Dubai Marina",
             description: "Second slot in Marina Diamond 2. Perfect for families with two vehicles or friends."
           },
@@ -136,7 +134,7 @@ const DubaiMarina = () => {
             image: "/lovable-uploads/161ee737-1491-45d6-a5e3-a642b7ff0806.png",
             images: ["/lovable-uploads/161ee737-1491-45d6-a5e3-a642b7ff0806.png", "/lovable-uploads/25c56481-0d03-4055-bd47-67635ac0d1b0.png"],
             specs: ["Keycard Access", "Covered", "Convenient"],
-            available: !previewMode,
+            available: true,
             address: "Park Island, Dubai Marina",
             description: "Covered parking in Park Island complex. Access via keycard, safe and convenient."
           }
@@ -355,17 +353,12 @@ const DubaiMarina = () => {
 
 
 
-                {previewMode ? (
-                  <Link to={`/parking/${spot.id}`} onClick={() => console.info('PreviewMode reserve click', { spotId: spot.id })}>
-                    <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3">
-                      Reserve Space
-                    </Button>
-                  </Link>
-                ) : (
-                  <Button className="w-full bg-destructive hover:bg-destructive text-destructive-foreground font-semibold py-3 cursor-not-allowed" disabled>
-                    Currently Booked
-                  </Button>
-                )}
+                <Button 
+                  onClick={() => handleReserveClick(spot)}
+                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3"
+                >
+                  Reserve Space
+                </Button>
               </div>
             </Card>)}
         </div>}
