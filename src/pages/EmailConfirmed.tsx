@@ -49,7 +49,7 @@ const EmailConfirmed = () => {
             setError(error.message);
           } else {
             setConfirmed(true);
-            toast.success('Email confirmed successfully!');
+            toast.success('Email confirmed successfully! Redirecting to your account...');
             // Send welcome email after successful confirmation
             try {
               await supabase.functions.invoke('send-welcome-email', {
@@ -59,6 +59,10 @@ const EmailConfirmed = () => {
               console.log('Welcome email failed:', emailError);
               // Don't show error to user for welcome email failure
             }
+            // Redirect to account page after short delay
+            setTimeout(() => {
+              navigate('/my-account');
+            }, 1500);
           }
         } 
         // Try to exchange code for session if we have token_hash
