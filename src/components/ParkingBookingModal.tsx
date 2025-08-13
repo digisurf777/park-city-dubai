@@ -3,8 +3,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { CalendarIcon, Car, Clock, CreditCard, MapPin, Check } from "lucide-react";
@@ -63,8 +61,6 @@ export const ParkingBookingModal = ({
   const [startDate, setStartDate] = useState<Date>();
   const [selectedDuration, setSelectedDuration] = useState(DURATION_OPTIONS[0]);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
-  const [userPhone, setUserPhone] = useState("");
-  const [notes, setNotes] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [bookingReference, setBookingReference] = useState("");
@@ -73,8 +69,6 @@ export const ParkingBookingModal = ({
       setStartDate(undefined);
       setSelectedDuration(DURATION_OPTIONS[0]);
       setIsCalendarOpen(false);
-      setUserPhone("");
-      setNotes("");
       setIsSubmitting(false);
       setShowConfirmation(false);
       setBookingReference("");
@@ -140,8 +134,6 @@ export const ParkingBookingModal = ({
       const bookingData = {
         startDate: startDate.toISOString(),
         duration: selectedDuration.months,
-        userPhone,
-        notes,
         zone: "Find Parking Page",
         location: parkingSpot.name,
         costAed: finalPrice,
@@ -326,16 +318,6 @@ export const ParkingBookingModal = ({
               </CardContent>
             </Card>
 
-            {/* Additional Fields */}
-            <div>
-              <label className="block text-sm font-medium mb-2">Phone Number (Optional)</label>
-              <Input type="tel" placeholder="Your phone number" value={userPhone} onChange={e => setUserPhone(e.target.value)} />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-2">Notes (Optional)</label>
-              <Textarea placeholder="Any special requirements or notes..." value={notes} onChange={e => setNotes(e.target.value)} className="min-h-[80px]" />
-            </div>
 
             {/* Reserve Button */}
             <Button 
