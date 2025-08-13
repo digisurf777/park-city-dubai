@@ -10,10 +10,10 @@ interface FeatureFlagsContextValue {
 const FeatureFlagsContext = createContext<FeatureFlagsContextValue | undefined>(undefined);
 
 export const FeatureFlagsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Default: true, can be overridden by localStorage key "preview_mode" ("true" | "false")
+  // Default: false, can be overridden by localStorage key "preview_mode" ("true" | "false")
   const [previewMode, setPreviewMode] = useState<boolean>(() => {
     const stored = localStorage.getItem("preview_mode");
-    return stored !== null ? stored === "true" : true;
+    return stored !== null ? stored === "true" : false;
   });
 
   // Default: true, can be overridden by localStorage key "preview_mode_photos" ("true" | "false")

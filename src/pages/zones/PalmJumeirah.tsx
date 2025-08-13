@@ -320,20 +320,12 @@ const PalmJumeirah = () => {
                     <span className="text-2xl font-bold text-primary">From AED {spot.price}/month</span>
                   </div>
 
-                  {previewMode ? (
-                    <Link to={`/parking/${spot.id}`} onClick={() => console.info('PreviewMode reserve click', { spotId: spot.id })}>
-                      <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold">
-                        Reserve Space
-                      </Button>
-                    </Link>
-                  ) : (
-                    <Button 
-                      className="w-full bg-destructive hover:bg-destructive text-destructive-foreground font-semibold py-2 px-4 rounded-lg cursor-not-allowed" 
-                      disabled
-                    >
-                      Currently Booked
-                    </Button>
-                  )}
+                  <Button 
+                    onClick={() => handleReserveClick(spot)}
+                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
+                  >
+                    Reserve Space
+                  </Button>
                 </div>
               </Card>
             ))}

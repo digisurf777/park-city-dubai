@@ -337,19 +337,14 @@ export const ParkingBookingModal = ({
               <Textarea placeholder="Any special requirements or notes..." value={notes} onChange={e => setNotes(e.target.value)} className="min-h-[80px]" />
             </div>
 
-            {/* Important Notice */}
-            <Card className="bg-red-50 border-red-200">
-              <CardContent className="p-4">
-                <div className="text-sm text-red-800">
-                  <p className="font-medium mb-2">🚫 Currently Unavailable:</p>
-                  <p className="text-xs">All parking spots are currently booked. Please check back later for availability.</p>
-                </div>
-              </CardContent>
-            </Card>
-
             {/* Reserve Button */}
-            <Button className="w-full bg-destructive hover:bg-destructive text-destructive-foreground font-semibold py-4 text-lg cursor-not-allowed" size="lg" disabled>
-              🚫 All Spots Currently Booked
+            <Button 
+              onClick={handleReserve} 
+              disabled={isSubmitting} 
+              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-4 text-lg" 
+              size="lg"
+            >
+              {isSubmitting ? "Submitting..." : `Reserve Space - AED ${finalPrice.toLocaleString()}`}
             </Button>
 
             <p className="text-xs text-muted-foreground text-center">
