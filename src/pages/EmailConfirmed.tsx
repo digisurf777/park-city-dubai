@@ -16,12 +16,15 @@ const EmailConfirmed = () => {
   useEffect(() => {
     const confirmEmail = async () => {
       try {
+        setLoading(true);
+        
         // Check if user is already authenticated
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
         if (session && session.user && !sessionError) {
           // User is already logged in, consider this a success
           setConfirmed(true);
+          setLoading(false);
           toast.success('Welcome! You are successfully logged in.');
           setTimeout(() => {
             navigate('/my-account');
