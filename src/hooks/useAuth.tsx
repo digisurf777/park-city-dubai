@@ -65,14 +65,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       const redirectUrl = `https://shazamparking.ae/email-confirmed`;
       
-      console.log('Starting signup with redirect URL:', redirectUrl);
+      console.log('Starting signup process...');
       
-      // Use Supabase's native email confirmation
+      // Create user account without email confirmation
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          emailRedirectTo: redirectUrl,
           data: {
             full_name: fullName,
             user_type: userType
@@ -82,11 +81,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       console.log('Signup result:', { data, error });
 
-      // If Supabase's native email fails, try custom confirmation email as fallback
-      if (error && error.message.includes('Error sending confirmation email') && data?.user) {
-        console.log('Supabase email failed, trying custom confirmation email...');
+      // If signup successful, always send custom confirmation email
+      if (!error && data?.user) {
+        console.log('Sending custom confirmation email...');
         try {
-          const confirmationUrl = `${redirectUrl}?token_hash=confirm&type=signup&user_id=${data.user.id}`;
+          // Create proper confirmation URL using Supabase auth verification endpoint
+          const confirmationUrl = `https://eoknluyunximjlsnyceb.supabase.co/auth/v1/verify?token={{.Token}}&type=signup&redirect_to=${encodeURIComponent(redirectUrl)}`;
           
           const emailResult = await supabase.functions.invoke('send-confirmation-email', {
             body: {
@@ -102,15 +102,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           }
           
           console.log('Custom confirmation email sent successfully:', emailResult.data);
-          return { error: null };
         } catch (customEmailError) {
-          console.error('Custom confirmation email also failed:', customEmailError);
-          return { error: new Error('Failed to send confirmation email. Please try again.') };
+          console.error('Failed to send confirmation email:', customEmailError);
+          return { error: new Error('Account created but failed to send confirmation email. Please contact support.') };
         }
-      }
 
-      // Send admin notification after successful signup (only if no error)
-      if (!error && data.user) {
+        // Send admin notification after successful signup
         try {
           await supabase.functions.invoke('send-admin-signup-notification', {
             body: {
@@ -122,7 +119,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           console.log('Admin notification sent successfully');
         } catch (emailError) {
           console.error('Failed to send admin notification:', emailError);
-          // Don't fail the signup if email fails
+          // Don't fail the signup if admin email fails
         }
       }
       

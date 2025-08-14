@@ -26,14 +26,24 @@ const Auth = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  // Check for password reset token
+  // Check for password reset token or email confirmation
   useEffect(() => {
     const type = searchParams.get('type');
+    const confirmed = searchParams.get('confirmed');
+    const email = searchParams.get('email');
+    
     if (type === 'recovery') {
       setShowPasswordUpdate(true);
       toast.info('Please set your new password');
+    } else if (confirmed === 'true' && email) {
+      toast.success('Email confirmed successfully!', {
+        duration: 6000,
+        description: 'You can now log in with your credentials.'
+      });
+      // Clear the URL parameters
+      navigate('/auth', { replace: true });
     }
-  }, [searchParams]);
+  }, [searchParams, navigate]);
 
   // Redirect if already logged in
   if (user) {
