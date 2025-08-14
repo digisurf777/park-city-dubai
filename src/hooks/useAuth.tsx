@@ -2,6 +2,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { cleanupAuthState, forcePageRefresh } from '@/utils/authUtils';
 
 interface AuthContextType {
   user: User | null;
@@ -37,6 +38,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
+        
+        // Defer any data fetching to prevent deadlocks
+        if (event === 'SIGNED_IN' && session?.user) {
+          setTimeout(() => {
+            // Any additional user data loading would go here
+          }, 0);
+        }
       }
     );
 
@@ -51,83 +59,134 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const signUp = async (email: string, password: string, fullName: string, userType: string = 'renter') => {
-    const redirectUrl = `https://shazamparking.ae/email-confirmed`;
-    
-    console.log('Starting signup with redirect URL:', redirectUrl);
-    
-    // Use Supabase's native email confirmation
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: redirectUrl,
-        data: {
-          full_name: fullName,
-          user_type: userType
+    try {
+      // Clean up any existing auth state before signup
+      cleanupAuthState();
+      
+      const redirectUrl = `https://shazamparking.ae/email-confirmed`;
+      
+      console.log('Starting signup with redirect URL:', redirectUrl);
+      
+      // Use Supabase's native email confirmation
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: redirectUrl,
+          data: {
+            full_name: fullName,
+            user_type: userType
+          }
+        }
+      });
+
+      console.log('Signup result:', { data, error });
+
+      // If Supabase's native email fails, try custom confirmation email as fallback
+      if (error && error.message.includes('Error sending confirmation email') && data?.user) {
+        console.log('Supabase email failed, trying custom confirmation email...');
+        try {
+          const confirmationUrl = `${redirectUrl}?token_hash=confirm&type=signup&user_id=${data.user.id}`;
+          
+          const emailResult = await supabase.functions.invoke('send-confirmation-email', {
+            body: {
+              email: email,
+              fullName: fullName,
+              confirmationUrl: confirmationUrl
+            }
+          });
+          
+          if (emailResult.error) {
+            console.error('Custom confirmation email failed:', emailResult.error);
+            throw emailResult.error;
+          }
+          
+          console.log('Custom confirmation email sent successfully:', emailResult.data);
+          return { error: null };
+        } catch (customEmailError) {
+          console.error('Custom confirmation email also failed:', customEmailError);
+          return { error: new Error('Failed to send confirmation email. Please try again.') };
         }
       }
-    });
 
-    console.log('Signup result:', { data, error });
-
-    // If Supabase's native email fails, try custom confirmation email as fallback
-    if (error && error.message.includes('Error sending confirmation email') && data?.user) {
-      console.log('Supabase email failed, trying custom confirmation email...');
-      try {
-        const confirmationUrl = `${redirectUrl}?token_hash=confirm&type=signup&user_id=${data.user.id}`;
-        
-        const emailResult = await supabase.functions.invoke('send-confirmation-email', {
-          body: {
-            email: email,
-            fullName: fullName,
-            confirmationUrl: confirmationUrl
-          }
-        });
-        
-        if (emailResult.error) {
-          console.error('Custom confirmation email failed:', emailResult.error);
-          throw emailResult.error;
+      // Send admin notification after successful signup (only if no error)
+      if (!error && data.user) {
+        try {
+          await supabase.functions.invoke('send-admin-signup-notification', {
+            body: {
+              email: email,
+              fullName: fullName,
+              userType: userType
+            }
+          });
+          console.log('Admin notification sent successfully');
+        } catch (emailError) {
+          console.error('Failed to send admin notification:', emailError);
+          // Don't fail the signup if email fails
         }
-        
-        console.log('Custom confirmation email sent successfully:', emailResult.data);
-        return { error: null };
-      } catch (customEmailError) {
-        console.error('Custom confirmation email also failed:', customEmailError);
-        return { error: new Error('Failed to send confirmation email. Please try again.') };
       }
+      
+      return { error };
+    } catch (signupError: any) {
+      console.error('Signup error:', signupError);
+      return { error: signupError };
     }
-
-    // Send admin notification after successful signup (only if no error)
-    if (!error && data.user) {
-      try {
-        await supabase.functions.invoke('send-admin-signup-notification', {
-          body: {
-            email: email,
-            fullName: fullName,
-            userType: userType
-          }
-        });
-        console.log('Admin notification sent successfully');
-      } catch (emailError) {
-        console.error('Failed to send admin notification:', emailError);
-        // Don't fail the signup if email fails
-      }
-    }
-    
-    return { error };
   };
 
   const signIn = async (email: string, password: string) => {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    try {
+      // Clean up existing state before signing in
+      cleanupAuthState();
+      
+      // Attempt global sign out first
+      try {
+        await supabase.auth.signOut({ scope: 'global' });
+      } catch (err) {
+        // Continue even if this fails
+        console.log('Global signout error (continuing):', err);
+      }
 
-    return { error };
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        return { error };
+      }
+
+      if (data.user) {
+        // Force page refresh for clean state
+        setTimeout(() => {
+          forcePageRefresh('/');
+        }, 500);
+      }
+
+      return { error: null };
+    } catch (error: any) {
+      return { error };
+    }
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    try {
+      // Clean up auth state first
+      cleanupAuthState();
+      
+      // Attempt global sign out
+      try {
+        await supabase.auth.signOut({ scope: 'global' });
+      } catch (err) {
+        console.log('Signout error (continuing):', err);
+      }
+      
+      // Force page refresh for clean state
+      forcePageRefresh('/auth');
+    } catch (error) {
+      console.error('Signout error:', error);
+      // Force refresh anyway to clear state
+      forcePageRefresh('/auth');
+    }
   };
 
   const resetPassword = async (email: string) => {
