@@ -283,9 +283,12 @@ const DIFC = () => {
                     <span className="text-xl sm:text-2xl font-bold text-primary">From AED {spot.price}/month</span>
                   </div>
 
-                  <div className="w-full bg-red-500 text-white py-2 sm:py-3 rounded text-center font-semibold text-sm sm:text-base">
-                    Currently Booked
-                  </div>
+                  <Button 
+                    onClick={() => handleReserveClick(spot)}
+                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-2 sm:py-3 text-sm sm:text-base touch-target"
+                  >
+                    Reserve Space
+                  </Button>
                 </div>
               </Card>
             ))}
