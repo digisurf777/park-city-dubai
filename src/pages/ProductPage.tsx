@@ -19,6 +19,7 @@ const ProductPage: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   
+  console.log('ProductPage rendering - SHOULD ALWAYS SHOW CURRENTLY BOOKED');
   
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [selectedDuration, setSelectedDuration] = useState<any>({ months: 1, label: "1 Month", multiplier: 1.0, description: "Monthly rate" });
@@ -29,7 +30,8 @@ const ProductPage: React.FC = () => {
   const [parkingListing, setParkingListing] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>('');
-  const [isCurrentlyBooked, setIsCurrentlyBooked] = useState<boolean>(true); // Set to true to show all as booked
+  // FORCE ALL PRODUCT PAGES TO SHOW AS CURRENTLY BOOKED
+  const isCurrentlyBooked = true;
   
   const DURATION_OPTIONS = [
     { months: 1, label: "1 Month", multiplier: 1.0, description: "Monthly rate" },
