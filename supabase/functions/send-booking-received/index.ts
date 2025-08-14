@@ -36,7 +36,7 @@ const handler = async (req: Request): Promise<Response> => {
       html: `
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #ffffff;">
           <div style="text-align: center; margin-bottom: 30px; padding: 20px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 12px;">
-            <h1 style="color: white; font-size: 24px; margin: 0; font-weight: bold;">✅ Booking Request Received</h1>
+            <h1 style="color: white; font-size: 24px; margin: 0; font-weight: bold;">Your Booking Request Has Been Received</h1>
             <p style="color: rgba(255,255,255,0.9); font-size: 14px; margin: 10px 0 0 0;">ShazamParking</p>
           </div>
           
@@ -46,30 +46,22 @@ const handler = async (req: Request): Promise<Response> => {
             </h2>
             
             <p style="color: #4b5563; line-height: 1.6; margin-bottom: 20px; font-size: 16px;">
-              <strong>Thank you for booking with ShazamParking.</strong>
+              Thank you for booking with ShazamParking.
             </p>
             
-            <div style="background: #ecfdf5; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #10b981;">
-              <h3 style="color: #065f46; margin: 0 0 15px 0; font-size: 16px;">📍 Booking Details:</h3>
-              <div style="color: #065f46; line-height: 1.6;">
-                <p style="margin: 5px 0;"><strong>Location:</strong> ${bookingDetails.location}</p>
-                <p style="margin: 5px 0;"><strong>Start:</strong> ${bookingDetails.startDate}</p>
-                <p style="margin: 5px 0;"><strong>End:</strong> ${bookingDetails.endDate}</p>
-                <p style="margin: 5px 0;"><strong>Amount:</strong> ${bookingDetails.amount}</p>
-              </div>
-            </div>
+            <p style="color: #4b5563; line-height: 1.6; margin-bottom: 20px; font-size: 16px;">
+              We've received your request and your payment card has been securely pre-authorized for the rental amount.<br>
+              Please note that this is not yet a confirmation of your booking.
+            </p>
             
-            <div style="background: #fef3c7; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #f59e0b;">
-              <h3 style="color: #92400e; margin: 0 0 10px 0; font-size: 16px;">⏳ What Happens Next:</h3>
-              <ul style="color: #b45309; margin: 0; padding-left: 20px; line-height: 1.6;">
-                <li>We've received your request and your payment card has been securely <strong>pre-authorized</strong> for the rental amount</li>
-                <li><strong>Please note:</strong> This is not yet a confirmation of your booking</li>
-                <li>We are now contacting the space owner to verify availability</li>
-                <li>You will receive an update within <strong>48 hours</strong></li>
-                <li>If the space is confirmed, your card will be charged and your booking finalized</li>
-                <li>If it's no longer available, the pre-authorization will be released and no payment will be taken</li>
-              </ul>
-            </div>
+            <p style="color: #4b5563; line-height: 1.6; margin-bottom: 20px; font-size: 16px;">
+              We are now contacting the space owner to verify availability. You will receive an update within 48 hours.
+            </p>
+            
+            <ul style="color: #4b5563; margin: 20px 0; padding-left: 20px; line-height: 1.6; font-size: 16px;">
+              <li>If the space is confirmed, your card will be charged and your booking finalized.</li>
+              <li>If it's no longer available, the pre-authorization will be released and no payment will be taken.</li>
+            </ul>
             
             <p style="color: #4b5563; line-height: 1.6; margin: 20px 0 0 0; font-size: 16px;">
               Thank you for choosing ShazamParking.

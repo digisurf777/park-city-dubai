@@ -36,7 +36,7 @@ const handler = async (req: Request): Promise<Response> => {
       html: `
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #ffffff;">
           <div style="text-align: center; margin-bottom: 30px; padding: 20px; background: linear-gradient(135deg, #ef4444, #dc2626); border-radius: 12px;">
-            <h1 style="color: white; font-size: 24px; margin: 0; font-weight: bold;">Booking Update</h1>
+            <h1 style="color: white; font-size: 24px; margin: 0; font-weight: bold;">Unfortunately, Your Booking Could Not Be Confirmed</h1>
             <p style="color: rgba(255,255,255,0.9); font-size: 14px; margin: 10px 0 0 0;">ShazamParking</p>
           </div>
           
@@ -45,44 +45,18 @@ const handler = async (req: Request): Promise<Response> => {
               Dear ${userName || 'Customer'},
             </h2>
             
-            <div style="background: #fef2f2; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ef4444;">
-              <p style="color: #991b1b; line-height: 1.6; margin: 0; font-size: 16px;">
-                <strong>Unfortunately, the space you selected is no longer available.</strong>
-              </p>
-            </div>
-            
-            <div style="background: #f0f9ff; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #0ea5e9;">
-              <h3 style="color: #0c4a6e; margin: 0 0 15px 0; font-size: 16px;">📍 Booking Request Details:</h3>
-              <div style="color: #0c4a6e; line-height: 1.6;">
-                <p style="margin: 5px 0;"><strong>Location:</strong> ${bookingDetails.location}</p>
-                <p style="margin: 5px 0;"><strong>Dates:</strong> ${bookingDetails.startDate} to ${bookingDetails.endDate}</p>
-                <p style="margin: 5px 0;"><strong>Amount:</strong> ${bookingDetails.amount}</p>
-              </div>
-            </div>
-            
-            <div style="background: #ecfdf5; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #10b981;">
-              <h3 style="color: #065f46; margin: 0 0 10px 0; font-size: 16px;">✅ No Charges Applied:</h3>
-              <ul style="color: #065f46; margin: 0; padding-left: 20px; line-height: 1.6;">
-                <li>Your booking request has been cancelled</li>
-                <li><strong>No charges have been made</strong> to your payment method</li>
-                <li>The card pre-authorization has now been released</li>
-              </ul>
-            </div>
-            
-            <p style="color: #4b5563; line-height: 1.6; margin: 15px 0; font-size: 16px;">
-              We're sorry for the inconvenience and appreciate your understanding.
+            <p style="color: #4b5563; line-height: 1.6; margin-bottom: 20px; font-size: 16px;">
+              Unfortunately, the space you selected is no longer available.
             </p>
             
-            <p style="color: #4b5563; line-height: 1.6; margin: 15px 0; font-size: 16px;">
-              To view other available spaces, please visit <a href="https://www.shazamparking.ae" style="color: #10b981; text-decoration: none; font-weight: 600;">www.shazamparking.ae</a>.
+            <p style="color: #4b5563; line-height: 1.6; margin-bottom: 20px; font-size: 16px;">
+              Your booking request has been cancelled and no charges have been made. The card pre-authorization has now been released.
             </p>
             
-            <div style="text-align: center; margin: 25px 0;">
-              <a href="https://www.shazamparking.ae/find-parking" 
-                 style="background: #10b981; color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block; font-size: 16px;">
-                Find Alternative Parking
-              </a>
-            </div>
+            <p style="color: #4b5563; line-height: 1.6; margin-bottom: 20px; font-size: 16px;">
+              We're sorry for the inconvenience and appreciate your understanding.<br>
+              To view other available spaces, please visit www.shazamparking.ae.
+            </p>
             
             <p style="color: #4b5563; line-height: 1.6; margin: 20px 0 0 0; font-size: 16px;">
               If you need help finding a suitable alternative, feel free to contact us anytime.

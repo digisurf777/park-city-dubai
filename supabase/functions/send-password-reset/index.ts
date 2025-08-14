@@ -30,12 +30,12 @@ const handler = async (req: Request): Promise<Response> => {
       html: `
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #ffffff;">
           <div style="text-align: center; margin-bottom: 30px; padding: 20px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 12px;">
-            <h1 style="color: white; font-size: 24px; margin: 0; font-weight: bold;">Password Reset Request</h1>
-            <p style="color: rgba(255,255,255,0.9); font-size: 14px; margin: 10px 0 0 0;">ShazamParking Account Recovery</p>
+            <h1 style="color: white; font-size: 24px; margin: 0; font-weight: bold;">Reset Your ShazamParking Password</h1>
+            <p style="color: rgba(255,255,255,0.9); font-size: 14px; margin: 10px 0 0 0;">ShazamParking</p>
           </div>
           
           <div style="background: #f8fafc; padding: 30px; border-radius: 12px; margin-bottom: 30px; border-left: 4px solid #10b981;">
-            <h2 style="color: #1f2937; font-size: 18px; margin: 0 0 15px 0;">Dear User,</h2>
+            <h2 style="color: #1f2937; font-size: 18px; margin: 0 0 15px 0;">Dear User</h2>
             
             <p style="color: #4b5563; line-height: 1.6; margin-bottom: 20px; font-size: 16px;">
               You have requested to reset your password for your ShazamParking account.
@@ -52,15 +52,12 @@ const handler = async (req: Request): Promise<Response> => {
               </a>
             </div>
             
-            <div style="background: #fef2f2; padding: 20px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #ef4444;">
-              <p style="color: #991b1b; margin: 0; font-size: 14px; line-height: 1.5;">
-                <strong>Security Notice:</strong> If you did not initiate this request, please ignore this email. For your security, the link will expire in 24 hours.
-              </p>
-            </div>
+            <p style="color: #4b5563; line-height: 1.6; margin-bottom: 20px; font-size: 16px;">
+              If you did not initiate this request, please ignore this email. For your security, the link will expire in 24 hours.
+            </p>
             
             <p style="color: #4b5563; line-height: 1.6; margin: 20px 0 0 0; font-size: 16px;">
-              Should you require any further assistance, feel free to contact us at 
-              <a href="mailto:support@shazamparking.ae" style="color: #10b981; text-decoration: none; font-weight: 600;">support@shazamparking.ae</a>.
+              Should you require any further assistance, feel free to contact us at support@shazamparking.ae.
             </p>
           </div>
           
