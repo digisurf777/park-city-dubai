@@ -358,162 +358,30 @@ const ProductPage: React.FC = () => {
                   </CardDescription>
                 </CardHeader>
                 
-                {isCurrentlyBooked ? (
-                  <CardContent className="space-y-6">
-                    <div className="p-8 text-center bg-red-50 rounded-lg border border-red-200">
-                      <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <Car className="h-8 w-8 text-red-500" />
-                      </div>
-                      <h3 className="text-lg font-semibold text-red-700 mb-2">Space Currently Occupied</h3>
-                      <p className="text-red-600 mb-4">
-                        This parking space is currently booked and not available for new reservations.
-                      </p>
-                      <Button 
-                        onClick={() => navigate('/')} 
-                        variant="outline" 
-                        className="border-red-500 text-red-700 hover:bg-red-50"
-                      >
-                        Find Available Spaces
-                      </Button>
+                {/* Always show unavailable for all spaces */}
+                <CardContent className="space-y-6">
+                  <div className="p-8 text-center bg-red-50 rounded-lg border border-red-200">
+                    <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Car className="h-8 w-8 text-red-500" />
                     </div>
-                  </CardContent>
-                ) : (
-                  <CardContent className="space-y-6">
-                    {/* Start Date Selection - Moved to Top */}
-                    <div>
-                      <label className="text-sm font-medium mb-2 block">Start Date *</label>
-                      <Calendar
-                        mode="single"
-                        selected={startDate}
-                        onSelect={setStartDate}
-                        disabled={(date) => {
-                          const today = new Date();
-                          const minDate = new Date();
-                          minDate.setDate(today.getDate() + 3); // 3 days from today
-                          return date < minDate;
-                        }}
-                        className="rounded-md border pointer-events-auto w-full"
-                      />
-                    </div>
-
-                    {/* Rental Duration Selection */}
-                    <div>
-                      <label className="text-sm font-medium mb-3 block">Rental Duration</label>
-                      <div className="grid grid-cols-2 gap-3">
-                        {DURATION_OPTIONS.map(option => (
-                          <Button
-                            key={option.months}
-                            variant={selectedDuration.months === option.months ? "default" : "outline"}
-                            className={`flex flex-col h-auto py-4 px-4 text-center relative ${
-                              selectedDuration.months === option.months && option.months === 3
-                                ? "bg-cyan-400 text-white border-2 border-cyan-400" 
-                                : selectedDuration.months === option.months 
-                                  ? "bg-primary text-primary-foreground border-2 border-primary" 
-                                  : option.months === 3 
-                                    ? "border-2 border-cyan-400 bg-cyan-50 hover:bg-cyan-100" 
-                                    : "hover:border-primary"
-                            }`}
-                            onClick={() => setSelectedDuration(option)}
-                          >
-                            <span className="font-semibold text-base">{option.label}</span>
-                            {option.months > 1 && (
-                              <span className={`text-xs font-medium mt-1 ${
-                                selectedDuration.months === option.months && option.months === 3 
-                                  ? "text-white" 
-                                  : "text-green-600"
-                              }`}>
-                                {option.description}
-                              </span>
-                            )}
-                          </Button>
-                        ))}
-                      </div>
-                      <p className="text-xs text-muted-foreground mt-2">
-                        Or choose Monthly Rolling (subject to availability)
-                      </p>
-                    </div>
-
-                    {/* Pricing Breakdown */}
-                    {selectedDuration.months > 1 && (
-                      <Card className="bg-gray-50">
-                        <CardContent className="p-4">
-                          <div className="flex items-center gap-2 mb-3">
-                            <div className="w-5 h-5 border-2 border-gray-400 rounded flex items-center justify-center">
-                              <div className="w-2 h-2 bg-gray-600 rounded-sm"></div>
-                            </div>
-                            <h4 className="font-semibold text-gray-800">Pricing Breakdown</h4>
-                          </div>
-                          
-                          {(() => {
-                            const { basePrice, finalPrice, savings, monthlyRate } = calculateTotal();
-                            const regularMonthlyRate = parkingListing?.price_per_month || 0;
-                            const commitmentDiscount = (regularMonthlyRate - monthlyRate);
-                            
-                            return (
-                              <div className="space-y-2 text-sm">
-                                <div className="flex justify-between">
-                                  <span>Regular monthly rate</span>
-                                  <span>AED {regularMonthlyRate}</span>
-                                </div>
-                                {commitmentDiscount > 0 && (
-                                  <div className="flex justify-between text-red-600 font-medium">
-                                    <span>Built rental commitment discount ({selectedDuration.months} months)</span>
-                                    <span className="text-red-600">-AED {Math.round(commitmentDiscount)}/month</span>
-                                  </div>
-                                )}
-                                <div className="flex justify-between font-medium">
-                                  <span>Your monthly rate</span>
-                                  <span>AED {monthlyRate}/month</span>
-                                </div>
-                                <hr className="my-2" />
-                                <div className="flex justify-between text-blue-600 font-semibold text-lg">
-                                  <span>First month payment</span>
-                                  <span>AED {monthlyRate}</span>
-                                </div>
-                                <div className="text-xs text-blue-600 mt-2">
-                                  — You'll be charged AED {monthlyRate} each month for {selectedDuration.months} months
-                                </div>
-                                <div className="text-xs text-blue-600">
-                                  Total commitment: AED {finalPrice.toLocaleString()} over {selectedDuration.months} months
-                                </div>
-                                {savings > 0 && (
-                                  <div className="text-red-600 font-bold text-sm mt-2">
-                                    You save AED {savings.toLocaleString()} with this built rental long-term pricing
-                                  </div>
-                                )}
-                              </div>
-                            );
-                          })()}
-                        </CardContent>
-                      </Card>
-                    )}
-
-                    {/* Total Cost Display */}
-                    {(() => {
-                      const { finalPrice } = calculateTotal();
-                      return (
-                        <div className="p-4 bg-muted rounded-lg">
-                          <div className="flex justify-between items-center">
-                            <span className="font-medium">
-                              {selectedDuration.months === 1 ? "Monthly Cost:" : `Total Cost (${selectedDuration.months} months):`}
-                            </span>
-                            <span className="text-xl font-bold text-primary">
-                              AED {finalPrice.toLocaleString()}
-                            </span>
-                          </div>
-                         </div>
-                       );
-                     })()}
-
-                    <div className="w-full bg-red-500 text-white py-4 rounded-lg text-center font-semibold text-lg">
+                    <h3 className="text-lg font-semibold text-red-700 mb-2">Space Currently Occupied</h3>
+                    <p className="text-red-600 mb-4">
+                      This parking space is currently booked and not available for new reservations.
+                    </p>
+                    
+                    <div className="w-full bg-red-500 text-white py-4 rounded-lg text-center font-semibold text-lg mb-4">
                       Currently Booked
                     </div>
-
-                    <p className="text-xs text-red-600 text-center font-medium">
-                      This parking space is currently occupied and not available for booking.
-                    </p>
-                  </CardContent>
-                )}
+                    
+                    <Button 
+                      onClick={() => navigate('/')} 
+                      variant="outline" 
+                      className="border-red-500 text-red-700 hover:bg-red-50"
+                    >
+                      Find Available Spaces
+                    </Button>
+                  </div>
+                </CardContent>
               </Card>
             </div>
           </div>
