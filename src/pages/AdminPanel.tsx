@@ -801,23 +801,50 @@ const AdminPanel = () => {
 
       if (error) throw error;
 
-      // Send email notification to customer if we have their email
+      // Send email notification to customer based on status
       if (booking.userEmail) {
         try {
-          const statusMessage = status === 'confirmed' 
-            ? 'Your parking booking has been confirmed!' 
-            : status === 'cancelled' 
-            ? 'Your parking booking has been cancelled.'
-            : 'Your parking has been marked as completed.';
-
-          await supabase.functions.invoke('send-message-notification', {
-            body: {
-              userEmail: booking.userEmail,
-              userName: booking.profiles?.full_name || 'Customer',
-              subject: `Booking Update - ${status.charAt(0).toUpperCase() + status.slice(1)}`,
-              message: `${statusMessage}\n\nBooking Details:\nLocation: ${booking.location}\nZone: ${booking.zone}\nStart: ${format(new Date(booking.start_time), 'MMM d, yyyy h:mm a')}\nEnd: ${format(new Date(booking.end_time), 'MMM d, yyyy h:mm a')}\nCost: AED ${booking.cost_aed}`,
-            },
-          });
+          if (status === 'confirmed') {
+            await supabase.functions.invoke('send-booking-confirmed', {
+              body: {
+                userEmail: booking.userEmail,
+                userName: booking.profiles?.full_name || 'Customer',
+                bookingDetails: {
+                  id: booking.id,
+                  location: booking.location,
+                  zone: booking.zone,
+                  startTime: booking.start_time,
+                  endTime: booking.end_time,
+                  cost: booking.cost_aed
+                }
+              },
+            });
+          } else if (status === 'cancelled') {
+            await supabase.functions.invoke('send-booking-rejected', {
+              body: {
+                userEmail: booking.userEmail,
+                userName: booking.profiles?.full_name || 'Customer',
+                bookingDetails: {
+                  id: booking.id,
+                  location: booking.location,
+                  zone: booking.zone,
+                  startTime: booking.start_time,
+                  endTime: booking.end_time,
+                  cost: booking.cost_aed
+                }
+              },
+            });
+          } else {
+            // For completed status, use message notification
+            await supabase.functions.invoke('send-message-notification', {
+              body: {
+                userEmail: booking.userEmail,
+                userName: booking.profiles?.full_name || 'Customer',
+                subject: `Booking Completed`,
+                message: `Your parking booking has been marked as completed.\n\nBooking Details:\nLocation: ${booking.location}\nZone: ${booking.zone}\nStart: ${format(new Date(booking.start_time), 'MMM d, yyyy h:mm a')}\nEnd: ${format(new Date(booking.end_time), 'MMM d, yyyy h:mm a')}\nCost: AED ${booking.cost_aed}`,
+              },
+            });
+          }
         } catch (emailError) {
           console.error('Failed to send email notification:', emailError);
         }
