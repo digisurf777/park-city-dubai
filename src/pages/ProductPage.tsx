@@ -338,23 +338,14 @@ const ProductPage: React.FC = () => {
 
             {/* Booking Form */}
             <div>
-              <Card className={isCurrentlyBooked ? "opacity-50" : ""}>
+              <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    {isCurrentlyBooked ? (
-                      <>
-                        <span className="text-red-500">This Space is Currently Booked</span>
-                        <Badge variant="destructive" className="bg-red-500 text-white">Unavailable</Badge>
-                      </>
-                    ) : (
-                      "Reserve This Space"
-                    )}
+                    <span className="text-red-500">This Space is Currently Booked</span>
+                    <Badge variant="destructive" className="bg-red-500 text-white">Unavailable</Badge>
                   </CardTitle>
                   <CardDescription>
-                    {isCurrentlyBooked 
-                      ? "This parking space is currently occupied and not available for booking."
-                      : "Choose your rental duration and start date"
-                    }
+                    This parking space is currently occupied and not available for booking.
                   </CardDescription>
                 </CardHeader>
                 
