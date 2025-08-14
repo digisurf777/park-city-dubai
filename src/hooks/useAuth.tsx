@@ -51,7 +51,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const signUp = async (email: string, password: string, fullName: string, userType: string = 'renter') => {
-    const redirectUrl = `${window.location.origin}/email-confirmed`;
+    const redirectUrl = `https://shazamparking.ae/email-confirmed`;
     
     console.log('Starting signup with redirect URL:', redirectUrl);
     
@@ -131,7 +131,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const resetPassword = async (email: string) => {
-    const resetUrl = `${window.location.origin}/auth?reset=true`;
+    const resetUrl = `https://shazamparking.ae/auth?reset=true`;
     
     try {
       const response = await supabase.functions.invoke('send-password-reset', {
