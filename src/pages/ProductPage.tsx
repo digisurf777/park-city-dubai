@@ -19,7 +19,6 @@ const ProductPage: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   
-  console.log('ProductPage rendering - SHOULD ALWAYS SHOW CURRENTLY BOOKED');
   
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [selectedDuration, setSelectedDuration] = useState<any>({ months: 1, label: "1 Month", multiplier: 1.0, description: "Monthly rate" });
@@ -30,8 +29,7 @@ const ProductPage: React.FC = () => {
   const [parkingListing, setParkingListing] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>('');
-  // FORCE ALL PRODUCT PAGES TO SHOW AS CURRENTLY BOOKED
-  const isCurrentlyBooked = true;
+  const [isCurrentlyBooked, setIsCurrentlyBooked] = useState<boolean>(true); // Set to true to show all as booked
   
   const DURATION_OPTIONS = [
     { months: 1, label: "1 Month", multiplier: 1.0, description: "Monthly rate" },
@@ -340,14 +338,23 @@ const ProductPage: React.FC = () => {
 
             {/* Booking Form */}
             <div>
-              <Card>
+              <Card className={isCurrentlyBooked ? "opacity-50" : ""}>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <span className="text-red-500">This Space is Currently Booked</span>
-                    <Badge variant="destructive" className="bg-red-500 text-white">Unavailable</Badge>
+                    {isCurrentlyBooked ? (
+                      <>
+                        <span className="text-red-500">This Space is Currently Booked</span>
+                        <Badge variant="destructive" className="bg-red-500 text-white">Unavailable</Badge>
+                      </>
+                    ) : (
+                      "Reserve This Space"
+                    )}
                   </CardTitle>
                   <CardDescription>
-                    This parking space is currently occupied and not available for booking.
+                    {isCurrentlyBooked 
+                      ? "This parking space is currently occupied and not available for booking."
+                      : "Choose your rental duration and start date"
+                    }
                   </CardDescription>
                 </CardHeader>
                 
