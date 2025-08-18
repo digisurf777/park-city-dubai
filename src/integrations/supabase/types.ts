@@ -126,13 +126,6 @@ export type Database = {
             referencedRelation: "parking_listings"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "driver_owner_messages_listing_id_fkey"
-            columns: ["listing_id"]
-            isOneToOne: false
-            referencedRelation: "parking_listings_public"
-            referencedColumns: ["id"]
-          },
         ]
       }
       news: {
@@ -382,6 +375,60 @@ export type Database = {
         }
         Relationships: []
       }
+      parking_listings_public: {
+        Row: {
+          address: string | null
+          availability_schedule: Json | null
+          created_at: string | null
+          description: string | null
+          features: string[] | null
+          id: string
+          images: string[] | null
+          owner_id: string | null
+          price_per_day: number | null
+          price_per_hour: number | null
+          price_per_month: number | null
+          status: string | null
+          title: string | null
+          updated_at: string | null
+          zone: string | null
+        }
+        Insert: {
+          address?: string | null
+          availability_schedule?: Json | null
+          created_at?: string | null
+          description?: string | null
+          features?: string[] | null
+          id: string
+          images?: string[] | null
+          owner_id?: string | null
+          price_per_day?: number | null
+          price_per_hour?: number | null
+          price_per_month?: number | null
+          status?: string | null
+          title?: string | null
+          updated_at?: string | null
+          zone?: string | null
+        }
+        Update: {
+          address?: string | null
+          availability_schedule?: Json | null
+          created_at?: string | null
+          description?: string | null
+          features?: string[] | null
+          id?: string
+          images?: string[] | null
+          owner_id?: string | null
+          price_per_day?: number | null
+          price_per_hour?: number | null
+          price_per_month?: number | null
+          status?: string | null
+          title?: string | null
+          updated_at?: string | null
+          zone?: string | null
+        }
+        Relationships: []
+      }
       photo_repair_reports: {
         Row: {
           car_park_id: string | null
@@ -543,60 +590,7 @@ export type Database = {
       }
     }
     Views: {
-      parking_listings_public: {
-        Row: {
-          address: string | null
-          availability_schedule: Json | null
-          created_at: string | null
-          description: string | null
-          features: string[] | null
-          id: string | null
-          images: string[] | null
-          owner_id: string | null
-          price_per_day: number | null
-          price_per_hour: number | null
-          price_per_month: number | null
-          status: string | null
-          title: string | null
-          updated_at: string | null
-          zone: string | null
-        }
-        Insert: {
-          address?: string | null
-          availability_schedule?: Json | null
-          created_at?: string | null
-          description?: string | null
-          features?: string[] | null
-          id?: string | null
-          images?: string[] | null
-          owner_id?: never
-          price_per_day?: number | null
-          price_per_hour?: number | null
-          price_per_month?: number | null
-          status?: string | null
-          title?: string | null
-          updated_at?: string | null
-          zone?: string | null
-        }
-        Update: {
-          address?: string | null
-          availability_schedule?: Json | null
-          created_at?: string | null
-          description?: string | null
-          features?: string[] | null
-          id?: string | null
-          images?: string[] | null
-          owner_id?: never
-          price_per_day?: number | null
-          price_per_hour?: number | null
-          price_per_month?: number | null
-          status?: string | null
-          title?: string | null
-          updated_at?: string | null
-          zone?: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       expire_booking_chats: {
@@ -617,6 +611,10 @@ export type Database = {
       is_admin: {
         Args: { _user_id: string }
         Returns: boolean
+      }
+      refresh_parking_listings_public: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
       setup_admin_user: {
         Args: Record<PropertyKey, never>
