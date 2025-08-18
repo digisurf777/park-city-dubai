@@ -121,6 +121,13 @@ const Navbar = () => {
                     My Account
                   </Button>
                 </Link>
+                <Button 
+                  variant="outline" 
+                  onClick={signOut}
+                  className="text-gray-700 hover:text-primary"
+                >
+                  Logout
+                </Button>
                 <Link to="/rent-out-your-space">
                   <Button className="bg-primary hover:bg-primary/90 text-white">
                     List Your Space
@@ -172,6 +179,16 @@ const Navbar = () => {
                         My Account
                       </Button>
                     </Link>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => {
+                        setIsMenuOpen(false);
+                        signOut();
+                      }}
+                      className="w-full text-gray-700 hover:text-primary min-h-[48px] touch-manipulation"
+                    >
+                      Logout
+                    </Button>
                     <Link to="/rent-out-your-space" onClick={() => setIsMenuOpen(false)}>
                       <Button className="w-full bg-primary hover:bg-primary/90 text-white min-h-[48px] touch-manipulation">
                         List Your Space

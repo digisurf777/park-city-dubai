@@ -1233,7 +1233,7 @@ const AdminPanel = () => {
         if (authError) {
           console.error('Error getting users from auth:', authError);
         } else {
-          const user = users.find(u => u.id === verification.user_id);
+          const user = users.find((u: any) => u.id === verification.user_id);
           if (user) {
             userEmail = user.email || '';
           }
@@ -1333,7 +1333,7 @@ const AdminPanel = () => {
         if (authError) {
           console.error('Auth error:', authError);
         } else {
-          const user = users.find(u => u.id === selectedUserId);
+          const user = users.find((u: any) => u.id === selectedUserId);
           if (user) {
             userEmail = user.email || '';
           }

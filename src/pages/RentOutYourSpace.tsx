@@ -15,6 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { useVerificationStatus } from "@/hooks/useVerificationStatus";
+import { VerificationGuard } from "@/components/VerificationGuard";
 import luxuryCar from "@/assets/luxury-car-dubai.png";
 import phoneLogo from "@/assets/phone-logo.png";
 const RentOutYourSpace = () => {
@@ -416,166 +417,235 @@ const RentOutYourSpace = () => {
             </h2>
           </div>
 
-          <Card className="bg-white shadow-2xl p-8">
-            {/* Verification Status Warning */}
-            {!verificationLoading && verificationStatus !== 'approved' && <div className="mb-6 p-4 bg-orange-50 border border-orange-200 rounded-lg">
-                <div className="flex items-center gap-3">
-                  <Shield className="h-5 w-5 text-orange-600" />
+          <VerificationGuard feature="listing parking spaces">
+            <Card className="bg-white shadow-2xl p-8">
+              {/* Verification Status Warning */}
+              {!verificationLoading && verificationStatus !== 'approved' && (
+                <div className="mb-6 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <Shield className="h-5 w-5 text-orange-600" />
+                    <div>
+                      <h3 className="font-semibold text-orange-800">Account Verification Required</h3>
+                      <p className="text-sm text-orange-700 mt-1">
+                        Your account must be verified before you can list parking spaces. 
+                        Status: {verificationStatus || 'Not submitted'}
+                      </p>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="mt-2" 
+                        onClick={() => navigate('/my-account?tab=verification')}
+                      >
+                        Complete Verification
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <h3 className="font-semibold text-orange-800">Account Verification Required</h3>
-                    <p className="text-sm text-orange-700 mt-1">
-                      Your account must be verified before you can list parking spaces. 
-                      Status: {verificationStatus || 'Not submitted'}
-                    </p>
-                    <Button variant="outline" size="sm" className="mt-2" onClick={() => navigate('/my-account?tab=verification')}>
-                      Complete Verification
-                    </Button>
-                  </div>
-                </div>
-              </div>}
-
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <Label htmlFor="fullName" className="text-base font-medium">
-                    Full Name *
-                  </Label>
-                  <Input id="fullName" type="text" required value={formData.fullName} onChange={e => handleInputChange('fullName', e.target.value)} className="mt-2 h-12" />
-                </div>
-                <div>
-                  <Label htmlFor="email" className="text-base font-medium">
-                    Email *
-                  </Label>
-                  <Input id="email" type="email" required value={formData.email} onChange={e => handleInputChange('email', e.target.value)} className="mt-2 h-12" />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <Label htmlFor="phone" className="text-base font-medium">
-                    Phone *
-                  </Label>
-                  <Input id="phone" type="tel" required value={formData.phone} onChange={e => handleInputChange('phone', e.target.value)} className="mt-2 h-12" />
-                </div>
-                <div>
-                  <Label htmlFor="buildingName" className="text-base font-medium">
-                    Building / Tower Name *
-                  </Label>
-                  <Input id="buildingName" type="text" required value={formData.buildingName} onChange={e => handleInputChange('buildingName', e.target.value)} className="mt-2 h-12" />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <Label htmlFor="district" className="text-base font-medium">
-                    District *
-                  </Label>
-                  <Select value={formData.district} onValueChange={value => handleInputChange('district', value)}>
-                    <SelectTrigger className="mt-2 h-12">
-                      <SelectValue placeholder="Select district" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="dubai-marina">Dubai Marina</SelectItem>
-                      <SelectItem value="downtown">Downtown</SelectItem>
-                      <SelectItem value="difc">DIFC</SelectItem>
-                      <SelectItem value="business-bay">Business Bay</SelectItem>
-                      <SelectItem value="palm-jumeirah">Palm Jumeirah</SelectItem>
-                      <SelectItem value="deira">Deira</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label htmlFor="bayType" className="text-base font-medium">
-                    Bay Type *
-                  </Label>
-                  <Select value={formData.bayType} onValueChange={value => handleInputChange('bayType', value)}>
-                    <SelectTrigger className="mt-2 h-12">
-                      <SelectValue placeholder="Select bay type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="covered">Covered</SelectItem>
-                      <SelectItem value="uncovered">Uncovered</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <Label htmlFor="monthlyPrice" className="text-base font-medium">
-                    Monthly Price (AED) *
-                  </Label>
-                  <Select value={monthlyPrice.toString()} onValueChange={value => setMonthlyPrice(Number(value))}>
-                    <SelectTrigger className="mt-2 h-12">
-                      <SelectValue placeholder="Select monthly price" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Array.from({
-                      length: 15
-                    }, (_, i) => {
-                      const price = 300 + i * 50;
-                      return price <= 1000 ? <SelectItem key={price} value={price.toString()}>
-                            {price} AED
-                          </SelectItem> : null;
-                    })}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label htmlFor="accessDeviceDeposit" className="text-base font-medium">Access Device Deposit (AED 500)</Label>
-                  <div className="flex items-center space-x-3 mt-2">
-                    <Switch id="accessDeviceDeposit" checked={formData.accessDeviceDeposit as boolean} onCheckedChange={checked => handleInputChange('accessDeviceDeposit', checked)} />
-                    <Label htmlFor="accessDeviceDeposit" className="text-sm">
-                      {formData.accessDeviceDeposit ? 'Yes' : 'No'}
+                    <Label htmlFor="fullName" className="text-base font-medium">
+                      Full Name *
                     </Label>
+                    <Input 
+                      id="fullName" 
+                      type="text" 
+                      required 
+                      value={formData.fullName} 
+                      onChange={(e) => handleInputChange('fullName', e.target.value)} 
+                      className="mt-2 h-12" 
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="email" className="text-base font-medium">
+                      Email *
+                    </Label>
+                    <Input 
+                      id="email" 
+                      type="email" 
+                      required 
+                      value={formData.email} 
+                      onChange={(e) => handleInputChange('email', e.target.value)} 
+                      className="mt-2 h-12" 
+                    />
                   </div>
                 </div>
-              </div>
 
-              <div>
-                <Label htmlFor="photos" className="text-base font-medium">
-                  Photos (max 5) *
-                </Label>
-                <div className="mt-2">
-                  <div className="relative border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-primary transition-colors">
-                    <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-600">
-                      Click to upload or drag and drop
-                    </p>
-                    <p className="text-sm text-gray-500 mt-2">
-                      JPEG or PNG, max 3MB each
-                    </p>
-                    <input type="file" multiple accept="image/jpeg,image/png,image/jpg" onChange={handleImageUpload} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <Label htmlFor="phone" className="text-base font-medium">
+                      Phone *
+                    </Label>
+                    <Input 
+                      id="phone" 
+                      type="tel" 
+                      required 
+                      value={formData.phone} 
+                      onChange={(e) => handleInputChange('phone', e.target.value)} 
+                      className="mt-2 h-12" 
+                    />
                   </div>
-                  
-                  {uploadedImages.length > 0 && <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">
-                      {uploadedImages.map((file, index) => <div key={index} className="relative">
-                          <img src={URL.createObjectURL(file)} alt={`Upload ${index + 1}`} className="w-full h-24 object-cover rounded-lg" />
-                          <Button type="button" variant="destructive" size="sm" className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0" onClick={() => removeImage(index)}>
-                            <X className="h-3 w-3" />
-                          </Button>
-                        </div>)}
-                    </div>}
+                  <div>
+                    <Label htmlFor="buildingName" className="text-base font-medium">
+                      Building / Tower Name *
+                    </Label>
+                    <Input 
+                      id="buildingName" 
+                      type="text" 
+                      required 
+                      value={formData.buildingName} 
+                      onChange={(e) => handleInputChange('buildingName', e.target.value)} 
+                      className="mt-2 h-12" 
+                    />
+                  </div>
                 </div>
-              </div>
 
-              {/* ID Document Upload */}
-              
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <Label htmlFor="district" className="text-base font-medium">
+                      District *
+                    </Label>
+                    <Select value={formData.district} onValueChange={(value) => handleInputChange('district', value)}>
+                      <SelectTrigger className="mt-2 h-12">
+                        <SelectValue placeholder="Select district" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="dubai-marina">Dubai Marina</SelectItem>
+                        <SelectItem value="downtown">Downtown</SelectItem>
+                        <SelectItem value="difc">DIFC</SelectItem>
+                        <SelectItem value="business-bay">Business Bay</SelectItem>
+                        <SelectItem value="palm-jumeirah">Palm Jumeirah</SelectItem>
+                        <SelectItem value="deira">Deira</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="bayType" className="text-base font-medium">
+                      Bay Type *
+                    </Label>
+                    <Select value={formData.bayType} onValueChange={(value) => handleInputChange('bayType', value)}>
+                      <SelectTrigger className="mt-2 h-12">
+                        <SelectValue placeholder="Select bay type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="covered">Covered</SelectItem>
+                        <SelectItem value="uncovered">Uncovered</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
 
-              <div>
-                <Label htmlFor="notes" className="text-base font-medium">
-                  Notes to Admin
-                </Label>
-                <Textarea id="notes" value={formData.notes} onChange={e => handleInputChange('notes', e.target.value)} className="mt-2" rows={4} placeholder="Any additional information about your parking space..." />
-              </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <Label htmlFor="monthlyPrice" className="text-base font-medium">
+                      Monthly Price (AED) *
+                    </Label>
+                    <Select value={monthlyPrice.toString()} onValueChange={(value) => setMonthlyPrice(Number(value))}>
+                      <SelectTrigger className="mt-2 h-12">
+                        <SelectValue placeholder="Select monthly price" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Array.from({ length: 15 }, (_, i) => {
+                          const price = 300 + i * 50;
+                          return price <= 1000 ? (
+                            <SelectItem key={price} value={price.toString()}>
+                              {price} AED
+                            </SelectItem>
+                          ) : null;
+                        })}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="accessDeviceDeposit" className="text-base font-medium">
+                      Access Device Deposit (AED 500)
+                    </Label>
+                    <div className="flex items-center space-x-3 mt-2">
+                      <Switch 
+                        id="accessDeviceDeposit" 
+                        checked={formData.accessDeviceDeposit as boolean} 
+                        onCheckedChange={(checked) => handleInputChange('accessDeviceDeposit', checked)} 
+                      />
+                      <Label htmlFor="accessDeviceDeposit" className="text-sm">
+                        {formData.accessDeviceDeposit ? 'Yes' : 'No'}
+                      </Label>
+                    </div>
+                  </div>
+                </div>
 
-              
+                <div>
+                  <Label htmlFor="photos" className="text-base font-medium">
+                    Photos (max 5) *
+                  </Label>
+                  <div className="mt-2">
+                    <div className="relative border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-primary transition-colors">
+                      <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                      <p className="text-gray-600">
+                        Click to upload or drag and drop
+                      </p>
+                      <p className="text-sm text-gray-500 mt-2">
+                        JPEG or PNG, max 3MB each
+                      </p>
+                      <input 
+                        type="file" 
+                        multiple 
+                        accept="image/jpeg,image/png,image/jpg" 
+                        onChange={handleImageUpload} 
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
+                      />
+                    </div>
+                    
+                    {uploadedImages.length > 0 && (
+                      <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">
+                        {uploadedImages.map((file, index) => (
+                          <div key={index} className="relative">
+                            <img 
+                              src={URL.createObjectURL(file)} 
+                              alt={`Upload ${index + 1}`} 
+                              className="w-full h-24 object-cover rounded-lg" 
+                            />
+                            <Button 
+                              type="button" 
+                              variant="destructive" 
+                              size="sm" 
+                              className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0" 
+                              onClick={() => removeImage(index)}
+                            >
+                              <X className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
 
-              <Button type="submit" disabled={isSubmitting} className="w-full bg-primary hover:bg-primary/90 text-white py-4 text-lg font-semibold disabled:opacity-50">
-                {isSubmitting ? "Submitting..." : "Submit Listing"}
-              </Button>
-            </form>
-          </Card>
+                <div>
+                  <Label htmlFor="notes" className="text-base font-medium">
+                    Notes to Admin
+                  </Label>
+                  <Textarea 
+                    id="notes" 
+                    value={formData.notes} 
+                    onChange={(e) => handleInputChange('notes', e.target.value)} 
+                    className="mt-2" 
+                    rows={4} 
+                    placeholder="Any additional information about your parking space..." 
+                  />
+                </div>
+
+                <Button 
+                  type="submit" 
+                  disabled={isSubmitting} 
+                  className="w-full bg-primary hover:bg-primary/90 text-white py-4 text-lg font-semibold disabled:opacity-50"
+                >
+                  {isSubmitting ? "Submitting..." : "Submit Listing"}
+                </Button>
+              </form>
+            </Card>
+          </VerificationGuard>
         </div>
       </section>
 

@@ -67,11 +67,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       console.log('Starting signup process...');
       
-      // Create user account without email confirmation
+      // Create user account with email confirmation required
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
+          emailRedirectTo: redirectUrl,
           data: {
             full_name: fullName,
             user_type: userType
@@ -81,30 +82,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       console.log('Signup result:', { data, error });
 
-      // If signup successful, always send custom confirmation email
+      // If signup successful, send custom confirmation email
       if (!error && data?.user) {
         console.log('Sending custom confirmation email...');
         try {
-          // Create proper confirmation URL using Supabase auth verification endpoint
-          const confirmationUrl = `https://eoknluyunximjlsnyceb.supabase.co/auth/v1/verify?token={{.Token}}&type=signup&redirect_to=${encodeURIComponent(redirectUrl)}`;
-          
           const emailResult = await supabase.functions.invoke('send-confirmation-email', {
             body: {
               email: email,
               fullName: fullName,
-              confirmationUrl: confirmationUrl
+              confirmationUrl: redirectUrl
             }
           });
           
           if (emailResult.error) {
             console.error('Custom confirmation email failed:', emailResult.error);
-            throw emailResult.error;
+          } else {
+            console.log('Custom confirmation email sent successfully:', emailResult.data);
           }
-          
-          console.log('Custom confirmation email sent successfully:', emailResult.data);
         } catch (customEmailError) {
           console.error('Failed to send confirmation email:', customEmailError);
-          return { error: new Error('Account created but failed to send confirmation email. Please contact support.') };
         }
 
         // Send admin notification after successful signup
@@ -187,18 +183,26 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const resetPassword = async (email: string) => {
-    const resetUrl = `https://shazamparking.ae/auth?reset=true`;
-    
     try {
-      const response = await supabase.functions.invoke('send-password-reset', {
-        body: {
-          email: email,
-          resetUrl: resetUrl
-        }
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `https://shazamparking.ae/auth?type=recovery`
       });
       
-      if (response.error) {
-        throw response.error;
+      if (error) {
+        return { error };
+      }
+      
+      // Also send custom password reset email
+      try {
+        await supabase.functions.invoke('send-password-reset', {
+          body: {
+            email: email,
+            resetUrl: `https://shazamparking.ae/auth?type=recovery`
+          }
+        });
+      } catch (customEmailError) {
+        console.error('Failed to send custom reset email:', customEmailError);
+        // Don't fail if custom email fails, Supabase already sent one
       }
       
       return { error: null };

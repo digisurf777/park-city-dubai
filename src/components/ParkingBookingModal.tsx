@@ -12,6 +12,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useVerificationStatus } from "@/hooks/useVerificationStatus";
+import { VerificationGuard } from "@/components/VerificationGuard";
 interface ParkingSpot {
   id: string | number;
   name: string;
