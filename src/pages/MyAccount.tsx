@@ -15,6 +15,7 @@ import VerificationPanel from '@/components/VerificationPanel';
 import UserInbox from '@/components/UserInbox';
 import { ActiveBookingChats } from '@/components/ActiveBookingChats';
 import { MyListings } from '@/components/MyListings';
+import { useVerificationStatus } from '@/hooks/useVerificationStatus';
 interface Profile {
   id: string;
   full_name: string;
@@ -54,19 +55,16 @@ interface ParkingHistoryItem {
   details: ParkingBooking | ParkingListing;
 }
 const MyAccount = () => {
-  const {
-    user,
-    signOut
-  } = useAuth();
+  const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { status: verificationStatus, loading: verificationLoading } = useVerificationStatus();
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [bookings, setBookings] = useState<ParkingBooking[]>([]);
   const [listings, setListings] = useState<ParkingListing[]>([]);
   const [parkingHistory, setParkingHistory] = useState<ParkingHistoryItem[]>([]);
-  const [verificationStatus, setVerificationStatus] = useState<string | null>(null);
   const [isParkingOwner, setIsParkingOwner] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'profile');
 
@@ -79,7 +77,6 @@ const MyAccount = () => {
     fetchProfile();
     fetchBookings();
     fetchListings();
-    fetchVerificationStatus();
   }, [user]);
   useEffect(() => {
     // Combine bookings and listings into unified history
@@ -154,21 +151,6 @@ const MyAccount = () => {
       }
     } catch (error) {
       console.error('Error fetching listings:', error);
-    }
-  };
-  const fetchVerificationStatus = async () => {
-    try {
-      const {
-        data,
-        error
-      } = await supabase.from('user_verifications').select('verification_status').eq('user_id', user.id).single();
-      if (error && error.code !== 'PGRST116') {
-        console.error('Error fetching verification:', error);
-      } else {
-        setVerificationStatus(data?.verification_status || null);
-      }
-    } catch (error) {
-      console.error('Error fetching verification:', error);
     }
   };
   const updateProfile = async (e: React.FormEvent) => {
@@ -286,6 +268,32 @@ const MyAccount = () => {
             </Button>
           </div>
         </div>
+
+        {/* Verification Status Alert */}
+        {!verificationLoading && verificationStatus !== 'approved' && (
+          <Card className="mb-6 border-orange-200 bg-orange-50">
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-3">
+                <Shield className="h-6 w-6 text-orange-600" />
+                <div className="flex-1">
+                  <h3 className="font-semibold text-orange-800">Account Verification Required</h3>
+                  <p className="text-sm text-orange-700 mt-1">
+                    Your account must be verified before you can list or book parking spaces.
+                    {verificationStatus && ` Current status: ${verificationStatus}`}
+                  </p>
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => setActiveTab('verification')}
+                  className="border-orange-300 text-orange-700 hover:bg-orange-100"
+                >
+                  {verificationStatus ? 'Check Status' : 'Start Verification'}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           {/* Mobile Tab Navigation */}

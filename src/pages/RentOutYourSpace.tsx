@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Upload, CheckCircle, Wallet, Quote, X } from "lucide-react";
+import { Upload, CheckCircle, Wallet, Quote, X, Shield } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ParkingCalculator from "@/components/ParkingCalculator";
@@ -14,6 +14,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import { useVerificationStatus } from "@/hooks/useVerificationStatus";
 import luxuryCar from "@/assets/luxury-car-dubai.png";
 import phoneLogo from "@/assets/phone-logo.png";
 
@@ -22,13 +23,10 @@ const RentOutYourSpace = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
-  const {
-    user
-  } = useAuth();
-  const {
-    toast
-  } = useToast();
+  const { user } = useAuth();
+  const { toast } = useToast();
   const navigate = useNavigate();
+  const { status: verificationStatus, loading: verificationLoading } = useVerificationStatus();
   const [monthlyPrice, setMonthlyPrice] = useState<number>(300);
   const [uploadedImages, setUploadedImages] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -187,6 +185,16 @@ const RentOutYourSpace = () => {
         variant: "destructive"
       });
       navigate('/auth');
+      return;
+    }
+
+    if (verificationStatus !== 'approved') {
+      toast({
+        title: "Verification Required",
+        description: "Your account must be verified before you can list parking spaces.",
+        variant: "destructive"
+      });
+      navigate('/my-account?tab=verification');
       return;
     }
     
@@ -415,6 +423,30 @@ const RentOutYourSpace = () => {
           </div>
 
           <Card className="bg-white shadow-2xl p-8">
+            {/* Verification Status Warning */}
+            {!verificationLoading && verificationStatus !== 'approved' && (
+              <div className="mb-6 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <Shield className="h-5 w-5 text-orange-600" />
+                  <div>
+                    <h3 className="font-semibold text-orange-800">Account Verification Required</h3>
+                    <p className="text-sm text-orange-700 mt-1">
+                      Your account must be verified before you can list parking spaces. 
+                      Status: {verificationStatus || 'Not submitted'}
+                    </p>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="mt-2"
+                      onClick={() => navigate('/my-account?tab=verification')}
+                    >
+                      Complete Verification
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>

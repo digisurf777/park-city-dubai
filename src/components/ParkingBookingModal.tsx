@@ -11,6 +11,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useVerificationStatus } from "@/hooks/useVerificationStatus";
 interface ParkingSpot {
   id: string | number;
   name: string;
@@ -52,12 +53,9 @@ export const ParkingBookingModal = ({
   onClose,
   parkingSpot
 }: ParkingBookingModalProps) => {
-  const {
-    user
-  } = useAuth();
-  const {
-    toast
-  } = useToast();
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const { status: verificationStatus, loading: verificationLoading } = useVerificationStatus();
   const [startDate, setStartDate] = useState<Date>();
   const [selectedDuration, setSelectedDuration] = useState(DURATION_OPTIONS[0]);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
@@ -116,6 +114,26 @@ export const ParkingBookingModal = ({
                 Sign Up
               </Button>
             </div>
+          </div>,
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (verificationStatus !== 'approved') {
+      toast({
+        title: "Verification Required",
+        description: <div className="space-y-3">
+            <p className="text-sm">Your account must be verified before you can book parking spaces.</p>
+            <p className="text-sm">Current status: {verificationStatus || 'Not submitted'}</p>
+            <Button 
+              variant="secondary" 
+              size="sm" 
+              onClick={() => window.location.href = '/my-account?tab=verification'} 
+              className="bg-white text-destructive hover:bg-gray-100 font-semibold px-4 py-2"
+            >
+              Complete Verification
+            </Button>
           </div>,
         variant: "destructive"
       });

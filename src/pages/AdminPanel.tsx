@@ -1189,7 +1189,7 @@ const AdminPanel = () => {
     return booking.status === bookingStatusFilter;
   });
 
-  const updateVerificationStatus = async (verificationId: string, status: 'verified' | 'rejected') => {
+  const updateVerificationStatus = async (verificationId: string, status: 'approved' | 'rejected') => {
     try {
       setVerificationUpdating(verificationId);
       console.log(`Updating verification ${verificationId} to status: ${status}`);
@@ -1245,7 +1245,7 @@ const AdminPanel = () => {
               userId: verification.user_id,
               userEmail: userEmail,
               userName: userName,
-              isApproved: status === 'verified'
+              isApproved: status === 'approved'
             }
           });
 
@@ -2593,7 +2593,7 @@ const AdminPanel = () => {
                           {verification.verification_status === 'pending' && (
                             <>
                               <Button
-                                onClick={() => updateVerificationStatus(verification.id, 'verified')}
+                                onClick={() => updateVerificationStatus(verification.id, 'approved')}
                                 disabled={verificationUpdating === verification.id}
                                 className="flex items-center gap-2"
                               >
