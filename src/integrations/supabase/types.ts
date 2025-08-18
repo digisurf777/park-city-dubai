@@ -547,8 +547,6 @@ export type Database = {
         Row: {
           address: string | null
           availability_schedule: Json | null
-          contact_email: string | null
-          contact_phone: string | null
           created_at: string | null
           description: string | null
           features: string[] | null
@@ -566,8 +564,6 @@ export type Database = {
         Insert: {
           address?: string | null
           availability_schedule?: Json | null
-          contact_email?: never
-          contact_phone?: never
           created_at?: string | null
           description?: string | null
           features?: string[] | null
@@ -585,8 +581,6 @@ export type Database = {
         Update: {
           address?: string | null
           availability_schedule?: Json | null
-          contact_email?: never
-          contact_phone?: never
           created_at?: string | null
           description?: string | null
           features?: string[] | null
