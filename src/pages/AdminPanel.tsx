@@ -1208,10 +1208,11 @@ const AdminPanel = () => {
 
       console.log('Verification data:', verification);
 
-      // Update verification status first
+      // Update verification status first - use 'verified' instead of 'approved'
+      const newStatus = status === 'approved' ? 'verified' : 'rejected';
       const { error: updateError } = await supabase
         .from('user_verifications')
-        .update({ verification_status: status })
+        .update({ verification_status: newStatus })
         .eq('id', verificationId);
 
       if (updateError) {
@@ -1221,17 +1222,21 @@ const AdminPanel = () => {
 
       console.log('Verification status updated successfully');
 
-      // Get user email from profiles table first, then fallback to auth
+      // Get user email from auth
       let userEmail = '';
       let userName = verification.full_name;
 
       try {
-        // Try to get email from auth
-        const { data: authData, error: authError } = await supabase.auth.admin.getUserById(verification.user_id);
+        // Get email from auth.users using supabase admin
+        const { data: { users }, error: authError } = await supabase.auth.admin.listUsers();
+        
         if (authError) {
-          console.error('Error getting user from auth:', authError);
+          console.error('Error getting users from auth:', authError);
         } else {
-          userEmail = authData.user.email || '';
+          const user = users.find(u => u.id === verification.user_id);
+          if (user) {
+            userEmail = user.email || '';
+          }
         }
       } catch (authErr) {
         console.error('Auth API error:', authErr);
@@ -1323,11 +1328,15 @@ const AdminPanel = () => {
           userName = userData.full_name;
         }
 
-        const { data: authData, error: authError } = await supabase.auth.admin.getUserById(selectedUserId);
+        // Get email from auth.users using admin.listUsers
+        const { data: { users }, error: authError } = await supabase.auth.admin.listUsers();
         if (authError) {
           console.error('Auth error:', authError);
         } else {
-          userEmail = authData.user.email || '';
+          const user = users.find(u => u.id === selectedUserId);
+          if (user) {
+            userEmail = user.email || '';
+          }
         }
       } catch (err) {
         console.error('Error getting user details:', err);

@@ -101,15 +101,16 @@ const VerificationPanel = () => {
         }
       } = supabase.storage.from('verification-docs').getPublicUrl(fileName);
 
-      // Save verification record
+      // Save verification record - use upsert for re-submissions
       const {
         error: insertError
-      } = await supabase.from('user_verifications').insert({
+      } = await supabase.from('user_verifications').upsert({
         user_id: user.id,
         full_name: formData.fullName,
         nationality: formData.nationality,
         document_type: formData.documentType,
-        document_image_url: publicUrl
+        document_image_url: publicUrl,
+        verification_status: 'pending'
       });
       if (insertError) {
         throw insertError;
@@ -203,12 +204,24 @@ const VerificationPanel = () => {
                 <p><strong>Submitted:</strong> {new Date(verification.created_at).toLocaleDateString()}</p>
               </div>
 
-              {verification.verification_status === 'rejected' && <Alert className="border-red-200 bg-red-50">
-                  <XCircle className="h-4 w-4 text-red-500" />
-                  <AlertDescription className="text-red-700">
-                    Your verification was rejected. Please submit a new, clear document.
-                  </AlertDescription>
-                </Alert>}
+              {verification.verification_status === 'rejected' && (
+                <div className="space-y-4">
+                  <Alert className="border-red-200 bg-red-50">
+                    <XCircle className="h-4 w-4 text-red-500" />
+                    <AlertDescription className="text-red-700">
+                      Your verification was rejected. Please submit a new, clear document.
+                    </AlertDescription>
+                  </Alert>
+                  
+                  <Button 
+                    onClick={() => setVerification(null)} 
+                    variant="outline" 
+                    className="w-full"
+                  >
+                    Upload New Document
+                  </Button>
+                </div>
+              )}
             </div> : <div className="space-y-6">
               <div className="border-2 border-dashed border-border rounded-lg p-8 text-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors" onClick={triggerFileInput}>
                 <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
