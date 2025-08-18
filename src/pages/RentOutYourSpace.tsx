@@ -17,16 +17,21 @@ import { useNavigate } from "react-router-dom";
 import { useVerificationStatus } from "@/hooks/useVerificationStatus";
 import luxuryCar from "@/assets/luxury-car-dubai.png";
 import phoneLogo from "@/assets/phone-logo.png";
-
-
 const RentOutYourSpace = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
-  const { user } = useAuth();
-  const { toast } = useToast();
+  const {
+    user
+  } = useAuth();
+  const {
+    toast
+  } = useToast();
   const navigate = useNavigate();
-  const { status: verificationStatus, loading: verificationLoading } = useVerificationStatus();
+  const {
+    status: verificationStatus,
+    loading: verificationLoading
+  } = useVerificationStatus();
   const [monthlyPrice, setMonthlyPrice] = useState<number>(300);
   const [uploadedImages, setUploadedImages] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -118,11 +123,10 @@ const RentOutYourSpace = () => {
     });
     return Promise.all(uploadPromises);
   };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log('Form submission started');
-    
+
     // Validate required fields
     if (!formData.fullName.trim()) {
       toast({
@@ -132,16 +136,14 @@ const RentOutYourSpace = () => {
       });
       return;
     }
-    
     if (!formData.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       toast({
-        title: "Valid email required", 
+        title: "Valid email required",
         description: "Please enter a valid email address",
         variant: "destructive"
       });
       return;
     }
-    
     if (!formData.phone.trim()) {
       toast({
         title: "Phone number required",
@@ -150,7 +152,6 @@ const RentOutYourSpace = () => {
       });
       return;
     }
-    
     if (!formData.buildingName.trim()) {
       toast({
         title: "Building name required",
@@ -159,16 +160,14 @@ const RentOutYourSpace = () => {
       });
       return;
     }
-    
     if (!formData.district) {
       toast({
-        title: "District required", 
+        title: "District required",
         description: "Please select a district",
         variant: "destructive"
       });
       return;
     }
-    
     if (!formData.bayType) {
       toast({
         title: "Bay type required",
@@ -177,7 +176,6 @@ const RentOutYourSpace = () => {
       });
       return;
     }
-
     if (!user) {
       toast({
         title: "Authentication required",
@@ -187,7 +185,6 @@ const RentOutYourSpace = () => {
       navigate('/auth');
       return;
     }
-
     if (verificationStatus !== 'approved') {
       toast({
         title: "Verification Required",
@@ -197,7 +194,6 @@ const RentOutYourSpace = () => {
       navigate('/my-account?tab=verification');
       return;
     }
-    
     if (uploadedImages.length === 0) {
       toast({
         title: "Images required",
@@ -206,7 +202,6 @@ const RentOutYourSpace = () => {
       });
       return;
     }
-    
     if (!idDocument) {
       toast({
         title: "ID document required",
@@ -317,7 +312,6 @@ const RentOutYourSpace = () => {
       setUploadedImages([]);
       setIdDocument(null);
       setMonthlyPrice(300);
-
       setIsSubmitting(false);
 
       // Redirect to account page to view the submitted listing
@@ -424,8 +418,7 @@ const RentOutYourSpace = () => {
 
           <Card className="bg-white shadow-2xl p-8">
             {/* Verification Status Warning */}
-            {!verificationLoading && verificationStatus !== 'approved' && (
-              <div className="mb-6 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+            {!verificationLoading && verificationStatus !== 'approved' && <div className="mb-6 p-4 bg-orange-50 border border-orange-200 rounded-lg">
                 <div className="flex items-center gap-3">
                   <Shield className="h-5 w-5 text-orange-600" />
                   <div>
@@ -434,18 +427,12 @@ const RentOutYourSpace = () => {
                       Your account must be verified before you can list parking spaces. 
                       Status: {verificationStatus || 'Not submitted'}
                     </p>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="mt-2"
-                      onClick={() => navigate('/my-account?tab=verification')}
-                    >
+                    <Button variant="outline" size="sm" className="mt-2" onClick={() => navigate('/my-account?tab=verification')}>
                       Complete Verification
                     </Button>
                   </div>
                 </div>
-              </div>
-            )}
+              </div>}
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -586,31 +573,18 @@ const RentOutYourSpace = () => {
                     <p className="text-xs text-gray-500 mt-1">
                       PDF, JPEG or PNG, max 3MB
                     </p>
-                    <input 
-                      type="file" 
-                      accept="image/jpeg,image/png,image/jpg,application/pdf" 
-                      onChange={handleIdUpload} 
-                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
-                    />
+                    
                   </div>
                   
-                  {idDocument && (
-                    <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg flex items-center justify-between">
+                  {idDocument && <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg flex items-center justify-between">
                       <div className="flex items-center">
                         <CheckCircle className="h-5 w-5 text-green-600 mr-2" />
                         <span className="text-sm text-green-800">{idDocument.name}</span>
                       </div>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setIdDocument(null)}
-                        className="h-6 w-6 p-0 text-green-600 hover:text-green-800"
-                      >
+                      <Button type="button" variant="ghost" size="sm" onClick={() => setIdDocument(null)} className="h-6 w-6 p-0 text-green-600 hover:text-green-800">
                         <X className="h-4 w-4" />
                       </Button>
-                    </div>
-                  )}
+                    </div>}
                 </div>
               </div>
 
@@ -682,7 +656,6 @@ const RentOutYourSpace = () => {
       </div>
 
       <Footer />
-    </div>
+    </div>;
 };
-
 export default RentOutYourSpace;
