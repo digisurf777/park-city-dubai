@@ -560,33 +560,7 @@ const RentOutYourSpace = () => {
               </div>
 
               {/* ID Document Upload */}
-              <div>
-                <Label htmlFor="idDocument" className="text-base font-medium">
-                  ID Document (Required) *
-                </Label>
-                <div className="mt-2">
-                  <div className="relative border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary transition-colors">
-                    <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                    <p className="text-gray-600 text-sm">
-                      Upload your Emirates ID or Passport
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      PDF, JPEG or PNG, max 3MB
-                    </p>
-                    
-                  </div>
-                  
-                  {idDocument && <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg flex items-center justify-between">
-                      <div className="flex items-center">
-                        <CheckCircle className="h-5 w-5 text-green-600 mr-2" />
-                        <span className="text-sm text-green-800">{idDocument.name}</span>
-                      </div>
-                      <Button type="button" variant="ghost" size="sm" onClick={() => setIdDocument(null)} className="h-6 w-6 p-0 text-green-600 hover:text-green-800">
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>}
-                </div>
-              </div>
+              
 
               <div>
                 <Label htmlFor="notes" className="text-base font-medium">
