@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
@@ -124,6 +124,13 @@ export type Database = {
             columns: ["listing_id"]
             isOneToOne: false
             referencedRelation: "parking_listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "driver_owner_messages_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "parking_listings_public"
             referencedColumns: ["id"]
           },
         ]
@@ -536,7 +543,66 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      parking_listings_public: {
+        Row: {
+          address: string | null
+          availability_schedule: Json | null
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string | null
+          description: string | null
+          features: string[] | null
+          id: string | null
+          images: string[] | null
+          owner_id: string | null
+          price_per_day: number | null
+          price_per_hour: number | null
+          price_per_month: number | null
+          status: string | null
+          title: string | null
+          updated_at: string | null
+          zone: string | null
+        }
+        Insert: {
+          address?: string | null
+          availability_schedule?: Json | null
+          contact_email?: never
+          contact_phone?: never
+          created_at?: string | null
+          description?: string | null
+          features?: string[] | null
+          id?: string | null
+          images?: string[] | null
+          owner_id?: never
+          price_per_day?: number | null
+          price_per_hour?: number | null
+          price_per_month?: number | null
+          status?: string | null
+          title?: string | null
+          updated_at?: string | null
+          zone?: string | null
+        }
+        Update: {
+          address?: string | null
+          availability_schedule?: Json | null
+          contact_email?: never
+          contact_phone?: never
+          created_at?: string | null
+          description?: string | null
+          features?: string[] | null
+          id?: string | null
+          images?: string[] | null
+          owner_id?: never
+          price_per_day?: number | null
+          price_per_hour?: number | null
+          price_per_month?: number | null
+          status?: string | null
+          title?: string | null
+          updated_at?: string | null
+          zone?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       expire_booking_chats: {
@@ -549,8 +615,8 @@ export type Database = {
       }
       has_role: {
         Args: {
-          _user_id: string
           _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
         }
         Returns: boolean
       }

@@ -39,7 +39,7 @@ const PalmJumeirah = () => {
   const fetchParkingSpots = async () => {
     console.log("Fetching parking spots for Palm Jumeirah...");
     try {
-      const { data, error } = await supabase.from("parking_listings").select("id, title, description, address, zone, features, images, price_per_hour, price_per_day, price_per_month, availability_schedule, status, created_at, updated_at").eq("zone", "Palm Jumeirah").eq("status", "approved");
+      const { data, error } = await supabase.from("parking_listings_public").select("*").eq("zone", "Palm Jumeirah");
       
       console.log("Supabase query result:", { data, error });
       if (error) throw error;

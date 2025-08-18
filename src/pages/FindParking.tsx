@@ -93,7 +93,7 @@ const FindParking = () => {
     try {
       setLoading(true);
       console.log('Fetching parking spots from database...');
-      const { data, error } = await supabase.from('parking_listings').select('*').eq('status', 'approved');
+      const { data, error } = await supabase.from('parking_listings_public').select('*');
       console.log('Database query result:', {
         data,
         error,
