@@ -871,6 +871,8 @@ const AdminPanel = () => {
     }
 
     try {
+      console.log('Deleting listing:', listingId);
+      
       // First, get the listing to access its images
       const { data: listing, error: fetchError } = await supabase
         .from('parking_listings')
@@ -878,25 +880,39 @@ const AdminPanel = () => {
         .eq('id', listingId)
         .single();
 
-      if (fetchError) throw fetchError;
+      if (fetchError) {
+        console.error('Error fetching listing:', fetchError);
+        // Continue with deletion even if we can't fetch images
+      }
 
       // Delete images from storage if they exist
       if (listing?.images && listing.images.length > 0) {
+        console.log('Deleting images:', listing.images);
         for (const imageUrl of listing.images) {
           if (imageUrl.includes('supabase')) {
-            await deleteImageFromStorage(imageUrl);
+            try {
+              await deleteImageFromStorage(imageUrl);
+            } catch (imgError) {
+              console.error('Error deleting image:', imgError);
+              // Continue with listing deletion even if image deletion fails
+            }
           }
         }
       }
 
       // Delete the listing from database
+      console.log('Deleting listing from database');
       const { error } = await supabase
         .from('parking_listings')
         .delete()
         .eq('id', listingId);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Database deletion error:', error);
+        throw error;
+      }
 
+      console.log('Listing deleted successfully');
       toast({
         title: "Success",
         description: "Parking listing deleted successfully",
@@ -907,7 +923,7 @@ const AdminPanel = () => {
       console.error('Error deleting listing:', error);
       toast({
         title: "Error",
-        description: "Failed to delete parking listing",
+        description: `Failed to delete parking listing: ${error.message || 'Unknown error'}`,
         variant: "destructive",
       });
     }
@@ -1313,6 +1329,77 @@ const AdminPanel = () => {
       toast({
         title: "Success",
         description: `Verification ${status} successfully. ${userEmail ? 'User has been notified.' : 'Note: Could not send notification email.'}`,
+      });
+
+      fetchVerifications();
+    } catch (error) {
+      console.error('Error updating verification:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update verification status",
+        variant: "destructive",
+      });
+    } finally {
+      setVerificationUpdating('');
+    }
+  };
+
+  const deleteVerification = async (verificationId: string) => {
+    if (!confirm('Are you sure you want to delete this verification? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      setVerificationUpdating(verificationId);
+      console.log(`Deleting verification ${verificationId}`);
+
+      // Get verification details before deleting
+      const { data: verification, error: fetchError } = await supabase
+        .from('user_verifications')
+        .select('document_image_url')
+        .eq('id', verificationId)
+        .single();
+
+      if (fetchError) {
+        console.error('Error fetching verification:', fetchError);
+        throw fetchError;
+      }
+
+      // Delete document from storage if it exists
+      if (verification?.document_image_url) {
+        try {
+          // Extract file path from URL
+          const url = new URL(verification.document_image_url);
+          const filePath = url.pathname.split('/storage/v1/object/public/verification-docs/')[1];
+          
+          if (filePath) {
+            const { error: storageError } = await supabase.storage
+              .from('verification-docs')
+              .remove([filePath]);
+
+            if (storageError) {
+              console.error('Error deleting document from storage:', storageError);
+            }
+          }
+        } catch (storageErr) {
+          console.error('Error processing document deletion:', storageErr);
+        }
+      }
+
+      // Delete the verification record
+      const { error: deleteError } = await supabase
+        .from('user_verifications')
+        .delete()
+        .eq('id', verificationId);
+
+      if (deleteError) {
+        console.error('Error deleting verification:', deleteError);
+        throw deleteError;
+      }
+
+      toast({
+        title: "Success",
+        description: "Verification deleted successfully",
       });
 
       fetchVerifications();
@@ -2666,6 +2753,15 @@ const AdminPanel = () => {
                               </Button>
                             </>
                           )}
+                          <Button
+                            variant="destructive"
+                            onClick={() => deleteVerification(verification.id)}
+                            disabled={verificationUpdating === verification.id}
+                            className="flex items-center gap-2 bg-red-600 hover:bg-red-700"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                            {verificationUpdating === verification.id ? 'Deleting...' : 'Delete Verification'}
+                          </Button>
                           <Button
                             variant="outline"
                             onClick={() => setSelectedUserId(verification.user_id)}
