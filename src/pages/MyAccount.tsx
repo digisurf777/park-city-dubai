@@ -269,8 +269,8 @@ const MyAccount = () => {
           </div>
         </div>
 
-        {/* Verification Status Alert - Only show if not approved */}
-        {!verificationLoading && verificationStatus && verificationStatus !== 'approved' && (
+        {/* Verification Status Alert - Only show if not approved/verified */}
+        {!verificationLoading && verificationStatus && verificationStatus !== 'approved' && verificationStatus !== 'verified' && (
           <Card className="mb-6 border-orange-200 bg-orange-50">
             <CardContent className="pt-6">
               <div className="flex items-center gap-3">
@@ -321,7 +321,7 @@ const MyAccount = () => {
         )}
 
         {/* Success Message for Verified Users */}
-        {!verificationLoading && verificationStatus === 'approved' && (
+        {!verificationLoading && (verificationStatus === 'approved' || verificationStatus === 'verified') && (
           <Card className="mb-6 border-green-200 bg-green-50 shadow-lg">
             <CardContent className="pt-6">
               <div className="flex items-center gap-3">
@@ -367,7 +367,7 @@ const MyAccount = () => {
                 <User className="h-4 w-4" />
                 Profile
               </Button>
-              {verificationStatus !== 'approved' && (
+              {verificationStatus !== 'approved' && verificationStatus !== 'verified' && (
                 <Button variant={activeTab === 'verification' ? 'default' : 'outline'} onClick={() => setActiveTab('verification')} className={`flex items-center gap-2 h-12 relative ${(verificationStatus === 'pending' || verificationStatus === null) ? 'border-orange-500/20' : ''}`}>
                   <Shield className="h-4 w-4" />
                   Verify
@@ -403,7 +403,7 @@ const MyAccount = () => {
               <User className="h-4 w-4" />
               Profile
             </TabsTrigger>
-            {verificationStatus !== 'approved' && (
+            {verificationStatus !== 'approved' && verificationStatus !== 'verified' && (
               <TabsTrigger value="verification" className={`flex items-center gap-2 py-2 ${verificationStatus === 'pending' || verificationStatus === null ? 'bg-orange-500/10 text-orange-700 dark:text-orange-300 border-orange-500/20' : ''}`}>
                 <Shield className="h-4 w-4" />
                 Verification
@@ -464,7 +464,7 @@ const MyAccount = () => {
                      <div className="space-y-2">
                        <Label>Account Status</Label>
                        <div className="flex items-center gap-3 p-3 rounded-lg bg-muted">
-                       {verificationStatus === 'approved' ? (
+                       {verificationStatus === 'approved' || verificationStatus === 'verified' ? (
                            <>
                              <CheckCircle className="h-5 w-5 text-green-500" />
                              <div className="flex flex-col">
@@ -509,7 +509,7 @@ const MyAccount = () => {
              </Card>
            </TabsContent>
           
-          {verificationStatus !== 'approved' && (
+          {verificationStatus !== 'approved' && verificationStatus !== 'verified' && (
             <TabsContent value="verification">
               <VerificationPanel />
             </TabsContent>

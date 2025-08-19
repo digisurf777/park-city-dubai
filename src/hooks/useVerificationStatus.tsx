@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 
 interface VerificationStatus {
-  status: 'pending' | 'approved' | 'rejected' | null;
+  status: 'pending' | 'approved' | 'verified' | 'rejected' | null;
   loading: boolean;
   error: string | null;
   refresh: () => void;
@@ -11,7 +11,7 @@ interface VerificationStatus {
 
 export const useVerificationStatus = (): VerificationStatus => {
   const { user } = useAuth();
-  const [status, setStatus] = useState<'pending' | 'approved' | 'rejected' | null>(null);
+  const [status, setStatus] = useState<'pending' | 'approved' | 'verified' | 'rejected' | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -26,20 +26,29 @@ export const useVerificationStatus = (): VerificationStatus => {
     setError(null);
 
     try {
+      console.log('Fetching verification status for user:', user.id);
+      
       const { data, error: fetchError } = await supabase
         .from('user_verifications')
         .select('verification_status')
         .eq('user_id', user.id)
         .single();
 
+      console.log('Verification query result:', { data, error: fetchError });
+
       if (fetchError && fetchError.code !== 'PGRST116') {
+        console.error('Verification fetch error:', fetchError);
         throw fetchError;
       }
 
       const verificationStatus = data?.verification_status;
-      if (verificationStatus === 'pending' || verificationStatus === 'approved' || verificationStatus === 'rejected') {
+      console.log('Parsed verification status:', verificationStatus);
+      
+      if (verificationStatus === 'pending' || verificationStatus === 'approved' || verificationStatus === 'verified' || verificationStatus === 'rejected') {
+        console.log('Setting status to:', verificationStatus);
         setStatus(verificationStatus);
       } else {
+        console.log('No valid verification status found, setting to null');
         setStatus(null);
       }
     } catch (err: any) {
@@ -71,7 +80,7 @@ export const useVerificationStatus = (): VerificationStatus => {
           console.log('Verification status changed:', payload);
           if (payload.new && typeof payload.new === 'object' && 'verification_status' in payload.new) {
             const newStatus = payload.new.verification_status;
-            if (newStatus === 'pending' || newStatus === 'approved' || newStatus === 'rejected') {
+            if (newStatus === 'pending' || newStatus === 'approved' || newStatus === 'verified' || newStatus === 'rejected') {
               setStatus(newStatus);
             }
           }

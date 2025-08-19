@@ -186,7 +186,7 @@ const RentOutYourSpace = () => {
       navigate('/auth');
       return;
     }
-    if (verificationStatus !== 'approved') {
+    if (verificationStatus !== 'approved' && verificationStatus !== 'verified') {
       toast({
         title: "Verification Required",
         description: "Your account must be verified before you can list parking spaces.",
@@ -418,7 +418,7 @@ const RentOutYourSpace = () => {
           </div>
 
           {/* Only show the form if user is verified */}
-          {!verificationLoading && verificationStatus === 'approved' ? (
+          {!verificationLoading && (verificationStatus === 'approved' || verificationStatus === 'verified') ? (
             <Card className="bg-white shadow-2xl p-8">
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

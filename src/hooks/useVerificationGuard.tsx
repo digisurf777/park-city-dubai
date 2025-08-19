@@ -27,7 +27,7 @@ export const useVerificationGuard = (): VerificationGuardResult => {
     };
   }
 
-  if (status !== 'approved') {
+  if (status !== 'approved' && status !== 'verified') {
     return {
       isVerified: false,
       canAccessFeatures: false,
