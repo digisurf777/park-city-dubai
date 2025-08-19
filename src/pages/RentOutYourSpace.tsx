@@ -417,32 +417,9 @@ const RentOutYourSpace = () => {
             </h2>
           </div>
 
-          <VerificationGuard feature="listing parking spaces">
+          {/* Only show the form if user is verified */}
+          {!verificationLoading && verificationStatus === 'approved' ? (
             <Card className="bg-white shadow-2xl p-8">
-              {/* Verification Status Warning */}
-              {!verificationLoading && verificationStatus !== 'approved' && (
-                <div className="mb-6 p-4 bg-orange-50 border border-orange-200 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <Shield className="h-5 w-5 text-orange-600" />
-                    <div>
-                      <h3 className="font-semibold text-orange-800">Account Verification Required</h3>
-                      <p className="text-sm text-orange-700 mt-1">
-                        Your account must be verified before you can list parking spaces. 
-                        Status: {verificationStatus || 'Not submitted'}
-                      </p>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="mt-2" 
-                        onClick={() => navigate('/my-account?tab=verification')}
-                      >
-                        Complete Verification
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              )}
-
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
@@ -623,6 +600,34 @@ const RentOutYourSpace = () => {
                 </div>
 
                 <div>
+                  <Label htmlFor="idDocument" className="text-base font-medium">
+                    ID Document (Emirates ID or Passport) *
+                  </Label>
+                  <div className="mt-2">
+                    <div className="relative border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary transition-colors">
+                      <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                      <p className="text-gray-600 text-sm">
+                        Upload your Emirates ID or Passport
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        JPEG or PNG, max 3MB
+                      </p>
+                      <input 
+                        type="file" 
+                        accept="image/jpeg,image/png,image/jpg" 
+                        onChange={handleIdUpload} 
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
+                      />
+                    </div>
+                    {idDocument && (
+                      <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded">
+                        <p className="text-sm text-green-700">✓ {idDocument.name}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div>
                   <Label htmlFor="notes" className="text-base font-medium">
                     Notes to Admin
                   </Label>
@@ -645,7 +650,12 @@ const RentOutYourSpace = () => {
                 </Button>
               </form>
             </Card>
-          </VerificationGuard>
+          ) : (
+            /* Show verification required message for non-verified users */
+            <VerificationGuard feature="listing parking spaces">
+              <div></div>
+            </VerificationGuard>
+          )}
         </div>
       </section>
 
