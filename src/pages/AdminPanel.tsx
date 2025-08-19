@@ -871,14 +871,19 @@ const AdminPanel = () => {
     }
 
     try {
-      console.log('Deleting listing:', listingId);
+      console.log('Deleting listing with ID:', listingId);
+      
+      // Validate that we have a valid listing ID
+      if (!listingId || typeof listingId !== 'string') {
+        throw new Error('Invalid listing ID provided');
+      }
       
       // First, get the listing to access its images
       const { data: listing, error: fetchError } = await supabase
         .from('parking_listings')
         .select('images')
         .eq('id', listingId)
-        .single();
+        .maybeSingle();
 
       if (fetchError) {
         console.error('Error fetching listing:', fetchError);
@@ -886,10 +891,10 @@ const AdminPanel = () => {
       }
 
       // Delete images from storage if they exist
-      if (listing?.images && listing.images.length > 0) {
+      if (listing?.images && Array.isArray(listing.images) && listing.images.length > 0) {
         console.log('Deleting images:', listing.images);
         for (const imageUrl of listing.images) {
-          if (imageUrl.includes('supabase')) {
+          if (imageUrl && typeof imageUrl === 'string' && imageUrl.includes('supabase')) {
             try {
               await deleteImageFromStorage(imageUrl);
             } catch (imgError) {
@@ -900,25 +905,30 @@ const AdminPanel = () => {
         }
       }
 
-      // Delete the listing from database
-      console.log('Deleting listing from database');
-      const { error } = await supabase
+      // Delete the listing from database with explicit WHERE clause
+      console.log('Deleting listing from database with ID:', listingId);
+      const { error: deleteError, count } = await supabase
         .from('parking_listings')
-        .delete()
+        .delete({ count: 'exact' })
         .eq('id', listingId);
 
-      if (error) {
-        console.error('Database deletion error:', error);
-        throw error;
+      if (deleteError) {
+        console.error('Database deletion error:', deleteError);
+        throw deleteError;
       }
 
-      console.log('Listing deleted successfully');
+      if (count === 0) {
+        throw new Error('No listing found with the provided ID');
+      }
+
+      console.log('Listing deleted successfully, affected rows:', count);
       toast({
         title: "Success",
         description: "Parking listing deleted successfully",
       });
 
-      fetchParkingListings();
+      // Refresh the listings
+      await fetchParkingListings();
     } catch (error) {
       console.error('Error deleting listing:', error);
       toast({
