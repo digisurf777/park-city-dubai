@@ -302,10 +302,28 @@ const MyAccount = () => {
               <div className="flex items-center gap-3">
                 <CheckCircle className="h-6 w-6 text-green-600" />
                 <div className="flex-1">
-                  <h3 className="font-semibold text-green-800">Account Verified ✓</h3>
+                  <h3 className="font-semibold text-green-800">✅ Account Verified</h3>
                   <p className="text-sm text-green-700 mt-1">
-                    Your account is verified! You can now list and book parking spaces.
+                    Your account is verified! You can now list parking spaces and make bookings without restrictions.
                   </p>
+                </div>
+                <div className="flex gap-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => navigate('/rent-out-your-space')}
+                    className="border-green-300 text-green-700 hover:bg-green-100"
+                  >
+                    List Space
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => navigate('/find-parking')}
+                    className="border-green-300 text-green-700 hover:bg-green-100"
+                  >
+                    Find Parking
+                  </Button>
                 </div>
               </div>
             </CardContent>
@@ -351,7 +369,7 @@ const MyAccount = () => {
           </div>
 
           {/* Desktop Tab Navigation */}
-          <TabsList className="hidden lg:grid w-full grid-cols-6 gap-1 h-auto p-1">
+          <TabsList className="hidden lg:grid w-full grid-cols-5 gap-1 h-auto p-1">
             <TabsTrigger value="profile" className="flex items-center gap-2 py-2">
               <User className="h-4 w-4" />
               Profile
@@ -404,13 +422,43 @@ const MyAccount = () => {
                   } : null)} />
                   </div>
                   
-                  <div className="space-y-2">
-                    <Label htmlFor="phone">Phone Number</Label>
-                    <Input id="phone" type="tel" value={profile?.phone || ''} onChange={e => setProfile(prev => prev ? {
-                    ...prev,
-                    phone: e.target.value
-                  } : null)} placeholder="+971 50 123 4567" />
-                  </div>
+                   <div className="space-y-2">
+                     <Label htmlFor="phone">Phone Number</Label>
+                     <Input id="phone" type="tel" value={profile?.phone || ''} onChange={e => setProfile(prev => prev ? {
+                     ...prev,
+                     phone: e.target.value
+                   } : null)} placeholder="+971 50 123 4567" />
+                   </div>
+
+                   {/* Verification Status Display */}
+                   {!verificationLoading && (
+                     <div className="space-y-2">
+                       <Label>Account Status</Label>
+                       <div className="flex items-center gap-3 p-3 rounded-lg bg-muted">
+                         {verificationStatus === 'approved' ? (
+                           <>
+                             <CheckCircle className="h-5 w-5 text-green-500" />
+                             <span className="text-green-700 font-medium">✅ Verified Account</span>
+                           </>
+                         ) : verificationStatus === 'pending' ? (
+                           <>
+                             <Shield className="h-5 w-5 text-orange-500" />
+                             <span className="text-orange-700 font-medium">⏳ Verification Pending</span>
+                           </>
+                         ) : verificationStatus === 'rejected' ? (
+                           <>
+                             <Shield className="h-5 w-5 text-red-500" />
+                             <span className="text-red-700 font-medium">❌ Verification Required</span>
+                           </>
+                         ) : (
+                           <>
+                             <Shield className="h-5 w-5 text-gray-500" />
+                             <span className="text-gray-700 font-medium">⚠️ Verification Not Started</span>
+                           </>
+                         )}
+                       </div>
+                     </div>
+                   )}
 
                    <div className="flex gap-2">
                      <Button type="submit" disabled={updating} className="flex-1">
