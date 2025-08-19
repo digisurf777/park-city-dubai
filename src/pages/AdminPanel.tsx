@@ -887,48 +887,11 @@ const AdminPanel = () => {
 
       const cleanListingId = listingId.trim();
       console.log('🧹 Clean listing ID:', cleanListingId);
-      
-      // First, verify the listing exists
-      console.log('🔍 Checking if listing exists...');
-      const { data: existingListing, error: checkError } = await supabase
-        .from('parking_listings')
-        .select('id, images')
-        .eq('id', cleanListingId)
-        .maybeSingle();
 
-      console.log('📋 Existing listing check result:', { existingListing, checkError });
-
-      if (checkError) {
-        console.error('❌ Error checking listing existence:', checkError);
-        throw new Error(`Failed to verify listing: ${checkError.message}`);
-      }
-
-      if (!existingListing) {
-        throw new Error('Listing not found or already deleted');
-      }
-
-      // Delete images from storage if they exist
-      if (existingListing.images && Array.isArray(existingListing.images) && existingListing.images.length > 0) {
-        console.log('🖼️ Deleting images:', existingListing.images);
-        for (const imageUrl of existingListing.images) {
-          if (imageUrl && typeof imageUrl === 'string' && imageUrl.includes('supabase')) {
-            try {
-              await deleteImageFromStorage(imageUrl);
-              console.log('✅ Deleted image:', imageUrl);
-            } catch (imgError) {
-              console.error('❌ Error deleting image:', imgError);
-              // Continue with listing deletion even if image deletion fails
-            }
-          }
-        }
-      }
-
-      // Delete the listing using admin function with proper WHERE clause
-      console.log('🗑️ Deleting listing using admin function...');
-      console.log('🔑 Using listing ID for deletion:', cleanListingId);
-      
+      // Use the enhanced admin function that handles everything
+      console.log('🗑️ Calling enhanced admin delete function...');
       const { data: deleteResult, error: deleteError } = await supabase
-        .rpc('admin_delete_parking_listing', {
+        .rpc('admin_delete_parking_listing_complete', {
           listing_id: cleanListingId
         });
 
@@ -945,6 +908,23 @@ const AdminPanel = () => {
       }
 
       console.log('✅ Listing deleted successfully:', result);
+
+      // Handle image cleanup if needed (in background)
+      if (result.images && Array.isArray(result.images) && result.images.length > 0) {
+        console.log('🖼️ Cleaning up images in background:', result.images);
+        // Don't await this - let it run in background
+        result.images.forEach(async (imageUrl: string) => {
+          if (imageUrl && typeof imageUrl === 'string' && imageUrl.includes('supabase')) {
+            try {
+              await deleteImageFromStorage(imageUrl);
+              console.log('✅ Deleted image:', imageUrl);
+            } catch (imgError) {
+              console.error('❌ Error deleting image (non-critical):', imgError);
+            }
+          }
+        });
+      }
+
       toast({
         title: "Success",
         description: "Parking listing deleted successfully",
