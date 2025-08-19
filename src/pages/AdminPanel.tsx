@@ -871,57 +871,76 @@ const AdminPanel = () => {
     }
 
     try {
-      console.log('Deleting listing with ID:', listingId);
+      console.log('🗑️ Starting delete process for listing ID:', listingId);
+      console.log('🔍 Listing ID type:', typeof listingId);
+      console.log('🔍 Listing ID length:', listingId?.length);
       
       // Validate that we have a valid listing ID
-      if (!listingId || typeof listingId !== 'string') {
+      if (!listingId || typeof listingId !== 'string' || listingId.trim() === '') {
         throw new Error('Invalid listing ID provided');
       }
+
+      const cleanListingId = listingId.trim();
+      console.log('🧹 Clean listing ID:', cleanListingId);
       
-      // First, get the listing to access its images
-      const { data: listing, error: fetchError } = await supabase
+      // First, verify the listing exists
+      console.log('🔍 Checking if listing exists...');
+      const { data: existingListing, error: checkError } = await supabase
         .from('parking_listings')
-        .select('images')
-        .eq('id', listingId)
+        .select('id, images')
+        .eq('id', cleanListingId)
         .maybeSingle();
 
-      if (fetchError) {
-        console.error('Error fetching listing:', fetchError);
-        // Continue with deletion even if we can't fetch images
+      console.log('📋 Existing listing check result:', { existingListing, checkError });
+
+      if (checkError) {
+        console.error('❌ Error checking listing existence:', checkError);
+        throw new Error(`Failed to verify listing: ${checkError.message}`);
+      }
+
+      if (!existingListing) {
+        throw new Error('Listing not found or already deleted');
       }
 
       // Delete images from storage if they exist
-      if (listing?.images && Array.isArray(listing.images) && listing.images.length > 0) {
-        console.log('Deleting images:', listing.images);
-        for (const imageUrl of listing.images) {
+      if (existingListing.images && Array.isArray(existingListing.images) && existingListing.images.length > 0) {
+        console.log('🖼️ Deleting images:', existingListing.images);
+        for (const imageUrl of existingListing.images) {
           if (imageUrl && typeof imageUrl === 'string' && imageUrl.includes('supabase')) {
             try {
               await deleteImageFromStorage(imageUrl);
+              console.log('✅ Deleted image:', imageUrl);
             } catch (imgError) {
-              console.error('Error deleting image:', imgError);
+              console.error('❌ Error deleting image:', imgError);
               // Continue with listing deletion even if image deletion fails
             }
           }
         }
       }
 
-      // Delete the listing from database with explicit WHERE clause
-      console.log('Deleting listing from database with ID:', listingId);
-      const { error: deleteError, count } = await supabase
+      // Delete the listing from database using a more explicit approach
+      console.log('🗑️ Deleting listing from database...');
+      console.log('🔑 Using listing ID for deletion:', cleanListingId);
+      
+      // Use the most explicit delete syntax possible
+      const deleteResult = await supabase
         .from('parking_listings')
-        .delete({ count: 'exact' })
-        .match({ id: listingId });
+        .delete()
+        .eq('id', cleanListingId)
+        .select('id');
 
-      if (deleteError) {
-        console.error('Database deletion error:', deleteError);
-        throw deleteError;
+      console.log('📊 Delete result:', deleteResult);
+
+      if (deleteResult.error) {
+        console.error('❌ Database deletion error:', deleteResult.error);
+        throw deleteResult.error;
       }
 
-      if (count === 0) {
-        throw new Error('No listing found with the provided ID');
+      if (!deleteResult.data || deleteResult.data.length === 0) {
+        throw new Error('No listing was deleted. The listing may not exist or you may not have permission.');
       }
 
-      console.log('Listing deleted successfully, affected rows:', count);
+      console.log('✅ Listing deleted successfully:', deleteResult.data);
       toast({
         title: "Success",
         description: "Parking listing deleted successfully",
@@ -930,7 +949,7 @@ const AdminPanel = () => {
       // Refresh the listings
       await fetchParkingListings();
     } catch (error) {
-      console.error('Error deleting listing:', error);
+      console.error('💥 Error deleting listing:', error);
       toast({
         title: "Error",
         description: `Failed to delete parking listing: ${error.message || 'Unknown error'}`,
@@ -1396,16 +1415,24 @@ const AdminPanel = () => {
         }
       }
 
-      // Delete the verification record
-      const { error: deleteError } = await supabase
+      // Delete the verification record with explicit WHERE clause
+      console.log('🗑️ Deleting verification from database...');
+      const deleteResult = await supabase
         .from('user_verifications')
         .delete()
-        .match({ id: verificationId });
+        .eq('id', verificationId)
+        .select('id');
 
-      if (deleteError) {
-        console.error('Error deleting verification:', deleteError);
-        throw deleteError;
+      if (deleteResult.error) {
+        console.error('❌ Database deletion error:', deleteResult.error);
+        throw deleteResult.error;
       }
+
+      if (!deleteResult.data || deleteResult.data.length === 0) {
+        throw new Error('No verification was deleted. The verification may not exist or you may not have permission.');
+      }
+
+      console.log('✅ Verification deleted successfully:', deleteResult.data);
 
       toast({
         title: "Success",
