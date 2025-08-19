@@ -910,7 +910,7 @@ const AdminPanel = () => {
       const { error: deleteError, count } = await supabase
         .from('parking_listings')
         .delete({ count: 'exact' })
-        .eq('id', listingId);
+        .match({ id: listingId });
 
       if (deleteError) {
         console.error('Database deletion error:', deleteError);
@@ -1400,7 +1400,7 @@ const AdminPanel = () => {
       const { error: deleteError } = await supabase
         .from('user_verifications')
         .delete()
-        .eq('id', verificationId);
+        .match({ id: verificationId });
 
       if (deleteError) {
         console.error('Error deleting verification:', deleteError);
