@@ -866,9 +866,14 @@ const AdminPanel = () => {
   };
 
   const handleDeleteListing = async (listingId: string) => {
+    console.log('🚀 handleDeleteListing called with:', listingId);
+    
     if (!confirm('Are you sure you want to delete this parking listing? This action cannot be undone.')) {
+      console.log('❌ User cancelled deletion');
       return;
     }
+
+    console.log('✅ User confirmed deletion, proceeding...');
 
     try {
       console.log('🗑️ Starting delete process for listing ID:', listingId);
@@ -948,10 +953,16 @@ const AdminPanel = () => {
       // Refresh the listings
       await fetchParkingListings();
     } catch (error) {
-      console.error('💥 Error deleting listing:', error);
+      console.error('💥 COMPLETE ERROR DETAILS:', {
+        error,
+        message: error?.message,
+        stack: error?.stack,
+        name: error?.name,
+        cause: error?.cause
+      });
       toast({
         title: "Error",
-        description: `Failed to delete parking listing: ${error.message || 'Unknown error'}`,
+        description: `Failed to delete parking listing: ${error?.message || 'Unknown error'}`,
         variant: "destructive",
       });
     }
