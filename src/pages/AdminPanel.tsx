@@ -918,29 +918,28 @@ const AdminPanel = () => {
         }
       }
 
-      // Delete the listing from database using a more explicit approach
-      console.log('🗑️ Deleting listing from database...');
+      // Delete the listing using admin function with proper WHERE clause
+      console.log('🗑️ Deleting listing using admin function...');
       console.log('🔑 Using listing ID for deletion:', cleanListingId);
       
-      // Use the most explicit delete syntax possible
-      const deleteResult = await supabase
-        .from('parking_listings')
-        .delete()
-        .eq('id', cleanListingId)
-        .select('id');
+      const { data: deleteResult, error: deleteError } = await supabase
+        .rpc('admin_delete_parking_listing', {
+          listing_id: cleanListingId
+        });
 
       console.log('📊 Delete result:', deleteResult);
 
-      if (deleteResult.error) {
-        console.error('❌ Database deletion error:', deleteResult.error);
-        throw deleteResult.error;
+      if (deleteError) {
+        console.error('❌ Database deletion error:', deleteError);
+        throw deleteError;
       }
 
-      if (!deleteResult.data || deleteResult.data.length === 0) {
-        throw new Error('No listing was deleted. The listing may not exist or you may not have permission.');
+      const result = deleteResult as any;
+      if (!result || !result.success) {
+        throw new Error(result?.message || 'Failed to delete listing');
       }
 
-      console.log('✅ Listing deleted successfully:', deleteResult.data);
+      console.log('✅ Listing deleted successfully:', result);
       toast({
         title: "Success",
         description: "Parking listing deleted successfully",
@@ -1415,24 +1414,26 @@ const AdminPanel = () => {
         }
       }
 
-      // Delete the verification record with explicit WHERE clause
-      console.log('🗑️ Deleting verification from database...');
-      const deleteResult = await supabase
-        .from('user_verifications')
-        .delete()
-        .eq('id', verificationId)
-        .select('id');
+      // Delete the verification using admin function with proper WHERE clause
+      console.log('🗑️ Deleting verification using admin function...');
+      const { data: deleteResult, error: deleteError } = await supabase
+        .rpc('admin_delete_user_verification', {
+          verification_id: verificationId
+        });
 
-      if (deleteResult.error) {
-        console.error('❌ Database deletion error:', deleteResult.error);
-        throw deleteResult.error;
+      console.log('📊 Delete result:', deleteResult);
+
+      if (deleteError) {
+        console.error('❌ Database deletion error:', deleteError);
+        throw deleteError;
       }
 
-      if (!deleteResult.data || deleteResult.data.length === 0) {
-        throw new Error('No verification was deleted. The verification may not exist or you may not have permission.');
+      const result = deleteResult as any;
+      if (!result || !result.success) {
+        throw new Error(result?.message || 'Failed to delete verification');
       }
 
-      console.log('✅ Verification deleted successfully:', deleteResult.data);
+      console.log('✅ Verification deleted successfully:', result);
 
       toast({
         title: "Success",
