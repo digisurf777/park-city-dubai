@@ -554,37 +554,76 @@ export type Database = {
       }
       user_verifications: {
         Row: {
+          access_restricted: boolean | null
           created_at: string
+          document_encrypted: boolean | null
           document_image_url: string
           document_type: string
           full_name: string
           id: string
+          last_admin_access: string | null
           nationality: string | null
           updated_at: string
           user_id: string
           verification_status: string
         }
         Insert: {
+          access_restricted?: boolean | null
           created_at?: string
+          document_encrypted?: boolean | null
           document_image_url: string
           document_type: string
           full_name: string
           id?: string
+          last_admin_access?: string | null
           nationality?: string | null
           updated_at?: string
           user_id: string
           verification_status?: string
         }
         Update: {
+          access_restricted?: boolean | null
           created_at?: string
+          document_encrypted?: boolean | null
           document_image_url?: string
           document_type?: string
           full_name?: string
           id?: string
+          last_admin_access?: string | null
           nationality?: string | null
           updated_at?: string
           user_id?: string
           verification_status?: string
+        }
+        Relationships: []
+      }
+      verification_audit_log: {
+        Row: {
+          access_type: string
+          accessed_at: string
+          accessed_by: string
+          created_at: string
+          document_id: string
+          id: string
+          user_agent: string | null
+        }
+        Insert: {
+          access_type: string
+          accessed_at?: string
+          accessed_by: string
+          created_at?: string
+          document_id: string
+          id?: string
+          user_agent?: string | null
+        }
+        Update: {
+          access_type?: string
+          accessed_at?: string
+          accessed_by?: string
+          created_at?: string
+          document_id?: string
+          id?: string
+          user_agent?: string | null
         }
         Relationships: []
       }
@@ -593,6 +632,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_get_verification_document: {
+        Args: { verification_id: string }
+        Returns: {
+          document_type: string
+          document_url: string
+          user_full_name: string
+          verification_status: string
+        }[]
+      }
       expire_booking_chats: {
         Args: Record<PropertyKey, never>
         Returns: undefined
@@ -611,6 +659,10 @@ export type Database = {
       is_admin: {
         Args: { _user_id: string }
         Returns: boolean
+      }
+      log_verification_document_access: {
+        Args: { access_type: string; document_id: string; user_id?: string }
+        Returns: undefined
       }
       refresh_parking_listings_public: {
         Args: Record<PropertyKey, never>

@@ -1189,6 +1189,52 @@ const AdminPanel = () => {
     return booking.status === bookingStatusFilter;
   });
 
+  // Secure document access function with audit logging
+  const handleSecureDocumentAccess = async (verificationId: string) => {
+    try {
+      console.log('🔐 Accessing verification document:', verificationId);
+      
+      const { data, error } = await supabase.rpc('admin_get_verification_document', {
+        verification_id: verificationId
+      });
+
+      if (error) {
+        console.error('❌ Error accessing document:', error);
+        toast({
+          title: "Access Denied",
+          description: error.message || "Failed to access verification document",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (data && data.length > 0) {
+        const docData = data[0];
+        console.log('✅ Document access granted and logged');
+        
+        // Open document in a new tab with security measures
+        window.open(docData.document_url, '_blank', 'noopener,noreferrer');
+        
+        toast({
+          title: "🔐 Document Access Logged",
+          description: "Document access has been logged for security audit trail.",
+        });
+        
+        // Refresh verifications to show updated last access time
+        setTimeout(() => {
+          fetchVerifications();
+        }, 1000);
+      }
+    } catch (error) {
+      console.error('💥 Error in secure document access:', error);
+      toast({
+        title: "Error",
+        description: "Failed to access verification document",
+        variant: "destructive",
+      });
+    }
+  };
+
   const updateVerificationStatus = async (verificationId: string, status: 'approved' | 'rejected') => {
     try {
       setVerificationUpdating(verificationId);
@@ -2581,20 +2627,20 @@ const AdminPanel = () => {
                         
                         <div className="flex justify-center">
                           <div className="text-center">
-                            <img 
-                              src={verification.document_image_url} 
-                              alt="Document"
-                              className="max-w-full h-32 object-contain rounded border cursor-pointer mb-2"
-                              onClick={() => window.open(verification.document_image_url, '_blank')}
-                            />
-                            <a 
-                              href={`https://supabase.com/dashboard/project/eoknluyunximjlsnyceb/storage/buckets/verification-docs`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-blue-600 hover:underline text-sm"
-                            >
-                              View in Database Storage →
-                            </a>
+                            {/* Secure Document Access - No Direct Image Display */}
+                            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+                              <p className="text-sm text-yellow-800 mb-3">
+                                🔒 <strong>Enhanced Security:</strong> Identity documents are protected with secure access controls and audit logging.
+                              </p>
+                              <Button 
+                                onClick={() => handleSecureDocumentAccess(verification.id)}
+                                variant="outline" 
+                                size="sm"
+                                className="w-full bg-blue-50 hover:bg-blue-100 border-blue-300 text-blue-700"
+                              >
+                                🔐 Access Document (Logged & Audited)
+                              </Button>
+                            </div>
                           </div>
                         </div>
                         
