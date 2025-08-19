@@ -15,7 +15,7 @@ interface Verification {
   full_name: string;
   document_type: string;
   document_image_url: string;
-  verification_status: 'pending' | 'verified' | 'rejected';
+  verification_status: 'pending' | 'approved' | 'rejected';
   nationality?: string;
   created_at: string;
 }
@@ -32,6 +32,21 @@ const VerificationPanel = () => {
     documentType: '',
     file: null as File | null
   });
+
+  // Return early if user is already approved
+  if (verification?.verification_status === 'approved') {
+    return (
+      <Card>
+        <CardContent className="pt-6">
+          <div className="text-center space-y-4">
+            <CheckCircle className="h-16 w-16 text-green-500 mx-auto" />
+            <h3 className="text-xl font-semibold text-green-700">Account Verified ✓</h3>
+            <p className="text-muted-foreground">Your account is verified and you can now access all features.</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
   useEffect(() => {
     if (user) {
       fetchVerification();
@@ -145,7 +160,7 @@ const VerificationPanel = () => {
   };
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'verified':
+      case 'approved':
         return <CheckCircle className="h-4 w-4 text-green-500" />;
       case 'pending':
         return <Clock className="h-4 w-4 text-yellow-500" />;
@@ -157,8 +172,8 @@ const VerificationPanel = () => {
   };
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'verified':
-        return <Badge className="bg-green-100 text-green-800">✅ Verified</Badge>;
+      case 'approved':
+        return <Badge className="bg-green-100 text-green-800">✅ Approved</Badge>;
       case 'pending':
         return <Badge className="bg-yellow-100 text-yellow-800">⏳ Pending</Badge>;
       case 'rejected':
@@ -171,8 +186,8 @@ const VerificationPanel = () => {
     return <div className="animate-pulse">Loading verification status...</div>;
   }
 
-  // Show alert if not verified
-  const showAlert = !verification || verification.verification_status !== 'verified';
+  // Show alert if not approved
+  const showAlert = !verification || verification.verification_status === 'rejected';
   return <div className="space-y-6">
       {showAlert && <Alert className="border-red-200 bg-red-50">
           <AlertTriangle className="h-4 w-4 text-red-500" />

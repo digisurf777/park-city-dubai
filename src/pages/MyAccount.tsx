@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
-import { Loader2, User, History, LogOut, Shield, Mail, Home, MessageSquare, Send, Car, ParkingCircle, MessageCircle } from 'lucide-react';
+import { Loader2, User, History, LogOut, Shield, Mail, Home, MessageSquare, Send, Car, ParkingCircle, MessageCircle, CheckCircle } from 'lucide-react';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import VerificationPanel from '@/components/VerificationPanel';
 import UserInbox from '@/components/UserInbox';
@@ -269,7 +269,7 @@ const MyAccount = () => {
           </div>
         </div>
 
-        {/* Verification Status Alert */}
+        {/* Verification Status Alert - Only show if not approved */}
         {!verificationLoading && verificationStatus !== 'approved' && (
           <Card className="mb-6 border-orange-200 bg-orange-50">
             <CardContent className="pt-6">
@@ -295,6 +295,23 @@ const MyAccount = () => {
           </Card>
         )}
 
+        {/* Success Message for Verified Users */}
+        {!verificationLoading && verificationStatus === 'approved' && (
+          <Card className="mb-6 border-green-200 bg-green-50">
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-3">
+                <CheckCircle className="h-6 w-6 text-green-600" />
+                <div className="flex-1">
+                  <h3 className="font-semibold text-green-800">Account Verified ✓</h3>
+                  <p className="text-sm text-green-700 mt-1">
+                    Your account is verified! You can now list and book parking spaces.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           {/* Mobile Tab Navigation */}
           <div className="lg:hidden mb-6">
@@ -303,11 +320,13 @@ const MyAccount = () => {
                 <User className="h-4 w-4" />
                 Profile
               </Button>
-              <Button variant={activeTab === 'verification' ? 'default' : 'outline'} onClick={() => setActiveTab('verification')} className={`flex items-center gap-2 h-12 relative ${verificationStatus === 'pending' || verificationStatus === null ? 'border-orange-500/20' : ''}`}>
-                <Shield className="h-4 w-4" />
-                Verify
-                {(verificationStatus === 'pending' || verificationStatus === null) && <div className="absolute -top-1 -right-1 h-3 w-3 bg-destructive rounded-full"></div>}
-              </Button>
+              {verificationStatus !== 'approved' && (
+                <Button variant={activeTab === 'verification' ? 'default' : 'outline'} onClick={() => setActiveTab('verification')} className={`flex items-center gap-2 h-12 relative ${verificationStatus === 'pending' || verificationStatus === null ? 'border-orange-500/20' : ''}`}>
+                  <Shield className="h-4 w-4" />
+                  Verify
+                  {(verificationStatus === 'pending' || verificationStatus === null) && <div className="absolute -top-1 -right-1 h-3 w-3 bg-destructive rounded-full"></div>}
+                </Button>
+              )}
             </div>
             <div className="grid grid-cols-1 gap-2 mb-4">
               <Button variant={activeTab === 'listings' ? 'default' : 'outline'} onClick={() => setActiveTab('listings')} className="flex items-center gap-2 h-12">
@@ -337,11 +356,13 @@ const MyAccount = () => {
               <User className="h-4 w-4" />
               Profile
             </TabsTrigger>
-            <TabsTrigger value="verification" className={`flex items-center gap-2 py-2 ${verificationStatus === 'pending' || verificationStatus === null ? 'bg-orange-500/10 text-orange-700 dark:text-orange-300 border-orange-500/20' : ''}`}>
-              <Shield className="h-4 w-4" />
-              Verification
-              {(verificationStatus === 'pending' || verificationStatus === null) && <Badge variant="destructive" className="ml-2 h-5 w-5 p-0 text-xs">!</Badge>}
-            </TabsTrigger>
+            {verificationStatus !== 'approved' && (
+              <TabsTrigger value="verification" className={`flex items-center gap-2 py-2 ${verificationStatus === 'pending' || verificationStatus === null ? 'bg-orange-500/10 text-orange-700 dark:text-orange-300 border-orange-500/20' : ''}`}>
+                <Shield className="h-4 w-4" />
+                Verification
+                {(verificationStatus === 'pending' || verificationStatus === null) && <Badge variant="destructive" className="ml-2 h-5 w-5 p-0 text-xs">!</Badge>}
+              </TabsTrigger>
+            )}
             <TabsTrigger value="listings" className="flex items-center gap-2 py-2">
               <Home className="h-4 w-4" />
               My Listings
@@ -408,9 +429,11 @@ const MyAccount = () => {
              </Card>
            </TabsContent>
           
-          <TabsContent value="verification">
-            <VerificationPanel />
-          </TabsContent>
+          {verificationStatus !== 'approved' && (
+            <TabsContent value="verification">
+              <VerificationPanel />
+            </TabsContent>
+          )}
           
           <TabsContent value="listings">
             <MyListings />
