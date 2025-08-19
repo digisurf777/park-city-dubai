@@ -36,7 +36,7 @@ const RentOutYourSpace = () => {
   const [monthlyPrice, setMonthlyPrice] = useState<number>(300);
   const [uploadedImages, setUploadedImages] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [idDocument, setIdDocument] = useState<File | null>(null);
+  
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -80,20 +80,6 @@ const RentOutYourSpace = () => {
   };
   const removeImage = (index: number) => {
     setUploadedImages(prev => prev.filter((_, i) => i !== index));
-  };
-  const handleIdUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 3 * 1024 * 1024) {
-        toast({
-          title: "File too large",
-          description: "ID document must be smaller than 3MB",
-          variant: "destructive"
-        });
-        return;
-      }
-      setIdDocument(file);
-    }
   };
   const uploadImagesToStorage = async (files: File[]): Promise<string[]> => {
     const uploadPromises = files.map(async (file, index) => {
@@ -203,29 +189,11 @@ const RentOutYourSpace = () => {
       });
       return;
     }
-    if (!idDocument) {
-      toast({
-        title: "ID document required",
-        description: "Please upload your ID document",
-        variant: "destructive"
-      });
-      return;
-    }
     setIsSubmitting(true);
     try {
       // Upload images to storage
       const imageUrls = await uploadImagesToStorage(uploadedImages);
 
-      // Upload ID document
-      const idFileName = `${user.id}/${Date.now()}-${idDocument.name}`;
-      const {
-        data: idData,
-        error: idError
-      } = await supabase.storage.from('verification-docs').upload(idFileName, idDocument);
-      if (idError) {
-        console.error('ID upload error:', idError);
-        throw new Error(`Failed to upload ID document: ${idError.message}`);
-      }
 
       // Create listing in database
       const listingData = {
@@ -311,7 +279,7 @@ const RentOutYourSpace = () => {
         notes: ""
       });
       setUploadedImages([]);
-      setIdDocument(null);
+      
       setMonthlyPrice(300);
       setIsSubmitting(false);
 
@@ -599,33 +567,6 @@ const RentOutYourSpace = () => {
                   </div>
                 </div>
 
-                <div>
-                  <Label htmlFor="idDocument" className="text-base font-medium">
-                    ID Document (Emirates ID or Passport) *
-                  </Label>
-                  <div className="mt-2">
-                    <div className="relative border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary transition-colors">
-                      <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                      <p className="text-gray-600 text-sm">
-                        Upload your Emirates ID or Passport
-                      </p>
-                      <p className="text-xs text-gray-500 mt-1">
-                        JPEG or PNG, max 3MB
-                      </p>
-                      <input 
-                        type="file" 
-                        accept="image/jpeg,image/png,image/jpg" 
-                        onChange={handleIdUpload} 
-                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
-                      />
-                    </div>
-                    {idDocument && (
-                      <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded">
-                        <p className="text-sm text-green-700">✓ {idDocument.name}</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
 
                 <div>
                   <Label htmlFor="notes" className="text-base font-medium">
