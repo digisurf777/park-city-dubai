@@ -270,7 +270,7 @@ const MyAccount = () => {
         </div>
 
         {/* Verification Status Alert - Only show if not approved */}
-        {!verificationLoading && verificationStatus !== 'approved' && (
+        {!verificationLoading && verificationStatus && verificationStatus !== 'approved' && (
           <Card className="mb-6 border-orange-200 bg-orange-50">
             <CardContent className="pt-6">
               <div className="flex items-center gap-3">
@@ -279,7 +279,7 @@ const MyAccount = () => {
                   <h3 className="font-semibold text-orange-800">Account Verification Required</h3>
                   <p className="text-sm text-orange-700 mt-1">
                     Your account must be verified before you can list or book parking spaces.
-                    {verificationStatus && ` Current status: ${verificationStatus}`}
+                    Current status: {verificationStatus}
                   </p>
                 </div>
                 <Button 
@@ -288,7 +288,32 @@ const MyAccount = () => {
                   onClick={() => setActiveTab('verification')}
                   className="border-orange-300 text-orange-700 hover:bg-orange-100"
                 >
-                  {verificationStatus ? 'Check Status' : 'Start Verification'}
+                  {verificationStatus === 'rejected' ? 'Resubmit' : 'Check Status'}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Show verification required for users without any verification record */}
+        {!verificationLoading && !verificationStatus && (
+          <Card className="mb-6 border-orange-200 bg-orange-50">
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-3">
+                <Shield className="h-6 w-6 text-orange-600" />
+                <div className="flex-1">
+                  <h3 className="font-semibold text-orange-800">Account Verification Required</h3>
+                  <p className="text-sm text-orange-700 mt-1">
+                    Your account must be verified before you can list or book parking spaces.
+                  </p>
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => setActiveTab('verification')}
+                  className="border-orange-300 text-orange-700 hover:bg-orange-100"
+                >
+                  Start Verification
                 </Button>
               </div>
             </CardContent>
@@ -297,14 +322,18 @@ const MyAccount = () => {
 
         {/* Success Message for Verified Users */}
         {!verificationLoading && verificationStatus === 'approved' && (
-          <Card className="mb-6 border-green-200 bg-green-50">
+          <Card className="mb-6 border-green-200 bg-green-50 shadow-lg">
             <CardContent className="pt-6">
               <div className="flex items-center gap-3">
-                <CheckCircle className="h-6 w-6 text-green-600" />
+                <div className="flex items-center justify-center w-12 h-12 bg-green-100 rounded-full">
+                  <CheckCircle className="h-8 w-8 text-green-600" />
+                </div>
                 <div className="flex-1">
-                  <h3 className="font-semibold text-green-800">✅ Account Verified</h3>
+                  <h3 className="text-lg font-bold text-green-800 flex items-center gap-2">
+                    ✅ Account Verified
+                  </h3>
                   <p className="text-sm text-green-700 mt-1">
-                    Your account is verified! You can now list parking spaces and make bookings without restrictions.
+                    Congratulations! Your account is verified. You can now list parking spaces and make bookings without restrictions.
                   </p>
                 </div>
                 <div className="flex gap-2">
@@ -312,7 +341,7 @@ const MyAccount = () => {
                     variant="outline" 
                     size="sm"
                     onClick={() => navigate('/rent-out-your-space')}
-                    className="border-green-300 text-green-700 hover:bg-green-100"
+                    className="border-green-300 text-green-700 hover:bg-green-100 font-semibold"
                   >
                     List Space
                   </Button>
@@ -320,7 +349,7 @@ const MyAccount = () => {
                     variant="outline" 
                     size="sm"
                     onClick={() => navigate('/find-parking')}
-                    className="border-green-300 text-green-700 hover:bg-green-100"
+                    className="border-green-300 text-green-700 hover:bg-green-100 font-semibold"
                   >
                     Find Parking
                   </Button>
@@ -339,7 +368,7 @@ const MyAccount = () => {
                 Profile
               </Button>
               {verificationStatus !== 'approved' && (
-                <Button variant={activeTab === 'verification' ? 'default' : 'outline'} onClick={() => setActiveTab('verification')} className={`flex items-center gap-2 h-12 relative ${verificationStatus === 'pending' || verificationStatus === null ? 'border-orange-500/20' : ''}`}>
+                <Button variant={activeTab === 'verification' ? 'default' : 'outline'} onClick={() => setActiveTab('verification')} className={`flex items-center gap-2 h-12 relative ${(verificationStatus === 'pending' || verificationStatus === null) ? 'border-orange-500/20' : ''}`}>
                   <Shield className="h-4 w-4" />
                   Verify
                   {(verificationStatus === 'pending' || verificationStatus === null) && <div className="absolute -top-1 -right-1 h-3 w-3 bg-destructive rounded-full"></div>}
@@ -435,10 +464,13 @@ const MyAccount = () => {
                      <div className="space-y-2">
                        <Label>Account Status</Label>
                        <div className="flex items-center gap-3 p-3 rounded-lg bg-muted">
-                         {verificationStatus === 'approved' ? (
+                       {verificationStatus === 'approved' ? (
                            <>
                              <CheckCircle className="h-5 w-5 text-green-500" />
-                             <span className="text-green-700 font-medium">✅ Verified Account</span>
+                             <div className="flex flex-col">
+                               <span className="text-green-700 font-bold text-lg">✅ Verified Account</span>
+                               <span className="text-green-600 text-sm">Full access to all features</span>
+                             </div>
                            </>
                          ) : verificationStatus === 'pending' ? (
                            <>
