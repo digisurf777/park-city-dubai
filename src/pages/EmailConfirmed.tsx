@@ -18,79 +18,62 @@ const EmailConfirmed = () => {
       try {
         setLoading(true);
         
-        // Get redirect destination from URL or default to my-account
-        const redirectTo = searchParams.get('redirect_to') || '/my-account';
+        // Get redirect destination from URL or default to home
+        const redirectTo = searchParams.get('redirect_to') || '/';
         
-        // Check if user is already authenticated
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        
-        if (session && session.user && session.user.email_confirmed_at && !sessionError) {
-          // User is already verified and logged in
-          setConfirmed(true);
-          setLoading(false);
-          toast.success('Welcome! You are already verified and logged in.');
-          setTimeout(() => {
-            navigate(redirectTo);
-          }, 1000);
-          return;
-        }
-
-        // Get tokens from URL parameters and hash
-        const token_hash = searchParams.get('token_hash');
-        const type = searchParams.get('type');
-        const access_token = searchParams.get('access_token');
-        const refresh_token = searchParams.get('refresh_token');
-
-        // Check URL hash for additional parameters
+        // Handle email confirmation by checking the URL hash and query params
         const hash = window.location.hash.substring(1);
         const hashParams = new URLSearchParams(hash);
-        const hashAccessToken = hashParams.get('access_token');
-        const hashRefreshToken = hashParams.get('refresh_token');
-        const hashTokenHash = hashParams.get('token_hash');
-        const hashType = hashParams.get('type');
+        
+        // Get tokens from both URL params and hash
+        const access_token = searchParams.get('access_token') || hashParams.get('access_token');
+        const refresh_token = searchParams.get('refresh_token') || hashParams.get('refresh_token');
+        const token_hash = searchParams.get('token_hash') || hashParams.get('token_hash');
+        const type = searchParams.get('type') || hashParams.get('type');
 
-        console.log('Confirmation parameters:', {
-          token_hash: token_hash || hashTokenHash,
-          type: type || hashType,
-          access_token: access_token || hashAccessToken,
-          refresh_token: refresh_token || hashRefreshToken,
-          redirect_to: redirectTo,
+        console.log('Email confirmation attempt:', {
+          access_token: !!access_token,
+          refresh_token: !!refresh_token,
+          token_hash: !!token_hash,
+          type,
           url: window.location.href
         });
 
-        let confirmationSuccess = false;
-
-        // Try different confirmation methods
-        
-        // Method 1: Use access and refresh tokens if available
-        if ((access_token && refresh_token) || (hashAccessToken && hashRefreshToken)) {
+        // Method 1: If we have access and refresh tokens, set the session directly
+        if (access_token && refresh_token) {
           try {
             const { data, error } = await supabase.auth.setSession({
-              access_token: access_token || hashAccessToken!,
-              refresh_token: refresh_token || hashRefreshToken!
+              access_token,
+              refresh_token
             });
 
-            if (!error && data.session?.user?.email_confirmed_at) {
-              confirmationSuccess = true;
-              console.log('Confirmation successful via setSession');
+            if (!error && data.session?.user) {
+              setConfirmed(true);
+              toast.success('Email confirmed successfully! Redirecting...');
+              setTimeout(() => {
+                navigate(redirectTo);
+              }, 1500);
+              return;
             } else {
-              console.error('SetSession error:', error);
+              console.error('Session error:', error);
             }
           } catch (err) {
-            console.error('SetSession error:', err);
+            console.error('Session error:', err);
           }
         }
-        
-        // Method 2: Use token_hash for code exchange
-        if (!confirmationSuccess && ((token_hash && type) || (hashTokenHash && hashType))) {
-          try {
-            const { data, error } = await supabase.auth.exchangeCodeForSession(
-              token_hash || hashTokenHash!
-            );
 
-            if (!error && data.session?.user?.email_confirmed_at) {
-              confirmationSuccess = true;
-              console.log('Confirmation successful via exchangeCodeForSession');
+        // Method 2: If we have a token hash, exchange it for a session
+        if (token_hash && type === 'email') {
+          try {
+            const { data, error } = await supabase.auth.exchangeCodeForSession(token_hash);
+
+            if (!error && data.session?.user) {
+              setConfirmed(true);
+              toast.success('Email confirmed successfully! Redirecting...');
+              setTimeout(() => {
+                navigate(redirectTo);
+              }, 1500);
+              return;
             } else {
               console.error('Code exchange error:', error);
             }
@@ -99,18 +82,24 @@ const EmailConfirmed = () => {
           }
         }
 
-        if (confirmationSuccess) {
+        // Method 3: Check if user is already authenticated (fallback)
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (session?.user?.email_confirmed_at && !sessionError) {
           setConfirmed(true);
-          toast.success('Email confirmed successfully! Redirecting to your account...');
+          toast.success('Welcome! You are already verified and logged in.');
           setTimeout(() => {
             navigate(redirectTo);
-          }, 2000);
-        } else {
-          handleExpiredLink();
+          }, 1500);
+          return;
         }
+
+        // If all methods fail, show error
+        setError('Your confirmation link has expired or is invalid. Please try signing in to your account.');
+        
       } catch (err) {
         console.error('Email confirmation error:', err);
-        handleExpiredLink();
+        setError('An unexpected error occurred during email confirmation. Please try signing in to your account.');
       } finally {
         setLoading(false);
       }
