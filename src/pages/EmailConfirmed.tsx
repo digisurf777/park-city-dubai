@@ -18,17 +18,20 @@ const EmailConfirmed = () => {
       try {
         setLoading(true);
         
+        // Get redirect destination from URL or default to my-account
+        const redirectTo = searchParams.get('redirect_to') || '/my-account';
+        
         // Check if user is already authenticated
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
-        if (session && session.user && !sessionError) {
-          // User is already logged in, consider this a success
+        if (session && session.user && session.user.email_confirmed_at && !sessionError) {
+          // User is already verified and logged in
           setConfirmed(true);
           setLoading(false);
-          toast.success('Welcome! You are successfully logged in.');
+          toast.success('Welcome! You are already verified and logged in.');
           setTimeout(() => {
-            navigate('/my-account');
-          }, 1500);
+            navigate(redirectTo);
+          }, 1000);
           return;
         }
 
@@ -51,6 +54,7 @@ const EmailConfirmed = () => {
           type: type || hashType,
           access_token: access_token || hashAccessToken,
           refresh_token: refresh_token || hashRefreshToken,
+          redirect_to: redirectTo,
           url: window.location.href
         });
 
@@ -61,12 +65,12 @@ const EmailConfirmed = () => {
         // Method 1: Use access and refresh tokens if available
         if ((access_token && refresh_token) || (hashAccessToken && hashRefreshToken)) {
           try {
-            const { error } = await supabase.auth.setSession({
+            const { data, error } = await supabase.auth.setSession({
               access_token: access_token || hashAccessToken!,
               refresh_token: refresh_token || hashRefreshToken!
             });
 
-            if (!error) {
+            if (!error && data.session?.user?.email_confirmed_at) {
               confirmationSuccess = true;
               console.log('Confirmation successful via setSession');
             } else {
@@ -80,11 +84,11 @@ const EmailConfirmed = () => {
         // Method 2: Use token_hash for code exchange
         if (!confirmationSuccess && ((token_hash && type) || (hashTokenHash && hashType))) {
           try {
-            const { error } = await supabase.auth.exchangeCodeForSession(
+            const { data, error } = await supabase.auth.exchangeCodeForSession(
               token_hash || hashTokenHash!
             );
 
-            if (!error) {
+            if (!error && data.session?.user?.email_confirmed_at) {
               confirmationSuccess = true;
               console.log('Confirmation successful via exchangeCodeForSession');
             } else {
@@ -95,33 +99,12 @@ const EmailConfirmed = () => {
           }
         }
 
-        // Method 3: Check if this is a direct verification link
-        if (!confirmationSuccess) {
-          // Look for verification parameters in URL
-          const urlParams = new URL(window.location.href);
-          const allParams = new URLSearchParams(urlParams.search + '&' + urlParams.hash.substring(1));
-          
-          console.log('All URL parameters:', Object.fromEntries(allParams.entries()));
-          
-          // Try to verify with Supabase directly
-          try {
-            const { data, error } = await supabase.auth.getUser();
-            
-            if (data.user && !error) {
-              confirmationSuccess = true;
-              console.log('User already verified:', data.user);
-            }
-          } catch (err) {
-            console.error('Get user error:', err);
-          }
-        }
-
         if (confirmationSuccess) {
           setConfirmed(true);
           toast.success('Email confirmed successfully! Redirecting to your account...');
           setTimeout(() => {
-            navigate('/my-account');
-          }, 1500);
+            navigate(redirectTo);
+          }, 2000);
         } else {
           handleExpiredLink();
         }

@@ -29,14 +29,13 @@ const handler = async (req: Request): Promise<Response> => {
     console.log('Full name:', fullName);
     console.log('Confirmation URL:', confirmationUrl);
     
-    // For now, create a simple confirmation URL that users can visit
-    // In a real implementation, you would generate a proper confirmation token
-    const simpleConfirmationUrl = `https://shazamparking.ae/auth?confirmed=true&email=${encodeURIComponent(email)}`;
+    // Create proper confirmation URL that will verify email and redirect to account
+    const confirmationUrl = `https://shazamparking.ae/email-confirmed?email=${encodeURIComponent(email)}&redirect_to=/my-account`;
     
     const emailResponse = await resend.emails.send({
-      from: "Shazam Parking <verify@shazam.ae>",
+      from: "support@shazamparking.ae",
       to: [email],
-      subject: `Email Confirmation - Shazam Parking`,
+      subject: "Confirm Your Email – ShazamParking",
       html: `
         <!DOCTYPE html>
         <html lang="en" style="font-family: Arial, sans-serif;">
@@ -68,7 +67,7 @@ const handler = async (req: Request): Promise<Response> => {
                           To complete your registration and start using ShazamParking, please click the link below:
                         </p>
                         <p style="text-align: center; margin: 30px 0;">
-                          <a href="${simpleConfirmationUrl}" target="_blank" style="background-color: #0099cc; color: #ffffff; text-decoration: none; padding: 14px 26px; border-radius: 6px; font-weight: bold;">
+                          <a href="${confirmationUrl}" target="_blank" style="background-color: #0099cc; color: #ffffff; text-decoration: none; padding: 14px 26px; border-radius: 6px; font-weight: bold;">
                             Complete Registration
                           </a>
                         </p>
