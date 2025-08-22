@@ -82,8 +82,23 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       console.log('Signup result:', { data, error });
 
-      // If signup successful, send admin notification
+      // If signup successful, send emails
       if (!error && data?.user) {
+        // Send confirmation email to user
+        try {
+          await supabase.functions.invoke('send-confirmation-email', {
+            body: {
+              email: email,
+              fullName: fullName,
+              confirmationUrl: redirectUrl
+            }
+          });
+          console.log('Confirmation email sent successfully');
+        } catch (emailError) {
+          console.error('Failed to send confirmation email:', emailError);
+          // Don't fail the signup if email fails
+        }
+
         // Send admin notification after successful signup
         try {
           await supabase.functions.invoke('send-admin-signup-notification', {
