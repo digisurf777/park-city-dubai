@@ -44,8 +44,20 @@ const handler = async (req: Request): Promise<Response> => {
         </div>
         
         <div style="margin: 20px 0;">
-          <h3>Document Image:</h3>
-          <p><a href="${documentUrl}" target="_blank" style="color: #2754C5; text-decoration: underline;">View Document</a></p>
+          <h3 style="color: #856404;">⚠️ SECURITY NOTICE</h3>
+          <p style="color: #856404;"><strong>Document access has been secured.</strong></p>
+          <p style="color: #856404;">Direct document URLs have been removed from this email for security reasons.</p>
+          <p style="color: #856404;">Please access documents through the secure admin panel using time-limited access tokens.</p>
+        </div>
+        
+        <div style="margin: 20px 0;">
+          <p><strong>Next Steps:</strong></p>
+          <ol>
+            <li>Log in to the admin panel</li>
+            <li>Navigate to the verification section</li>
+            <li>Use the secure document viewer for this verification</li>
+            <li>Review and update the verification status</li>
+          </ol>
         </div>
         
         <p>Please review the document and update the verification status in the admin panel.</p>

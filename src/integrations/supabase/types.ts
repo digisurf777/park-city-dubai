@@ -128,6 +128,53 @@ export type Database = {
           },
         ]
       }
+      encrypted_document_refs: {
+        Row: {
+          access_count: number
+          created_at: string
+          document_hash: string
+          encrypted_storage_path: string
+          encryption_key_id: string
+          expires_at: string
+          id: string
+          last_accessed_at: string | null
+          updated_at: string
+          verification_id: string
+        }
+        Insert: {
+          access_count?: number
+          created_at?: string
+          document_hash: string
+          encrypted_storage_path: string
+          encryption_key_id: string
+          expires_at?: string
+          id?: string
+          last_accessed_at?: string | null
+          updated_at?: string
+          verification_id: string
+        }
+        Update: {
+          access_count?: number
+          created_at?: string
+          document_hash?: string
+          encrypted_storage_path?: string
+          encryption_key_id?: string
+          expires_at?: string
+          id?: string
+          last_accessed_at?: string | null
+          updated_at?: string
+          verification_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "encrypted_document_refs_verification_id_fkey"
+            columns: ["verification_id"]
+            isOneToOne: false
+            referencedRelation: "user_verifications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       news: {
         Row: {
           content: string
@@ -498,6 +545,56 @@ export type Database = {
         }
         Relationships: []
       }
+      secure_document_access_log: {
+        Row: {
+          access_granted: boolean
+          access_method: string
+          accessed_at: string
+          accessed_by: string
+          denial_reason: string | null
+          expires_token_used: boolean | null
+          id: string
+          ip_address: unknown | null
+          session_id: string | null
+          user_agent: string | null
+          verification_id: string
+        }
+        Insert: {
+          access_granted: boolean
+          access_method: string
+          accessed_at?: string
+          accessed_by: string
+          denial_reason?: string | null
+          expires_token_used?: boolean | null
+          id?: string
+          ip_address?: unknown | null
+          session_id?: string | null
+          user_agent?: string | null
+          verification_id: string
+        }
+        Update: {
+          access_granted?: boolean
+          access_method?: string
+          accessed_at?: string
+          accessed_by?: string
+          denial_reason?: string | null
+          expires_token_used?: boolean | null
+          id?: string
+          ip_address?: unknown | null
+          session_id?: string | null
+          user_agent?: string | null
+          verification_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "secure_document_access_log_verification_id_fkey"
+            columns: ["verification_id"]
+            isOneToOne: false
+            referencedRelation: "user_verifications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_messages: {
         Row: {
           created_at: string
@@ -555,7 +652,9 @@ export type Database = {
       user_verifications: {
         Row: {
           access_restricted: boolean | null
+          auto_expire_days: number
           created_at: string
+          document_access_token: string | null
           document_encrypted: boolean | null
           document_image_url: string
           document_type: string
@@ -563,13 +662,17 @@ export type Database = {
           id: string
           last_admin_access: string | null
           nationality: string | null
+          security_level: string
+          token_expires_at: string | null
           updated_at: string
           user_id: string
           verification_status: string
         }
         Insert: {
           access_restricted?: boolean | null
+          auto_expire_days?: number
           created_at?: string
+          document_access_token?: string | null
           document_encrypted?: boolean | null
           document_image_url: string
           document_type: string
@@ -577,13 +680,17 @@ export type Database = {
           id?: string
           last_admin_access?: string | null
           nationality?: string | null
+          security_level?: string
+          token_expires_at?: string | null
           updated_at?: string
           user_id: string
           verification_status?: string
         }
         Update: {
           access_restricted?: boolean | null
+          auto_expire_days?: number
           created_at?: string
+          document_access_token?: string | null
           document_encrypted?: boolean | null
           document_image_url?: string
           document_type?: string
@@ -591,6 +698,8 @@ export type Database = {
           id?: string
           last_admin_access?: string | null
           nationality?: string | null
+          security_level?: string
+          token_expires_at?: string | null
           updated_at?: string
           user_id?: string
           verification_status?: string
@@ -653,6 +762,10 @@ export type Database = {
           verification_status: string
         }[]
       }
+      auto_expire_old_documents: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       can_access_verification_document: {
         Args: { requesting_user_id?: string; verification_id: string }
         Returns: boolean
@@ -669,8 +782,20 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      generate_secure_document_token: {
+        Args: {
+          access_duration_minutes?: number
+          access_method?: string
+          verification_id: string
+        }
+        Returns: Json
+      }
       generate_secure_document_url: {
         Args: { access_duration_minutes?: number; verification_id: string }
+        Returns: Json
+      }
+      get_secure_document_access: {
+        Args: { access_token: string; verification_id: string }
         Returns: Json
       }
       get_secure_document_url: {
@@ -702,6 +827,10 @@ export type Database = {
       revoke_document_access: {
         Args: { verification_id: string }
         Returns: Json
+      }
+      revoke_document_access_tokens: {
+        Args: { verification_id: string }
+        Returns: boolean
       }
       secure_get_verification_document: {
         Args: { access_reason?: string; verification_id: string }

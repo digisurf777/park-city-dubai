@@ -18,6 +18,7 @@ import { toast } from 'sonner';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import '../styles/quill.css';
+import SecureDocumentViewer from '@/components/SecureDocumentViewer';
 
 interface NewsPost {
   id: string;
@@ -2742,22 +2743,13 @@ const AdminPanel = () => {
                         </div>
                         
                         <div className="flex justify-center">
-                          <div className="text-center">
-                            {/* Secure Document Access - No Direct Image Display */}
-                            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
-                              <p className="text-sm text-yellow-800 mb-3">
-                                🔒 <strong>Enhanced Security:</strong> Identity documents are protected with secure access controls and audit logging.
-                              </p>
-                              <Button 
-                                onClick={() => handleSecureDocumentAccess(verification.id)}
-                                variant="outline" 
-                                size="sm"
-                                className="w-full bg-blue-50 hover:bg-blue-100 border-blue-300 text-blue-700"
-                              >
-                                🔐 Access Document (Logged & Audited)
-                              </Button>
-                            </div>
-                          </div>
+                          <SecureDocumentViewer
+                            verificationId={verification.id}
+                            documentType={verification.document_type}
+                            fullName={verification.full_name}
+                            verificationStatus={verification.verification_status}
+                            isAdmin={true}
+                          />
                         </div>
                         
                         <div className="flex flex-col gap-2">

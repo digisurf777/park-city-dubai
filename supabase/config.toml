@@ -8,3 +8,12 @@ verify_jwt = true
 
 [functions.verify-recaptcha]
 verify_jwt = false
+
+[functions.generate-secure-document-token]
+verify_jwt = true
+
+[functions.get-secure-document-access]
+verify_jwt = true
+
+[functions.revoke-document-access-tokens]
+verify_jwt = true
