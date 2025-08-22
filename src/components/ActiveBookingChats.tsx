@@ -45,9 +45,26 @@ export const ActiveBookingChats = () => {
     setLoading(true);
     try {
       // Get bookings for the current user (both confirmed and pending)
+      // SECURITY FIX: Exclude highly sensitive payment fields (Stripe IDs, amounts) from user access
       const { data: bookingsData, error: bookingsError } = await supabase
         .from('parking_bookings')
-        .select('*')
+        .select(`
+          id,
+          user_id,
+          location,
+          zone,
+          start_time,
+          end_time,
+          duration_hours,
+          cost_aed,
+          status,
+          created_at,
+          updated_at,
+          confirmation_deadline,
+          payment_type,
+          payment_status,
+          payment_link_url
+        `)
         .eq('user_id', user.id)
         .in('status', ['confirmed', 'pending'])
         .order('start_time', { ascending: true });

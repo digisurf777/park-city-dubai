@@ -30,8 +30,15 @@ interface ParkingBooking {
   end_time: string;
   duration_hours: number;
   cost_aed: number;
-  status: 'active' | 'completed' | 'cancelled' | 'pending';
+  status: string;
   created_at: string;
+  updated_at: string;
+  confirmation_deadline: string | null;
+  payment_type: string | null;
+  payment_status: string | null;
+  // SECURITY: Sensitive payment fields (stripe_customer_id, stripe_payment_intent_id, 
+  // payment_amount_cents, payment_link_url, stripe_subscription_id) 
+  // are intentionally excluded to prevent data exposure
 }
 interface ParkingListing {
   id: string;
@@ -121,12 +128,9 @@ const MyAccount = () => {
   };
   const fetchBookings = async () => {
     try {
-      const {
-        data,
-        error
-      } = await supabase.from('parking_bookings').select('*').eq('user_id', user.id).order('created_at', {
-        ascending: false
-      });
+      // SECURITY FIX: Use secure function instead of direct table access to prevent payment data exposure
+      const { data, error } = await supabase.rpc('get_my_bookings');
+      
       if (error) {
         console.error('Error fetching bookings:', error);
       } else {

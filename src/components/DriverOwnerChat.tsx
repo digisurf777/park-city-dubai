@@ -62,9 +62,25 @@ export const DriverOwnerChat = ({ bookingId, isOpen, onClose }: DriverOwnerChatP
     if (!user || !bookingId) return;
 
     try {
+      // SECURITY FIX: Exclude sensitive payment fields from user access
       const { data, error } = await supabase
         .from('parking_bookings')
-        .select('*')
+        .select(`
+          id,
+          user_id,
+          location,
+          zone,
+          start_time,
+          end_time,
+          duration_hours,
+          cost_aed,
+          status,
+          created_at,
+          updated_at,
+          confirmation_deadline,
+          payment_type,
+          payment_status
+        `)
         .eq('id', bookingId)
         .single();
 
