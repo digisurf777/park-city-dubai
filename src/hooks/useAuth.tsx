@@ -63,11 +63,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       // Clean up any existing auth state before signup
       cleanupAuthState();
       
-      const redirectUrl = `https://shazamparking.ae/email-confirmed?redirect_to=/my-account`;
+      // Use window.location.origin to work in all environments
+      const redirectUrl = `${window.location.origin}/email-confirmed?redirect_to=/my-account`;
       
       console.log('Starting signup process...');
       
-      // Create user account with email confirmation required
+      // Create user account with Supabase's built-in email confirmation
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -82,23 +83,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       console.log('Signup result:', { data, error });
 
-      // If signup successful, send confirmation and admin notification emails
+      // If signup successful, send admin notification email only
       if (!error && data?.user) {
-        // Send confirmation email to user
-        try {
-          await supabase.functions.invoke('send-confirmation-email', {
-            body: {
-              email: email,
-              fullName: fullName,
-              confirmationUrl: redirectUrl
-            }
-          });
-          console.log('Confirmation email sent successfully');
-        } catch (emailError) {
-          console.error('Failed to send confirmation email:', emailError);
-          // Continue with admin notification even if confirmation email fails
-        }
-
         // Send admin notification after successful signup
         try {
           await supabase.functions.invoke('send-admin-signup-notification', {
