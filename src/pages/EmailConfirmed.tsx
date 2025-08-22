@@ -21,6 +21,12 @@ const EmailConfirmed = () => {
         // Get redirect destination from URL or default to home
         const redirectTo = searchParams.get('redirect_to') || '/';
         
+        // Log the full URL for debugging
+        console.log('=== EMAIL CONFIRMATION DEBUG ===');
+        console.log('Full URL:', window.location.href);
+        console.log('Search params:', window.location.search);
+        console.log('Hash:', window.location.hash);
+        
         // Handle email confirmation by checking the URL hash and query params
         const hash = window.location.hash.substring(1);
         const hashParams = new URLSearchParams(hash);
@@ -30,24 +36,45 @@ const EmailConfirmed = () => {
         const refresh_token = searchParams.get('refresh_token') || hashParams.get('refresh_token');
         const token_hash = searchParams.get('token_hash') || hashParams.get('token_hash');
         const type = searchParams.get('type') || hashParams.get('type');
+        const error_code = searchParams.get('error_code') || hashParams.get('error_code');
+        const error_description = searchParams.get('error_description') || hashParams.get('error_description');
 
-        console.log('Email confirmation attempt:', {
-          access_token: !!access_token,
-          refresh_token: !!refresh_token,
-          token_hash: !!token_hash,
+        console.log('Parsed parameters:', {
+          access_token: access_token ? 'present' : 'missing',
+          refresh_token: refresh_token ? 'present' : 'missing', 
+          token_hash: token_hash ? 'present' : 'missing',
           type,
-          url: window.location.href
+          error_code,
+          error_description,
+          redirectTo
         });
+
+        // Check for URL errors first
+        if (error_code || error_description) {
+          console.error('URL contains error:', { error_code, error_description });
+          setError(`Email confirmation failed: ${error_description || 'Unknown error'}`);
+          setLoading(false);
+          return;
+        }
 
         // Method 1: If we have access and refresh tokens, set the session directly
         if (access_token && refresh_token) {
+          console.log('Attempting setSession with tokens...');
           try {
             const { data, error } = await supabase.auth.setSession({
               access_token,
               refresh_token
             });
 
+            console.log('SetSession result:', { 
+              success: !error, 
+              hasUser: !!data.session?.user,
+              emailConfirmed: !!data.session?.user?.email_confirmed_at,
+              error: error?.message 
+            });
+
             if (!error && data.session?.user) {
+              console.log('✅ Email confirmation successful via setSession');
               setConfirmed(true);
               toast.success('Email confirmed successfully! Redirecting...');
               setTimeout(() => {
@@ -55,19 +82,28 @@ const EmailConfirmed = () => {
               }, 1500);
               return;
             } else {
-              console.error('Session error:', error);
+              console.error('❌ SetSession failed:', error);
             }
           } catch (err) {
-            console.error('Session error:', err);
+            console.error('❌ SetSession exception:', err);
           }
         }
 
         // Method 2: If we have a token hash, exchange it for a session
-        if (token_hash && type === 'email') {
+        if (token_hash && (type === 'email' || type === 'signup')) {
+          console.log('Attempting exchangeCodeForSession with token_hash...');
           try {
             const { data, error } = await supabase.auth.exchangeCodeForSession(token_hash);
 
+            console.log('ExchangeCode result:', { 
+              success: !error, 
+              hasUser: !!data.session?.user,
+              emailConfirmed: !!data.session?.user?.email_confirmed_at,
+              error: error?.message 
+            });
+
             if (!error && data.session?.user) {
+              console.log('✅ Email confirmation successful via exchangeCodeForSession');
               setConfirmed(true);
               toast.success('Email confirmed successfully! Redirecting...');
               setTimeout(() => {
@@ -75,17 +111,26 @@ const EmailConfirmed = () => {
               }, 1500);
               return;
             } else {
-              console.error('Code exchange error:', error);
+              console.error('❌ Code exchange failed:', error);
             }
           } catch (err) {
-            console.error('Code exchange error:', err);
+            console.error('❌ Code exchange exception:', err);
           }
         }
 
         // Method 3: Check if user is already authenticated (fallback)
+        console.log('Checking existing session...');
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
+        console.log('Current session check:', {
+          hasSession: !!session,
+          hasUser: !!session?.user,
+          emailConfirmed: !!session?.user?.email_confirmed_at,
+          error: sessionError?.message
+        });
+        
         if (session?.user?.email_confirmed_at && !sessionError) {
+          console.log('✅ User already confirmed and logged in');
           setConfirmed(true);
           toast.success('Welcome! You are already verified and logged in.');
           setTimeout(() => {
@@ -94,11 +139,16 @@ const EmailConfirmed = () => {
           return;
         }
 
-        // If all methods fail, show error
-        setError('Your confirmation link has expired or is invalid. Please try signing in to your account.');
+        // If all methods fail, provide detailed error
+        console.log('❌ All confirmation methods failed');
+        if (!access_token && !refresh_token && !token_hash) {
+          setError('No confirmation tokens found in the URL. The link may be incomplete or corrupted.');
+        } else {
+          setError('Your confirmation link has expired or is invalid. Please try signing in to your account.');
+        }
         
       } catch (err) {
-        console.error('Email confirmation error:', err);
+        console.error('❌ Email confirmation exception:', err);
         setError('An unexpected error occurred during email confirmation. Please try signing in to your account.');
       } finally {
         setLoading(false);
