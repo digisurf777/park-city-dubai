@@ -657,6 +657,10 @@ export type Database = {
         Args: { requesting_user_id?: string; verification_id: string }
         Returns: boolean
       }
+      encrypt_document_reference: {
+        Args: { verification_id: string }
+        Returns: boolean
+      }
       expire_booking_chats: {
         Args: Record<PropertyKey, never>
         Returns: undefined
@@ -668,6 +672,13 @@ export type Database = {
       generate_secure_document_url: {
         Args: { access_duration_minutes?: number; verification_id: string }
         Returns: Json
+      }
+      get_secure_document_url: {
+        Args: { expires_in?: number; verification_id: string }
+        Returns: {
+          expires_at: string
+          signed_url: string
+        }[]
       }
       has_role: {
         Args: {
@@ -692,9 +703,23 @@ export type Database = {
         Args: { verification_id: string }
         Returns: Json
       }
+      secure_get_verification_document: {
+        Args: { access_reason?: string; verification_id: string }
+        Returns: {
+          access_logged: boolean
+          document_type: string
+          document_url: string
+          user_full_name: string
+          verification_status: string
+        }[]
+      }
       setup_admin_user: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      validate_document_access: {
+        Args: { requested_by?: string; verification_id: string }
+        Returns: boolean
       }
     }
     Enums: {
