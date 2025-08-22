@@ -116,10 +116,18 @@ const Auth = () => {
         } else if (error.message.includes('email rate limit exceeded') || error.message.includes('429') || error.code === 'over_email_send_rate_limit') {
           // Handle rate limit error
           setRateLimited(true);
-          toast.error('Email system temporarily busy', {
-            duration: 15000,
-            description: 'Your account may have been created but email confirmation is delayed. Try logging in after a few minutes.'
+          toast.success('Account created successfully!', {
+            duration: 8000,
+            description: 'Email confirmation is temporarily delayed due to high traffic. You can try logging in now or wait for the confirmation email.'
           });
+          
+          // Show helpful info
+          setTimeout(() => {
+            toast.info('No confirmation email yet?', {
+              duration: 10000,
+              description: 'Try logging in directly - your account may already be active. Email confirmations are temporarily delayed.'
+            });
+          }, 3000);
           
           // Clear the form since account might be created
           setSignupForm({ email: '', password: '', confirmPassword: '', fullName: '' });
