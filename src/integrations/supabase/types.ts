@@ -476,6 +476,39 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_access_audit: {
+        Row: {
+          access_type: string
+          accessed_at: string
+          accessed_by: string
+          booking_id: string
+          id: string
+          ip_address: unknown | null
+          payment_fields_accessed: string[] | null
+          user_agent: string | null
+        }
+        Insert: {
+          access_type: string
+          accessed_at?: string
+          accessed_by: string
+          booking_id: string
+          id?: string
+          ip_address?: unknown | null
+          payment_fields_accessed?: string[] | null
+          user_agent?: string | null
+        }
+        Update: {
+          access_type?: string
+          accessed_at?: string
+          accessed_by?: string
+          booking_id?: string
+          id?: string
+          ip_address?: unknown | null
+          payment_fields_accessed?: string[] | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       photo_repair_reports: {
         Row: {
           car_park_id: string | null
@@ -794,6 +827,16 @@ export type Database = {
         Args: { access_duration_minutes?: number; verification_id: string }
         Returns: Json
       }
+      get_booking_payment_details: {
+        Args: { booking_id: string }
+        Returns: {
+          payment_amount_cents: number
+          payment_link_url: string
+          stripe_customer_id: string
+          stripe_payment_intent_id: string
+          stripe_subscription_id: string
+        }[]
+      }
       get_secure_document_access: {
         Args: { access_token: string; verification_id: string }
         Returns: Json
@@ -803,6 +846,25 @@ export type Database = {
         Returns: {
           expires_at: string
           signed_url: string
+        }[]
+      }
+      get_user_bookings_safe: {
+        Args: { user_uuid?: string }
+        Returns: {
+          confirmation_deadline: string
+          cost_aed: number
+          created_at: string
+          duration_hours: number
+          end_time: string
+          id: string
+          location: string
+          payment_status: string
+          payment_type: string
+          start_time: string
+          status: string
+          updated_at: string
+          user_id: string
+          zone: string
         }[]
       }
       has_role: {
@@ -815,6 +877,14 @@ export type Database = {
       is_admin: {
         Args: { _user_id: string }
         Returns: boolean
+      }
+      log_payment_data_access: {
+        Args: {
+          access_type: string
+          booking_id: string
+          payment_fields?: string[]
+        }
+        Returns: undefined
       }
       log_verification_document_access: {
         Args: { access_type: string; document_id: string; user_id?: string }
@@ -845,6 +915,10 @@ export type Database = {
       setup_admin_user: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      update_my_booking_safe: {
+        Args: { booking_id: string; new_status?: string }
+        Returns: boolean
       }
       validate_document_access: {
         Args: { requested_by?: string; verification_id: string }
