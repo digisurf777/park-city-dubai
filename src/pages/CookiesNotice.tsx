@@ -106,11 +106,11 @@ const CookiesNotice = () => {
                 <p className="text-sm sm:text-base leading-relaxed">
                   If you have questions about our use of cookies, please contact us at{' '}
                   <a 
-                    href="mailto:support@shazam.ae" 
+                    href="mailto:support@shazamparking.ae" 
                     className="text-primary hover:text-primary/80 underline touch-target font-medium"
                     style={{ textDecorationThickness: '2px' }}
                   >
-                    support@shazam.ae
+                    support@shazamparking.ae
                   </a>
                 </p>
               </section>

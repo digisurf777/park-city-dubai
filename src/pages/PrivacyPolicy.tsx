@@ -123,7 +123,7 @@ const PrivacyPolicy = () => {
                   <li>Right to withdraw consent</li>
                   <li>Right to file a complaint with the UAE Data Office</li>
                 </ul>
-                <p>To exercise your rights, contact us at support@shazam.ae.</p>
+                <p>To exercise your rights, contact us at support@shazamparking.ae.</p>
               </section>
 
               <section>
@@ -150,7 +150,7 @@ const PrivacyPolicy = () => {
               <section>
                 <h2 className="text-2xl font-semibold mb-4">12. Contact Us</h2>
                 <p>
-                  If you have any questions about this Privacy Policy, please contact us at support@shazam.ae
+                  If you have any questions about this Privacy Policy, please contact us at support@shazamparking.ae
                 </p>
               </section>
             </div>

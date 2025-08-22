@@ -27,7 +27,7 @@ const FAQ = () => {
     category: "Payments & Fees",
     questions: [{
       question: "💳 How do I pay for a parking space?",
-      answer: "Payments are made securely online at the time of booking. Drivers see a clear breakdown of the base rent, driver service charge, and any access card fee before completing payment. Important: All payments must go through ShazamParking. Out-of-platform payments are strictly prohibited and put you at risk. Report any such requests immediately to support@shazam.ae."
+      answer: "Payments are made securely online at the time of booking. Drivers see a clear breakdown of the base rent, driver service charge, and any access card fee before completing payment. Important: All payments must go through ShazamParking. Out-of-platform payments are strictly prohibited and put you at risk. Report any such requests immediately to support@shazamparking.ae."
     }, {
       question: "💰 How does ShazamParking's payment fee structure work?",
       answer: "When a space is booked, the driver pays upfront through our secure system. This includes: • The base rent (which may include a discount for longer bookings) • A fixed driver service charge • An access card fee (if an access device is provided). Owners receive the base rent minus our agreed commission and any applicable access card handling fee. Example: For a 6-month booking with 1,000 AED requested monthly rent and 10% discount: Driver pays 6,000 AED upfront (900 + 100 per month x 6) plus 500 AED access card fee. Owner receives approx. 4,220 AED for the full period (after commission and handling fee) paid monthly in arrears."
@@ -60,7 +60,7 @@ const FAQ = () => {
       answer: "Yes. We value your feedback. Drivers and owners can leave a review after each completed booking. We also encourage you to share your experience on Trustpilot and Google Reviews."
     }, {
       question: "📞 How do I get support if I need help?",
-      answer: "If you have any questions or issues, you can reach our team at support@shazam.ae. For booking-related issues, please include your booking reference to help us assist you quickly."
+      answer: "If you have any questions or issues, you can reach our team at support@shazamparking.ae. For booking-related issues, please include your booking reference to help us assist you quickly."
     }, {
       question: "⚙️ What happens if there is a problem accessing the parking space?",
       answer: "If you have an issue such as blocked access or a faulty entry device, please contact the owner through the in-platform chat and also notify us immediately by email. If the issue remains unresolved, we are always here to assist and, if necessary, will cancel the booking with a refund in line with our policy."

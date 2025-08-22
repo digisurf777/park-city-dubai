@@ -555,8 +555,8 @@ const MyAccount = () => {
                    <h4 className="font-medium mb-2">Email Support</h4>
                    <p className="text-sm text-muted-foreground">
                      For urgent matters, you can also reach us directly at{' '}
-                     <a href="mailto:support@shazam.ae" className="text-primary hover:underline">
-                       support@shazam.ae
+                      <a href="mailto:support@shazamparking.ae" className="text-primary hover:underline">
+                        support@shazamparking.ae
                      </a>
                    </p>
                  </div>

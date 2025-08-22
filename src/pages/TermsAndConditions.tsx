@@ -203,7 +203,7 @@ const TermsAndConditions = () => {
                   10.5 No clause of these Terms is enforceable under the Contracts (Rights of Third Parties) Act 1999 by a person who is not a party to these Terms.
                 </p>
                 <p className="mb-4">
-                  10.6 If you have any questions, complaints or comments about us or the services, then please contact us via support@shazam.ae.
+                  10.6 If you have any questions, complaints or comments about us or the services, then please contact us via support@shazamparking.ae.
                 </p>
                 <p className="mb-4">
                   10.7 In the event of any inconsistency or conflict between the English version of these Terms and any translation (including any Arabic version), the English version shall prevail and govern.
@@ -223,7 +223,7 @@ const TermsAndConditions = () => {
                   1.3 This Agreement governs the relationship between us and you in relation to the use of parking spaces, charging points or storage spaces (together, the "<strong>Parking Spaces</strong>"). When listing your Parking Spaces using the Services ("<strong>Bookings</strong>") and making available for use the Parking Spaces, you will be bound by your obligations under this Agreement.
                 </p>
                 <p className="mb-4">
-                  1.4 These terms and conditions may be amended from time to time as we continually develop the services we provide. We may amend this Agreement by posting the amended terms and conditions on the Site. These amended terms and conditions take effect immediately on the day they are posted. Should you no longer wish to use the Services, you can simply stop using the Services. You can also log out from your account with us ("<strong>Account</strong>") and can contact us by emailing us on support@shazam.ae and request that we deactivate your Account. The terms and conditions on the Site at the time you enter into a Booking for a Parking Space or use any other Services will be the ones that apply. You may terminate this Agreement if you do not wish to be bound by any such amendments but by continuing to use our Site and/or Services, you will be deemed to have accepted the new terms.
+                  1.4 These terms and conditions may be amended from time to time as we continually develop the services we provide. We may amend this Agreement by posting the amended terms and conditions on the Site. These amended terms and conditions take effect immediately on the day they are posted. Should you no longer wish to use the Services, you can simply stop using the Services. You can also log out from your account with us ("<strong>Account</strong>") and can contact us by emailing us on support@shazamparking.ae and request that we deactivate your Account. The terms and conditions on the Site at the time you enter into a Booking for a Parking Space or use any other Services will be the ones that apply. You may terminate this Agreement if you do not wish to be bound by any such amendments but by continuing to use our Site and/or Services, you will be deemed to have accepted the new terms.
                 </p>
                 <p className="mb-4">
                   1.5 This Agreement is with you, the person using the Services. You will comply with the terms of this Agreement and any additional requirements in relation to the Parking Space. If you allow another person to assist with managing a Booking or Parking Space, you agree you will remain responsible for the Booking and the Parking.
@@ -479,7 +479,7 @@ const TermsAndConditions = () => {
                   1.3 This Agreement governs the relationship between us and you in relation to the use of parking spaces, charging points or storage spaces (together, the "<strong>Parking Spaces</strong>"). When making bookings for Parking Spaces using the Services ("<strong>Bookings</strong>") and using the Parking Spaces, you will be bound by your obligations under this Agreement and any additional obligations included in a listing relating to a Parking Space.
                 </p>
                 <p className="mb-4">
-                  1.4 These terms and conditions may be amended from time to time, as we continually develop the services we provide. We may amend this Agreement by posting the amended terms and conditions on the Site. These amended terms and conditions would take effect immediately on the day they are posted. Should you no longer wish to use the Services you can simply stop using the Services. You can also log out from your account with us ("<strong>Account</strong>") and can contact us by emailing support@shazam.ae and request that we deactivate your Account. The terms and conditions on the Site at the time you enter into a Booking for a Parking Space or use any other Services will be the ones that apply. You may terminate this Agreement if you do not wish to be bound by any such amendments but by continuing to use the Site or our Services you will be deemed to have accepted the new terms.
+                  1.4 These terms and conditions may be amended from time to time, as we continually develop the services we provide. We may amend this Agreement by posting the amended terms and conditions on the Site. These amended terms and conditions would take effect immediately on the day they are posted. Should you no longer wish to use the Services you can simply stop using the Services. You can also log out from your account with us ("<strong>Account</strong>") and can contact us by emailing support@shazamparking.ae and request that we deactivate your Account. The terms and conditions on the Site at the time you enter into a Booking for a Parking Space or use any other Services will be the ones that apply. You may terminate this Agreement if you do not wish to be bound by any such amendments but by continuing to use the Site or our Services you will be deemed to have accepted the new terms.
                 </p>
                 <p className="mb-4">
                   1.5 This Agreement is with you, the person using the Services. You will comply with the terms of this Agreement and any additional restrictions in relation to the Parking Space. If you allow another person to make use of a Booking you have made (and park in a Parking Space), you agree you will remain responsible for the Booking and the use of that Parking Space.
@@ -758,7 +758,7 @@ const TermsAndConditions = () => {
                   4.1 You must raise any dispute or query regarding an invoice within five (5) calendar days of the invoice date.
                 </p>
                 <p className="mb-4">
-                  4.2 Disputes must be raised in writing to support@shazam.ae, stating clear grounds for the objection.
+                  4.2 Disputes must be raised in writing to support@shazamparking.ae, stating clear grounds for the objection.
                 </p>
                 <p className="mb-4">
                   4.3 If no dispute is raised within the prescribed period, the invoice shall be deemed valid and accepted in full.
@@ -805,7 +805,7 @@ const TermsAndConditions = () => {
                   No refund, credit, or partial adjustment will be given for changes in personal circumstances or non-use of the space.
                 </p>
                 <p className="mb-4">
-                  All communications regarding cancellation or disputes must be sent via email to support@shazam.ae and are only valid upon written acknowledgment by us.
+                  All communications regarding cancellation or disputes must be sent via email to support@shazamparking.ae and are only valid upon written acknowledgment by us.
                 </p>
 
                 <h3 className="text-xl font-semibold mb-3">3. Limited Exceptions – At Our Discretion</h3>
