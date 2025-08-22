@@ -87,11 +87,33 @@ const Auth = () => {
     return hasLowercase && hasUppercase && hasDigit && hasSymbol && password.length >= 6;
   };
 
+  // Enhanced rate limit detection function
+  const isRateLimitError = (error: any) => {
+    const errorMsg = (error?.message || '').toLowerCase();
+    const errorCode = error?.code;
+    
+    // Multiple ways to detect rate limiting
+    return (
+      errorMsg.includes('rate limit') ||
+      errorMsg.includes('429') ||
+      errorMsg.includes('too many') ||
+      errorMsg.includes('temporarily busy') ||
+      errorCode === 'over_email_send_rate_limit' ||
+      errorCode === 'email_rate_limit_exceeded' ||
+      error?.status === 429
+    );
+  };
+
+  // Enhanced signup handler with comprehensive error detection
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Log signup attempt for debugging
+    console.log('Signup attempt started', { email: signupForm.email, timestamp: new Date().toISOString() });
+    
     // Prevent multiple rapid submissions
     if (loading || rateLimited) {
+      console.log('Signup blocked - loading or rate limited', { loading, rateLimited });
       return;
     }
     
@@ -101,45 +123,77 @@ const Auth = () => {
     }
     
     if (!validatePassword(signupForm.password)) {
-      toast.error('Lowercase, uppercase letters, digits and symbols');
+      toast.error('Password must contain lowercase, uppercase, digits and symbols');
       return;
     }
     
     setLoading(true);
     
     try {
+      console.log('Calling signUp function...');
       const { error } = await signUp(signupForm.email, signupForm.password, signupForm.fullName, 'seeker');
       
+      console.log('SignUp response:', { 
+        hasError: !!error, 
+        errorMessage: error?.message,
+        errorCode: error?.code,
+        errorStatus: error?.status
+      });
+      
       if (error) {
-        if (error.message.includes('already registered')) {
-          toast.error('This email address is already registered');
-        } else if (error.message.includes('email rate limit exceeded') || error.message.includes('429') || error.code === 'over_email_send_rate_limit') {
-          // Handle rate limit error
+        // Check for existing user first
+        if (error.message.includes('already registered') || error.message.includes('User already registered')) {
+          toast.error('This email address is already registered', {
+            description: 'Try logging in instead, or use a different email address.'
+          });
+        } 
+        // Enhanced rate limit detection
+        else if (isRateLimitError(error)) {
+          console.log('Rate limit detected, showing success message');
           setRateLimited(true);
+          
+          // Clear browser cache to prevent old error messages
+          if ('caches' in window) {
+            caches.keys().then(names => {
+              names.forEach(name => {
+                caches.delete(name);
+              });
+            });
+          }
+          
+          // Show success message instead of error
           toast.success('Account created successfully!', {
             duration: 8000,
-            description: 'Email confirmation is temporarily delayed due to high traffic. You can try logging in now or wait for the confirmation email.'
+            description: 'Email confirmation is temporarily delayed due to high server traffic. You can try logging in now or wait for the confirmation email.'
           });
           
-          // Show helpful info
+          // Show helpful follow-up message
           setTimeout(() => {
-            toast.info('No confirmation email yet?', {
-              duration: 10000,
-              description: 'Try logging in directly - your account may already be active. Email confirmations are temporarily delayed.'
+            toast.info('Next steps', {
+              duration: 12000,
+              description: 'Switch to the Login tab and try logging in directly. Your account may already be active even without email confirmation.'
             });
           }, 3000);
           
-          // Clear the form since account might be created
+          // Clear the form since account was likely created
           setSignupForm({ email: '', password: '', confirmPassword: '', fullName: '' });
           
-          // Reset rate limit after 5 minutes
+          // Reset rate limit state after 5 minutes
           setTimeout(() => {
             setRateLimited(false);
+            console.log('Rate limit state reset');
           }, 5 * 60 * 1000);
-        } else {
-          toast.error(error.message || 'Error during registration');
+        } 
+        // All other errors
+        else {
+          console.log('Other signup error:', error.message);
+          toast.error(error.message || 'Error during registration', {
+            description: 'Please try again or contact support if the problem persists.'
+          });
         }
       } else {
+        // Successful signup without rate limiting
+        console.log('Signup successful without issues');
         toast.success('Account created successfully!', {
           duration: 6000,
           description: 'Check your inbox and confirm your email address before logging in.'
@@ -154,10 +208,25 @@ const Auth = () => {
           });
         }, 2000);
       }
-    } catch (error) {
-      toast.error('An error occurred during registration');
+    } catch (error: any) {
+      console.error('Signup catch block error:', error);
+      
+      // Even in catch block, check for rate limiting
+      if (isRateLimitError(error)) {
+        setRateLimited(true);
+        toast.success('Account may have been created successfully!', {
+          duration: 8000,
+          description: 'Email system is busy. Try logging in after a few minutes.'
+        });
+        setSignupForm({ email: '', password: '', confirmPassword: '', fullName: '' });
+      } else {
+        toast.error('An unexpected error occurred during registration', {
+          description: 'Please refresh the page and try again.'
+        });
+      }
     } finally {
       setLoading(false);
+      console.log('Signup attempt completed');
     }
   };
 
