@@ -653,6 +653,10 @@ export type Database = {
           verification_status: string
         }[]
       }
+      can_access_verification_document: {
+        Args: { requesting_user_id?: string; verification_id: string }
+        Returns: boolean
+      }
       expire_booking_chats: {
         Args: Record<PropertyKey, never>
         Returns: undefined
@@ -660,6 +664,10 @@ export type Database = {
       expire_unconfirmed_bookings: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      generate_secure_document_url: {
+        Args: { access_duration_minutes?: number; verification_id: string }
+        Returns: Json
       }
       has_role: {
         Args: {
@@ -679,6 +687,10 @@ export type Database = {
       refresh_parking_listings_public: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      revoke_document_access: {
+        Args: { verification_id: string }
+        Returns: Json
       }
       setup_admin_user: {
         Args: Record<PropertyKey, never>
