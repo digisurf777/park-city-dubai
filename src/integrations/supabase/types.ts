@@ -837,6 +837,37 @@ export type Database = {
           stripe_subscription_id: string
         }[]
       }
+      get_my_booking_status: {
+        Args: { booking_id: string }
+        Returns: {
+          cost_aed: number
+          end_time: string
+          id: string
+          location: string
+          payment_status: string
+          start_time: string
+          status: string
+          zone: string
+        }[]
+      }
+      get_my_bookings: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          confirmation_deadline: string
+          cost_aed: number
+          created_at: string
+          duration_hours: number
+          end_time: string
+          id: string
+          location: string
+          payment_status: string
+          payment_type: string
+          start_time: string
+          status: string
+          updated_at: string
+          zone: string
+        }[]
+      }
       get_secure_document_access: {
         Args: { access_token: string; verification_id: string }
         Returns: Json
@@ -918,6 +949,10 @@ export type Database = {
       }
       update_my_booking_safe: {
         Args: { booking_id: string; new_status?: string }
+        Returns: boolean
+      }
+      update_my_booking_status: {
+        Args: { booking_id: string; new_status: string }
         Returns: boolean
       }
       validate_document_access: {
