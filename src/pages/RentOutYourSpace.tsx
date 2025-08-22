@@ -14,8 +14,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
-import { useVerificationStatus } from "@/hooks/useVerificationStatus";
-import { VerificationGuard } from "@/components/VerificationGuard";
 import luxuryCar from "@/assets/luxury-car-dubai.png";
 import phoneLogo from "@/assets/phone-logo.png";
 const RentOutYourSpace = () => {
@@ -29,10 +27,6 @@ const RentOutYourSpace = () => {
     toast
   } = useToast();
   const navigate = useNavigate();
-  const {
-    status: verificationStatus,
-    loading: verificationLoading
-  } = useVerificationStatus();
   const [monthlyPrice, setMonthlyPrice] = useState<number>(300);
   const [uploadedImages, setUploadedImages] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -170,15 +164,6 @@ const RentOutYourSpace = () => {
         variant: "destructive"
       });
       navigate('/auth');
-      return;
-    }
-    if (verificationStatus !== 'approved' && verificationStatus !== 'verified') {
-      toast({
-        title: "Verification Required",
-        description: "Your account must be verified before you can list parking spaces.",
-        variant: "destructive"
-      });
-      navigate('/my-account?tab=verification');
       return;
     }
     if (uploadedImages.length === 0) {
@@ -385,9 +370,7 @@ const RentOutYourSpace = () => {
             </h2>
           </div>
 
-          {/* Only show the form if user is verified */}
-          {!verificationLoading && (verificationStatus === 'approved' || verificationStatus === 'verified') ? (
-            <Card className="bg-white shadow-2xl p-8">
+          <Card className="bg-white shadow-2xl p-8">
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
@@ -591,12 +574,6 @@ const RentOutYourSpace = () => {
                 </Button>
               </form>
             </Card>
-          ) : (
-            /* Show verification required message for non-verified users */
-            <VerificationGuard feature="listing parking spaces">
-              <div></div>
-            </VerificationGuard>
-          )}
         </div>
       </section>
 
