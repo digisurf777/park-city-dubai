@@ -6,8 +6,11 @@ import "./index.css";
 import CriticalCSS from "./components/CriticalCSS.tsx";
 import PreloadResources from "./components/PreloadResources.tsx";
 
+console.log('main.tsx: Starting app initialization');
+
 // Performance optimizations
 const root = createRoot(document.getElementById("root")!);
+console.log('main.tsx: Root created successfully');
 
 // Preload critical resources
 const preloadResources = () => {
@@ -64,3 +67,5 @@ root.render(
     </ErrorBoundary>
   </StrictMode>
 );
+
+console.log('main.tsx: App render initiated');
