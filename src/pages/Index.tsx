@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { MapPin, Search, CreditCard, Car, DollarSign, Clock, Shield, Quote } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { SafeAuthWrapper } from "@/components/SafeAuthWrapper";
 import { EmailConfirmationBanner } from "@/components/EmailConfirmationBanner";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -30,10 +31,14 @@ const Index = () => {
       {seoData}
       <Navbar />
       
-      {/* Email Confirmation Banner */}
-      <div className="fixed top-[70px] left-0 right-0 z-40 px-4">
-        <div className="max-w-7xl mx-auto">
-          <EmailConfirmationBanner />
+      {/* Email Confirmation Banner - wrapped in SafeAuthWrapper */}
+      <div className="relative">
+        <div className="px-4 pt-2">
+          <div className="max-w-7xl mx-auto">
+            <SafeAuthWrapper>
+              <EmailConfirmationBanner />
+            </SafeAuthWrapper>
+          </div>
         </div>
       </div>
       
