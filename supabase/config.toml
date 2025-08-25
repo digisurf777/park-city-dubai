@@ -1,13 +1,84 @@
 project_id = "eoknluyunximjlsnyceb"
 
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[auth]
+enabled = true
+port = 9999
+
+[auth.email]
+enable_signup = true
+double_confirm_changes = true
+enable_confirmations = true
+
+[storage]
+enabled = true
+port = 54320
+
+[functions.send-confirmation-email]
+verify_jwt = false
+
+[functions.send-admin-signup-notification]
+verify_jwt = false
+
+[functions.resend-confirmation-email]
+verify_jwt = false
+
+[functions.send-verification-email]
+verify_jwt = true
+
+[functions.send-admin-notification]
+verify_jwt = true
+
+[functions.send-booking-confirmed]
+verify_jwt = true
+
+[functions.send-booking-received]
+verify_jwt = true
+
+[functions.send-booking-rejected]
+verify_jwt = true
+
+[functions.send-customer-confirmation]
+verify_jwt = true
+
 [functions.send-message-notification]
+verify_jwt = true
+
+[functions.send-password-reset]
+verify_jwt = false
+
+[functions.send-verification-approval]
+verify_jwt = true
+
+[functions.send-welcome-email]
+verify_jwt = false
+
+[functions.setup-admin]
 verify_jwt = true
 
 [functions.submit-booking-request]
 verify_jwt = true
 
+[functions.test-email]
+verify_jwt = false
+
 [functions.verify-recaptcha]
 verify_jwt = false
+
+[functions.confirm-payment]
+verify_jwt = true
+
+[functions.create-payment-link]
+verify_jwt = true
+
+[functions.refund-payment]
+verify_jwt = true
 
 [functions.generate-secure-document-token]
 verify_jwt = true
@@ -16,4 +87,7 @@ verify_jwt = true
 verify_jwt = true
 
 [functions.revoke-document-access-tokens]
+verify_jwt = true
+
+[functions.insert-blog-posts]
 verify_jwt = true

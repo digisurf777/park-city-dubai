@@ -60,12 +60,16 @@ const Auth = () => {
       
       if (error) {
         if (error.message.includes('Email not confirmed')) {
-          toast.error(error.message, {
-            duration: 5000,
-            description: 'Check your inbox and click the confirmation link.'
+          toast.error('Please check your email and click the confirmation link before signing in.', {
+            duration: 8000,
+            description: 'Check your spam folder if you don\'t see the email.'
           });
+        } else if (error.message.includes('Invalid login credentials')) {
+          toast.error('Invalid email or password. Please check your credentials and try again.');
+        } else if (error.message.includes('Too many requests')) {
+          toast.error('Too many login attempts. Please wait a few minutes before trying again.');
         } else {
-          toast.error(error.message || 'Error during login');
+          toast.error(error.message || 'Login failed');
         }
       } else {
         toast.success('Logged in successfully!');

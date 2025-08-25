@@ -13,6 +13,7 @@ interface AuthContextType {
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: any }>;
   updatePassword: (password: string) => Promise<{ error: any }>;
+  resendConfirmationEmail: (email: string) => Promise<{ error: any }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -83,8 +84,23 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       console.log('Signup result:', { data, error });
 
-      // If signup successful, send admin notification email only
+      // If signup successful, send both confirmation and admin notification emails
       if (!error && data?.user) {
+        // Send confirmation email to user with custom template
+        try {
+          await supabase.functions.invoke('send-confirmation-email', {
+            body: {
+              email: email,
+              fullName: fullName,
+              confirmationUrl: redirectUrl
+            }
+          });
+          console.log('Confirmation email sent successfully');
+        } catch (emailError) {
+          console.error('Failed to send confirmation email:', emailError);
+          // Don't fail the signup if email fails - user can resend later
+        }
+
         // Send admin notification after successful signup
         try {
           await supabase.functions.invoke('send-admin-signup-notification', {
@@ -201,6 +217,52 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return { error };
   };
 
+  const resendConfirmationEmail = async (email: string) => {
+    try {
+      // Get user's full name from profiles
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('full_name')
+        .eq('user_id', user?.id)
+        .single();
+
+      const redirectUrl = `${window.location.origin}/email-confirmed?redirect_to=/my-account`;
+
+      // Resend Supabase confirmation email
+      const { error: supabaseError } = await supabase.auth.resend({
+        type: 'signup',
+        email: email,
+        options: {
+          emailRedirectTo: redirectUrl
+        }
+      });
+
+      if (supabaseError) {
+        return { error: supabaseError };
+      }
+
+      // Send custom confirmation email as well
+      try {
+        await supabase.functions.invoke('send-confirmation-email', {
+          body: {
+            email: email,
+            fullName: profile?.full_name || 'User',
+            confirmationUrl: redirectUrl
+          }
+        });
+        console.log('Custom confirmation email resent successfully');
+      } catch (customEmailError) {
+        console.error('Failed to send custom confirmation email:', customEmailError);
+        // Don't fail if custom email fails, Supabase email was sent
+      }
+
+      return { error: null };
+    } catch (error: any) {
+      console.error('Resend confirmation error:', error);
+      return { error };
+    }
+  };
+
   const value = {
     user,
     session,
@@ -210,6 +272,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     signOut,
     resetPassword,
     updatePassword,
+    resendConfirmationEmail,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

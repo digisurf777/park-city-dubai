@@ -16,6 +16,7 @@ import UserInbox from '@/components/UserInbox';
 import { ActiveBookingChats } from '@/components/ActiveBookingChats';
 import { MyListings } from '@/components/MyListings';
 import { useVerificationStatus } from '@/hooks/useVerificationStatus';
+import { EmailVerificationStatus } from '@/components/EmailVerificationStatus';
 interface Profile {
   id: string;
   full_name: string;

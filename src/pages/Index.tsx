@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { MapPin, Search, CreditCard, Car, DollarSign, Clock, Shield, Quote } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { EmailConfirmationBanner } from "@/components/EmailConfirmationBanner";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import useSEO from "@/hooks/useSEO";
@@ -28,6 +29,13 @@ const Index = () => {
   return <div className="min-h-screen bg-white">
       {seoData}
       <Navbar />
+      
+      {/* Email Confirmation Banner */}
+      <div className="fixed top-[70px] left-0 right-0 z-40 px-4">
+        <div className="max-w-7xl mx-auto">
+          <EmailConfirmationBanner />
+        </div>
+      </div>
       
       {/* Hero Section - Simplified animations for better performance */}
       <section className="relative min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat" style={{
