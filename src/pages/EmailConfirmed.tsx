@@ -21,15 +21,35 @@ const EmailConfirmed = () => {
         // Get redirect destination from URL or default to home
         const redirectTo = searchParams.get('redirect_to') || '/';
         
-        // Log the full URL for debugging
-        console.log('=== EMAIL CONFIRMATION DEBUG ===');
+        // Enhanced debugging - log everything about the URL
+        console.log('=== EMAIL CONFIRMATION DEBUG START ===');
         console.log('Full URL:', window.location.href);
+        console.log('Origin:', window.location.origin);
+        console.log('Pathname:', window.location.pathname);
         console.log('Search params:', window.location.search);
         console.log('Hash:', window.location.hash);
+        console.log('Host:', window.location.host);
+        console.log('Protocol:', window.location.protocol);
         
-        // Handle email confirmation by checking the URL hash and query params
+        // Log all URL search params individually
+        console.log('=== SEARCH PARAMS BREAKDOWN ===');
+        for (const [key, value] of searchParams.entries()) {
+          console.log(`Search param - ${key}:`, value);
+        }
+        
+        // Log all hash params individually
+        console.log('=== HASH PARAMS BREAKDOWN ===');
         const hash = window.location.hash.substring(1);
         const hashParams = new URLSearchParams(hash);
+        for (const [key, value] of hashParams.entries()) {
+          console.log(`Hash param - ${key}:`, value);
+        }
+        
+        // Handle email confirmation by checking the URL hash and query params
+        console.log('=== PARSED URL COMPONENTS ===');
+        console.log('Hash string (after #):', hash);
+        console.log('Hash params size:', hashParams.size);
+        console.log('Search params size:', searchParams.size);
         
         // Get tokens from both URL params and hash
         const access_token = searchParams.get('access_token') || hashParams.get('access_token');
@@ -39,15 +59,29 @@ const EmailConfirmed = () => {
         const error_code = searchParams.get('error_code') || hashParams.get('error_code');
         const error_description = searchParams.get('error_description') || hashParams.get('error_description');
 
-        console.log('Parsed parameters:', {
-          access_token: access_token ? 'present' : 'missing',
-          refresh_token: refresh_token ? 'present' : 'missing', 
-          token_hash: token_hash ? 'present' : 'missing',
-          type,
-          error_code,
-          error_description,
-          redirectTo
-        });
+        console.log('=== PARSED PARAMETERS ===');
+        console.log('access_token:', access_token ? `present (${access_token.substring(0, 20)}...)` : 'missing');
+        console.log('refresh_token:', refresh_token ? `present (${refresh_token.substring(0, 20)}...)` : 'missing');
+        console.log('token_hash:', token_hash ? `present (${token_hash.substring(0, 20)}...)` : 'missing');
+        console.log('type:', type);
+        console.log('error_code:', error_code);
+        console.log('error_description:', error_description);
+        console.log('redirectTo:', redirectTo);
+        
+        // Additional debugging for potential alternative parameter names
+        console.log('=== ALTERNATIVE PARAMETER CHECKS ===');
+        console.log('code (search):', searchParams.get('code'));
+        console.log('code (hash):', hashParams.get('code'));
+        console.log('token (search):', searchParams.get('token'));
+        console.log('token (hash):', hashParams.get('token'));
+        console.log('confirmation_url (search):', searchParams.get('confirmation_url'));
+        console.log('confirmation_url (hash):', hashParams.get('confirmation_url'));
+        
+        // Check for other common Supabase auth parameters
+        console.log('provider_token:', searchParams.get('provider_token') || hashParams.get('provider_token'));
+        console.log('provider_refresh_token:', searchParams.get('provider_refresh_token') || hashParams.get('provider_refresh_token'));
+        
+        console.log('=== EMAIL CONFIRMATION DEBUG END ===');
 
         // Check for URL errors first
         if (error_code || error_description) {

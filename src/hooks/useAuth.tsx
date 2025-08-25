@@ -75,11 +75,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       // Clean up any existing auth state before signup
       cleanupAuthState();
       
-      // Use window.location.origin to work in all environments
       const redirectUrl = `${window.location.origin}/email-confirmed?redirect_to=/my-account`;
-      
-      console.log('Starting signup process...');
-      
+
+      console.log('=== SIGNUP DEBUG ===');
+      console.log('Signup email:', email);
+      console.log('Redirect URL being used:', redirectUrl);
+      console.log('Window origin:', window.location.origin);
+      console.log('Full name:', fullName);
+      console.log('User type:', userType);
+
       // Create user account with Supabase's built-in email confirmation
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -93,7 +97,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
       });
 
-      console.log('Signup result:', { data, error });
+      console.log('=== SIGNUP RESULT ===');
+      console.log('Signup successful:', !error);
+      console.log('User created:', !!data?.user);
+      console.log('User ID:', data?.user?.id);
+      console.log('Email confirmed:', !!data?.user?.email_confirmed_at);
+      console.log('Session exists:', !!data?.session);
+      console.log('Error:', error?.message);
+      console.log('Error code:', error?.name);
+      console.log('Full error object:', error);
 
       // If signup successful, send admin notification (Supabase handles confirmation email automatically)
       if (!error && data?.user) {
@@ -218,6 +230,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       const redirectUrl = `${window.location.origin}/email-confirmed?redirect_to=/my-account`;
 
+      console.log('=== RESEND CONFIRMATION DEBUG ===');
+      console.log('Resending confirmation for email:', email);
+      console.log('Redirect URL being used:', redirectUrl);
+      console.log('Window origin:', window.location.origin);
+
       // Use Supabase's built-in resend functionality
       const { error } = await supabase.auth.resend({
         type: 'signup',
@@ -226,6 +243,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           emailRedirectTo: redirectUrl
         }
       });
+
+      console.log('=== RESEND RESULT ===');
+      console.log('Resend successful:', !error);
+      console.log('Error:', error?.message);
+      console.log('Full error object:', error);
 
       return { error };
     } catch (error: any) {
