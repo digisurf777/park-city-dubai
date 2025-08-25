@@ -75,63 +75,67 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       // Clean up any existing auth state before signup
       cleanupAuthState();
       
-      // Use window.location.origin to work in all environments
-      const redirectUrl = `${window.location.origin}/email-confirmed?redirect_to=/my-account`;
+      // Generate a custom confirmation token
+      const confirmationToken = crypto.randomUUID();
+      const confirmationUrl = `${window.location.origin}/email-confirmed?token=${confirmationToken}&email=${encodeURIComponent(email)}`;
       
-      console.log('Starting signup process...');
+      console.log('Starting signup process with custom confirmation...');
       
-      // Create user account with Supabase's built-in email confirmation
+      // Create user account WITHOUT email confirmation (we'll handle it manually)
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          emailRedirectTo: redirectUrl,
+          emailRedirectTo: `${window.location.origin}/email-confirmed`,
           data: {
             full_name: fullName,
-            user_type: userType
+            user_type: userType,
+            confirmation_token: confirmationToken
           }
         }
       });
 
       console.log('Signup result:', { data, error });
 
-      // If signup successful, send both confirmation and admin notification emails
-      if (!error && data?.user) {
-        // Send confirmation email to user with custom template
+      if (error) {
+        return { error };
+      }
+
+      if (data?.user) {
         try {
+          // Send custom confirmation email
           await supabase.functions.invoke('send-confirmation-email', {
             body: {
               email: email,
               fullName: fullName,
-              confirmationUrl: redirectUrl
+              confirmationUrl: confirmationUrl,
+              confirmationToken: confirmationToken,
+              userId: data.user.id,
+              language: 'en'
             }
           });
-          console.log('Confirmation email sent successfully');
-        } catch (emailError) {
-          console.error('Failed to send confirmation email:', emailError);
-          // Don't fail the signup if email fails - user can resend later
-        }
+          console.log('Custom confirmation email sent successfully');
 
-        // Send admin notification after successful signup
-        try {
+          // Send admin notification
           await supabase.functions.invoke('send-admin-signup-notification', {
             body: {
               email: email,
               fullName: fullName,
-              userType: userType
+              userType: userType,
+              userId: data.user.id
             }
           });
           console.log('Admin notification sent successfully');
         } catch (emailError) {
-          console.error('Failed to send admin notification:', emailError);
-          // Don't fail the signup if admin email fails
+          console.error('Failed to send emails:', emailError);
+          // Don't fail the signup if notification fails
         }
       }
-      
-      return { error };
-    } catch (signupError: any) {
-      console.error('Signup error:', signupError);
-      return { error: signupError };
+
+      return { error: null };
+    } catch (err) {
+      console.error('Signup error:', err);
+      return { error: err };
     }
   };
 
@@ -230,47 +234,23 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const resendConfirmationEmail = async (email: string) => {
     try {
-      // Get user's full name from profiles
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('full_name')
-        .eq('user_id', user?.id)
-        .single();
-
-      const redirectUrl = `${window.location.origin}/email-confirmed?redirect_to=/my-account`;
-
-      // Resend Supabase confirmation email
-      const { error: supabaseError } = await supabase.auth.resend({
-        type: 'signup',
-        email: email,
-        options: {
-          emailRedirectTo: redirectUrl
+      // Generate a new confirmation token
+      const confirmationToken = crypto.randomUUID();
+      const confirmationUrl = `${window.location.origin}/email-confirmed?token=${confirmationToken}&email=${encodeURIComponent(email)}`;
+      
+      // Send custom confirmation email via resend-confirmation-email function
+      const { error } = await supabase.functions.invoke('resend-confirmation-email', {
+        body: {
+          email: email,
+          confirmationUrl: confirmationUrl,
+          confirmationToken: confirmationToken,
+          language: 'en'
         }
       });
 
-      if (supabaseError) {
-        return { error: supabaseError };
-      }
-
-      // Send custom confirmation email as well
-      try {
-        await supabase.functions.invoke('send-confirmation-email', {
-          body: {
-            email: email,
-            fullName: profile?.full_name || 'User',
-            confirmationUrl: redirectUrl
-          }
-        });
-        console.log('Custom confirmation email resent successfully');
-      } catch (customEmailError) {
-        console.error('Failed to send custom confirmation email:', customEmailError);
-        // Don't fail if custom email fails, Supabase email was sent
-      }
-
-      return { error: null };
-    } catch (error: any) {
-      console.error('Resend confirmation error:', error);
       return { error };
+    } catch (err) {
+      return { error: err };
     }
   };
 

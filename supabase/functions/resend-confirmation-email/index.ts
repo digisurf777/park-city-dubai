@@ -16,6 +16,8 @@ const corsHeaders = {
 
 interface ResendConfirmationRequest {
   email: string;
+  confirmationUrl: string;
+  confirmationToken: string;
   language?: 'en' | 'ar';
 }
 
@@ -48,14 +50,14 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { email, language = 'en' }: ResendConfirmationRequest = await req.json();
+    const { email, confirmationUrl, confirmationToken, language = 'en' }: ResendConfirmationRequest = await req.json();
     
     console.log('Processing resend confirmation request:', { email, language });
     
     // Validate required fields
-    if (!email) {
+    if (!email || !confirmationUrl || !confirmationToken) {
       return new Response(
-        JSON.stringify({ error: 'Email is required' }),
+        JSON.stringify({ error: 'Missing required fields: email, confirmationUrl, confirmationToken' }),
         {
           status: 400,
           headers: { "Content-Type": "application/json", ...corsHeaders },
@@ -103,6 +105,20 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
+    // Store new confirmation token for the user
+    const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(userData.user.id, {
+      user_metadata: {
+        ...userData.user.user_metadata,
+        confirmation_token: confirmationToken,
+        confirmation_expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24 hours
+      }
+    });
+
+    if (updateError) {
+      console.error('Failed to store confirmation token:', updateError);
+      throw new Error(`Failed to update user with confirmation token: ${updateError.message}`);
+    }
+
     // Get user profile for full name
     const { data: profile } = await supabaseAdmin
       .from('profiles')
@@ -111,7 +127,6 @@ const handler = async (req: Request): Promise<Response> => {
       .single();
 
     const fullName = profile?.full_name || 'User';
-    const confirmationUrl = `${Deno.env.get("SUPABASE_URL")}/auth/v1/verify?token=${userData.user.confirmation_token}&type=signup&redirect_to=${encodeURIComponent(`${req.headers.get('origin') || 'https://shazamparking.ae'}/email-confirmed?redirect_to=/my-account`)}`;
 
     // Send custom confirmation email
     const { error: emailError } = await supabaseAdmin.functions.invoke('send-confirmation-email', {
@@ -119,6 +134,8 @@ const handler = async (req: Request): Promise<Response> => {
         email: email,
         fullName: fullName,
         confirmationUrl: confirmationUrl,
+        confirmationToken: confirmationToken,
+        userId: userData.user.id,
         language: language,
         isResend: true
       }
