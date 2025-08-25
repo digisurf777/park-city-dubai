@@ -1,6 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "npm:resend@2.0.0";
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.4';
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
@@ -12,10 +11,8 @@ const corsHeaders = {
 
 interface ConfirmationEmailRequest {
   email: string;
-  fullName?: string;
+  fullName: string;
   confirmationUrl: string;
-  confirmationToken: string;
-  userId?: string;
   language?: 'en' | 'ar';
   isResend?: boolean;
 }
@@ -217,38 +214,19 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { email, fullName, confirmationUrl, confirmationToken, userId, language = 'en', isResend = false }: ConfirmationEmailRequest = await req.json();
+    const { email, fullName, confirmationUrl, language = 'en', isResend = false }: ConfirmationEmailRequest = await req.json();
     
     console.log('Processing confirmation email request:', { email, fullName, language, isResend });
     
     // Validate required fields
-    if (!email || !confirmationUrl || !confirmationToken) {
+    if (!email || !fullName || !confirmationUrl) {
       return new Response(
-        JSON.stringify({ error: 'Missing required fields: email, confirmationUrl, confirmationToken' }),
+        JSON.stringify({ error: 'Missing required fields: email, fullName, confirmationUrl' }),
         {
           status: 400,
           headers: { "Content-Type": "application/json", ...corsHeaders },
         }
       );
-    }
-
-    // Store confirmation token for later verification
-    if (userId && confirmationToken) {
-      const supabase = createClient(
-        Deno.env.get('SUPABASE_URL') ?? '',
-        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-      );
-
-      const { error: updateError } = await supabase.auth.admin.updateUserById(userId, {
-        user_metadata: {
-          confirmation_token: confirmationToken,
-          confirmation_expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24 hours
-        }
-      });
-
-      if (updateError) {
-        console.error('Failed to store confirmation token:', updateError);
-      }
     }
 
     // Check rate limiting
@@ -267,7 +245,7 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     // Get email template based on language preference
-    const template = getEmailTemplate(fullName || 'User', confirmationUrl, language);
+    const template = getEmailTemplate(fullName, confirmationUrl, language);
     
     // Prepare email data
     const emailData = {
