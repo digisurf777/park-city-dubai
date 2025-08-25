@@ -542,6 +542,45 @@ export type Database = {
         }
         Relationships: []
       }
+      profile_access_audit: {
+        Row: {
+          access_reason: string | null
+          access_type: string
+          accessed_at: string
+          accessed_by: string
+          fields_accessed: string[] | null
+          id: string
+          ip_address: unknown | null
+          profile_user_id: string
+          session_id: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          access_reason?: string | null
+          access_type: string
+          accessed_at?: string
+          accessed_by: string
+          fields_accessed?: string[] | null
+          id?: string
+          ip_address?: unknown | null
+          profile_user_id: string
+          session_id?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          access_reason?: string | null
+          access_type?: string
+          accessed_at?: string
+          accessed_by?: string
+          fields_accessed?: string[] | null
+          id?: string
+          ip_address?: unknown | null
+          profile_user_id?: string
+          session_id?: string | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -786,6 +825,36 @@ export type Database = {
         Args: { verification_id: string }
         Returns: Json
       }
+      admin_emergency_profile_access: {
+        Args: { emergency_reason: string; target_user_id: string }
+        Returns: {
+          created_at: string
+          email_confirmed_at: string
+          full_name: string
+          phone: string
+          signup_notified: boolean
+          updated_at: string
+          user_id: string
+          user_type: string
+        }[]
+      }
+      admin_get_profile_secure: {
+        Args: {
+          access_reason?: string
+          include_sensitive_fields?: boolean
+          target_user_id: string
+        }
+        Returns: {
+          created_at: string
+          email_confirmed_at: string
+          full_name: string
+          phone: string
+          signup_notified: boolean
+          updated_at: string
+          user_id: string
+          user_type: string
+        }[]
+      }
       admin_get_verification_document: {
         Args: { verification_id: string }
         Returns: {
@@ -793,6 +862,24 @@ export type Database = {
           document_url: string
           user_full_name: string
           verification_status: string
+        }[]
+      }
+      admin_list_profiles_secure: {
+        Args: {
+          access_reason?: string
+          include_sensitive_fields?: boolean
+          page_limit?: number
+          page_offset?: number
+          search_term?: string
+        }
+        Returns: {
+          created_at: string
+          email_confirmed_at: string
+          full_name: string
+          phone: string
+          total_count: number
+          user_id: string
+          user_type: string
         }[]
       }
       auto_expire_old_documents: {
@@ -868,6 +955,16 @@ export type Database = {
           zone: string
         }[]
       }
+      get_profile_access_stats: {
+        Args: { days_back?: number }
+        Returns: {
+          access_count: number
+          access_date: string
+          access_type: string
+          unique_admins: number
+          unique_profiles_accessed: number
+        }[]
+      }
       get_secure_document_access: {
         Args: { access_token: string; verification_id: string }
         Returns: Json
@@ -914,6 +1011,15 @@ export type Database = {
           access_type: string
           booking_id: string
           payment_fields?: string[]
+        }
+        Returns: undefined
+      }
+      log_profile_access: {
+        Args: {
+          access_reason?: string
+          access_type: string
+          fields_accessed?: string[]
+          target_user_id: string
         }
         Returns: undefined
       }
