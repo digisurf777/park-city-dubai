@@ -1,13 +1,20 @@
 
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Slider } from "@/components/ui/slider";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Search, Car, CreditCard, Ruler, MapPin, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ParkingBookingModal } from "@/components/ParkingBookingModal";
 import ImageZoomModal from "@/components/ImageZoomModal";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import palmJumeirahHero from "/lovable-uploads/atlantis-hotel-hero.jpg";
 
 
 const PalmJumeirah = () => {
@@ -188,7 +195,7 @@ const PalmJumeirah = () => {
         <div className="absolute inset-0 bg-black/35"></div>
         <div 
           className="absolute inset-0 bg-cover bg-center" 
-          style={{ backgroundImage: `url(/lovable-uploads/atlantis-hotel-hero.jpg)` }}
+          style={{ backgroundImage: `url(${palmJumeirahHero})` }}
         ></div>
         <div className="relative z-10 flex items-center justify-center h-full">
           <div className="text-center text-white px-4 max-w-4xl mx-auto">

@@ -1,5 +1,13 @@
 
 import { Button } from "@/components/ui/button";
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from "@/components/ui/navigation-menu";
 import { MapPin, Menu, X, ChevronDown, User } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
@@ -7,20 +15,7 @@ import { useAuth } from "@/hooks/useAuth";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isZonesOpen, setIsZonesOpen] = useState(false);
-  
-  // Add error boundary for auth hook
-  let user, signOut;
-  try {
-    const auth = useAuth();
-    user = auth.user;
-    signOut = auth.signOut;
-  } catch (error) {
-    console.log('Auth not ready in Navbar:', error);
-    // Fallback values
-    user = null;
-    signOut = () => {};
-  }
+  const { user, signOut } = useAuth();
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-white/80 border-b border-white/20 shadow-lg pt-safe-area-top">
@@ -49,65 +44,58 @@ const Navbar = () => {
               Find a Parking Space
             </Link>
             
-            {/* Simple Zones Dropdown instead of NavigationMenu */}
-            <div className="relative">
-              <button 
-                onClick={() => setIsZonesOpen(!isZonesOpen)}
-                className="text-gray-700 hover:text-primary transition-colors flex items-center"
-                onBlur={() => setTimeout(() => setIsZonesOpen(false), 200)}
-              >
-                Zones
-                <ChevronDown className="ml-1 h-4 w-4" />
-              </button>
-              {isZonesOpen && (
-                <div className="absolute top-full left-0 mt-1 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50">
-                  <div className="p-2">
-                    <Link 
-                      to="/dubai-marina" 
-                      className="block px-3 py-2 text-sm text-gray-700 hover:text-primary hover:bg-gray-50 rounded-md transition-colors"
-                      onClick={() => setIsZonesOpen(false)}
-                    >
-                      Dubai Marina
-                    </Link>
-                    <Link 
-                      to="/downtown" 
-                      className="block px-3 py-2 text-sm text-gray-700 hover:text-primary hover:bg-gray-50 rounded-md transition-colors"
-                      onClick={() => setIsZonesOpen(false)}
-                    >
-                      Downtown
-                    </Link>
-                    <Link 
-                      to="/palm-jumeirah" 
-                      className="block px-3 py-2 text-sm text-gray-700 hover:text-primary hover:bg-gray-50 rounded-md transition-colors"
-                      onClick={() => setIsZonesOpen(false)}
-                    >
-                      Palm Jumeirah
-                    </Link>
-                    <Link 
-                      to="/business-bay" 
-                      className="block px-3 py-2 text-sm text-gray-700 hover:text-primary hover:bg-gray-50 rounded-md transition-colors"
-                      onClick={() => setIsZonesOpen(false)}
-                    >
-                      Business Bay
-                    </Link>
-                    <Link 
-                      to="/difc" 
-                      className="block px-3 py-2 text-sm text-gray-700 hover:text-primary hover:bg-gray-50 rounded-md transition-colors"
-                      onClick={() => setIsZonesOpen(false)}
-                    >
-                      DIFC
-                    </Link>
-                    <Link 
-                      to="/deira" 
-                      className="block px-3 py-2 text-sm text-gray-700 hover:text-primary hover:bg-gray-50 rounded-md transition-colors"
-                      onClick={() => setIsZonesOpen(false)}
-                    >
-                      Deira
-                    </Link>
-                  </div>
-                </div>
-              )}
-            </div>
+            {/* Zones Dropdown */}
+            <NavigationMenu>
+              <NavigationMenuList>
+                <NavigationMenuItem>
+                  <NavigationMenuTrigger className="text-gray-700 hover:text-primary transition-colors bg-transparent">
+                    Zones
+                  </NavigationMenuTrigger>
+                  <NavigationMenuContent>
+                    <div className="w-48 p-2">
+                      <div className="grid gap-1">
+                        <Link 
+                          to="/dubai-marina" 
+                          className="block px-3 py-2 text-sm text-gray-700 hover:text-primary hover:bg-gray-50 rounded-md transition-colors"
+                        >
+                          Dubai Marina
+                        </Link>
+                        <Link 
+                          to="/downtown" 
+                          className="block px-3 py-2 text-sm text-gray-700 hover:text-primary hover:bg-gray-50 rounded-md transition-colors"
+                        >
+                          Downtown
+                        </Link>
+                        <Link 
+                          to="/palm-jumeirah" 
+                          className="block px-3 py-2 text-sm text-gray-700 hover:text-primary hover:bg-gray-50 rounded-md transition-colors"
+                        >
+                          Palm Jumeirah
+                        </Link>
+                        <Link 
+                          to="/business-bay" 
+                          className="block px-3 py-2 text-sm text-gray-700 hover:text-primary hover:bg-gray-50 rounded-md transition-colors"
+                        >
+                          Business Bay
+                        </Link>
+                        <Link 
+                          to="/difc" 
+                          className="block px-3 py-2 text-sm text-gray-700 hover:text-primary hover:bg-gray-50 rounded-md transition-colors"
+                        >
+                          DIFC
+                        </Link>
+                        <Link 
+                          to="/deira" 
+                          className="block px-3 py-2 text-sm text-gray-700 hover:text-primary hover:bg-gray-50 rounded-md transition-colors"
+                        >
+                          Deira
+                        </Link>
+                      </div>
+                    </div>
+                  </NavigationMenuContent>
+                </NavigationMenuItem>
+              </NavigationMenuList>
+            </NavigationMenu>
             
             <Link to="/about-us" className="text-gray-700 hover:text-primary transition-colors">
               About Us

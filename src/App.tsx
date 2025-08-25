@@ -58,23 +58,20 @@ const LoadingFallback = () => (
   </div>
 );
 
-const App = () => {
-  console.log('App.tsx: App component rendering');
-  
-  return (
-    <HelmetProvider>
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <MobileOptimizations />
-          <Toaster />
-          <Sonner />
-          <AuthProvider>
-            <BrowserRouter>
-              <PerformanceOptimizer />
-              <TawkToChat />
-              <ChatWidget />
-              <Suspense fallback={<LoadingFallback />}>
-                <Routes>
+const App = () => (
+  <HelmetProvider>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <MobileOptimizations />
+        <Toaster />
+        <Sonner />
+        <AuthProvider>
+          <BrowserRouter>
+            <PerformanceOptimizer />
+            <TawkToChat />
+            <ChatWidget />
+            <Suspense fallback={<LoadingFallback />}>
+              <Routes>
                 {/* Lavable Routes */}
                 <Route path="/lavable" element={<LavableHome />} />
                  <Route path="/lavable/faq" element={<LavableFAQ />} />
@@ -116,14 +113,13 @@ const App = () => {
             <Route path="/cookies-notice" element={<CookiesNotice />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
-                </Routes>
-              </Suspense>
-            </BrowserRouter>
-          </AuthProvider>
-        </TooltipProvider>
-      </QueryClientProvider>
-    </HelmetProvider>
-  );
-};
+              </Routes>
+            </Suspense>
+          </BrowserRouter>
+        </AuthProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </HelmetProvider>
+);
 
 export default App;

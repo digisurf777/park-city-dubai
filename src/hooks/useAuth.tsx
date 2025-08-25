@@ -27,19 +27,15 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  console.log('AuthProvider: Initializing');
-  
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log('AuthProvider: Setting up auth state listener');
-    
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        console.log('AuthProvider: Auth state changed:', event, session?.user?.email_confirmed_at);
+        console.log('Auth state changed:', event, session?.user?.email_confirmed_at);
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
@@ -55,19 +51,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('AuthProvider: Initial session check:', !!session);
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
-    }).catch((error) => {
-      console.error('AuthProvider: Session check failed:', error);
-      setLoading(false);
     });
 
-    return () => {
-      console.log('AuthProvider: Cleaning up subscription');
-      subscription.unsubscribe();
-    };
+    return () => subscription.unsubscribe();
   }, []);
 
   const signUp = async (email: string, password: string, fullName: string, userType: string = 'renter') => {
