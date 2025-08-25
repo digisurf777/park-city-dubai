@@ -59,19 +59,19 @@ const LoadingFallback = () => (
 );
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <HelmetProvider>
+  <HelmetProvider>
+    <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <MobileOptimizations />
         <Toaster />
         <Sonner />
-        <BrowserRouter>
         <AuthProvider>
-          <PerformanceOptimizer />
-          <TawkToChat />
-          <ChatWidget />
-          <Suspense fallback={<LoadingFallback />}>
-            <Routes>
+          <BrowserRouter>
+            <PerformanceOptimizer />
+            <TawkToChat />
+            <ChatWidget />
+            <Suspense fallback={<LoadingFallback />}>
+              <Routes>
                 {/* Lavable Routes */}
                 <Route path="/lavable" element={<LavableHome />} />
                  <Route path="/lavable/faq" element={<LavableFAQ />} />
@@ -115,11 +115,11 @@ const App = () => (
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>
-          </AuthProvider>
-        </BrowserRouter>
+          </BrowserRouter>
+        </AuthProvider>
       </TooltipProvider>
-    </HelmetProvider>
-  </QueryClientProvider>
+    </QueryClientProvider>
+  </HelmetProvider>
 );
 
 export default App;
