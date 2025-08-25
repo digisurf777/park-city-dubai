@@ -111,22 +111,21 @@ const handler = async (req: Request): Promise<Response> => {
       .single();
 
     const fullName = profile?.full_name || 'User';
-    const confirmationUrl = `${Deno.env.get("SUPABASE_URL")}/auth/v1/verify?token=${userData.user.confirmation_token}&type=signup&redirect_to=${encodeURIComponent(`${req.headers.get('origin') || 'https://shazamparking.ae'}/email-confirmed?redirect_to=/my-account`)}`;
 
-    // Send custom confirmation email
-    const { error: emailError } = await supabaseAdmin.functions.invoke('send-confirmation-email', {
-      body: {
-        email: email,
-        fullName: fullName,
-        confirmationUrl: confirmationUrl,
-        language: language,
-        isResend: true
+    // Use Supabase's built-in resend functionality
+    const redirectTo = `${req.headers.get('origin') || 'https://shazamparking.ae'}/email-confirmed?redirect_to=/my-account`;
+    
+    const { error: resendError } = await supabaseAdmin.auth.admin.generateLink({
+      type: 'signup',
+      email: email,
+      options: {
+        redirectTo: redirectTo
       }
     });
 
-    if (emailError) {
-      console.error('Failed to send confirmation email:', emailError);
-      throw new Error(`Failed to send confirmation email: ${emailError.message}`);
+    if (resendError) {
+      console.error('Failed to generate confirmation link:', resendError);
+      throw new Error(`Failed to resend confirmation email: ${resendError.message}`);
     }
 
     console.log("Confirmation email resent successfully:", { email, language });
