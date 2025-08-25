@@ -136,39 +136,41 @@ const handler = async (req: Request): Promise<Response> => {
     const paymentData = await paymentResponse.json();
     console.log("Payment link created:", paymentData.payment_url);
 
-    // Send confirmation email to admin with payment details
+    // Send admin booking notification using dedicated function
     const customerName = userProfile?.full_name || "Customer";
     const customerPhone = userPhone || userProfile?.phone || "Not provided";
     
-    const adminEmailResponse = await resend.emails.send({
-      from: "ShazamParking <onboarding@resend.dev>",
-      to: ["shazamparkingdubai@gmail.com"],
-      subject: "New Parking Booking with Payment Link",
-      html: `
-        <h2>New Parking Booking Request</h2>
-        <p><strong>Reference:</strong> ${booking.id}</p>
-        <p><strong>Customer Name:</strong> ${customerName}</p>
-        <p><strong>Customer Email:</strong> ${user.email}</p>
-        <p><strong>Phone:</strong> ${customerPhone}</p>
-        <p><strong>Parking Spot:</strong> ${parkingSpotName}</p>
-        <p><strong>Zone:</strong> ${zone}</p>
-        <p><strong>Location:</strong> ${location}</p>
-        <p><strong>Start Date:</strong> ${new Date(startDate).toLocaleDateString()}</p>
-        <p><strong>Duration:</strong> ${duration} month(s)</p>
-        <p><strong>Total Cost:</strong> ${costAed} AED</p>
-        <p><strong>Payment Type:</strong> ${paymentData.payment_type === 'one_time' ? 'One-time Payment' : 'Monthly Recurring'}</p>
-        <p><strong>Notes:</strong> ${notes || "None"}</p>
-        <p><strong>Status:</strong> Payment Link Sent</p>
-        
-        <p><a href="${req.headers.get("origin")}/admin" style="background-color: #3b82f6; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Review in Admin Panel</a></p>
-      `,
-    });
+    try {
+      const adminNotificationResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/send-admin-booking-notification`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${Deno.env.get('SUPABASE_ANON_KEY')}`,
+        },
+        body: JSON.stringify({
+          userName: customerName,
+          userEmail: user.email,
+          userPhone: customerPhone,
+          bookingId: booking.id,
+          parkingSpotName: parkingSpotName,
+          zone: zone,
+          location: location,
+          startDate: startDate,
+          duration: duration,
+          totalCost: costAed,
+          paymentType: paymentData.payment_type,
+          notes: notes,
+        }),
+      });
 
-    if (adminEmailResponse.error) {
-      console.error("Admin email error:", adminEmailResponse.error);
-      // Don't fail the booking if admin email fails
-    } else {
-      console.log("Admin notification sent successfully");
+      if (!adminNotificationResponse.ok) {
+        console.error("Admin booking notification failed:", await adminNotificationResponse.text());
+      } else {
+        console.log("Admin booking notification sent successfully");
+      }
+    } catch (notificationError) {
+      console.error("Admin booking notification error:", notificationError);
+      // Don't fail the booking if admin notification fails
     }
 
     // Send enhanced confirmation email to customer with payment link

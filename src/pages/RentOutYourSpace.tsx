@@ -206,26 +206,25 @@ const RentOutYourSpace = () => {
       }
       console.log('Listing created successfully:', insertedListing);
 
-      // Send admin notification
+      // Send admin listing notification using dedicated function
       try {
-        await supabase.functions.invoke('send-admin-notification', {
+        await supabase.functions.invoke('send-admin-listing-notification', {
           body: {
-            type: 'parking_listing',
+            userName: user.user_metadata?.full_name || formData.fullName || 'User',
             userEmail: user.email,
-            userName: user.user_metadata?.full_name || 'User',
-            details: {
-              buildingName: formData.buildingName,
-              district: formData.district,
-              bayType: formData.bayType,
-              monthlyPrice: monthlyPrice,
-              accessDeviceDeposit: formData.accessDeviceDeposit,
-              phone: formData.phone,
-              notes: formData.notes
-            }
+            userPhone: formData.phone,
+            listingId: insertedListing.id,
+            buildingName: formData.buildingName,
+            district: formData.district,
+            bayType: formData.bayType,
+            monthlyPrice: monthlyPrice,
+            accessDeviceDeposit: formData.accessDeviceDeposit ? monthlyPrice * 0.1 : undefined,
+            notes: formData.notes
           }
         });
+        console.log('Admin listing notification sent successfully');
       } catch (notificationError) {
-        console.error('Failed to send admin notification:', notificationError);
+        console.error('Failed to send admin listing notification:', notificationError);
         // Don't fail the whole process if notification fails
       }
 
