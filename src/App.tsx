@@ -11,7 +11,11 @@ import TawkToChat from "@/components/TawkToChat";
 import ChatWidget from "@/components/ChatWidget";
 import PerformanceOptimizer from "@/components/PerformanceOptimizer";
 import { MobileOptimizations } from "@/components/MobileOptimizations";
-// Lazy load components for better performance
+// Import Auth directly to fix dynamic import issue
+import Auth from "./pages/Auth";
+import EmailConfirmed from "./pages/EmailConfirmed";
+
+// Lazy load other components for better performance
 const Index = lazy(() => import("./pages/Index"));
 const FindParking = lazy(() => import("./pages/FindParking"));
 const AboutUs = lazy(() => import("./pages/AboutUs"));
@@ -22,8 +26,6 @@ const ProductPage = lazy(() => import("./pages/ProductPage"));
 const RentOutYourSpace = lazy(() => import("./pages/RentOutYourSpace"));
 const Calculator = lazy(() => import("./pages/Calculator"));
 const NotFound = lazy(() => import("./pages/NotFound"));
-const Auth = lazy(() => import("./pages/Auth"));
-const EmailConfirmed = lazy(() => import("./pages/EmailConfirmed"));
 const MyAccount = lazy(() => import("./pages/MyAccount"));
 const ContactAdmin = lazy(() => import("./pages/ContactAdmin"));
 const Feedback = lazy(() => import("./pages/Feedback"));
