@@ -16,6 +16,8 @@ const EmailConfirmed = () => {
       try {
         console.log('=== EMAIL CONFIRMATION DEBUG ===');
         console.log('Full URL:', window.location.href);
+        console.log('Search params:', window.location.search);
+        console.log('Hash params:', window.location.hash);
         
         // Check for error parameters first
         const urlParams = new URLSearchParams(window.location.search);
@@ -31,11 +33,15 @@ const EmailConfirmed = () => {
           return;
         }
 
-        // Let Supabase automatically detect and handle the session from URL
-        console.log('Checking for session after URL processing...');
+        // Check for confirmation tokens
+        const token = urlParams.get('token') || hashParams.get('token');
+        const tokenHash = urlParams.get('token_hash') || hashParams.get('token_hash');
+        const type = urlParams.get('type') || hashParams.get('type');
         
+        console.log('URL tokens found:', { token: !!token, tokenHash: !!tokenHash, type });
+
         // Small delay to allow Supabase to process the URL tokens
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 1500));
         
         const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
         
@@ -53,12 +59,26 @@ const EmailConfirmed = () => {
           console.log('Email confirmed successfully - user is authenticated');
           setConfirmed(true);
         } else {
-          console.log('No active session found after confirmation attempt');
-          setError('Email confirmation failed - please try again or contact support');
+          // If no session but we have tokens, try to refresh the session
+          if (token || tokenHash) {
+            console.log('Attempting to refresh session with tokens...');
+            const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
+            
+            if (refreshData?.session?.user) {
+              console.log('Session refreshed successfully');
+              setConfirmed(true);
+            } else {
+              console.log('Failed to refresh session:', refreshError);
+              setError('Email confirmation failed - please try signing in directly');
+            }
+          } else {
+            console.log('No tokens found in URL - confirmation may have already been processed');
+            setError('Email confirmation link is invalid or has expired. Please request a new confirmation email.');
+          }
         }
       } catch (error: any) {
         console.error('Email confirmation error:', error);
-        setError('An error occurred during email confirmation');
+        setError('An error occurred during email confirmation. Please try signing in directly.');
       } finally {
         setLoading(false);
       }

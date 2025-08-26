@@ -112,14 +112,12 @@ const handler = async (req: Request): Promise<Response> => {
 
     const fullName = profile?.full_name || 'User';
 
-    // Generate confirmation link
-    const redirectTo = `${req.headers.get('origin') || 'https://shazamparking.ae'}/email-confirmed?redirect_to=/my-account`;
-    
+    // Generate confirmation link with proper Supabase auth URL format
     const { data: linkData, error: resendError } = await supabaseAdmin.auth.admin.generateLink({
       type: 'signup',
       email: email,
       options: {
-        redirectTo: redirectTo
+        redirectTo: 'https://shazamparking.ae/email-confirmed?redirect_to=/my-account'
       }
     });
 
@@ -129,6 +127,7 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     const confirmationUrl = linkData.properties.action_link;
+    console.log('Generated confirmation URL:', confirmationUrl);
     
     // Call send-confirmation-email function to actually send the email
     const emailResponse = await supabaseAdmin.functions.invoke('send-confirmation-email', {

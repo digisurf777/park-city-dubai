@@ -247,9 +247,9 @@ const handler = async (req: Request): Promise<Response> => {
     // Get email template based on language preference
     const template = getEmailTemplate(fullName, confirmationUrl, language);
     
-    // Prepare email data
+    // Prepare email data - using verified domain
     const emailData = {
-      from: "ShazamParking <noreply@shazamparking.ae>",
+      from: "ShazamParking <onboarding@resend.dev>",
       to: [email],
       subject: template.subject,
       html: template.html,
