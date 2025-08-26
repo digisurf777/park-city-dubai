@@ -1,200 +1,83 @@
-import { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
-import { toast } from 'sonner';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { CheckCircle, XCircle, Loader2 } from "lucide-react";
 
 const EmailConfirmed = () => {
   const [loading, setLoading] = useState(true);
   const [confirmed, setConfirmed] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
 
   useEffect(() => {
     const confirmEmail = async () => {
       try {
-        setLoading(true);
-        
-        // Get redirect destination from URL or default to home
-        const redirectTo = searchParams.get('redirect_to') || '/';
-        
-        // Enhanced debugging - log everything about the URL
-        console.log('=== EMAIL CONFIRMATION DEBUG START ===');
+        console.log('=== EMAIL CONFIRMATION DEBUG ===');
         console.log('Full URL:', window.location.href);
-        console.log('Origin:', window.location.origin);
-        console.log('Pathname:', window.location.pathname);
-        console.log('Search params:', window.location.search);
-        console.log('Hash:', window.location.hash);
-        console.log('Host:', window.location.host);
-        console.log('Protocol:', window.location.protocol);
         
-        // Log all URL search params individually
-        console.log('=== SEARCH PARAMS BREAKDOWN ===');
-        for (const [key, value] of searchParams.entries()) {
-          console.log(`Search param - ${key}:`, value);
-        }
+        // Check for error parameters first
+        const urlParams = new URLSearchParams(window.location.search);
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
         
-        // Log all hash params individually
-        console.log('=== HASH PARAMS BREAKDOWN ===');
-        const hash = window.location.hash.substring(1);
-        const hashParams = new URLSearchParams(hash);
-        for (const [key, value] of hashParams.entries()) {
-          console.log(`Hash param - ${key}:`, value);
-        }
+        const error = urlParams.get('error') || hashParams.get('error');
+        const errorDescription = urlParams.get('error_description') || hashParams.get('error_description');
         
-        // Handle email confirmation by checking the URL hash and query params
-        console.log('=== PARSED URL COMPONENTS ===');
-        console.log('Hash string (after #):', hash);
-        console.log('Hash params size:', hashParams.size);
-        console.log('Search params size:', searchParams.size);
-        
-        // Get tokens from both URL params and hash
-        const access_token = searchParams.get('access_token') || hashParams.get('access_token');
-        const refresh_token = searchParams.get('refresh_token') || hashParams.get('refresh_token');
-        const token_hash = searchParams.get('token_hash') || hashParams.get('token_hash');
-        const type = searchParams.get('type') || hashParams.get('type');
-        const error_code = searchParams.get('error_code') || hashParams.get('error_code');
-        const error_description = searchParams.get('error_description') || hashParams.get('error_description');
-
-        console.log('=== PARSED PARAMETERS ===');
-        console.log('access_token:', access_token ? `present (${access_token.substring(0, 20)}...)` : 'missing');
-        console.log('refresh_token:', refresh_token ? `present (${refresh_token.substring(0, 20)}...)` : 'missing');
-        console.log('token_hash:', token_hash ? `present (${token_hash.substring(0, 20)}...)` : 'missing');
-        console.log('type:', type);
-        console.log('error_code:', error_code);
-        console.log('error_description:', error_description);
-        console.log('redirectTo:', redirectTo);
-        
-        // Additional debugging for potential alternative parameter names
-        console.log('=== ALTERNATIVE PARAMETER CHECKS ===');
-        console.log('code (search):', searchParams.get('code'));
-        console.log('code (hash):', hashParams.get('code'));
-        console.log('token (search):', searchParams.get('token'));
-        console.log('token (hash):', hashParams.get('token'));
-        console.log('confirmation_url (search):', searchParams.get('confirmation_url'));
-        console.log('confirmation_url (hash):', hashParams.get('confirmation_url'));
-        
-        // Check for other common Supabase auth parameters
-        console.log('provider_token:', searchParams.get('provider_token') || hashParams.get('provider_token'));
-        console.log('provider_refresh_token:', searchParams.get('provider_refresh_token') || hashParams.get('provider_refresh_token'));
-        
-        console.log('=== EMAIL CONFIRMATION DEBUG END ===');
-
-        // Check for URL errors first
-        if (error_code || error_description) {
-          console.error('URL contains error:', { error_code, error_description });
-          setError(`Email confirmation failed: ${error_description || 'Unknown error'}`);
+        if (error) {
+          console.log('Error found in URL:', { error, errorDescription });
+          setError(errorDescription || error);
           setLoading(false);
           return;
         }
 
-        // Method 1: If we have access and refresh tokens, set the session directly
-        if (access_token && refresh_token) {
-          console.log('Attempting setSession with tokens...');
-          try {
-            const { data, error } = await supabase.auth.setSession({
-              access_token,
-              refresh_token
-            });
-
-            console.log('SetSession result:', { 
-              success: !error, 
-              hasUser: !!data.session?.user,
-              emailConfirmed: !!data.session?.user?.email_confirmed_at,
-              error: error?.message 
-            });
-
-            if (!error && data.session?.user) {
-              console.log('✅ Email confirmation successful via setSession');
-              setConfirmed(true);
-              toast.success('Email confirmed successfully! Redirecting...');
-              setTimeout(() => {
-                navigate(redirectTo);
-              }, 1500);
-              return;
-            } else {
-              console.error('❌ SetSession failed:', error);
-            }
-          } catch (err) {
-            console.error('❌ SetSession exception:', err);
-          }
-        }
-
-        // Method 2: If we have a token hash, exchange it for a session
-        if (token_hash && (type === 'email' || type === 'signup')) {
-          console.log('Attempting exchangeCodeForSession with token_hash...');
-          try {
-            const { data, error } = await supabase.auth.exchangeCodeForSession(token_hash);
-
-            console.log('ExchangeCode result:', { 
-              success: !error, 
-              hasUser: !!data.session?.user,
-              emailConfirmed: !!data.session?.user?.email_confirmed_at,
-              error: error?.message 
-            });
-
-            if (!error && data.session?.user) {
-              console.log('✅ Email confirmation successful via exchangeCodeForSession');
-              setConfirmed(true);
-              toast.success('Email confirmed successfully! Redirecting...');
-              setTimeout(() => {
-                navigate(redirectTo);
-              }, 1500);
-              return;
-            } else {
-              console.error('❌ Code exchange failed:', error);
-            }
-          } catch (err) {
-            console.error('❌ Code exchange exception:', err);
-          }
-        }
-
-        // Method 3: Check if user is already authenticated (fallback)
-        console.log('Checking existing session...');
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        // Let Supabase automatically detect and handle the session from URL
+        console.log('Checking for session after URL processing...');
         
-        console.log('Current session check:', {
-          hasSession: !!session,
-          hasUser: !!session?.user,
-          emailConfirmed: !!session?.user?.email_confirmed_at,
-          error: sessionError?.message
+        // Small delay to allow Supabase to process the URL tokens
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+        
+        console.log('Session check result:', { 
+          hasSession: !!sessionData?.session,
+          hasUser: !!sessionData?.session?.user,
+          userEmailConfirmed: sessionData?.session?.user?.email_confirmed_at,
+          error: sessionError?.message 
         });
         
-        if (session?.user?.email_confirmed_at && !sessionError) {
-          console.log('✅ User already confirmed and logged in');
+        if (sessionError) {
+          console.error('Session error:', sessionError);
+          setError('Unable to confirm email - session error');
+        } else if (sessionData?.session?.user) {
+          console.log('Email confirmed successfully - user is authenticated');
           setConfirmed(true);
-          toast.success('Welcome! You are already verified and logged in.');
-          setTimeout(() => {
-            navigate(redirectTo);
-          }, 1500);
-          return;
-        }
-
-        // If all methods fail, provide detailed error
-        console.log('❌ All confirmation methods failed');
-        if (!access_token && !refresh_token && !token_hash) {
-          setError('No confirmation tokens found in the URL. The link may be incomplete or corrupted.');
         } else {
-          setError('Your confirmation link has expired or is invalid. Please try signing in to your account.');
+          console.log('No active session found after confirmation attempt');
+          setError('Email confirmation failed - please try again or contact support');
         }
-        
-      } catch (err) {
-        console.error('❌ Email confirmation exception:', err);
-        setError('An unexpected error occurred during email confirmation. Please try signing in to your account.');
+      } catch (error: any) {
+        console.error('Email confirmation error:', error);
+        setError('An error occurred during email confirmation');
       } finally {
         setLoading(false);
       }
     };
 
-    const handleExpiredLink = () => {
-      setError('Your confirmation link has expired or is invalid. Please sign in to your account or register again if you need a new confirmation email.');
-    };
-
     confirmEmail();
-  }, [searchParams, navigate]);
+  }, []);
+
+  // Auto-redirect after successful confirmation
+  useEffect(() => {
+    if (confirmed) {
+      const redirectTo = new URLSearchParams(window.location.search).get('redirect_to') || '/my-account';
+      console.log('Redirecting to:', redirectTo);
+      
+      setTimeout(() => {
+        navigate(redirectTo);
+      }, 2000);
+    }
+  }, [confirmed, navigate]);
 
   const handleLoginRedirect = () => {
     navigate('/auth');

@@ -75,12 +75,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       // Clean up any existing auth state before signup
       cleanupAuthState();
       
-      const redirectUrl = `${window.location.origin}/email-confirmed?redirect_to=/my-account`;
+      // Use fixed production URL for consistent email confirmation
+      const redirectUrl = 'https://shazamparking.ae/email-confirmed?redirect_to=/my-account';
 
       console.log('=== SIGNUP DEBUG ===');
       console.log('Signup email:', email);
       console.log('Redirect URL being used:', redirectUrl);
-      console.log('Window origin:', window.location.origin);
       console.log('Full name:', fullName);
       console.log('User type:', userType);
 
@@ -228,12 +228,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const resendConfirmationEmail = async (email: string) => {
     try {
-      const redirectUrl = `${window.location.origin}/email-confirmed?redirect_to=/my-account`;
+      // Use fixed production URL for consistent email confirmation
+      const redirectUrl = 'https://shazamparking.ae/email-confirmed?redirect_to=/my-account';
 
       console.log('=== RESEND CONFIRMATION DEBUG ===');
       console.log('Resending confirmation for email:', email);
       console.log('Redirect URL being used:', redirectUrl);
-      console.log('Window origin:', window.location.origin);
 
       // Use Supabase's built-in resend functionality
       const { error } = await supabase.auth.resend({

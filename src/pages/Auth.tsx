@@ -26,11 +26,13 @@ const Auth = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  // Check for password reset token or email confirmation
+  // Check for password reset token, email confirmation, or confirmation errors
   useEffect(() => {
     const type = searchParams.get('type');
     const confirmed = searchParams.get('confirmed');
     const email = searchParams.get('email');
+    const error = searchParams.get('error');
+    const errorDescription = searchParams.get('error_description');
     
     if (type === 'recovery') {
       setShowPasswordUpdate(true);
@@ -41,6 +43,29 @@ const Auth = () => {
         description: 'You can now log in with your credentials.'
       });
       // Clear the URL parameters
+      navigate('/auth', { replace: true });
+    } else if (error) {
+      // Handle confirmation errors
+      console.log('Auth page - confirmation error:', { error, errorDescription });
+      
+      if (error === 'access_denied') {
+        toast.error('Email confirmation failed', {
+          duration: 8000,
+          description: 'The confirmation link may have expired. Please try signing up again or contact support.'
+        });
+      } else if (error === 'server_error') {
+        toast.error('Server error during confirmation', {
+          duration: 8000,
+          description: 'There was a problem confirming your email. Please try again or contact support.'
+        });
+      } else {
+        toast.error('Email confirmation error', {
+          duration: 8000,
+          description: errorDescription || 'Please try signing up again or contact support if the problem persists.'
+        });
+      }
+      
+      // Clear error parameters from URL
       navigate('/auth', { replace: true });
     }
   }, [searchParams, navigate]);
