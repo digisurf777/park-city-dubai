@@ -57,7 +57,7 @@ const getEmailTemplate = (fullName: string, confirmationUrl: string, language: '
                   <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; margin-top: 30px; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
                     <tr>
                       <td style="padding: 30px 20px; text-align: center; background: linear-gradient(135deg, #10b981, #059669);">
-                        <img src="https://raw.githubusercontent.com/lovable-uploads/60835aae-0ac3-413a-9e3c-a64be4d1c4ae.png" alt="Shazam Parking Logo" width="120" style="margin-bottom: 10px;" />
+                        <img src="https://shazamparking.ae/shazam-logo.png" alt="Shazam Parking Logo" width="120" style="margin-bottom: 10px;" />
                         <h1 style="color: white; font-size: 28px; margin: 15px 0 0 0; font-weight: bold;">Welcome to ShazamParking!</h1>
                       </td>
                     </tr>
@@ -122,7 +122,7 @@ const getEmailTemplate = (fullName: string, confirmationUrl: string, language: '
                   <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; margin-top: 30px; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
                     <tr>
                       <td style="padding: 30px 20px; text-align: center; background: linear-gradient(135deg, #10b981, #059669);">
-                        <img src="https://raw.githubusercontent.com/lovable-uploads/60835aae-0ac3-413a-9e3c-a64be4d1c4ae.png" alt="شعار شزام باركنج" width="120" style="margin-bottom: 10px;" />
+                        <img src="https://shazamparking.ae/shazam-logo.png" alt="شعار شزام باركنج" width="120" style="margin-bottom: 10px;" />
                         <h1 style="color: white; font-size: 28px; margin: 15px 0 0 0; font-weight: bold;">مرحباً بك في شزام باركنج!</h1>
                       </td>
                     </tr>
