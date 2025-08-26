@@ -32,7 +32,7 @@ const handler = async (req: Request): Promise<Response> => {
       html: `
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #ffffff;">
           <div style="text-align: center; margin-bottom: 30px; padding: 20px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 12px;">
-            <img src="https://raw.githubusercontent.com/lovable-uploads/60835aae-0ac3-413a-9e3c-a64be4d1c4ae.png" alt="Shazam Parking Logo" width="120" style="margin-bottom: 10px;" />
+            <img src="https://shazamparking.ae/shazam-logo.png" alt="Shazam Parking Logo" width="120" style="margin-bottom: 10px;" />
             <h1 style="color: white; font-size: 28px; margin: 0; font-weight: bold;">Welcome to ShazamParking!</h1>
             <p style="color: rgba(255,255,255,0.9); font-size: 16px; margin: 10px 0 0 0;">Your trusted parking platform in Dubai</p>
           </div>
