@@ -2930,12 +2930,12 @@ const AdminPanel = () => {
                           <p className="text-sm text-muted-foreground">
                             Submitted: {format(new Date(verification.created_at), 'PPP p')}
                           </p>
-                          <Badge variant={
-                            verification.verification_status === 'verified' ? 'default' :
-                            verification.verification_status === 'rejected' ? 'destructive' : 'secondary'
-                          }>
-                            {verification.verification_status}
-                          </Badge>
+                           <Badge variant={
+                             verification.verification_status === 'verified' || verification.verification_status === 'approved' ? 'default' :
+                             verification.verification_status === 'rejected' ? 'destructive' : 'secondary'
+                           }>
+                             {verification.verification_status === 'verified' ? 'Approved' : verification.verification_status}
+                           </Badge>
                         </div>
                         
                         <div className="flex justify-center">
