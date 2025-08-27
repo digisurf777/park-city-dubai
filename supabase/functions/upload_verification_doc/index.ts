@@ -10,12 +10,12 @@ const corsHeaders = {
 serve(async (req) => {
   console.log('Edge function called:', req.method, req.url);
   
-  // Handle CORS preflight requests
+  // Handle CORS preflight requests FIRST
   if (req.method === 'OPTIONS') {
-    console.log('Handling CORS preflight request');
+    console.log('Handling CORS OPTIONS request');
     return new Response(null, { 
-      headers: corsHeaders,
-      status: 200
+      status: 200,
+      headers: corsHeaders
     });
   }
 
@@ -39,7 +39,7 @@ serve(async (req) => {
     const supabaseServiceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 
     if (!supabaseUrl || !supabaseServiceRoleKey) {
-      console.error('Missing environment variables');
+      console.error('Missing environment variables:', { supabaseUrl: !!supabaseUrl, supabaseServiceRoleKey: !!supabaseServiceRoleKey });
       return new Response(
         JSON.stringify({ error: 'Server configuration error' }), 
         { 
@@ -71,6 +71,7 @@ serve(async (req) => {
     }
 
     const token = authHeader.substring(7); // Remove 'Bearer '
+    console.log('Verifying token...');
     
     // Verify JWT with service role client
     const { data: { user }, error: authError } = await supabase.auth.getUser(token);
@@ -93,7 +94,7 @@ serve(async (req) => {
     const file = formData.get('file') as File;
 
     if (!file) {
-      console.error('No file provided');
+      console.error('No file provided in form data');
       return new Response(
         JSON.stringify({ error: 'No file provided' }), 
         { 
@@ -111,7 +112,7 @@ serve(async (req) => {
     const documentType = formData.get('document_type') as string;
 
     if (!fullName || !documentType) {
-      console.error('Missing required fields');
+      console.error('Missing required fields:', { fullName: !!fullName, documentType: !!documentType });
       return new Response(
         JSON.stringify({ error: 'Missing required fields: full_name and document_type are required' }), 
         { 
@@ -241,9 +242,11 @@ serve(async (req) => {
       if (notificationError) {
         console.error('Failed to send admin notification:', notificationError);
         // Don't fail the upload for notification errors
+      } else {
+        console.log('Admin notification sent successfully');
       }
     } catch (notificationError) {
-      console.error('Failed to send admin notification:', notificationError);
+      console.error('Exception sending admin notification:', notificationError);
       // Don't fail the upload for notification errors
     }
 

@@ -106,12 +106,12 @@ const VerificationPanel = () => {
     }
 
     // Validate file type and size
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
     const maxSize = 10 * 1024 * 1024; // 10MB
     
     if (!allowedTypes.includes(formData.file.type)) {
       console.error('Invalid file type:', formData.file.type);
-      toast.error('Please upload a valid image file (JPEG, PNG, GIF, or WebP)');
+      toast.error('Please upload a valid image file (JPEG, PNG, GIF, WebP) or PDF');
       return;
     }
     
@@ -128,17 +128,20 @@ const VerificationPanel = () => {
       // Get current session token
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.access_token) {
-        throw new Error('No valid session found');
+        throw new Error('No valid session found. Please log in again.');
       }
+
+      console.log('Session found, preparing form data...');
 
       // Create form data for the edge function with all required fields
       const uploadFormData = new FormData();
       uploadFormData.append('file', formData.file);
-      uploadFormData.append('full_name', formData.fullName);
+      uploadFormData.append('full_name', formData.fullName.trim());
       uploadFormData.append('nationality', formData.nationality);
       uploadFormData.append('document_type', formData.documentType);
       
       console.log('Calling upload edge function with complete data...');
+      console.log('Form data entries:', Array.from(uploadFormData.entries()).map(([key, value]) => [key, typeof value === 'string' ? value : `File: ${(value as File).name}`]));
       
       // Call the edge function directly with fetch for better error handling
       const response = await fetch(`https://eoknluyunximjlsnyceb.supabase.co/functions/v1/upload_verification_doc`, {
@@ -149,17 +152,25 @@ const VerificationPanel = () => {
         body: uploadFormData,
       });
 
-      const result = await response.json();
-      console.log('Edge function response:', { response: response.status, result });
+      console.log('Edge function response received:', response.status, response.statusText);
+
+      let result;
+      try {
+        result = await response.json();
+        console.log('Edge function response data:', result);
+      } catch (parseError) {
+        console.error('Failed to parse response as JSON:', parseError);
+        throw new Error(`Server returned invalid response (${response.status})`);
+      }
       
       if (!response.ok) {
-        console.error('Edge function error:', result);
-        throw new Error(result.error || `Upload failed with status ${response.status}`);
+        console.error('Edge function error response:', result);
+        throw new Error(result?.error || `Upload failed with status ${response.status}: ${response.statusText}`);
       }
       
       if (!result?.success) {
-        console.error('Upload failed:', result);
-        throw new Error(result?.error || 'Upload failed');
+        console.error('Upload operation failed:', result);
+        throw new Error(result?.error || 'Upload operation failed');
       }
       
       console.log('Document uploaded and verification created successfully via edge function');
@@ -188,8 +199,32 @@ const VerificationPanel = () => {
       console.error('Upload failed:', error);
       console.error('Error stack:', error.stack);
       
-      const errorMessage = error.message || 'Unknown error occurred during upload';
+      let errorMessage = 'Unknown error occurred during upload';
+      
+      if (error.message) {
+        errorMessage = error.message;
+      } else if (typeof error === 'string') {
+        errorMessage = error;
+      }
+      
+      // Handle specific error types
+      if (errorMessage.includes('CORS')) {
+        errorMessage = 'Network error: Please try again in a few seconds.';
+      } else if (errorMessage.includes('fetch')) {
+        errorMessage = 'Connection failed: Please check your internet connection and try again.';
+      } else if (errorMessage.includes('session')) {
+        errorMessage = 'Authentication expired: Please refresh the page and log in again.';
+      }
+      
       toast.error(`Upload failed: ${errorMessage}`);
+      
+      // If it's an auth error, suggest refresh
+      if (errorMessage.includes('Authentication') || errorMessage.includes('session')) {
+        setTimeout(() => {
+          toast.error('Please refresh the page and try logging in again.');
+        }, 2000);
+      }
+      
     } finally {
       setIsUploading(false);
       console.log('=== UPLOAD COMPLETE ===');
