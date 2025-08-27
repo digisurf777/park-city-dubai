@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import App from "./App.tsx";
 import "./index.css";
+import "./styles/verification-compatibility.css";
 import CriticalCSS from "./components/CriticalCSS.tsx";
 import PreloadResources from "./components/PreloadResources.tsx";
 

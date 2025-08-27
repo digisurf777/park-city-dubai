@@ -1,0 +1,256 @@
+/* Cross-browser verification system styles */
+/* This file ensures consistent styling across all browsers and devices */
+
+/* Verification status badges - Enhanced cross-browser support */
+[data-verification-badge] {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  
+  /* Prevent text selection on interactive elements */
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  
+  /* Remove tap highlight on mobile */
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Enhanced button interactions for all devices */
+button, [role="button"] {
+  /* Improve touch targets for mobile */
+  min-height: 44px;
+  min-width: 44px;
+  
+  /* Enhanced focus styles for accessibility */
+  outline: 0;
+  border-radius: 8px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+button:focus-visible, [role="button"]:focus-visible {
+  box-shadow: 0 0 0 2px hsl(var(--primary)), 0 0 0 4px hsl(var(--primary) / 0.2);
+}
+
+/* Verification form enhancements */
+.verification-form input[type="file"] {
+  /* Hide default file input styling */
+  opacity: 0;
+  position: absolute;
+  pointer-events: none;
+}
+
+.verification-dropzone {
+  /* Enhanced drag & drop styling */
+  border: 2px dashed hsl(var(--border));
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.verification-dropzone:hover {
+  border-color: hsl(var(--primary));
+  background-color: hsl(var(--primary) / 0.05);
+}
+
+.verification-dropzone.drag-over {
+  border-color: hsl(var(--primary));
+  background-color: hsl(var(--primary) / 0.1);
+  transform: scale(1.02);
+}
+
+/* Mobile-optimized form layouts */
+@media (max-width: 640px) {
+  .verification-form {
+    padding: 16px;
+  }
+  
+  .verification-buttons {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .verification-buttons button {
+    width: 100%;
+  }
+}
+
+/* Enhanced loading states */
+.verification-loading {
+  position: relative;
+  overflow: hidden;
+}
+
+.verification-loading::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  animation: loading-shimmer 1.5s infinite;
+}
+
+@keyframes loading-shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* Dark mode enhancements */
+@media (prefers-color-scheme: dark) {
+  .verification-dropzone {
+    background-color: hsl(var(--card));
+  }
+  
+  .verification-loading::after {
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.1),
+      transparent
+    );
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .verification-status-badge {
+    border-width: 2px;
+    font-weight: 600;
+  }
+  
+  button:focus-visible {
+    outline: 3px solid;
+    outline-offset: 2px;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  .verification-dropzone {
+    transition: none;
+  }
+  
+  .verification-dropzone.drag-over {
+    transform: none;
+  }
+}
+
+/* Print styles */
+@media print {
+  .verification-status-badge {
+    -webkit-print-color-adjust: exact;
+    color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  
+  button, [role="button"] {
+    display: none;
+  }
+}
+
+/* Legacy browser fallbacks */
+/* IE11 and older Edge support */
+@supports not (display: grid) {
+  .verification-grid {
+    display: block;
+  }
+  
+  .verification-grid > * {
+    margin-bottom: 1rem;
+  }
+}
+
+/* Safari-specific fixes */
+@supports (-webkit-appearance: none) {
+  input[type="file"] {
+    -webkit-appearance: none;
+  }
+  
+  .verification-dropzone {
+    -webkit-backface-visibility: hidden;
+  }
+}
+
+/* Firefox-specific fixes */
+@-moz-document url-prefix() {
+  .verification-status-badge {
+    -moz-user-select: none;
+  }
+}
+
+/* Network status indicator */
+.offline-indicator {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  background: #ef4444 !important;
+  color: white !important;
+  text-align: center !important;
+  padding: 8px !important;
+  z-index: 9999 !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Accessibility improvements */
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* Enhanced error states */
+.verification-error {
+  border-color: hsl(var(--destructive)) !important;
+  box-shadow: 0 0 0 1px hsl(var(--destructive) / 0.2) !important;
+}
+
+.verification-success {
+  border-color: hsl(var(--success)) !important;
+  box-shadow: 0 0 0 1px hsl(var(--success) / 0.2) !important;
+}
+
+/* Performance optimizations */
+.verification-card {
+  will-change: transform;
+  contain: layout style;
+}
+
+/* Smooth scrolling for form navigation */
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}

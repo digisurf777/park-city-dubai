@@ -11,6 +11,7 @@ import TawkToChat from "@/components/TawkToChat";
 import ChatWidget from "@/components/ChatWidget";
 import PerformanceOptimizer from "@/components/PerformanceOptimizer";
 import { MobileOptimizations } from "@/components/MobileOptimizations";
+import { CrossBrowserVerificationOptimizer } from "@/components/CrossBrowserVerificationOptimizer";
 // Import Auth directly to fix dynamic import issue
 import Auth from "./pages/Auth";
 import EmailConfirmed from "./pages/EmailConfirmed";
@@ -68,6 +69,7 @@ const App = () => {
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
           <MobileOptimizations />
+          <CrossBrowserVerificationOptimizer />
           <Toaster />
           <Sonner />
           <AuthProvider>
