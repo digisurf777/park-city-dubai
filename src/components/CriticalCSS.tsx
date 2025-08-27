@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 
 // Critical CSS for above-the-fold content
 const criticalCSS = `
