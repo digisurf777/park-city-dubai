@@ -19,6 +19,7 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import '../styles/quill.css';
 import SecureDocumentViewer from '@/components/SecureDocumentViewer';
+import { PaymentControlPanel } from '@/components/PaymentControlPanel';
 
 interface NewsPost {
   id: string;
@@ -2120,6 +2121,7 @@ const AdminPanel = () => {
             <TabsTrigger value="news" className="text-xs lg:text-sm">News Management</TabsTrigger>
             <TabsTrigger value="listings" className="text-xs lg:text-sm">Parking Listings</TabsTrigger>
             <TabsTrigger value="bookings" className="text-xs lg:text-sm">Booking Management</TabsTrigger>
+            <TabsTrigger value="payments" className="text-xs lg:text-sm">Payment Control</TabsTrigger>
             <TabsTrigger value="verifications" className="text-xs lg:text-sm">User Verifications</TabsTrigger>
             <TabsTrigger value="messages" className="text-xs lg:text-sm">Send Messages</TabsTrigger>
             <TabsTrigger value="users" className="text-xs lg:text-sm">User Management</TabsTrigger>
@@ -2899,6 +2901,11 @@ const AdminPanel = () => {
                 ))}
               </div>
             )}
+          </TabsContent>
+
+          {/* Payment Control Tab */}
+          <TabsContent value="payments" className="space-y-6">
+            <PaymentControlPanel />
           </TabsContent>
 
           <TabsContent value="verifications" className="space-y-6">

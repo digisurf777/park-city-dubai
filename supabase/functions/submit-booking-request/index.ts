@@ -11,6 +11,7 @@ interface BookingRequest {
   location: string;
   costAed: number;
   parkingSpotName: string;
+  paymentsEnabled: boolean;
 }
 
 const corsHeaders = {
@@ -63,6 +64,7 @@ const handler = async (req: Request): Promise<Response> => {
       location,
       costAed,
       parkingSpotName,
+      paymentsEnabled,
     }: BookingRequest = await req.json();
 
     console.log("Booking data received:", { startDate, duration, zone, location, costAed });
@@ -97,6 +99,7 @@ const handler = async (req: Request): Promise<Response> => {
           location,
           cost_aed: costAed,
           status: "pending",
+          payment_status: paymentsEnabled ? "pending" : "pending_payment",
         },
       ])
       .select()
@@ -109,32 +112,44 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("Booking saved successfully:", booking.id);
 
-    // Create payment link using the new edge function
-    console.log("Creating payment link...");
+    let paymentData: any = null;
     
-    const paymentResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/create-payment-link`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${Deno.env.get('SUPABASE_ANON_KEY')}`,
-      },
-      body: JSON.stringify({
-        bookingId: booking.id,
-        amount: costAed,
-        duration: duration,
-        parkingSpotName: parkingSpotName,
-        userEmail: user.email,
-      }),
-    });
+    // Only create payment link if payments are enabled
+    if (paymentsEnabled) {
+      // Create payment link using the new edge function
+      console.log("Creating payment link...");
+      
+      const paymentResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/create-payment-link`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${Deno.env.get('SUPABASE_ANON_KEY')}`,
+        },
+        body: JSON.stringify({
+          bookingId: booking.id,
+          amount: costAed,
+          duration: duration,
+          parkingSpotName: parkingSpotName,
+          userEmail: user.email,
+        }),
+      });
 
-    if (!paymentResponse.ok) {
-      const errorText = await paymentResponse.text();
-      console.error("Payment link creation failed:", errorText);
-      throw new Error("Failed to create payment link");
+      if (!paymentResponse.ok) {
+        const errorText = await paymentResponse.text();
+        console.error("Payment link creation failed:", errorText);
+        throw new Error("Failed to create payment link");
+      }
+
+      paymentData = await paymentResponse.json();
+      console.log("Payment link created:", paymentData.payment_url);
+    } else {
+      console.log("Payments disabled - no payment link created");
+      paymentData = { 
+        payment_url: null, 
+        payment_type: 'disabled',
+        confirmation_deadline: null 
+      };
     }
-
-    const paymentData = await paymentResponse.json();
-    console.log("Payment link created:", paymentData.payment_url);
 
     // Send admin booking notification using dedicated function
     const customerName = userProfile?.full_name || "Customer";
@@ -159,6 +174,8 @@ const handler = async (req: Request): Promise<Response> => {
           duration: duration,
           totalCost: costAed,
           paymentType: paymentData.payment_type,
+          paymentsEnabled: paymentsEnabled,
+          paymentsEnabled: paymentsEnabled,
           notes: notes,
         }),
       });
@@ -173,17 +190,21 @@ const handler = async (req: Request): Promise<Response> => {
       // Don't fail the booking if admin notification fails
     }
 
-    // Send enhanced confirmation email to customer with payment link
+    // Send enhanced confirmation email to customer
+    const emailSubject = paymentsEnabled 
+      ? "Complete Your Parking Booking Payment - ShazamParking"
+      : "Your Parking Booking is Reserved - ShazamParking";
+      
     const customerEmailResponse = await resend.emails.send({
       from: "ShazamParking <onboarding@resend.dev>",
       to: [user.email],
-      subject: "Complete Your Parking Booking Payment - ShazamParking",
+      subject: emailSubject,
       html: `
         <!DOCTYPE html>
         <html lang="en" style="font-family: Arial, sans-serif;">
           <head>
             <meta charset="UTF-8" />
-            <title>Complete Your Parking Booking</title>
+            <title>${paymentsEnabled ? 'Complete Your Parking Booking' : 'Your Parking Booking is Reserved'}</title>
           </head>
           <body style="margin: 0; padding: 0; background-color: #f9f9f9;">
             <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f9f9f9;">
@@ -193,17 +214,21 @@ const handler = async (req: Request): Promise<Response> => {
                     <tr>
                       <td style="padding: 20px; text-align: center; background-color: #0099cc;">
                         <img src="https://shazamparking.ae/wp-content/uploads/2024/11/shazam-logo-blue.png" alt="Shazam Parking Logo" width="140" style="margin-bottom: 10px;" />
-                        <h1 style="color: white; margin: 0; font-size: 24px;">Booking Confirmation</h1>
+                        <h1 style="color: white; margin: 0; font-size: 24px;">${paymentsEnabled ? 'Booking Confirmation' : 'Booking Reserved'}</h1>
                       </td>
                     </tr>
                     <tr>
                       <td style="padding: 30px 40px; text-align: left;">
                         <h2 style="color: #333333; margin-top: 0;">Dear ${customerName}! 👋</h2>
+                        ${paymentsEnabled ? `
                         <p style="font-size: 16px; color: #555555; line-height: 1.6;">
                           Thank you for choosing ShazamParking! Your booking request has been received and we've created a secure payment link for you.
-                        </p>
+                        </p>` : `
+                        <p style="font-size: 16px; color: #555555; line-height: 1.6;">
+                          Thank you for choosing ShazamParking! Your booking has been reserved. Payments are currently disabled, but no payment has been taken.
+                        </p>`}
 
-                        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #0099cc;">
+                        <div style="background-color: f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #0099cc;">
                           <h3 style="color: #0099cc; margin-top: 0;">Booking Details:</h3>
                           <table style="width: 100%; color: #333;">
                             <tr><td><strong>Reference Number:</strong></td><td>${booking.id}</td></tr>
@@ -216,11 +241,12 @@ const handler = async (req: Request): Promise<Response> => {
                             <tr><td><strong>Start Date:</strong></td><td>${new Date(startDate).toLocaleDateString()}</td></tr>
                             <tr><td><strong>Duration:</strong></td><td>${duration} month(s)</td></tr>
                             <tr><td><strong>Total Cost:</strong></td><td>${costAed} AED</td></tr>
-                            <tr><td><strong>Payment Type:</strong></td><td>${paymentData.payment_type === 'one_time' ? 'One-time Payment' : 'Monthly Recurring Payments'}</td></tr>
+                            <tr><td><strong>Payment Status:</strong></td><td>${paymentsEnabled ? paymentData.payment_type === 'one_time' ? 'Payment Link Sent' : 'Subscription Setup Required' : 'Payment Pending (Disabled)'}</td></tr>
                             ${notes ? `<tr><td><strong>Notes:</strong></td><td>${notes}</td></tr>` : ''}
                           </table>
                         </div>
                         
+                        ${paymentsEnabled ? `
                         <div style="background-color: #dbeafe; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center;">
                           <h3 style="color: #1e40af; margin-top: 0;">Complete Your Payment</h3>
                           ${paymentData.payment_type === 'one_time' 
@@ -228,25 +254,40 @@ const handler = async (req: Request): Promise<Response> => {
                             : '<p style="color: #1e40af; margin-bottom: 15px;">Set up your monthly subscription. Billing starts after we confirm your booking.</p>'
                           }
                           <a href="${paymentData.payment_url}" style="background-color: #16a34a; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">Complete Payment Setup</a>
-                        </div>
+                        </div>` : `
+                        <div style="background-color: #fef3c7; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center;">
+                          <h3 style="color: #92400e; margin-top: 0;">Payment Currently Disabled</h3>
+                          <p style="color: #92400e; margin-bottom: 15px;">Payments are temporarily disabled. Your booking is reserved, but no payment has been taken.</p>
+                          <p style="color: #92400e; margin: 0;">You will be notified once payments are enabled and a payment link will be sent to you.</p>
+                        </div>`}
                         
                         <div style="background-color: #fef3c7; padding: 15px; border-radius: 5px; margin: 15px 0;">
                           <p style="color: #92400e; font-weight: bold; margin: 0;">⏰ Important Timeline:</p>
                           <p style="color: #92400e; margin: 5px 0 0 0;">
+                            ${paymentsEnabled ? `
                             • Complete payment setup as soon as possible<br>
                             • We will review and confirm your booking shortly<br>
-                            • If not confirmed, the payment will be automatically refunded
+                            • If not confirmed, the payment will be automatically refunded` : `
+                            • Your booking is reserved without payment<br>
+                            • Payment will be requested once enabled<br>
+                            • You'll receive a notification when ready to pay`}
                           </p>
                         </div>
                         
                         <div style="background-color: #e8f4fd; padding: 20px; border-radius: 8px; margin: 20px 0;">
                           <h3 style="color: #007bff; margin-top: 0;">What happens next?</h3>
                           <ol style="margin: 0; padding-left: 20px; color: #333; line-height: 1.6;">
+                            ${paymentsEnabled ? `
                             <li>Complete your payment setup using the link above</li>
                             <li>Our team will review your booking request</li>
                             <li>You'll receive confirmation shortly</li>
                             <li>If approved, ${paymentData.payment_type === 'one_time' ? 'your payment will be processed' : 'your subscription will begin'}</li>
-                            <li>If not approved, you'll receive a full refund automatically</li>
+                            <li>If not approved, you'll receive a full refund automatically</li>` : `
+                            <li>Your booking is reserved in our system</li>
+                            <li>Our team will review your booking request</li>
+                            <li>Once payments are enabled, you'll receive a payment link</li>
+                            <li>Complete payment when ready</li>
+                            <li>Receive final confirmation</li>`}
                           </ol>
                         </div>
                         
@@ -299,14 +340,17 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     return new Response(
-      JSON.stringify({
-        success: true,
-        bookingId: booking.id,
-        paymentUrl: paymentData.payment_url,
-        paymentType: paymentData.payment_type,
-        confirmationDeadline: paymentData.confirmation_deadline,
-        message: "Booking request submitted successfully. Please complete your payment setup to secure your parking space.",
-      }),
+        JSON.stringify({
+          success: true,
+          bookingId: booking.id,
+          paymentUrl: paymentData.payment_url,
+          paymentType: paymentData.payment_type,
+          confirmationDeadline: paymentData.confirmation_deadline,
+          paymentsEnabled: paymentsEnabled,
+          message: paymentsEnabled 
+            ? "Booking request submitted successfully. Please complete your payment setup to secure your parking space."
+            : "Booking request submitted successfully. Your space is reserved. Payment will be requested once payments are enabled.",
+        }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,

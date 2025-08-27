@@ -5,11 +5,13 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { CalendarIcon, Car, Clock, CreditCard, MapPin, Check } from "lucide-react";
+import { CalendarIcon, Car, Clock, CreditCard, MapPin, Check, AlertCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { usePaymentSettings } from "@/hooks/usePaymentSettings";
 import { supabase } from "@/integrations/supabase/client";
 interface ParkingSpot {
   id: string | number;
@@ -54,6 +56,7 @@ export const ParkingBookingModal = ({
 }: ParkingBookingModalProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { paymentsEnabled, disabledMessage } = usePaymentSettings();
   
   const [startDate, setStartDate] = useState<Date>();
   const [selectedDuration, setSelectedDuration] = useState(DURATION_OPTIONS[0]);
@@ -135,7 +138,8 @@ export const ParkingBookingModal = ({
         zone: "Find Parking Page",
         location: parkingSpot.name,
         costAed: finalPrice,
-        parkingSpotName: parkingSpot.name
+        parkingSpotName: parkingSpot.name,
+        paymentsEnabled
       };
       const {
         data,
@@ -149,7 +153,9 @@ export const ParkingBookingModal = ({
       setShowConfirmation(true);
       toast({
         title: "Booking Submitted Successfully",
-        description: "Please check your email for the payment link to complete your booking."
+        description: paymentsEnabled 
+          ? "Please check your email for the payment link to complete your booking."
+          : "Your booking has been reserved. Payment will be requested once payments are enabled."
       });
     } catch (error: any) {
       console.error('Error submitting booking:', error);
@@ -316,6 +322,16 @@ export const ParkingBookingModal = ({
               </CardContent>
             </Card>
 
+            {/* Payment Status Alert */}
+            {!paymentsEnabled && (
+              <Alert className="border-amber-200 bg-amber-50">
+                <AlertCircle className="h-4 w-4 text-amber-600" />
+                <AlertDescription className="text-amber-800">
+                  <strong>Payment Notice:</strong> {disabledMessage}
+                </AlertDescription>
+              </Alert>
+            )}
+
 
             {/* Reserve Button */}
             <Button 
@@ -324,11 +340,14 @@ export const ParkingBookingModal = ({
               className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-4 text-lg" 
               size="lg"
             >
-              {isSubmitting ? "Submitting..." : `Reserve Space - AED ${finalPrice.toLocaleString()}`}
+              {isSubmitting ? "Submitting..." : paymentsEnabled ? `Reserve Space - AED ${finalPrice.toLocaleString()}` : `Reserve Space (Payment Disabled)`}
             </Button>
 
             <p className="text-xs text-muted-foreground text-center">
-              No charges will be made at this time. Payment link will be provided after confirmation.
+              {paymentsEnabled 
+                ? "No charges will be made at this time. Payment link will be provided after confirmation."
+                : "Your booking will be reserved. Payment will be requested once payments are enabled."
+              }
             </p>
           </div>
         </div>
