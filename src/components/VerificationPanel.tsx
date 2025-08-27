@@ -82,10 +82,11 @@ const VerificationPanel = () => {
     fileInput?.click();
   };
   const uploadDocument = async () => {
-    console.log('Starting document upload...');
+    console.log('=== DOCUMENT UPLOAD START ===');
     console.log('Form data:', formData);
     console.log('User:', user);
     console.log('User ID:', user?.id);
+    console.log('User authenticated:', !!user);
     
     if (!formData.file || !formData.fullName || !formData.nationality || !formData.documentType || !user) {
       const missingFields = [];
@@ -95,20 +96,36 @@ const VerificationPanel = () => {
       if (!formData.documentType) missingFields.push('Document type');
       if (!user) missingFields.push('User authentication');
       
-      console.error('Missing fields:', missingFields);
-      toast.error(`Please fill the following fields: ${missingFields.join(', ')}`);
+      console.error('Missing required fields:', missingFields);
+      toast.error(`Please fill in all required fields: ${missingFields.join(', ')}`);
+      return;
+    }
+
+    // Validate file type and size
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    
+    if (!allowedTypes.includes(formData.file.type)) {
+      console.error('Invalid file type:', formData.file.type);
+      toast.error('Please upload a valid image file (JPEG, PNG, GIF, or WebP)');
+      return;
+    }
+    
+    if (formData.file.size > maxSize) {
+      console.error('File too large:', formData.file.size);
+      toast.error('File size must be less than 10MB');
       return;
     }
 
     setUploading(true);
+    console.log('Starting upload process...');
+    
     try {
-      console.log('Preparing file upload...');
-      
       // Upload file to storage
       const fileExt = formData.file.name.split('.').pop();
       const fileName = `${user.id}/${Date.now()}.${fileExt}`;
       
-      console.log('Uploading file:', fileName);
+      console.log('Uploading to storage:', fileName);
       console.log('File size:', formData.file.size);
       console.log('File type:', formData.file.type);
       
@@ -119,31 +136,30 @@ const VerificationPanel = () => {
           upsert: false
         });
       
+      console.log('Upload result:', { uploadData, uploadError });
+      
       if (uploadError) {
-        console.error('Storage upload error:', uploadError);
-        throw new Error(`Upload failed: ${uploadError.message}`);
+        console.error('Storage upload failed:', uploadError);
+        throw new Error(`File upload failed: ${uploadError.message}`);
       }
       
-      console.log('File uploaded successfully:', uploadData);
+      console.log('File uploaded successfully:', uploadData?.path);
 
-      // For private bucket, store the file path instead of signed URL
-      const documentPath = fileName;
+      // Store the file path instead of generating signed URL
+      const documentPath = uploadData?.path || fileName;
       
-      console.log('File path to store:', documentPath);
-
-      // Save verification record - use upsert for re-submissions
-      console.log('Saving verification record...');
+      console.log('Saving verification record to database...');
       const verificationData = {
         user_id: user.id,
-        full_name: formData.fullName,
+        full_name: formData.fullName.trim(),
         nationality: formData.nationality,
         document_type: formData.documentType,
-        document_image_url: documentPath, // Store file path instead of signed URL
+        document_image_url: documentPath,
         verification_status: 'pending' as const,
-        access_restricted: false // Allow user to view their own document
+        access_restricted: false
       };
       
-      console.log('Verification data:', verificationData);
+      console.log('Verification data to save:', verificationData);
       
       const { data: insertData, error: insertError } = await supabase
         .from('user_verifications')
@@ -153,23 +169,39 @@ const VerificationPanel = () => {
         .select()
         .single();
       
+      console.log('Database save result:', { insertData, insertError });
+      
       if (insertError) {
-        console.error('Database insert error:', insertError);
-        console.error('Error code:', insertError.code);
-        console.error('Error details:', insertError.details);
-        console.error('Error hint:', insertError.hint);
-        throw new Error(`Database save failed: ${insertError.message}`);
+        console.error('Database save failed:', insertError);
+        console.error('Error details:', {
+          code: insertError.code,
+          message: insertError.message,
+          details: insertError.details,
+          hint: insertError.hint
+        });
+        
+        // Clean up uploaded file if database save fails
+        try {
+          await supabase.storage
+            .from('verification-docs')
+            .remove([fileName]);
+          console.log('Cleaned up uploaded file after database error');
+        } catch (cleanupError) {
+          console.warn('Failed to cleanup file:', cleanupError);
+        }
+        
+        throw new Error(`Failed to save verification: ${insertError.message}`);
       }
       
-      console.log('Verification record saved successfully:', insertData);
+      console.log('Verification saved successfully:', insertData);
 
       // Send admin notification
       console.log('Sending admin notification...');
       try {
-        await supabase.functions.invoke('send-admin-notification', {
+        const { data: notifData, error: notifError } = await supabase.functions.invoke('send-admin-notification', {
           body: {
             type: 'id_verification',
-            userEmail: user.email || '',
+            userEmail: user.email || 'Unknown',
             userName: formData.fullName,
             details: {
               documentType: formData.documentType,
@@ -177,14 +209,25 @@ const VerificationPanel = () => {
             }
           }
         });
-        console.log('Admin notification sent');
+        
+        console.log('Admin notification result:', { notifData, notifError });
+        
+        if (notifError) {
+          console.warn('Admin notification failed:', notifError);
+        } else {
+          console.log('Admin notification sent successfully');
+        }
       } catch (notificationError) {
         console.warn('Failed to send admin notification:', notificationError);
-        // Don't fail the whole process if notification fails
       }
       
-      toast.success('Verification document uploaded successfully');
-      fetchVerification();
+      console.log('=== UPLOAD SUCCESS ===');
+      toast.success('Verification document uploaded successfully! Our team will review it within 24-48 hours.');
+      
+      // Refresh verification status
+      await fetchVerification();
+      
+      // Reset form
       setFormData({
         fullName: '',
         nationality: '',
@@ -199,13 +242,18 @@ const VerificationPanel = () => {
       }
       
     } catch (error: any) {
-      console.error('Error uploading document:', error);
-      const errorMessage = error.message || 'Unknown error occurred';
-      toast.error(`Failed to upload verification document: ${errorMessage}`);
+      console.error('=== UPLOAD ERROR ===');
+      console.error('Upload failed:', error);
+      console.error('Error stack:', error.stack);
+      
+      const errorMessage = error.message || 'Unknown error occurred during upload';
+      toast.error(`Upload failed: ${errorMessage}`);
     } finally {
       setUploading(false);
+      console.log('=== UPLOAD COMPLETE ===');
     }
   };
+
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'approved':
