@@ -245,7 +245,8 @@ const DubaiMarina = () => {
       [spotId]: ((prev[spotId] || 0) - 1 + totalImages) % totalImages
     }));
   };
-  return <div className="min-h-screen bg-background">
+  return (
+    <div className="min-h-screen bg-background">
       <Navbar />
       
       {/* Hero Section */}
@@ -371,7 +372,8 @@ const DubaiMarina = () => {
       />
       
       <Footer />
-    </div>;
+    </div>
+  );
 };
 
 export default DubaiMarina;
