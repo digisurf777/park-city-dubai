@@ -4,6 +4,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import dubaiParkingHero from "@/assets/dubai-parking-hero.jpg";
+
 const FAQ = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -66,7 +67,8 @@ const FAQ = () => {
       answer: "If you have an issue such as blocked access or a faulty entry device, please contact the owner through the in-platform chat and also notify us immediately by email. If the issue remains unresolved, we are always here to assist and, if necessary, will cancel the booking with a refund in line with our policy."
     }]
   }];
-  return <div className="min-h-screen bg-background animate-zoom-slow">
+  return (
+    <div className="min-h-screen bg-background animate-zoom-slow">
       <Navbar />
       
       {/* Hero Section */}
@@ -211,6 +213,8 @@ const FAQ = () => {
       </div>
 
       <Footer />
-    </div>;
+    </div>
+  );
 };
+
 export default FAQ;
