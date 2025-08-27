@@ -519,7 +519,12 @@ const AdminPanel = () => {
 
       if (!user || !isAdmin) {
         console.error('Authentication failed - User:', user, 'IsAdmin:', isAdmin);
-        throw new Error('Authentication required. Please refresh the page and try again.');
+        toast({
+          title: "Error",
+          description: "Authentication required. Please refresh the page and try again.",
+          variant: "destructive",
+        });
+        return;
       }
 
       console.log('About to update listing in database...');
@@ -527,27 +532,40 @@ const AdminPanel = () => {
       // First, let's verify we can access the listing
       const { data: listingCheck, error: checkError } = await supabase
         .from('parking_listings')
-        .select('id, status, owner_id')
+        .select('id, status, owner_id, title, zone')
         .eq('id', listingId)
         .maybeSingle();
 
       console.log('Listing check result:', listingCheck);
       if (checkError) {
         console.error('Error checking listing:', checkError);
-        throw new Error(`Cannot find listing: ${checkError.message}`);
+        toast({
+          title: "Error",
+          description: `Cannot find listing: ${checkError.message}`,
+          variant: "destructive",
+        });
+        return;
       }
 
       if (!listingCheck) {
         console.error('Listing not found with ID:', listingId);
-        throw new Error('Listing not found');
+        toast({
+          title: "Error",
+          description: "Listing not found",
+          variant: "destructive",
+        });
+        return;
       }
 
       console.log('Listing found, updating status...');
 
-      // Update the listing status
+      // Update the listing status - this should now work with the fixed RLS policies
       const { data: updateResult, error } = await supabase
         .from('parking_listings')
-        .update({ status })
+        .update({ 
+          status,
+          updated_at: new Date().toISOString()
+        })
         .eq('id', listingId)
         .select()
         .single();
@@ -559,23 +577,37 @@ const AdminPanel = () => {
         console.error('Error code:', error.code);
         console.error('Error details:', error.details);
         console.error('Error hint:', error.hint);
-        throw new Error(`Database error: ${error.message}`);
+        toast({
+          title: "Error",
+          description: `Failed to update listing: ${error.message}`,
+          variant: "destructive",
+        });
+        return;
       }
+
+      console.log('✅ Listing status updated successfully!');
 
       // If approved, trigger the public listings refresh
       if (status === 'approved') {
         console.log('Listing approved, refreshing public listings...');
-        const { error: refreshError } = await supabase
-          .rpc('refresh_parking_listings_public');
+        try {
+          const { error: refreshError } = await supabase
+            .rpc('refresh_parking_listings_public');
 
-        if (refreshError) {
-          console.error('Error refreshing public listings:', refreshError);
-          // Don't fail the whole operation for this
+          if (refreshError) {
+            console.error('Error refreshing public listings:', refreshError);
+            // Don't fail the whole operation for this
+          } else {
+            console.log('Public listings refreshed successfully');
+          }
+        } catch (refreshErr) {
+          console.error('Exception refreshing public listings:', refreshErr);
         }
 
         // Send notification to owner
         try {
-          const listing = parkingListings.find(l => l.id === listingId);
+          console.log('Sending approval notification to owner...');
+          const listing = listingCheck;
           if (listing?.owner_id) {
             // Get user details for notification
             let ownerName = 'Listing Owner';
@@ -604,7 +636,7 @@ const AdminPanel = () => {
               console.error('Error getting owner details:', userErr);
             }
 
-            await supabase.functions.invoke('send-admin-listing-notification', {
+            const { error: notifError } = await supabase.functions.invoke('send-admin-listing-notification', {
               body: {
                 listingId: listingId,
                 ownerName: ownerName,
@@ -614,9 +646,15 @@ const AdminPanel = () => {
                 userEmail: ownerEmail
               }
             });
+
+            if (notifError) {
+              console.error('Error sending notification:', notifError);
+            } else {
+              console.log('Approval notification sent successfully');
+            }
           }
         } catch (notifError) {
-          console.error('Error sending notification:', notifError);
+          console.error('Exception sending notification:', notifError);
         }
       }
 
@@ -625,12 +663,14 @@ const AdminPanel = () => {
         description: `Listing ${status} successfully${status === 'approved' ? ' and is now live on the website!' : ''}`,
       });
 
+      // Refresh the listings to show updated status
       fetchParkingListings();
+      
     } catch (error) {
-      console.error('Error updating listing status:', error);
+      console.error('Exception in updateListingStatus:', error);
       toast({
         title: "Error",
-        description: "Failed to update listing status",
+        description: `Failed to update listing status: ${error instanceof Error ? error.message : 'Unknown error'}`,
         variant: "destructive",
       });
     }
