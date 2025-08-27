@@ -85,8 +85,6 @@ const VerificationPanel = () => {
     console.log('=== DOCUMENT UPLOAD START ===');
     console.log('Form data:', formData);
     console.log('User:', user);
-    console.log('User ID:', user?.id);
-    console.log('User authenticated:', !!user);
     
     if (!formData.file || !formData.fullName || !formData.nationality || !formData.documentType || !user) {
       const missingFields = [];
@@ -118,43 +116,51 @@ const VerificationPanel = () => {
     }
 
     setUploading(true);
-    console.log('Starting upload process...');
+    console.log('Starting upload using edge function...');
     
     try {
-      // Upload file to storage
-      const fileExt = formData.file.name.split('.').pop();
-      const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+      // Get current session token
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        throw new Error('No valid session found');
+      }
+
+      // Create form data for the edge function
+      const uploadFormData = new FormData();
+      uploadFormData.append('file', formData.file);
       
-      console.log('Uploading to storage:', fileName);
-      console.log('File size:', formData.file.size);
-      console.log('File type:', formData.file.type);
+      console.log('Calling upload edge function...');
       
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('verification-docs')
-        .upload(fileName, formData.file, {
-          cacheControl: '3600',
-          upsert: false
-        });
+      // Call the upload edge function
+      const { data: uploadResult, error: uploadError } = await supabase.functions.invoke('upload_verification_doc', {
+        body: uploadFormData,
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`
+        }
+      });
       
-      console.log('Upload result:', { uploadData, uploadError });
+      console.log('Upload function result:', { uploadResult, uploadError });
       
       if (uploadError) {
-        console.error('Storage upload failed:', uploadError);
-        throw new Error(`File upload failed: ${uploadError.message}`);
+        console.error('Edge function error:', uploadError);
+        throw new Error(`Upload failed: ${uploadError.message}`);
       }
       
-      console.log('File uploaded successfully:', uploadData?.path);
-
-      // Store the file path instead of generating signed URL
-      const documentPath = uploadData?.path || fileName;
+      if (!uploadResult?.success) {
+        console.error('Upload failed:', uploadResult);
+        throw new Error(uploadResult?.error || 'Upload failed');
+      }
       
-      console.log('Saving verification record to database...');
+      console.log('File uploaded successfully via edge function');
+
+      // Now save to user_verifications table
+      console.log('Saving verification record to user_verifications...');
       const verificationData = {
         user_id: user.id,
         full_name: formData.fullName.trim(),
         nationality: formData.nationality,
         document_type: formData.documentType,
-        document_image_url: documentPath,
+        document_image_url: uploadResult.document.storage_path,
         verification_status: 'pending' as const,
         access_restricted: false
       };
@@ -173,23 +179,6 @@ const VerificationPanel = () => {
       
       if (insertError) {
         console.error('Database save failed:', insertError);
-        console.error('Error details:', {
-          code: insertError.code,
-          message: insertError.message,
-          details: insertError.details,
-          hint: insertError.hint
-        });
-        
-        // Clean up uploaded file if database save fails
-        try {
-          await supabase.storage
-            .from('verification-docs')
-            .remove([fileName]);
-          console.log('Cleaned up uploaded file after database error');
-        } catch (cleanupError) {
-          console.warn('Failed to cleanup file:', cleanupError);
-        }
-        
         throw new Error(`Failed to save verification: ${insertError.message}`);
       }
       
