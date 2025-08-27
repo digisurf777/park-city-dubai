@@ -482,6 +482,9 @@ const AdminPanel = () => {
 
   const updateListingStatus = async (listingId: string, status: 'approved' | 'rejected') => {
     try {
+      console.log(`Updating listing ${listingId} status to: ${status}`);
+
+      // Update the listing status
       const { error } = await supabase
         .from('parking_listings')
         .update({ status })
@@ -489,13 +492,44 @@ const AdminPanel = () => {
 
       if (error) throw error;
 
+      // If approved, trigger the public listings refresh
+      if (status === 'approved') {
+        console.log('Listing approved, refreshing public listings...');
+        const { error: refreshError } = await supabase
+          .rpc('refresh_parking_listings_public');
+
+        if (refreshError) {
+          console.error('Error refreshing public listings:', refreshError);
+          // Don't fail the whole operation for this
+        }
+
+        // Send notification to owner
+        try {
+          const listing = parkingListings.find(l => l.id === listingId);
+          if (listing?.owner_id) {
+            await supabase.functions.invoke('send-admin-listing-notification', {
+              body: {
+                listingId: listingId,
+                ownerName: 'Listing Owner',
+                isApproved: true,
+                listingTitle: listing.title,
+                zone: listing.zone
+              }
+            });
+          }
+        } catch (notifError) {
+          console.error('Error sending notification:', notifError);
+        }
+      }
+
       toast({
         title: "Success",
-        description: `Listing ${status} successfully`,
+        description: `Listing ${status} successfully${status === 'approved' ? ' and is now live on the website!' : ''}`,
       });
 
       fetchParkingListings();
     } catch (error) {
+      console.error('Error updating listing status:', error);
       toast({
         title: "Error",
         description: "Failed to update listing status",
@@ -2536,7 +2570,14 @@ const AdminPanel = () => {
                           
                           <Button
                             variant="outline"
-                            onClick={() => setSelectedUserId(listing.owner_id)}
+                            onClick={() => {
+                              setSelectedUserId(listing.owner_id);
+                              setMessageSubject(`Regarding Your Parking Listing - ${listing.title}`);
+                              setMessageContent(`Hello,\n\nI hope this message finds you well. I'm reaching out regarding your parking listing:\n\nTitle: ${listing.title}\nLocation: ${listing.address}\nZone: ${listing.zone}\nStatus: ${listing.status}\n\nPlease let me know if you have any questions or if there's anything you'd like to discuss about your listing.\n\nBest regards,\nShazam Parking Admin Team`);
+                              // Switch to messages tab
+                              const messagesTab = document.querySelector('[value="messages"]') as HTMLElement;
+                              messagesTab?.click();
+                            }}
                             className="flex items-center gap-2"
                           >
                             <Mail className="h-4 w-4" />
