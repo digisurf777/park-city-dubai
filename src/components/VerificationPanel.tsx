@@ -82,8 +82,10 @@ const VerificationPanel = () => {
     fileInput?.click();
   };
   const uploadDocument = async () => {
+    console.log('Starting document upload...');
     console.log('Form data:', formData);
     console.log('User:', user);
+    console.log('User ID:', user?.id);
     
     if (!formData.file || !formData.fullName || !formData.nationality || !formData.documentType || !user) {
       const missingFields = [];
@@ -93,56 +95,94 @@ const VerificationPanel = () => {
       if (!formData.documentType) missingFields.push('Document type');
       if (!user) missingFields.push('User authentication');
       
+      console.error('Missing fields:', missingFields);
       toast.error(`Please fill the following fields: ${missingFields.join(', ')}`);
       return;
     }
+
     setUploading(true);
     try {
+      console.log('Preparing file upload...');
+      
       // Upload file to storage
       const fileExt = formData.file.name.split('.').pop();
       const fileName = `${user.id}/${Date.now()}.${fileExt}`;
-      const {
-        data: uploadData,
-        error: uploadError
-      } = await supabase.storage.from('verification-docs').upload(fileName, formData.file);
+      
+      console.log('Uploading file:', fileName);
+      console.log('File size:', formData.file.size);
+      console.log('File type:', formData.file.type);
+      
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('verification-docs')
+        .upload(fileName, formData.file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+      
       if (uploadError) {
-        throw uploadError;
+        console.error('Storage upload error:', uploadError);
+        throw new Error(`Upload failed: ${uploadError.message}`);
       }
+      
+      console.log('File uploaded successfully:', uploadData);
 
-      // Get public URL
-      const {
-        data: {
-          publicUrl
-        }
-      } = supabase.storage.from('verification-docs').getPublicUrl(fileName);
+      // For private bucket, use signed URL instead of public URL
+      const { data: urlData, error: urlError } = await supabase.storage
+        .from('verification-docs')
+        .createSignedUrl(fileName, 60 * 60 * 24 * 365); // 1 year expiry for admin access
+      
+      if (urlError) {
+        console.error('URL generation error:', urlError);
+        throw new Error(`URL generation failed: ${urlError.message}`);
+      }
+      
+      console.log('Signed URL created:', urlData.signedUrl);
 
       // Save verification record - use upsert for re-submissions
-      const {
-        error: insertError
-      } = await supabase.from('user_verifications').upsert({
+      console.log('Saving verification record...');
+      const verificationData = {
         user_id: user.id,
         full_name: formData.fullName,
         nationality: formData.nationality,
         document_type: formData.documentType,
-        document_image_url: publicUrl,
-        verification_status: 'pending'
-      });
+        document_image_url: urlData.signedUrl,
+        verification_status: 'pending' as const,
+        access_restricted: false // Allow user to view their own document
+      };
+      
+      console.log('Verification data:', verificationData);
+      
+      const { error: insertError } = await supabase
+        .from('user_verifications')
+        .upsert(verificationData);
+      
       if (insertError) {
-        throw insertError;
+        console.error('Database insert error:', insertError);
+        throw new Error(`Database save failed: ${insertError.message}`);
       }
+      
+      console.log('Verification record saved successfully');
 
       // Send admin notification
-      await supabase.functions.invoke('send-admin-notification', {
-        body: {
-          type: 'id_verification',
-          userEmail: user.email || '',
-          userName: formData.fullName,
-          details: {
-            documentType: formData.documentType,
-            nationality: formData.nationality
+      console.log('Sending admin notification...');
+      try {
+        await supabase.functions.invoke('send-admin-notification', {
+          body: {
+            type: 'id_verification',
+            userEmail: user.email || '',
+            userName: formData.fullName,
+            details: {
+              documentType: formData.documentType,
+              nationality: formData.nationality
+            }
           }
-        }
-      });
+        });
+        console.log('Admin notification sent');
+      } catch (notificationError) {
+        console.warn('Failed to send admin notification:', notificationError);
+        // Don't fail the whole process if notification fails
+      }
+      
       toast.success('Verification document uploaded successfully');
       fetchVerification();
       setFormData({
@@ -151,9 +191,17 @@ const VerificationPanel = () => {
         documentType: '',
         file: null
       });
-    } catch (error) {
+      
+      // Clear file input
+      const fileInput = document.getElementById('document') as HTMLInputElement;
+      if (fileInput) {
+        fileInput.value = '';
+      }
+      
+    } catch (error: any) {
       console.error('Error uploading document:', error);
-      toast.error('Failed to upload verification document');
+      const errorMessage = error.message || 'Unknown error occurred';
+      toast.error(`Failed to upload verification document: ${errorMessage}`);
     } finally {
       setUploading(false);
     }
