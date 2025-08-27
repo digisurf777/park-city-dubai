@@ -21,7 +21,6 @@ interface AdminBookingNotificationRequest {
   duration: number;
   totalCost: number;
   paymentType: string;
-  paymentsEnabled: boolean;
   notes?: string;
 }
 
@@ -44,7 +43,6 @@ const handler = async (req: Request): Promise<Response> => {
       duration,
       totalCost,
       paymentType,
-      paymentsEnabled,
       notes,
     }: AdminBookingNotificationRequest = await req.json();
     

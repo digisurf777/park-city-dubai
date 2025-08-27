@@ -1,4 +1,3 @@
-import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -6,12 +5,12 @@ import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
 import { MapPin, Search, X, Car, CreditCard, Ruler } from "lucide-react";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useSearchParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { ParkingBookingModal } from "@/components/ParkingBookingModal";
 
 import dubaiMarinaZone from "@/assets/zones/dubai-marina-real.jpg";
 import downtownZone from "/lovable-uploads/f676da2a-39c9-4211-8561-5b884e0ceed8.png";
@@ -32,8 +31,6 @@ const FindParking = () => {
   const [showAvailableOnly, setShowAvailableOnly] = useState(false);
   const [parkingSpots, setParkingSpots] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedSpot, setSelectedSpot] = useState<any>(null);
-  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const districtZones = [{
     name: "Dubai Marina",
     slug: "dubai-marina"
@@ -108,7 +105,7 @@ const FindParking = () => {
       }
 
       // Transform the data to match the UI format
-        const transformedData = data?.map((listing: any) => {
+      const transformedData = data?.map((listing: any) => {
         console.log('Processing listing:', listing.title, 'with images:', listing.images);
         const basePrice = listing.price_per_month || Math.round(listing.price_per_hour * 24 * 30);
         // Add 100 AED service fee to match calculator pricing
@@ -122,9 +119,7 @@ const FindParking = () => {
           image: listing.images && listing.images.length > 0 ? listing.images[0] : "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
           images: listing.images || [],
           specs: listing.features || ["Access Card", "Secure"],
-          available: listing.status === 'approved',
-          address: listing.address,
-          description: listing.description
+          available: listing.status === 'approved'
         };
       }) || [];
       console.log('Transformed data:', transformedData);
@@ -159,11 +154,6 @@ const FindParking = () => {
     const matchesAvailability = !showAvailableOnly || spot.available;
     return matchesSearch && matchesDistrict && matchesPrice && matchesAvailability;
   });
-
-  const handleReserveBooking = (spot: any) => {
-    setSelectedSpot(spot);
-    setIsBookingModalOpen(true);
-  };
   return <div className="min-h-screen bg-background animate-zoom-slow">
       <Navbar />
       
@@ -233,65 +223,9 @@ const FindParking = () => {
         {loading ? <div id="listings-section" className="mt-16 text-center">
             <p className="text-muted-foreground">Loading parking spots...</p>
           </div> : filteredSpots.length > 0 ? <div id="listings-section" className="mt-16">
-            <h2 className="text-2xl font-bold text-foreground mb-8 text-center">Available Parking Spaces</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredSpots.map((spot) => (
-                <Card key={spot.id} className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
-                  <div className="relative h-48">
-                    <img 
-                      src={spot.image} 
-                      alt={spot.name}
-                      className="w-full h-full object-cover"
-                      loading="lazy"
-                    />
-                    <div className="absolute top-3 right-3">
-                      <Badge variant="secondary" className="bg-white/90 text-foreground">
-                        {spot.district}
-                      </Badge>
-                    </div>
-                  </div>
-                  
-                  <div className="p-4 space-y-3">
-                    <div>
-                      <h3 className="text-lg font-semibold text-foreground">{spot.name}</h3>
-                      {spot.address && (
-                        <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
-                          <MapPin className="h-3 w-3" />
-                          {spot.address}
-                        </p>
-                      )}
-                      {spot.description && (
-                        <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
-                          {spot.description}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="flex flex-wrap gap-1">
-                      {spot.specs?.slice(0, 3).map((spec: string, index: number) => (
-                        <Badge key={index} variant="outline" className="text-xs">
-                          {spec}
-                        </Badge>
-                      ))}
-                    </div>
-
-                    <div className="flex items-center justify-between pt-2 border-t">
-                      <div>
-                        <p className="text-lg font-bold text-primary">
-                          From AED {spot.price.toLocaleString()}/month
-                        </p>
-                      </div>
-                      <Button 
-                        onClick={() => handleReserveBooking(spot)}
-                        className="bg-primary hover:bg-primary/90 text-primary-foreground font-medium"
-                      >
-                        Reserve Booking
-                      </Button>
-                    </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
+            
+            
+            
           </div> : <div id="listings-section" className="mt-16 text-center">
             <p className="text-muted-foreground">No parking spots found matching your criteria.</p>
           </div>}
@@ -299,12 +233,6 @@ const FindParking = () => {
 
       <Footer />
 
-      {/* Booking Modal */}
-      <ParkingBookingModal
-        isOpen={isBookingModalOpen}
-        onClose={() => setIsBookingModalOpen(false)}
-        parkingSpot={selectedSpot}
-      />
     </div>;
 };
 export default FindParking;
