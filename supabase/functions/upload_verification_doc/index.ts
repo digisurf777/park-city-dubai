@@ -8,13 +8,20 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  console.log('Edge function called:', req.method, req.url);
+  
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    console.log('Handling CORS preflight request');
+    return new Response(null, { 
+      headers: corsHeaders,
+      status: 200
+    });
   }
 
   // Only accept POST requests
   if (req.method !== 'POST') {
+    console.log('Method not allowed:', req.method);
     return new Response(
       JSON.stringify({ error: 'Method not allowed' }), 
       { 
@@ -25,6 +32,8 @@ serve(async (req) => {
   }
 
   try {
+    console.log('Processing upload request...');
+    
     // Get environment variables
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
     const supabaseServiceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
@@ -51,6 +60,7 @@ serve(async (req) => {
     // Extract and verify JWT token
     const authHeader = req.headers.get('Authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      console.error('Missing or invalid authorization header');
       return new Response(
         JSON.stringify({ error: 'Missing or invalid authorization header' }), 
         { 
@@ -76,11 +86,14 @@ serve(async (req) => {
       );
     }
 
+    console.log('User authenticated:', user.id);
+
     // Parse multipart form data
     const formData = await req.formData();
     const file = formData.get('file') as File;
 
     if (!file) {
+      console.error('No file provided');
       return new Response(
         JSON.stringify({ error: 'No file provided' }), 
         { 
@@ -90,16 +103,31 @@ serve(async (req) => {
       );
     }
 
+    console.log('File received:', file.name, file.type, file.size);
+
+    // Parse additional form data
+    const fullName = formData.get('full_name') as string;
+    const nationality = formData.get('nationality') as string;
+    const documentType = formData.get('document_type') as string;
+
+    if (!fullName || !documentType) {
+      console.error('Missing required fields');
+      return new Response(
+        JSON.stringify({ error: 'Missing required fields: full_name and document_type are required' }), 
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
+
+    console.log('Form data parsed:', { fullName, nationality, documentType });
+
     // Generate unique storage path
     const fileId = crypto.randomUUID();
     const storagePath = `${user.id}/${fileId}-${file.name}`;
 
-    console.log('Uploading file:', { 
-      filename: file.name, 
-      size: file.size, 
-      type: file.type, 
-      storagePath 
-    });
+    console.log('Uploading file to:', storagePath);
 
     // Upload file to verification bucket
     const { data: uploadData, error: uploadError } = await supabase.storage
@@ -120,20 +148,7 @@ serve(async (req) => {
       );
     }
 
-    // Parse additional form data
-    const fullName = formData.get('full_name') as string;
-    const nationality = formData.get('nationality') as string;
-    const documentType = formData.get('document_type') as string;
-
-    if (!fullName || !documentType) {
-      return new Response(
-        JSON.stringify({ error: 'Missing required fields: full_name and document_type are required' }), 
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      );
-    }
+    console.log('File uploaded successfully');
 
     // Insert record into documents table
     const { data: documentData, error: dbError } = await supabase
@@ -170,6 +185,8 @@ serve(async (req) => {
         }
       );
     }
+
+    console.log('Document record created');
 
     // Create or update verification record
     const { data: verificationData, error: verificationError } = await supabase
@@ -208,6 +225,8 @@ serve(async (req) => {
       );
     }
 
+    console.log('Verification record created');
+
     // Send admin notification
     try {
       const { error: notificationError } = await supabase.functions.invoke('send-admin-notification', {
@@ -228,7 +247,7 @@ serve(async (req) => {
       // Don't fail the upload for notification errors
     }
 
-    console.log('Document and verification uploaded successfully:', { documentData, verificationData });
+    console.log('Document and verification uploaded successfully');
 
     // Return success response with both records
     return new Response(

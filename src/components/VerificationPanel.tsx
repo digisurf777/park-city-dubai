@@ -10,6 +10,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { Upload, FileImage, CheckCircle, Clock, XCircle, AlertTriangle } from 'lucide-react';
+
+console.log('VerificationPanel: Component loading');
 interface Verification {
   id: string;
   full_name: string;
@@ -20,18 +22,22 @@ interface Verification {
   created_at: string;
 }
 const VerificationPanel = () => {
-  const {
-    user
-  } = useAuth();
+  console.log('VerificationPanel: Component initializing');
+  
+  const { user } = useAuth();
+  console.log('VerificationPanel: useAuth result:', { user: user?.id });
+  
   const [verification, setVerification] = useState<Verification | null>(null);
   const [loading, setLoading] = useState(true);
-  const [uploading, setUploading] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [formData, setFormData] = useState({
     fullName: '',
     nationality: '',
     documentType: '',
     file: null as File | null
   });
+
+  console.log('VerificationPanel: State initialized');
 
   // Return early if user is already approved
   if (verification?.verification_status === 'approved') {
@@ -115,7 +121,7 @@ const VerificationPanel = () => {
       return;
     }
 
-    setUploading(true);
+    setIsUploading(true);
     console.log('Starting upload using edge function...');
     
     try {
@@ -185,7 +191,7 @@ const VerificationPanel = () => {
       const errorMessage = error.message || 'Unknown error occurred during upload';
       toast.error(`Upload failed: ${errorMessage}`);
     } finally {
-      setUploading(false);
+      setIsUploading(false);
       console.log('=== UPLOAD COMPLETE ===');
     }
   };
@@ -517,8 +523,8 @@ const VerificationPanel = () => {
                   </p>
                 </div>
 
-                <Button onClick={uploadDocument} disabled={uploading || !formData.file || !formData.fullName || !formData.nationality || !formData.documentType} className="w-full">
-                  {uploading ? 'Uploading...' : 'Submit for Verification'}
+                <Button onClick={uploadDocument} disabled={isUploading || !formData.file || !formData.fullName || !formData.nationality || !formData.documentType} className="w-full">
+                  {isUploading ? 'Uploading...' : 'Submit for Verification'}
                 </Button>
               </div>
             </div>}
