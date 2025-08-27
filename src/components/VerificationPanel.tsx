@@ -125,91 +125,38 @@ const VerificationPanel = () => {
         throw new Error('No valid session found');
       }
 
-      // Create form data for the edge function
+      // Create form data for the edge function with all required fields
       const uploadFormData = new FormData();
       uploadFormData.append('file', formData.file);
+      uploadFormData.append('full_name', formData.fullName);
+      uploadFormData.append('nationality', formData.nationality);
+      uploadFormData.append('document_type', formData.documentType);
       
-      console.log('Calling upload edge function...');
+      console.log('Calling upload edge function with complete data...');
       
-      // Call the upload edge function
-      const { data: uploadResult, error: uploadError } = await supabase.functions.invoke('upload_verification_doc', {
-        body: uploadFormData,
+      // Call the edge function directly with fetch for better error handling
+      const response = await fetch(`https://eoknluyunximjlsnyceb.supabase.co/functions/v1/upload_verification_doc`, {
+        method: 'POST',
         headers: {
-          'Authorization': `Bearer ${session.access_token}`
-        }
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: uploadFormData,
       });
-      
-      console.log('Upload function result:', { uploadResult, uploadError });
-      
-      if (uploadError) {
-        console.error('Edge function error:', uploadError);
-        throw new Error(`Upload failed: ${uploadError.message}`);
-      }
-      
-      if (!uploadResult?.success) {
-        console.error('Upload failed:', uploadResult);
-        throw new Error(uploadResult?.error || 'Upload failed');
-      }
-      
-      console.log('File uploaded successfully via edge function');
 
-      // Now save to user_verifications table
-      console.log('Saving verification record to user_verifications...');
-      const verificationData = {
-        user_id: user.id,
-        full_name: formData.fullName.trim(),
-        nationality: formData.nationality,
-        document_type: formData.documentType,
-        document_image_url: uploadResult.document.storage_path,
-        verification_status: 'pending' as const,
-        access_restricted: false
-      };
+      const result = await response.json();
+      console.log('Edge function response:', { response: response.status, result });
       
-      console.log('Verification data to save:', verificationData);
-      
-      const { data: insertData, error: insertError } = await supabase
-        .from('user_verifications')
-        .upsert(verificationData, {
-          onConflict: 'user_id'
-        })
-        .select()
-        .single();
-      
-      console.log('Database save result:', { insertData, insertError });
-      
-      if (insertError) {
-        console.error('Database save failed:', insertError);
-        throw new Error(`Failed to save verification: ${insertError.message}`);
+      if (!response.ok) {
+        console.error('Edge function error:', result);
+        throw new Error(result.error || `Upload failed with status ${response.status}`);
       }
       
-      console.log('Verification saved successfully:', insertData);
-
-      // Send admin notification
-      console.log('Sending admin notification...');
-      try {
-        const { data: notifData, error: notifError } = await supabase.functions.invoke('send-admin-notification', {
-          body: {
-            type: 'id_verification',
-            userEmail: user.email || 'Unknown',
-            userName: formData.fullName,
-            details: {
-              documentType: formData.documentType,
-              nationality: formData.nationality
-            }
-          }
-        });
-        
-        console.log('Admin notification result:', { notifData, notifError });
-        
-        if (notifError) {
-          console.warn('Admin notification failed:', notifError);
-        } else {
-          console.log('Admin notification sent successfully');
-        }
-      } catch (notificationError) {
-        console.warn('Failed to send admin notification:', notificationError);
+      if (!result?.success) {
+        console.error('Upload failed:', result);
+        throw new Error(result?.error || 'Upload failed');
       }
       
+      console.log('Document uploaded and verification created successfully via edge function');
       console.log('=== UPLOAD SUCCESS ===');
       toast.success('Verification document uploaded successfully! Our team will review it within 24-48 hours.');
       

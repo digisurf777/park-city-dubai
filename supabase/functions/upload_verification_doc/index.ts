@@ -120,6 +120,21 @@ serve(async (req) => {
       );
     }
 
+    // Parse additional form data
+    const fullName = formData.get('full_name') as string;
+    const nationality = formData.get('nationality') as string;
+    const documentType = formData.get('document_type') as string;
+
+    if (!fullName || !documentType) {
+      return new Response(
+        JSON.stringify({ error: 'Missing required fields: full_name and document_type are required' }), 
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
+
     // Insert record into documents table
     const { data: documentData, error: dbError } = await supabase
       .from('documents')
@@ -156,14 +171,72 @@ serve(async (req) => {
       );
     }
 
-    console.log('Document uploaded successfully:', documentData);
+    // Create or update verification record
+    const { data: verificationData, error: verificationError } = await supabase
+      .from('user_verifications')
+      .upsert({
+        user_id: user.id,
+        full_name: fullName,
+        nationality: nationality,
+        document_type: documentType,
+        document_image_url: storagePath,
+        verification_status: 'pending'
+      }, {
+        onConflict: 'user_id'
+      })
+      .select()
+      .single();
 
-    // Return success response with document record
+    if (verificationError) {
+      console.error('Verification record creation failed:', verificationError);
+      
+      // Cleanup: Delete uploaded file and document record
+      try {
+        await supabase.storage.from('verification').remove([storagePath]);
+        await supabase.from('documents').delete().eq('id', documentData.id);
+        console.log('Cleanup: Removed orphaned file and document record');
+      } catch (cleanupError) {
+        console.error('Cleanup failed:', cleanupError);
+      }
+
+      return new Response(
+        JSON.stringify({ error: 'Failed to create verification record', details: verificationError.message }), 
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
+
+    // Send admin notification
+    try {
+      const { error: notificationError } = await supabase.functions.invoke('send-admin-notification', {
+        body: {
+          type: 'verification_submitted',
+          user_id: user.id,
+          full_name: fullName,
+          document_type: documentType
+        }
+      });
+
+      if (notificationError) {
+        console.error('Failed to send admin notification:', notificationError);
+        // Don't fail the upload for notification errors
+      }
+    } catch (notificationError) {
+      console.error('Failed to send admin notification:', notificationError);
+      // Don't fail the upload for notification errors
+    }
+
+    console.log('Document and verification uploaded successfully:', { documentData, verificationData });
+
+    // Return success response with both records
     return new Response(
       JSON.stringify({ 
         success: true, 
         document: documentData,
-        message: 'Document uploaded successfully'
+        verification: verificationData,
+        message: 'Document uploaded and verification submitted successfully'
       }), 
       { 
         status: 201, 
