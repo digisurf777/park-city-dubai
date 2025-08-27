@@ -126,17 +126,10 @@ const VerificationPanel = () => {
       
       console.log('File uploaded successfully:', uploadData);
 
-      // For private bucket, use signed URL instead of public URL
-      const { data: urlData, error: urlError } = await supabase.storage
-        .from('verification-docs')
-        .createSignedUrl(fileName, 60 * 60 * 24 * 365); // 1 year expiry for admin access
+      // For private bucket, store the file path instead of signed URL
+      const documentPath = fileName;
       
-      if (urlError) {
-        console.error('URL generation error:', urlError);
-        throw new Error(`URL generation failed: ${urlError.message}`);
-      }
-      
-      console.log('Signed URL created:', urlData.signedUrl);
+      console.log('File path to store:', documentPath);
 
       // Save verification record - use upsert for re-submissions
       console.log('Saving verification record...');
@@ -145,23 +138,30 @@ const VerificationPanel = () => {
         full_name: formData.fullName,
         nationality: formData.nationality,
         document_type: formData.documentType,
-        document_image_url: urlData.signedUrl,
+        document_image_url: documentPath, // Store file path instead of signed URL
         verification_status: 'pending' as const,
         access_restricted: false // Allow user to view their own document
       };
       
       console.log('Verification data:', verificationData);
       
-      const { error: insertError } = await supabase
+      const { data: insertData, error: insertError } = await supabase
         .from('user_verifications')
-        .upsert(verificationData);
+        .upsert(verificationData, {
+          onConflict: 'user_id'
+        })
+        .select()
+        .single();
       
       if (insertError) {
         console.error('Database insert error:', insertError);
+        console.error('Error code:', insertError.code);
+        console.error('Error details:', insertError.details);
+        console.error('Error hint:', insertError.hint);
         throw new Error(`Database save failed: ${insertError.message}`);
       }
       
-      console.log('Verification record saved successfully');
+      console.log('Verification record saved successfully:', insertData);
 
       // Send admin notification
       console.log('Sending admin notification...');
