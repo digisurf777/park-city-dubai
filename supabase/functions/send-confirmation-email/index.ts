@@ -249,7 +249,7 @@ const handler = async (req: Request): Promise<Response> => {
     
     // Prepare email data - using verified domain
     const emailData = {
-      from: "ShazamParking <support@shazamparking.ae>",
+      from: "ShazamParking <onboarding@resend.dev>",
       to: [email],
       subject: template.subject,
       html: template.html,

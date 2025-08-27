@@ -339,13 +339,10 @@ const AdminPanel = () => {
         .select('role')
         .eq('user_id', user.id)
         .eq('role', 'admin')
-        .maybeSingle();
+        .single();
 
-      if (error) {
+      if (error && error.code !== 'PGRST116') {
         console.error('Error checking admin role:', error);
-        setIsAdmin(false);
-        setCheckingAdmin(false);
-        return;
       }
       
       console.log('Admin role check result:', data);
@@ -355,50 +352,36 @@ const AdminPanel = () => {
       if (!isAdminUser) {
         console.log('No admin role found, attempting to set up admin...');
         try {
-          const { data: setupData, error: setupError } = await supabase.functions.invoke('setup-admin');
-          console.log('Setup admin result:', setupData, setupError);
-          
+          const { error: setupError } = await supabase.functions.invoke('setup-admin');
           if (!setupError) {
             console.log('Admin setup successful, rechecking role...');
             // Recheck admin role after setup
-            const { data: recheckData, error: recheckError } = await supabase
+            const { data: recheckData } = await supabase
               .from('user_roles')
               .select('role')
               .eq('user_id', user.id)
               .eq('role', 'admin')
-              .maybeSingle();
+              .single();
             
-            console.log('Admin recheck result:', recheckData, recheckError);
-            
-            if (recheckData && !recheckError) {
-              console.log('✅ User is now admin after setup');
+            if (recheckData) {
               setIsAdmin(true);
+              console.log('User is now admin, fetching admin data...');
               fetchPosts();
               fetchVerifications();
               fetchParkingListings();
               fetchParkingBookings();
               fetchAllUsers();
               fetchDetailedUsers();
-              fetchChatMessages();
-              fetchChatUsers();
-            } else {
-              console.log('❌ Admin setup verification failed');
-              setIsAdmin(false);
             }
-          } else {
-            console.error('Admin setup failed:', setupError);
-            setIsAdmin(false);
           }
         } catch (setupErr) {
-          console.error('Admin setup exception:', setupErr);
-          setIsAdmin(false);
+          console.error('Admin setup failed:', setupErr);
         }
       } else {
-        console.log('✅ User has admin role');
         setIsAdmin(isAdminUser);
         
         if (isAdminUser) {
-          console.log('Fetching admin data...');
+          console.log('User is admin, fetching admin data...');
           fetchPosts();
           fetchVerifications();
           fetchParkingListings();
@@ -407,11 +390,12 @@ const AdminPanel = () => {
           fetchDetailedUsers();
           fetchChatMessages();
           fetchChatUsers();
+          fetchChatMessages();
+          fetchChatUsers();
         }
       }
     } catch (error) {
-      console.error('Exception checking admin role:', error);
-      setIsAdmin(false);
+      console.error('Error checking admin role:', error);
     } finally {
       setCheckingAdmin(false);
     }
@@ -518,96 +502,34 @@ const AdminPanel = () => {
       console.log('Is Admin:', isAdmin);
 
       if (!user || !isAdmin) {
-        console.error('Authentication failed - User:', user, 'IsAdmin:', isAdmin);
-        toast({
-          title: "Error",
-          description: "Authentication required. Please refresh the page and try again.",
-          variant: "destructive",
-        });
-        return;
+        throw new Error('Authentication required. Please refresh the page and try again.');
       }
 
-      console.log('About to update listing in database...');
-
-      // First, let's verify we can access the listing
-      const { data: listingCheck, error: checkError } = await supabase
+      // Update the listing status
+      const { error } = await supabase
         .from('parking_listings')
-        .select('id, status, owner_id, title, zone')
-        .eq('id', listingId)
-        .maybeSingle();
-
-      console.log('Listing check result:', listingCheck);
-      if (checkError) {
-        console.error('Error checking listing:', checkError);
-        toast({
-          title: "Error",
-          description: `Cannot find listing: ${checkError.message}`,
-          variant: "destructive",
-        });
-        return;
-      }
-
-      if (!listingCheck) {
-        console.error('Listing not found with ID:', listingId);
-        toast({
-          title: "Error",
-          description: "Listing not found",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      console.log('Listing found, updating status...');
-
-      // Update the listing status - this should now work with the fixed RLS policies
-      const { data: updateResult, error } = await supabase
-        .from('parking_listings')
-        .update({ 
-          status,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', listingId)
-        .select()
-        .single();
-
-      console.log('Update result:', updateResult);
+        .update({ status })
+        .eq('id', listingId);
 
       if (error) {
         console.error('Database update error:', error);
-        console.error('Error code:', error.code);
-        console.error('Error details:', error.details);
-        console.error('Error hint:', error.hint);
-        toast({
-          title: "Error",
-          description: `Failed to update listing: ${error.message}`,
-          variant: "destructive",
-        });
-        return;
+        throw error;
       }
-
-      console.log('✅ Listing status updated successfully!');
 
       // If approved, trigger the public listings refresh
       if (status === 'approved') {
         console.log('Listing approved, refreshing public listings...');
-        try {
-          const { error: refreshError } = await supabase
-            .rpc('refresh_parking_listings_public');
+        const { error: refreshError } = await supabase
+          .rpc('refresh_parking_listings_public');
 
-          if (refreshError) {
-            console.error('Error refreshing public listings:', refreshError);
-            // Don't fail the whole operation for this
-          } else {
-            console.log('Public listings refreshed successfully');
-          }
-        } catch (refreshErr) {
-          console.error('Exception refreshing public listings:', refreshErr);
+        if (refreshError) {
+          console.error('Error refreshing public listings:', refreshError);
+          // Don't fail the whole operation for this
         }
 
         // Send notification to owner
         try {
-          console.log('Sending approval notification to owner...');
-          const listing = listingCheck;
+          const listing = parkingListings.find(l => l.id === listingId);
           if (listing?.owner_id) {
             // Get user details for notification
             let ownerName = 'Listing Owner';
@@ -636,7 +558,7 @@ const AdminPanel = () => {
               console.error('Error getting owner details:', userErr);
             }
 
-            const { error: notifError } = await supabase.functions.invoke('send-admin-listing-notification', {
+            await supabase.functions.invoke('send-admin-listing-notification', {
               body: {
                 listingId: listingId,
                 ownerName: ownerName,
@@ -646,15 +568,9 @@ const AdminPanel = () => {
                 userEmail: ownerEmail
               }
             });
-
-            if (notifError) {
-              console.error('Error sending notification:', notifError);
-            } else {
-              console.log('Approval notification sent successfully');
-            }
           }
         } catch (notifError) {
-          console.error('Exception sending notification:', notifError);
+          console.error('Error sending notification:', notifError);
         }
       }
 
@@ -663,14 +579,12 @@ const AdminPanel = () => {
         description: `Listing ${status} successfully${status === 'approved' ? ' and is now live on the website!' : ''}`,
       });
 
-      // Refresh the listings to show updated status
       fetchParkingListings();
-      
     } catch (error) {
-      console.error('Exception in updateListingStatus:', error);
+      console.error('Error updating listing status:', error);
       toast({
         title: "Error",
-        description: `Failed to update listing status: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        description: "Failed to update listing status",
         variant: "destructive",
       });
     }
@@ -2930,12 +2844,12 @@ const AdminPanel = () => {
                           <p className="text-sm text-muted-foreground">
                             Submitted: {format(new Date(verification.created_at), 'PPP p')}
                           </p>
-                           <Badge variant={
-                             verification.verification_status === 'verified' || verification.verification_status === 'approved' ? 'default' :
-                             verification.verification_status === 'rejected' ? 'destructive' : 'secondary'
-                           }>
-                             {verification.verification_status === 'verified' ? 'Approved' : verification.verification_status}
-                           </Badge>
+                          <Badge variant={
+                            verification.verification_status === 'verified' ? 'default' :
+                            verification.verification_status === 'rejected' ? 'destructive' : 'secondary'
+                          }>
+                            {verification.verification_status}
+                          </Badge>
                         </div>
                         
                         <div className="flex justify-center">

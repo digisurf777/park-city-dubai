@@ -65,7 +65,7 @@ const handler = async (req: Request): Promise<Response> => {
 
           <div style="text-align: center; margin: 30px 0;">
             <p style="margin-bottom: 20px;">Please review and approve this listing in the admin panel.</p>
-            <a href="https://shazamparking.ae/admin-panel"
+            <a href="https://preview--park-city-dubai.lovable.app/admin-panel" 
                style="background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">
               Go to Admin Panel
             </a>
@@ -95,7 +95,7 @@ const handler = async (req: Request): Promise<Response> => {
 
           <div style="text-align: center; margin: 30px 0;">
             <p style="margin-bottom: 20px;">Please review the submitted ID document and approve or reject the verification.</p>
-            <a href="https://shazamparking.ae/admin-panel" 
+            <a href="https://preview--park-city-dubai.lovable.app/admin-panel" 
                style="background-color: #28a745; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">
               Go to Admin Panel
             </a>
@@ -110,7 +110,7 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     const emailResponse = await resend.emails.send({
-      from: "ShazamParking Admin <support@shazamparking.ae>",
+      from: "ShazamParking Admin <onboarding@resend.dev>",
       to: ["support@shazamparking.ae"], // Updated to correct admin email
       subject: subject,
       html: htmlContent,

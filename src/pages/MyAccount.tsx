@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { VerificationStatusBadge } from '@/components/VerificationStatusBadge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -413,7 +412,7 @@ const MyAccount = () => {
               <TabsTrigger value="verification" className={`flex items-center gap-2 py-2 ${verificationStatus === 'pending' || verificationStatus === null ? 'bg-orange-500/10 text-orange-700 dark:text-orange-300 border-orange-500/20' : ''}`}>
                 <Shield className="h-4 w-4" />
                 Verification
-                {(verificationStatus === 'pending' || verificationStatus === null) && <Badge variant="destructive" className="h-5 w-5 flex items-center justify-center text-xs font-bold">!</Badge>}
+                {(verificationStatus === 'pending' || verificationStatus === null) && <Badge variant="destructive" className="ml-2 h-5 w-5 p-0 text-xs">!</Badge>}
               </TabsTrigger>
             )}
             <TabsTrigger value="listings" className="flex items-center gap-2 py-2">
@@ -470,22 +469,30 @@ const MyAccount = () => {
                      <div className="space-y-2">
                        <Label>Account Status</Label>
                        <div className="flex items-center gap-3 p-3 rounded-lg bg-muted">
-                         <VerificationStatusBadge 
-                           status={verificationStatus} 
-                           size="lg"
-                           showIcon={true}
-                         />
-                         <div className="flex-1">
-                           {verificationStatus === 'approved' || verificationStatus === 'verified' ? (
-                             <p className="text-sm text-green-600">You can now make bookings and create listings</p>
-                           ) : verificationStatus === 'pending' ? (
-                             <p className="text-sm text-orange-600">Your documents are being reviewed</p>
-                           ) : verificationStatus === 'rejected' ? (
-                             <p className="text-sm text-red-600">Please resubmit your documents</p>
-                           ) : (
-                             <p className="text-sm text-muted-foreground">Please submit your documents for verification</p>
-                           )}
-                         </div>
+                       {verificationStatus === 'approved' || verificationStatus === 'verified' ? (
+                           <>
+                             <CheckCircle className="h-5 w-5 text-green-500" />
+                             <div className="flex flex-col">
+                               <span className="text-green-700 font-bold text-lg">✅ Verified Account</span>
+                               <span className="text-green-600 text-sm">Full access to all features</span>
+                             </div>
+                           </>
+                         ) : verificationStatus === 'pending' ? (
+                           <>
+                             <Shield className="h-5 w-5 text-orange-500" />
+                             <span className="text-orange-700 font-medium">⏳ Verification Pending</span>
+                           </>
+                         ) : verificationStatus === 'rejected' ? (
+                           <>
+                             <Shield className="h-5 w-5 text-red-500" />
+                             <span className="text-red-700 font-medium">❌ Verification Required</span>
+                           </>
+                         ) : (
+                           <>
+                             <Shield className="h-5 w-5 text-gray-500" />
+                             <span className="text-gray-700 font-medium">⚠️ Verification Not Started</span>
+                           </>
+                         )}
                        </div>
                      </div>
                    )}

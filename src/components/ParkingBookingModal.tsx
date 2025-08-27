@@ -327,14 +327,9 @@ export const ParkingBookingModal = ({
               {isSubmitting ? "Submitting..." : `Reserve Space - AED ${finalPrice.toLocaleString()}`}
             </Button>
 
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-center">
-              <p className="text-sm text-yellow-800 font-medium">
-                ⚠️ All bookings are currently reserved
-              </p>
-              <p className="text-xs text-yellow-700 mt-1">
-                Your booking will be reserved. Payment will be requested separately.
-              </p>
-            </div>
+            <p className="text-xs text-muted-foreground text-center">
+              No charges will be made at this time. Payment link will be provided after confirmation.
+            </p>
           </div>
         </div>
       </DialogContent>

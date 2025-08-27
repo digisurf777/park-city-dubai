@@ -210,12 +210,16 @@ const RentOutYourSpace = () => {
       try {
         await supabase.functions.invoke('send-admin-listing-notification', {
           body: {
+            userName: user.user_metadata?.full_name || formData.fullName || 'User',
+            userEmail: user.email,
+            userPhone: formData.phone,
             listingId: insertedListing.id,
-            ownerName: user.user_metadata?.full_name || formData.fullName || 'User',
-            isApproved: false,
-            listingTitle: insertedListing.title,
-            zone: formData.district,
-            userEmail: user.email
+            buildingName: formData.buildingName,
+            district: formData.district,
+            bayType: formData.bayType,
+            monthlyPrice: monthlyPrice,
+            accessDeviceDeposit: formData.accessDeviceDeposit ? monthlyPrice * 0.1 : undefined,
+            notes: formData.notes
           }
         });
         console.log('Admin listing notification sent successfully');
