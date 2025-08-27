@@ -177,8 +177,14 @@ const AdminPanel = () => {
   const listingFileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    console.log('=== AUTH EFFECT TRIGGER ===');
+    console.log('User changed:', user?.id, user?.email);
     if (user) {
       checkAdminRole();
+    } else {
+      console.log('No user, resetting admin state');
+      setIsAdmin(false);
+      setCheckingAdmin(false);
     }
   }, [user]);
 
@@ -313,8 +319,15 @@ const AdminPanel = () => {
   }, [chatMessages]);
 
   const checkAdminRole = async () => {
+    console.log('=== ADMIN ROLE CHECK START ===');
+    console.log('User object:', user);
+    console.log('User ID:', user?.id);
+    console.log('User email:', user?.email);
+    
     if (!user) {
-      console.log('No user found for admin check');
+      console.log('No user found, setting isAdmin to false');
+      setIsAdmin(false);
+      setCheckingAdmin(false);
       return;
     }
     
@@ -482,7 +495,15 @@ const AdminPanel = () => {
 
   const updateListingStatus = async (listingId: string, status: 'approved' | 'rejected') => {
     try {
-      console.log(`Updating listing ${listingId} status to: ${status}`);
+      console.log('=== UPDATE LISTING STATUS START ===');
+      console.log('Listing ID:', listingId);
+      console.log('Status:', status);
+      console.log('User:', user?.id);
+      console.log('Is Admin:', isAdmin);
+
+      if (!user || !isAdmin) {
+        throw new Error('Authentication required. Please refresh the page and try again.');
+      }
 
       // Update the listing status
       const { error } = await supabase
@@ -490,7 +511,10 @@ const AdminPanel = () => {
         .update({ status })
         .eq('id', listingId);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Database update error:', error);
+        throw error;
+      }
 
       // If approved, trigger the public listings refresh
       if (status === 'approved') {
@@ -1873,13 +1897,24 @@ const AdminPanel = () => {
       <div className="min-h-screen flex items-center justify-center">
         <Card className="w-96">
           <CardContent className="pt-6 text-center space-y-4">
-            <h2 className="text-xl font-semibold">Admin Access Required</h2>
+            <h2 className="text-xl font-semibold">Authentication Required</h2>
             <p className="text-muted-foreground">Please log in to access the admin panel.</p>
+            <div className="text-xs text-muted-foreground space-y-1">
+              <div>Auth status: {user ? 'Authenticated' : 'Not authenticated'}</div>
+              <div>Session: {user ? 'Active' : 'Inactive'}</div>
+            </div>
             <Button 
               onClick={() => window.location.href = '/auth'}
               className="w-full"
             >
               Go to Login
+            </Button>
+            <Button 
+              variant="outline"
+              onClick={() => window.location.reload()}
+              className="w-full"
+            >
+              Refresh Page
             </Button>
           </CardContent>
         </Card>
@@ -1926,7 +1961,13 @@ const AdminPanel = () => {
   if (checkingAdmin || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p>Loading...</p>
+        <div className="text-center space-y-4">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+          <p>Loading admin panel...</p>
+          <div className="text-xs text-muted-foreground">
+            Checking authentication...
+          </div>
+        </div>
       </div>
     );
   }
