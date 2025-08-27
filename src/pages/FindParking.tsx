@@ -283,7 +283,7 @@ const FindParking = () => {
                       </div>
                       <Button 
                         onClick={() => handleReserveBooking(spot)}
-                        className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                        className="bg-primary hover:bg-primary/90 text-primary-foreground font-medium"
                       >
                         Reserve Booking
                       </Button>
