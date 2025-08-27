@@ -38,7 +38,7 @@ const ProductPage: React.FC = () => {
     { months: 12, label: "12 Months", multiplier: 0.85, description: "15% OFF" }
   ];
 
-  // Fetch parking listing from database
+  // Fetch parking listing data securely
   useEffect(() => {
     const fetchParkingListing = async () => {
       if (!id) {
@@ -48,23 +48,49 @@ const ProductPage: React.FC = () => {
       }
 
       try {
-        const { data, error: fetchError } = await supabase
+        // First try to get full data (for owners, confirmed booking users, and admins)
+        const { data: fullData, error: fullError } = await supabase
           .from('parking_listings')
           .select('*')
           .eq('id', id)
           .single();
 
-        if (fetchError) {
-          console.error('Error fetching parking listing:', fetchError);
-          setError('Failed to load parking listing');
-        } else if (data) {
-          setParkingListing(data);
-        } else {
-          setError('Parking listing not found');
+        if (fullData && !fullError) {
+          console.log('Fetched full parking listing data:', fullData);
+          setParkingListing(fullData);
+          return;
         }
-      } catch (err) {
-        console.error('Error:', err);
-        setError('Failed to load parking listing');
+
+        // If full access failed, try public data (basic info without contact details)
+        const { data: publicData, error: publicError } = await supabase
+          .from('parking_listings_public')
+          .select('*')
+          .eq('id', id)
+          .single();
+
+        if (publicError) {
+          console.error('Error fetching parking listing:', publicError);
+          setError('Failed to load parking listing');
+          return;
+        }
+
+        if (!publicData) {
+          setError('Parking listing not found');
+          return;
+        }
+
+        console.log('Fetched public parking listing data:', publicData);
+        // Convert owner_id back to UUID format for public data
+        setParkingListing({
+          ...publicData,
+          owner_id: publicData.owner_id,
+          // Contact info will be null for public access
+          contact_email: null,
+          contact_phone: null
+        });
+      } catch (error) {
+        console.error('Error:', error);
+        setError('An unexpected error occurred');
       } finally {
         setLoading(false);
       }

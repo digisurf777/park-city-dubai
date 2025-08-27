@@ -965,6 +965,26 @@ export type Database = {
           unique_profiles_accessed: number
         }[]
       }
+      get_public_parking_listings: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          address: string
+          availability_schedule: Json
+          created_at: string
+          description: string
+          features: string[]
+          id: string
+          images: string[]
+          owner_id: string
+          price_per_day: number
+          price_per_hour: number
+          price_per_month: number
+          status: string
+          title: string
+          updated_at: string
+          zone: string
+        }[]
+      }
       get_secure_document_access: {
         Args: { access_token: string; verification_id: string }
         Returns: Json
