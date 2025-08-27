@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 export const MobileOptimizations = () => {

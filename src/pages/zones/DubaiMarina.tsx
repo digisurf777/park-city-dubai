@@ -1,4 +1,3 @@
-import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -6,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Search, Car, CreditCard, Ruler, MapPin, ChevronLeft, ChevronRight } from "lucide-react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
@@ -245,8 +245,7 @@ const DubaiMarina = () => {
       [spotId]: ((prev[spotId] || 0) - 1 + totalImages) % totalImages
     }));
   };
-  return (
-    <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background">
       <Navbar />
       
       {/* Hero Section */}
@@ -344,12 +343,9 @@ const DubaiMarina = () => {
                   <span className="text-xl sm:text-2xl font-bold text-primary">From AED {spot.price}/month</span>
                 </div>
 
-                <Button 
-                  onClick={() => handleReserveClick(spot)}
-                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-2 sm:py-3 font-semibold text-sm sm:text-base"
-                >
-                  Reserve Booking
-                </Button>
+                <div className="w-full bg-red-500 text-white py-2 sm:py-3 rounded text-center font-semibold text-sm sm:text-base">
+                  Currently Booked
+                </div>
               </div>
              </Card>)}
         </div>
@@ -372,8 +368,7 @@ const DubaiMarina = () => {
       />
       
       <Footer />
-    </div>
-  );
+    </div>;
 };
 
 export default DubaiMarina;
