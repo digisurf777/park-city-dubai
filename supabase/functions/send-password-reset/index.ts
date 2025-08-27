@@ -24,7 +24,7 @@ const handler = async (req: Request): Promise<Response> => {
     const { email, resetUrl }: PasswordResetRequest = await req.json();
 
     const emailResponse = await resend.emails.send({
-      from: "ShazamParking <noreply@shazamparking.ae>",
+      from: "ShazamParking <onboarding@resend.dev>",
       to: [email],
       subject: "Reset Your ShazamParking Password",
       html: `

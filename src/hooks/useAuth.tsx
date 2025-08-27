@@ -191,25 +191,37 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const resetPassword = async (email: string) => {
     try {
+      console.log('Sending password reset for email:', email);
+      
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `https://shazamparking.ae/auth?type=recovery`
+        redirectTo: `${window.location.origin}/auth?type=recovery`
       });
       
       if (error) {
+        console.error('Supabase password reset error:', error);
         return { error };
       }
       
-      // Also send custom password reset email
+      console.log('Supabase password reset sent successfully');
+      
+      // Also send custom password reset email with better error handling
       try {
-        await supabase.functions.invoke('send-password-reset', {
-          body: {
-            email: email,
-            resetUrl: `https://shazamparking.ae/auth?type=recovery`
+        const { data, error: functionError } = await supabase.functions.invoke('send-password-reset', {
+          body: { 
+            email, 
+            resetUrl: `${window.location.origin}/auth?type=recovery` 
           }
         });
+        
+        if (functionError) {
+          console.warn('Custom password reset email failed:', functionError);
+          // Don't fail the whole process if custom email fails
+        } else {
+          console.log('Custom password reset email sent:', data);
+        }
       } catch (customEmailError) {
-        console.error('Failed to send custom reset email:', customEmailError);
-        // Don't fail if custom email fails, Supabase already sent one
+        console.warn('Error sending custom password reset email:', customEmailError);
+        // Don't fail the whole process if custom email fails
       }
       
       return { error: null };
