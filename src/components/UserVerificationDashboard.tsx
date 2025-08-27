@@ -70,33 +70,35 @@ export const UserVerificationDashboard = ({
 
   return (
     <Card className={`
-      ${message.variant === 'success' ? 'border-green-200 bg-green-50' : ''}
-      ${message.variant === 'warning' ? 'border-orange-200 bg-orange-50' : ''}
-      ${message.variant === 'error' ? 'border-red-200 bg-red-50' : ''}
+      transition-all duration-300 hover:shadow-md
+      ${message.variant === 'success' ? 'border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950/20' : ''}
+      ${message.variant === 'warning' ? 'border-orange-200 bg-orange-50 dark:border-orange-800 dark:bg-orange-950/20' : ''}
+      ${message.variant === 'error' ? 'border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950/20' : ''}
     `}>
       <CardHeader>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
           <div className={`
-            flex items-center justify-center w-12 h-12 rounded-full
-            ${message.variant === 'success' ? 'bg-green-100' : ''}
-            ${message.variant === 'warning' ? 'bg-orange-100' : ''}
-            ${message.variant === 'error' ? 'bg-red-100' : ''}
+            flex items-center justify-center w-12 h-12 rounded-full flex-shrink-0 transition-transform duration-200 hover:scale-105
+            ${message.variant === 'success' ? 'bg-green-100 dark:bg-green-900/30' : ''}
+            ${message.variant === 'warning' ? 'bg-orange-100 dark:bg-orange-900/30' : ''}
+            ${message.variant === 'error' ? 'bg-red-100 dark:bg-red-900/30' : ''}
           `}>
             {verificationStatus === 'approved' || verificationStatus === 'verified' ? (
-              <CheckCircle className="h-8 w-8 text-green-600" />
+              <CheckCircle className="h-8 w-8 text-green-600 dark:text-green-400" />
             ) : verificationStatus === 'pending' ? (
-              <Clock className="h-8 w-8 text-orange-600" />
+              <Clock className="h-8 w-8 text-orange-600 dark:text-orange-400" />
             ) : verificationStatus === 'rejected' ? (
-              <XCircle className="h-8 w-8 text-red-600" />
+              <XCircle className="h-8 w-8 text-red-600 dark:text-red-400" />
             ) : (
-              <AlertTriangle className="h-8 w-8 text-orange-600" />
+              <AlertTriangle className="h-8 w-8 text-orange-600 dark:text-orange-400" />
             )}
           </div>
-          <div className="flex-1">
+          <div className="flex-1 w-full sm:w-auto">
             <CardTitle className={`
-              ${message.variant === 'success' ? 'text-green-800' : ''}
-              ${message.variant === 'warning' ? 'text-orange-800' : ''}
-              ${message.variant === 'error' ? 'text-red-800' : ''}
+              text-base sm:text-lg break-words
+              ${message.variant === 'success' ? 'text-green-800 dark:text-green-200' : ''}
+              ${message.variant === 'warning' ? 'text-orange-800 dark:text-orange-200' : ''}
+              ${message.variant === 'error' ? 'text-red-800 dark:text-red-200' : ''}
             `}>
               {message.title}
             </CardTitle>
@@ -112,22 +114,26 @@ export const UserVerificationDashboard = ({
       </CardHeader>
       <CardContent>
         <p className={`
-          text-sm mb-4
-          ${message.variant === 'success' ? 'text-green-700' : ''}
-          ${message.variant === 'warning' ? 'text-orange-700' : ''}
-          ${message.variant === 'error' ? 'text-red-700' : ''}
+          text-sm mb-4 leading-relaxed
+          ${message.variant === 'success' ? 'text-green-700 dark:text-green-300' : ''}
+          ${message.variant === 'warning' ? 'text-orange-700 dark:text-orange-300' : ''}
+          ${message.variant === 'error' ? 'text-red-700 dark:text-red-300' : ''}
         `}>
           {message.description}
         </p>
         
         {message.showActions && message.actionHandler && (
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <Button 
               onClick={message.actionHandler}
               className={`
-                ${message.variant === 'warning' ? 'bg-orange-600 hover:bg-orange-700' : ''}
-                ${message.variant === 'error' ? 'bg-red-600 hover:bg-red-700' : ''}
+                transition-all duration-200 hover:scale-105 active:scale-95 w-full sm:w-auto
+                ${message.variant === 'warning' ? 'bg-orange-600 hover:bg-orange-700 dark:bg-orange-700 dark:hover:bg-orange-600' : ''}
+                ${message.variant === 'error' ? 'bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600' : ''}
               `}
+              style={{
+                WebkitTapHighlightColor: 'transparent'
+              }}
             >
               <Shield className="mr-2 h-4 w-4" />
               {message.actionText}
@@ -135,7 +141,10 @@ export const UserVerificationDashboard = ({
             <Button 
               variant="outline" 
               onClick={refresh}
-              className="border-muted"
+              className="border-muted hover:bg-muted/10 transition-all duration-200 w-full sm:w-auto"
+              style={{
+                WebkitTapHighlightColor: 'transparent'
+              }}
             >
               Refresh Status
             </Button>
@@ -143,12 +152,15 @@ export const UserVerificationDashboard = ({
         )}
 
         {(verificationStatus === 'approved' || verificationStatus === 'verified') && (
-          <div className="flex gap-2 mt-4">
+          <div className="flex flex-col sm:flex-row gap-2 mt-4">
             <Button 
               variant="outline" 
               size="sm"
               onClick={() => window.location.href = '/rent-out-your-space'}
-              className="border-green-300 text-green-700 hover:bg-green-100"
+              className="border-green-300 text-green-700 hover:bg-green-100 dark:border-green-700 dark:text-green-300 dark:hover:bg-green-900/20 transition-all duration-200 hover:scale-105 active:scale-95 w-full sm:w-auto font-semibold"
+              style={{
+                WebkitTapHighlightColor: 'transparent'
+              }}
             >
               List Parking Space
             </Button>
@@ -156,7 +168,10 @@ export const UserVerificationDashboard = ({
               variant="outline" 
               size="sm"
               onClick={() => window.location.href = '/find-parking'}
-              className="border-green-300 text-green-700 hover:bg-green-100"
+              className="border-green-300 text-green-700 hover:bg-green-100 dark:border-green-700 dark:text-green-300 dark:hover:bg-green-900/20 transition-all duration-200 hover:scale-105 active:scale-95 w-full sm:w-auto font-semibold"
+              style={{
+                WebkitTapHighlightColor: 'transparent'
+              }}
             >
               Find Parking
             </Button>

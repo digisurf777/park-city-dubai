@@ -18,10 +18,18 @@ export const VerificationStatusBadge = ({
     return (
       <Badge 
         variant="outline"
-        className={`flex items-center gap-1 bg-muted/10 text-muted-foreground border-muted/20 ${className}`}
+        className={`flex items-center gap-1 bg-muted/10 text-muted-foreground border-muted/20 transition-all duration-200 hover:bg-muted/20 ${className}`}
+        style={{
+          // Cross-browser compatibility fallbacks
+          WebkitUserSelect: 'none',
+          MozUserSelect: 'none',
+          msUserSelect: 'none',
+          userSelect: 'none',
+          WebkitTapHighlightColor: 'transparent'
+        }}
       >
-        {showIcon && <AlertCircle className="h-3 w-3" />}
-        <span className={`font-medium ${size === 'sm' ? 'text-xs' : size === 'lg' ? 'text-sm' : 'text-xs'}`}>
+        {showIcon && <AlertCircle className="h-3 w-3 flex-shrink-0" />}
+        <span className={`font-medium whitespace-nowrap ${size === 'sm' ? 'text-xs' : size === 'lg' ? 'text-sm' : 'text-xs'}`}>
           Not Submitted
         </span>
       </Badge>
@@ -68,10 +76,20 @@ export const VerificationStatusBadge = ({
   return (
     <Badge 
       variant={statusDisplay.variant}
-      className={`flex items-center gap-1 ${statusDisplay.className} ${className}`}
+      className={`flex items-center gap-1 transition-all duration-200 hover:shadow-sm ${statusDisplay.className} ${className}`}
+      style={{
+        // Enhanced cross-browser support
+        WebkitUserSelect: 'none',
+        MozUserSelect: 'none',
+        msUserSelect: 'none',
+        userSelect: 'none',
+        WebkitTapHighlightColor: 'transparent',
+        WebkitBackfaceVisibility: 'hidden',
+        backfaceVisibility: 'hidden'
+      }}
     >
-      {showIcon && <Icon className={size === 'sm' ? 'h-3 w-3' : size === 'lg' ? 'h-4 w-4' : 'h-3 w-3'} />}
-      <span className={`font-medium ${size === 'sm' ? 'text-xs' : size === 'lg' ? 'text-sm' : 'text-xs'}`}>
+      {showIcon && <Icon className={`flex-shrink-0 ${size === 'sm' ? 'h-3 w-3' : size === 'lg' ? 'h-4 w-4' : 'h-3 w-3'}`} />}
+      <span className={`font-medium whitespace-nowrap ${size === 'sm' ? 'text-xs' : size === 'lg' ? 'text-sm' : 'text-xs'}`}>
         {statusDisplay.text}
       </span>
     </Badge>
