@@ -507,13 +507,41 @@ const AdminPanel = () => {
         try {
           const listing = parkingListings.find(l => l.id === listingId);
           if (listing?.owner_id) {
+            // Get user details for notification
+            let ownerName = 'Listing Owner';
+            let ownerEmail = '';
+
+            try {
+              const { data: ownerProfile } = await supabase
+                .from('profiles')
+                .select('full_name')
+                .eq('user_id', listing.owner_id)
+                .maybeSingle();
+
+              if (ownerProfile?.full_name) {
+                ownerName = ownerProfile.full_name;
+              }
+
+              // Get email from auth.users
+              const { data: { users }, error: authError } = await supabase.auth.admin.listUsers();
+              if (!authError) {
+                const user = users.find((u: any) => u.id === listing.owner_id);
+                if (user?.email) {
+                  ownerEmail = user.email;
+                }
+              }
+            } catch (userErr) {
+              console.error('Error getting owner details:', userErr);
+            }
+
             await supabase.functions.invoke('send-admin-listing-notification', {
               body: {
                 listingId: listingId,
-                ownerName: 'Listing Owner',
+                ownerName: ownerName,
                 isApproved: true,
                 listingTitle: listing.title,
-                zone: listing.zone
+                zone: listing.zone,
+                userEmail: ownerEmail
               }
             });
           }
