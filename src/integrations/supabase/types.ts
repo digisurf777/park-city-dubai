@@ -65,6 +65,45 @@ export type Database = {
         }
         Relationships: []
       }
+      documents: {
+        Row: {
+          bucket_id: string
+          created_at: string | null
+          filename: string
+          id: string
+          mime_type: string
+          status: string | null
+          storage_path: string
+          updated_at: string | null
+          uploaded_at: string | null
+          user_id: string
+        }
+        Insert: {
+          bucket_id?: string
+          created_at?: string | null
+          filename: string
+          id?: string
+          mime_type: string
+          status?: string | null
+          storage_path: string
+          updated_at?: string | null
+          uploaded_at?: string | null
+          user_id: string
+        }
+        Update: {
+          bucket_id?: string
+          created_at?: string | null
+          filename?: string
+          id?: string
+          mime_type?: string
+          status?: string | null
+          storage_path?: string
+          updated_at?: string | null
+          uploaded_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       driver_owner_messages: {
         Row: {
           admin_flagged: boolean

@@ -10,6 +10,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { Upload, FileImage, CheckCircle, Clock, XCircle, AlertTriangle } from 'lucide-react';
+
+console.log('VerificationPanel: Component loading');
 interface Verification {
   id: string;
   full_name: string;
@@ -20,18 +22,22 @@ interface Verification {
   created_at: string;
 }
 const VerificationPanel = () => {
-  const {
-    user
-  } = useAuth();
+  console.log('VerificationPanel: Component initializing');
+  
+  const { user } = useAuth();
+  console.log('VerificationPanel: useAuth result:', { user: user?.id });
+  
   const [verification, setVerification] = useState<Verification | null>(null);
   const [loading, setLoading] = useState(true);
-  const [uploading, setUploading] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [formData, setFormData] = useState({
     fullName: '',
     nationality: '',
     documentType: '',
     file: null as File | null
   });
+
+  console.log('VerificationPanel: State initialized');
 
   // Return early if user is already approved
   if (verification?.verification_status === 'approved') {
@@ -82,10 +88,9 @@ const VerificationPanel = () => {
     fileInput?.click();
   };
   const uploadDocument = async () => {
-    console.log('Starting document upload...');
+    console.log('=== DOCUMENT UPLOAD START ===');
     console.log('Form data:', formData);
     console.log('User:', user);
-    console.log('User ID:', user?.id);
     
     if (!formData.file || !formData.fullName || !formData.nationality || !formData.documentType || !user) {
       const missingFields = [];
@@ -95,96 +100,87 @@ const VerificationPanel = () => {
       if (!formData.documentType) missingFields.push('Document type');
       if (!user) missingFields.push('User authentication');
       
-      console.error('Missing fields:', missingFields);
-      toast.error(`Please fill the following fields: ${missingFields.join(', ')}`);
+      console.error('Missing required fields:', missingFields);
+      toast.error(`Please fill in all required fields: ${missingFields.join(', ')}`);
       return;
     }
 
-    setUploading(true);
+    // Validate file type and size
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    
+    if (!allowedTypes.includes(formData.file.type)) {
+      console.error('Invalid file type:', formData.file.type);
+      toast.error('Please upload a valid image file (JPEG, PNG, GIF, WebP) or PDF');
+      return;
+    }
+    
+    if (formData.file.size > maxSize) {
+      console.error('File too large:', formData.file.size);
+      toast.error('File size must be less than 10MB');
+      return;
+    }
+
+    setIsUploading(true);
+    console.log('Starting upload using edge function...');
+    
     try {
-      console.log('Preparing file upload...');
-      
-      // Upload file to storage
-      const fileExt = formData.file.name.split('.').pop();
-      const fileName = `${user.id}/${Date.now()}.${fileExt}`;
-      
-      console.log('Uploading file:', fileName);
-      console.log('File size:', formData.file.size);
-      console.log('File type:', formData.file.type);
-      
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('verification-docs')
-        .upload(fileName, formData.file, {
-          cacheControl: '3600',
-          upsert: false
-        });
-      
-      if (uploadError) {
-        console.error('Storage upload error:', uploadError);
-        throw new Error(`Upload failed: ${uploadError.message}`);
+      // Get current session token
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        throw new Error('No valid session found. Please log in again.');
       }
-      
-      console.log('File uploaded successfully:', uploadData);
 
-      // For private bucket, use signed URL instead of public URL
-      const { data: urlData, error: urlError } = await supabase.storage
-        .from('verification-docs')
-        .createSignedUrl(fileName, 60 * 60 * 24 * 365); // 1 year expiry for admin access
-      
-      if (urlError) {
-        console.error('URL generation error:', urlError);
-        throw new Error(`URL generation failed: ${urlError.message}`);
-      }
-      
-      console.log('Signed URL created:', urlData.signedUrl);
+      console.log('Session found, preparing form data...');
 
-      // Save verification record - use upsert for re-submissions
-      console.log('Saving verification record...');
-      const verificationData = {
-        user_id: user.id,
-        full_name: formData.fullName,
-        nationality: formData.nationality,
-        document_type: formData.documentType,
-        document_image_url: urlData.signedUrl,
-        verification_status: 'pending' as const,
-        access_restricted: false // Allow user to view their own document
-      };
+      // Create form data for the edge function with all required fields
+      const uploadFormData = new FormData();
+      uploadFormData.append('file', formData.file);
+      uploadFormData.append('full_name', formData.fullName.trim());
+      uploadFormData.append('nationality', formData.nationality);
+      uploadFormData.append('document_type', formData.documentType);
       
-      console.log('Verification data:', verificationData);
+      console.log('Calling upload edge function with complete data...');
+      console.log('Form data entries:', Array.from(uploadFormData.entries()).map(([key, value]) => [key, typeof value === 'string' ? value : `File: ${(value as File).name}`]));
       
-      const { error: insertError } = await supabase
-        .from('user_verifications')
-        .upsert(verificationData);
-      
-      if (insertError) {
-        console.error('Database insert error:', insertError);
-        throw new Error(`Database save failed: ${insertError.message}`);
-      }
-      
-      console.log('Verification record saved successfully');
+      // Call the edge function directly with fetch for better error handling
+      const response = await fetch(`https://eoknluyunximjlsnyceb.supabase.co/functions/v1/upload_verification_doc`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: uploadFormData,
+      });
 
-      // Send admin notification
-      console.log('Sending admin notification...');
+      console.log('Edge function response received:', response.status, response.statusText);
+
+      let result;
       try {
-        await supabase.functions.invoke('send-admin-notification', {
-          body: {
-            type: 'id_verification',
-            userEmail: user.email || '',
-            userName: formData.fullName,
-            details: {
-              documentType: formData.documentType,
-              nationality: formData.nationality
-            }
-          }
-        });
-        console.log('Admin notification sent');
-      } catch (notificationError) {
-        console.warn('Failed to send admin notification:', notificationError);
-        // Don't fail the whole process if notification fails
+        result = await response.json();
+        console.log('Edge function response data:', result);
+      } catch (parseError) {
+        console.error('Failed to parse response as JSON:', parseError);
+        throw new Error(`Server returned invalid response (${response.status})`);
       }
       
-      toast.success('Verification document uploaded successfully');
-      fetchVerification();
+      if (!response.ok) {
+        console.error('Edge function error response:', result);
+        throw new Error(result?.error || `Upload failed with status ${response.status}: ${response.statusText}`);
+      }
+      
+      if (!result?.success) {
+        console.error('Upload operation failed:', result);
+        throw new Error(result?.error || 'Upload operation failed');
+      }
+      
+      console.log('Document uploaded and verification created successfully via edge function');
+      console.log('=== UPLOAD SUCCESS ===');
+      toast.success('Verification document uploaded successfully! Our team will review it within 24-48 hours.');
+      
+      // Refresh verification status
+      await fetchVerification();
+      
+      // Reset form
       setFormData({
         fullName: '',
         nationality: '',
@@ -199,13 +195,42 @@ const VerificationPanel = () => {
       }
       
     } catch (error: any) {
-      console.error('Error uploading document:', error);
-      const errorMessage = error.message || 'Unknown error occurred';
-      toast.error(`Failed to upload verification document: ${errorMessage}`);
+      console.error('=== UPLOAD ERROR ===');
+      console.error('Upload failed:', error);
+      console.error('Error stack:', error.stack);
+      
+      let errorMessage = 'Unknown error occurred during upload';
+      
+      if (error.message) {
+        errorMessage = error.message;
+      } else if (typeof error === 'string') {
+        errorMessage = error;
+      }
+      
+      // Handle specific error types
+      if (errorMessage.includes('CORS')) {
+        errorMessage = 'Network error: Please try again in a few seconds.';
+      } else if (errorMessage.includes('fetch')) {
+        errorMessage = 'Connection failed: Please check your internet connection and try again.';
+      } else if (errorMessage.includes('session')) {
+        errorMessage = 'Authentication expired: Please refresh the page and log in again.';
+      }
+      
+      toast.error(`Upload failed: ${errorMessage}`);
+      
+      // If it's an auth error, suggest refresh
+      if (errorMessage.includes('Authentication') || errorMessage.includes('session')) {
+        setTimeout(() => {
+          toast.error('Please refresh the page and try logging in again.');
+        }, 2000);
+      }
+      
     } finally {
-      setUploading(false);
+      setIsUploading(false);
+      console.log('=== UPLOAD COMPLETE ===');
     }
   };
+
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'approved':
@@ -533,8 +558,8 @@ const VerificationPanel = () => {
                   </p>
                 </div>
 
-                <Button onClick={uploadDocument} disabled={uploading || !formData.file || !formData.fullName || !formData.nationality || !formData.documentType} className="w-full">
-                  {uploading ? 'Uploading...' : 'Submit for Verification'}
+                <Button onClick={uploadDocument} disabled={isUploading || !formData.file || !formData.fullName || !formData.nationality || !formData.documentType} className="w-full">
+                  {isUploading ? 'Uploading...' : 'Submit for Verification'}
                 </Button>
               </div>
             </div>}

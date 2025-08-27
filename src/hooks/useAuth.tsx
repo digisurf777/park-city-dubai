@@ -191,11 +191,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const resetPassword = async (email: string) => {
     try {
-      console.log('Sending password reset for email:', email);
+      console.log('=== RESET PASSWORD START ===');
+      console.log('Email:', email);
+      console.log('Window origin:', window.location.origin);
       
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth?type=recovery`
+      const redirectUrl = `${window.location.origin}/auth?type=recovery`;
+      console.log('Reset redirect URL:', redirectUrl);
+      
+      console.log('Calling supabase.auth.resetPasswordForEmail...');
+      const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: redirectUrl
       });
+      
+      console.log('Supabase reset result:', { data, error });
       
       if (error) {
         console.error('Supabase password reset error:', error);
@@ -206,26 +214,31 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       // Also send custom password reset email with better error handling
       try {
-        const { data, error: functionError } = await supabase.functions.invoke('send-password-reset', {
+        console.log('Calling custom send-password-reset function...');
+        const { data: functionData, error: functionError } = await supabase.functions.invoke('send-password-reset', {
           body: { 
             email, 
-            resetUrl: `${window.location.origin}/auth?type=recovery` 
+            resetUrl: redirectUrl
           }
         });
+        
+        console.log('Custom function result:', { functionData, functionError });
         
         if (functionError) {
           console.warn('Custom password reset email failed:', functionError);
           // Don't fail the whole process if custom email fails
         } else {
-          console.log('Custom password reset email sent:', data);
+          console.log('Custom password reset email sent:', functionData);
         }
       } catch (customEmailError) {
         console.warn('Error sending custom password reset email:', customEmailError);
         // Don't fail the whole process if custom email fails
       }
       
+      console.log('=== RESET PASSWORD SUCCESS ===');
       return { error: null };
     } catch (error: any) {
+      console.error('=== RESET PASSWORD ERROR ===');
       console.error('Password reset error:', error);
       return { error: error };
     }

@@ -94,7 +94,7 @@ const handler = async (req: Request): Promise<Response> => {
     const recipientEmail = isApproved && userEmail ? userEmail : "support@shazamparking.ae";
 
     const emailResponse = await resend.emails.send({
-      from: "ShazamParking <onboarding@resend.dev>",
+      from: "ShazamParking <support@shazamparking.ae>",
       to: [recipientEmail],
       subject: subject,
       html: htmlContent,
