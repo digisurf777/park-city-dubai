@@ -261,24 +261,47 @@ const Auth = () => {
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('=== PASSWORD RESET TRIGGERED ===');
+    console.log('Reset email:', resetEmail);
+    
+    if (!resetEmail.trim()) {
+      toast.error('Please enter your email address');
+      return;
+    }
+
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(resetEmail)) {
+      toast.error('Please enter a valid email address');
+      return;
+    }
+    
     setResetLoading(true);
+    console.log('Starting password reset process...');
     
     try {
+      console.log('Calling resetPassword function...');
       const { error } = await resetPassword(resetEmail);
       
+      console.log('Reset password result:', { error });
+      
       if (error) {
+        console.error('Password reset error:', error);
         toast.error(error.message || 'Error sending password reset email');
       } else {
+        console.log('Password reset email sent successfully');
         toast.success('Password reset email sent!', {
-          description: 'Check your inbox for the reset link.'
+          description: 'Check your inbox and spam folder for the reset link.'
         });
         setResetEmail('');
         setShowResetForm(false);
       }
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Password reset exception:', error);
       toast.error('An error occurred while sending password reset email');
     } finally {
       setResetLoading(false);
+      console.log('Password reset process completed');
     }
   };
 
@@ -480,46 +503,63 @@ const Auth = () => {
                     <Button
                       type="button"
                       variant="link"
-                      className="text-sm p-0"
-                      onClick={() => setShowResetForm(!showResetForm)}
+                      className="text-sm p-0 text-primary hover:text-primary/80"
+                      onClick={() => {
+                        console.log('=== FORGOT PASSWORD CLICKED ===');
+                        console.log('Current showResetForm state:', showResetForm);
+                        setShowResetForm(!showResetForm);
+                        console.log('New showResetForm state:', !showResetForm);
+                      }}
                     >
                       Forgot your password?
                     </Button>
                   </div>
                   
                   {showResetForm && (
-                    <form onSubmit={handleResetPassword} className="mt-4 space-y-4 p-4 border rounded-lg bg-muted/50">
-                      <div className="space-y-2">
-                        <Label htmlFor="reset-email">Email for password reset</Label>
-                        <Input
-                          id="reset-email"
-                          type="email"
-                          placeholder="Enter your email"
-                          value={resetEmail}
-                          onChange={(e) => setResetEmail(e.target.value)}
-                          required
-                        />
-                      </div>
-                      <div className="flex gap-2">
-                        <Button type="submit" className="flex-1" disabled={resetLoading}>
-                          {resetLoading ? (
-                            <>
-                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                              Sending...
-                            </>
-                          ) : (
-                            'Send Reset Email'
-                          )}
-                        </Button>
-                        <Button 
-                          type="button" 
-                          variant="outline" 
-                          onClick={() => setShowResetForm(false)}
-                        >
-                          Cancel
-                        </Button>
-                      </div>
-                    </form>
+                    <div className="mt-4 p-4 border rounded-lg bg-muted/50 animate-in slide-in-from-top-2 duration-300">
+                      <h3 className="text-sm font-medium mb-3 text-center">Reset Your Password</h3>
+                      <form onSubmit={handleResetPassword} className="space-y-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="reset-email">Email Address</Label>
+                          <Input
+                            id="reset-email"
+                            type="email"
+                            placeholder="Enter your email address"
+                            value={resetEmail}
+                            onChange={(e) => {
+                              console.log('Reset email changed:', e.target.value);
+                              setResetEmail(e.target.value);
+                            }}
+                            required
+                            disabled={resetLoading}
+                          />
+                        </div>
+                        <div className="flex gap-2">
+                          <Button type="submit" className="flex-1" disabled={resetLoading}>
+                            {resetLoading ? (
+                              <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Sending...
+                              </>
+                            ) : (
+                              'Send Reset Email'
+                            )}
+                          </Button>
+                          <Button 
+                            type="button" 
+                            variant="outline" 
+                            onClick={() => {
+                              console.log('Cancel reset clicked');
+                              setShowResetForm(false);
+                              setResetEmail('');
+                            }}
+                            disabled={resetLoading}
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      </form>
+                    </div>
                   )}
                 </form>
               </div>
