@@ -1,3 +1,4 @@
+import React from "react";
 import { Link } from "react-router-dom";
 import { MapPin, Mail, Apple, Play } from "lucide-react";
 const Footer = () => {
