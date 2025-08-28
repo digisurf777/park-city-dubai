@@ -256,6 +256,15 @@ const VerificationPanel = () => {
         </CardHeader>
         <CardContent>
           {verification ? <div className="space-y-4">
+              {verification.verification_status === 'pending' && (
+                <Alert className="border-yellow-200 bg-yellow-50">
+                  <Clock className="h-4 w-4 text-yellow-600" />
+                  <AlertDescription className="text-yellow-800">
+                    <strong>🕒 Verification Pending</strong> – Your verification documents have been submitted successfully and are currently under review. You will receive an email notification once the review is complete.
+                  </AlertDescription>
+                </Alert>
+              )}
+              
               <div className="flex items-center justify-between">
                 <span className="font-medium">Verification Status:</span>
                 {getStatusBadge(verification.verification_status)}
