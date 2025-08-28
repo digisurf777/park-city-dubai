@@ -71,7 +71,7 @@ const handler = async (req: Request): Promise<Response> => {
             </div>
 
             <div style="text-align: center; margin: 30px 0;">
-              <a href="https://shazamparking.ae/rent-out-your-space" 
+              <a href="https://preview--park-city-dubai.lovable.app/rent-out-your-space" 
                  style="background: linear-gradient(135deg, #28a745, #20c997); color: white; padding: 15px 30px; text-decoration: none; border-radius: 25px; display: inline-block; font-weight: bold; font-size: 16px; box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);">
                 🏢 List Your Parking Space Now
               </a>
@@ -122,7 +122,7 @@ const handler = async (req: Request): Promise<Response> => {
             </div>
 
             <div style="text-align: center; margin: 30px 0;">
-              <a href="https://shazamparking.ae/my-account" 
+              <a href="https://preview--park-city-dubai.lovable.app/my-account" 
                  style="background: linear-gradient(135deg, #007bff, #0056b3); color: white; padding: 15px 30px; text-decoration: none; border-radius: 25px; display: inline-block; font-weight: bold; font-size: 16px; box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);">
                 🔄 Submit New Verification
               </a>
@@ -139,7 +139,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Send email notification
     const emailResponse = await resend.emails.send({
-      from: "ShazamParking <support@shazamparking.ae>",
+      from: "ShazamParking <onboarding@resend.dev>",
       to: [userEmail],
       subject: subject,
       html: htmlContent,

@@ -412,7 +412,7 @@ const MyAccount = () => {
               <TabsTrigger value="verification" className={`flex items-center gap-2 py-2 ${verificationStatus === 'pending' || verificationStatus === null ? 'bg-orange-500/10 text-orange-700 dark:text-orange-300 border-orange-500/20' : ''}`}>
                 <Shield className="h-4 w-4" />
                 Verification
-                {(verificationStatus === 'pending' || verificationStatus === null) && <Badge variant="destructive" className="h-5 w-5 flex items-center justify-center text-xs font-bold">!</Badge>}
+                {(verificationStatus === 'pending' || verificationStatus === null) && <Badge variant="destructive" className="ml-2 h-5 w-5 p-0 text-xs">!</Badge>}
               </TabsTrigger>
             )}
             <TabsTrigger value="listings" className="flex items-center gap-2 py-2">
