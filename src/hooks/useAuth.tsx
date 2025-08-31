@@ -1,5 +1,5 @@
 
-import { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { cleanupAuthState, forcePageRefresh } from '@/utils/authUtils';
@@ -27,40 +27,42 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  console.log('AuthProvider: Initializing');
-  
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
+  console.log('AuthProvider: Initializing');
+
   useEffect(() => {
     console.log('AuthProvider: Setting up auth state listener');
     
-    // Set up auth state listener
+    // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        console.log('AuthProvider: Auth state changed:', event, session?.user?.email_confirmed_at);
+        console.log('AuthProvider: Auth state changed:', event, session?.user?.email || 'no user');
+        
+        // Update state synchronously
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
         
-        // Defer any data fetching to prevent deadlocks
+        // Handle auth events
         if (event === 'SIGNED_IN' && session?.user) {
-          setTimeout(() => {
-            // Any additional user data loading would go here
-          }, 0);
+          console.log('AuthProvider: User signed in successfully');
+          // Don't make any Supabase calls here to prevent deadlocks
+        } else if (event === 'SIGNED_OUT') {
+          console.log('AuthProvider: User signed out');
+          setSession(null);
+          setUser(null);
         }
       }
     );
 
-    // Check for existing session
+    // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       console.log('AuthProvider: Initial session check:', !!session);
       setSession(session);
       setUser(session?.user ?? null);
-      setLoading(false);
-    }).catch((error) => {
-      console.error('AuthProvider: Session check failed:', error);
       setLoading(false);
     });
 
@@ -70,80 +72,70 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     };
   }, []);
 
-  const signUp = async (email: string, password: string, fullName: string, userType: string = 'renter') => {
+  const signUp = async (email: string, password: string, fullName: string, userType: string = 'seeker') => {
     try {
-      // Clean up any existing auth state before signup
+      console.log('AuthProvider: Starting signup process for:', email);
+      
+      // Clean up any existing auth state first
       cleanupAuthState();
       
-      // Use fixed production URL for consistent email confirmation
-      const redirectUrl = 'https://shazamparking.ae/email-confirmed?redirect_to=/my-account';
-
-      console.log('=== SIGNUP DEBUG ===');
-      console.log('Signup email:', email);
-      console.log('Redirect URL being used:', redirectUrl);
-      console.log('Full name:', fullName);
-      console.log('User type:', userType);
-
-      // Create user account with Supabase's built-in email confirmation
+      const redirectUrl = `${window.location.origin}/email-confirmed?redirect_to=/`;
+      
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          emailRedirectTo: redirectUrl,
           data: {
             full_name: fullName,
-            user_type: userType
-          }
-        }
+            user_type: userType,
+          },
+          emailRedirectTo: redirectUrl,
+        },
       });
 
-      console.log('=== SIGNUP RESULT ===');
-      console.log('Signup successful:', !error);
-      console.log('User created:', !!data?.user);
-      console.log('User ID:', data?.user?.id);
-      console.log('Email confirmed:', !!data?.user?.email_confirmed_at);
-      console.log('Session exists:', !!data?.session);
-      console.log('Error:', error?.message);
-      console.log('Error code:', error?.name);
-      console.log('Full error object:', error);
+      if (error) {
+        console.error('AuthProvider: Signup error:', error);
+        return { error };
+      }
 
-      // If signup successful, send admin notification (Supabase handles confirmation email automatically)
-      if (!error && data?.user) {
-
-        // Send admin notification after successful signup
+      console.log('AuthProvider: Signup successful for:', data.user?.email);
+      
+      // Send admin notification if user was created
+      if (data.user && !data.user.email_confirmed_at) {
         try {
           await supabase.functions.invoke('send-admin-signup-notification', {
             body: {
-              email: email,
+              email: data.user.email,
               fullName: fullName,
-              userType: userType
-            }
+              userType: userType,
+            },
           });
-          console.log('Admin notification sent successfully');
-        } catch (emailError) {
-          console.error('Failed to send admin notification:', emailError);
-          // Don't fail the signup if admin email fails
+          console.log('AuthProvider: Admin notification sent');
+        } catch (notificationError) {
+          console.error('Failed to send admin notification:', notificationError);
+          // Don't block signup for notification failure
         }
       }
-      
+
+      return { error: null };
+    } catch (error) {
+      console.error('AuthProvider: Signup exception:', error);
       return { error };
-    } catch (signupError: any) {
-      console.error('Signup error:', signupError);
-      return { error: signupError };
     }
   };
 
   const signIn = async (email: string, password: string) => {
     try {
-      // Clean up existing state before signing in
+      console.log('AuthProvider: Starting signin process for:', email);
+      
+      // Clean up auth state before signing in
       cleanupAuthState();
       
       // Attempt global sign out first
       try {
         await supabase.auth.signOut({ scope: 'global' });
-      } catch (err) {
-        // Continue even if this fails
-        console.log('Global signout error (continuing):', err);
+      } catch (signOutError) {
+        console.log('AuthProvider: Global signout failed (continuing):', signOutError);
       }
 
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -152,118 +144,120 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       });
 
       if (error) {
+        console.error('AuthProvider: Signin error:', error);
         return { error };
       }
 
-      if (data.user) {
-        // Force page refresh for clean state
-        setTimeout(() => {
-          forcePageRefresh('/');
-        }, 500);
-      }
+      console.log('AuthProvider: Signin successful for:', data.user?.email);
+
+      // Force page refresh after successful login
+      setTimeout(() => {
+        console.log('AuthProvider: Redirecting to home page');
+        forcePageRefresh('/');
+      }, 1000);
 
       return { error: null };
-    } catch (error: any) {
+    } catch (error) {
+      console.error('AuthProvider: Signin exception:', error);
       return { error };
     }
   };
 
   const signOut = async () => {
     try {
-      // Clean up auth state first
+      console.log('AuthProvider: Starting signout process');
+      
+      // Clean up auth state
       cleanupAuthState();
       
       // Attempt global sign out
       try {
         await supabase.auth.signOut({ scope: 'global' });
-      } catch (err) {
-        console.log('Signout error (continuing):', err);
+      } catch (error) {
+        console.error('AuthProvider: Signout error (continuing):', error);
       }
+
+      console.log('AuthProvider: Signout complete, redirecting to auth');
       
-      // Force page refresh for clean state
+      // Force page refresh
       forcePageRefresh('/auth');
     } catch (error) {
-      console.error('Signout error:', error);
-      // Force refresh anyway to clear state
+      console.error('AuthProvider: Signout exception:', error);
+      // Force refresh anyway
       forcePageRefresh('/auth');
     }
   };
 
   const resetPassword = async (email: string) => {
     try {
-      console.log('Sending password reset for email:', email);
+      const redirectUrl = `${window.location.origin}/auth?type=recovery`;
       
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth?type=recovery`
+        redirectTo: redirectUrl,
       });
-      
+
       if (error) {
-        console.error('Supabase password reset error:', error);
+        console.error('AuthProvider: Reset password error:', error);
         return { error };
       }
-      
-      console.log('Supabase password reset sent successfully');
-      
-      // Also send custom password reset email with better error handling
+
+      console.log('AuthProvider: Password reset email sent to:', email);
+
+      // Also call the edge function for custom email
       try {
-        const { data, error: functionError } = await supabase.functions.invoke('send-password-reset', {
-          body: { 
-            email, 
-            resetUrl: `${window.location.origin}/auth?type=recovery` 
-          }
+        await supabase.functions.invoke('send-password-reset', {
+          body: { email },
         });
-        
-        if (functionError) {
-          console.warn('Custom password reset email failed:', functionError);
-          // Don't fail the whole process if custom email fails
-        } else {
-          console.log('Custom password reset email sent:', data);
-        }
-      } catch (customEmailError) {
-        console.warn('Error sending custom password reset email:', customEmailError);
-        // Don't fail the whole process if custom email fails
+      } catch (functionError) {
+        console.error('AuthProvider: Custom reset email failed:', functionError);
+        // Don't fail the whole operation
       }
-      
+
       return { error: null };
-    } catch (error: any) {
-      console.error('Password reset error:', error);
-      return { error: error };
+    } catch (error) {
+      console.error('AuthProvider: Reset password exception:', error);
+      return { error };
     }
   };
 
   const updatePassword = async (password: string) => {
-    const { error } = await supabase.auth.updateUser({
-      password: password
-    });
-    return { error };
+    try {
+      const { error } = await supabase.auth.updateUser({ password });
+      
+      if (error) {
+        console.error('AuthProvider: Update password error:', error);
+        return { error };
+      }
+
+      console.log('AuthProvider: Password updated successfully');
+      return { error: null };
+    } catch (error) {
+      console.error('AuthProvider: Update password exception:', error);
+      return { error };
+    }
   };
 
   const resendConfirmationEmail = async (email: string) => {
     try {
-      // Use fixed production URL for consistent email confirmation
-      const redirectUrl = 'https://shazamparking.ae/email-confirmed?redirect_to=/my-account';
-
-      console.log('=== RESEND CONFIRMATION DEBUG ===');
-      console.log('Resending confirmation for email:', email);
-      console.log('Redirect URL being used:', redirectUrl);
-
-      // Use Supabase's built-in resend functionality
+      const redirectUrl = `${window.location.origin}/email-confirmed?redirect_to=/`;
+      
       const { error } = await supabase.auth.resend({
         type: 'signup',
         email: email,
         options: {
-          emailRedirectTo: redirectUrl
-        }
+          emailRedirectTo: redirectUrl,
+        },
       });
 
-      console.log('=== RESEND RESULT ===');
-      console.log('Resend successful:', !error);
-      console.log('Error:', error?.message);
-      console.log('Full error object:', error);
+      if (error) {
+        console.error('AuthProvider: Resend confirmation error:', error);
+        return { error };
+      }
 
-      return { error };
-    } catch (error: any) {
-      console.error('Resend confirmation error:', error);
+      console.log('AuthProvider: Confirmation email resent to:', email);
+      return { error: null };
+    } catch (error) {
+      console.error('AuthProvider: Resend confirmation exception:', error);
       return { error };
     }
   };
