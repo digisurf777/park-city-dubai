@@ -65,6 +65,45 @@ export type Database = {
         }
         Relationships: []
       }
+      documents: {
+        Row: {
+          bucket_id: string
+          created_at: string | null
+          filename: string
+          id: string
+          mime_type: string
+          status: string | null
+          storage_path: string
+          updated_at: string | null
+          uploaded_at: string | null
+          user_id: string
+        }
+        Insert: {
+          bucket_id?: string
+          created_at?: string | null
+          filename: string
+          id?: string
+          mime_type: string
+          status?: string | null
+          storage_path: string
+          updated_at?: string | null
+          uploaded_at?: string | null
+          user_id: string
+        }
+        Update: {
+          bucket_id?: string
+          created_at?: string | null
+          filename?: string
+          id?: string
+          mime_type?: string
+          status?: string | null
+          storage_path?: string
+          updated_at?: string | null
+          uploaded_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       driver_owner_messages: {
         Row: {
           admin_flagged: boolean
@@ -124,6 +163,13 @@ export type Database = {
             columns: ["listing_id"]
             isOneToOne: false
             referencedRelation: "parking_listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "driver_owner_messages_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "parking_listings_safe_public"
             referencedColumns: ["id"]
           },
         ]
@@ -431,7 +477,6 @@ export type Database = {
           features: string[] | null
           id: string
           images: string[] | null
-          owner_id: string | null
           price_per_day: number | null
           price_per_hour: number | null
           price_per_month: number | null
@@ -448,7 +493,6 @@ export type Database = {
           features?: string[] | null
           id: string
           images?: string[] | null
-          owner_id?: string | null
           price_per_day?: number | null
           price_per_hour?: number | null
           price_per_month?: number | null
@@ -465,7 +509,6 @@ export type Database = {
           features?: string[] | null
           id?: string
           images?: string[] | null
-          owner_id?: string | null
           price_per_day?: number | null
           price_per_hour?: number | null
           price_per_month?: number | null
@@ -667,6 +710,33 @@ export type Database = {
           },
         ]
       }
+      system_settings: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          setting_key: string
+          setting_value: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          setting_key: string
+          setting_value: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          setting_key?: string
+          setting_value?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_messages: {
         Row: {
           created_at: string
@@ -810,7 +880,57 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      parking_listings_safe_public: {
+        Row: {
+          address: string | null
+          availability_schedule: Json | null
+          created_at: string | null
+          description: string | null
+          features: string[] | null
+          id: string | null
+          images: string[] | null
+          price_per_day: number | null
+          price_per_hour: number | null
+          price_per_month: number | null
+          status: string | null
+          title: string | null
+          updated_at: string | null
+          zone: string | null
+        }
+        Insert: {
+          address?: string | null
+          availability_schedule?: Json | null
+          created_at?: string | null
+          description?: string | null
+          features?: string[] | null
+          id?: string | null
+          images?: string[] | null
+          price_per_day?: number | null
+          price_per_hour?: number | null
+          price_per_month?: number | null
+          status?: string | null
+          title?: string | null
+          updated_at?: string | null
+          zone?: string | null
+        }
+        Update: {
+          address?: string | null
+          availability_schedule?: Json | null
+          created_at?: string | null
+          description?: string | null
+          features?: string[] | null
+          id?: string | null
+          images?: string[] | null
+          price_per_day?: number | null
+          price_per_hour?: number | null
+          price_per_month?: number | null
+          status?: string | null
+          title?: string | null
+          updated_at?: string | null
+          zone?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       admin_delete_parking_listing: {
@@ -914,6 +1034,14 @@ export type Database = {
         Args: { access_duration_minutes?: number; verification_id: string }
         Returns: Json
       }
+      get_booking_contact_info: {
+        Args: { listing_id: string }
+        Returns: {
+          contact_email: string
+          contact_phone: string
+          owner_id: string
+        }[]
+      }
       get_booking_payment_details: {
         Args: { booking_id: string }
         Returns: {
@@ -923,6 +1051,10 @@ export type Database = {
           stripe_payment_intent_id: string
           stripe_subscription_id: string
         }[]
+      }
+      get_email_confirmation_expiry: {
+        Args: Record<PropertyKey, never>
+        Returns: number
       }
       get_my_booking_status: {
         Args: { booking_id: string }
@@ -955,6 +1087,17 @@ export type Database = {
           zone: string
         }[]
       }
+      get_my_verification_status: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          created_at: string
+          document_type: string
+          id: string
+          security_level: string
+          updated_at: string
+          verification_status: string
+        }[]
+      }
       get_profile_access_stats: {
         Args: { days_back?: number }
         Returns: {
@@ -976,6 +1119,25 @@ export type Database = {
           id: string
           images: string[]
           owner_id: string
+          price_per_day: number
+          price_per_hour: number
+          price_per_month: number
+          status: string
+          title: string
+          updated_at: string
+          zone: string
+        }[]
+      }
+      get_safe_public_listings: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          address: string
+          availability_schedule: Json
+          created_at: string
+          description: string
+          features: string[]
+          id: string
+          images: string[]
           price_per_day: number
           price_per_hour: number
           price_per_month: number
@@ -1020,6 +1182,10 @@ export type Database = {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
+        Returns: boolean
+      }
+      has_verified_documents: {
+        Args: Record<PropertyKey, never>
         Returns: boolean
       }
       is_admin: {
@@ -1071,6 +1237,10 @@ export type Database = {
       }
       send_welcome_email_async: {
         Args: { user_email: string; user_full_name: string }
+        Returns: Json
+      }
+      setup_admin_for_current_user: {
+        Args: Record<PropertyKey, never>
         Returns: Json
       }
       setup_admin_user: {
