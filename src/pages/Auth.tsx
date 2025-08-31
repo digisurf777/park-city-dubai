@@ -318,39 +318,20 @@ const Auth = () => {
 
   const handleGoogleAuth = async () => {
     try {
-      console.log('Starting Google OAuth...');
-      setLoading(true);
-      
-      // Clean up auth state before OAuth
-      try {
-        localStorage.removeItem('supabase.auth.token');
-        Object.keys(localStorage).forEach((key) => {
-          if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
-            localStorage.removeItem(key);
-          }
-        });
-      } catch (cleanupError) {
-        console.error('Error cleaning up auth state:', cleanupError);
-      }
-
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/`,
-        },
+          redirectTo: `${window.location.origin}/auth`
+        }
       });
       
       if (error) {
         console.error('Google auth error:', error);
-        toast.error(`Google authentication failed: ${error.message}`);
-      } else {
-        console.log('Google OAuth initiated successfully');
+        toast.error('Google authentication failed');
       }
     } catch (error) {
-      console.error('Google auth exception:', error);
-      toast.error('Failed to authenticate with Google');
-    } finally {
-      setLoading(false);
+      console.error('Google auth error:', error);
+      toast.error('Google authentication failed');
     }
   };
 
