@@ -80,11 +80,10 @@ const ProductPage: React.FC = () => {
         }
 
         console.log('Fetched public parking listing data:', publicData);
-        // Convert owner_id back to UUID format for public data
+        // Set parking listing data without owner_id (not available in public table)
         setParkingListing({
           ...publicData,
-          owner_id: publicData.owner_id,
-          // Contact info will be null for public access
+          // Contact info will be null for public access - only available after booking confirmation
           contact_email: null,
           contact_phone: null
         });
