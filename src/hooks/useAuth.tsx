@@ -76,9 +76,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       console.log('AuthProvider: Starting signup process for:', email);
       
-      // Clean up any existing auth state first
-      cleanupAuthState();
-      
       const redirectUrl = `${window.location.origin}/email-confirmed?redirect_to=/`;
       
       const { data, error } = await supabase.auth.signUp({
@@ -99,24 +96,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
 
       console.log('AuthProvider: Signup successful for:', data.user?.email);
-      
-      // Send admin notification if user was created
-      if (data.user && !data.user.email_confirmed_at) {
-        try {
-          await supabase.functions.invoke('send-admin-signup-notification', {
-            body: {
-              email: data.user.email,
-              fullName: fullName,
-              userType: userType,
-            },
-          });
-          console.log('AuthProvider: Admin notification sent');
-        } catch (notificationError) {
-          console.error('Failed to send admin notification:', notificationError);
-          // Don't block signup for notification failure
-        }
-      }
-
       return { error: null };
     } catch (error) {
       console.error('AuthProvider: Signup exception:', error);
@@ -127,16 +106,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signIn = async (email: string, password: string) => {
     try {
       console.log('AuthProvider: Starting signin process for:', email);
-      
-      // Clean up auth state before signing in
-      cleanupAuthState();
-      
-      // Attempt global sign out first
-      try {
-        await supabase.auth.signOut({ scope: 'global' });
-      } catch (signOutError) {
-        console.log('AuthProvider: Global signout failed (continuing):', signOutError);
-      }
 
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -149,13 +118,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
 
       console.log('AuthProvider: Signin successful for:', data.user?.email);
-
-      // Force page refresh after successful login
-      setTimeout(() => {
-        console.log('AuthProvider: Redirecting to home page');
-        forcePageRefresh('/');
-      }, 1000);
-
       return { error: null };
     } catch (error) {
       console.error('AuthProvider: Signin exception:', error);
