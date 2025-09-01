@@ -43,6 +43,7 @@ const CookiesNotice = lazy(() => import("./pages/CookiesNotice"));
 const LavableHome = lazy(() => import("./pages/LavableHome"));
 const LavableFAQ = lazy(() => import("./pages/LavableFAQ"));
 const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
+const AdminBootstrap = lazy(() => import("./pages/AdminBootstrap"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -92,9 +93,10 @@ const App = () => {
                 <Route path="/rent-out-your-space" element={<RentOutYourSpace />} />
                 <Route path="/calculator" element={<Calculator />} />
                 <Route path="/parking/:id" element={<ProductPage />} />
-                <Route path="/auth" element={<Auth />} />
-                <Route path="/email-confirmed" element={<EmailConfirmed />} />
-                <Route path="/my-account" element={<ProtectedRoute><MyAccount /></ProtectedRoute>} />
+                 <Route path="/auth" element={<Auth />} />
+                 <Route path="/email-confirmed" element={<EmailConfirmed />} />
+                 <Route path="/admin-bootstrap" element={<AdminBootstrap />} />
+                 <Route path="/my-account" element={<ProtectedRoute><MyAccount /></ProtectedRoute>} />
                 <Route path="/contact-admin" element={<ProtectedRoute><ContactAdmin /></ProtectedRoute>} />
                 <Route path="/feedback" element={<ProtectedRoute><Feedback /></ProtectedRoute>} />
                 <Route path="/insert-blog-posts" element={<InsertBlogPosts />} />
