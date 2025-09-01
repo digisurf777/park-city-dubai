@@ -96,6 +96,7 @@ const App = () => {
                  <Route path="/auth" element={<Auth />} />
                  <Route path="/email-confirmed" element={<EmailConfirmed />} />
                  <Route path="/admin-bootstrap" element={<AdminBootstrap />} />
+                 {/* Add link to admin bootstrap for testing */}
                  <Route path="/my-account" element={<ProtectedRoute><MyAccount /></ProtectedRoute>} />
                 <Route path="/contact-admin" element={<ProtectedRoute><ContactAdmin /></ProtectedRoute>} />
                 <Route path="/feedback" element={<ProtectedRoute><Feedback /></ProtectedRoute>} />

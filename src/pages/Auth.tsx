@@ -678,6 +678,17 @@ const Auth = () => {
             </Button>
           </div>
         </CardContent>
+        
+        {/* Temporary Admin Bootstrap Button for Testing */}
+        <div className="p-4 border-t">
+          <Button 
+            variant="outline" 
+            className="w-full" 
+            onClick={() => navigate('/admin-bootstrap')}
+          >
+            🔧 Admin Bootstrap (Test)
+          </Button>
+        </div>
       </Card>
     </div>
   );
