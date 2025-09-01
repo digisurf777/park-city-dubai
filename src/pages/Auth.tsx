@@ -647,6 +647,19 @@ const Auth = () => {
               </div>
             </TabsContent>
           </Tabs>
+          
+          <Separator className="my-4" />
+          
+          <div className="text-center">
+            <Button 
+              variant="secondary" 
+              size="sm"
+              onClick={() => navigate('/admin-bootstrap')}
+              className="text-xs"
+            >
+              Setup Admin Account
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>
