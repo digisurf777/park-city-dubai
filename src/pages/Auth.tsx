@@ -26,24 +26,13 @@ const Auth = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  // Check for password reset token, email confirmation, OAuth callbacks, or confirmation errors
+  // Check for password reset token, email confirmation, or confirmation errors
   useEffect(() => {
     const type = searchParams.get('type');
     const confirmed = searchParams.get('confirmed');
     const email = searchParams.get('email');
     const error = searchParams.get('error');
     const errorDescription = searchParams.get('error_description');
-    const code = searchParams.get('code');
-    
-    // Handle OAuth callback (Google login)
-    if (code && !error) {
-      console.log('Auth: OAuth callback detected with code:', code);
-      toast.loading('Completing Google sign in...', { id: 'oauth-login' });
-      
-      // Let Supabase handle the OAuth callback automatically
-      // The auth state listener will handle success/failure
-      return;
-    }
     
     if (type === 'recovery') {
       setShowPasswordUpdate(true);
@@ -56,30 +45,23 @@ const Auth = () => {
       // Clear the URL parameters
       navigate('/auth', { replace: true });
     } else if (error) {
-      // Handle confirmation errors and OAuth errors
-      console.log('Auth page - error:', { error, errorDescription, code });
+      // Handle confirmation errors
+      console.log('Auth page - confirmation error:', { error, errorDescription });
       
       if (error === 'access_denied') {
-        if (code) {
-          toast.error('Google sign in was cancelled', {
-            duration: 6000,
-            description: 'You cancelled the Google sign in process.'
-          });
-        } else {
-          toast.error('Email confirmation failed', {
-            duration: 8000,
-            description: 'The confirmation link may have expired. Please try signing up again or contact support.'
-          });
-        }
-      } else if (error === 'server_error') {
-        toast.error('Server error during authentication', {
+        toast.error('Email confirmation failed', {
           duration: 8000,
-          description: 'There was a problem with the authentication process. Please try again or contact support.'
+          description: 'The confirmation link may have expired. Please try signing up again or contact support.'
+        });
+      } else if (error === 'server_error') {
+        toast.error('Server error during confirmation', {
+          duration: 8000,
+          description: 'There was a problem confirming your email. Please try again or contact support.'
         });
       } else {
-        toast.error('Authentication error', {
+        toast.error('Email confirmation error', {
           duration: 8000,
-          description: errorDescription || 'Please try again or contact support if the problem persists.'
+          description: errorDescription || 'Please try signing up again or contact support if the problem persists.'
         });
       }
       
@@ -341,7 +323,6 @@ const Auth = () => {
       
       // Clean up auth state before OAuth
       try {
-        await supabase.auth.signOut({ scope: 'global' });
         localStorage.removeItem('supabase.auth.token');
         Object.keys(localStorage).forEach((key) => {
           if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
@@ -352,30 +333,23 @@ const Auth = () => {
         console.error('Error cleaning up auth state:', cleanupError);
       }
 
-      // Enhanced OAuth with better redirect handling
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth`,
-          queryParams: {
-            access_type: 'offline',
-            prompt: 'consent',
-          },
+          redirectTo: `${window.location.origin}/`,
         },
       });
       
       if (error) {
         console.error('Google auth error:', error);
         toast.error(`Google authentication failed: ${error.message}`);
-        setLoading(false);
       } else {
-        console.log('Google OAuth initiated successfully - redirecting...');
-        toast.loading('Redirecting to Google...', { duration: 3000 });
-        // Don't set loading to false here - let the redirect happen
+        console.log('Google OAuth initiated successfully');
       }
     } catch (error) {
       console.error('Google auth exception:', error);
       toast.error('Failed to authenticate with Google');
+    } finally {
       setLoading(false);
     }
   };

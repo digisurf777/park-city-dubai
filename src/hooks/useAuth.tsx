@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -37,7 +38,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
         console.log('AuthProvider: Auth state changed:', event, session?.user?.email || 'no user');
         
         // Update state synchronously
@@ -48,26 +49,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         // Handle auth events
         if (event === 'SIGNED_IN' && session?.user) {
           console.log('AuthProvider: User signed in successfully');
-          
-          // Ensure user has profile and proper setup for both regular and OAuth users
-          setTimeout(async () => {
-            try {
-              await ensureUserSetup(session.user);
-            } catch (setupError) {
-              console.error('AuthProvider: User setup error:', setupError);
-            }
-          }, 0);
-          
-          // Handle OAuth success - redirect and clear URL
-          if (window.location.search.includes('code=')) {
-            console.log('AuthProvider: OAuth callback detected, cleaning up URL');
-            setTimeout(() => {
-              window.history.replaceState({}, document.title, window.location.pathname);
-              if (window.location.pathname === '/' || window.location.pathname === '/auth') {
-                forcePageRefresh('/');
-              }
-            }, 1000);
-          }
+          // Don't make any Supabase calls here to prevent deadlocks
         } else if (event === 'SIGNED_OUT') {
           console.log('AuthProvider: User signed out');
           setSession(null);
@@ -90,58 +72,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     };
   }, []);
 
-  // Ensure user has proper profile and setup (for both regular and OAuth users)
-  const ensureUserSetup = async (user: User) => {
-    try {
-      console.log('AuthProvider: Ensuring user setup for:', user.email);
-
-      // Check if profile exists
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('user_id')
-        .eq('user_id', user.id)
-        .maybeSingle();
-
-      if (!profile) {
-        console.log('AuthProvider: Creating missing profile for user');
-        
-        // Extract name from metadata or email
-        const fullName = user.user_metadata?.full_name || 
-                        user.user_metadata?.name || 
-                        user.email?.split('@')[0] || '';
-        
-        const userType = user.user_metadata?.user_type || 'seeker';
-
-        await supabase.from('profiles').insert({
-          user_id: user.id,
-          full_name: fullName,
-          user_type: userType,
-          email_confirmed_at: user.email_confirmed_at,
-        });
-
-        console.log('AuthProvider: Profile created successfully');
-      }
-
-      // Ensure user has at least a 'user' role if no roles exist
-      const { data: userRoles } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', user.id);
-
-      if (!userRoles || userRoles.length === 0) {
-        console.log('AuthProvider: Assigning default user role');
-        await supabase.from('user_roles').insert({
-          user_id: user.id,
-          role: 'user'
-        });
-        console.log('AuthProvider: Default role assigned successfully');
-      }
-
-    } catch (error) {
-      console.error('AuthProvider: Error in ensureUserSetup:', error);
-    }
-  };
-
   const signUp = async (email: string, password: string, fullName: string, userType: string = 'seeker') => {
     try {
       console.log('AuthProvider: Starting signup process for:', email);
@@ -149,8 +79,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       // Clean up any existing auth state first
       cleanupAuthState();
       
-      // Use Supabase's native email confirmation with proper redirect
-      const redirectUrl = `${window.location.origin}/email-confirmed?redirect_to=/my-account`;
+      const redirectUrl = `${window.location.origin}/email-confirmed?redirect_to=/`;
       
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -170,22 +99,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
 
       console.log('AuthProvider: Signup successful for:', data.user?.email);
-      console.log('AuthProvider: Confirmation email will be sent by Supabase to:', email);
       
-      // Send admin notification if user was created (keep this separate from email confirmation)
+      // Send admin notification if user was created
       if (data.user && !data.user.email_confirmed_at) {
-        setTimeout(() => {
-          supabase.functions.invoke('send-admin-signup-notification', {
+        try {
+          await supabase.functions.invoke('send-admin-signup-notification', {
             body: {
               email: data.user.email,
               fullName: fullName,
               userType: userType,
             },
-          }).catch(notificationError => {
-            console.error('Failed to send admin notification:', notificationError);
-            // Don't block signup for notification failure
           });
-        }, 0);
+          console.log('AuthProvider: Admin notification sent');
+        } catch (notificationError) {
+          console.error('Failed to send admin notification:', notificationError);
+          // Don't block signup for notification failure
+        }
       }
 
       return { error: null };
@@ -201,6 +130,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       // Clean up auth state before signing in
       cleanupAuthState();
+      
+      // Attempt global sign out first
+      try {
+        await supabase.auth.signOut({ scope: 'global' });
+      } catch (signOutError) {
+        console.log('AuthProvider: Global signout failed (continuing):', signOutError);
+      }
 
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -214,7 +150,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       console.log('AuthProvider: Signin successful for:', data.user?.email);
 
-      // Note: User setup will be handled by the auth state listener
       // Force page refresh after successful login
       setTimeout(() => {
         console.log('AuthProvider: Redirecting to home page');
@@ -304,8 +239,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const resendConfirmationEmail = async (email: string) => {
     try {
-      // Use Supabase's native resend with proper redirect
-      const redirectUrl = `${window.location.origin}/email-confirmed?redirect_to=/my-account`;
+      const redirectUrl = `${window.location.origin}/email-confirmed?redirect_to=/`;
       
       const { error } = await supabase.auth.resend({
         type: 'signup',
@@ -320,7 +254,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         return { error };
       }
 
-      console.log('AuthProvider: Native confirmation email resent to:', email);
+      console.log('AuthProvider: Confirmation email resent to:', email);
       return { error: null };
     } catch (error) {
       console.error('AuthProvider: Resend confirmation exception:', error);

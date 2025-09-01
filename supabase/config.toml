@@ -20,6 +20,9 @@ enable_confirmations = true
 enabled = true
 port = 54320
 
+[functions.send-confirmation-email]
+verify_jwt = false
+
 [functions.send-admin-signup-notification]
 verify_jwt = false
 

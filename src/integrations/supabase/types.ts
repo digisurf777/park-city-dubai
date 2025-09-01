@@ -1235,6 +1235,10 @@ export type Database = {
           verification_status: string
         }[]
       }
+      send_welcome_email_async: {
+        Args: { user_email: string; user_full_name: string }
+        Returns: Json
+      }
       setup_admin_for_current_user: {
         Args: Record<PropertyKey, never>
         Returns: Json
