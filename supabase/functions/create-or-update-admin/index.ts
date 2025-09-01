@@ -20,28 +20,35 @@ Deno.serve(async (req) => {
 
     const { email, password } = await req.json()
     
+    // Validate input
+    if (!email || !password) {
+      return new Response(
+        JSON.stringify({ error: 'Email and password are required' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+    
     console.log('Creating/updating admin user:', email)
 
-    // Check if user already exists
-    const { data: existingUsers, error: searchError } = await supabaseAdmin.auth.admin.listUsers()
+    // Check if user already exists using getUserByEmail for efficiency
+    const { data: existingUser, error: searchError } = await supabaseAdmin.auth.admin.getUserByEmail(email)
     
-    if (searchError) {
-      console.error('Error searching users:', searchError)
+    if (searchError && searchError.message !== 'User not found') {
+      console.error('Error searching for user:', searchError)
       return new Response(
-        JSON.stringify({ error: 'Failed to search users' }),
+        JSON.stringify({ error: 'Failed to search for user' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
-    const existingUser = existingUsers.users.find(user => user.email === email)
     let userId: string
 
-    if (existingUser) {
+    if (existingUser?.user) {
       console.log('User exists, updating password and confirming email')
       
       // Update existing user
       const { data: updatedUser, error: updateError } = await supabaseAdmin.auth.admin.updateUserById(
-        existingUser.id,
+        existingUser.user.id,
         { 
           password,
           email_confirm: true
@@ -50,13 +57,24 @@ Deno.serve(async (req) => {
 
       if (updateError) {
         console.error('Error updating user:', updateError)
+        
+        // Handle specific error types
+        if (updateError.message?.includes('weak_password') || updateError.code === 'weak_password') {
+          return new Response(
+            JSON.stringify({ 
+              error: 'Password is too weak. Password must contain uppercase, lowercase, numbers, and special characters.' 
+            }),
+            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          )
+        }
+        
         return new Response(
-          JSON.stringify({ error: 'Failed to update user' }),
+          JSON.stringify({ error: 'Failed to update user: ' + updateError.message }),
           { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         )
       }
 
-      userId = existingUser.id
+      userId = existingUser.user.id
       console.log('Successfully updated existing user:', userId)
     } else {
       console.log('Creating new user')
@@ -70,8 +88,19 @@ Deno.serve(async (req) => {
 
       if (createError) {
         console.error('Error creating user:', createError)
+        
+        // Handle specific error types
+        if (createError.message?.includes('weak_password') || createError.code === 'weak_password') {
+          return new Response(
+            JSON.stringify({ 
+              error: 'Password is too weak. Password must contain uppercase, lowercase, numbers, and special characters.' 
+            }),
+            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          )
+        }
+        
         return new Response(
-          JSON.stringify({ error: 'Failed to create user' }),
+          JSON.stringify({ error: 'Failed to create user: ' + createError.message }),
           { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         )
       }
@@ -80,34 +109,38 @@ Deno.serve(async (req) => {
       console.log('Successfully created new user:', userId)
     }
 
-    // Upsert profile
+    // Upsert profile with proper conflict resolution
     const { error: profileError } = await supabaseAdmin
       .from('profiles')
-      .upsert([{ 
+      .upsert({ 
         user_id: userId, 
         full_name: 'Admin User', 
         user_type: 'seeker' 
-      }])
+      }, {
+        onConflict: 'user_id'
+      })
 
     if (profileError) {
       console.error('Error upserting profile:', profileError)
       return new Response(
-        JSON.stringify({ error: 'Failed to create profile' }),
+        JSON.stringify({ error: 'Failed to create profile: ' + profileError.message }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
     console.log('Successfully upserted profile for user:', userId)
 
-    // Add admin role
+    // Add admin role with proper conflict resolution
     const { error: roleError } = await supabaseAdmin
       .from('user_roles')
-      .upsert([{ user_id: userId, role: 'admin' }])
+      .upsert({ user_id: userId, role: 'admin' }, {
+        onConflict: 'user_id,role'
+      })
 
     if (roleError) {
       console.error('Error adding admin role:', roleError)
       return new Response(
-        JSON.stringify({ error: 'Failed to add admin role' }),
+        JSON.stringify({ error: 'Failed to add admin role: ' + roleError.message }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
