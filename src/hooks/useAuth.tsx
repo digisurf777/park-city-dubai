@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -38,7 +37,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (event, session) => {
         console.log('AuthProvider: Auth state changed:', event, session?.user?.email || 'no user');
         
         // Update state synchronously
@@ -49,6 +48,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         // Handle auth events
         if (event === 'SIGNED_IN' && session?.user) {
           console.log('AuthProvider: User signed in successfully');
+          
+          // Ensure user has profile and proper setup for both regular and OAuth users
+          setTimeout(async () => {
+            try {
+              await ensureUserSetup(session.user);
+            } catch (setupError) {
+              console.error('AuthProvider: User setup error:', setupError);
+            }
+          }, 0);
           
           // Handle OAuth success - redirect and clear URL
           if (window.location.search.includes('code=')) {
@@ -81,6 +89,58 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       subscription.unsubscribe();
     };
   }, []);
+
+  // Ensure user has proper profile and setup (for both regular and OAuth users)
+  const ensureUserSetup = async (user: User) => {
+    try {
+      console.log('AuthProvider: Ensuring user setup for:', user.email);
+
+      // Check if profile exists
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('user_id')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (!profile) {
+        console.log('AuthProvider: Creating missing profile for user');
+        
+        // Extract name from metadata or email
+        const fullName = user.user_metadata?.full_name || 
+                        user.user_metadata?.name || 
+                        user.email?.split('@')[0] || '';
+        
+        const userType = user.user_metadata?.user_type || 'seeker';
+
+        await supabase.from('profiles').insert({
+          user_id: user.id,
+          full_name: fullName,
+          user_type: userType,
+          email_confirmed_at: user.email_confirmed_at,
+        });
+
+        console.log('AuthProvider: Profile created successfully');
+      }
+
+      // Ensure user has at least a 'user' role if no roles exist
+      const { data: userRoles } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id);
+
+      if (!userRoles || userRoles.length === 0) {
+        console.log('AuthProvider: Assigning default user role');
+        await supabase.from('user_roles').insert({
+          user_id: user.id,
+          role: 'user'
+        });
+        console.log('AuthProvider: Default role assigned successfully');
+      }
+
+    } catch (error) {
+      console.error('AuthProvider: Error in ensureUserSetup:', error);
+    }
+  };
 
   const signUp = async (email: string, password: string, fullName: string, userType: string = 'seeker') => {
     try {
@@ -141,13 +201,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       // Clean up auth state before signing in
       cleanupAuthState();
-      
-      // Attempt global sign out first
-      try {
-        await supabase.auth.signOut({ scope: 'global' });
-      } catch (signOutError) {
-        console.log('AuthProvider: Global signout failed (continuing):', signOutError);
-      }
 
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -161,6 +214,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       console.log('AuthProvider: Signin successful for:', data.user?.email);
 
+      // Note: User setup will be handled by the auth state listener
       // Force page refresh after successful login
       setTimeout(() => {
         console.log('AuthProvider: Redirecting to home page');
