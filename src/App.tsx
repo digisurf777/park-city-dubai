@@ -44,6 +44,7 @@ const LavableHome = lazy(() => import("./pages/LavableHome"));
 const LavableFAQ = lazy(() => import("./pages/LavableFAQ"));
 const AdminSetup = lazy(() => import("./pages/AdminSetup"));
 const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
+const AuthTest = lazy(() => import("./pages/AuthTest"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -101,6 +102,7 @@ const App = () => {
                 <Route path="/insert-blog-posts" element={<InsertBlogPosts />} />
                  <Route path="/admin" element={<ProtectedRoute><AdminPanel /></ProtectedRoute>} />
                  <Route path="/admin-setup" element={<AdminSetup />} />
+                 <Route path="/auth-test" element={<AuthTest />} />
             {/* Zone Pages */}
             <Route path="/zones/dubai-marina" element={<DubaiMarina />} />
             <Route path="/zones/downtown" element={<Downtown />} />

@@ -2,7 +2,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
-import { cleanupAuthState, forcePageRefresh } from '@/utils/authUtils';
 
 interface AuthContextType {
   user: User | null;
@@ -76,7 +75,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       console.log('AuthProvider: Starting signup process for:', email);
       
-      const redirectUrl = `${window.location.origin}/email-confirmed?redirect_to=/`;
+      const redirectUrl = `${window.location.origin}/email-confirmed`;
       
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -129,24 +128,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       console.log('AuthProvider: Starting signout process');
       
-      // Clean up auth state
-      cleanupAuthState();
-      
-      // Attempt global sign out
-      try {
-        await supabase.auth.signOut({ scope: 'global' });
-      } catch (error) {
-        console.error('AuthProvider: Signout error (continuing):', error);
-      }
+      // Sign out from Supabase
+      await supabase.auth.signOut({ scope: 'global' });
 
       console.log('AuthProvider: Signout complete, redirecting to auth');
       
-      // Force page refresh
-      forcePageRefresh('/auth');
+      // Force page refresh for clean state
+      window.location.href = '/auth';
     } catch (error) {
       console.error('AuthProvider: Signout exception:', error);
       // Force refresh anyway
-      forcePageRefresh('/auth');
+      window.location.href = '/auth';
     }
   };
 
@@ -201,7 +193,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const resendConfirmationEmail = async (email: string) => {
     try {
-      const redirectUrl = `${window.location.origin}/email-confirmed?redirect_to=/`;
+      const redirectUrl = `${window.location.origin}/email-confirmed`;
       
       const { error } = await supabase.auth.resend({
         type: 'signup',
