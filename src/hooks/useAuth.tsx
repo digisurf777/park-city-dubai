@@ -79,7 +79,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       // Clean up any existing auth state first
       cleanupAuthState();
       
-      const redirectUrl = `${window.location.origin}/email-confirmed?redirect_to=/`;
+      // Use Supabase's native email confirmation with proper redirect
+      const redirectUrl = `${window.location.origin}/email-confirmed?redirect_to=/my-account`;
       
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -99,22 +100,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
 
       console.log('AuthProvider: Signup successful for:', data.user?.email);
+      console.log('AuthProvider: Confirmation email will be sent by Supabase to:', email);
       
-      // Send admin notification if user was created
+      // Send admin notification if user was created (keep this separate from email confirmation)
       if (data.user && !data.user.email_confirmed_at) {
-        try {
-          await supabase.functions.invoke('send-admin-signup-notification', {
+        setTimeout(() => {
+          supabase.functions.invoke('send-admin-signup-notification', {
             body: {
               email: data.user.email,
               fullName: fullName,
               userType: userType,
             },
+          }).catch(notificationError => {
+            console.error('Failed to send admin notification:', notificationError);
+            // Don't block signup for notification failure
           });
-          console.log('AuthProvider: Admin notification sent');
-        } catch (notificationError) {
-          console.error('Failed to send admin notification:', notificationError);
-          // Don't block signup for notification failure
-        }
+        }, 0);
       }
 
       return { error: null };
@@ -239,7 +240,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const resendConfirmationEmail = async (email: string) => {
     try {
-      const redirectUrl = `${window.location.origin}/email-confirmed?redirect_to=/`;
+      // Use Supabase's native resend with proper redirect
+      const redirectUrl = `${window.location.origin}/email-confirmed?redirect_to=/my-account`;
       
       const { error } = await supabase.auth.resend({
         type: 'signup',
@@ -254,7 +256,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         return { error };
       }
 
-      console.log('AuthProvider: Confirmation email resent to:', email);
+      console.log('AuthProvider: Native confirmation email resent to:', email);
       return { error: null };
     } catch (error) {
       console.error('AuthProvider: Resend confirmation exception:', error);

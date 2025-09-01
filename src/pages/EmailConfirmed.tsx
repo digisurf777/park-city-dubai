@@ -14,12 +14,10 @@ const EmailConfirmed = () => {
   useEffect(() => {
     const confirmEmail = async () => {
       try {
-        console.log('=== EMAIL CONFIRMATION DEBUG ===');
+        console.log('=== EMAIL CONFIRMATION (SIMPLIFIED) ===');
         console.log('Full URL:', window.location.href);
-        console.log('Search params:', window.location.search);
-        console.log('Hash params:', window.location.hash);
         
-        // Check for error parameters first
+        // Check for error parameters
         const urlParams = new URLSearchParams(window.location.search);
         const hashParams = new URLSearchParams(window.location.hash.substring(1));
         
@@ -27,54 +25,33 @@ const EmailConfirmed = () => {
         const errorDescription = urlParams.get('error_description') || hashParams.get('error_description');
         
         if (error) {
-          console.log('Error found in URL:', { error, errorDescription });
+          console.log('Error in URL:', { error, errorDescription });
           setError(errorDescription || error);
           setLoading(false);
           return;
         }
 
-        // Check for confirmation tokens
-        const token = urlParams.get('token') || hashParams.get('token');
-        const tokenHash = urlParams.get('token_hash') || hashParams.get('token_hash');
-        const type = urlParams.get('type') || hashParams.get('type');
-        
-        console.log('URL tokens found:', { token: !!token, tokenHash: !!tokenHash, type });
-
-        // Small delay to allow Supabase to process the URL tokens
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        // Let Supabase handle the token verification automatically
+        // Just check if we have a session after a brief delay
+        await new Promise(resolve => setTimeout(resolve, 2000));
         
         const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
         
-        console.log('Session check result:', { 
+        console.log('Session check:', { 
           hasSession: !!sessionData?.session,
           hasUser: !!sessionData?.session?.user,
-          userEmailConfirmed: sessionData?.session?.user?.email_confirmed_at,
-          error: sessionError?.message 
+          emailConfirmed: !!sessionData?.session?.user?.email_confirmed_at
         });
         
         if (sessionError) {
           console.error('Session error:', sessionError);
-          setError('Unable to confirm email - session error');
+          setError('Unable to verify email confirmation. Please try signing in.');
         } else if (sessionData?.session?.user) {
-          console.log('Email confirmed successfully - user is authenticated');
+          console.log('Email confirmed successfully');
           setConfirmed(true);
         } else {
-          // If no session but we have tokens, try to refresh the session
-          if (token || tokenHash) {
-            console.log('Attempting to refresh session with tokens...');
-            const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
-            
-            if (refreshData?.session?.user) {
-              console.log('Session refreshed successfully');
-              setConfirmed(true);
-            } else {
-              console.log('Failed to refresh session:', refreshError);
-              setError('Email confirmation failed - please try signing in directly');
-            }
-          } else {
-            console.log('No tokens found in URL - confirmation may have already been processed');
-            setError('Email confirmation link is invalid or has expired. Please request a new confirmation email.');
-          }
+          console.log('No active session found');
+          setError('Email confirmation link may have expired. Please try signing in or request a new confirmation email.');
         }
       } catch (error: any) {
         console.error('Email confirmation error:', error);
@@ -91,11 +68,11 @@ const EmailConfirmed = () => {
   useEffect(() => {
     if (confirmed) {
       const redirectTo = new URLSearchParams(window.location.search).get('redirect_to') || '/my-account';
-      console.log('Redirecting to:', redirectTo);
+      console.log('Email confirmed! Redirecting to:', redirectTo);
       
       setTimeout(() => {
         navigate(redirectTo);
-      }, 2000);
+      }, 3000); // Give user time to read success message
     }
   }, [confirmed, navigate]);
 
