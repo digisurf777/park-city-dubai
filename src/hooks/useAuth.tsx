@@ -49,7 +49,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         // Handle auth events
         if (event === 'SIGNED_IN' && session?.user) {
           console.log('AuthProvider: User signed in successfully');
-          // Don't make any Supabase calls here to prevent deadlocks
+          
+          // Handle OAuth success - redirect and clear URL
+          if (window.location.search.includes('code=')) {
+            console.log('AuthProvider: OAuth callback detected, cleaning up URL');
+            setTimeout(() => {
+              window.history.replaceState({}, document.title, window.location.pathname);
+              if (window.location.pathname === '/' || window.location.pathname === '/auth') {
+                forcePageRefresh('/');
+              }
+            }, 1000);
+          }
         } else if (event === 'SIGNED_OUT') {
           console.log('AuthProvider: User signed out');
           setSession(null);
