@@ -30,63 +30,80 @@ Deno.serve(async (req) => {
     
     console.log('Creating/updating admin user:', email)
 
-    // Check if user already exists using getUserByEmail for efficiency
-    const { data: existingUser, error: searchError } = await supabaseAdmin.auth.admin.getUserByEmail(email)
-    
-    if (searchError && searchError.message !== 'User not found') {
-      console.error('Error searching for user:', searchError)
-      return new Response(
-        JSON.stringify({ error: 'Failed to search for user' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
-    }
-
     let userId: string
+    let userExists = false
 
-    if (existingUser?.user) {
-      console.log('User exists, updating password and confirming email')
-      
-      // Update existing user
-      const { data: updatedUser, error: updateError } = await supabaseAdmin.auth.admin.updateUserById(
-        existingUser.user.id,
-        { 
-          password,
-          email_confirm: true
-        }
-      )
+    // Try to create user first, then handle if they already exist
+    console.log('Attempting to create user:', email)
+    const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true
+    })
 
-      if (updateError) {
-        console.error('Error updating user:', updateError)
+    if (createError) {
+      // Check if user already exists
+      if (createError.message?.includes('already registered') || 
+          createError.message?.includes('User already registered') ||
+          createError.message?.includes('already exists')) {
         
-        // Handle specific error types
-        if (updateError.message?.includes('weak_password') || updateError.code === 'weak_password') {
+        console.log('User exists, attempting to find and update...')
+        userExists = true
+        
+        // List all users to find the existing one (since getUserByEmail doesn't exist)
+        const { data: users, error: listError } = await supabaseAdmin.auth.admin.listUsers()
+        
+        if (listError) {
+          console.error('Error listing users:', listError)
           return new Response(
-            JSON.stringify({ 
-              error: 'Password is too weak. Password must contain uppercase, lowercase, numbers, and special characters.' 
-            }),
-            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            JSON.stringify({ error: 'Failed to find existing user' }),
+            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           )
         }
         
-        return new Response(
-          JSON.stringify({ error: 'Failed to update user: ' + updateError.message }),
-          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        const existingUser = users.users.find(u => u.email === email)
+        
+        if (!existingUser) {
+          return new Response(
+            JSON.stringify({ error: 'User exists but could not be found' }),
+            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          )
+        }
+        
+        userId = existingUser.id
+        
+        // Update existing user's password and confirm email
+        const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(
+          userId,
+          { 
+            password,
+            email_confirm: true
+          }
         )
-      }
 
-      userId = existingUser.user.id
-      console.log('Successfully updated existing user:', userId)
-    } else {
-      console.log('Creating new user')
-      
-      // Create new user
-      const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
-        email,
-        password,
-        email_confirm: true
-      })
-
-      if (createError) {
+        if (updateError) {
+          console.error('Error updating existing user:', updateError)
+          
+          // Handle specific error types
+          if (updateError.message?.includes('weak_password') || updateError.code === 'weak_password') {
+            return new Response(
+              JSON.stringify({ 
+                error: 'Password is too weak. Password must contain uppercase, lowercase, numbers, and special characters.' 
+              }),
+              { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            )
+          }
+          
+          return new Response(
+            JSON.stringify({ error: 'Failed to update user: ' + updateError.message }),
+            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          )
+        }
+        
+        console.log('Successfully updated existing user:', userId)
+        
+      } else {
+        // Other creation errors
         console.error('Error creating user:', createError)
         
         // Handle specific error types
@@ -104,7 +121,8 @@ Deno.serve(async (req) => {
           { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         )
       }
-
+    } else {
+      // Successfully created new user
       userId = newUser.user.id
       console.log('Successfully created new user:', userId)
     }
@@ -150,11 +168,11 @@ Deno.serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: existingUser ? 'Admin user updated successfully' : 'Admin user created successfully',
+        message: userExists ? 'Admin user updated successfully' : 'Admin user created successfully',
         userId,
         email
       }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
 
   } catch (error) {

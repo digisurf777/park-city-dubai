@@ -98,7 +98,24 @@ const Auth = () => {
         }
       } else {
         toast.success('Logged in successfully!');
-        navigate('/');
+        
+        // Check if user is admin and redirect accordingly
+        try {
+          const { data: userRoles } = await supabase
+            .from('user_roles')
+            .select('role')
+            .eq('user_id', (await supabase.auth.getUser()).data.user?.id)
+            .eq('role', 'admin');
+          
+          if (userRoles && userRoles.length > 0) {
+            navigate('/admin');
+          } else {
+            navigate('/');
+          }
+        } catch {
+          // Fallback to home page if role check fails
+          navigate('/');
+        }
       }
     } catch (error) {
       toast.error('An error occurred during login');

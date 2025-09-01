@@ -19,7 +19,7 @@ const AdminBootstrap = () => {
         const { data, error } = await supabase.functions.invoke('create-or-update-admin', {
           body: {
             email: 'anwerhammad479@gmail.com',
-            password: 'Admin123!'
+            password: 'admin123'
           }
         });
 
@@ -68,7 +68,7 @@ const AdminBootstrap = () => {
               </p>
               <div className="bg-muted p-3 rounded-lg">
                 <p className="text-sm"><strong>Email:</strong> anwerhammad479@gmail.com</p>
-                <p className="text-sm"><strong>Password:</strong> Admin123!</p>
+                <p className="text-sm"><strong>Password:</strong> admin123</p>
               </div>
             </div>
           )}
