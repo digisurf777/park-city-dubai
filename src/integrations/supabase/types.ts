@@ -1235,6 +1235,10 @@ export type Database = {
           verification_status: string
         }[]
       }
+      setup_admin_for_authenticated_user: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
       setup_admin_for_current_user: {
         Args: Record<PropertyKey, never>
         Returns: Json

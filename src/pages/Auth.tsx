@@ -84,6 +84,7 @@ const Auth = () => {
       const { error } = await signIn(loginForm.email, loginForm.password);
       
       if (error) {
+        console.error('Login error:', error);
         if (error.message.includes('Email not confirmed')) {
           toast.error('Please check your email and click the confirmation link before signing in.', {
             duration: 8000,
@@ -97,10 +98,16 @@ const Auth = () => {
           toast.error(error.message || 'Login failed');
         }
       } else {
-        toast.success('Logged in successfully!');
-        navigate('/');
+        toast.success('Logged in successfully! Redirecting...', {
+          duration: 2000
+        });
+        // Navigate after a short delay to show the success message
+        setTimeout(() => {
+          navigate('/');
+        }, 1500);
       }
     } catch (error) {
+      console.error('Login exception:', error);
       toast.error('An error occurred during login');
     } finally {
       setLoading(false);

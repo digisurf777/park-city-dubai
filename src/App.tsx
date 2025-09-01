@@ -42,6 +42,7 @@ const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const CookiesNotice = lazy(() => import("./pages/CookiesNotice"));
 const LavableHome = lazy(() => import("./pages/LavableHome"));
 const LavableFAQ = lazy(() => import("./pages/LavableFAQ"));
+const AdminSetup = lazy(() => import("./pages/AdminSetup"));
 const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
 
 const queryClient = new QueryClient({
@@ -98,7 +99,8 @@ const App = () => {
                 <Route path="/contact-admin" element={<ProtectedRoute><ContactAdmin /></ProtectedRoute>} />
                 <Route path="/feedback" element={<ProtectedRoute><Feedback /></ProtectedRoute>} />
                 <Route path="/insert-blog-posts" element={<InsertBlogPosts />} />
-                <Route path="/admin" element={<ProtectedRoute><AdminPanel /></ProtectedRoute>} />
+                 <Route path="/admin" element={<ProtectedRoute><AdminPanel /></ProtectedRoute>} />
+                 <Route path="/admin-setup" element={<AdminSetup />} />
             {/* Zone Pages */}
             <Route path="/zones/dubai-marina" element={<DubaiMarina />} />
             <Route path="/zones/downtown" element={<Downtown />} />
