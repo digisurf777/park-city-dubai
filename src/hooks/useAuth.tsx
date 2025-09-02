@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -55,34 +56,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const ensureAdminRole = async (userId: string, email: string) => {
-    // Only auto-assign admin role to the specific admin user
-    if (email === 'anwerhammad479@gmail.com') {
-      try {
-        console.log('AuthProvider: Ensuring admin role for:', email);
-        
-        const { error } = await supabase
-          .from('user_roles')
-          .upsert({ 
-            user_id: userId, 
-            role: 'admin' 
-          }, {
-            onConflict: 'user_id,role'
-          });
-
-        if (error) {
-          console.error('AuthProvider: Error ensuring admin role:', error);
-        } else {
-          console.log('AuthProvider: Admin role ensured for:', email);
-          return true;
-        }
-      } catch (error) {
-        console.error('AuthProvider: Exception ensuring admin role:', error);
-      }
-    }
-    return false;
-  };
-
   useEffect(() => {
     console.log('AuthProvider: Setting up auth state listener');
     
@@ -100,26 +73,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         if (event === 'SIGNED_IN' && session?.user) {
           console.log('AuthProvider: User signed in successfully');
           
-          // Defer admin checks and role assignment to avoid blocking auth flow
+          // Only check admin status, no role assignment
           setTimeout(async () => {
             const userId = session.user.id;
-            const email = session.user.email;
             
-            if (email) {
-              // First ensure admin role if needed
-              await ensureAdminRole(userId, email);
-              
-              // Then check admin status
-              const adminStatus = await checkAdminStatus(userId);
-              setIsAdmin(adminStatus);
-              
-              console.log('AuthProvider: Admin status set to:', adminStatus);
-              
-              // Redirect admin user to admin panel
-              if (adminStatus && email === 'anwerhammad479@gmail.com') {
-                console.log('AuthProvider: Redirecting admin to admin panel');
-                window.location.href = '/admin';
-              }
+            // Check admin status
+            const adminStatus = await checkAdminStatus(userId);
+            setIsAdmin(adminStatus);
+            
+            console.log('AuthProvider: Admin status set to:', adminStatus);
+            
+            // Redirect admin user to admin panel
+            if (adminStatus && session.user.email === 'anwerhammad479@gmail.com') {
+              console.log('AuthProvider: Redirecting admin to admin panel');
+              window.location.href = '/admin';
             }
           }, 100);
           
