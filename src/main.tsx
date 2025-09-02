@@ -1,9 +1,10 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { HelmetProvider } from "react-helmet-async";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import App from "./App.tsx";
 import "./index.css";
+import CriticalCSS from "./components/CriticalCSS.tsx";
+import PreloadResources from "./components/PreloadResources.tsx";
 
 console.log('main.tsx: Starting app initialization');
 
@@ -59,11 +60,11 @@ if ('serviceWorker' in navigator) {
 
 root.render(
   <StrictMode>
-    <HelmetProvider>
-      <ErrorBoundary>
-        <App />
-      </ErrorBoundary>
-    </HelmetProvider>
+    <ErrorBoundary>
+      <CriticalCSS />
+      <PreloadResources />
+      <App />
+    </ErrorBoundary>
   </StrictMode>
 );
 

@@ -1217,10 +1217,6 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
-      reset_user_password: {
-        Args: { email: string; new_password: string }
-        Returns: Json
-      }
       revoke_document_access: {
         Args: { verification_id: string }
         Returns: Json

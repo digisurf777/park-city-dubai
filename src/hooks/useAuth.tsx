@@ -8,7 +8,6 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  isAdmin: boolean;
   signUp: (email: string, password: string, fullName: string, userType?: string) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
@@ -31,35 +30,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
 
   console.log('AuthProvider: Initializing');
-
-  const checkAdminStatus = async (userId: string) => {
-    try {
-      // Use the database function to avoid RLS issues
-      const { data, error } = await supabase.rpc('is_admin', { 
-        _user_id: userId 
-      });
-
-      if (error) {
-        console.error('AuthProvider: Error checking admin status:', error);
-        return false;
-      }
-
-      return !!data;
-    } catch (error) {
-      console.error('AuthProvider: Exception checking admin status:', error);
-      return false;
-    }
-  };
 
   useEffect(() => {
     console.log('AuthProvider: Setting up auth state listener');
     
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
         console.log('AuthProvider: Auth state changed:', event, session?.user?.email || 'no user');
         
         // Update state synchronously
@@ -70,45 +49,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         // Handle auth events
         if (event === 'SIGNED_IN' && session?.user) {
           console.log('AuthProvider: User signed in successfully');
-          
-          // Only check admin status, no role assignment
-          setTimeout(async () => {
-            const userId = session.user.id;
-            
-            // Check admin status
-            const adminStatus = await checkAdminStatus(userId);
-            setIsAdmin(adminStatus);
-            
-            console.log('AuthProvider: Admin status set to:', adminStatus);
-            
-            // Redirect admin user to admin panel
-            if (adminStatus && session.user.email === 'anwerhammad479@gmail.com') {
-              console.log('AuthProvider: Redirecting admin to admin panel');
-              window.location.href = '/admin';
-            }
-          }, 100);
-          
+          // Don't make any Supabase calls here to prevent deadlocks
         } else if (event === 'SIGNED_OUT') {
           console.log('AuthProvider: User signed out');
           setSession(null);
           setUser(null);
-          setIsAdmin(false);
         }
       }
     );
 
     // THEN check for existing session
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
       console.log('AuthProvider: Initial session check:', !!session);
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
-      
-      // Check admin status for existing session
-      if (session?.user) {
-        const adminStatus = await checkAdminStatus(session.user.id);
-        setIsAdmin(adminStatus);
-      }
     });
 
     return () => {
@@ -273,7 +228,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     user,
     session,
     loading,
-    isAdmin,
     signUp,
     signIn,
     signOut,
