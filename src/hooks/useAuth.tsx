@@ -37,14 +37,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const checkAdminStatus = async (userId: string) => {
     try {
-      const { data, error } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', userId)
-        .eq('role', 'admin')
-        .single();
+      // Use the database function to avoid RLS issues
+      const { data, error } = await supabase.rpc('is_admin', { 
+        _user_id: userId 
+      });
 
-      if (error && error.code !== 'PGRST116') {
+      if (error) {
         console.error('AuthProvider: Error checking admin status:', error);
         return false;
       }

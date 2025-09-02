@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
@@ -6,11 +6,12 @@ import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from '@/hooks/useAuth';
 import { SafeAuthWrapper } from '@/components/SafeAuthWrapper';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
-import PreloadResources from '@/components/PreloadResources';
-import CriticalCSS from '@/components/CriticalCSS';
-import { MobileOptimizations } from '@/components/MobileOptimizations';
-import PerformanceOptimizer from '@/components/PerformanceOptimizer';
-import TawkToChat from '@/components/TawkToChat';
+// Safe wrapper components to prevent crashes
+const SafePreloadResources = React.lazy(() => import('@/components/PreloadResources').catch(() => ({ default: () => null })));
+const SafeCriticalCSS = React.lazy(() => import('@/components/CriticalCSS').catch(() => ({ default: () => null })));
+const SafeMobileOptimizations = React.lazy(() => import('@/components/MobileOptimizations').then(m => ({ default: m.MobileOptimizations })).catch(() => ({ default: () => null })));
+const SafePerformanceOptimizer = React.lazy(() => import('@/components/PerformanceOptimizer').catch(() => ({ default: () => null })));
+const SafeTawkToChat = React.lazy(() => import('@/components/TawkToChat').catch(() => ({ default: () => null })));
 
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -64,10 +65,12 @@ function App() {
           <SafeAuthWrapper>
             <div className="min-h-screen bg-background">
               <ErrorBoundary>
-                <PreloadResources />
-                <CriticalCSS />
-                <MobileOptimizations />
-                <PerformanceOptimizer />
+                <Suspense fallback={null}>
+                  <SafePreloadResources />
+                  <SafeCriticalCSS />
+                  <SafeMobileOptimizations />
+                  <SafePerformanceOptimizer />
+                </Suspense>
                 
                 {/* Routes that should not show navbar */}
                 <Routes>
@@ -117,7 +120,9 @@ function App() {
                   } />
                 </Routes>
 
-                <TawkToChat />
+                <Suspense fallback={null}>
+                  <SafeTawkToChat />
+                </Suspense>
                 <Toaster />
               </ErrorBoundary>
             </div>
