@@ -19,7 +19,7 @@ const AdminSetup = () => {
 
     setLoading(true);
     try {
-      const { data, error } = await supabase.rpc('setup_admin_for_authenticated_user');
+      const { data, error } = await supabase.rpc('setup_admin_for_current_user');
       
       if (error) {
         console.error('Admin setup error:', error);
