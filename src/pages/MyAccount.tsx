@@ -114,7 +114,7 @@ const MyAccount = () => {
       const {
         data,
         error
-      } = await supabase.from('profiles').select('*').eq('user_id', user.id).single();
+      } = await supabase.from('profiles').select('*').eq('user_id', user.id).maybeSingle();
       if (error) {
         console.error('Error fetching profile:', error);
       } else {

@@ -339,9 +339,9 @@ const AdminPanel = () => {
         .select('role')
         .eq('user_id', user.id)
         .eq('role', 'admin')
-        .single();
+        .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') {
+      if (error) {
         console.error('Error checking admin role:', error);
       }
       
@@ -361,7 +361,7 @@ const AdminPanel = () => {
               .select('role')
               .eq('user_id', user.id)
               .eq('role', 'admin')
-              .single();
+              .maybeSingle();
             
             if (recheckData) {
               setIsAdmin(true);
@@ -440,6 +440,8 @@ const AdminPanel = () => {
       }
       setPosts(data || []);
     } catch (error) {
+      console.error('Failed to fetch news posts:', error);
+      setPosts([]); // Set empty array on error
       toast({
         title: "Error",
         description: "Failed to fetch news posts",
@@ -460,6 +462,8 @@ const AdminPanel = () => {
       if (error) throw error;
       setVerifications(data || []);
     } catch (error) {
+      console.error('Failed to fetch verifications:', error);
+      setVerifications([]); // Set empty array on error
       toast({
         title: "Error",
         description: "Failed to fetch verifications",
@@ -483,6 +487,8 @@ const AdminPanel = () => {
       console.log('Fetched all parking listings:', data);
       setParkingListings(data || []);
     } catch (error) {
+      console.error('Failed to fetch parking listings:', error);
+      setParkingListings([]); // Set empty array on error
       toast({
         title: "Error",
         description: "Failed to fetch parking listings",
@@ -1367,7 +1373,7 @@ const AdminPanel = () => {
         .from('user_verifications')
         .select('user_id, full_name')
         .eq('id', verificationId)
-        .single();
+        .maybeSingle();
 
       if (fetchError) {
         console.error('Error fetching verification:', fetchError);
@@ -1464,7 +1470,7 @@ const AdminPanel = () => {
         .from('user_verifications')
         .select('document_image_url')
         .eq('id', verificationId)
-        .single();
+        .maybeSingle();
 
       if (fetchError) {
         console.error('Error fetching verification:', fetchError);

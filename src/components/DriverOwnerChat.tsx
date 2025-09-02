@@ -82,7 +82,7 @@ export const DriverOwnerChat = ({ bookingId, isOpen, onClose }: DriverOwnerChatP
           payment_status
         `)
         .eq('id', bookingId)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
       
