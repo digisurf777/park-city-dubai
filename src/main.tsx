@@ -3,8 +3,6 @@ import { createRoot } from "react-dom/client";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import App from "./App.tsx";
 import "./index.css";
-import CriticalCSS from "./components/CriticalCSS.tsx";
-import PreloadResources from "./components/PreloadResources.tsx";
 
 console.log('main.tsx: Starting app initialization');
 
@@ -61,8 +59,6 @@ if ('serviceWorker' in navigator) {
 root.render(
   <StrictMode>
     <ErrorBoundary>
-      <CriticalCSS />
-      <PreloadResources />
       <App />
     </ErrorBoundary>
   </StrictMode>

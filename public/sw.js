@@ -46,6 +46,14 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
   
+  // Skip caching for unsupported request types
+  if (url.protocol === 'chrome-extension:' || 
+      event.request.method === 'POST' || 
+      event.request.method === 'PUT' || 
+      event.request.method === 'DELETE') {
+    return;
+  }
+  
   // Always go network-first for authentication and API requests
   if (url.pathname.includes('/auth') || 
       url.pathname.includes('/api/') ||
@@ -71,12 +79,20 @@ self.addEventListener('fetch', (event) => {
           return response;
         }
         
-        const responseToCache = response.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, responseToCache);
-        });
+        // Only cache GET requests for basic responses
+        if (event.request.method === 'GET') {
+          const responseToCache = response.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseToCache).catch((error) => {
+              console.log('Cache put failed:', error);
+            });
+          });
+        }
         
         return response;
+      }).catch(() => {
+        // Return a fallback response if fetch fails
+        return new Response('Network error', { status: 503 });
       });
     })
   );
