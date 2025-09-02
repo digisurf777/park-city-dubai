@@ -49,7 +49,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         // Handle auth events
         if (event === 'SIGNED_IN' && session?.user) {
           console.log('AuthProvider: User signed in successfully');
-          // Don't make any Supabase calls here to prevent deadlocks
+          
+          // Check if this is an OAuth callback (user came from /auth with code parameter)
+          if (window.location.pathname === '/auth' && window.location.search.includes('code=')) {
+            console.log('OAuth callback detected, redirecting to dashboard');
+            
+            // Show success message and redirect
+            import('sonner').then(({ toast }) => {
+              toast.success('Successfully signed in with Google!');
+              
+              // Small delay to ensure state is updated
+              setTimeout(() => {
+                window.location.href = '/';
+              }, 100);
+            });
+          }
         } else if (event === 'SIGNED_OUT') {
           console.log('AuthProvider: User signed out');
           setSession(null);
