@@ -58,14 +58,28 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-root.render(
-  <StrictMode>
-    <ErrorBoundary>
-      <CriticalCSS />
-      <PreloadResources />
-      <App />
-    </ErrorBoundary>
-  </StrictMode>
-);
+// Clear any problematic caches on app start
+const clearProblematicCaches = async () => {
+  try {
+    const cacheNames = await caches.keys();
+    await Promise.all(
+      cacheNames.map(name => caches.delete(name))
+    );
+    console.log('Cleared all caches for fresh start');
+  } catch (error) {
+    console.log('Cache clearing failed:', error);
+  }
+};
+
+// Clear caches before rendering
+clearProblematicCaches().then(() => {
+  root.render(
+    <StrictMode>
+      <ErrorBoundary>
+        <App />
+      </ErrorBoundary>
+    </StrictMode>
+  );
+});
 
 console.log('main.tsx: App render initiated');
