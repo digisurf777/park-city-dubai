@@ -32,11 +32,11 @@ export const useVerificationStatus = (): VerificationStatus => {
         .from('user_verifications')
         .select('verification_status')
         .eq('user_id', user.id)
-        .maybeSingle();
+        .single();
 
       console.log('Verification query result:', { data, error: fetchError });
 
-      if (fetchError) {
+      if (fetchError && fetchError.code !== 'PGRST116') {
         console.error('Verification fetch error:', fetchError);
         throw fetchError;
       }

@@ -57,8 +57,8 @@ const VerificationPanel = () => {
       const {
         data,
         error
-      } = await supabase.from('user_verifications').select('*').eq('user_id', user?.id).maybeSingle();
-      if (error) {
+      } = await supabase.from('user_verifications').select('*').eq('user_id', user?.id).single();
+      if (error && error.code !== 'PGRST116') {
         console.error('Error fetching verification:', error);
       } else if (data) {
         setVerification(data as Verification);

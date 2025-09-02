@@ -40,7 +40,7 @@ const NewsArticle = () => {
           .select('*')
           .eq('id', id)
           .eq('status', 'published')
-          .maybeSingle();
+          .single();
 
         if (error) {
           console.error('Article not found:', error);

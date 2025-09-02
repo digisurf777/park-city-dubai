@@ -53,7 +53,7 @@ const ProductPage: React.FC = () => {
           .from('parking_listings')
           .select('*')
           .eq('id', id)
-          .maybeSingle();
+          .single();
 
         if (fullData && !fullError) {
           console.log('Fetched full parking listing data:', fullData);
@@ -66,7 +66,7 @@ const ProductPage: React.FC = () => {
           .from('parking_listings_public')
           .select('*')
           .eq('id', id)
-          .maybeSingle();
+          .single();
 
         if (publicError) {
           console.error('Error fetching parking listing:', publicError);

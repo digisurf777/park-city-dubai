@@ -53,7 +53,7 @@ const NewsComments = ({ newsId }: NewsCommentsProps) => {
             .from('profiles')
             .select('full_name')
             .eq('user_id', comment.user_id)
-            .maybeSingle();
+            .single();
           
           return {
             ...comment,

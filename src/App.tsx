@@ -1,5 +1,5 @@
 import React, { useState, useEffect, Suspense } from 'react';
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
 
@@ -51,77 +51,6 @@ import AdminPanel from '@/pages/AdminPanel';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import AdminRoute from '@/components/AdminRoute';
 
-// Component to provide location for ErrorBoundary reset
-function AppRoutes() {
-  const location = useLocation();
-  
-  return (
-    <div className="min-h-screen bg-background">
-      <ErrorBoundary resetOnPropsChange={location.pathname}>
-        <Suspense fallback={null}>
-          <SafePreloadResources />
-          <SafeCriticalCSS />
-          <SafeMobileOptimizations />
-          <SafePerformanceOptimizer />
-        </Suspense>
-        
-        {/* Routes that should not show navbar */}
-        <Routes>
-          <Route path="/auth" element={<Auth />} />
-          <Route path="/email-confirmed" element={<EmailConfirmed />} />
-          <Route path="/admin-bootstrap" element={<AdminBootstrap />} />
-          {/* Add admin route with protection */}
-          <Route path="/admin" element={<AdminRoute><AdminPanel /></AdminRoute>} />
-          
-          {/* Routes with navbar */}
-          <Route path="/*" element={
-            <>
-              <Navbar />
-              <main className="pt-16">
-                <Routes>
-                  <Route path="/" element={<IndexOptimized />} />
-                  <Route path="/my-account" element={<ProtectedRoute><MyAccount /></ProtectedRoute>} />
-                  <Route path="/contact-admin" element={<ProtectedRoute><ContactAdmin /></ProtectedRoute>} />
-                  <Route path="/feedback" element={<ProtectedRoute><Feedback /></ProtectedRoute>} />
-                  <Route path="/find-parking" element={<FindParking />} />
-                  <Route path="/rent-out-your-space" element={<RentOutYourSpace />} />
-                  <Route path="/calculator" element={<Calculator />} />
-                  <Route path="/about" element={<AboutUs />} />
-                  <Route path="/faq" element={<FAQ />} />
-                  <Route path="/news" element={<News />} />
-                  <Route path="/news/:id" element={<NewsArticle />} />
-                  <Route path="/payment-success" element={<PaymentSuccess />} />
-                  <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-                  <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
-                  <Route path="/cookies-notice" element={<CookiesNotice />} />
-                  <Route path="/lavable-home" element={<LavableHome />} />
-                  <Route path="/lavable-faq" element={<LavableFAQ />} />
-                  <Route path="/zones/business-bay" element={<BusinessBay />} />
-                  <Route path="/zones/downtown" element={<Downtown />} />
-                  <Route path="/zones/dubai-marina" element={<DubaiMarina />} />
-                  <Route path="/zones/palm-jumeirah" element={<PalmJumeirah />} />
-                  <Route path="/zones/difc" element={<DIFC />} />
-                  <Route path="/zones/deira" element={<Deira />} />
-                  <Route path="/insert-blog-posts" element={<InsertBlogPosts />} />
-                  <Route path="/product-page" element={<ProductPage />} />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </main>
-              <Footer />
-              <LavableFooter />
-            </>
-          } />
-        </Routes>
-
-        <Suspense fallback={null}>
-          <SafeTawkToChat />
-        </Suspense>
-        <Toaster />
-      </ErrorBoundary>
-    </div>
-  );
-}
-
 function App() {
   const [queryClient] = useState(() => new QueryClient());
 
@@ -134,7 +63,69 @@ function App() {
       <BrowserRouter>
         <AuthProvider>
           <SafeAuthWrapper>
-            <AppRoutes />
+            <div className="min-h-screen bg-background">
+              <ErrorBoundary>
+                <Suspense fallback={null}>
+                  <SafePreloadResources />
+                  <SafeCriticalCSS />
+                  <SafeMobileOptimizations />
+                  <SafePerformanceOptimizer />
+                </Suspense>
+                
+                {/* Routes that should not show navbar */}
+                <Routes>
+                  <Route path="/auth" element={<Auth />} />
+                  <Route path="/email-confirmed" element={<EmailConfirmed />} />
+                  <Route path="/admin-bootstrap" element={<AdminBootstrap />} />
+                  {/* Add admin route with protection */}
+                  <Route path="/admin" element={<AdminRoute><AdminPanel /></AdminRoute>} />
+                  
+                  {/* Routes with navbar */}
+                  <Route path="/*" element={
+                    <>
+                      <Navbar />
+                      <main className="pt-16">
+                        <Routes>
+                          <Route path="/" element={<IndexOptimized />} />
+                          <Route path="/my-account" element={<ProtectedRoute><MyAccount /></ProtectedRoute>} />
+                          <Route path="/contact-admin" element={<ProtectedRoute><ContactAdmin /></ProtectedRoute>} />
+                          <Route path="/feedback" element={<ProtectedRoute><Feedback /></ProtectedRoute>} />
+                          <Route path="/find-parking" element={<FindParking />} />
+                          <Route path="/rent-out-your-space" element={<RentOutYourSpace />} />
+                          <Route path="/calculator" element={<Calculator />} />
+                          <Route path="/about" element={<AboutUs />} />
+                          <Route path="/faq" element={<FAQ />} />
+                          <Route path="/news" element={<News />} />
+                          <Route path="/news/:id" element={<NewsArticle />} />
+                          <Route path="/payment-success" element={<PaymentSuccess />} />
+                          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                          <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
+                          <Route path="/cookies-notice" element={<CookiesNotice />} />
+                          <Route path="/lavable-home" element={<LavableHome />} />
+                          <Route path="/lavable-faq" element={<LavableFAQ />} />
+                          <Route path="/zones/business-bay" element={<BusinessBay />} />
+                          <Route path="/zones/downtown" element={<Downtown />} />
+                          <Route path="/zones/dubai-marina" element={<DubaiMarina />} />
+                          <Route path="/zones/palm-jumeirah" element={<PalmJumeirah />} />
+                          <Route path="/zones/difc" element={<DIFC />} />
+                          <Route path="/zones/deira" element={<Deira />} />
+                          <Route path="/insert-blog-posts" element={<InsertBlogPosts />} />
+                          <Route path="/product-page" element={<ProductPage />} />
+                          <Route path="*" element={<NotFound />} />
+                        </Routes>
+                      </main>
+                      <Footer />
+                      <LavableFooter />
+                    </>
+                  } />
+                </Routes>
+
+                <Suspense fallback={null}>
+                  <SafeTawkToChat />
+                </Suspense>
+                <Toaster />
+              </ErrorBoundary>
+            </div>
           </SafeAuthWrapper>
         </AuthProvider>
       </BrowserRouter>
