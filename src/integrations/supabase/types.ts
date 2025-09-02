@@ -627,6 +627,7 @@ export type Database = {
       profiles: {
         Row: {
           created_at: string
+          email: string | null
           email_confirmed_at: string | null
           full_name: string | null
           id: string
@@ -638,6 +639,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          email?: string | null
           email_confirmed_at?: string | null
           full_name?: string | null
           id?: string
@@ -649,6 +651,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          email?: string | null
           email_confirmed_at?: string | null
           full_name?: string | null
           id?: string
@@ -1235,8 +1238,8 @@ export type Database = {
           verification_status: string
         }[]
       }
-      setup_admin_for_authenticated_user: {
-        Args: Record<PropertyKey, never>
+      send_welcome_email_async: {
+        Args: { user_email: string; user_full_name: string }
         Returns: Json
       }
       setup_admin_for_current_user: {
