@@ -1,137 +1,204 @@
-useEffect(() => {
-  const confirmEmail = async () => {
-    try {
-      console.log('=== EMAIL CONFIRMATION DEBUG ===');
-      console.log('Full URL:', window.location.href);
-      console.log('Search params:', window.location.search);
-      console.log('Hash params:', window.location.hash);
-      
-      // Parse URL parameters from both query string and hash
-      const urlParams = new URLSearchParams(window.location.search);
-      const hashParams = new URLSearchParams(window.location.hash.substring(1));
-      
-      // Check for error parameters first
-      const error = urlParams.get('error') || hashParams.get('error');
-      const errorDescription = urlParams.get('error_description') || hashParams.get('error_description');
-      
-      if (error) {
-        console.log('Error found in URL:', { error, errorDescription });
-        setError(errorDescription || error);
-        setLoading(false);
-        return;
-      }
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { CheckCircle, XCircle, Loader2 } from "lucide-react";
 
-      // Check for various token formats that Supabase might use
-      const token = urlParams.get('token') || hashParams.get('token');
-      const tokenHash = urlParams.get('token_hash') || hashParams.get('token_hash');
-      const type = urlParams.get('type') || hashParams.get('type');
-      const code = urlParams.get('code') || hashParams.get('code'); // Handle 'code' parameter
-      const accessToken = urlParams.get('access_token') || hashParams.get('access_token');
-      const refreshToken = urlParams.get('refresh_token') || hashParams.get('refresh_token');
-      
-      console.log('URL tokens found:', { 
-        token: !!token, 
-        tokenHash: !!tokenHash, 
-        code: !!code,
-        accessToken: !!accessToken,
-        refreshToken: !!refreshToken,
-        type 
-      });
+const EmailConfirmed = () => {
+  const [loading, setLoading] = useState(true);
+  const [confirmed, setConfirmed] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
-      // Try different confirmation approaches based on available parameters
-      let confirmationAttempted = false;
-
-      // Method 1: If we have token_hash, try verifyOtp
-      if (tokenHash && type) {
-        console.log('Attempting confirmation with token_hash and type...');
-        confirmationAttempted = true;
+  useEffect(() => {
+    const confirmEmail = async () => {
+      try {
+        console.log('=== EMAIL CONFIRMATION DEBUG ===');
+        console.log('Full URL:', window.location.href);
+        console.log('Search params:', window.location.search);
+        console.log('Hash params:', window.location.hash);
         
-        const { data, error: verifyError } = await supabase.auth.verifyOtp({
-          token_hash: tokenHash,
-          type: type as any,
-        });
-
-        if (verifyError) {
-          console.error('Token hash verification failed:', verifyError);
-        } else if (data?.user) {
-          console.log('Email confirmed successfully with token_hash');
-          setConfirmed(true);
+        // Check for error parameters first
+        const urlParams = new URLSearchParams(window.location.search);
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        
+        const error = urlParams.get('error') || hashParams.get('error');
+        const errorDescription = urlParams.get('error_description') || hashParams.get('error_description');
+        
+        if (error) {
+          console.log('Error found in URL:', { error, errorDescription });
+          setError(errorDescription || error);
           setLoading(false);
           return;
         }
-      }
 
-      // Method 2: If we have a 'code' parameter, try exchangeCodeForSession
-      if (code && !confirmationAttempted) {
-        console.log('Attempting confirmation with code parameter...');
-        confirmationAttempted = true;
+        // Check for PKCE code (Supabase v2 with flowType 'pkce')
+        const code = urlParams.get('code') || hashParams.get('code');
+        // Legacy tokens (non-PKCE)
+        const token = urlParams.get('token') || hashParams.get('token');
+        const tokenHash = urlParams.get('token_hash') || hashParams.get('token_hash');
+        const type = urlParams.get('type') || hashParams.get('type');
         
-        const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+        console.log('URL tokens found:', { hasCode: !!code, token: !!token, tokenHash: !!tokenHash, type });
 
-        if (exchangeError) {
-          console.error('Code exchange failed:', exchangeError);
-        } else if (data?.user) {
-          console.log('Email confirmed successfully with code exchange');
-          setConfirmed(true);
-          setLoading(false);
-          return;
-        }
-      }
-
-      // Method 3: If we have access_token and refresh_token, set the session directly
-      if (accessToken && refreshToken && !confirmationAttempted) {
-        console.log('Attempting to set session with tokens...');
-        confirmationAttempted = true;
-        
-        const { data, error: sessionError } = await supabase.auth.setSession({
-          access_token: accessToken,
-          refresh_token: refreshToken,
-        });
-
-        if (sessionError) {
-          console.error('Session setting failed:', sessionError);
-        } else if (data?.user) {
-          console.log('Email confirmed successfully with session tokens');
-          setConfirmed(true);
-          setLoading(false);
-          return;
-        }
-      }
-
-      // Method 4: Check current session (might already be authenticated)
-      console.log('Checking current session...');
-      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-      
-      if (sessionError) {
-        console.error('Session error:', sessionError);
-        setError('Unable to verify email confirmation status');
-      } else if (sessionData?.session?.user) {
-        console.log('User is already authenticated - email confirmation successful');
-        setConfirmed(true);
-      } else {
-        // Method 5: Final attempt - try to refresh session if we have any tokens
-        if ((token || tokenHash || code) && !confirmationAttempted) {
-          console.log('Final attempt: refreshing session...');
-          const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
-          
-          if (refreshData?.session?.user) {
-            console.log('Session refreshed successfully');
-            setConfirmed(true);
-          } else {
-            console.log('All confirmation methods failed:', refreshError);
-            setError('Email confirmation link is invalid or has expired. Please request a new confirmation email or try signing in directly.');
+        // If PKCE code is present, exchange it immediately for a session
+        if (code) {
+          console.log('Exchanging PKCE code for session...');
+          const { data: exchangeData, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+          if (exchangeError) {
+            console.error('PKCE exchange error:', exchangeError);
+            setError(exchangeError.message || 'Failed to confirm email. The link may be invalid or expired.');
+            setLoading(false);
+            return;
           }
-        } else {
-          setError('Email confirmation link is invalid or has expired. Please request a new confirmation email.');
+          console.log('PKCE exchange successful. User:', exchangeData.session?.user?.email);
+          setConfirmed(true);
+          setLoading(false);
+          return;
         }
+
+        // Small delay to allow Supabase to process any URL tokens
+        await new Promise(resolve => setTimeout(resolve, 800));
+        
+        const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+        
+        console.log('Session check result:', { 
+          hasSession: !!sessionData?.session,
+          hasUser: !!sessionData?.session?.user,
+          userEmailConfirmed: sessionData?.session?.user?.email_confirmed_at,
+          error: sessionError?.message 
+        });
+        
+        if (sessionError) {
+          console.error('Session error:', sessionError);
+          setError('Unable to confirm email - session error');
+        } else if (sessionData?.session?.user) {
+          console.log('Email confirmed successfully - user is authenticated');
+          setConfirmed(true);
+        } else {
+          // If no session but we have legacy tokens, try to refresh the session
+          if (token || tokenHash) {
+            console.log('Attempting to refresh session with tokens...');
+            const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
+            
+            if (refreshData?.session?.user) {
+              console.log('Session refreshed successfully');
+              setConfirmed(true);
+            } else {
+              console.log('Failed to refresh session:', refreshError);
+              setError('Email confirmation failed - please try signing in directly');
+            }
+          } else {
+            console.log('No tokens found in URL - confirmation may have already been processed');
+            setError('Email confirmation link is invalid or has expired. Please request a new confirmation email.');
+          }
+        }
+      } catch (error: any) {
+        console.error('Email confirmation error:', error);
+        setError('An error occurred during email confirmation. Please try signing in directly.');
+      } finally {
+        setLoading(false);
       }
-    } catch (error: any) {
-      console.error('Email confirmation error:', error);
-      setError('An error occurred during email confirmation. Please try signing in directly.');
-    } finally {
-      setLoading(false);
+    };
+
+    confirmEmail();
+  }, []);
+
+  // Auto-redirect after successful confirmation
+  useEffect(() => {
+    if (confirmed) {
+      const redirectTo = new URLSearchParams(window.location.search).get('redirect_to') || '/my-account';
+      console.log('Redirecting to:', redirectTo);
+      
+      setTimeout(() => {
+        navigate(redirectTo);
+      }, 2000);
     }
+  }, [confirmed, navigate]);
+
+  const handleLoginRedirect = () => {
+    navigate('/auth');
   };
 
-  confirmEmail();
-}, []);
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center px-4">
+        <Card className="w-full max-w-md">
+          <CardContent className="pt-6">
+            <div className="text-center space-y-4">
+              <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
+              <p className="text-muted-foreground">Confirming your email...</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (confirmed) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center px-4">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle className="text-center flex items-center justify-center gap-2 text-green-600">
+              <CheckCircle className="h-6 w-6" />
+              Email Confirmed!
+            </CardTitle>
+            <CardDescription className="text-center">
+              Your email has been successfully confirmed. You can now log in to your account.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button
+              onClick={() => navigate('/')}
+              className="w-full"
+            >
+              Go to Homepage
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-background flex items-center justify-center px-4">
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle className="text-center flex items-center justify-center gap-2 text-red-600">
+            <XCircle className="h-6 w-6" />
+            Confirmation Failed
+          </CardTitle>
+          <CardDescription className="text-center">
+            {error || 'We were unable to confirm your email address.'}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-4">
+            <p className="text-sm text-center">
+              Don't worry! If you already have an account, you can sign in directly.
+            </p>
+            <div className="space-y-2">
+              <Button
+                onClick={() => navigate('/auth')}
+                className="w-full"
+              >
+                Sign In to Your Account
+              </Button>
+              <Button
+                onClick={() => navigate('/auth')}
+                className="w-full"
+                variant="outline"
+              >
+                Create New Account
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+export default EmailConfirmed;
