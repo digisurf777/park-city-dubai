@@ -42,18 +42,13 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Network-first strategy for critical resources
+// Network-first strategy for auth-related requests
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
   
-  // Network-first for JS, CSS, auth, and API requests to prevent module version conflicts
+  // Always go network-first for authentication and API requests
   if (url.pathname.includes('/auth') || 
       url.pathname.includes('/api/') ||
-      url.pathname.includes('/assets/') ||
-      url.pathname.endsWith('.js') ||
-      url.pathname.endsWith('.css') ||
-      url.pathname.endsWith('.tsx') ||
-      url.pathname.endsWith('.ts') ||
       url.origin.includes('supabase')) {
     event.respondWith(
       fetch(event.request.clone()).catch(() => {
@@ -64,7 +59,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
   
-  // Cache-first for images and fonts only
+  // Cache-first for static assets
   event.respondWith(
     caches.match(event.request).then((response) => {
       if (response) {
