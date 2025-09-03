@@ -41,6 +41,12 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error('Unauthorized: Invalid token');
     }
 
+    // Ensure user ID is properly formatted as UUID
+    const userId = user.id;
+    if (!userId || typeof userId !== 'string') {
+      throw new Error('Invalid user ID format');
+    }
+
     const { verification_id }: RevokeRequest = await req.json();
 
     console.log('Revoking document access tokens for:', {

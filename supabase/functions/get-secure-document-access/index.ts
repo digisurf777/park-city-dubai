@@ -42,18 +42,24 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error('Unauthorized: Invalid token');
     }
 
+    // Ensure user ID is properly formatted as UUID
+    const userId = user.id;
+    if (!userId || typeof userId !== 'string') {
+      throw new Error('Invalid user ID format');
+    }
+
     const { verification_id, access_token }: AccessRequest = await req.json();
 
     console.log('Validating secure document access for:', {
       verification_id,
-      user_id: user.id,
+      user_id: userId,
       access_token: access_token.substring(0, 8) + '...'
     });
 
-    // Call the database function to validate access
+    // Call the database function to validate access with explicit UUID casting
     const { data, error } = await supabase.rpc('get_secure_document_access', {
-      verification_id,
-      access_token
+      verification_id: verification_id,
+      access_token: access_token
     });
 
     if (error) {
