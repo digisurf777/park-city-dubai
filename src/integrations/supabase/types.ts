@@ -165,13 +165,6 @@ export type Database = {
             referencedRelation: "parking_listings"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "driver_owner_messages_listing_id_fkey"
-            columns: ["listing_id"]
-            isOneToOne: false
-            referencedRelation: "parking_listings_safe_public"
-            referencedColumns: ["id"]
-          },
         ]
       }
       encrypted_document_refs: {
@@ -883,57 +876,7 @@ export type Database = {
       }
     }
     Views: {
-      parking_listings_safe_public: {
-        Row: {
-          address: string | null
-          availability_schedule: Json | null
-          created_at: string | null
-          description: string | null
-          features: string[] | null
-          id: string | null
-          images: string[] | null
-          price_per_day: number | null
-          price_per_hour: number | null
-          price_per_month: number | null
-          status: string | null
-          title: string | null
-          updated_at: string | null
-          zone: string | null
-        }
-        Insert: {
-          address?: string | null
-          availability_schedule?: Json | null
-          created_at?: string | null
-          description?: string | null
-          features?: string[] | null
-          id?: string | null
-          images?: string[] | null
-          price_per_day?: number | null
-          price_per_hour?: number | null
-          price_per_month?: number | null
-          status?: string | null
-          title?: string | null
-          updated_at?: string | null
-          zone?: string | null
-        }
-        Update: {
-          address?: string | null
-          availability_schedule?: Json | null
-          created_at?: string | null
-          description?: string | null
-          features?: string[] | null
-          id?: string | null
-          images?: string[] | null
-          price_per_day?: number | null
-          price_per_hour?: number | null
-          price_per_month?: number | null
-          status?: string | null
-          title?: string | null
-          updated_at?: string | null
-          zone?: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       admin_delete_parking_listing: {
