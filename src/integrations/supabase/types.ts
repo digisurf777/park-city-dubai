@@ -171,36 +171,42 @@ export type Database = {
         Row: {
           access_count: number
           created_at: string
+          document_access_token: string | null
           document_hash: string
           encrypted_storage_path: string
           encryption_key_id: string
           expires_at: string
           id: string
           last_accessed_at: string | null
+          token_expires_at: string | null
           updated_at: string
           verification_id: string
         }
         Insert: {
           access_count?: number
           created_at?: string
+          document_access_token?: string | null
           document_hash: string
           encrypted_storage_path: string
           encryption_key_id: string
           expires_at?: string
           id?: string
           last_accessed_at?: string | null
+          token_expires_at?: string | null
           updated_at?: string
           verification_id: string
         }
         Update: {
           access_count?: number
           created_at?: string
+          document_access_token?: string | null
           document_hash?: string
           encrypted_storage_path?: string
           encryption_key_id?: string
           expires_at?: string
           id?: string
           last_accessed_at?: string | null
+          token_expires_at?: string | null
           updated_at?: string
           verification_id?: string
         }
