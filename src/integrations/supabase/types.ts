@@ -956,6 +956,10 @@ export type Database = {
         Args: { requesting_user_id?: string; verification_id: string }
         Returns: boolean
       }
+      create_user_profile: {
+        Args: { p_full_name?: string; p_user_id: string; p_user_type?: string }
+        Returns: undefined
+      }
       encrypt_document_reference: {
         Args: { verification_id: string }
         Returns: boolean
