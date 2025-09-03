@@ -1,91 +1,149 @@
-import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.4';
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
-};
-
-interface AccessRequest {
-  verification_id: string;
-  access_token: string;
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-const handler = async (req: Request): Promise<Response> => {
+serve(async (req) => {
   // Handle CORS preflight requests
-  if (req.method === "OPTIONS") {
+  if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    
-    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false
-      }
-    });
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    )
 
-    // Get the user from the request
-    const authHeader = req.headers.get('Authorization');
+    const { verification_id, access_token } = await req.json()
+
+    if (!verification_id) {
+      console.error('Missing verification_id')
+      return new Response(
+        JSON.stringify({ error: 'Missing verification_id' }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      )
+    }
+
+    // Get user from auth header
+    const authHeader = req.headers.get('authorization')
     if (!authHeader) {
-      throw new Error('No authorization header provided');
+      console.error('Missing authorization header')
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { 
+          status: 401, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      )
     }
 
-    const token = authHeader.replace('Bearer ', '');
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-    
-    if (authError || !user) {
-      throw new Error('Unauthorized: Invalid token');
+    const token = authHeader.replace('Bearer ', '')
+    const { data: { user }, error: userError } = await supabaseClient.auth.getUser(token)
+
+    if (userError || !user) {
+      console.error('Invalid token:', userError)
+      return new Response(
+        JSON.stringify({ error: 'Invalid token' }),
+        { 
+          status: 401, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      )
     }
 
-    // Ensure user ID is properly formatted as UUID
-    const userId = user.id;
-    if (!userId || typeof userId !== 'string') {
-      throw new Error('Invalid user ID format');
+    console.log(`Secure document access requested by user ${user.id} for verification ${verification_id}`)
+
+    // Use the secure document access function with encrypted references
+    const { data: secureAccess, error: accessError } = await supabaseClient.rpc(
+      'get_secure_document_reference',
+      { verification_id }
+    )
+
+    if (accessError) {
+      console.error('Failed to get secure document reference:', accessError)
+      return new Response(
+        JSON.stringify({ 
+          error: 'Document access denied',
+          details: accessError.message 
+        }),
+        { 
+          status: 403, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      )
     }
 
-    const { verification_id, access_token }: AccessRequest = await req.json();
-
-    console.log('Validating secure document access for:', {
-      verification_id,
-      user_id: userId,
-      access_token: access_token.substring(0, 8) + '...'
-    });
-
-    // Call the database function to validate access with explicit UUID casting
-    const { data, error } = await supabase.rpc('get_secure_document_access', {
-      verification_id: verification_id,
-      access_token: access_token
-    });
-
-    if (error) {
-      console.error('Database function error:', error);
-      throw new Error(`Database error: ${error.message}`);
+    if (!secureAccess || secureAccess.length === 0) {
+      console.error('No secure reference found for verification:', verification_id)
+      return new Response(
+        JSON.stringify({ error: 'Document reference not found' }),
+        { 
+          status: 404, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      )
     }
 
-    console.log('Secure document access validation completed');
+    const reference = secureAccess[0]
 
-    return new Response(JSON.stringify(data), {
-      status: 200,
-      headers: {
-        "Content-Type": "application/json",
-        ...corsHeaders,
-      },
-    });
-  } catch (error: any) {
-    console.error("Error in get-secure-document-access function:", error);
+    // Generate a temporary access token (valid for 5 minutes)
+    const tempToken = crypto.randomUUID()
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000) // 5 minutes
+
+    // Store the temporary token in the database
+    const { error: tokenError } = await supabaseClient
+      .from('encrypted_document_refs')
+      .update({
+        document_access_token: tempToken,
+        token_expires_at: expiresAt.toISOString(),
+        last_accessed_at: new Date().toISOString(),
+        access_count: supabaseClient.raw('access_count + 1')
+      })
+      .eq('id', reference.encrypted_ref_id)
+
+    if (tokenError) {
+      console.error('Failed to create access token:', tokenError)
+      return new Response(
+        JSON.stringify({ error: 'Failed to create secure access' }),
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      )
+    }
+
+    console.log(`Secure access granted for verification ${verification_id}, expires at ${expiresAt}`)
+
     return new Response(
-      JSON.stringify({ error: error.message }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
+      JSON.stringify({
+        success: true,
+        access_token: tempToken,
+        expires_at: expiresAt.toISOString(),
+        security_level: reference.security_level,
+        access_method: 'encrypted_reference_only',
+        verification_id
+      }),
+      { 
+        status: 200, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
-    );
-  }
-};
+    )
 
-serve(handler);
+  } catch (error) {
+    console.error('Unexpected error in secure document access:', error)
+    return new Response(
+      JSON.stringify({ error: 'Internal server error' }),
+      { 
+        status: 500, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      }
+    )
+  }
+})

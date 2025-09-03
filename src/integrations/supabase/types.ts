@@ -208,7 +208,7 @@ export type Database = {
           {
             foreignKeyName: "encrypted_document_refs_verification_id_fkey"
             columns: ["verification_id"]
-            isOneToOne: false
+            isOneToOne: true
             referencedRelation: "user_verifications"
             referencedColumns: ["id"]
           },
@@ -1100,6 +1100,14 @@ export type Database = {
       get_secure_document_access: {
         Args: { access_token: string; verification_id: string }
         Returns: Json
+      }
+      get_secure_document_reference: {
+        Args: { verification_id: string }
+        Returns: {
+          access_expires_at: string
+          encrypted_ref_id: string
+          security_level: string
+        }[]
       }
       get_secure_document_url: {
         Args: { expires_in?: number; verification_id: string }
