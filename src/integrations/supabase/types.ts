@@ -954,6 +954,14 @@ export type Database = {
           user_type: string
         }[]
       }
+      audit_public_table_security: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          details: string
+          issue_type: string
+          severity: string
+        }[]
+      }
       auto_expire_old_documents: {
         Args: Record<PropertyKey, never>
         Returns: undefined
