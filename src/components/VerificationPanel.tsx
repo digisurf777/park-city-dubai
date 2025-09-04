@@ -147,7 +147,7 @@ const VerificationPanel = () => {
         document_type: formData.documentType,
         document_image_url: urlData.signedUrl,
         verification_status: 'pending' as const,
-        access_restricted: false // Allow user to view their own document
+        access_restricted: true // Security requirement: new documents must be access-restricted
       };
       
       console.log('Verification data:', verificationData);
