@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -23,6 +23,8 @@ import businessBayZone from "@/assets/zones/business-bay.jpg";
 import difcZone from "/lovable-uploads/63d539ac-8cbb-46b2-aa39-3de0695ef8c9.png";
 import deiraZone from "@/assets/zones/deira.jpg";
 const Index = () => {
+  const [processingOAuth, setProcessingOAuth] = useState(false);
+  
   const seoData = useSEO({
     title: "Shazam Parking - Dubai's Trusted Parking Platform",
     description: "Find and book parking spaces in Dubai Marina, Downtown, DIFC, Business Bay, Palm Jumeirah, and Deira. List your parking space and start earning monthly income with Dubai's most trusted parking platform.",

@@ -211,7 +211,7 @@ const VerificationPanel = () => {
       case 'approved':
         return <CheckCircle className="h-4 w-4 text-green-500" />;
       case 'pending':
-        return <Clock className="h-4 w-4 text-yellow-500" />;
+        return <Clock className="h-4 w-4 text-orange-500" />;
       case 'rejected':
         return <XCircle className="h-4 w-4 text-red-500" />;
       default:
@@ -221,9 +221,9 @@ const VerificationPanel = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'approved':
-        return <Badge className="bg-green-100 text-green-800">✅ Approved</Badge>;
+        return <Badge className="bg-green-100 text-green-800">Verification Approved</Badge>;
       case 'pending':
-        return <Badge className="bg-yellow-100 text-yellow-800">⏳ Pending</Badge>;
+        return <Badge className="bg-orange-100 text-orange-800">Verification in Progress</Badge>;
       case 'rejected':
         return <Badge className="bg-red-100 text-red-800">❌ Rejected</Badge>;
       default:
@@ -257,10 +257,10 @@ const VerificationPanel = () => {
         <CardContent>
           {verification ? <div className="space-y-4">
               {verification.verification_status === 'pending' && (
-                <Alert className="border-yellow-200 bg-yellow-50">
-                  <Clock className="h-4 w-4 text-yellow-600" />
-                  <AlertDescription className="text-yellow-800">
-                    <strong>🕒 Verification Pending</strong> – Your verification documents have been submitted successfully and are currently under review. You will receive an email notification once the review is complete.
+                <Alert className="border-orange-200 bg-orange-50">
+                  <Clock className="h-4 w-4 text-orange-600" />
+                  <AlertDescription className="text-orange-800">
+                    <strong>Verification in Progress</strong> – Your verification documents have been submitted successfully and are currently under review. You will receive an email notification once the review is complete.
                   </AlertDescription>
                 </Alert>
               )}
