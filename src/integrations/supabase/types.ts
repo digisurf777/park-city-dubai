@@ -882,66 +882,7 @@ export type Database = {
       }
     }
     Views: {
-      safe_parking_listings: {
-        Row: {
-          address: string | null
-          availability_schedule: Json | null
-          contact_email_excluded_for_security: string | null
-          contact_phone_excluded_for_security: string | null
-          created_at: string | null
-          description: string | null
-          features: string[] | null
-          id: string | null
-          images: string[] | null
-          owner_id_excluded_for_security: string | null
-          price_per_day: number | null
-          price_per_hour: number | null
-          price_per_month: number | null
-          status: string | null
-          title: string | null
-          updated_at: string | null
-          zone: string | null
-        }
-        Insert: {
-          address?: string | null
-          availability_schedule?: Json | null
-          contact_email_excluded_for_security?: never
-          contact_phone_excluded_for_security?: never
-          created_at?: string | null
-          description?: string | null
-          features?: string[] | null
-          id?: string | null
-          images?: string[] | null
-          owner_id_excluded_for_security?: never
-          price_per_day?: number | null
-          price_per_hour?: number | null
-          price_per_month?: number | null
-          status?: string | null
-          title?: string | null
-          updated_at?: string | null
-          zone?: string | null
-        }
-        Update: {
-          address?: string | null
-          availability_schedule?: Json | null
-          contact_email_excluded_for_security?: never
-          contact_phone_excluded_for_security?: never
-          created_at?: string | null
-          description?: string | null
-          features?: string[] | null
-          id?: string | null
-          images?: string[] | null
-          owner_id_excluded_for_security?: never
-          price_per_day?: number | null
-          price_per_hour?: number | null
-          price_per_month?: number | null
-          status?: string | null
-          title?: string | null
-          updated_at?: string | null
-          zone?: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       admin_delete_parking_listing: {
