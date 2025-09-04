@@ -33,18 +33,24 @@ const Index = () => {
     url: "/"
   });
 
-  // Handle OAuth callback tokens in URL fragment
+  // Handle OAuth callback tokens (both implicit flow and authorization code flow)
   useEffect(() => {
     const handleOAuthTokens = async () => {
       const fragment = window.location.hash;
+      const searchParams = new URLSearchParams(window.location.search);
+      const authCode = searchParams.get('code');
       
-      if (fragment && fragment.includes('access_token')) {
-        console.log('Index: Found OAuth tokens in URL, processing...');
+      // Check for either access_token in fragment (implicit flow) or code in query params (authorization code flow)
+      if ((fragment && fragment.includes('access_token')) || authCode) {
+        console.log('Index: Found OAuth callback, processing...', { 
+          hasFragment: !!fragment, 
+          hasCode: !!authCode 
+        });
         setProcessingOAuth(true);
         
         try {
-          // Give Supabase time to process the tokens automatically
-          await new Promise(resolve => setTimeout(resolve, 1500));
+          // Give Supabase time to process the OAuth callback automatically
+          await new Promise(resolve => setTimeout(resolve, 2000));
           
           // Check if we now have a session
           const { data: { session }, error } = await supabase.auth.getSession();
@@ -53,8 +59,10 @@ const Index = () => {
             console.error('Index: Error getting session after OAuth:', error);
           } else if (session) {
             console.log('Index: OAuth successful, user signed in:', session.user.email);
-            // Clear the URL fragment
+            // Clear both URL fragment and query parameters
             window.history.replaceState({}, document.title, window.location.pathname);
+          } else {
+            console.log('Index: No session found after OAuth processing');
           }
         } catch (error) {
           console.error('Index: Error processing OAuth tokens:', error);
