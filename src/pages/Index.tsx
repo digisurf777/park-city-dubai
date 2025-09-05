@@ -33,51 +33,7 @@ const Index = () => {
 
 
 
-// Handle OAuth callback tokens in URL fragment
-  useEffect(() => {
-    const handleOAuthTokens = async () => {
-      const fragment = window.location.hash;
-      
-      if (fragment && fragment.includes('access_token')) {
-        console.log('Index: Found OAuth tokens in URL, processing...');
-        setProcessingOAuth(true);
-        
-        try {
-          // Give Supabase time to process the tokens automatically
-          await new Promise(resolve => setTimeout(resolve, 1500));
-          
-          // Check if we now have a session
-          const { data: { session }, error } = await supabase.auth.getSession();
-          
-          if (error) {
-            console.error('Index: Error getting session after OAuth:', error);
-          } else if (session) {
-            console.log('Index: OAuth successful, user signed in:', session.user.email);
-            // Clear the URL fragment
-            window.history.replaceState({}, document.title, window.location.pathname);
-          }
-        } catch (error) {
-          console.error('Index: Error processing OAuth tokens:', error);
-        } finally {
-          setProcessingOAuth(false);
-        }
-      }
-    };
 
-    handleOAuthTokens();
-  }, []);
-
-  // Show loading state while processing OAuth
-  if (processingOAuth) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-          <p>Completing sign in...</p>
-        </div>
-      </div>
-    );
-  }
 
 
 
