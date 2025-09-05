@@ -14,6 +14,7 @@ import { MobileOptimizations } from "@/components/MobileOptimizations";
 // Import Auth directly to fix dynamic import issue
 import Auth from "./pages/Auth";
 import EmailConfirmed from "./pages/EmailConfirmed";
+import ResetPassword from "./pages/ResetPassword";
 
 // Lazy load other components for better performance
 const Index = lazy(() => import("./pages/Index"));
