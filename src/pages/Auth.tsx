@@ -33,7 +33,7 @@ const Auth = () => {
     const email = searchParams.get('email');
     const error = searchParams.get('error');
     const errorDescription = searchParams.get('error_description');
-
+    
     console.log('Auth page useEffect - URL params:', { type, confirmed, email, error, errorDescription });
     
     if (type === 'recovery') {
@@ -271,14 +271,25 @@ const Auth = () => {
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('Reset password form submitted with email:', resetEmail);
+    
+    if (!resetEmail) {
+      toast.error('Please enter your email address');
+      return;
+    }
+    
     setResetLoading(true);
     
     try {
+      console.log('Calling resetPassword function...');
       const { error } = await resetPassword(resetEmail);
+      console.log('Reset password response:', { hasError: !!error, error });
       
       if (error) {
+        console.error('Reset password error:', error);
         toast.error(error.message || 'Error sending password reset email');
       } else {
+        console.log('Reset password success');
         toast.success('Password reset email sent!', {
           description: 'Check your inbox for the reset link.'
         });
@@ -286,6 +297,7 @@ const Auth = () => {
         setShowResetForm(false);
       }
     } catch (error) {
+      console.error('Reset password exception:', error);
       toast.error('An error occurred while sending password reset email');
     } finally {
       setResetLoading(false);
@@ -346,7 +358,7 @@ const Auth = () => {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/`,
+          redirectTo: `${window.location.origin}/auth/callback`,
         },
       });
       
