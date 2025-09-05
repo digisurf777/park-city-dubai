@@ -135,8 +135,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       try {
         await supabase.functions.invoke('send-admin-signup-notification', {
           body: {
-            userEmail: data.user?.email,
-            userName: fullName,
+            email: data.user?.email,
+            fullName: fullName,
             userType: userType,
           },
         });
