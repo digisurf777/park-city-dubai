@@ -36,7 +36,38 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     console.log('AuthProvider: Setting up auth state listener');
     
-    // Set up auth state listener FIRST
+    // Handle OAuth callback tokens from URL hash immediately
+    const handleOAuthCallback = async () => {
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      const accessToken = hashParams.get('access_token');
+      const refreshToken = hashParams.get('refresh_token');
+      
+      if (accessToken) {
+        console.log('AuthProvider: OAuth callback detected, processing tokens...');
+        try {
+          // Set the session with the tokens from the URL
+          const { data, error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken || ''
+          });
+          
+          if (error) {
+            console.error('AuthProvider: Error setting OAuth session:', error);
+          } else {
+            console.log('AuthProvider: OAuth session set successfully');
+            // Clean up the URL hash
+            window.history.replaceState(null, '', window.location.pathname);
+          }
+        } catch (error) {
+          console.error('AuthProvider: Exception setting OAuth session:', error);
+        }
+      }
+    };
+    
+    // Process OAuth callback if present
+    handleOAuthCallback();
+    
+    // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         console.log('AuthProvider: Auth state changed:', event, session?.user?.email || 'no user');
@@ -49,7 +80,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         // Handle auth events
         if (event === 'SIGNED_IN' && session?.user) {
           console.log('AuthProvider: User signed in successfully');
-          // Don't make any Supabase calls here to prevent deadlocks
+          // Redirect to home page after successful OAuth login
+          if (window.location.pathname === '/auth' || window.location.hash.includes('access_token')) {
+            window.history.replaceState(null, '', '/');
+          }
         } else if (event === 'SIGNED_OUT') {
           console.log('AuthProvider: User signed out');
           setSession(null);
@@ -58,7 +92,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
     );
 
-    // THEN check for existing session
+    // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       console.log('AuthProvider: Initial session check:', !!session);
       setSession(session);
