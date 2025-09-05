@@ -33,8 +33,11 @@ const Auth = () => {
     const email = searchParams.get('email');
     const error = searchParams.get('error');
     const errorDescription = searchParams.get('error_description');
+
+    console.log('Auth page useEffect - URL params:', { type, confirmed, email, error, errorDescription });
     
     if (type === 'recovery') {
+      console.log('Password recovery detected, showing password update form');
       setShowPasswordUpdate(true);
       toast.info('Please set your new password');
     } else if (confirmed === 'true' && email) {
