@@ -518,11 +518,14 @@ const Auth = () => {
                   </Button>
                   
                   <div className="text-center">
-                    <Button
-                      type="button"
-                      variant="link"
+                    <Button 
+                      variant="link" 
                       className="text-sm p-0"
-                      onClick={() => setShowResetForm(!showResetForm)}
+                      onClick={() => {
+                        console.log('Forgot password clicked, showResetForm was:', showResetForm);
+                        setShowResetForm(!showResetForm);
+                        console.log('showResetForm toggled to:', !showResetForm);
+                      }}
                     >
                       Forgot your password?
                     </Button>
