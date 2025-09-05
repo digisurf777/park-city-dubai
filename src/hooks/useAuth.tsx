@@ -130,6 +130,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
 
       console.log('AuthProvider: Signup successful for:', data.user?.email);
+      
+      // Send admin notification for new signup
+      try {
+        await supabase.functions.invoke('send-admin-signup-notification', {
+          body: {
+            userEmail: data.user?.email,
+            userName: fullName,
+            userType: userType,
+          },
+        });
+        console.log('Admin signup notification sent successfully');
+      } catch (notificationError) {
+        console.error('Failed to send admin signup notification:', notificationError);
+        // Don't fail signup if notification fails
+      }
+      
       return { error: null };
     } catch (error) {
       console.error('AuthProvider: Signup exception:', error);
