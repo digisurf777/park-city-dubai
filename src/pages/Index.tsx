@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -22,10 +22,7 @@ import palmJumeirahZone from "/lovable-uploads/atlantis-hotel-hero.jpg";
 import businessBayZone from "@/assets/zones/business-bay.jpg";
 import difcZone from "/lovable-uploads/63d539ac-8cbb-46b2-aa39-3de0695ef8c9.png";
 import deiraZone from "@/assets/zones/deira.jpg";
-
 const Index = () => {
-  const [processingOAuth, setProcessingOAuth] = useState(false);
-  
   const seoData = useSEO({
     title: "Shazam Parking - Dubai's Trusted Parking Platform",
     description: "Find and book parking spaces in Dubai Marina, Downtown, DIFC, Business Bay, Palm Jumeirah, and Deira. List your parking space and start earning monthly income with Dubai's most trusted parking platform.",
@@ -33,24 +30,21 @@ const Index = () => {
     url: "/"
   });
 
-  // Handle OAuth callback tokens (both implicit flow and authorization code flow)
+
+
+
+// Handle OAuth callback tokens in URL fragment
   useEffect(() => {
     const handleOAuthTokens = async () => {
       const fragment = window.location.hash;
-      const searchParams = new URLSearchParams(window.location.search);
-      const authCode = searchParams.get('code');
       
-      // Check for either access_token in fragment (implicit flow) or code in query params (authorization code flow)
-      if ((fragment && fragment.includes('access_token')) || authCode) {
-        console.log('Index: Found OAuth callback, processing...', { 
-          hasFragment: !!fragment, 
-          hasCode: !!authCode 
-        });
+      if (fragment && fragment.includes('access_token')) {
+        console.log('Index: Found OAuth tokens in URL, processing...');
         setProcessingOAuth(true);
         
         try {
-          // Give Supabase time to process the OAuth callback automatically
-          await new Promise(resolve => setTimeout(resolve, 2000));
+          // Give Supabase time to process the tokens automatically
+          await new Promise(resolve => setTimeout(resolve, 1500));
           
           // Check if we now have a session
           const { data: { session }, error } = await supabase.auth.getSession();
@@ -59,10 +53,8 @@ const Index = () => {
             console.error('Index: Error getting session after OAuth:', error);
           } else if (session) {
             console.log('Index: OAuth successful, user signed in:', session.user.email);
-            // Clear both URL fragment and query parameters
+            // Clear the URL fragment
             window.history.replaceState({}, document.title, window.location.pathname);
-          } else {
-            console.log('Index: No session found after OAuth processing');
           }
         } catch (error) {
           console.error('Index: Error processing OAuth tokens:', error);
@@ -86,6 +78,10 @@ const Index = () => {
       </div>
     );
   }
+
+
+
+  
   return <div className="min-h-screen bg-white">
       {seoData}
       <Navbar />
