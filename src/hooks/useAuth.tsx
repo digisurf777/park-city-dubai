@@ -133,12 +133,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       // Send admin notification for new signup
       try {
+        const notificationData = {
+          email: data.user?.email || email, // Use the email parameter as fallback
+          fullName: fullName,
+          userType: userType,
+        };
+        
+        console.log('Sending admin notification with data:', notificationData);
+        
         await supabase.functions.invoke('send-admin-signup-notification', {
-          body: {
-            email: data.user?.email,
-            fullName: fullName,
-            userType: userType,
-          },
+          body: notificationData,
         });
         console.log('Admin signup notification sent successfully');
       } catch (notificationError) {
