@@ -11,11 +11,16 @@ const corsHeaders = {
 
 interface AdminListingNotificationRequest {
   listingId: string;
-  ownerName: string;
-  isApproved: boolean;
-  listingTitle: string;
-  zone: string;
-  userEmail?: string;
+  userName: string;
+  userEmail: string;
+  userPhone?: string;
+  buildingName: string;
+  district: string;
+  bayType: string;
+  monthlyPrice: number;
+  accessDeviceDeposit?: number;
+  notes?: string;
+  isApproved?: boolean;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -27,15 +32,21 @@ const handler = async (req: Request): Promise<Response> => {
   try {
     const {
       listingId,
-      ownerName,
-      isApproved,
-      listingTitle,
-      zone,
+      userName,
       userEmail,
+      userPhone,
+      buildingName,
+      district,
+      bayType,
+      monthlyPrice,
+      accessDeviceDeposit,
+      notes,
+      isApproved = false,
     }: AdminListingNotificationRequest = await req.json();
     
-    console.log(`Sending admin listing notification for listing ${listingId} from ${ownerName}`);
+    console.log(`Sending admin listing notification for listing ${listingId} from ${userName}`);
 
+    const listingTitle = `${buildingName} - ${bayType} in ${district}`;
     const subject = isApproved 
       ? `✅ Your Parking Listing "${listingTitle}" has been Approved!`
       : `📋 New Parking Listing Submitted - ${listingTitle}`;
@@ -50,8 +61,14 @@ const handler = async (req: Request): Promise<Response> => {
           <h2 style="color: ${isApproved ? '#28a745' : '#007bff'}; margin-top: 0;">Listing Details:</h2>
           <p><strong>Reference:</strong> ${listingId}</p>
           <p><strong>Title:</strong> ${listingTitle}</p>
-          <p><strong>Zone:</strong> ${zone}</p>
-          <p><strong>Owner:</strong> ${ownerName}</p>
+          <p><strong>Zone:</strong> ${district}</p>
+          <p><strong>Owner:</strong> ${userName}</p>
+          <p><strong>Building:</strong> ${buildingName}</p>
+          <p><strong>Bay Type:</strong> ${bayType}</p>
+          <p><strong>Monthly Price:</strong> ${monthlyPrice} AED</p>
+          <p><strong>Email:</strong> ${userEmail}</p>
+          ${userPhone ? `<p><strong>Phone:</strong> ${userPhone}</p>` : ''}
+          ${notes ? `<p><strong>Notes:</strong> ${notes}</p>` : ''}
         </div>
 
         ${isApproved ? `
@@ -74,7 +91,7 @@ const handler = async (req: Request): Promise<Response> => {
 
         <div style="text-align: center; margin: 30px 0;">
           <p style="margin-bottom: 20px;">${isApproved ? 'Thank you for choosing ShazamParking!' : 'Please review and approve this listing in the admin panel.'}</p>
-          <a href="https://shazamparking.ae${isApproved ? '' : '/admin-panel'}" 
+          <a href="https://shazamparking.ae${isApproved ? '' : '/admin'}" 
              style="background-color: ${isApproved ? '#28a745' : '#007bff'}; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">
             ${isApproved ? 'Visit ShazamParking.ae' : 'Review Listing in Admin Panel'}
           </a>
@@ -94,7 +111,7 @@ const handler = async (req: Request): Promise<Response> => {
     const recipientEmail = isApproved && userEmail ? userEmail : "support@shazamparking.ae";
 
     const emailResponse = await resend.emails.send({
-      from: "ShazamParking <onboarding@resend.dev>",
+      from: "ShazamParking <noreply@shazamparking.ae>",
       to: [recipientEmail],
       subject: subject,
       html: htmlContent,
