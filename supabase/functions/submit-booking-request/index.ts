@@ -173,9 +173,39 @@ const handler = async (req: Request): Promise<Response> => {
       // Don't fail the booking if admin notification fails
     }
 
+    // Send "Booking Request Received" email to customer
+    try {
+      const bookingReceivedResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/send-booking-received`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${Deno.env.get('SUPABASE_ANON_KEY')}`,
+        },
+        body: JSON.stringify({
+          userEmail: user.email,
+          userName: customerName,
+          bookingDetails: {
+            location: `${parkingSpotName}, ${location}`,
+            startDate: new Date(startDate).toLocaleDateString(),
+            endDate: endDate.toLocaleDateString(),
+            amount: `${costAed} AED`
+          }
+        }),
+      });
+
+      if (!bookingReceivedResponse.ok) {
+        console.error("Booking received notification failed:", await bookingReceivedResponse.text());
+      } else {
+        console.log("Booking received notification sent successfully");
+      }
+    } catch (notificationError) {
+      console.error("Booking received notification error:", notificationError);
+      // Don't fail the booking if notification fails
+    }
+
     // Send enhanced confirmation email to customer with payment link
     const customerEmailResponse = await resend.emails.send({
-      from: "ShazamParking <onboarding@resend.dev>",
+      from: "ShazamParking <noreply@shazamparking.ae>",
       to: [user.email],
       subject: "Complete Your Parking Booking Payment - ShazamParking",
       html: `
