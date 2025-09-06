@@ -28,19 +28,74 @@ const Auth = () => {
 
   // Check for password reset token, email confirmation, or confirmation errors
   useEffect(() => {
-    const type = searchParams.get('type');
-    const confirmed = searchParams.get('confirmed');
-    const email = searchParams.get('email');
-    const error = searchParams.get('error');
-    const errorDescription = searchParams.get('error_description');
-    
-    console.log('Auth page useEffect - URL params:', { type, confirmed, email, error, errorDescription });
-    
-    if (type === 'recovery') {
-      console.log('Password recovery detected, showing password update form');
-      setShowPasswordUpdate(true);
-      toast.info('Please set your new password');
-    } else if (confirmed === 'true' && email) {
+    const handleAuthTokens = async () => {
+      const type = searchParams.get('type');
+      const confirmed = searchParams.get('confirmed');
+      const email = searchParams.get('email');
+      const error = searchParams.get('error');
+      const errorDescription = searchParams.get('error_description');
+      
+      // Also check URL fragment for tokens (Supabase puts tokens after #)
+      const hash = window.location.hash;
+      const urlParams = new URLSearchParams(hash.substring(1));
+      const accessToken = urlParams.get('access_token');
+      const refreshToken = urlParams.get('refresh_token');
+      const hashError = urlParams.get('error');
+      const hashErrorDescription = urlParams.get('error_description');
+      
+      console.log('Auth page useEffect - URL params:', { type, confirmed, email, error, errorDescription });
+      console.log('Auth page useEffect - Hash params:', { accessToken: !!accessToken, refreshToken: !!refreshToken, hashError, hashErrorDescription });
+      
+      if (type === 'recovery') {
+        if (hashError) {
+          console.error('Password recovery error:', hashError, hashErrorDescription);
+          if (hashError === 'access_denied' && hashErrorDescription?.includes('expired')) {
+            toast.error('Reset link has expired', {
+              duration: 8000,
+              description: 'Please request a new password reset email.'
+            });
+          } else {
+            toast.error('Password reset failed', {
+              duration: 8000,
+              description: hashErrorDescription || 'The reset link is invalid.'
+            });
+          }
+          return;
+        }
+        
+        if (accessToken && refreshToken) {
+          console.log('Setting up session with recovery tokens');
+          try {
+            const { data, error: sessionError } = await supabase.auth.setSession({
+              access_token: accessToken,
+              refresh_token: refreshToken
+            });
+            
+            if (sessionError) {
+              console.error('Session setup error:', sessionError);
+              toast.error('Failed to setup reset session', {
+                description: 'Please request a new password reset email.'
+              });
+              return;
+            }
+            
+            console.log('Session established successfully for password reset');
+            setShowPasswordUpdate(true);
+            toast.info('Please set your new password');
+            
+            // Clean up URL
+            window.history.replaceState(null, '', '/auth?type=recovery');
+          } catch (error) {
+            console.error('Error setting up recovery session:', error);
+            toast.error('Failed to setup password reset session');
+          }
+        } else {
+          console.log('Password recovery detected but no tokens found');
+          toast.error('Invalid reset link', {
+            description: 'Please request a new password reset email.'
+          });
+        }
+      } else if (confirmed === 'true' && email) {
       toast.success('Email confirmed successfully!', {
         duration: 6000,
         description: 'You can now log in with your credentials.'
@@ -71,6 +126,9 @@ const Auth = () => {
       // Clear error parameters from URL
       navigate('/auth', { replace: true });
     }
+    };
+    
+    handleAuthTokens();
   }, [searchParams, navigate]);
 
   // Redirect if already logged in
