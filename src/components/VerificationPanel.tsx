@@ -52,45 +52,19 @@ const VerificationPanel = () => {
       fetchVerification();
     }
   }, [user]);
-
   const fetchVerification = async () => {
-    if (!user) return;
-    
-    setLoading(true);
     try {
-      // Get current session to ensure proper authentication
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      
-      if (sessionError || !session) {
-        console.error('Session error when fetching verification:', sessionError);
-        setLoading(false);
-        return;
-      }
-
-      console.log('Fetching verification status for user:', session.user.id);
-      
-      const { data, error } = await supabase
-        .from('user_verifications')
-        .select('*')
-        .eq('user_id', session.user.id)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single();
-
+      const {
+        data,
+        error
+      } = await supabase.from('user_verifications').select('*').eq('user_id', user?.id).single();
       if (error && error.code !== 'PGRST116') {
         console.error('Error fetching verification:', error);
       } else if (data) {
-        console.log('Verification found:', data);
-        setVerification({
-          ...data,
-          verification_status: data.verification_status as 'pending' | 'approved' | 'rejected'
-        });
-      } else {
-        console.log('No verification found for user');
-        setVerification(null);
+        setVerification(data as Verification);
       }
     } catch (error) {
-      console.error('Unexpected error fetching verification:', error);
+      console.error('Error fetching verification:', error);
     } finally {
       setLoading(false);
     }
@@ -108,7 +82,7 @@ const VerificationPanel = () => {
     fileInput?.click();
   };
   const uploadDocument = async () => {
-    console.log('Starting document upload...');
+    console.log('🚀 UPDATED CODE - Starting document upload...');
     console.log('Form data:', formData);
     console.log('User:', user);
     console.log('User ID:', user?.id);
@@ -166,27 +140,8 @@ const VerificationPanel = () => {
 
       // Save verification record - use upsert for re-submissions
       console.log('Saving verification record...');
-      
-      // Get current session to ensure proper authentication
-      console.log('Getting session for RLS compliance...');
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      
-      if (sessionError) {
-        console.error('Session error:', sessionError);
-        throw new Error('Authentication session error. Please log out and log back in.');
-      }
-      
-      if (!session || !session.user) {
-        console.error('No session or user found');
-        throw new Error('Authentication session required. Please log out and log back in.');
-      }
-      
-      console.log('✅ Session found - Current session user ID:', session.user.id);
-      console.log('📝 User object ID:', user.id);
-      console.log('🔍 Session equals user object:', session.user.id === user.id);
-      
       const verificationData = {
-        user_id: session.user.id, // Use session user ID for RLS compliance
+        user_id: user.id,
         full_name: formData.fullName,
         nationality: formData.nationality,
         document_type: formData.documentType,
@@ -195,12 +150,11 @@ const VerificationPanel = () => {
         access_restricted: true // Security requirement: new documents must be access-restricted
       };
       
-      console.log('🔍 FINAL VERIFICATION DATA BEING SENT (UPDATED CODE):', verificationData);
+      console.log('Verification data:', verificationData);
       
-      // Try insert instead of upsert to avoid policy conflicts
       const { error: insertError } = await supabase
         .from('user_verifications')
-        .insert(verificationData);
+        .upsert(verificationData);
       
       if (insertError) {
         console.error('Database insert error:', insertError);
