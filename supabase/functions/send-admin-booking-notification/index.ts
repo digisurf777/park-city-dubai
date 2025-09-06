@@ -87,7 +87,7 @@ const handler = async (req: Request): Promise<Response> => {
 
         <div style="text-align: center; margin: 30px 0;">
           <p style="margin-bottom: 20px;">Please review and approve this booking in the admin panel.</p>
-          <a href="https://preview--park-city-dubai.lovable.app/admin-panel" 
+          <a href="https://shazamparking.ae/admin" 
              style="background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">
             Review Booking in Admin Panel
           </a>
@@ -104,7 +104,7 @@ const handler = async (req: Request): Promise<Response> => {
     `;
 
     const emailResponse = await resend.emails.send({
-      from: "ShazamParking Bookings <onboarding@resend.dev>",
+      from: "ShazamParking Bookings <noreply@shazamparking.ae>",
       to: ["support@shazamparking.ae"],
       subject: subject,
       html: htmlContent,
