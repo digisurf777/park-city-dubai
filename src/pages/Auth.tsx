@@ -545,7 +545,16 @@ const Auth = () => {
                         />
                       </div>
                       <div className="flex gap-2">
-                        <Button type="submit" className="flex-1" disabled={resetLoading}>
+                        <Button 
+                          type="button" 
+                          className="flex-1" 
+                          disabled={resetLoading}
+                          onClick={async (e) => {
+                            e.preventDefault();
+                            console.log('Reset button clicked directly');
+                            await handleResetPassword(e as any);
+                          }}
+                        >
                           {resetLoading ? (
                             <>
                               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
