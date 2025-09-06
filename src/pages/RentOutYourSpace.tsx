@@ -230,16 +230,15 @@ const RentOutYourSpace = () => {
 
       // Send customer confirmation email
       try {
-        await supabase.functions.invoke('send-customer-confirmation', {
+        await supabase.functions.invoke('send-listing-confirmation', {
           body: {
+            listingId: insertedListing.id,
+            userName: user.user_metadata?.full_name || formData.fullName || 'User',
             userEmail: user.email,
-            userName: user.user_metadata?.full_name || 'User',
-            listingDetails: {
-              buildingName: formData.buildingName,
-              district: formData.district,
-              bayType: formData.bayType,
-              monthlyPrice: monthlyPrice
-            }
+            buildingName: formData.buildingName,
+            district: formData.district,
+            bayType: formData.bayType,
+            monthlyPrice: monthlyPrice
           }
         });
       } catch (confirmationError) {
