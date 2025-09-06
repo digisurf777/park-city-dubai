@@ -81,9 +81,10 @@ const Auth = () => {
             
             console.log('Session established successfully for password reset');
             setShowPasswordUpdate(true);
+            console.log('showPasswordUpdate set to true');
             toast.info('Please set your new password');
             
-            // Clean up URL
+            // Clean up URL but keep recovery type
             window.history.replaceState(null, '', '/auth?type=recovery');
           } catch (error) {
             console.error('Error setting up recovery session:', error);
@@ -131,8 +132,9 @@ const Auth = () => {
     handleAuthTokens();
   }, [searchParams, navigate]);
 
-  // Redirect if already logged in
-  if (user) {
+  // Redirect if already logged in (unless it's password recovery)
+  const isRecoveryMode = searchParams.get('type') === 'recovery' || showPasswordUpdate;
+  if (user && !isRecoveryMode) {
     navigate('/');
     return null;
   }
