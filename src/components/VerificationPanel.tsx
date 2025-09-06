@@ -195,7 +195,7 @@ const VerificationPanel = () => {
         access_restricted: true // Security requirement: new documents must be access-restricted
       };
       
-      console.log('🔍 Final verification data being sent:', verificationData);
+      console.log('🔍 FINAL VERIFICATION DATA BEING SENT (UPDATED CODE):', verificationData);
       
       // Try insert instead of upsert to avoid policy conflicts
       const { error: insertError } = await supabase
