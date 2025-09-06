@@ -168,18 +168,25 @@ const VerificationPanel = () => {
       console.log('Saving verification record...');
       
       // Get current session to ensure proper authentication
+      console.log('Getting session for RLS compliance...');
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       
-      if (sessionError || !session) {
+      if (sessionError) {
         console.error('Session error:', sessionError);
+        throw new Error('Authentication session error. Please log out and log back in.');
+      }
+      
+      if (!session || !session.user) {
+        console.error('No session or user found');
         throw new Error('Authentication session required. Please log out and log back in.');
       }
       
-      console.log('Current session user ID:', session.user.id);
-      console.log('User object ID:', user.id);
+      console.log('✅ Session found - Current session user ID:', session.user.id);
+      console.log('📝 User object ID:', user.id);
+      console.log('🔍 Session equals user object:', session.user.id === user.id);
       
       const verificationData = {
-        user_id: session.user.id, // Use session user ID instead of user object ID
+        user_id: session.user.id, // Use session user ID for RLS compliance
         full_name: formData.fullName,
         nationality: formData.nationality,
         document_type: formData.documentType,
@@ -188,11 +195,12 @@ const VerificationPanel = () => {
         access_restricted: true // Security requirement: new documents must be access-restricted
       };
       
-      console.log('Verification data:', verificationData);
+      console.log('🔍 Final verification data being sent:', verificationData);
       
+      // Try insert instead of upsert to avoid policy conflicts
       const { error: insertError } = await supabase
         .from('user_verifications')
-        .upsert(verificationData);
+        .insert(verificationData);
       
       if (insertError) {
         console.error('Database insert error:', insertError);
