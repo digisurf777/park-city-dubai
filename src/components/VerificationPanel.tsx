@@ -52,19 +52,45 @@ const VerificationPanel = () => {
       fetchVerification();
     }
   }, [user]);
+
   const fetchVerification = async () => {
+    if (!user) return;
+    
+    setLoading(true);
     try {
-      const {
-        data,
-        error
-      } = await supabase.from('user_verifications').select('*').eq('user_id', user?.id).single();
+      // Get current session to ensure proper authentication
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError || !session) {
+        console.error('Session error when fetching verification:', sessionError);
+        setLoading(false);
+        return;
+      }
+
+      console.log('Fetching verification status for user:', session.user.id);
+      
+      const { data, error } = await supabase
+        .from('user_verifications')
+        .select('*')
+        .eq('user_id', session.user.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+
       if (error && error.code !== 'PGRST116') {
         console.error('Error fetching verification:', error);
       } else if (data) {
-        setVerification(data as Verification);
+        console.log('Verification found:', data);
+        setVerification({
+          ...data,
+          verification_status: data.verification_status as 'pending' | 'approved' | 'rejected'
+        });
+      } else {
+        console.log('No verification found for user');
+        setVerification(null);
       }
     } catch (error) {
-      console.error('Error fetching verification:', error);
+      console.error('Unexpected error fetching verification:', error);
     } finally {
       setLoading(false);
     }
@@ -140,8 +166,20 @@ const VerificationPanel = () => {
 
       // Save verification record - use upsert for re-submissions
       console.log('Saving verification record...');
+      
+      // Get current session to ensure proper authentication
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError || !session) {
+        console.error('Session error:', sessionError);
+        throw new Error('Authentication session required. Please log out and log back in.');
+      }
+      
+      console.log('Current session user ID:', session.user.id);
+      console.log('User object ID:', user.id);
+      
       const verificationData = {
-        user_id: user.id,
+        user_id: session.user.id, // Use session user ID instead of user object ID
         full_name: formData.fullName,
         nationality: formData.nationality,
         document_type: formData.documentType,
