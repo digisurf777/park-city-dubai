@@ -133,12 +133,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       // Send admin notification for new signup
       try {
+        console.log('DEBUG: Signup parameters - email:', email, 'fullName:', fullName, 'userType:', userType);
+        console.log('DEBUG: Supabase user data:', data.user?.email, data.user?.user_metadata);
+        
+        const notificationData = {
+          email: data.user?.email || email, // Use the email parameter as fallback
+          fullName: fullName,
+          userType: userType,
+        };
+        
+        console.log('DEBUG: Final notification data:', notificationData);
+        
         await supabase.functions.invoke('send-admin-signup-notification', {
-          body: {
-            userEmail: data.user?.email,
-            userName: fullName,
-            userType: userType,
-          },
+          body: notificationData,
         });
         console.log('Admin signup notification sent successfully');
       } catch (notificationError) {
@@ -202,7 +209,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const resetPassword = async (email: string) => {
     try {
-     // Use auth page with recovery type parameter
+      // Use auth page with recovery type parameter
       const redirectUrl = `${window.location.origin}/auth?type=recovery`;
       
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
