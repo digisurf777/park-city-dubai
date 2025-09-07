@@ -23,9 +23,9 @@ const handler = async (req: Request): Promise<Response> => {
 
   try {
     const { email, fullName, userType }: AdminNotificationRequest = await req.json();
-
-    console.log('Received notification data:', { email, fullName, userType });
     
+    console.log('Received notification data:', { email, fullName, userType });
+
     const userTypeLabel = userType === 'owner' ? 'Parking Owner' : 'Parking Seeker';
     
     const emailResponse = await resend.emails.send({
