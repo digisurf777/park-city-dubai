@@ -22,9 +22,12 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { email, fullName, userType }: AdminNotificationRequest = await req.json();
+    const requestBody = await req.json();
+    console.log("DEBUG: Received signup request body:", JSON.stringify(requestBody, null, 2));
     
-    console.log('Received notification data:', { email, fullName, userType });
+    const { email, fullName, userType }: AdminNotificationRequest = requestBody;
+    
+    console.log('DEBUG: Extracted signup values - email:', email, 'fullName:', fullName, 'userType:', userType);
 
     const userTypeLabel = userType === 'owner' ? 'Parking Owner' : 'Parking Seeker';
     
