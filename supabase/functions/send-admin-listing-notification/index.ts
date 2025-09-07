@@ -30,6 +30,9 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    const requestBody = await req.json();
+    console.log("DEBUG: Received request body:", JSON.stringify(requestBody, null, 2));
+    
     const {
       listingId,
       userName,
@@ -42,9 +45,9 @@ const handler = async (req: Request): Promise<Response> => {
       accessDeviceDeposit,
       notes,
       isApproved = false,
-    }: AdminListingNotificationRequest = await req.json();
+    }: AdminListingNotificationRequest = requestBody;
     
-    console.log(`Sending admin listing notification for listing ${listingId} from ${userName}`);
+    console.log(`DEBUG: Extracted values - listingId: ${listingId}, userName: ${userName}, buildingName: ${buildingName}, district: ${district}, bayType: ${bayType}`);
 
     const listingTitle = `${buildingName} - ${bayType} in ${district}`;
     const subject = isApproved 
