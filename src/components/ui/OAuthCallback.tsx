@@ -4,7 +4,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 const OAuthCallback = () => {
-  const navigate = useNavigate();
+  const navigate = useNavigate(); 
+
+  console.log('OAuthCallback: Component mounted - route is working!');
 
   useEffect(() => {
     const handleOAuthCallback = async () => {
