@@ -15,6 +15,7 @@ import { MobileOptimizations } from "@/components/MobileOptimizations";
 import Auth from "./pages/Auth";
 import EmailConfirmed from "./pages/EmailConfirmed";
 import ResetPassword from "./pages/ResetPassword";
+import OAuthCallback from "./components/OAuthCallback";
 
 
 
