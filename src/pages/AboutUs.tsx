@@ -29,7 +29,7 @@ const AboutUs = () => {
       {/* Main Content */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="prose prose-lg max-w-none">
-          <p className="leading-relaxed mb-6 text-base">ShazamParking's mission is to make parking easy, convenient and accessible to everyone. We understand the frustration of circling around a block looking for a parking spot, or the struggle of finding a safe and secure place to leave your vehicle. That's why we decided to create a platform that connects those who have parking spaces for rent with those in need of a place to park.</p>
+          <p className="leading-relaxed mb-6 text-base"> mission is to make parking easy, convenient and accessible to everyone. We understand the frustration of circling around a block looking for a parking spot, or the struggle of finding a safe and secure place to leave your vehicle. That's why we decided to create a platform that connects those who have parking spaces for rent with those in need of a place to park.</p>
           
           <p className="leading-relaxed mb-6 text-base">At ShazamParking, we want to bring the sharing economy into the digital age. Our platform is user-friendly and easy to navigate, helping people to find, book and pay for parking spaces. Car space owners can list their vacant parking spaces, and drivers can search for available spots in their desired location. This helps drivers find the perfect parking spot that suits their needs and budget, and car space owners who rent out their spot generate an extra income stream – it's a win-win!</p>
           
