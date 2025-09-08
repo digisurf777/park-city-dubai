@@ -17,9 +17,6 @@ import EmailConfirmed from "./pages/EmailConfirmed";
 import ResetPassword from "./pages/ResetPassword";
 import OAuthCallback from "./components/OAuthCallback";
 
-
-
-
 // Lazy load other components for better performance
 const Index = lazy(() => import("./pages/Index"));
 const FindParking = lazy(() => import("./pages/FindParking"));
@@ -97,8 +94,10 @@ const App = () => {
                 <Route path="/news/:slug" element={<NewsArticle />} />
                 <Route path="/rent-out-your-space" element={<RentOutYourSpace />} />
                 <Route path="/calculator" element={<Calculator />} />
-                <Route path="/parking/:id" element={<ProductPage />} />
+                 <Route path="/parking/:id" element={<ProductPage />} />
                 <Route path="/auth" element={<Auth />} />
+                <Route path="/auth/callback" element={<OAuthCallback />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/email-confirmed" element={<EmailConfirmed />} />
                 <Route path="/my-account" element={<ProtectedRoute><MyAccount /></ProtectedRoute>} />
                 <Route path="/contact-admin" element={<ProtectedRoute><ContactAdmin /></ProtectedRoute>} />
