@@ -48,7 +48,7 @@ const AboutUs = () => {
             <h3 className="text-2xl font-bold mb-4">Are you looking to rent out your space?</h3>
             <Link to="/rent-out-your-space">
               <Button className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3 font-medium rounded-md transition-colors">
-                List Your Space
+                List Your space
               </Button>
             </Link>
           </div>
