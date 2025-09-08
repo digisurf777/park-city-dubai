@@ -1132,6 +1132,33 @@ const AdminPanel = () => {
 
       if (error) throw error;
 
+
+
+ // Send email notification to user
+      try {
+        const { data: userProfile, error: profileError } = await supabase
+          .from('profiles')
+          .select('email, full_name')
+          .eq('user_id', selectedChatUser)
+          .single();
+
+        if (!profileError && userProfile) {
+          await supabase.functions.invoke('send-user-reply-notification', {
+            body: {
+              userEmail: userProfile.email,
+              userName: userProfile.full_name || userProfile.email,
+              subject: 'Admin Reply',
+              adminMessage: chatReply
+            }
+          });
+          console.log('Email notification sent to user');
+        }
+      } catch (emailError) {
+        console.error('Error sending email notification:', emailError);
+        // Don't fail the reply if email fails
+      }
+
+      
       setChatReply('');
       fetchChatMessages();
       toast({
