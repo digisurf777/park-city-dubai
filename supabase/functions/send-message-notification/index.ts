@@ -27,65 +27,59 @@ const handler = async (req: Request): Promise<Response> => {
 
     const emailResponse = await resend.emails.send({
       from: "ShazamParking <noreply@shazamparking.ae>",
-      to: [userEmail],
-      subject: "You Have a New Message on ShazamParking",
+      to: ["support@shazamparking.ae"],
+      subject: "New Contact Message from User",
       html: `
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #ffffff;">
-          <div style="text-align: center; margin-bottom: 30px; padding: 20px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 12px;">
-            <h1 style="color: white; font-size: 24px; margin: 0; font-weight: bold;">📩 New Message</h1>
-            <p style="color: rgba(255,255,255,0.9); font-size: 14px; margin: 10px 0 0 0;">ShazamParking</p>
+          <div style="text-align: center; margin-bottom: 30px; padding: 20px; background: linear-gradient(135deg, #dc2626, #991b1b); border-radius: 12px;">
+            <h1 style="color: white; font-size: 24px; margin: 0; font-weight: bold;">🚨 New Contact Message</h1>
+            <p style="color: rgba(255,255,255,0.9); font-size: 14px; margin: 10px 0 0 0;">Admin Notification</p>
           </div>
           
-          <div style="background: #f8fafc; padding: 30px; border-radius: 12px; margin-bottom: 30px; border-left: 4px solid #10b981;">
+          <div style="background: #f8fafc; padding: 30px; border-radius: 12px; margin-bottom: 30px; border-left: 4px solid #dc2626;">
             <h2 style="color: #1f2937; font-size: 18px; margin: 0 0 15px 0;">
-              Dear ${userName || 'Customer'},
+              New contact form submission
             </h2>
             
             <p style="color: #4b5563; line-height: 1.6; margin-bottom: 20px; font-size: 16px;">
-              You've received a new message on your ShazamParking account.
+              A user has submitted a message through the contact form on ShazamParking.
             </p>
             
-            <div style="background: #f0f9ff; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #0ea5e9;">
-              <h3 style="color: #0c4a6e; margin: 0 0 10px 0; font-size: 16px;">📧 Message Details:</h3>
-              <p style="color: #0c4a6e; margin: 5px 0;"><strong>Subject:</strong> ${subject}</p>
+            <div style="background: #fef2f2; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #dc2626;">
+              <h3 style="color: #7f1d1d; margin: 0 0 10px 0; font-size: 16px;">📧 Message Details:</h3>
+              <p style="color: #7f1d1d; margin: 5px 0;"><strong>From:</strong> ${userEmail}</p>
+              <p style="color: #7f1d1d; margin: 5px 0;"><strong>User:</strong> ${userName || userEmail}</p>
+              <p style="color: #7f1d1d; margin: 5px 0;"><strong>Subject:</strong> ${subject}</p>
               <div style="background: white; padding: 15px; border-radius: 6px; margin: 15px 0;">
                 <p style="color: #374151; margin: 0; line-height: 1.6;">${message.replace(/\n/g, '<br>')}</p>
               </div>
             </div>
             
             <p style="color: #4b5563; line-height: 1.6; margin: 15px 0; font-size: 16px;">
-              To view and reply, please log in and visit the Messages section at:
+              Please respond to this message by logging into the admin panel:
             </p>
             
             <div style="text-align: center; margin: 25px 0;">
-              <a href="https://www.shazamparking.ae/auth" 
-                 style="background: #10b981; color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block; font-size: 16px;">
-                View Messages
+              <a href="https://shazamparking.ae/admin" 
+                 style="background: #dc2626; color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block; font-size: 16px;">
+                Open Admin Panel
               </a>
             </div>
             
             <div style="background: #fef3c7; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #f59e0b;">
               <p style="color: #92400e; margin: 0; font-size: 14px; line-height: 1.5;">
-                <strong>💡 Tip:</strong> We recommend checking your messages regularly to stay up to date.
+                <strong>💡 Note:</strong> You can also reply directly to ${userEmail} if needed.
               </p>
             </div>
-            
-            <p style="color: #4b5563; line-height: 1.6; margin: 20px 0 0 0; font-size: 16px;">
-              If you have any questions, we're here to help.
-            </p>
           </div>
           
           <div style="border-top: 2px solid #e5e7eb; padding-top: 25px; margin-top: 30px; text-align: center;">
             <p style="color: #6b7280; font-size: 14px; margin: 0 0 10px 0; font-weight: 600;">
-              Best regards,<br>
-              The ShazamParking Team
+              ShazamParking Admin System
             </p>
             <div style="margin-top: 15px;">
               <p style="color: #9ca3af; font-size: 12px; margin: 0;">
-                <a href="mailto:support@shazamparking.ae" style="color: #10b981; text-decoration: none;">support@shazamparking.ae</a>
-              </p>
-              <p style="color: #9ca3af; font-size: 12px; margin: 5px 0 0 0;">
-                <a href="https://www.shazamparking.ae" style="color: #10b981; text-decoration: none;">www.shazamparking.ae</a>
+                <a href="https://shazamparking.ae" style="color: #dc2626; text-decoration: none;">shazamparking.ae</a>
               </p>
             </div>
           </div>
