@@ -15,6 +15,8 @@ import { MobileOptimizations } from "@/components/MobileOptimizations";
 import Auth from "./pages/Auth";
 import EmailConfirmed from "./pages/EmailConfirmed";
 import ResetPassword from "./pages/ResetPassword";
+import OAuthCallback from "./components/OAuthCallback";
+
 
 // Lazy load other components for better performance
 const Index = lazy(() => import("./pages/Index"));
@@ -26,7 +28,6 @@ const NewsArticle = lazy(() => import("./pages/NewsArticle"));
 const ProductPage = lazy(() => import("./pages/ProductPage"));
 const RentOutYourSpace = lazy(() => import("./pages/RentOutYourSpace"));
 const Calculator = lazy(() => import("./pages/Calculator"));
-const OAuthCallback = lazy(() => import("./components/OAuthCallback"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const MyAccount = lazy(() => import("./pages/MyAccount"));
 const ContactAdmin = lazy(() => import("./pages/ContactAdmin"));
