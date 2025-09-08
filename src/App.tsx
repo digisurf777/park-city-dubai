@@ -29,7 +29,7 @@ const NewsArticle = lazy(() => import("./pages/NewsArticle"));
 const ProductPage = lazy(() => import("./pages/ProductPage"));
 const RentOutYourSpace = lazy(() => import("./pages/RentOutYourSpace"));
 const Calculator = lazy(() => import("./pages/Calculator"));
-const OAuthCallback = lazy(() => import("./components/OAuthCallback"));
+const OAuthCallback = lazy(() => import("./components/ui/OAuthCallback"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const MyAccount = lazy(() => import("./pages/MyAccount"));
 const ContactAdmin = lazy(() => import("./pages/ContactAdmin"));
