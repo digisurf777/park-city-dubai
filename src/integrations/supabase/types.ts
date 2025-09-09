@@ -518,6 +518,91 @@ export type Database = {
         }
         Relationships: []
       }
+      parking_space_audit_log: {
+        Row: {
+          changed_at: string
+          changed_by: string | null
+          id: string
+          is_override: boolean
+          new_status: string
+          old_status: string | null
+          override_reason: string | null
+          space_id: string
+        }
+        Insert: {
+          changed_at?: string
+          changed_by?: string | null
+          id?: string
+          is_override?: boolean
+          new_status: string
+          old_status?: string | null
+          override_reason?: string | null
+          space_id: string
+        }
+        Update: {
+          changed_at?: string
+          changed_by?: string | null
+          id?: string
+          is_override?: boolean
+          new_status?: string
+          old_status?: string | null
+          override_reason?: string | null
+          space_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "parking_space_audit_log_space_id_fkey"
+            columns: ["space_id"]
+            isOneToOne: false
+            referencedRelation: "parking_spaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      parking_spaces: {
+        Row: {
+          created_at: string
+          id: string
+          listing_id: string
+          override_by: string | null
+          override_reason: string | null
+          override_status: boolean
+          space_number: string
+          space_status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          listing_id: string
+          override_by?: string | null
+          override_reason?: string | null
+          override_status?: boolean
+          space_number: string
+          space_status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          listing_id?: string
+          override_by?: string | null
+          override_reason?: string | null
+          override_status?: boolean
+          space_number?: string
+          space_status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "parking_spaces_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "parking_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payment_access_audit: {
         Row: {
           access_type: string
@@ -970,6 +1055,14 @@ export type Database = {
         Args: { requesting_user_id?: string; verification_id: string }
         Returns: boolean
       }
+      create_parking_spaces_for_listing: {
+        Args: {
+          listing_id: string
+          space_count?: number
+          space_prefix?: string
+        }
+        Returns: Json
+      }
       create_user_profile: {
         Args: { p_full_name?: string; p_user_id: string; p_user_type?: string }
         Returns: undefined
@@ -1060,6 +1153,22 @@ export type Database = {
           security_level: string
           updated_at: string
           verification_status: string
+        }[]
+      }
+      get_parking_spaces_overview: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          last_updated: string
+          listing_address: string
+          listing_id: string
+          listing_title: string
+          listing_zone: string
+          override_by: string
+          override_reason: string
+          override_status: boolean
+          space_id: string
+          space_number: string
+          space_status: string
         }[]
       }
       get_profile_access_stats: {
@@ -1226,6 +1335,15 @@ export type Database = {
       update_my_booking_status: {
         Args: { booking_id: string; new_status: string }
         Returns: boolean
+      }
+      update_parking_space_status: {
+        Args: {
+          is_override?: boolean
+          new_status: string
+          override_reason?: string
+          space_id: string
+        }
+        Returns: Json
       }
       validate_document_access: {
         Args: { requested_by?: string; verification_id: string }

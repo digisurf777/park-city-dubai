@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Pencil, Trash2, Plus, CheckCircle, XCircle, FileText, Mail, Upload, X, Eye, Edit, Lightbulb, Camera, Settings, RefreshCw, MessageCircle, Send, LogOut, Home } from 'lucide-react';
+import { Pencil, Trash2, Plus, CheckCircle, XCircle, FileText, Mail, Upload, X, Eye, Edit, Lightbulb, Camera, Settings, RefreshCw, MessageCircle, Send, LogOut, Home, Grid } from 'lucide-react';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -19,6 +19,7 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import '../styles/quill.css';
 import SecureDocumentViewer from '@/components/SecureDocumentViewer';
+import SpaceManagement from '@/components/SpaceManagement';
 
 interface NewsPost {
   id: string;
@@ -2060,6 +2061,10 @@ const AdminPanel = () => {
           <TabsList className="flex flex-wrap w-full gap-1 h-auto p-2">
             <TabsTrigger value="news" className="text-xs lg:text-sm">News Management</TabsTrigger>
             <TabsTrigger value="listings" className="text-xs lg:text-sm">Parking Listings</TabsTrigger>
+            <TabsTrigger value="spaces" className="text-xs lg:text-sm">
+              <Grid className="h-4 w-4 mr-1" />
+              Space Management
+            </TabsTrigger>
             <TabsTrigger value="bookings" className="text-xs lg:text-sm">Booking Management</TabsTrigger>
             <TabsTrigger value="verifications" className="text-xs lg:text-sm">User Verifications</TabsTrigger>
             <TabsTrigger value="messages" className="text-xs lg:text-sm">Send Messages</TabsTrigger>
@@ -2702,6 +2707,13 @@ const AdminPanel = () => {
                 ))}
               </div>
             )}
+          </TabsContent>
+
+          <TabsContent value="spaces" className="space-y-6">
+            <SpaceManagement onRefresh={() => {
+              fetchParkingListings();
+              fetchParkingBookings();
+            }} />
           </TabsContent>
 
           <TabsContent value="bookings" className="space-y-6">
