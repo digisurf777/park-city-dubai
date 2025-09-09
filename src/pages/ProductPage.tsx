@@ -39,14 +39,33 @@ const ProductPage: React.FC = () => {
   ];
 
   // Check if parking space is currently booked (excluding cancelled bookings)
-  const checkBookingStatus = async (listingId: string) => {
+  const checkBookingStatus = async (listingData: any) => {
     try {
-      const { data: activeBookings, error } = await supabase
+      console.log('DEBUG: Checking booking status for listing:', listingData);
+      
+      // Query by listing ID first (most accurate)
+      let { data: activeBookings, error } = await supabase
         .from('parking_bookings')
-        .select('id, status, start_time, end_time')
-        .eq('location', listingId)
+        .select('id, status, start_time, end_time, location')
+        .eq('location', listingData.id)
         .neq('status', 'cancelled')
         .in('status', ['pending', 'confirmed', 'active']);
+
+      console.log('DEBUG: Query by ID result:', { activeBookings, error });
+
+      // If no results by ID, try by title
+      if (!activeBookings?.length && listingData.title) {
+        const titleQuery = await supabase
+          .from('parking_bookings')
+          .select('id, status, start_time, end_time, location')
+          .eq('location', listingData.title)
+          .neq('status', 'cancelled')
+          .in('status', ['pending', 'confirmed', 'active']);
+          
+        activeBookings = titleQuery.data;
+        error = titleQuery.error;
+        console.log('DEBUG: Query by title result:', { activeBookings, error });
+      }
 
       if (error) {
         console.error('Error checking booking status:', error);
@@ -58,10 +77,23 @@ const ProductPage: React.FC = () => {
       const hasActiveBooking = activeBookings?.some(booking => {
         const startTime = new Date(booking.start_time);
         const endTime = new Date(booking.end_time);
-        return now >= startTime && now <= endTime;
+        const isOverlapping = now >= startTime && now <= endTime;
+        console.log('DEBUG: Booking time check:', { 
+          bookingId: booking.id, 
+          startTime, 
+          endTime, 
+          now, 
+          isOverlapping 
+        });
+        return isOverlapping;
       });
 
-      console.log('Booking status check:', { listingId, activeBookings, hasActiveBooking });
+      console.log('DEBUG: Final booking status check:', { 
+        listingId: listingData.id, 
+        listingTitle: listingData.title,
+        activeBookings, 
+        hasActiveBooking 
+      });
       return hasActiveBooking || false;
     } catch (error) {
       console.error('Error in checkBookingStatus:', error);
@@ -91,7 +123,7 @@ const ProductPage: React.FC = () => {
           setParkingListing(fullData);
           
           // Check if space is currently booked
-          const isBooked = await checkBookingStatus(fullData.title || id);
+          const isBooked = await checkBookingStatus(fullData);
           setIsCurrentlyBooked(isBooked);
           return;
         }
@@ -124,7 +156,7 @@ const ProductPage: React.FC = () => {
         });
 
         // Check if space is currently booked
-        const isBooked = await checkBookingStatus(publicData.title || id);
+        const isBooked = await checkBookingStatus(publicData);
         setIsCurrentlyBooked(isBooked);
       } catch (error) {
         console.error('Error:', error);
