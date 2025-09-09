@@ -867,10 +867,11 @@ const AdminPanel = () => {
     try {
       console.log('Fetching parking bookings...');
       
-      // Fetch bookings first
+      // Fetch bookings first - exclude cancelled bookings from admin view
       const { data: bookings, error: bookingsError } = await supabase
         .from('parking_bookings')
         .select('*')
+        .neq('status', 'cancelled')
         .order('created_at', { ascending: false });
 
       if (bookingsError) throw bookingsError;
