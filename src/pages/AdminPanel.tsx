@@ -906,18 +906,34 @@ const AdminPanel = () => {
 
   const updateBookingStatus = async (bookingId: string, status: 'confirmed' | 'cancelled' | 'completed') => {
     try {
+      console.log('DEBUG: Updating booking status:', bookingId, 'to', status);
+      
       // Find the booking to get user details
       const booking = parkingBookings.find(b => b.id === bookingId);
       if (!booking) {
+        console.error('DEBUG: Booking not found in state:', bookingId);
         throw new Error('Booking not found');
       }
 
-      const { error } = await supabase
+      console.log('DEBUG: Found booking:', booking);
+
+      const { data, error } = await supabase
         .from('parking_bookings')
         .update({ status })
-        .eq('id', bookingId);
+        .eq('id', bookingId)
+        .select();
 
-      if (error) throw error;
+      console.log('DEBUG: Update result - data:', data, 'error:', error);
+
+      if (error) {
+        console.error('DEBUG: Database update failed:', error);
+        throw error;
+      }
+
+      if (!data || data.length === 0) {
+        console.error('DEBUG: No rows updated - possible RLS issue');
+        throw new Error('No booking was updated - check permissions');
+      }
 
       // Send email notification to customer based on status
       if (booking.userEmail) {
