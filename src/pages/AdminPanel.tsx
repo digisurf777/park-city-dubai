@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Pencil, Trash2, Plus, CheckCircle, XCircle, FileText, Mail, Upload, X, Eye, Edit, Lightbulb, Camera, Settings, RefreshCw, MessageCircle, Send, LogOut, Home, Grid } from 'lucide-react';
+import { Pencil, Trash2, Plus, CheckCircle, XCircle, FileText, Mail, Upload, X, Eye, Edit, Lightbulb, Camera, Settings, RefreshCw, MessageCircle, Send, LogOut, Home } from 'lucide-react';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -19,7 +19,6 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import '../styles/quill.css';
 import SecureDocumentViewer from '@/components/SecureDocumentViewer';
-import SpaceManagement from '@/components/SpaceManagement';
 
 interface NewsPost {
   id: string;
@@ -532,30 +531,55 @@ const AdminPanel = () => {
         try {
           const listing = parkingListings.find(l => l.id === listingId);
           console.log('DEBUG: Found listing for notification:', listing);
+          
           if (listing?.owner_id) {
             // Get user details for notification
             let ownerName = 'Listing Owner';
             let ownerEmail = '';
 
             try {
-              const { data: ownerProfile } = await supabase
+              // First try to get from profiles table
+              const { data: ownerProfile, error: profileError } = await supabase
                 .from('profiles')
                 .select('full_name, email')
                 .eq('user_id', listing.owner_id)
                 .maybeSingle();
 
+              console.log('DEBUG: Profile query result:', ownerProfile, 'Error:', profileError);
+
               if (ownerProfile?.full_name) {
                 ownerName = ownerProfile.full_name;
               }
 
-           if (ownerProfile?.email) {
+              if (ownerProfile?.email) {
                 ownerEmail = ownerProfile.email;
               }
+
+              // If no email in profiles, try to get from edge function with service role
+              if (!ownerEmail) {
+                console.log('DEBUG: No email in profiles, trying edge function');
+                
+                try {
+                  const { data: userEmailData, error: emailError } = await supabase.functions.invoke('get-user-email', {
+                    body: { userId: listing.owner_id }
+                  });
+                  
+                  console.log('DEBUG: Edge function email result:', userEmailData, 'Error:', emailError);
+                  
+                  if (userEmailData?.email) {
+                    ownerEmail = userEmailData.email;
+                  }
+                } catch (emailErr) {
+                  console.error('DEBUG: Edge function error:', emailErr);
+                }
+              }
+              
+              console.log('DEBUG: Final ownerEmail:', ownerEmail);
             } catch (userErr) {
               console.error('Error getting owner details:', userErr);
             }
 
-       const notificationData = {
+            const notificationData = {
               listingId: listingId,
               userName: ownerName,
               userEmail: ownerEmail,
@@ -1138,9 +1162,7 @@ const AdminPanel = () => {
 
       if (error) throw error;
 
-
-
- // Send email notification to user
+      // Send email notification to user
       try {
         const { data: userProfile, error: profileError } = await supabase
           .from('profiles')
@@ -1164,7 +1186,6 @@ const AdminPanel = () => {
         // Don't fail the reply if email fails
       }
 
-      
       setChatReply('');
       fetchChatMessages();
       toast({
@@ -2066,10 +2087,6 @@ const AdminPanel = () => {
           <TabsList className="flex flex-wrap w-full gap-1 h-auto p-2">
             <TabsTrigger value="news" className="text-xs lg:text-sm">News Management</TabsTrigger>
             <TabsTrigger value="listings" className="text-xs lg:text-sm">Parking Listings</TabsTrigger>
-            <TabsTrigger value="spaces" className="text-xs lg:text-sm">
-              <Grid className="h-4 w-4 mr-1" />
-              Space Management
-            </TabsTrigger>
             <TabsTrigger value="bookings" className="text-xs lg:text-sm">Booking Management</TabsTrigger>
             <TabsTrigger value="verifications" className="text-xs lg:text-sm">User Verifications</TabsTrigger>
             <TabsTrigger value="messages" className="text-xs lg:text-sm">Send Messages</TabsTrigger>
@@ -2712,13 +2729,6 @@ const AdminPanel = () => {
                 ))}
               </div>
             )}
-          </TabsContent>
-
-          <TabsContent value="spaces" className="space-y-6">
-            <SpaceManagement onRefresh={() => {
-              fetchParkingListings();
-              fetchParkingBookings();
-            }} />
           </TabsContent>
 
           <TabsContent value="bookings" className="space-y-6">
