@@ -1654,7 +1654,7 @@ const AdminPanel = () => {
       // Send email notification if we have an email
       if (userEmail) {
         try {
-          const { data: emailResponse, error: emailError } = await supabase.functions.invoke('send-message-notification', {
+          const { data: emailResponse, error: emailError } = await supabase.functions.invoke('send-admin-reply', {
             body: {
               userEmail: userEmail,
               userName: userName,
