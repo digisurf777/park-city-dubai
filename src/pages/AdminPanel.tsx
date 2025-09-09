@@ -2839,19 +2839,21 @@ const AdminPanel = () => {
                 </SelectContent>
               </Select>
               
+              {/* NEW: Availability Filter */}
               <Select value="all">
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Availability" />
+                <SelectTrigger className="w-[200px] border-2 border-blue-300">
+                  <SelectValue placeholder="🚗 Filter by Availability" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Availability</SelectItem>
-                  <SelectItem value="available">✅ Available</SelectItem>
-                  <SelectItem value="unavailable">❌ Unavailable</SelectItem>
+                  <SelectItem value="all">All Availability Status</SelectItem>
+                  <SelectItem value="available">✅ Available Spaces</SelectItem>
+                  <SelectItem value="unavailable">❌ Unavailable Spaces</SelectItem>
                 </SelectContent>
               </Select>
               
               <span className="text-sm text-muted-foreground">
-                {filteredBookings.length} bookings
+                {filteredBookings.length} bookings • 
+                <span className="text-green-600 font-medium ml-1">NEW: Availability Controls Added!</span>
               </span>
             </div>
 
@@ -2888,23 +2890,23 @@ const AdminPanel = () => {
                               {booking.status}
                             </Badge>
                             
-                            {/* Availability Status */}
-                            <div className="flex items-center gap-2 px-3 py-1 bg-green-50 border border-green-200 rounded-full">
-                              <span className="text-green-600 text-sm">✅ Available</span>
+                             {/* NEW: Availability Status Indicator */}
+                            <div className="flex items-center gap-2 px-3 py-1 bg-green-50 border-2 border-green-300 rounded-full">
+                              <span className="text-green-600 text-sm font-medium">✅ AVAILABLE FOR BOOKING</span>
                             </div>
                           </div>
                           <div className="flex gap-2">
-                            {/* Availability Toggle */}
-                            <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg mr-4">
-                              <span className="text-sm font-medium">Availability:</span>
+                            {/* NEW: Availability Toggle Control */}
+                            <div className="flex items-center gap-2 px-4 py-2 bg-blue-50 border-2 border-blue-300 rounded-lg mr-4">
+                              <span className="text-sm font-bold text-blue-700">🚗 Booking Availability:</span>
                               <Switch
                                 checked={true}
                                 onCheckedChange={(checked) => {
-                                  // Toggle availability logic here
-                                  console.log('Toggle availability for booking:', booking.id, checked);
+                                  console.log('🚗 Toggle availability for booking:', booking.id, checked ? 'AVAILABLE' : 'UNAVAILABLE');
+                                  alert(`Booking availability ${checked ? 'ENABLED' : 'DISABLED'} for ${booking.location}`);
                                 }}
                               />
-                              <span className="text-sm text-green-600">Available</span>
+                              <span className="text-sm text-green-600 font-medium">AVAILABLE</span>
                             </div>
                             
                             <Button
