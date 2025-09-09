@@ -347,8 +347,8 @@ const DubaiMarina = () => {
                   <span className="text-xl sm:text-2xl font-bold text-primary">From AED {spot.price}/month</span>
                 </div>
 
-                <div className="w-full bg-green-500 text-white py-2 sm:py-3 rounded text-center font-semibold text-sm sm:text-base">
-                  Available for Booking
+                <div className="w-full bg-primary text-primary-foreground py-2 sm:py-3 rounded text-center font-semibold text-sm sm:text-base">
+                  Reserve Booking Now
                 </div>
               </div>
             </Card>

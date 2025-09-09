@@ -486,7 +486,112 @@ const ProductPage: React.FC = () => {
                       </Button>
                     </div>
                   ) : (
-                    <div>Booking form would go here when available</div>
+                    <>
+                      {/* Duration Selection */}
+                      <div className="space-y-4">
+                        <h3 className="font-semibold mb-4">Rental Duration</h3>
+                        <div className="grid grid-cols-2 gap-3">
+                          {DURATION_OPTIONS.map((option) => (
+                            <Button
+                              key={option.months}
+                              variant={selectedDuration.months === option.months ? "default" : "outline"}
+                              onClick={() => setSelectedDuration(option)}
+                              className={`p-4 h-auto flex flex-col items-center justify-center relative ${
+                                selectedDuration.months === option.months 
+                                  ? "bg-primary text-primary-foreground border-2 border-primary" 
+                                  : "border-2"
+                              }`}
+                            >
+                              <span className="font-semibold">{option.label}</span>
+                              {option.description !== "Monthly rate" && (
+                                <span className="text-sm text-green-600 font-medium mt-1">
+                                  {option.description}
+                                </span>
+                              )}
+                            </Button>
+                          ))}
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          Or choose Monthly Rolling (subject to availability)
+                        </p>
+                      </div>
+
+                      {/* Date Selection */}
+                      <div className="space-y-4">
+                        <h3 className="font-semibold">Start Date</h3>
+                        <Calendar
+                          mode="single"
+                          selected={startDate}
+                          onSelect={setStartDate}
+                          disabled={(date) =>
+                            date < new Date() || date < new Date("1900-01-01")
+                          }
+                          initialFocus
+                          className="rounded-md border"
+                        />
+                      </div>
+
+                      {/* Price Breakdown */}
+                      <div className="space-y-4 bg-muted/30 p-4 rounded-lg">
+                        <div className="flex items-center gap-2 mb-4">
+                          <div className="w-5 h-5 border border-muted-foreground rounded"></div>
+                          <h3 className="font-semibold">Price Breakdown</h3>
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <div className="flex justify-between">
+                            <span>Regular monthly rate</span>
+                            <span>AED {parkingListing.price_per_month}</span>
+                          </div>
+                          
+                          {calculateTotal().savings > 0 && (
+                            <div className="flex justify-between text-green-600">
+                              <span>Commitment discount ({selectedDuration.months} months)</span>
+                              <span>-AED {Math.round(calculateTotal().savings / selectedDuration.months)}/month</span>
+                            </div>
+                          )}
+                          
+                          <div className="flex justify-between font-medium">
+                            <span>Your monthly rate</span>
+                            <span>AED {calculateTotal().monthlyRate}/month</span>
+                          </div>
+                          
+                          <div className="border-t pt-2">
+                            <div className="flex justify-between text-lg font-bold text-primary">
+                              <span>Total payable now</span>
+                              <span>AED {calculateTotal().finalPrice.toLocaleString()}</span>
+                            </div>
+                          </div>
+                          
+                          <div className="bg-blue-50 p-3 rounded text-sm">
+                            <div className="flex items-center gap-1 text-blue-600 mb-1">
+                              <span>—</span>
+                              <span className="font-medium">
+                                Upfront Payment: You'll pay AED {calculateTotal().finalPrice.toLocaleString()} once for {selectedDuration.months} months
+                              </span>
+                            </div>
+                            <div className="text-blue-600 text-xs">
+                              Discounted monthly rate: AED {calculateTotal().monthlyRate}/month × {selectedDuration.months} months
+                            </div>
+                          </div>
+                          
+                          {calculateTotal().savings > 0 && (
+                            <div className="text-green-600 font-medium text-sm">
+                              You save AED {calculateTotal().savings} with this {selectedDuration.months}-month commitment
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Submit Button */}
+                      <Button
+                        onClick={handleSubmitBookingRequest}
+                        disabled={!startDate || isSubmitting}
+                        className="w-full py-6 text-lg font-semibold"
+                      >
+                        {isSubmitting ? "Submitting..." : "Submit Booking Request"}
+                      </Button>
+                    </>
                   )}
                 </CardContent>
               </Card>

@@ -584,13 +584,13 @@ const AdminPanel = () => {
               listingId: listingId,
               userName: ownerName,
               userEmail: ownerEmail,
-              userPhone: listing.phone_number || '',
-              buildingName: listing.building_name || listing.title || 'N/A',
-              district: listing.zone || listing.district || 'N/A',
-              bayType: listing.bay_type || listing.bayType || 'N/A',
-              monthlyPrice: listing.monthly_price || listing.monthlyPrice || 0,
-              accessDeviceDeposit: listing.access_device_deposit || 0,
-              notes: listing.notes || '',
+              userPhone: listing.contact_phone || '',
+              buildingName: listing.title || 'N/A',
+              district: listing.zone || 'N/A',
+              bayType: 'Standard',
+              monthlyPrice: listing.price_per_month || 0,
+              accessDeviceDeposit: 0,
+              notes: listing.description || '',
               isApproved: true
             };
 
