@@ -279,7 +279,8 @@ const DubaiMarina = () => {
 
         {/* Listing Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-          {filteredSpots.map(spot => <Card key={spot.id} className="overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+          {filteredSpots.map(spot => <Link key={spot.id} to={`/product/${spot.id}`}>
+            <Card className="overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 cursor-pointer">
               {/* Image carousel */}
               <div className="relative w-full h-48 sm:h-56 md:h-64 overflow-hidden group">
                 {spot.images && spot.images.length > 0 ? <>
@@ -343,11 +344,12 @@ const DubaiMarina = () => {
                   <span className="text-xl sm:text-2xl font-bold text-primary">From AED {spot.price}/month</span>
                 </div>
 
-                <div className="w-full bg-red-500 text-white py-2 sm:py-3 rounded text-center font-semibold text-sm sm:text-base">
-                  Currently Booked
+                <div className="w-full bg-green-500 text-white py-2 sm:py-3 rounded text-center font-semibold text-sm sm:text-base">
+                  Available for Booking
                 </div>
               </div>
-             </Card>)}
+            </Card>
+          </Link>)}
         </div>
 
         {filteredSpots.length === 0 && <div className="text-center py-12">
