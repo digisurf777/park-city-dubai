@@ -110,6 +110,7 @@ const AdminPanel = () => {
   const [parkingBookings, setParkingBookings] = useState<ParkingBooking[]>([]);
   const [editingPost, setEditingPost] = useState<NewsPost | null>(null);
   const [editingListing, setEditingListing] = useState<ParkingListing | null>(null);
+  const [activeTab, setActiveTab] = useState<string>("chat");
   const [isCreating, setIsCreating] = useState(false);
   const [loading, setLoading] = useState(true);
   const [verificationsLoading, setVerificationsLoading] = useState(true);
@@ -2083,7 +2084,7 @@ const AdminPanel = () => {
             </Button>
           </div>
         </div>
-        <Tabs defaultValue="chat" className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="flex flex-wrap w-full gap-1 h-auto p-2">
             <TabsTrigger value="news" className="text-xs lg:text-sm">News Management</TabsTrigger>
             <TabsTrigger value="listings" className="text-xs lg:text-sm">Parking Listings</TabsTrigger>
@@ -2699,35 +2700,11 @@ const AdminPanel = () => {
                               setMessageSubject(`Regarding Your Parking Listing - ${listing.title}`);
                               setMessageContent(`Hello,\n\nI hope this message finds you well. I'm reaching out regarding your parking listing:\n\nTitle: ${listing.title}\nLocation: ${listing.address}\nZone: ${listing.zone}\nStatus: ${listing.status}\n\nPlease let me know if you have any questions or if there's anything you'd like to discuss about your listing.\n\nBest regards,\nShazam Parking Admin Team`);
                               
-                              console.log('DEBUG: Message data set, attempting to switch to messages tab');
+                              console.log('DEBUG: Message data set, switching to messages tab using React state');
                               
-                              // Try multiple selectors to find the messages tab
-                              let messagesTab = document.querySelector('[data-value="messages"]') as HTMLElement;
-                              if (!messagesTab) {
-                                messagesTab = document.querySelector('[value="messages"]') as HTMLElement;
-                              }
-                              if (!messagesTab) {
-                                messagesTab = document.querySelector('button[data-value="messages"]') as HTMLElement;
-                              }
-                              if (!messagesTab) {
-                                // Try finding by text content
-                                const tabButtons = document.querySelectorAll('button');
-                                for (const btn of tabButtons) {
-                                  if (btn.textContent?.includes('Send Messages')) {
-                                    messagesTab = btn;
-                                    break;
-                                  }
-                                }
-                              }
-                              
-                              console.log('DEBUG: Messages tab element found:', messagesTab);
-                              if (messagesTab) {
-                                messagesTab.click();
-                                console.log('DEBUG: Messages tab clicked successfully');
-                              } else {
-                                console.error('DEBUG: Messages tab not found! Available tabs:', 
-                                  Array.from(document.querySelectorAll('button')).map(b => b.textContent).filter(t => t));
-                              }
+                              // Use React state to switch tabs instead of DOM manipulation
+                              setActiveTab('messages');
+                              console.log('DEBUG: Tab switched to messages successfully');
                             }}
                             className="flex items-center gap-2"
                           >
