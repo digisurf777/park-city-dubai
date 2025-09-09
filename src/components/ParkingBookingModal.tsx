@@ -269,16 +269,32 @@ export const ParkingBookingModal = ({
 
             {/* Duration Selection */}
             <div>
-              <label className="block text-sm font-medium mb-2">Rental Duration</label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {DURATION_OPTIONS.map(option => <Button key={option.months} variant={selectedDuration.months === option.months ? "default" : "outline"} className="flex flex-col h-auto py-4 px-4 text-center" onClick={() => setSelectedDuration(option)}>
-                    <span className="font-semibold">{option.label}</span>
-                    {option.months > 1 && <span className="text-xs text-green-600 font-medium">
-                        {option.description}
-                      </span>}
-                  </Button>)}
+              <h3 className="text-lg font-semibold mb-4">Rental Duration</h3>
+              <div className="grid grid-cols-2 gap-3">
+                {DURATION_OPTIONS.map(option => {
+                  const isSelected = selectedDuration.months === option.months;
+                  return (
+                    <Card 
+                      key={option.months} 
+                      className={cn(
+                        "cursor-pointer transition-all hover:shadow-md border-2",
+                        isSelected ? "border-primary bg-primary/5" : "border-muted hover:border-primary/50"
+                      )}
+                      onClick={() => setSelectedDuration(option)}
+                    >
+                      <CardContent className="p-4 text-center">
+                        <div className="font-semibold text-sm">{option.label}</div>
+                        {option.months > 1 && (
+                          <div className="text-xs font-medium text-green-600 mt-1">
+                            {option.description}
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  );
+                })}
               </div>
-              <p className="text-xs text-muted-foreground mt-2">
+              <p className="text-sm text-muted-foreground mt-3">
                 Or choose Monthly Rolling (subject to availability)
               </p>
             </div>
@@ -286,32 +302,50 @@ export const ParkingBookingModal = ({
             {/* Price Breakdown */}
             <Card>
               <CardContent className="p-4">
-                <h4 className="font-semibold mb-3 flex items-center gap-2">
+                <h4 className="font-semibold mb-4 flex items-center gap-2">
                   <CreditCard className="h-4 w-4" />
                   Price Breakdown
                 </h4>
                 
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>Base price ({selectedDuration.months} month{selectedDuration.months > 1 ? 's' : ''})</span>
-                    <span>AED {basePrice.toLocaleString()}</span>
+                <div className="space-y-3">
+                  <div className="flex justify-between">
+                    <span className="text-sm">Regular monthly rate</span>
+                    <span className="font-medium">AED {parkingSpot.price}</span>
                   </div>
                   
-                  {savings > 0 && <div className="flex justify-between text-sm text-green-600">
-                      <span>Bulk rental discount</span>
-                      <span>-AED {savings.toLocaleString()}</span>
-                    </div>}
+                  {selectedDuration.months > 1 && (
+                    <div className="flex justify-between text-green-600">
+                      <span className="text-sm">Commitment discount ({selectedDuration.months} months)</span>
+                      <span className="font-medium">-AED {Math.round((parkingSpot.price * (1 - selectedDuration.multiplier)))}/month</span>
+                    </div>
+                  )}
                   
-                  <hr className="my-2" />
+                  <div className="flex justify-between">
+                    <span className="text-sm">Your monthly rate</span>
+                    <span className="font-medium">AED {Math.round(parkingSpot.price * selectedDuration.multiplier)}/month</span>
+                  </div>
                   
-                  <div className="flex justify-between font-bold text-lg">
-                    <span>Total</span>
+                  <hr className="my-3" />
+                  
+                  <div className="flex justify-between text-lg font-bold text-primary">
+                    <span>Total payable now</span>
                     <span>AED {finalPrice.toLocaleString()}</span>
                   </div>
                   
-                  {savings > 0 && <p className="text-sm text-green-600 font-medium">
-                      You save AED {savings.toLocaleString()} with long term rental pricing
-                    </p>}
+                  <div className="bg-primary/5 p-3 rounded-lg">
+                    <div className="text-sm font-medium text-primary mb-1">
+                      — Upfront Payment: You'll pay AED {finalPrice.toLocaleString()} once for {selectedDuration.months} months
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      Discounted monthly rate: AED {Math.round(parkingSpot.price * selectedDuration.multiplier)}/month × {selectedDuration.months} months
+                    </div>
+                  </div>
+                  
+                  {savings > 0 && (
+                    <div className="text-sm font-medium text-green-600 text-center">
+                      You save AED {savings} with this {selectedDuration.months}-month commitment
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>

@@ -289,7 +289,7 @@ const BusinessBay = () => {
                   </div>
 
                   <div className="w-full bg-primary text-primary-foreground py-2 sm:py-3 rounded text-center font-semibold text-sm sm:text-base">
-                    Reserve Booking Now
+                    Reserve Booking
                   </div>
                 </div>
               </Card>
