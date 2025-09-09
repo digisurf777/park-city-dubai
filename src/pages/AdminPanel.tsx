@@ -562,11 +562,16 @@ const AdminPanel = () => {
             await supabase.functions.invoke('send-admin-listing-notification', {
               body: {
                 listingId: listingId,
-                ownerName: ownerName,
-                isApproved: true,
-                listingTitle: listing.title,
-                zone: listing.zone,
-                userEmail: ownerEmail
+                userName: ownerName,
+                userEmail: ownerEmail,
+                userPhone: listing.phone_number || '',
+                buildingName: listing.building_name || 'N/A',
+                district: listing.zone || 'N/A',
+                bayType: listing.bay_type || 'N/A',
+                monthlyPrice: listing.monthly_price || 0,
+                accessDeviceDeposit: listing.access_device_deposit || 0,
+                notes: listing.notes || '',
+                isApproved: true
               }
             });
           }
