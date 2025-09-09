@@ -540,7 +540,7 @@ const AdminPanel = () => {
             try {
               const { data: ownerProfile } = await supabase
                 .from('profiles')
-                .select('full_name')
+                .select('full_name, email')
                 .eq('user_id', listing.owner_id)
                 .maybeSingle();
 
@@ -548,13 +548,8 @@ const AdminPanel = () => {
                 ownerName = ownerProfile.full_name;
               }
 
-              // Get email from auth.users
-              const { data: { users }, error: authError } = await supabase.auth.admin.listUsers();
-              if (!authError) {
-                const user = users.find((u: any) => u.id === listing.owner_id);
-                if (user?.email) {
-                  ownerEmail = user.email;
-                }
+           if (ownerProfile?.email) {
+                ownerEmail = ownerProfile.email;
               }
             } catch (userErr) {
               console.error('Error getting owner details:', userErr);
