@@ -2710,14 +2710,17 @@ const AdminPanel = () => {
                                     
                                   if (ownerProfile) {
                                     console.log('DEBUG: Adding owner to allUsers list:', ownerProfile);
+                                    // Update allUsers and wait for state to update
                                     setAllUsers(prev => [...prev, ownerProfile]);
+                                    // Wait a bit for React to re-render the dropdown with new option
+                                    await new Promise(resolve => setTimeout(resolve, 100));
                                   }
                                 } catch (error) {
                                   console.error('DEBUG: Error fetching owner profile:', error);
                                 }
                               }
                               
-                              setSelectedUserId(listing.owner_id);
+                              // Set form data
                               setMessageSubject(`Regarding Your Parking Listing - ${listing.title}`);
                               setMessageContent(`Hello,\n\nI hope this message finds you well. I'm reaching out regarding your parking listing:\n\nTitle: ${listing.title}\nLocation: ${listing.address}\nZone: ${listing.zone}\nStatus: ${listing.status}\n\nPlease let me know if you have any questions or if there's anything you'd like to discuss about your listing.\n\nBest regards,\nShazam Parking Admin Team`);
                               
@@ -2726,6 +2729,12 @@ const AdminPanel = () => {
                               // Use React state to switch tabs instead of DOM manipulation
                               setActiveTab('messages');
                               console.log('DEBUG: Tab switched to messages successfully');
+                              
+                              // Set selected user AFTER ensuring they're in the dropdown and tab has switched
+                              setTimeout(() => {
+                                console.log('DEBUG: Setting selected user ID:', listing.owner_id);
+                                setSelectedUserId(listing.owner_id);
+                              }, 200);
                             }}
                             className="flex items-center gap-2"
                           >
