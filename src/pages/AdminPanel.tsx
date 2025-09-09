@@ -19,6 +19,7 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import '../styles/quill.css';
 import SecureDocumentViewer from '@/components/SecureDocumentViewer';
+import SpaceManagement from '@/components/SpaceManagement';
 
 interface NewsPost {
   id: string;
@@ -2111,6 +2112,7 @@ const AdminPanel = () => {
             <TabsTrigger value="news" className="text-xs lg:text-sm">News Management</TabsTrigger>
             <TabsTrigger value="listings" className="text-xs lg:text-sm">Parking Listings</TabsTrigger>
             <TabsTrigger value="bookings" className="text-xs lg:text-sm">Booking Management</TabsTrigger>
+            <TabsTrigger value="spaces" className="text-xs lg:text-sm">Space Management</TabsTrigger>
             <TabsTrigger value="verifications" className="text-xs lg:text-sm">User Verifications</TabsTrigger>
             <TabsTrigger value="messages" className="text-xs lg:text-sm">Send Messages</TabsTrigger>
             <TabsTrigger value="users" className="text-xs lg:text-sm">User Management</TabsTrigger>
@@ -3262,6 +3264,14 @@ const AdminPanel = () => {
                 )}
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Space Management Tab */}
+          <TabsContent value="spaces" className="space-y-6">
+            <SpaceManagement onRefresh={() => {
+              fetchParkingListings();
+              fetchParkingBookings();
+            }} />
           </TabsContent>
 
           {/* Chat Management Tab */}
