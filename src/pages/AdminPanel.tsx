@@ -2694,8 +2694,29 @@ const AdminPanel = () => {
                           
                           <Button
                             variant="outline"
-                            onClick={() => {
+                            onClick={async () => {
                               console.log('DEBUG: Contact Owner button clicked for listing:', listing.id, 'owner:', listing.owner_id);
+                              
+                              // First, ensure the owner is in the allUsers list
+                              const ownerExists = allUsers.find(u => u.user_id === listing.owner_id);
+                              if (!ownerExists) {
+                                console.log('DEBUG: Owner not in allUsers, fetching owner profile');
+                                try {
+                                  const { data: ownerProfile } = await supabase
+                                    .from('profiles')
+                                    .select('user_id, full_name')
+                                    .eq('user_id', listing.owner_id)
+                                    .maybeSingle();
+                                    
+                                  if (ownerProfile) {
+                                    console.log('DEBUG: Adding owner to allUsers list:', ownerProfile);
+                                    setAllUsers(prev => [...prev, ownerProfile]);
+                                  }
+                                } catch (error) {
+                                  console.error('DEBUG: Error fetching owner profile:', error);
+                                }
+                              }
+                              
                               setSelectedUserId(listing.owner_id);
                               setMessageSubject(`Regarding Your Parking Listing - ${listing.title}`);
                               setMessageContent(`Hello,\n\nI hope this message finds you well. I'm reaching out regarding your parking listing:\n\nTitle: ${listing.title}\nLocation: ${listing.address}\nZone: ${listing.zone}\nStatus: ${listing.status}\n\nPlease let me know if you have any questions or if there's anything you'd like to discuss about your listing.\n\nBest regards,\nShazam Parking Admin Team`);
