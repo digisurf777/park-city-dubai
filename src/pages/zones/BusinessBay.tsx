@@ -288,9 +288,12 @@ const BusinessBay = () => {
                     <span className="text-xl sm:text-2xl font-bold text-primary">From AED {spot.price}/month</span>
                   </div>
 
-                  <div className="w-full bg-primary text-primary-foreground py-2 sm:py-3 rounded text-center font-semibold text-sm sm:text-base">
+                  <Button 
+                    onClick={() => handleReserveClick(spot)}
+                    className="w-full bg-primary text-primary-foreground py-2 sm:py-3 rounded text-center font-semibold text-sm sm:text-base hover:bg-primary/90"
+                  >
                     Reserve Booking
-                  </div>
+                  </Button>
                 </div>
               </Card>
             ))}
