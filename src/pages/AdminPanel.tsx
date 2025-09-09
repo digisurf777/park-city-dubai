@@ -2700,23 +2700,38 @@ const AdminPanel = () => {
                               // First, ensure the owner is in the allUsers list
                               const ownerExists = allUsers.find(u => u.user_id === listing.owner_id);
                               if (!ownerExists) {
-                                console.log('DEBUG: Owner not in allUsers, fetching owner profile');
+                                console.log('DEBUG: Owner not in allUsers, fetching owner profile for ID:', listing.owner_id);
                                 try {
-                                  const { data: ownerProfile } = await supabase
+                                  const { data: ownerProfile, error: profileError } = await supabase
                                     .from('profiles')
                                     .select('user_id, full_name')
                                     .eq('user_id', listing.owner_id)
                                     .maybeSingle();
                                     
+                                  console.log('DEBUG: Profile query result - data:', ownerProfile, 'error:', profileError);
+                                    
                                   if (ownerProfile) {
                                     console.log('DEBUG: Adding owner to allUsers list:', ownerProfile);
-                                    // Update allUsers and wait for state to update
                                     setAllUsers(prev => [...prev, ownerProfile]);
-                                    // Wait a bit for React to re-render the dropdown with new option
+                                    await new Promise(resolve => setTimeout(resolve, 100));
+                                  } else {
+                                    console.log('DEBUG: No owner profile found, creating placeholder entry');
+                                    const placeholderUser = {
+                                      user_id: listing.owner_id,
+                                      full_name: 'Listing Owner (Profile Not Found)'
+                                    };
+                                    console.log('DEBUG: Adding placeholder to allUsers list:', placeholderUser);
+                                    setAllUsers(prev => [...prev, placeholderUser]);
                                     await new Promise(resolve => setTimeout(resolve, 100));
                                   }
                                 } catch (error) {
                                   console.error('DEBUG: Error fetching owner profile:', error);
+                                  // Add placeholder even on error
+                                  const errorUser = {
+                                    user_id: listing.owner_id,
+                                    full_name: 'Listing Owner (Error Loading Profile)'
+                                  };
+                                  setAllUsers(prev => [...prev, errorUser]);
                                 }
                               }
                               
