@@ -41,7 +41,7 @@ const ProductPage: React.FC = () => {
   // Check if parking space is currently booked (excluding cancelled bookings)
   const checkBookingStatus = async (listingData: any) => {
     try {
-      console.log('DEBUG: Checking booking status for listing:', listingData);
+      console.log('DEBUG: Checking booking status for listing:', JSON.stringify(listingData, null, 2));
       
       // Query by listing ID first (most accurate)
       let { data: activeBookings, error } = await supabase
@@ -51,7 +51,7 @@ const ProductPage: React.FC = () => {
         .neq('status', 'cancelled')
         .in('status', ['pending', 'confirmed', 'active']);
 
-      console.log('DEBUG: Query by ID result:', { activeBookings, error });
+      console.log('DEBUG: Query by ID result:', JSON.stringify({ activeBookings, error }, null, 2));
 
       // If no results by ID, try by title
       if (!activeBookings?.length && listingData.title) {
@@ -64,7 +64,7 @@ const ProductPage: React.FC = () => {
           
         activeBookings = titleQuery.data;
         error = titleQuery.error;
-        console.log('DEBUG: Query by title result:', { activeBookings, error });
+        console.log('DEBUG: Query by title result:', JSON.stringify({ activeBookings, error }, null, 2));
       }
 
       if (error) {
@@ -80,9 +80,9 @@ const ProductPage: React.FC = () => {
         const isOverlapping = now >= startTime && now <= endTime;
         console.log('DEBUG: Booking time check:', { 
           bookingId: booking.id, 
-          startTime, 
-          endTime, 
-          now, 
+          startTime: startTime.toISOString(), 
+          endTime: endTime.toISOString(), 
+          now: now.toISOString(), 
           isOverlapping 
         });
         return isOverlapping;
@@ -91,8 +91,9 @@ const ProductPage: React.FC = () => {
       console.log('DEBUG: Final booking status check:', { 
         listingId: listingData.id, 
         listingTitle: listingData.title,
-        activeBookings, 
-        hasActiveBooking 
+        activeBookingsCount: activeBookings?.length || 0, 
+        hasActiveBooking,
+        currentTime: now.toISOString()
       });
       return hasActiveBooking || false;
     } catch (error) {
