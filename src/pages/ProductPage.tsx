@@ -29,7 +29,7 @@ const ProductPage: React.FC = () => {
   const [parkingListing, setParkingListing] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>('');
-  const [isCurrentlyBooked, setIsCurrentlyBooked] = useState<boolean>(true); // Set to true to show all as booked
+  const [isCurrentlyBooked, setIsCurrentlyBooked] = useState<boolean>(false); // Check actual booking status
   
   const DURATION_OPTIONS = [
     { months: 1, label: "1 Month", multiplier: 1.0, description: "Monthly rate" },
@@ -37,6 +37,37 @@ const ProductPage: React.FC = () => {
     { months: 6, label: "6 Months", multiplier: 0.90, description: "10% OFF" },
     { months: 12, label: "12 Months", multiplier: 0.85, description: "15% OFF" }
   ];
+
+  // Check if parking space is currently booked (excluding cancelled bookings)
+  const checkBookingStatus = async (listingId: string) => {
+    try {
+      const { data: activeBookings, error } = await supabase
+        .from('parking_bookings')
+        .select('id, status, start_time, end_time')
+        .eq('location', listingId)
+        .neq('status', 'cancelled')
+        .in('status', ['pending', 'confirmed', 'active']);
+
+      if (error) {
+        console.error('Error checking booking status:', error);
+        return false; // Default to available if error
+      }
+
+      // Check if any active booking overlaps with current time
+      const now = new Date();
+      const hasActiveBooking = activeBookings?.some(booking => {
+        const startTime = new Date(booking.start_time);
+        const endTime = new Date(booking.end_time);
+        return now >= startTime && now <= endTime;
+      });
+
+      console.log('Booking status check:', { listingId, activeBookings, hasActiveBooking });
+      return hasActiveBooking || false;
+    } catch (error) {
+      console.error('Error in checkBookingStatus:', error);
+      return false;
+    }
+  };
 
   // Fetch parking listing data securely
   useEffect(() => {
@@ -58,6 +89,10 @@ const ProductPage: React.FC = () => {
         if (fullData && !fullError) {
           console.log('Fetched full parking listing data:', fullData);
           setParkingListing(fullData);
+          
+          // Check if space is currently booked
+          const isBooked = await checkBookingStatus(fullData.title || id);
+          setIsCurrentlyBooked(isBooked);
           return;
         }
 
@@ -87,6 +122,10 @@ const ProductPage: React.FC = () => {
           contact_email: null,
           contact_phone: null
         });
+
+        // Check if space is currently booked
+        const isBooked = await checkBookingStatus(publicData.title || id);
+        setIsCurrentlyBooked(isBooked);
       } catch (error) {
         console.error('Error:', error);
         setError('An unexpected error occurred');
