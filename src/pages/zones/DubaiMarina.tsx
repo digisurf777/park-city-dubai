@@ -279,7 +279,7 @@ const DubaiMarina = () => {
 
         {/* Listing Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-          {filteredSpots.map(spot => <Link key={spot.id} to={`/product/${spot.id}`}>
+          {filteredSpots.map(spot => <Link key={spot.id} to={`/parking/${spot.id}`}>
             <Card className="overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 cursor-pointer">
               {/* Image carousel */}
               <div className="relative w-full h-48 sm:h-56 md:h-64 overflow-hidden group">
