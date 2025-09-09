@@ -1450,16 +1450,16 @@ const AdminPanel = () => {
       let userName = verification.full_name;
 
       try {
-        // Get email from auth.users using supabase admin
-        const { data: { users }, error: authError } = await supabase.auth.admin.listUsers();
+        // Get email using edge function (avoids 403 error)
+        const { data: emailData, error: emailError } = await supabase.functions.invoke('get-user-email', {
+          body: { userId: verification.user_id }
+        });
         
-        if (authError) {
-          console.error('Error getting users from auth:', authError);
-        } else {
-          const user = users.find((u: any) => u.id === verification.user_id);
-          if (user) {
-            userEmail = user.email || '';
-          }
+        if (emailError) {
+          console.error('Edge function error:', emailError);
+        } else if (emailData?.email) {
+          userEmail = emailData.email;
+          console.log('User email fetched successfully for verification:', userEmail);
         }
       } catch (authErr) {
         console.error('Auth API error:', authErr);
@@ -1632,15 +1632,20 @@ const AdminPanel = () => {
           userName = userData.full_name;
         }
 
-        // Get email from auth.users using admin.listUsers
-        const { data: { users }, error: authError } = await supabase.auth.admin.listUsers();
-        if (authError) {
-          console.error('Auth error:', authError);
-        } else {
-          const user = users.find((u: any) => u.id === selectedUserId);
-          if (user) {
-            userEmail = user.email || '';
+        // Get email using edge function (avoids 403 error)
+        try {
+          const { data: emailData, error: emailError } = await supabase.functions.invoke('get-user-email', {
+            body: { userId: selectedUserId }
+          });
+          
+          if (emailError) {
+            console.error('Edge function error:', emailError);
+          } else if (emailData?.email) {
+            userEmail = emailData.email;
+            console.log('User email fetched successfully:', userEmail);
           }
+        } catch (emailErr) {
+          console.error('Error calling get-user-email function:', emailErr);
         }
       } catch (err) {
         console.error('Error getting user details:', err);
