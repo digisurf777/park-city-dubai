@@ -288,7 +288,10 @@ const DubaiMarina = () => {
                       src={spot.images[currentImageIndexes[spot.id] || 0]} 
                       alt={`${spot.name} - Image ${(currentImageIndexes[spot.id] || 0) + 1}`} 
                       className="w-full h-full object-cover cursor-pointer" 
-                      onClick={() => handleImageClick(spot, currentImageIndexes[spot.id] || 0)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleImageClick(spot, currentImageIndexes[spot.id] || 0);
+                      }}
                     />
                     {spot.images.length > 1 && <>
                         {/* Navigation buttons */}
