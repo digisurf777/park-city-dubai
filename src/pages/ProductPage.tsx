@@ -401,9 +401,15 @@ const ProductPage: React.FC = () => {
                       </CardDescription>
                     </div>
                     <div className="text-right">
-                      <Badge variant="destructive" className="bg-red-500 text-white border-red-500">
-                        Currently Booked
-                      </Badge>
+                      {isCurrentlyBooked ? (
+                        <Badge variant="destructive" className="bg-red-500 text-white border-red-500">
+                          Currently Booked
+                        </Badge>
+                      ) : (
+                        <Badge variant="default" className="bg-green-500 text-white border-green-500">
+                          Available
+                        </Badge>
+                      )}
                     </div>
                   </div>
                 </CardHeader>
@@ -457,27 +463,31 @@ const ProductPage: React.FC = () => {
                 
                 {/* Always show unavailable for all spaces */}
                 <CardContent className="space-y-6">
-                  <div className="p-8 text-center bg-red-50 rounded-lg border border-red-200">
-                    <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <Car className="h-8 w-8 text-red-500" />
-                    </div>
-                    <h3 className="text-lg font-semibold text-red-700 mb-2">Space Currently Occupied</h3>
-                    <p className="text-red-600 mb-4">
-                      This parking space is currently booked and not available for new reservations.
-                    </p>
+                  {isCurrentlyBooked ? (
+                    <div className="p-8 text-center bg-red-50 rounded-lg border border-red-200">
+                      <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <Car className="h-8 w-8 text-red-500" />
+                      </div>
+                      <h3 className="text-lg font-semibold text-red-700 mb-2">Space Currently Occupied</h3>
+                      <p className="text-red-600 mb-4">
+                        This parking space is currently booked and not available for new reservations.
+                      </p>
+                      
+                      <div className="w-full bg-red-500 text-white py-4 rounded-lg text-center font-semibold text-lg mb-4">
+                        Currently Booked
+                      </div>
                     
-                    <div className="w-full bg-red-500 text-white py-4 rounded-lg text-center font-semibold text-lg mb-4">
-                      Currently Booked
+                      <Button 
+                        onClick={() => navigate('/')} 
+                        variant="outline" 
+                        className="border-red-500 text-red-700 hover:bg-red-50"
+                      >
+                        Find Available Spaces
+                      </Button>
                     </div>
-                    
-                    <Button 
-                      onClick={() => navigate('/')} 
-                      variant="outline" 
-                      className="border-red-500 text-red-700 hover:bg-red-50"
-                    >
-                      Find Available Spaces
-                    </Button>
-                  </div>
+                  ) : (
+                    <div>Booking form would go here when available</div>
+                  )}
                 </CardContent>
               </Card>
             </div>
