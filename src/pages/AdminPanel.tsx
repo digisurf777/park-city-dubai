@@ -2694,12 +2694,21 @@ const AdminPanel = () => {
                           <Button
                             variant="outline"
                             onClick={() => {
+                              console.log('DEBUG: Contact Owner button clicked for listing:', listing.id, 'owner:', listing.owner_id);
                               setSelectedUserId(listing.owner_id);
                               setMessageSubject(`Regarding Your Parking Listing - ${listing.title}`);
                               setMessageContent(`Hello,\n\nI hope this message finds you well. I'm reaching out regarding your parking listing:\n\nTitle: ${listing.title}\nLocation: ${listing.address}\nZone: ${listing.zone}\nStatus: ${listing.status}\n\nPlease let me know if you have any questions or if there's anything you'd like to discuss about your listing.\n\nBest regards,\nShazam Parking Admin Team`);
+                              
+                              console.log('DEBUG: Message data set, attempting to switch to messages tab');
                               // Switch to messages tab
                               const messagesTab = document.querySelector('[value="messages"]') as HTMLElement;
-                              messagesTab?.click();
+                              console.log('DEBUG: Messages tab element found:', messagesTab);
+                              if (messagesTab) {
+                                messagesTab.click();
+                                console.log('DEBUG: Messages tab clicked successfully');
+                              } else {
+                                console.error('DEBUG: Messages tab not found!');
+                              }
                             }}
                             className="flex items-center gap-2"
                           >
