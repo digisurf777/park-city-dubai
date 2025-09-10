@@ -148,7 +148,7 @@ const handler = async (req: Request): Promise<Response> => {
     console.log("DEBUG: Payment data:", paymentData);
     console.log("DEBUG: Payment error:", paymentError);
 
-    // Send admin booking notification using dedicated function
+    // Send admin booking notification FIRST using dedicated function
     const customerName = userProfile?.full_name || "Customer";
     const customerPhone = userPhone || userProfile?.phone || "Not provided";
     
@@ -190,6 +190,8 @@ const handler = async (req: Request): Promise<Response> => {
       console.error("DEBUG: Admin booking notification error:", notificationError);
       // Don't fail the booking if admin notification fails
     }
+
+    console.log("DEBUG: Admin notification completed, proceeding to customer notifications");
 
     // Send "Booking Request Received" email to customer
     try {
