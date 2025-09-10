@@ -84,7 +84,7 @@ const handler = async (req: Request): Promise<Response> => {
             </p>
             
             <div style="text-align: center; margin: 25px 0;">
-              <a href="https://www.shazamparking.ae/login" 
+              <a href="https://www.shazamparking.ae/auth" 
                  style="background: #10b981; color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block; font-size: 16px;">
                 Login to Account
               </a>
