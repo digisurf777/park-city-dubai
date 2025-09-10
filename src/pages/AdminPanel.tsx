@@ -899,25 +899,53 @@ const AdminPanel = () => {
         .select('user_id, full_name, phone, email')
         .in('user_id', userIds);
 
-      // Get emails from auth.users for users missing profile emails
-      const { data: authUsers } = await supabase.auth.admin.listUsers();
-      
-      // Combine bookings with profile data and auth emails
+      // Get all user emails via edge function for users without profile emails
+      const usersNeedingEmails = bookings?.filter(booking => {
+        const profile = profiles?.find(p => p.user_id === booking.user_id);
+        return !profile?.email || profile.email === 'Email not available';
+      }).map(b => b.user_id) || [];
+
+      console.log('DEBUG: Users needing email fetch:', usersNeedingEmails.length);
+
+      // Fetch emails for users missing profile data
+      const userEmails: Record<string, string> = {};
+      if (usersNeedingEmails.length > 0) {
+        try {
+          for (const userId of usersNeedingEmails) {
+            console.log('DEBUG: Fetching email for user:', userId);
+            const { data: emailData, error: emailError } = await supabase.functions.invoke('get-user-email', {
+              body: { userId }
+            });
+            if (emailError) {
+              console.error('DEBUG: Email fetch error:', emailError);
+            } else if (emailData?.email) {
+              userEmails[userId] = emailData.email;
+              console.log('DEBUG: Fetched email for user:', userId, '->', emailData.email);
+            }
+          }
+        } catch (error) {
+          console.error('DEBUG: Error in bulk email fetch:', error);
+        }
+      }
+
+      // Combine bookings with profile data and fetched emails
       const processedBookings = bookings?.map(booking => {
         const profile = profiles?.find(p => p.user_id === booking.user_id);
-        const authUser = authUsers?.users?.find(u => u.id === booking.user_id);
-        const userEmail = profile?.email || authUser?.email || 'Email not available';
+        const fetchedEmail = userEmails[booking.user_id];
+        const userEmail = profile?.email || fetchedEmail || 'Email not available';
+        
+        console.log('DEBUG: Processing booking for user:', booking.user_id, 'final email:', userEmail);
         
         return {
           ...booking,
           userEmail: userEmail,
           profiles: profile || { 
-            full_name: authUser?.user_metadata?.full_name || 'Unknown User', 
+            full_name: 'Unknown User', 
             phone: null, 
             email: userEmail
           }
         };
-      });
+      }) || [];
       
       setParkingBookings(processedBookings as any);
       console.log('Processed bookings count:', processedBookings?.length || 0);
