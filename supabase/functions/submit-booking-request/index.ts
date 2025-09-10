@@ -156,13 +156,8 @@ const handler = async (req: Request): Promise<Response> => {
     
     try {
       console.log("DEBUG: Sending admin notification for booking:", booking.id);
-      const adminNotificationResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/send-admin-booking-notification`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`,
-        },
-        body: JSON.stringify({
+      const { data: adminNotificationResponse, error: adminNotificationError } = await supabaseServiceClient.functions.invoke('send-admin-booking-notification', {
+        body: {
           userName: customerName,
           userEmail: user.email,
           userPhone: customerPhone,
@@ -175,16 +170,13 @@ const handler = async (req: Request): Promise<Response> => {
           totalCost: costAed,
           paymentType: paymentData?.payment_type || 'manual',
           notes: notes,
-        }),
+        },
       });
 
-      if (!adminNotificationResponse.ok) {
-        const errorText = await adminNotificationResponse.text();
-        console.error("DEBUG: Admin booking notification failed:", errorText);
-        console.error("DEBUG: Admin notification status:", adminNotificationResponse.status);
+      if (adminNotificationError) {
+        console.error("DEBUG: Admin booking notification failed:", adminNotificationError);
       } else {
-        const responseData = await adminNotificationResponse.json();
-        console.log("DEBUG: Admin booking notification sent successfully:", responseData);
+        console.log("DEBUG: Admin booking notification sent successfully:", adminNotificationResponse);
       }
     } catch (notificationError) {
       console.error("DEBUG: Admin booking notification error:", notificationError);
@@ -195,13 +187,8 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Send "Booking Request Received" email to customer
     try {
-      const bookingReceivedResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/send-booking-received`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`,
-        },
-        body: JSON.stringify({
+      const { data: bookingReceivedResponse, error: bookingReceivedError } = await supabaseServiceClient.functions.invoke('send-booking-received', {
+        body: {
           userEmail: user.email,
           userName: customerName,
           bookingDetails: {
@@ -210,13 +197,13 @@ const handler = async (req: Request): Promise<Response> => {
             endDate: endDate.toLocaleDateString(),
             amount: `${costAed} AED`
           }
-        }),
+        },
       });
 
-      if (!bookingReceivedResponse.ok) {
-        console.error("Booking received notification failed:", await bookingReceivedResponse.text());
+      if (bookingReceivedError) {
+        console.error("Booking received notification failed:", bookingReceivedError);
       } else {
-        console.log("Booking received notification sent successfully");
+        console.log("Booking received notification sent successfully:", bookingReceivedResponse);
       }
     } catch (notificationError) {
       console.error("Booking received notification error:", notificationError);
