@@ -976,10 +976,15 @@ const AdminPanel = () => {
       console.log('DEBUG: Successfully updated booking to status:', status);
 
       // Send email notification to customer based on status
+      console.log('DEBUG: Booking object:', booking);
+      console.log('DEBUG: User email available:', booking.userEmail);
+      console.log('DEBUG: Profiles data:', booking.profiles);
+      
       if (booking.userEmail && booking.userEmail !== 'Email not available') {
         try {
-          console.log('DEBUG: Sending email to:', booking.userEmail, 'for status:', status);
+          console.log('DEBUG: Attempting to send email to:', booking.userEmail, 'for status:', status);
           if (status === 'confirmed') {
+            console.log('DEBUG: Calling send-booking-confirmed function...');
             const { data: emailResponse, error: emailError } = await supabase.functions.invoke('send-booking-confirmed', {
               body: {
                 userEmail: booking.userEmail,
@@ -992,6 +997,8 @@ const AdminPanel = () => {
                 }
               },
             });
+            
+            console.log('DEBUG: Function invocation result - data:', emailResponse, 'error:', emailError);
             
             if (emailError) {
               console.error('DEBUG: Email send error:', emailError);
