@@ -1,24 +1,24 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "npm:resend@2.0.0";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
-interface BookingRequest {
-  startDate: string;
-  duration: number;
-  userPhone?: string;
-  notes?: string;
-  zone: string;
-  location: string;
-  costAed: number;
-  parkingSpotName: string;
-}
+const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type",
 };
 
-const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+interface BookingConfirmedRequest {
+  userEmail: string;
+  userName?: string;
+  bookingDetails: {
+    location: string;
+    startDate: string;
+    endDate: string;
+    amount: string;
+  };
+}
 
 const handler = async (req: Request): Promise<Response> => {
   // Handle CORS preflight requests
@@ -27,362 +27,115 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    console.log("Starting booking submission process...");
+    console.log("DEBUG: send-booking-confirmed function started");
+    console.log("DEBUG: Request method:", req.method);
+    console.log("DEBUG: RESEND_API_KEY exists:", !!Deno.env.get("RESEND_API_KEY"));
 
-    // Initialize Supabase client for user authentication
-    const supabaseClient = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? ""
-    );
-
-    // Initialize Supabase service client for database operations (bypasses RLS)
-    const supabaseServiceClient = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-      { auth: { persistSession: false } }
-    );
-
-    // Get authenticated user
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      throw new Error("No authorization header provided");
-    }
-
-    const token = authHeader.replace("Bearer ", "");
-    const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
-    if (userError) throw new Error(`Authentication error: ${userError.message}`);
-    const user = userData.user;
-    if (!user?.email) throw new Error("User not authenticated or email not available");
-
-    const {
-      startDate,
-      duration,
-      userPhone,
-      notes,
-      zone,
-      location,
-      costAed,
-      parkingSpotName,
-    }: BookingRequest = await req.json();
-
-    console.log("Booking data received:", { startDate, duration, zone, location, costAed });
-
-    // Get user profile information for enhanced email
-    const { data: userProfile, error: profileError } = await supabaseServiceClient
-      .from("profiles")
-      .select("full_name, phone")
-      .eq("user_id", user.id)
-      .single();
-    
-    if (profileError) {
-      console.log("Profile fetch error (will continue without profile data):", profileError);
-    }
-
-    console.log("User profile data:", userProfile);
-
-    // Calculate end date
-    const endDate = new Date(startDate);
-    endDate.setMonth(endDate.getMonth() + duration);
-
-    // Insert booking into database using service role to bypass RLS
-    const { data: booking, error: insertError } = await supabaseServiceClient
-      .from("parking_bookings")
-      .insert([
-        {
-          user_id: user.id,
-          start_time: startDate,
-          end_time: endDate.toISOString(),
-          duration_hours: duration * 24 * 30, // Convert months to hours (approximate)
-          zone,
-          location,
-          cost_aed: costAed,
-          status: "pending",
-        },
-      ])
-      .select()
-      .single();
-
-    if (insertError) {
-      console.error("Database insertion error:", insertError);
-      throw new Error(`Failed to save booking: ${insertError.message}`);
-    }
-
-    console.log("Booking saved successfully:", booking.id);
-
-    // Create payment link using the new edge function
-    console.log("Creating payment link...");
-    
-    let paymentData = null;
-    let paymentError = null;
-    
+    let requestData;
     try {
-      const paymentResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/create-payment-link`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': req.headers.get('Authorization') || `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`,
-        },
-        body: JSON.stringify({
-          bookingId: booking.id,
-          amount: costAed,
-          duration: duration,
-          parkingSpotName: parkingSpotName,
-          userEmail: user.email,
-        }),
-      });
-
-      if (!paymentResponse.ok) {
-        const errorText = await paymentResponse.text();
-        console.error("Payment link creation failed:", errorText);
-        paymentError = `Payment setup failed: ${errorText}`;
-      } else {
-        paymentData = await paymentResponse.json();
-        console.log("Payment link created:", paymentData.payment_url);
-      }
-    } catch (error) {
-      console.error("Payment link creation error:", error);
-      paymentError = `Payment setup error: ${error instanceof Error ? error.message : 'Unknown error'}`;
+      requestData = await req.json();
+    } catch (jsonError) {
+      console.error("DEBUG: Failed to parse JSON:", jsonError);
+      throw new Error("Invalid JSON in request body");
     }
 
-    // Send admin booking notification using dedicated function
-    const customerName = userProfile?.full_name || "Customer";
-    const customerPhone = userPhone || userProfile?.phone || "Not provided";
+    console.log("DEBUG: Raw request data:", requestData);
+
+    const { userEmail, userName, bookingDetails }: BookingConfirmedRequest = requestData;
     
-    try {
-      console.log("DEBUG: Sending admin notification for booking:", booking.id);
-      const adminNotificationResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/send-admin-booking-notification`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${Deno.env.get('SUPABASE_ANON_KEY')}`,
-        },
-        body: JSON.stringify({
-          userName: customerName,
-          userEmail: user.email,
-          userPhone: customerPhone,
-          bookingId: booking.id,
-          parkingSpotName: parkingSpotName,
-          zone: zone,
-          location: location,
-          startDate: startDate,
-          duration: duration,
-          totalCost: costAed,
-          paymentType: paymentData?.payment_type || 'manual',
-          notes: notes,
-        }),
-      });
+    console.log("DEBUG: send-booking-confirmed called with:", { userEmail, userName, bookingDetails });
 
-      if (!adminNotificationResponse.ok) {
-        const errorText = await adminNotificationResponse.text();
-        console.error("DEBUG: Admin booking notification failed:", errorText);
-        console.error("DEBUG: Admin notification status:", adminNotificationResponse.status);
-      } else {
-        const responseData = await adminNotificationResponse.json();
-        console.log("DEBUG: Admin booking notification sent successfully:", responseData);
-      }
-    } catch (notificationError) {
-      console.error("DEBUG: Admin booking notification error:", notificationError);
-      // Don't fail the booking if admin notification fails
+    if (!userEmail) {
+      throw new Error("userEmail is required");
     }
-
-    // Send "Booking Request Received" email to customer
-    try {
-      const bookingReceivedResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/send-booking-received`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${Deno.env.get('SUPABASE_ANON_KEY')}`,
-        },
-        body: JSON.stringify({
-          userEmail: user.email,
-          userName: customerName,
-          bookingDetails: {
-            location: `${parkingSpotName}, ${location}`,
-            startDate: new Date(startDate).toLocaleDateString(),
-            endDate: endDate.toLocaleDateString(),
-            amount: `${costAed} AED`
-          }
-        }),
-      });
-
-      if (!bookingReceivedResponse.ok) {
-        console.error("Booking received notification failed:", await bookingReceivedResponse.text());
-      } else {
-        console.log("Booking received notification sent successfully");
-      }
-    } catch (notificationError) {
-      console.error("Booking received notification error:", notificationError);
-      // Don't fail the booking if notification fails
-    }
-
-    // Send enhanced confirmation email to customer with payment link (if available) or manual payment instructions
-    let emailSubject = "Parking Booking Request Received - ShazamParking";
-    let completionMessage = "Please wait for admin confirmation and payment instructions.";
     
-    if (paymentData?.payment_url) {
-      emailSubject = "Complete Your Parking Booking Payment - ShazamParking";
-      completionMessage = "Please complete your payment setup to secure your parking space.";
-    } else if (paymentError) {
-      emailSubject = "Parking Booking Request Received - Manual Processing Required";
-      completionMessage = "We'll contact you shortly with payment instructions.";
+    if (!bookingDetails) {
+      throw new Error("bookingDetails is required");
     }
 
-    const customerEmailResponse = await resend.emails.send({
+    console.log("DEBUG: About to call resend.emails.send");
+
+    const emailResponse = await resend.emails.send({
       from: "ShazamParking <noreply@shazamparking.ae>",
-      to: [user.email],
-      subject: emailSubject,
+      to: [userEmail],
+      subject: "Your Booking is Confirmed",
       html: `
-        <!DOCTYPE html>
-        <html lang="en" style="font-family: Arial, sans-serif;">
-          <head>
-            <meta charset="UTF-8" />
-            <title>Complete Your Parking Booking</title>
-          </head>
-          <body style="margin: 0; padding: 0; background-color: #f9f9f9;">
-            <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f9f9f9;">
-              <tr>
-                <td align="center">
-                  <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; margin-top: 30px; border-radius: 10px; overflow: hidden;">
-                    <tr>
-                      <td style="padding: 20px; text-align: center; background-color: #0099cc;">
-                        <img src="https://shazamparking.ae/wp-content/uploads/2024/11/shazam-logo-blue.png" alt="Shazam Parking Logo" width="140" style="margin-bottom: 10px;" />
-                        <h1 style="color: white; margin: 0; font-size: 24px;">Booking Confirmation</h1>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td style="padding: 30px 40px; text-align: left;">
-                        <h2 style="color: #333333; margin-top: 0;">Dear ${customerName}! 👋</h2>
-                        <p style="font-size: 16px; color: #555555; line-height: 1.6;">
-                          Thank you for choosing ShazamParking! Your booking request has been received and we've created a secure payment link for you.
-                        </p>
-
-                        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #0099cc;">
-                          <h3 style="color: #0099cc; margin-top: 0;">Booking Details:</h3>
-                          <table style="width: 100%; color: #333;">
-                            <tr><td><strong>Reference Number:</strong></td><td>${booking.id}</td></tr>
-                            <tr><td><strong>Customer Name:</strong></td><td>${customerName}</td></tr>
-                            <tr><td><strong>Email:</strong></td><td>${user.email}</td></tr>
-                            <tr><td><strong>Phone:</strong></td><td>${customerPhone}</td></tr>
-                            <tr><td><strong>Parking Spot:</strong></td><td>${parkingSpotName}</td></tr>
-                            <tr><td><strong>Zone:</strong></td><td>${zone}</td></tr>
-                            <tr><td><strong>Location:</strong></td><td>${location}</td></tr>
-                            <tr><td><strong>Start Date:</strong></td><td>${new Date(startDate).toLocaleDateString()}</td></tr>
-                            <tr><td><strong>Duration:</strong></td><td>${duration} month(s)</td></tr>
-                            <tr><td><strong>Total Cost:</strong></td><td>${costAed} AED</td></tr>
-                            <tr><td><strong>Payment Type:</strong></td><td>${paymentData ? ((paymentData as any).payment_type === 'one_time' ? 'One-time Payment' : 'Monthly Recurring Payments') : 'Manual Processing'}</td></tr>
-                            ${notes ? `<tr><td><strong>Notes:</strong></td><td>${notes}</td></tr>` : ''}
-                          </table>
-                        </div>
-                        
-                        ${paymentData?.payment_url ? `
-                        <div style="background-color: #dbeafe; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center;">
-                          <h3 style="color: #1e40af; margin-top: 0;">Complete Your Payment</h3>
-                          ${(paymentData as any)?.payment_type === 'one_time' 
-                            ? '<p style="color: #1e40af; margin-bottom: 15px;">Your payment will be pre-authorized (not charged immediately). We will confirm your booking shortly.</p>'
-                            : '<p style="color: #1e40af; margin-bottom: 15px;">Set up your monthly subscription. Billing starts after we confirm your booking.</p>'
-                          }
-                          <a href="${(paymentData as any).payment_url}" style="background-color: #16a34a; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">Complete Payment Setup</a>
-                        </div>
-                        ` : `
-                        <div style="background-color: #fbbf24; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center;">
-                          <h3 style="color: #92400e; margin-top: 0;">Manual Payment Processing</h3>
-                          <p style="color: #92400e; margin-bottom: 15px;">Our team will contact you shortly with payment instructions and booking confirmation.</p>
-                          ${paymentError ? `<p style="color: #dc2626; font-size: 14px; margin-top: 10px;">Payment system note: ${paymentError}</p>` : ''}
-                        </div>
-                        `}
-                        
-                        <div style="background-color: #fef3c7; padding: 15px; border-radius: 5px; margin: 15px 0;">
-                          <p style="color: #92400e; font-weight: bold; margin: 0;">⏰ Important Timeline:</p>
-                          <p style="color: #92400e; margin: 5px 0 0 0;">
-                            • Complete payment setup as soon as possible<br>
-                            • We will review and confirm your booking shortly<br>
-                            • If not confirmed, the payment will be automatically refunded
-                          </p>
-                        </div>
-                        
-                        <div style="background-color: #e8f4fd; padding: 20px; border-radius: 8px; margin: 20px 0;">
-                          <h3 style="color: #007bff; margin-top: 0;">What happens next?</h3>
-                          <ol style="margin: 0; padding-left: 20px; color: #333; line-height: 1.6;">
-                            <li>Complete your payment setup using the link above</li>
-                            <li>Our team will review your booking request</li>
-                            <li>You'll receive confirmation shortly</li>
-                            <li>If approved, ${paymentData ? ((paymentData as any).payment_type === 'one_time' ? 'your payment will be processed' : 'your subscription will begin') : 'we will contact you with payment instructions'}</li>
-                            <li>If not approved, you'll receive a full refund automatically</li>
-                          </ol>
-                        </div>
-                        
-                        <div style="background-color: #d1ecf1; padding: 15px; border-radius: 5px; margin: 20px 0;">
-                          <p style="color: #0c5460; margin: 0;">
-                            <strong>📞 Need Help?</strong><br>
-                            Contact us at <a href="mailto:shazamparkingdubai@gmail.com" style="color: #0099cc;">shazamparkingdubai@gmail.com</a><br>
-                            Call us: +971 XX XXX XXXX (Available 24/7)
-                          </p>
-                        </div>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td style="padding: 20px 40px; text-align: center; font-size: 12px; color: #999999;">
-                        Thank you for choosing ShazamParking!<br />
-                        <br />
-                        Best regards,<br />
-                        <strong>The ShazamParking Team</strong>
-                      </td>
-                    </tr>
-                  </table>
-                </td>
-              </tr>
-            </table>
-          </body>
-        </html>
+        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #ffffff;">
+          <div style="text-align: center; margin-bottom: 30px; padding: 20px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 12px;">
+            <h1 style="color: white; font-size: 24px; margin: 0; font-weight: bold;">Your Booking is Confirmed</h1>
+            <p style="color: rgba(255,255,255,0.9); font-size: 14px; margin: 10px 0 0 0;">ShazamParking</p>
+          </div>
+          
+          <div style="background: #f8fafc; padding: 30px; border-radius: 12px; margin-bottom: 30px; border-left: 4px solid #10b981;">
+            <h2 style="color: #1f2937; font-size: 18px; margin: 0 0 15px 0;">
+              Dear ${userName || 'Customer'},
+            </h2>
+            
+            <p style="color: #4b5563; line-height: 1.6; margin-bottom: 20px; font-size: 16px;">
+              Good news! Your parking space booking has been confirmed.
+            </p>
+            
+            <p style="color: #4b5563; line-height: 1.6; margin-bottom: 20px; font-size: 16px;">
+              Your card will now be charged for the pre-authorized amount and the space is reserved for you.
+            </p>
+            
+            <p style="color: #4b5563; line-height: 1.6; margin-bottom: 20px; font-size: 16px;">
+              To contact the space owner or manage your booking, please log in to your account and visit the Messages section.
+            </p>
+            
+            <div style="text-align: center; margin: 25px 0;">
+              <a href="https://www.shazamparking.ae/login" 
+                 style="background: #10b981; color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block; font-size: 16px;">
+                Login to Account
+              </a>
+            </div>
+            
+            <p style="color: #4b5563; line-height: 1.6; margin: 20px 0 0 0; font-size: 16px;">
+              If you have any questions, we're here to help — just reply to this email.
+            </p>
+          </div>
+          
+          <div style="border-top: 2px solid #e5e7eb; padding-top: 25px; margin-top: 30px; text-align: center;">
+            <p style="color: #6b7280; font-size: 14px; margin: 0 0 10px 0; font-weight: 600;">
+              Best regards,<br>
+              The ShazamParking Team
+            </p>
+            <div style="margin-top: 15px;">
+              <p style="color: #9ca3af; font-size: 12px; margin: 0;">
+                <a href="mailto:support@shazamparking.ae" style="color: #10b981; text-decoration: none;">support@shazamparking.ae</a>
+              </p>
+              <p style="color: #9ca3af; font-size: 12px; margin: 5px 0 0 0;">
+                <a href="https://www.shazamparking.ae" style="color: #10b981; text-decoration: none;">www.shazamparking.ae</a>
+              </p>
+            </div>
+          </div>
+        </div>
       `,
     });
 
-    if (customerEmailResponse.error) {
-      console.error("Customer email error:", customerEmailResponse.error);
-      // Log error but don't fail the booking
-      return new Response(
-        JSON.stringify({
-          success: true,
-          bookingId: booking.id,
-          paymentUrl: paymentData ? (paymentData as any).payment_url : null,
-          paymentType: paymentData ? (paymentData as any).payment_type : 'manual',
-          confirmationDeadline: paymentData ? (paymentData as any).confirmation_deadline : null,
-          warning: "Booking created successfully but confirmation email failed. Please save your booking reference: " + booking.id,
-          message: paymentData ? completionMessage : "Booking request submitted successfully. We'll contact you with payment instructions.",
-          paymentError: paymentError,
-        }),
-        {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-          status: 200,
-        }
-      );
-    } else {
-      console.log("Customer confirmation sent successfully");
-    }
+    console.log("Booking confirmed email sent successfully:", emailResponse);
 
+    return new Response(JSON.stringify({
+      success: true,
+      message: "Booking confirmed email sent successfully",
+      emailId: emailResponse.data?.id
+    }), {
+      status: 200,
+      headers: {
+        "Content-Type": "application/json",
+        ...corsHeaders,
+      },
+    });
+  } catch (error: any) {
+    console.error("Error in send-booking-confirmed function:", error);
     return new Response(
       JSON.stringify({
-        success: true,
-        bookingId: booking.id,
-        paymentUrl: paymentData ? (paymentData as any).payment_url : null,
-        paymentType: paymentData ? (paymentData as any).payment_type : 'manual',
-        confirmationDeadline: paymentData ? (paymentData as any).confirmation_deadline : null,
-        message: paymentData ? completionMessage : "Booking request submitted successfully. We'll contact you with payment instructions.",
-        paymentError: paymentError,
+        success: false,
+        error: error.message
       }),
       {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 200,
-      }
-    );
-
-  } catch (error) {
-    console.error("Error in submit-booking-request:", error);
-    return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error occurred" }),
-      {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 500,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
       }
     );
   }
