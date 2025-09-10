@@ -149,6 +149,7 @@ const handler = async (req: Request): Promise<Response> => {
     const customerPhone = userPhone || userProfile?.phone || "Not provided";
     
     try {
+      console.log("DEBUG: Sending admin notification for booking:", booking.id);
       const adminNotificationResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/send-admin-booking-notification`, {
         method: 'POST',
         headers: {
@@ -172,12 +173,15 @@ const handler = async (req: Request): Promise<Response> => {
       });
 
       if (!adminNotificationResponse.ok) {
-        console.error("Admin booking notification failed:", await adminNotificationResponse.text());
+        const errorText = await adminNotificationResponse.text();
+        console.error("DEBUG: Admin booking notification failed:", errorText);
+        console.error("DEBUG: Admin notification status:", adminNotificationResponse.status);
       } else {
-        console.log("Admin booking notification sent successfully");
+        const responseData = await adminNotificationResponse.json();
+        console.log("DEBUG: Admin booking notification sent successfully:", responseData);
       }
     } catch (notificationError) {
-      console.error("Admin booking notification error:", notificationError);
+      console.error("DEBUG: Admin booking notification error:", notificationError);
       // Don't fail the booking if admin notification fails
     }
 
