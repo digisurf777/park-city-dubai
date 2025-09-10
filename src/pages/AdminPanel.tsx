@@ -874,12 +874,12 @@ const AdminPanel = () => {
         .from('parking_bookings')
         .select('*');
       
-      // Apply status filter if set, otherwise exclude cancelled by default
+      // Apply status filter if set, otherwise show only pending bookings by default
       if (bookingStatusFilter && bookingStatusFilter !== 'all') {
         query = query.eq('status', bookingStatusFilter);
       } else if (!bookingStatusFilter || bookingStatusFilter === '') {
-        // Default: exclude cancelled bookings from admin view
-        query = query.neq('status', 'cancelled');
+        // Default: show only pending bookings in admin view (exclude confirmed and cancelled)
+        query = query.eq('status', 'pending');
       }
       
       const { data: bookings, error: bookingsError } = await query
@@ -892,19 +892,22 @@ const AdminPanel = () => {
 
       console.log('Fetched bookings:', bookings?.length || 0);
 
-      // Get user profiles separately
+      // Get user profiles and emails separately
       const userIds = [...new Set(bookings?.map(b => b.user_id))];
       const { data: profiles } = await supabase
         .from('profiles')
-        .select('user_id, full_name, phone')
+        .select('user_id, full_name, phone, email')
         .in('user_id', userIds);
 
       // Combine bookings with profile data
-      const processedBookings = bookings?.map(booking => ({
-        ...booking,
-        userEmail: 'Email not available', // Fallback since we can't access auth.admin from client
-        profiles: profiles?.find(p => p.user_id === booking.user_id) || { full_name: 'Unknown User', phone: null }
-      }));
+      const processedBookings = bookings?.map(booking => {
+        const profile = profiles?.find(p => p.user_id === booking.user_id);
+        return {
+          ...booking,
+          userEmail: profile?.email || 'Email not available',
+          profiles: profile || { full_name: 'Unknown User', phone: null, email: null }
+        };
+      });
       
       setParkingBookings(processedBookings as any);
       console.log('Processed bookings count:', processedBookings?.length || 0);
@@ -973,23 +976,28 @@ const AdminPanel = () => {
       console.log('DEBUG: Successfully updated booking to status:', status);
 
       // Send email notification to customer based on status
-      if (booking.userEmail) {
+      if (booking.userEmail && booking.userEmail !== 'Email not available') {
         try {
+          console.log('DEBUG: Sending email to:', booking.userEmail, 'for status:', status);
           if (status === 'confirmed') {
-            await supabase.functions.invoke('send-booking-confirmed', {
+            const { data: emailResponse, error: emailError } = await supabase.functions.invoke('send-booking-confirmed', {
               body: {
                 userEmail: booking.userEmail,
                 userName: booking.profiles?.full_name || 'Customer',
                 bookingDetails: {
-                  id: booking.id,
                   location: booking.location,
-                  zone: booking.zone,
-                  startTime: booking.start_time,
-                  endTime: booking.end_time,
-                  cost: booking.cost_aed
+                  startDate: new Date(booking.start_time).toLocaleDateString(),
+                  endDate: new Date(booking.end_time).toLocaleDateString(),
+                  amount: `${booking.cost_aed} AED`
                 }
               },
             });
+            
+            if (emailError) {
+              console.error('DEBUG: Email send error:', emailError);
+            } else {
+              console.log('DEBUG: Confirmation email sent successfully:', emailResponse);
+            }
           } else if (status === 'cancelled') {
             await supabase.functions.invoke('send-booking-rejected', {
               body: {
