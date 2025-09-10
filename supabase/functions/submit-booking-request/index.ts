@@ -144,9 +144,15 @@ const handler = async (req: Request): Promise<Response> => {
       paymentError = `Payment setup error: ${error instanceof Error ? error.message : 'Unknown error'}`;
     }
 
+    console.log("DEBUG: Payment processing completed, moving to admin notification");
+    console.log("DEBUG: Payment data:", paymentData);
+    console.log("DEBUG: Payment error:", paymentError);
+
     // Send admin booking notification using dedicated function
     const customerName = userProfile?.full_name || "Customer";
     const customerPhone = userPhone || userProfile?.phone || "Not provided";
+    
+    console.log("DEBUG: Prepared customer data - Name:", customerName, "Phone:", customerPhone);
     
     try {
       console.log("DEBUG: Sending admin notification for booking:", booking.id);
