@@ -154,61 +154,55 @@ const handler = async (req: Request): Promise<Response> => {
     
     console.log("DEBUG: Prepared customer data - Name:", customerName, "Phone:", customerPhone);
     
+    // Send admin notification email directly using Resend
     try {
-      console.log("DEBUG: Sending admin notification for booking:", booking.id);
-      const { data: adminNotificationResponse, error: adminNotificationError } = await supabaseServiceClient.functions.invoke('send-admin-booking-notification', {
-        body: {
-          userName: customerName,
-          userEmail: user.email,
-          userPhone: customerPhone,
-          bookingId: booking.id,
-          parkingSpotName: parkingSpotName,
-          zone: zone,
-          location: location,
-          startDate: startDate,
-          duration: duration,
-          totalCost: costAed,
-          paymentType: paymentData?.payment_type || 'manual',
-          notes: notes,
-        },
+      console.log("DEBUG: Sending admin notification email for booking:", booking.id);
+      
+      const adminEmailResponse = await resend.emails.send({
+        from: "ShazamParking Bookings <noreply@shazamparking.ae>",
+        to: ["support@shazamparking.ae"],
+        subject: `New Parking Booking Request - ${booking.id}`,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2 style="color: #0099cc;">New Parking Booking Request</h2>
+            
+            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+              <h3>Booking Details:</h3>
+              <table style="width: 100%; border-collapse: collapse;">
+                <tr><td style="padding: 5px 0;"><strong>Booking ID:</strong></td><td>${booking.id}</td></tr>
+                <tr><td style="padding: 5px 0;"><strong>Customer Name:</strong></td><td>${customerName}</td></tr>
+                <tr><td style="padding: 5px 0;"><strong>Email:</strong></td><td>${user.email}</td></tr>
+                <tr><td style="padding: 5px 0;"><strong>Phone:</strong></td><td>${customerPhone}</td></tr>
+                <tr><td style="padding: 5px 0;"><strong>Parking Spot:</strong></td><td>${parkingSpotName}</td></tr>
+                <tr><td style="padding: 5px 0;"><strong>Zone:</strong></td><td>${zone}</td></tr>
+                <tr><td style="padding: 5px 0;"><strong>Location:</strong></td><td>${location}</td></tr>
+                <tr><td style="padding: 5px 0;"><strong>Start Date:</strong></td><td>${new Date(startDate).toLocaleDateString()}</td></tr>
+                <tr><td style="padding: 5px 0;"><strong>Duration:</strong></td><td>${duration} month(s)</td></tr>
+                <tr><td style="padding: 5px 0;"><strong>Total Cost:</strong></td><td>${costAed} AED</td></tr>
+                <tr><td style="padding: 5px 0;"><strong>Payment Type:</strong></td><td>${paymentData?.payment_type || 'manual'}</td></tr>
+                ${notes ? `<tr><td style="padding: 5px 0;"><strong>Notes:</strong></td><td>${notes}</td></tr>` : ''}
+              </table>
+            </div>
+            
+            <p style="color: #666;">Please review and confirm this booking in the admin panel.</p>
+            <p style="color: #999; font-size: 12px;">This is an automated notification from ShazamParking booking system.</p>
+          </div>
+        `,
       });
 
-      if (adminNotificationError) {
-        console.error("DEBUG: Admin booking notification failed:", adminNotificationError);
+      if (adminEmailResponse.error) {
+        console.error("DEBUG: Admin email failed:", adminEmailResponse.error);
       } else {
-        console.log("DEBUG: Admin booking notification sent successfully:", adminNotificationResponse);
+        console.log("DEBUG: Admin notification email sent successfully:", adminEmailResponse.data?.id);
       }
     } catch (notificationError) {
-      console.error("DEBUG: Admin booking notification error:", notificationError);
+      console.error("DEBUG: Admin notification error:", notificationError);
       // Don't fail the booking if admin notification fails
     }
 
     console.log("DEBUG: Admin notification completed, proceeding to customer notifications");
 
-    // Send "Booking Request Received" email to customer
-    try {
-      const { data: bookingReceivedResponse, error: bookingReceivedError } = await supabaseServiceClient.functions.invoke('send-booking-received', {
-        body: {
-          userEmail: user.email,
-          userName: customerName,
-          bookingDetails: {
-            location: `${parkingSpotName}, ${location}`,
-            startDate: new Date(startDate).toLocaleDateString(),
-            endDate: endDate.toLocaleDateString(),
-            amount: `${costAed} AED`
-          }
-        },
-      });
-
-      if (bookingReceivedError) {
-        console.error("Booking received notification failed:", bookingReceivedError);
-      } else {
-        console.log("Booking received notification sent successfully:", bookingReceivedResponse);
-      }
-    } catch (notificationError) {
-      console.error("Booking received notification error:", notificationError);
-      // Don't fail the booking if notification fails
-    }
+    // Note: Customer booking confirmation email is sent below with payment details
 
     // Send enhanced confirmation email to customer with payment link (if available) or manual payment instructions
     let emailSubject = "Parking Booking Request Received - ShazamParking";
