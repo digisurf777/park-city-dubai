@@ -869,14 +869,28 @@ const AdminPanel = () => {
     try {
       console.log('Fetching parking bookings...');
       
-      // Fetch bookings first - exclude cancelled bookings from admin view
-      const { data: bookings, error: bookingsError } = await supabase
+      // Fetch bookings based on filter - show all active bookings by default
+      let query = supabase
         .from('parking_bookings')
-        .select('*')
-        .neq('status', 'cancelled')
+        .select('*');
+      
+      // Apply status filter if set, otherwise exclude cancelled by default
+      if (bookingStatusFilter && bookingStatusFilter !== 'all') {
+        query = query.eq('status', bookingStatusFilter);
+      } else if (!bookingStatusFilter || bookingStatusFilter === '') {
+        // Default: exclude cancelled bookings from admin view
+        query = query.neq('status', 'cancelled');
+      }
+      
+      const { data: bookings, error: bookingsError } = await query
         .order('created_at', { ascending: false });
 
-      if (bookingsError) throw bookingsError;
+      if (bookingsError) {
+        console.error('Error fetching bookings:', bookingsError);
+        throw bookingsError;
+      }
+
+      console.log('Fetched bookings:', bookings?.length || 0);
 
       // Get user profiles separately
       const userIds = [...new Set(bookings?.map(b => b.user_id))];
@@ -919,24 +933,44 @@ const AdminPanel = () => {
       }
 
       console.log('DEBUG: Found booking:', booking);
+      console.log('DEBUG: Current user:', user?.id);
+      console.log('DEBUG: Is admin:', isAdmin);
+
+      // Check if user is admin before proceeding
+      if (!isAdmin || !user) {
+        throw new Error('Admin authentication required');
+      }
 
       const { data, error } = await supabase
         .from('parking_bookings')
-        .update({ status })
+        .update({ 
+          status,
+          updated_at: new Date().toISOString()
+        })
         .eq('id', bookingId)
-        .select();
+        .select('*');
 
       console.log('DEBUG: Update result - data:', data, 'error:', error);
 
       if (error) {
         console.error('DEBUG: Database update failed:', error);
-        throw error;
+        throw new Error(`Database error: ${error.message}`);
       }
 
       if (!data || data.length === 0) {
         console.error('DEBUG: No rows updated - possible RLS issue');
-        throw new Error('No booking was updated - check permissions');
+        // Let's check if the booking exists
+        const { data: existingBooking } = await supabase
+          .from('parking_bookings')
+          .select('id, status')
+          .eq('id', bookingId)
+          .single();
+        
+        console.log('DEBUG: Existing booking check:', existingBooking);
+        throw new Error('No booking was updated - check permissions or booking may not exist');
       }
+
+      console.log('DEBUG: Successfully updated booking to status:', status);
 
       // Send email notification to customer based on status
       if (booking.userEmail) {
@@ -993,12 +1027,16 @@ const AdminPanel = () => {
       });
 
       fetchParkingBookings();
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Error in updateBookingStatus:', error);
+      
       toast({
         title: "Error",
-        description: "Failed to update booking status",
+        description: error?.message || "Failed to update booking status",
         variant: "destructive",
       });
+      
+      // Don't refresh bookings on error to maintain UI state
     }
   };
 
