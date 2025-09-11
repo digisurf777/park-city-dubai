@@ -180,12 +180,35 @@ const AdminPanel = () => {
   
   // Notifications state
   const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(0);
+  
+  // Debug state for troubleshooting
+  const [debugInfo, setDebugInfo] = useState({
+    userLoaded: false,
+    sessionCheck: false,
+    adminRoleAttempts: 0,
+    lastError: null as string | null,
+    authStateHistory: [] as string[]
+  });
 
   useEffect(() => {
-    console.log('=== AUTH EFFECT TRIGGER ===');
+    const timestamp = new Date().toLocaleTimeString();
+    console.log('=== AUTH EFFECT TRIGGER ===', timestamp);
     console.log('User changed:', user?.id, user?.email);
     console.log('Current URL:', window.location.href);
-    console.log('Is Incognito Mode Detection:', !window.sessionStorage || !window.localStorage);
+    console.log('Browser Info:', {
+      isIncognito: !window.sessionStorage || !window.localStorage,
+      userAgent: navigator.userAgent.includes('Incognito') || navigator.userAgent.includes('Private'),
+      sessionStorage: !!window.sessionStorage,
+      localStorage: !!window.localStorage
+    });
+    
+    // Update debug info
+    setDebugInfo(prev => ({
+      ...prev,
+      userLoaded: !!user,
+      sessionCheck: true,
+      authStateHistory: [...prev.authStateHistory, `${timestamp}: User ${user ? 'loaded' : 'not loaded'}`].slice(-5)
+    }));
     
     if (user) {
       console.log('✅ User available, checking admin role...');
@@ -369,16 +392,31 @@ const AdminPanel = () => {
   }, [chatMessages]);
 
   const checkAdminRole = async (retryCount = 0) => {
-    const maxRetries = 3;
-    console.log('=== ADMIN ROLE CHECK START ===');
+    const maxRetries = 5; // Increased max retries
+    const timestamp = new Date().toLocaleTimeString();
+    
+    console.log('=== ADMIN ROLE CHECK START ===', timestamp);
     console.log('Retry attempt:', retryCount);
     console.log('User object:', user);
     console.log('User ID:', user?.id);
     console.log('User email:', user?.email);
-    console.log('Is Incognito Mode:', !window.navigator.onLine || window.location.protocol === 'https:');
+    console.log('Browser Environment:', {
+      incognito: !window.sessionStorage || !window.localStorage,
+      online: navigator.onLine,
+      protocol: window.location.protocol,
+      host: window.location.host
+    });
+    
+    // Update debug info
+    setDebugInfo(prev => ({
+      ...prev,
+      adminRoleAttempts: retryCount + 1,
+      authStateHistory: [...prev.authStateHistory, `${timestamp}: Admin check attempt ${retryCount + 1}`].slice(-5)
+    }));
     
     if (!user) {
       console.log('No user found, setting isAdmin to false');
+      setDebugInfo(prev => ({ ...prev, lastError: 'No user available for admin check' }));
       setIsAdmin(false);
       setCheckingAdmin(false);
       return;
@@ -387,9 +425,24 @@ const AdminPanel = () => {
     try {
       console.log('Checking admin role for user:', user.id);
       
-      // Add a small delay for incognito mode to ensure auth is fully loaded
-      if (retryCount === 0) {
+      // Progressive delay increases with retries for better reliability
+      if (retryCount > 0) {
+        const delay = Math.min(retryCount * 1500, 5000);
+        console.log(`Waiting ${delay}ms before retry...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      } else {
+        // Initial delay for auth stability
         await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+      
+      // Test auth connection first
+      const { data: sessionData } = await supabase.auth.getSession();
+      console.log('Current session check:', !!sessionData?.session);
+      
+      if (!sessionData?.session && retryCount < maxRetries) {
+        console.log('No session found, retrying...');
+        setTimeout(() => checkAdminRole(retryCount + 1), 2000);
+        return;
       }
       
       const { data, error } = await supabase
@@ -401,11 +454,17 @@ const AdminPanel = () => {
 
       if (error && error.code !== 'PGRST116') {
         console.error('Error checking admin role:', error);
+        setDebugInfo(prev => ({ ...prev, lastError: error.message }));
         
-        // Retry logic for network/auth issues
-        if (retryCount < maxRetries && (error.message?.includes('JWT') || error.message?.includes('network'))) {
-          console.log(`Retrying admin check... (${retryCount + 1}/${maxRetries})`);
-          setTimeout(() => checkAdminRole(retryCount + 1), 2000);
+        // Retry logic for various error types
+        const retryableErrors = ['JWT', 'network', 'timeout', 'connection', 'authentication'];
+        const shouldRetry = retryableErrors.some(errorType => 
+          error.message?.toLowerCase().includes(errorType.toLowerCase())
+        );
+        
+        if (retryCount < maxRetries && shouldRetry) {
+          console.log(`Retrying admin check... (${retryCount + 1}/${maxRetries}) - Error: ${error.message}`);
+          setTimeout(() => checkAdminRole(retryCount + 1), 3000);
           return;
         }
       }
@@ -452,6 +511,11 @@ const AdminPanel = () => {
       } else {
         console.log('✅ ADMIN ROLE CONFIRMED - User is admin');
         setIsAdmin(isAdminUser);
+        setDebugInfo(prev => ({ 
+          ...prev, 
+          lastError: null,
+          authStateHistory: [...prev.authStateHistory, `${timestamp}: Admin role confirmed`].slice(-5)
+        }));
         
         if (isAdminUser) {
           fetchPosts();
@@ -464,19 +528,31 @@ const AdminPanel = () => {
           fetchChatUsers();
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error checking admin role:', error);
+      setDebugInfo(prev => ({ ...prev, lastError: error.message || 'Unknown error' }));
       
-      // Retry on unexpected errors
+      // Retry on unexpected errors with exponential backoff
       if (retryCount < maxRetries) {
-        console.log(`Retrying due to error... (${retryCount + 1}/${maxRetries})`);
-        setTimeout(() => checkAdminRole(retryCount + 1), 2000);
+        const delay = Math.min((retryCount + 1) * 2000, 8000);
+        console.log(`Retrying due to error... (${retryCount + 1}/${maxRetries}) in ${delay}ms`);
+        setTimeout(() => checkAdminRole(retryCount + 1), delay);
         return;
+      } else {
+        console.log('Max retries exceeded, giving up');
+        setDebugInfo(prev => ({ ...prev, lastError: `Max retries exceeded: ${error.message}` }));
       }
     } finally {
-      // Only set checking to false if this is not a retry
-      if (retryCount === 0 || retryCount >= maxRetries) {
+      // Only set checking to false if this is the final attempt
+      if (retryCount >= maxRetries) {
+        console.log('Setting checkingAdmin to false - max retries reached');
         setCheckingAdmin(false);
+      } else if (retryCount === 0) {
+        // Set a timeout to stop checking after a reasonable time
+        setTimeout(() => {
+          console.log('Timeout: Setting checkingAdmin to false');
+          setCheckingAdmin(false);
+        }, 30000); // 30 seconds max
       }
     }
   };
@@ -2029,14 +2105,46 @@ const AdminPanel = () => {
     );
   }
 
+  // Check loading states with improved debug info
   if (checkingAdmin) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Card className="w-96">
           <CardContent className="pt-6 text-center space-y-4">
-            <h2 className="text-xl font-semibold">Verifying Admin Access</h2>
-            <p className="text-muted-foreground">Checking your admin privileges...</p>
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+            <h2 className="text-xl font-semibold">Verifying Admin Access</h2>
+            <p className="text-muted-foreground">
+              Checking your admin privileges...
+              {debugInfo.adminRoleAttempts > 0 && ` (Attempt ${debugInfo.adminRoleAttempts})`}
+            </p>
+            
+            <div className="text-xs text-muted-foreground space-y-1 mt-4">
+              <div>User: {user?.email || 'Not loaded'}</div>
+              <div>Browser: {!window.sessionStorage ? 'Incognito Mode' : 'Normal Mode'}</div>
+              <div>Online: {navigator.onLine ? 'Yes' : 'No'}</div>
+              {debugInfo.lastError && (
+                <div className="text-red-500 mt-2">
+                  Error: {debugInfo.lastError}
+                </div>
+              )}
+            </div>
+            
+            <div className="flex gap-2 mt-4">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => window.location.reload()}
+              >
+                Refresh Page
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => checkAdminRole(0)}
+              >
+                Retry Check
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -2136,6 +2244,95 @@ const AdminPanel = () => {
             </Button>
           </div>
         </div>
+
+        {/* Debug Panel for Cross-Device Troubleshooting */}
+        {process.env.NODE_ENV === 'development' || debugInfo.lastError && (
+          <Card className="mb-6 border-orange-200 bg-orange-50">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-orange-800 flex items-center gap-2">
+                🔍 Authentication Debug Panel
+                <Badge variant="outline" className="text-xs">
+                  {window.location.host}
+                </Badge>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="text-xs space-y-2">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div>
+                  <div className="font-medium text-gray-700">User Status</div>
+                  <div className={`flex items-center gap-1 ${debugInfo.userLoaded ? 'text-green-600' : 'text-red-600'}`}>
+                    <div className={`w-2 h-2 rounded-full ${debugInfo.userLoaded ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                    {debugInfo.userLoaded ? 'Loaded' : 'Not Loaded'}
+                  </div>
+                  <div className="text-gray-500">{user?.email || 'No user'}</div>
+                </div>
+                
+                <div>
+                  <div className="font-medium text-gray-700">Admin Status</div>
+                  <div className={`flex items-center gap-1 ${isAdmin ? 'text-green-600' : checkingAdmin ? 'text-yellow-600' : 'text-red-600'}`}>
+                    <div className={`w-2 h-2 rounded-full ${isAdmin ? 'bg-green-500' : checkingAdmin ? 'bg-yellow-500' : 'bg-red-500'}`}></div>
+                    {isAdmin ? 'Admin' : checkingAdmin ? 'Checking...' : 'Not Admin'}
+                  </div>
+                </div>
+                
+                <div>
+                  <div className="font-medium text-gray-700">Browser</div>
+                  <div className="text-gray-600">
+                    {!window.sessionStorage ? 'Incognito' : 'Normal'}
+                  </div>
+                  <div className="text-gray-500">Attempts: {debugInfo.adminRoleAttempts}</div>
+                </div>
+                
+                <div>
+                  <div className="font-medium text-gray-700">Session</div>
+                  <div className={`flex items-center gap-1 ${navigator.onLine ? 'text-green-600' : 'text-red-600'}`}>
+                    <div className={`w-2 h-2 rounded-full ${navigator.onLine ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                    {navigator.onLine ? 'Online' : 'Offline'}
+                  </div>
+                </div>
+              </div>
+              
+              {debugInfo.lastError && (
+                <div className="mt-3 p-2 bg-red-100 border border-red-200 rounded text-red-700">
+                  <div className="font-medium">Last Error:</div>
+                  <div className="text-xs">{debugInfo.lastError}</div>
+                </div>
+              )}
+              
+              <div className="mt-3">
+                <div className="font-medium text-gray-700 mb-1">Auth History (Recent 5):</div>
+                <div className="space-y-1">
+                  {debugInfo.authStateHistory.slice(-5).map((event, index) => (
+                    <div key={index} className="text-xs text-gray-600 font-mono">
+                      {event}
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              <div className="flex gap-2 mt-3">
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  onClick={() => window.location.reload()}
+                  className="text-xs"
+                >
+                  <RefreshCw className="h-3 w-3 mr-1" />
+                  Refresh
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  onClick={() => checkAdminRole(0)}
+                  className="text-xs"
+                  disabled={checkingAdmin}
+                >
+                  {checkingAdmin ? 'Checking...' : 'Retry Admin Check'}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
         <Tabs defaultValue="notifications" className="w-full">
           <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 xl:grid-cols-9 gap-1">
             <TabsTrigger value="news" className="text-xs lg:text-sm">News</TabsTrigger>
