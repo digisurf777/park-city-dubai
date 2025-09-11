@@ -72,7 +72,7 @@ const DubaiMarina = () => {
       // If no data from database, use demo data
       if (spotsWithAvailability.length === 0) {
         console.log('No data from database, using demo data');
-        setParkingSpots([
+        const demoSpots = [
           {
             id: "demo-1",
             name: "LIV Residence",
@@ -81,8 +81,8 @@ const DubaiMarina = () => {
             image: "/lovable-uploads/25c56481-0d03-4055-bd47-67635ac0d1b0.png",
             images: ["/lovable-uploads/25c56481-0d03-4055-bd47-67635ac0d1b0.png", "/lovable-uploads/32249908-791f-4751-bdaa-b25414bbcd86.png"],
             specs: ["Access Card", "Covered", "24/7 Access"],
-            available: true,
             address: "LIV Residence, Dubai Marina",
+            zone: "Dubai Marina",
             description: "Covered parking in LIV Residence tower. 24/7 access and secure entry. Ideal for residents or nearby tenants."
           },
           {
@@ -93,8 +93,8 @@ const DubaiMarina = () => {
             image: "/lovable-uploads/32249908-791f-4751-bdaa-b25414bbcd86.png",
             images: ["/lovable-uploads/32249908-791f-4751-bdaa-b25414bbcd86.png", "/lovable-uploads/bff8556c-9c7b-4765-820d-b007ca48c5ac.png"],
             specs: ["Access Card", "Basement", "Prime Location"],
-            available: true,
             address: "Marina Plaza, Dubai Marina",
+            zone: "Dubai Marina",
             description: "Prime location in Marina Plaza. Basement parking with access control. Great for office tenants or regular visitors."
           },
           {
@@ -105,8 +105,8 @@ const DubaiMarina = () => {
             image: "/lovable-uploads/bff8556c-9c7b-4765-820d-b007ca48c5ac.png",
             images: ["/lovable-uploads/bff8556c-9c7b-4765-820d-b007ca48c5ac.png", "/lovable-uploads/cc70ca6e-a718-4baf-b612-9ddb5c9f07d4.png"],
             specs: ["Access Card", "Indoor", "Metro Access"],
-            available: true,
             address: "Marina Diamond 2, Dubai Marina",
+            zone: "Dubai Marina",
             description: "Indoor parking in Marina Diamond 2, secure access and great location next to metro."
           },
           {
@@ -117,8 +117,8 @@ const DubaiMarina = () => {
             image: "/lovable-uploads/cc70ca6e-a718-4baf-b612-9ddb5c9f07d4.png",
             images: ["/lovable-uploads/cc70ca6e-a718-4baf-b612-9ddb5c9f07d4.png", "/lovable-uploads/161ee737-1491-45d6-a5e3-a642b7ff0806.png"],
             specs: ["Access Card", "Indoor", "Second Slot"],
-            available: true,
             address: "Marina Diamond 2, Dubai Marina",
+            zone: "Dubai Marina",
             description: "Second slot in Marina Diamond 2. Perfect for families with two vehicles or friends."
           },
           {
@@ -129,78 +129,86 @@ const DubaiMarina = () => {
             image: "/lovable-uploads/161ee737-1491-45d6-a5e3-a642b7ff0806.png",
             images: ["/lovable-uploads/161ee737-1491-45d6-a5e3-a642b7ff0806.png", "/lovable-uploads/25c56481-0d03-4055-bd47-67635ac0d1b0.png"],
             specs: ["Keycard Access", "Covered", "Convenient"],
-            available: true,
             address: "Park Island, Dubai Marina",
+            zone: "Dubai Marina",
             description: "Covered parking in Park Island complex. Access via keycard, safe and convenient."
           }
-        ]);
+        ];
+        
+        // Process demo data through availability checker
+        const demoSpotsWithAvailability = await checkParkingAvailability(demoSpots);
+        setParkingSpots(demoSpotsWithAvailability);
       } else {
         setParkingSpots(spotsWithAvailability);
       }
     } catch (error) {
       console.error('Error fetching parking spots:', error);
       // Fallback to demo data if database query fails
-      setParkingSpots([{
-        id: 1,
+      const fallbackSpots = [{
+        id: "1",
         name: "LIV Residence",
         district: "Dubai Marina",
         price: 650,
         image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
         specs: ["Access Card", "Covered", "2.1m Height"],
-        available: true,
         address: "Dubai Marina Walk, Dubai Marina",
+        zone: "Dubai Marina",
         description: "Premium parking space in luxury residential tower with 24/7 security and valet service."
       }, {
-        id: 2,
+        id: "2",
         name: "Marina Residence",
         district: "Dubai Marina",
         price: 420,
         image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
         specs: ["Access Card", "Covered", "2.2m Height"],
-        available: true,
         address: "Marina Promenade, Dubai Marina",
+        zone: "Dubai Marina",
         description: "Secure underground parking with easy access to Marina Walk and JBR Beach."
       }, {
-        id: 3,
+        id: "3",
         name: "Murjan Tower",
         district: "Dubai Marina",
         price: 450,
         image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
         specs: ["Access Card", "Covered", "2.0m Height"],
-        available: true,
         address: "Al Marsa Street, Dubai Marina",
+        zone: "Dubai Marina",
         description: "Modern parking facility with electric charging points and car wash services."
       }, {
-        id: 4,
+        id: "4",
         name: "Marina Diamond",
         district: "Dubai Marina",
         price: 580,
         image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
         specs: ["Access Card", "Covered", "2.3m Height", "Electric Charging"],
-        available: true,
         address: "Marina Diamond Complex, Dubai Marina",
+        zone: "Dubai Marina",
         description: "High-end parking with electric vehicle charging stations and concierge services."
       }, {
-        id: 5,
+        id: "5",
         name: "The Torch Tower",
         district: "Dubai Marina",
         price: 480,
         image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
         specs: ["Access Card", "Covered", "2.1m Height"],
-        available: true,
         address: "Torch Tower, Dubai Marina",
+        zone: "Dubai Marina",
         description: "Central location with direct access to Dubai Marina Metro Station."
       }, {
-        id: 6,
+        id: "6",
         name: "Cayan Tower",
         district: "Dubai Marina",
         price: 520,
         image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
         specs: ["Access Card", "Covered", "2.2m Height", "Valet Service"],
-        available: true,
         address: "Cayan Tower, Dubai Marina",
+        zone: "Dubai Marina",
         description: "Iconic twisted tower with premium valet parking services and Marina views."
-      }]);
+      }];
+
+      // Process fallback data through availability checker
+      const fallbackSpotsWithAvailability = await checkParkingAvailability(fallbackSpots);
+      setParkingSpots(fallbackSpotsWithAvailability);
     } finally {
       setLoading(false);
     }
