@@ -7,12 +7,9 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Search, Filter, Plus, Settings, RefreshCw, CheckCircle, XCircle, Wrench, Clock, Zap, Loader2 } from 'lucide-react';
+import { Search, Filter, Plus, Settings, RefreshCw, CheckCircle, XCircle, Wrench, Clock, Zap } from 'lucide-react';
 import { format } from 'date-fns';
 import { useSpaceInitializer } from '@/hooks/useSpaceInitializer';
 
@@ -48,7 +45,6 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
   const [spaces, setSpaces] = useState<ParkingSpace[]>([]);
   const [filteredSpaces, setFilteredSpaces] = useState<ParkingSpace[]>([]);
   const [loading, setLoading] = useState(true);
-  const [loadingSpaces, setLoadingSpaces] = useState<Set<string>>(new Set());
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [zoneFilter, setZoneFilter] = useState('all');
@@ -56,7 +52,6 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
   const [selectedSpaces, setSelectedSpaces] = useState<string[]>([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showBulkModal, setShowBulkModal] = useState(false);
-  const [maintenanceReason, setMaintenanceReason] = useState('');
   const [createForm, setCreateForm] = useState({
     listingId: '',
     spaceCount: 1,
@@ -131,9 +126,6 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
 
   const updateSpaceStatus = async (spaceId: string, newStatus: string, isOverride: boolean = true, reason?: string) => {
     try {
-      // Add to loading state
-      setLoadingSpaces(prev => new Set(prev.add(spaceId)));
-      
       const { data, error } = await supabase.rpc('update_parking_space_status', {
         space_id: spaceId,
         new_status: newStatus,
@@ -143,16 +135,9 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
 
       if (error) throw error;
 
-      const statusLabels = {
-        available: 'Available to Rent',
-        booked: 'Currently Booked',
-        maintenance: 'Under Maintenance',
-        reserved: 'Reserved'
-      };
-
       toast({
         title: "Success",
-        description: `Space status changed to ${statusLabels[newStatus as keyof typeof statusLabels]}`,
+        description: "Space status updated successfully",
       });
 
       fetchSpaces();
@@ -163,13 +148,6 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
         title: "Error",
         description: "Failed to update space status",
         variant: "destructive",
-      });
-    } finally {
-      // Remove from loading state
-      setLoadingSpaces(prev => {
-        const next = new Set(prev);
-        next.delete(spaceId);
-        return next;
       });
     }
   };
@@ -448,134 +426,32 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
                       {format(new Date(space.last_updated), 'MMM d, HH:mm')}
                     </TableCell>
                     <TableCell>
-                      <TooltipProvider>
-                        <div className="flex gap-1">
-                          {/* Available Button - Green */}
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button
-                                size="sm"
-                                variant={space.space_status === 'available' ? 'default' : 'outline'}
-                                onClick={() => updateSpaceStatus(space.space_id, 'available', true)}
-                                disabled={space.space_status === 'available' || loadingSpaces.has(space.space_id)}
-                                className={`text-green-600 hover:text-green-700 border-green-200 hover:border-green-300 ${
-                                  space.space_status === 'available' 
-                                    ? 'bg-green-50 text-green-700 border-green-300' 
-                                    : ''
-                                }`}
-                                aria-label="Make space available to rent"
-                              >
-                                {loadingSpaces.has(space.space_id) ? (
-                                  <Loader2 className="h-3 w-3 animate-spin" />
-                                ) : (
-                                  <CheckCircle className="h-3 w-3" />
-                                )}
-                                <span className="hidden sm:inline ml-1">Available</span>
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Make space available to rent</p>
-                            </TooltipContent>
-                          </Tooltip>
-
-                          {/* Booked Button - Red */}
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button
-                                size="sm"
-                                variant={space.space_status === 'booked' ? 'default' : 'outline'}
-                                onClick={() => updateSpaceStatus(space.space_id, 'booked', true)}
-                                disabled={space.space_status === 'booked' || loadingSpaces.has(space.space_id)}
-                                className={`text-red-600 hover:text-red-700 border-red-200 hover:border-red-300 ${
-                                  space.space_status === 'booked' 
-                                    ? 'bg-red-50 text-red-700 border-red-300' 
-                                    : ''
-                                }`}
-                                aria-label="Mark space as currently booked"
-                              >
-                                {loadingSpaces.has(space.space_id) ? (
-                                  <Loader2 className="h-3 w-3 animate-spin" />
-                                ) : (
-                                  <XCircle className="h-3 w-3" />
-                                )}
-                                <span className="hidden sm:inline ml-1">Booked</span>
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Mark space as currently booked</p>
-                            </TooltipContent>
-                          </Tooltip>
-
-                          {/* Maintenance Button - Yellow with Confirmation */}
-                          <AlertDialog>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <AlertDialogTrigger asChild>
-                                  <Button
-                                    size="sm"
-                                    variant={space.space_status === 'maintenance' ? 'default' : 'outline'}
-                                    disabled={space.space_status === 'maintenance' || loadingSpaces.has(space.space_id)}
-                                    className={`text-yellow-600 hover:text-yellow-700 border-yellow-200 hover:border-yellow-300 ${
-                                      space.space_status === 'maintenance' 
-                                        ? 'bg-yellow-50 text-yellow-700 border-yellow-300' 
-                                        : ''
-                                    }`}
-                                    aria-label="Set space to maintenance mode"
-                                  >
-                                    {loadingSpaces.has(space.space_id) ? (
-                                      <Loader2 className="h-3 w-3 animate-spin" />
-                                    ) : (
-                                      <Wrench className="h-3 w-3" />
-                                    )}
-                                    <span className="hidden sm:inline ml-1">Maintenance</span>
-                                  </Button>
-                                </AlertDialogTrigger>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>Set space to maintenance mode</p>
-                              </TooltipContent>
-                            </Tooltip>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>Set Space to Maintenance</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  This will mark space "{space.space_number}" as under maintenance and unavailable for booking.
-                                  Please provide a reason for maintenance.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <div className="my-4">
-                                <Label htmlFor="maintenance-reason">Maintenance Reason</Label>
-                                <Textarea
-                                  id="maintenance-reason"
-                                  placeholder="e.g., Cleaning, Repairs, Safety inspection..."
-                                  value={maintenanceReason}
-                                  onChange={(e) => setMaintenanceReason(e.target.value)}
-                                  className="mt-2"
-                                />
-                              </div>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel onClick={() => setMaintenanceReason('')}>
-                                  Cancel
-                                </AlertDialogCancel>
-                                <AlertDialogAction
-                                  onClick={() => {
-                                    updateSpaceStatus(
-                                      space.space_id, 
-                                      'maintenance', 
-                                      true, 
-                                      maintenanceReason || 'Manual maintenance mode'
-                                    );
-                                    setMaintenanceReason('');
-                                  }}
-                                  disabled={!maintenanceReason.trim()}
-                                >
-                                  Confirm Maintenance
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        </div>
-                      </TooltipProvider>
+                      <div className="flex gap-1">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => updateSpaceStatus(space.space_id, 'available', true)}
+                          className="text-green-600 hover:text-green-700"
+                        >
+                          <CheckCircle className="h-3 w-3" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => updateSpaceStatus(space.space_id, 'booked', true)}
+                          className="text-red-600 hover:text-red-700"
+                        >
+                          <XCircle className="h-3 w-3" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => updateSpaceStatus(space.space_id, 'maintenance', true, 'Manual maintenance mode')}
+                          className="text-yellow-600 hover:text-yellow-700"
+                        >
+                          <Wrench className="h-3 w-3" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
