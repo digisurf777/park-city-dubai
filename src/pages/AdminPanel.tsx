@@ -464,7 +464,8 @@ const AdminPanel = () => {
       console.log('Admin check failed, granting access anyway:', error);
       clearTimeout(timeoutId);
       setIsAdmin(true); // Grant access on any error
-    } finally {
+  } finally {
+      setCheckingAdmin(false);
     }
   };
 
