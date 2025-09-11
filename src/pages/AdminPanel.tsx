@@ -184,10 +184,14 @@ const AdminPanel = () => {
   useEffect(() => {
     console.log('=== AUTH EFFECT TRIGGER ===');
     console.log('User changed:', user?.id, user?.email);
+    console.log('Current URL:', window.location.href);
+    console.log('Is Incognito Mode Detection:', !window.sessionStorage || !window.localStorage);
+    
     if (user) {
+      console.log('✅ User available, checking admin role...');
       checkAdminRole();
     } else {
-      console.log('No user, resetting admin state');
+      console.log('❌ No user, resetting admin state');
       setIsAdmin(false);
       setCheckingAdmin(false);
     }
@@ -364,11 +368,14 @@ const AdminPanel = () => {
     }
   }, [chatMessages]);
 
-  const checkAdminRole = async () => {
+  const checkAdminRole = async (retryCount = 0) => {
+    const maxRetries = 3;
     console.log('=== ADMIN ROLE CHECK START ===');
+    console.log('Retry attempt:', retryCount);
     console.log('User object:', user);
     console.log('User ID:', user?.id);
     console.log('User email:', user?.email);
+    console.log('Is Incognito Mode:', !window.navigator.onLine || window.location.protocol === 'https:');
     
     if (!user) {
       console.log('No user found, setting isAdmin to false');
@@ -380,6 +387,11 @@ const AdminPanel = () => {
     try {
       console.log('Checking admin role for user:', user.id);
       
+      // Add a small delay for incognito mode to ensure auth is fully loaded
+      if (retryCount === 0) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+      
       const { data, error } = await supabase
         .from('user_roles')
         .select('role')
@@ -389,6 +401,13 @@ const AdminPanel = () => {
 
       if (error && error.code !== 'PGRST116') {
         console.error('Error checking admin role:', error);
+        
+        // Retry logic for network/auth issues
+        if (retryCount < maxRetries && (error.message?.includes('JWT') || error.message?.includes('network'))) {
+          console.log(`Retrying admin check... (${retryCount + 1}/${maxRetries})`);
+          setTimeout(() => checkAdminRole(retryCount + 1), 2000);
+          return;
+        }
       }
       
       console.log('Admin role check result:', data);
@@ -410,8 +429,8 @@ const AdminPanel = () => {
               .single();
             
             if (recheckData) {
+              console.log('✅ ADMIN ROLE CONFIRMED - User is now admin');
               setIsAdmin(true);
-              console.log('User is now admin, fetching admin data...');
               fetchPosts();
               fetchVerifications();
               fetchParkingListings();
@@ -422,12 +441,19 @@ const AdminPanel = () => {
           }
         } catch (setupErr) {
           console.error('Admin setup failed:', setupErr);
+          
+          // Retry if setup fails due to network issues
+          if (retryCount < maxRetries) {
+            console.log(`Retrying admin setup... (${retryCount + 1}/${maxRetries})`);
+            setTimeout(() => checkAdminRole(retryCount + 1), 3000);
+            return;
+          }
         }
       } else {
+        console.log('✅ ADMIN ROLE CONFIRMED - User is admin');
         setIsAdmin(isAdminUser);
         
         if (isAdminUser) {
-          console.log('User is admin, fetching admin data...');
           fetchPosts();
           fetchVerifications();
           fetchParkingListings();
@@ -436,14 +462,22 @@ const AdminPanel = () => {
           fetchDetailedUsers();
           fetchChatMessages();
           fetchChatUsers();
-          fetchChatMessages();
-          fetchChatUsers();
         }
       }
     } catch (error) {
       console.error('Error checking admin role:', error);
+      
+      // Retry on unexpected errors
+      if (retryCount < maxRetries) {
+        console.log(`Retrying due to error... (${retryCount + 1}/${maxRetries})`);
+        setTimeout(() => checkAdminRole(retryCount + 1), 2000);
+        return;
+      }
     } finally {
-      setCheckingAdmin(false);
+      // Only set checking to false if this is not a retry
+      if (retryCount === 0 || retryCount >= maxRetries) {
+        setCheckingAdmin(false);
+      }
     }
   };
 

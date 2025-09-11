@@ -44,10 +44,15 @@ const AdminNotifications = ({ isAdmin }: AdminNotificationsProps) => {
   const [notifications, setNotifications] = useState<AdminNotification[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [adminCheckComplete, setAdminCheckComplete] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
+    console.log('🔔 AdminNotifications useEffect - isAdmin:', isAdmin);
+    
     if (isAdmin) {
+      console.log('✅ Admin confirmed, fetching notifications...');
+      setAdminCheckComplete(true);
       fetchNotifications();
       
       // Set up real-time subscription for notifications
@@ -70,8 +75,21 @@ const AdminNotifications = ({ isAdmin }: AdminNotificationsProps) => {
       return () => {
         supabase.removeChannel(channel);
       };
+    } else {
+      console.log('❌ Not admin yet, waiting...');
+      setLoading(true);
+      
+      // Add a timeout to retry if admin status doesn't update
+      const timeout = setTimeout(() => {
+        if (!isAdmin && !adminCheckComplete) {
+          console.log('🔄 Timeout reached, admin status still false');
+          setLoading(false);
+        }
+      }, 10000); // 10 second timeout
+      
+      return () => clearTimeout(timeout);
     }
-  }, [isAdmin]);
+  }, [isAdmin, adminCheckComplete]);
 
   const fetchNotifications = async () => {
     try {
@@ -143,10 +161,10 @@ const AdminNotifications = ({ isAdmin }: AdminNotificationsProps) => {
         .eq('user_id', notification.parking_bookings.user_id)
         .single();
 
-      // Update booking status
+      // Update booking status - use 'confirmed' instead of 'approved'
       const { error: updateError } = await supabase
         .from('parking_bookings')
-        .update({ status: 'approved' })
+        .update({ status: 'confirmed' })
         .eq('id', notification.booking_id);
 
       if (updateError) throw updateError;
@@ -209,7 +227,7 @@ const AdminNotifications = ({ isAdmin }: AdminNotificationsProps) => {
       // Update booking status
       const { error: updateError } = await supabase
         .from('parking_bookings')
-        .update({ status: 'rejected' })
+        .update({ status: 'cancelled' })
         .eq('id', notification.booking_id);
 
       if (updateError) throw updateError;
@@ -273,8 +291,23 @@ const AdminNotifications = ({ isAdmin }: AdminNotificationsProps) => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center p-8">
+      <div className="flex flex-col items-center justify-center p-8 space-y-4">
         <Loader2 className="h-8 w-8 animate-spin" />
+        <p className="text-sm text-gray-500">
+          {!isAdmin ? 'Verifying admin access...' : 'Loading notifications...'}
+        </p>
+      </div>
+    );
+  }
+
+  if (!isAdmin && !loading) {
+    return (
+      <div className="flex flex-col items-center justify-center p-8 space-y-4">
+        <div className="text-center">
+          <Clock className="h-12 w-12 mx-auto text-gray-400 mb-4" />
+          <p className="text-gray-500">Admin access required</p>
+          <p className="text-sm text-gray-400 mt-2">Please ensure you are logged in with admin privileges</p>
+        </div>
       </div>
     );
   }
@@ -398,12 +431,12 @@ const AdminNotifications = ({ isAdmin }: AdminNotificationsProps) => {
                     <div className="text-center py-2">
                       <Badge 
                         className={
-                          notification.parking_bookings.status === 'approved' 
+                          notification.parking_bookings.status === 'confirmed' 
                             ? 'bg-green-100 text-green-800'
                             : 'bg-red-100 text-red-800'
                         }
                       >
-                        {notification.parking_bookings.status === 'approved' ? 'Approved' : 'Rejected'}
+                        {notification.parking_bookings.status === 'confirmed' ? 'Approved' : 'Rejected'}
                       </Badge>
                     </div>
                   )}
