@@ -45,31 +45,10 @@ const AdminNotifications = ({ isAdmin }: AdminNotificationsProps) => {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [adminCheckComplete, setAdminCheckComplete] = useState(false);
-  const [debugInfo, setDebugInfo] = useState({
-    componentMounted: false,
-    fetchAttempts: 0,
-    lastFetchTime: null as string | null,
-    authErrors: [] as string[],
-    sessionInfo: null as any
-  });
   const { toast } = useToast();
 
   useEffect(() => {
-    const timestamp = new Date().toLocaleTimeString();
-    console.log('🔔 AdminNotifications useEffect - isAdmin:', isAdmin, 'at', timestamp);
-    
-    // Update debug info
-    setDebugInfo(prev => ({
-      ...prev,
-      componentMounted: true,
-      sessionInfo: {
-        timestamp,
-        isAdmin,
-        host: window.location.host,
-        incognito: !window.sessionStorage,
-        userAgent: navigator.userAgent.includes('Incognito') || navigator.userAgent.includes('Private')
-      }
-    }));
+    console.log('🔔 AdminNotifications useEffect - isAdmin:', isAdmin);
     
     if (isAdmin) {
       console.log('✅ Admin confirmed, fetching notifications...');
@@ -100,46 +79,20 @@ const AdminNotifications = ({ isAdmin }: AdminNotificationsProps) => {
       console.log('❌ Not admin yet, waiting...');
       setLoading(true);
       
-      // Add timeout with better error tracking
+      // Add a timeout to retry if admin status doesn't update
       const timeout = setTimeout(() => {
         if (!isAdmin && !adminCheckComplete) {
           console.log('🔄 Timeout reached, admin status still false');
-          setDebugInfo(prev => ({
-            ...prev,
-            authErrors: [...prev.authErrors, `${timestamp}: Admin check timeout after 15s`].slice(-3)
-          }));
           setLoading(false);
         }
-      }, 15000); // Increased to 15 seconds
+      }, 10000); // 10 second timeout
       
       return () => clearTimeout(timeout);
     }
   }, [isAdmin, adminCheckComplete]);
 
   const fetchNotifications = async () => {
-    const timestamp = new Date().toLocaleTimeString();
-    
     try {
-      console.log('📡 Fetching notifications at', timestamp);
-      
-      // Update debug info
-      setDebugInfo(prev => ({
-        ...prev,
-        fetchAttempts: prev.fetchAttempts + 1,
-        lastFetchTime: timestamp
-      }));
-      
-      // Check session first
-      const { data: sessionData } = await supabase.auth.getSession();
-      if (!sessionData?.session) {
-        console.error('❌ No active session for notifications fetch');
-        setDebugInfo(prev => ({
-          ...prev,
-          authErrors: [...prev.authErrors, `${timestamp}: No session available`].slice(-3)
-        }));
-        throw new Error('No active session');
-      }
-      
       const { data, error } = await supabase
         .from('admin_notifications')
         .select(`
@@ -161,20 +114,10 @@ const AdminNotifications = ({ isAdmin }: AdminNotificationsProps) => {
 
       if (error) throw error;
       
-      console.log('✅ Fetched notifications successfully:', data?.length || 0, 'notifications');
+      console.log('Fetched notifications:', data);
       setNotifications(data || []);
-      
-      // Clear any auth errors on success
-      setDebugInfo(prev => ({ ...prev, authErrors: [] }));
-    } catch (error: any) {
-      const errorMsg = error.message || 'Unknown error';
-      console.error('❌ Error fetching notifications:', error);
-      
-      setDebugInfo(prev => ({
-        ...prev,
-        authErrors: [...prev.authErrors, `${timestamp}: ${errorMsg}`].slice(-3)
-      }));
-      
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
       toast({
         title: "Error",
         description: "Failed to fetch notifications",
@@ -353,27 +296,6 @@ const AdminNotifications = ({ isAdmin }: AdminNotificationsProps) => {
         <p className="text-sm text-gray-500">
           {!isAdmin ? 'Verifying admin access...' : 'Loading notifications...'}
         </p>
-        
-        {/* Debug info for loading state */}
-        {(debugInfo.fetchAttempts > 0 || debugInfo.authErrors.length > 0) && (
-          <div className="mt-4 p-3 bg-gray-50 rounded-lg text-xs max-w-md">
-            <div className="font-medium mb-2">Debug Info:</div>
-            <div>Fetch attempts: {debugInfo.fetchAttempts}</div>
-            <div>Component mounted: {debugInfo.componentMounted ? 'Yes' : 'No'}</div>
-            <div>Last fetch: {debugInfo.lastFetchTime || 'Never'}</div>
-            {debugInfo.sessionInfo && (
-              <div>Browser: {debugInfo.sessionInfo.incognito ? 'Incognito' : 'Normal'}</div>
-            )}
-            {debugInfo.authErrors.length > 0 && (
-              <div className="mt-2">
-                <div className="font-medium text-red-600">Recent Errors:</div>
-                {debugInfo.authErrors.map((error, index) => (
-                  <div key={index} className="text-red-600">{error}</div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
       </div>
     );
   }
