@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Pencil, Trash2, Plus, CheckCircle, XCircle, FileText, Mail, Upload, X, Eye, Edit, Lightbulb, Camera, Settings, RefreshCw, MessageCircle, Send, LogOut, Home } from 'lucide-react';
+import { Pencil, Trash2, Plus, CheckCircle, XCircle, FileText, Mail, Upload, X, Eye, Edit, Lightbulb, Camera, Settings, RefreshCw, MessageCircle, Send, LogOut, Home, Grid } from 'lucide-react';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -20,7 +20,6 @@ import 'react-quill/dist/quill.snow.css';
 import '../styles/quill.css';
 import SecureDocumentViewer from '@/components/SecureDocumentViewer';
 import SpaceManagement from '@/components/SpaceManagement';
-import { Switch } from '@/components/ui/switch';
 
 interface NewsPost {
   id: string;
@@ -112,7 +111,6 @@ const AdminPanel = () => {
   const [parkingBookings, setParkingBookings] = useState<ParkingBooking[]>([]);
   const [editingPost, setEditingPost] = useState<NewsPost | null>(null);
   const [editingListing, setEditingListing] = useState<ParkingListing | null>(null);
-  const [activeTab, setActiveTab] = useState<string>("chat");
   const [isCreating, setIsCreating] = useState(false);
   const [loading, setLoading] = useState(true);
   const [verificationsLoading, setVerificationsLoading] = useState(true);
@@ -533,73 +531,43 @@ const AdminPanel = () => {
         // Send notification to owner
         try {
           const listing = parkingListings.find(l => l.id === listingId);
-          console.log('DEBUG: Found listing for notification:', listing);
-          
           if (listing?.owner_id) {
             // Get user details for notification
             let ownerName = 'Listing Owner';
             let ownerEmail = '';
 
             try {
-              // First try to get from profiles table
-              const { data: ownerProfile, error: profileError } = await supabase
+              const { data: ownerProfile } = await supabase
                 .from('profiles')
-                .select('full_name, email')
+                .select('full_name')
                 .eq('user_id', listing.owner_id)
                 .maybeSingle();
-
-              console.log('DEBUG: Profile query result:', ownerProfile, 'Error:', profileError);
 
               if (ownerProfile?.full_name) {
                 ownerName = ownerProfile.full_name;
               }
 
-              if (ownerProfile?.email) {
-                ownerEmail = ownerProfile.email;
-              }
-
-              // If no email in profiles, try to get from edge function with service role
-              if (!ownerEmail) {
-                console.log('DEBUG: No email in profiles, trying edge function');
-                
-                try {
-                  const { data: userEmailData, error: emailError } = await supabase.functions.invoke('get-user-email', {
-                    body: { userId: listing.owner_id }
-                  });
-                  
-                  console.log('DEBUG: Edge function email result:', userEmailData, 'Error:', emailError);
-                  
-                  if (userEmailData?.email) {
-                    ownerEmail = userEmailData.email;
-                  }
-                } catch (emailErr) {
-                  console.error('DEBUG: Edge function error:', emailErr);
+              // Get email from auth.users
+              const { data: { users }, error: authError } = await supabase.auth.admin.listUsers();
+              if (!authError) {
+                const user = users.find((u: any) => u.id === listing.owner_id);
+                if (user?.email) {
+                  ownerEmail = user.email;
                 }
               }
-              
-              console.log('DEBUG: Final ownerEmail:', ownerEmail);
             } catch (userErr) {
               console.error('Error getting owner details:', userErr);
             }
 
-            const notificationData = {
-              listingId: listingId,
-              userName: ownerName,
-              userEmail: ownerEmail,
-              userPhone: listing.contact_phone || '',
-              buildingName: listing.title || 'N/A',
-              district: listing.zone || 'N/A',
-              bayType: 'Standard',
-              monthlyPrice: listing.price_per_month || 0,
-              accessDeviceDeposit: 0,
-              notes: listing.description || '',
-              isApproved: true
-            };
-
-            console.log('DEBUG: Notification data being sent:', JSON.stringify(notificationData, null, 2));
-
             await supabase.functions.invoke('send-admin-listing-notification', {
-              body: notificationData
+              body: {
+                listingId: listingId,
+                ownerName: ownerName,
+                isApproved: true,
+                listingTitle: listing.title,
+                zone: listing.zone,
+                userEmail: ownerEmail
+              }
             });
           }
         } catch (notifError) {
@@ -869,83 +837,27 @@ const AdminPanel = () => {
     try {
       console.log('Fetching parking bookings...');
       
-      // Fetch bookings based on filter - show all active bookings by default
-      let query = supabase
+      // Fetch bookings first
+      const { data: bookings, error: bookingsError } = await supabase
         .from('parking_bookings')
-        .select('*');
-      
-      // Apply status filter if set, otherwise show only pending bookings by default
-      if (bookingStatusFilter && bookingStatusFilter !== 'all') {
-        query = query.eq('status', bookingStatusFilter);
-      } else if (!bookingStatusFilter || bookingStatusFilter === '') {
-        // Default: show only pending bookings in admin view (exclude confirmed and cancelled)
-        query = query.eq('status', 'pending');
-      }
-      
-      const { data: bookings, error: bookingsError } = await query
+        .select('*')
         .order('created_at', { ascending: false });
 
-      if (bookingsError) {
-        console.error('Error fetching bookings:', bookingsError);
-        throw bookingsError;
-      }
+      if (bookingsError) throw bookingsError;
 
-      console.log('Fetched bookings:', bookings?.length || 0);
-
-      // Get user profiles and emails separately
+      // Get user profiles separately
       const userIds = [...new Set(bookings?.map(b => b.user_id))];
       const { data: profiles } = await supabase
         .from('profiles')
-        .select('user_id, full_name, phone, email')
+        .select('user_id, full_name, phone')
         .in('user_id', userIds);
 
-      // Get all user emails via edge function for users without profile emails
-      const usersNeedingEmails = bookings?.filter(booking => {
-        const profile = profiles?.find(p => p.user_id === booking.user_id);
-        return !profile?.email || profile.email === 'Email not available';
-      }).map(b => b.user_id) || [];
-
-      console.log('DEBUG: Users needing email fetch:', usersNeedingEmails.length);
-
-      // Fetch emails for users missing profile data
-      const userEmails: Record<string, string> = {};
-      if (usersNeedingEmails.length > 0) {
-        try {
-          for (const userId of usersNeedingEmails) {
-            console.log('DEBUG: Fetching email for user:', userId);
-            const { data: emailData, error: emailError } = await supabase.functions.invoke('get-user-email', {
-              body: { userId }
-            });
-            if (emailError) {
-              console.error('DEBUG: Email fetch error:', emailError);
-            } else if (emailData?.email) {
-              userEmails[userId] = emailData.email;
-              console.log('DEBUG: Fetched email for user:', userId, '->', emailData.email);
-            }
-          }
-        } catch (error) {
-          console.error('DEBUG: Error in bulk email fetch:', error);
-        }
-      }
-
-      // Combine bookings with profile data and fetched emails
-      const processedBookings = bookings?.map(booking => {
-        const profile = profiles?.find(p => p.user_id === booking.user_id);
-        const fetchedEmail = userEmails[booking.user_id];
-        const userEmail = profile?.email || fetchedEmail || 'Email not available';
-        
-        console.log('DEBUG: Processing booking for user:', booking.user_id, 'final email:', userEmail);
-        
-        return {
-          ...booking,
-          userEmail: userEmail,
-          profiles: profile || { 
-            full_name: 'Unknown User', 
-            phone: null, 
-            email: userEmail
-          }
-        };
-      }) || [];
+      // Combine bookings with profile data
+      const processedBookings = bookings?.map(booking => ({
+        ...booking,
+        userEmail: 'Email not available', // Fallback since we can't access auth.admin from client
+        profiles: profiles?.find(p => p.user_id === booking.user_id) || { full_name: 'Unknown User', phone: null }
+      }));
       
       setParkingBookings(processedBookings as any);
       console.log('Processed bookings count:', processedBookings?.length || 0);
@@ -964,85 +876,37 @@ const AdminPanel = () => {
 
   const updateBookingStatus = async (bookingId: string, status: 'confirmed' | 'cancelled' | 'completed') => {
     try {
-      console.log('DEBUG: Updating booking status:', bookingId, 'to', status);
-      
       // Find the booking to get user details
       const booking = parkingBookings.find(b => b.id === bookingId);
       if (!booking) {
-        console.error('DEBUG: Booking not found in state:', bookingId);
         throw new Error('Booking not found');
       }
 
-      console.log('DEBUG: Found booking:', booking);
-      console.log('DEBUG: Current user:', user?.id);
-      console.log('DEBUG: Is admin:', isAdmin);
-
-      // Check if user is admin before proceeding
-      if (!isAdmin || !user) {
-        throw new Error('Admin authentication required');
-      }
-
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('parking_bookings')
-        .update({ 
-          status,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', bookingId)
-        .select('*');
+        .update({ status })
+        .eq('id', bookingId);
 
-      console.log('DEBUG: Update result - data:', data, 'error:', error);
-
-      if (error) {
-        console.error('DEBUG: Database update failed:', error);
-        throw new Error(`Database error: ${error.message}`);
-      }
-
-      if (!data || data.length === 0) {
-        console.error('DEBUG: No rows updated - possible RLS issue');
-        // Let's check if the booking exists
-        const { data: existingBooking } = await supabase
-          .from('parking_bookings')
-          .select('id, status')
-          .eq('id', bookingId)
-          .single();
-        
-        console.log('DEBUG: Existing booking check:', existingBooking);
-        throw new Error('No booking was updated - check permissions or booking may not exist');
-      }
-
-      console.log('DEBUG: Successfully updated booking to status:', status);
+      if (error) throw error;
 
       // Send email notification to customer based on status
-      console.log('DEBUG: Booking object:', booking);
-      console.log('DEBUG: User email available:', booking.userEmail);
-      console.log('DEBUG: Profiles data:', booking.profiles);
-      
-      if (booking.userEmail && booking.userEmail !== 'Email not available') {
+      if (booking.userEmail) {
         try {
-          console.log('DEBUG: Attempting to send email to:', booking.userEmail, 'for status:', status);
           if (status === 'confirmed') {
-            console.log('DEBUG: Calling send-booking-confirmed function...');
-            const { data: emailResponse, error: emailError } = await supabase.functions.invoke('send-booking-confirmed', {
+            await supabase.functions.invoke('send-booking-confirmed', {
               body: {
                 userEmail: booking.userEmail,
                 userName: booking.profiles?.full_name || 'Customer',
                 bookingDetails: {
+                  id: booking.id,
                   location: booking.location,
-                  startDate: new Date(booking.start_time).toLocaleDateString(),
-                  endDate: new Date(booking.end_time).toLocaleDateString(),
-                  amount: `${booking.cost_aed} AED`
+                  zone: booking.zone,
+                  startTime: booking.start_time,
+                  endTime: booking.end_time,
+                  cost: booking.cost_aed
                 }
               },
             });
-            
-            console.log('DEBUG: Function invocation result - data:', emailResponse, 'error:', emailError);
-            
-            if (emailError) {
-              console.error('DEBUG: Email send error:', emailError);
-            } else {
-              console.log('DEBUG: Confirmation email sent successfully:', emailResponse);
-            }
           } else if (status === 'cancelled') {
             await supabase.functions.invoke('send-booking-rejected', {
               body: {
@@ -1080,16 +944,12 @@ const AdminPanel = () => {
       });
 
       fetchParkingBookings();
-    } catch (error: any) {
-      console.error('Error in updateBookingStatus:', error);
-      
+    } catch (error) {
       toast({
         title: "Error",
-        description: error?.message || "Failed to update booking status",
+        description: "Failed to update booking status",
         variant: "destructive",
       });
-      
-      // Don't refresh bookings on error to maintain UI state
     }
   };
 
@@ -1273,7 +1133,9 @@ const AdminPanel = () => {
 
       if (error) throw error;
 
-      // Send email notification to user
+
+
+ // Send email notification to user
       try {
         const { data: userProfile, error: profileError } = await supabase
           .from('profiles')
@@ -1297,6 +1159,7 @@ const AdminPanel = () => {
         // Don't fail the reply if email fails
       }
 
+      
       setChatReply('');
       fetchChatMessages();
       toast({
@@ -1560,16 +1423,16 @@ const AdminPanel = () => {
       let userName = verification.full_name;
 
       try {
-        // Get email using edge function (avoids 403 error)
-        const { data: emailData, error: emailError } = await supabase.functions.invoke('get-user-email', {
-          body: { userId: verification.user_id }
-        });
+        // Get email from auth.users using supabase admin
+        const { data: { users }, error: authError } = await supabase.auth.admin.listUsers();
         
-        if (emailError) {
-          console.error('Edge function error:', emailError);
-        } else if (emailData?.email) {
-          userEmail = emailData.email;
-          console.log('User email fetched successfully for verification:', userEmail);
+        if (authError) {
+          console.error('Error getting users from auth:', authError);
+        } else {
+          const user = users.find((u: any) => u.id === verification.user_id);
+          if (user) {
+            userEmail = user.email || '';
+          }
         }
       } catch (authErr) {
         console.error('Auth API error:', authErr);
@@ -1742,20 +1605,15 @@ const AdminPanel = () => {
           userName = userData.full_name;
         }
 
-        // Get email using edge function (avoids 403 error)
-        try {
-          const { data: emailData, error: emailError } = await supabase.functions.invoke('get-user-email', {
-            body: { userId: selectedUserId }
-          });
-          
-          if (emailError) {
-            console.error('Edge function error:', emailError);
-          } else if (emailData?.email) {
-            userEmail = emailData.email;
-            console.log('User email fetched successfully:', userEmail);
+        // Get email from auth.users using admin.listUsers
+        const { data: { users }, error: authError } = await supabase.auth.admin.listUsers();
+        if (authError) {
+          console.error('Auth error:', authError);
+        } else {
+          const user = users.find((u: any) => u.id === selectedUserId);
+          if (user) {
+            userEmail = user.email || '';
           }
-        } catch (emailErr) {
-          console.error('Error calling get-user-email function:', emailErr);
         }
       } catch (err) {
         console.error('Error getting user details:', err);
@@ -1764,7 +1622,7 @@ const AdminPanel = () => {
       // Send email notification if we have an email
       if (userEmail) {
         try {
-          const { data: emailResponse, error: emailError } = await supabase.functions.invoke('send-admin-reply', {
+          const { data: emailResponse, error: emailError } = await supabase.functions.invoke('send-message-notification', {
             body: {
               userEmail: userEmail,
               userName: userName,
@@ -2199,12 +2057,15 @@ const AdminPanel = () => {
             </Button>
           </div>
         </div>
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <Tabs defaultValue="chat" className="w-full">
           <TabsList className="flex flex-wrap w-full gap-1 h-auto p-2">
             <TabsTrigger value="news" className="text-xs lg:text-sm">News Management</TabsTrigger>
             <TabsTrigger value="listings" className="text-xs lg:text-sm">Parking Listings</TabsTrigger>
+            <TabsTrigger value="spaces" className="text-xs lg:text-sm">
+              <Grid className="h-4 w-4 mr-1" />
+              Space Management
+            </TabsTrigger>
             <TabsTrigger value="bookings" className="text-xs lg:text-sm">Booking Management</TabsTrigger>
-            <TabsTrigger value="spaces" className="text-xs lg:text-sm">Space Management</TabsTrigger>
             <TabsTrigger value="verifications" className="text-xs lg:text-sm">User Verifications</TabsTrigger>
             <TabsTrigger value="messages" className="text-xs lg:text-sm">Send Messages</TabsTrigger>
             <TabsTrigger value="users" className="text-xs lg:text-sm">User Management</TabsTrigger>
@@ -2810,62 +2671,13 @@ const AdminPanel = () => {
                           
                           <Button
                             variant="outline"
-                            onClick={async () => {
-                              console.log('DEBUG: Contact Owner button clicked for listing:', listing.id, 'owner:', listing.owner_id);
-                              
-                              // First, ensure the owner is in the allUsers list
-                              const ownerExists = allUsers.find(u => u.user_id === listing.owner_id);
-                              if (!ownerExists) {
-                                console.log('DEBUG: Owner not in allUsers, fetching owner profile for ID:', listing.owner_id);
-                                try {
-                                  const { data: ownerProfile, error: profileError } = await supabase
-                                    .from('profiles')
-                                    .select('user_id, full_name')
-                                    .eq('user_id', listing.owner_id)
-                                    .maybeSingle();
-                                    
-                                  console.log('DEBUG: Profile query result - data:', ownerProfile, 'error:', profileError);
-                                    
-                                  if (ownerProfile) {
-                                    console.log('DEBUG: Adding owner to allUsers list:', ownerProfile);
-                                    setAllUsers(prev => [...prev, ownerProfile]);
-                                    await new Promise(resolve => setTimeout(resolve, 100));
-                                  } else {
-                                    console.log('DEBUG: No owner profile found, creating placeholder entry');
-                                    const placeholderUser = {
-                                      user_id: listing.owner_id,
-                                      full_name: 'Listing Owner (Profile Not Found)'
-                                    };
-                                    console.log('DEBUG: Adding placeholder to allUsers list:', placeholderUser);
-                                    setAllUsers(prev => [...prev, placeholderUser]);
-                                    await new Promise(resolve => setTimeout(resolve, 100));
-                                  }
-                                } catch (error) {
-                                  console.error('DEBUG: Error fetching owner profile:', error);
-                                  // Add placeholder even on error
-                                  const errorUser = {
-                                    user_id: listing.owner_id,
-                                    full_name: 'Listing Owner (Error Loading Profile)'
-                                  };
-                                  setAllUsers(prev => [...prev, errorUser]);
-                                }
-                              }
-                              
-                              // Set form data
+                            onClick={() => {
+                              setSelectedUserId(listing.owner_id);
                               setMessageSubject(`Regarding Your Parking Listing - ${listing.title}`);
                               setMessageContent(`Hello,\n\nI hope this message finds you well. I'm reaching out regarding your parking listing:\n\nTitle: ${listing.title}\nLocation: ${listing.address}\nZone: ${listing.zone}\nStatus: ${listing.status}\n\nPlease let me know if you have any questions or if there's anything you'd like to discuss about your listing.\n\nBest regards,\nShazam Parking Admin Team`);
-                              
-                              console.log('DEBUG: Message data set, switching to messages tab using React state');
-                              
-                              // Use React state to switch tabs instead of DOM manipulation
-                              setActiveTab('messages');
-                              console.log('DEBUG: Tab switched to messages successfully');
-                              
-                              // Set selected user AFTER ensuring they're in the dropdown and tab has switched
-                              setTimeout(() => {
-                                console.log('DEBUG: Setting selected user ID:', listing.owner_id);
-                                setSelectedUserId(listing.owner_id);
-                              }, 200);
+                              // Switch to messages tab
+                              const messagesTab = document.querySelector('[value="messages"]') as HTMLElement;
+                              messagesTab?.click();
                             }}
                             className="flex items-center gap-2"
                           >
@@ -2895,6 +2707,13 @@ const AdminPanel = () => {
                 ))}
               </div>
             )}
+          </TabsContent>
+
+          <TabsContent value="spaces" className="space-y-6">
+            <SpaceManagement onRefresh={() => {
+              fetchParkingListings();
+              fetchParkingBookings();
+            }} />
           </TabsContent>
 
           <TabsContent value="bookings" className="space-y-6">
@@ -2929,18 +2748,6 @@ const AdminPanel = () => {
                   <SelectItem value="cancelled">Cancelled</SelectItem>
                 </SelectContent>
               </Select>
-              
-              <Select value="all">
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Availability" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Availability</SelectItem>
-                  <SelectItem value="available">✅ Available</SelectItem>
-                  <SelectItem value="unavailable">❌ Unavailable</SelectItem>
-                </SelectContent>
-              </Select>
-              
               <span className="text-sm text-muted-foreground">
                 {filteredBookings.length} bookings
               </span>
@@ -2978,26 +2785,8 @@ const AdminPanel = () => {
                             >
                               {booking.status}
                             </Badge>
-                            
-                            {/* Availability Status */}
-                            <div className="flex items-center gap-2 px-3 py-1 bg-green-50 border border-green-200 rounded-full">
-                              <span className="text-green-600 text-sm">✅ Available</span>
-                            </div>
                           </div>
                           <div className="flex gap-2">
-                            {/* Availability Toggle */}
-                            <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg mr-4">
-                              <span className="text-sm font-medium">Availability:</span>
-                              <Switch
-                                checked={true}
-                                onCheckedChange={(checked) => {
-                                  // Toggle availability logic here
-                                  console.log('Toggle availability for booking:', booking.id, checked);
-                                }}
-                              />
-                              <span className="text-sm text-green-600">Available</span>
-                            </div>
-                            
                             <Button
                               onClick={() => updateBookingStatus(booking.id, 'confirmed')}
                               className="bg-green-600 hover:bg-green-700 text-white flex items-center gap-1 px-4 py-2"
@@ -3386,14 +3175,6 @@ const AdminPanel = () => {
                 )}
               </CardContent>
             </Card>
-          </TabsContent>
-
-          {/* Space Management Tab */}
-          <TabsContent value="spaces" className="space-y-6">
-            <SpaceManagement onRefresh={() => {
-              fetchParkingListings();
-              fetchParkingBookings();
-            }} />
           </TabsContent>
 
           {/* Chat Management Tab */}

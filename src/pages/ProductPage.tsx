@@ -29,7 +29,7 @@ const ProductPage: React.FC = () => {
   const [parkingListing, setParkingListing] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>('');
-  const [isCurrentlyBooked, setIsCurrentlyBooked] = useState<boolean>(false); // Check actual booking status
+  const [isCurrentlyBooked, setIsCurrentlyBooked] = useState<boolean>(true); // Set to true to show all as booked
   
   const DURATION_OPTIONS = [
     { months: 1, label: "1 Month", multiplier: 1.0, description: "Monthly rate" },
@@ -37,70 +37,6 @@ const ProductPage: React.FC = () => {
     { months: 6, label: "6 Months", multiplier: 0.90, description: "10% OFF" },
     { months: 12, label: "12 Months", multiplier: 0.85, description: "15% OFF" }
   ];
-
-  // Check if parking space is currently booked (excluding cancelled bookings)
-  const checkBookingStatus = async (listingData: any) => {
-    try {
-      console.log('DEBUG: Checking booking status for listing:', JSON.stringify(listingData, null, 2));
-      
-      // Query by listing ID first (most accurate)
-      let { data: activeBookings, error } = await supabase
-        .from('parking_bookings')
-        .select('id, status, start_time, end_time, location')
-        .eq('location', listingData.id)
-        .neq('status', 'cancelled')
-        .in('status', ['pending', 'confirmed', 'active']);
-
-      console.log('DEBUG: Query by ID result:', JSON.stringify({ activeBookings, error }, null, 2));
-
-      // If no results by ID, try by title
-      if (!activeBookings?.length && listingData.title) {
-        const titleQuery = await supabase
-          .from('parking_bookings')
-          .select('id, status, start_time, end_time, location')
-          .eq('location', listingData.title)
-          .neq('status', 'cancelled')
-          .in('status', ['pending', 'confirmed', 'active']);
-          
-        activeBookings = titleQuery.data;
-        error = titleQuery.error;
-        console.log('DEBUG: Query by title result:', JSON.stringify({ activeBookings, error }, null, 2));
-      }
-
-      if (error) {
-        console.error('Error checking booking status:', error);
-        return false; // Default to available if error
-      }
-
-      // Check if any active booking overlaps with current time
-      const now = new Date();
-      const hasActiveBooking = activeBookings?.some(booking => {
-        const startTime = new Date(booking.start_time);
-        const endTime = new Date(booking.end_time);
-        const isOverlapping = now >= startTime && now <= endTime;
-        console.log('DEBUG: Booking time check:', { 
-          bookingId: booking.id, 
-          startTime: startTime.toISOString(), 
-          endTime: endTime.toISOString(), 
-          now: now.toISOString(), 
-          isOverlapping 
-        });
-        return isOverlapping;
-      });
-
-      console.log('DEBUG: Final booking status check:', { 
-        listingId: listingData.id, 
-        listingTitle: listingData.title,
-        activeBookingsCount: activeBookings?.length || 0, 
-        hasActiveBooking,
-        currentTime: now.toISOString()
-      });
-      return hasActiveBooking || false;
-    } catch (error) {
-      console.error('Error in checkBookingStatus:', error);
-      return false;
-    }
-  };
 
   // Fetch parking listing data securely
   useEffect(() => {
@@ -122,10 +58,6 @@ const ProductPage: React.FC = () => {
         if (fullData && !fullError) {
           console.log('Fetched full parking listing data:', fullData);
           setParkingListing(fullData);
-          
-          // Check if space is currently booked
-          const isBooked = await checkBookingStatus(fullData);
-          setIsCurrentlyBooked(isBooked);
           return;
         }
 
@@ -155,10 +87,6 @@ const ProductPage: React.FC = () => {
           contact_email: null,
           contact_phone: null
         });
-
-        // Check if space is currently booked
-        const isBooked = await checkBookingStatus(publicData);
-        setIsCurrentlyBooked(isBooked);
       } catch (error) {
         console.error('Error:', error);
         setError('An unexpected error occurred');
@@ -401,15 +329,9 @@ const ProductPage: React.FC = () => {
                       </CardDescription>
                     </div>
                     <div className="text-right">
-                      {isCurrentlyBooked ? (
-                        <Badge variant="destructive" className="bg-red-500 text-white border-red-500">
-                          Currently Booked
-                        </Badge>
-                      ) : (
-                        <Badge variant="default" className="bg-green-500 text-white border-green-500">
-                          Available
-                        </Badge>
-                      )}
+                      <Badge variant="destructive" className="bg-red-500 text-white border-red-500">
+                        Currently Booked
+                      </Badge>
                     </div>
                   </div>
                 </CardHeader>
@@ -463,136 +385,27 @@ const ProductPage: React.FC = () => {
                 
                 {/* Always show unavailable for all spaces */}
                 <CardContent className="space-y-6">
-                  {isCurrentlyBooked ? (
-                    <div className="p-8 text-center bg-red-50 rounded-lg border border-red-200">
-                      <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <Car className="h-8 w-8 text-red-500" />
-                      </div>
-                      <h3 className="text-lg font-semibold text-red-700 mb-2">Space Currently Occupied</h3>
-                      <p className="text-red-600 mb-4">
-                        This parking space is currently booked and not available for new reservations.
-                      </p>
-                      
-                      <div className="w-full bg-red-500 text-white py-4 rounded-lg text-center font-semibold text-lg mb-4">
-                        Currently Booked
-                      </div>
-                    
-                      <Button 
-                        onClick={() => navigate('/')} 
-                        variant="outline" 
-                        className="border-red-500 text-red-700 hover:bg-red-50"
-                      >
-                        Find Available Spaces
-                      </Button>
+                  <div className="p-8 text-center bg-red-50 rounded-lg border border-red-200">
+                    <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Car className="h-8 w-8 text-red-500" />
                     </div>
-                  ) : (
-                    <>
-                      {/* Duration Selection */}
-                      <div className="space-y-4">
-                        <h3 className="font-semibold mb-4">Rental Duration</h3>
-                        <div className="grid grid-cols-2 gap-3">
-                          {DURATION_OPTIONS.map((option) => (
-                            <Button
-                              key={option.months}
-                              variant={selectedDuration.months === option.months ? "default" : "outline"}
-                              onClick={() => setSelectedDuration(option)}
-                              className={`p-4 h-auto flex flex-col items-center justify-center relative ${
-                                selectedDuration.months === option.months 
-                                  ? "bg-primary text-primary-foreground border-2 border-primary" 
-                                  : "border-2"
-                              }`}
-                            >
-                              <span className="font-semibold">{option.label}</span>
-                              {option.description !== "Monthly rate" && (
-                                <span className="text-sm text-green-600 font-medium mt-1">
-                                  {option.description}
-                                </span>
-                              )}
-                            </Button>
-                          ))}
-                        </div>
-                        <p className="text-sm text-muted-foreground">
-                          Or choose Monthly Rolling (subject to availability)
-                        </p>
-                      </div>
-
-                      {/* Date Selection */}
-                      <div className="space-y-4">
-                        <h3 className="font-semibold">Start Date</h3>
-                        <Calendar
-                          mode="single"
-                          selected={startDate}
-                          onSelect={setStartDate}
-                          disabled={(date) =>
-                            date < new Date() || date < new Date("1900-01-01")
-                          }
-                          initialFocus
-                          className="rounded-md border"
-                        />
-                      </div>
-
-                      {/* Price Breakdown */}
-                      <div className="space-y-4 bg-muted/30 p-4 rounded-lg">
-                        <div className="flex items-center gap-2 mb-4">
-                          <div className="w-5 h-5 border border-muted-foreground rounded"></div>
-                          <h3 className="font-semibold">Price Breakdown</h3>
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <div className="flex justify-between">
-                            <span>Regular monthly rate</span>
-                            <span>AED {parkingListing.price_per_month}</span>
-                          </div>
-                          
-                          {calculateTotal().savings > 0 && (
-                            <div className="flex justify-between text-green-600">
-                              <span>Commitment discount ({selectedDuration.months} months)</span>
-                              <span>-AED {Math.round(calculateTotal().savings / selectedDuration.months)}/month</span>
-                            </div>
-                          )}
-                          
-                          <div className="flex justify-between font-medium">
-                            <span>Your monthly rate</span>
-                            <span>AED {calculateTotal().monthlyRate}/month</span>
-                          </div>
-                          
-                          <div className="border-t pt-2">
-                            <div className="flex justify-between text-lg font-bold text-primary">
-                              <span>Total payable now</span>
-                              <span>AED {calculateTotal().finalPrice.toLocaleString()}</span>
-                            </div>
-                          </div>
-                          
-                          <div className="bg-blue-50 p-3 rounded text-sm">
-                            <div className="flex items-center gap-1 text-blue-600 mb-1">
-                              <span>—</span>
-                              <span className="font-medium">
-                                Upfront Payment: You'll pay AED {calculateTotal().finalPrice.toLocaleString()} once for {selectedDuration.months} months
-                              </span>
-                            </div>
-                            <div className="text-blue-600 text-xs">
-                              Discounted monthly rate: AED {calculateTotal().monthlyRate}/month × {selectedDuration.months} months
-                            </div>
-                          </div>
-                          
-                          {calculateTotal().savings > 0 && (
-                            <div className="text-green-600 font-medium text-sm">
-                              You save AED {calculateTotal().savings} with this {selectedDuration.months}-month commitment
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Submit Button */}
-                      <Button
-                        onClick={handleSubmitBookingRequest}
-                        disabled={!startDate || isSubmitting}
-                        className="w-full py-6 text-lg font-semibold"
-                      >
-                        {isSubmitting ? "Submitting..." : "Submit Booking Request"}
-                      </Button>
-                    </>
-                  )}
+                    <h3 className="text-lg font-semibold text-red-700 mb-2">Space Currently Occupied</h3>
+                    <p className="text-red-600 mb-4">
+                      This parking space is currently booked and not available for new reservations.
+                    </p>
+                    
+                    <div className="w-full bg-red-500 text-white py-4 rounded-lg text-center font-semibold text-lg mb-4">
+                      Currently Booked
+                    </div>
+                    
+                    <Button 
+                      onClick={() => navigate('/')} 
+                      variant="outline" 
+                      className="border-red-500 text-red-700 hover:bg-red-50"
+                    >
+                      Find Available Spaces
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             </div>

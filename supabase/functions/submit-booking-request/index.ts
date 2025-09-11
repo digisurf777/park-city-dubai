@@ -112,114 +112,102 @@ const handler = async (req: Request): Promise<Response> => {
     // Create payment link using the new edge function
     console.log("Creating payment link...");
     
-    let paymentData = null;
-    let paymentError = null;
-    
-    try {
-      const paymentResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/create-payment-link`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': req.headers.get('Authorization') || `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`,
-        },
-        body: JSON.stringify({
-          bookingId: booking.id,
-          amount: costAed,
-          duration: duration,
-          parkingSpotName: parkingSpotName,
-          userEmail: user.email,
-        }),
-      });
+    const paymentResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/create-payment-link`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${Deno.env.get('SUPABASE_ANON_KEY')}`,
+      },
+      body: JSON.stringify({
+        bookingId: booking.id,
+        amount: costAed,
+        duration: duration,
+        parkingSpotName: parkingSpotName,
+        userEmail: user.email,
+      }),
+    });
 
-      if (!paymentResponse.ok) {
-        const errorText = await paymentResponse.text();
-        console.error("Payment link creation failed:", errorText);
-        paymentError = `Payment setup failed: ${errorText}`;
-      } else {
-        paymentData = await paymentResponse.json();
-        console.log("Payment link created:", paymentData.payment_url);
-      }
-    } catch (error) {
-      console.error("Payment link creation error:", error);
-      paymentError = `Payment setup error: ${error instanceof Error ? error.message : 'Unknown error'}`;
+    if (!paymentResponse.ok) {
+      const errorText = await paymentResponse.text();
+      console.error("Payment link creation failed:", errorText);
+      throw new Error("Failed to create payment link");
     }
 
-    console.log("DEBUG: Payment processing completed, moving to admin notification");
-    console.log("DEBUG: Payment data:", paymentData);
-    console.log("DEBUG: Payment error:", paymentError);
+    const paymentData = await paymentResponse.json();
+    console.log("Payment link created:", paymentData.payment_url);
 
-    // Send admin booking notification FIRST using dedicated function
+    // Send admin booking notification using dedicated function
     const customerName = userProfile?.full_name || "Customer";
     const customerPhone = userPhone || userProfile?.phone || "Not provided";
     
-    console.log("DEBUG: Prepared customer data - Name:", customerName, "Phone:", customerPhone);
-    
-    // Send admin notification email directly using Resend
     try {
-      console.log("DEBUG: Sending admin notification email for booking:", booking.id);
-      
-      const adminEmailResponse = await resend.emails.send({
-        from: "ShazamParking Bookings <noreply@shazamparking.ae>",
-        to: ["support@shazamparking.ae"],
-        subject: `New Parking Booking Request - ${booking.id}`,
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h2 style="color: #0099cc;">New Parking Booking Request</h2>
-            
-            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
-              <h3>Booking Details:</h3>
-              <table style="width: 100%; border-collapse: collapse;">
-                <tr><td style="padding: 5px 0;"><strong>Booking ID:</strong></td><td>${booking.id}</td></tr>
-                <tr><td style="padding: 5px 0;"><strong>Customer Name:</strong></td><td>${customerName}</td></tr>
-                <tr><td style="padding: 5px 0;"><strong>Email:</strong></td><td>${user.email}</td></tr>
-                <tr><td style="padding: 5px 0;"><strong>Phone:</strong></td><td>${customerPhone}</td></tr>
-                <tr><td style="padding: 5px 0;"><strong>Parking Spot:</strong></td><td>${parkingSpotName}</td></tr>
-                <tr><td style="padding: 5px 0;"><strong>Zone:</strong></td><td>${zone}</td></tr>
-                <tr><td style="padding: 5px 0;"><strong>Location:</strong></td><td>${location}</td></tr>
-                <tr><td style="padding: 5px 0;"><strong>Start Date:</strong></td><td>${new Date(startDate).toLocaleDateString()}</td></tr>
-                <tr><td style="padding: 5px 0;"><strong>Duration:</strong></td><td>${duration} month(s)</td></tr>
-                <tr><td style="padding: 5px 0;"><strong>Total Cost:</strong></td><td>${costAed} AED</td></tr>
-                <tr><td style="padding: 5px 0;"><strong>Payment Type:</strong></td><td>${paymentData?.payment_type || 'manual'}</td></tr>
-                ${notes ? `<tr><td style="padding: 5px 0;"><strong>Notes:</strong></td><td>${notes}</td></tr>` : ''}
-              </table>
-            </div>
-            
-            <p style="color: #666;">Please review and confirm this booking in the admin panel.</p>
-            <p style="color: #999; font-size: 12px;">This is an automated notification from ShazamParking booking system.</p>
-          </div>
-        `,
+      const adminNotificationResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/send-admin-booking-notification`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${Deno.env.get('SUPABASE_ANON_KEY')}`,
+        },
+        body: JSON.stringify({
+          userName: customerName,
+          userEmail: user.email,
+          userPhone: customerPhone,
+          bookingId: booking.id,
+          parkingSpotName: parkingSpotName,
+          zone: zone,
+          location: location,
+          startDate: startDate,
+          duration: duration,
+          totalCost: costAed,
+          paymentType: paymentData.payment_type,
+          notes: notes,
+        }),
       });
 
-      if (adminEmailResponse.error) {
-        console.error("DEBUG: Admin email failed:", adminEmailResponse.error);
+      if (!adminNotificationResponse.ok) {
+        console.error("Admin booking notification failed:", await adminNotificationResponse.text());
       } else {
-        console.log("DEBUG: Admin notification email sent successfully:", adminEmailResponse.data?.id);
+        console.log("Admin booking notification sent successfully");
       }
     } catch (notificationError) {
-      console.error("DEBUG: Admin notification error:", notificationError);
+      console.error("Admin booking notification error:", notificationError);
       // Don't fail the booking if admin notification fails
     }
 
-    console.log("DEBUG: Admin notification completed, proceeding to customer notifications");
+    // Send "Booking Request Received" email to customer
+    try {
+      const bookingReceivedResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/send-booking-received`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${Deno.env.get('SUPABASE_ANON_KEY')}`,
+        },
+        body: JSON.stringify({
+          userEmail: user.email,
+          userName: customerName,
+          bookingDetails: {
+            location: `${parkingSpotName}, ${location}`,
+            startDate: new Date(startDate).toLocaleDateString(),
+            endDate: endDate.toLocaleDateString(),
+            amount: `${costAed} AED`
+          }
+        }),
+      });
 
-    // Note: Customer booking confirmation email is sent below with payment details
-
-    // Send enhanced confirmation email to customer with payment link (if available) or manual payment instructions
-    let emailSubject = "Parking Booking Request Received - ShazamParking";
-    let completionMessage = "Please wait for admin confirmation and payment instructions.";
-    
-    if (paymentData?.payment_url) {
-      emailSubject = "Complete Your Parking Booking Payment - ShazamParking";
-      completionMessage = "Please complete your payment setup to secure your parking space.";
-    } else if (paymentError) {
-      emailSubject = "Parking Booking Request Received - Manual Processing Required";
-      completionMessage = "We'll contact you shortly with payment instructions.";
+      if (!bookingReceivedResponse.ok) {
+        console.error("Booking received notification failed:", await bookingReceivedResponse.text());
+      } else {
+        console.log("Booking received notification sent successfully");
+      }
+    } catch (notificationError) {
+      console.error("Booking received notification error:", notificationError);
+      // Don't fail the booking if notification fails
     }
 
+    // Send enhanced confirmation email to customer with payment link
     const customerEmailResponse = await resend.emails.send({
       from: "ShazamParking <noreply@shazamparking.ae>",
       to: [user.email],
-      subject: emailSubject,
+      subject: "Complete Your Parking Booking Payment - ShazamParking",
       html: `
         <!DOCTYPE html>
         <html lang="en" style="font-family: Arial, sans-serif;">
@@ -258,27 +246,19 @@ const handler = async (req: Request): Promise<Response> => {
                             <tr><td><strong>Start Date:</strong></td><td>${new Date(startDate).toLocaleDateString()}</td></tr>
                             <tr><td><strong>Duration:</strong></td><td>${duration} month(s)</td></tr>
                             <tr><td><strong>Total Cost:</strong></td><td>${costAed} AED</td></tr>
-                            <tr><td><strong>Payment Type:</strong></td><td>${paymentData ? ((paymentData as any).payment_type === 'one_time' ? 'One-time Payment' : 'Monthly Recurring Payments') : 'Manual Processing'}</td></tr>
+                            <tr><td><strong>Payment Type:</strong></td><td>${paymentData.payment_type === 'one_time' ? 'One-time Payment' : 'Monthly Recurring Payments'}</td></tr>
                             ${notes ? `<tr><td><strong>Notes:</strong></td><td>${notes}</td></tr>` : ''}
                           </table>
                         </div>
                         
-                        ${paymentData?.payment_url ? `
                         <div style="background-color: #dbeafe; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center;">
                           <h3 style="color: #1e40af; margin-top: 0;">Complete Your Payment</h3>
-                          ${(paymentData as any)?.payment_type === 'one_time' 
+                          ${paymentData.payment_type === 'one_time' 
                             ? '<p style="color: #1e40af; margin-bottom: 15px;">Your payment will be pre-authorized (not charged immediately). We will confirm your booking shortly.</p>'
                             : '<p style="color: #1e40af; margin-bottom: 15px;">Set up your monthly subscription. Billing starts after we confirm your booking.</p>'
                           }
-                          <a href="${(paymentData as any).payment_url}" style="background-color: #16a34a; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">Complete Payment Setup</a>
+                          <a href="${paymentData.payment_url}" style="background-color: #16a34a; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">Complete Payment Setup</a>
                         </div>
-                        ` : `
-                        <div style="background-color: #fbbf24; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center;">
-                          <h3 style="color: #92400e; margin-top: 0;">Manual Payment Processing</h3>
-                          <p style="color: #92400e; margin-bottom: 15px;">Our team will contact you shortly with payment instructions and booking confirmation.</p>
-                          ${paymentError ? `<p style="color: #dc2626; font-size: 14px; margin-top: 10px;">Payment system note: ${paymentError}</p>` : ''}
-                        </div>
-                        `}
                         
                         <div style="background-color: #fef3c7; padding: 15px; border-radius: 5px; margin: 15px 0;">
                           <p style="color: #92400e; font-weight: bold; margin: 0;">⏰ Important Timeline:</p>
@@ -295,7 +275,7 @@ const handler = async (req: Request): Promise<Response> => {
                             <li>Complete your payment setup using the link above</li>
                             <li>Our team will review your booking request</li>
                             <li>You'll receive confirmation shortly</li>
-                            <li>If approved, ${paymentData ? ((paymentData as any).payment_type === 'one_time' ? 'your payment will be processed' : 'your subscription will begin') : 'we will contact you with payment instructions'}</li>
+                            <li>If approved, ${paymentData.payment_type === 'one_time' ? 'your payment will be processed' : 'your subscription will begin'}</li>
                             <li>If not approved, you'll receive a full refund automatically</li>
                           </ol>
                         </div>
@@ -333,12 +313,11 @@ const handler = async (req: Request): Promise<Response> => {
         JSON.stringify({
           success: true,
           bookingId: booking.id,
-          paymentUrl: paymentData ? (paymentData as any).payment_url : null,
-          paymentType: paymentData ? (paymentData as any).payment_type : 'manual',
-          confirmationDeadline: paymentData ? (paymentData as any).confirmation_deadline : null,
+          paymentUrl: paymentData.payment_url,
+          paymentType: paymentData.payment_type,
+          confirmationDeadline: paymentData.confirmation_deadline,
           warning: "Booking created successfully but confirmation email failed. Please save your booking reference: " + booking.id,
-          message: paymentData ? completionMessage : "Booking request submitted successfully. We'll contact you with payment instructions.",
-          paymentError: paymentError,
+          message: "Booking request submitted successfully. Please complete your payment setup to secure your parking space.",
         }),
         {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -353,11 +332,10 @@ const handler = async (req: Request): Promise<Response> => {
       JSON.stringify({
         success: true,
         bookingId: booking.id,
-        paymentUrl: paymentData ? (paymentData as any).payment_url : null,
-        paymentType: paymentData ? (paymentData as any).payment_type : 'manual',
-        confirmationDeadline: paymentData ? (paymentData as any).confirmation_deadline : null,
-        message: paymentData ? completionMessage : "Booking request submitted successfully. We'll contact you with payment instructions.",
-        paymentError: paymentError,
+        paymentUrl: paymentData.payment_url,
+        paymentType: paymentData.payment_type,
+        confirmationDeadline: paymentData.confirmation_deadline,
+        message: "Booking request submitted successfully. Please complete your payment setup to secure your parking space.",
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },

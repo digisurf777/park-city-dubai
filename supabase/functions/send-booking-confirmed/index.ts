@@ -27,33 +27,7 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    console.log("DEBUG: send-booking-confirmed function started");
-    console.log("DEBUG: Request method:", req.method);
-    console.log("DEBUG: RESEND_API_KEY exists:", !!Deno.env.get("RESEND_API_KEY"));
-
-    let requestData;
-    try {
-      requestData = await req.json();
-    } catch (jsonError) {
-      console.error("DEBUG: Failed to parse JSON:", jsonError);
-      throw new Error("Invalid JSON in request body");
-    }
-
-    console.log("DEBUG: Raw request data:", requestData);
-
-    const { userEmail, userName, bookingDetails }: BookingConfirmedRequest = requestData;
-    
-    console.log("DEBUG: send-booking-confirmed called with:", { userEmail, userName, bookingDetails });
-
-    if (!userEmail) {
-      throw new Error("userEmail is required");
-    }
-    
-    if (!bookingDetails) {
-      throw new Error("bookingDetails is required");
-    }
-
-    console.log("DEBUG: About to call resend.emails.send");
+    const { userEmail, userName, bookingDetails }: BookingConfirmedRequest = await req.json();
 
     const emailResponse = await resend.emails.send({
       from: "ShazamParking <noreply@shazamparking.ae>",
@@ -84,7 +58,7 @@ const handler = async (req: Request): Promise<Response> => {
             </p>
             
             <div style="text-align: center; margin: 25px 0;">
-              <a href="https://www.shazamparking.ae/auth" 
+              <a href="https://www.shazamparking.ae/login" 
                  style="background: #10b981; color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block; font-size: 16px;">
                 Login to Account
               </a>

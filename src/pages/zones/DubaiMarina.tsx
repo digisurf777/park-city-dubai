@@ -12,7 +12,6 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ParkingBookingModal } from "@/components/ParkingBookingModal";
 import ImageZoomModal from "@/components/ImageZoomModal";
-import { checkParkingAvailability, setupAvailabilitySubscriptions } from "@/utils/parkingAvailability";
 import dubaiMarinaHero from "@/assets/zones/dubai-marina-real.jpg";
 
 const DubaiMarina = () => {
@@ -34,10 +33,19 @@ const DubaiMarina = () => {
   useEffect(() => {
     fetchParkingSpots();
 
-    // Set up real-time subscriptions for availability changes
-    const cleanup = setupAvailabilitySubscriptions('Dubai Marina', fetchParkingSpots);
-
-    return cleanup;
+    // Set up real-time subscription to parking_listings changes
+    const channel = supabase.channel('parking-listings-dubai-marina').on('postgres_changes', {
+      event: '*',
+      schema: 'public',
+      table: 'parking_listings'
+    }, payload => {
+      console.log('Real-time parking listing change in Dubai Marina:', payload);
+      // Refetch data when any parking listing changes
+      fetchParkingSpots();
+    }).subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
   const fetchParkingSpots = async () => {
     console.log('Fetching parking spots for Dubai Marina...');
@@ -60,19 +68,16 @@ const DubaiMarina = () => {
         images: spot.images || [],
         // Pass the full images array
         specs: spot.features || ["Access Card", "Covered", "2.1m Height"],
+        available: true,
         address: spot.address,
-        zone: "Dubai Marina",
         description: spot.description
       }));
       console.log('Transformed data:', transformedData);
 
-      // Check availability for all spots
-      const spotsWithAvailability = await checkParkingAvailability(transformedData);
-
       // If no data from database, use demo data
-      if (spotsWithAvailability.length === 0) {
+      if (transformedData.length === 0) {
         console.log('No data from database, using demo data');
-        const demoSpots = [
+        setParkingSpots([
           {
             id: "demo-1",
             name: "LIV Residence",
@@ -81,8 +86,8 @@ const DubaiMarina = () => {
             image: "/lovable-uploads/25c56481-0d03-4055-bd47-67635ac0d1b0.png",
             images: ["/lovable-uploads/25c56481-0d03-4055-bd47-67635ac0d1b0.png", "/lovable-uploads/32249908-791f-4751-bdaa-b25414bbcd86.png"],
             specs: ["Access Card", "Covered", "24/7 Access"],
+            available: true,
             address: "LIV Residence, Dubai Marina",
-            zone: "Dubai Marina",
             description: "Covered parking in LIV Residence tower. 24/7 access and secure entry. Ideal for residents or nearby tenants."
           },
           {
@@ -93,8 +98,8 @@ const DubaiMarina = () => {
             image: "/lovable-uploads/32249908-791f-4751-bdaa-b25414bbcd86.png",
             images: ["/lovable-uploads/32249908-791f-4751-bdaa-b25414bbcd86.png", "/lovable-uploads/bff8556c-9c7b-4765-820d-b007ca48c5ac.png"],
             specs: ["Access Card", "Basement", "Prime Location"],
+            available: true,
             address: "Marina Plaza, Dubai Marina",
-            zone: "Dubai Marina",
             description: "Prime location in Marina Plaza. Basement parking with access control. Great for office tenants or regular visitors."
           },
           {
@@ -105,8 +110,8 @@ const DubaiMarina = () => {
             image: "/lovable-uploads/bff8556c-9c7b-4765-820d-b007ca48c5ac.png",
             images: ["/lovable-uploads/bff8556c-9c7b-4765-820d-b007ca48c5ac.png", "/lovable-uploads/cc70ca6e-a718-4baf-b612-9ddb5c9f07d4.png"],
             specs: ["Access Card", "Indoor", "Metro Access"],
+            available: true,
             address: "Marina Diamond 2, Dubai Marina",
-            zone: "Dubai Marina",
             description: "Indoor parking in Marina Diamond 2, secure access and great location next to metro."
           },
           {
@@ -117,8 +122,8 @@ const DubaiMarina = () => {
             image: "/lovable-uploads/cc70ca6e-a718-4baf-b612-9ddb5c9f07d4.png",
             images: ["/lovable-uploads/cc70ca6e-a718-4baf-b612-9ddb5c9f07d4.png", "/lovable-uploads/161ee737-1491-45d6-a5e3-a642b7ff0806.png"],
             specs: ["Access Card", "Indoor", "Second Slot"],
+            available: true,
             address: "Marina Diamond 2, Dubai Marina",
-            zone: "Dubai Marina",
             description: "Second slot in Marina Diamond 2. Perfect for families with two vehicles or friends."
           },
           {
@@ -129,86 +134,78 @@ const DubaiMarina = () => {
             image: "/lovable-uploads/161ee737-1491-45d6-a5e3-a642b7ff0806.png",
             images: ["/lovable-uploads/161ee737-1491-45d6-a5e3-a642b7ff0806.png", "/lovable-uploads/25c56481-0d03-4055-bd47-67635ac0d1b0.png"],
             specs: ["Keycard Access", "Covered", "Convenient"],
+            available: true,
             address: "Park Island, Dubai Marina",
-            zone: "Dubai Marina",
             description: "Covered parking in Park Island complex. Access via keycard, safe and convenient."
           }
-        ];
-        
-        // Process demo data through availability checker
-        const demoSpotsWithAvailability = await checkParkingAvailability(demoSpots);
-        setParkingSpots(demoSpotsWithAvailability);
+        ]);
       } else {
-        setParkingSpots(spotsWithAvailability);
+        setParkingSpots(transformedData);
       }
     } catch (error) {
       console.error('Error fetching parking spots:', error);
       // Fallback to demo data if database query fails
-      const fallbackSpots = [{
-        id: "1",
+      setParkingSpots([{
+        id: 1,
         name: "LIV Residence",
         district: "Dubai Marina",
         price: 650,
         image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
         specs: ["Access Card", "Covered", "2.1m Height"],
+        available: true,
         address: "Dubai Marina Walk, Dubai Marina",
-        zone: "Dubai Marina",
         description: "Premium parking space in luxury residential tower with 24/7 security and valet service."
       }, {
-        id: "2",
+        id: 2,
         name: "Marina Residence",
         district: "Dubai Marina",
         price: 420,
         image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
         specs: ["Access Card", "Covered", "2.2m Height"],
+        available: true,
         address: "Marina Promenade, Dubai Marina",
-        zone: "Dubai Marina",
         description: "Secure underground parking with easy access to Marina Walk and JBR Beach."
       }, {
-        id: "3",
+        id: 3,
         name: "Murjan Tower",
         district: "Dubai Marina",
         price: 450,
         image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
         specs: ["Access Card", "Covered", "2.0m Height"],
+        available: true,
         address: "Al Marsa Street, Dubai Marina",
-        zone: "Dubai Marina",
         description: "Modern parking facility with electric charging points and car wash services."
       }, {
-        id: "4",
+        id: 4,
         name: "Marina Diamond",
         district: "Dubai Marina",
         price: 580,
         image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
         specs: ["Access Card", "Covered", "2.3m Height", "Electric Charging"],
+        available: true,
         address: "Marina Diamond Complex, Dubai Marina",
-        zone: "Dubai Marina",
         description: "High-end parking with electric vehicle charging stations and concierge services."
       }, {
-        id: "5",
+        id: 5,
         name: "The Torch Tower",
         district: "Dubai Marina",
         price: 480,
         image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
         specs: ["Access Card", "Covered", "2.1m Height"],
+        available: true,
         address: "Torch Tower, Dubai Marina",
-        zone: "Dubai Marina",
         description: "Central location with direct access to Dubai Marina Metro Station."
       }, {
-        id: "6",
+        id: 6,
         name: "Cayan Tower",
         district: "Dubai Marina",
         price: 520,
         image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
         specs: ["Access Card", "Covered", "2.2m Height", "Valet Service"],
+        available: true,
         address: "Cayan Tower, Dubai Marina",
-        zone: "Dubai Marina",
         description: "Iconic twisted tower with premium valet parking services and Marina views."
-      }];
-
-      // Process fallback data through availability checker
-      const fallbackSpotsWithAvailability = await checkParkingAvailability(fallbackSpots);
-      setParkingSpots(fallbackSpotsWithAvailability);
+      }]);
     } finally {
       setLoading(false);
     }
@@ -282,8 +279,7 @@ const DubaiMarina = () => {
 
         {/* Listing Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-          {filteredSpots.map(spot => 
-            <Card key={spot.id} className="overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 cursor-pointer">
+          {filteredSpots.map(spot => <Card key={spot.id} className="overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
               {/* Image carousel */}
               <div className="relative w-full h-48 sm:h-56 md:h-64 overflow-hidden group">
                 {spot.images && spot.images.length > 0 ? <>
@@ -291,10 +287,7 @@ const DubaiMarina = () => {
                       src={spot.images[currentImageIndexes[spot.id] || 0]} 
                       alt={`${spot.name} - Image ${(currentImageIndexes[spot.id] || 0) + 1}`} 
                       className="w-full h-full object-cover cursor-pointer" 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleImageClick(spot, currentImageIndexes[spot.id] || 0);
-                      }}
+                      onClick={() => handleImageClick(spot, currentImageIndexes[spot.id] || 0)}
                     />
                     {spot.images.length > 1 && <>
                         {/* Navigation buttons */}
@@ -350,20 +343,11 @@ const DubaiMarina = () => {
                   <span className="text-xl sm:text-2xl font-bold text-primary">From AED {spot.price}/month</span>
                 </div>
 
-                <Button 
-                  onClick={() => handleReserveClick(spot)}
-                  disabled={!spot.isBookable}
-                  className={`w-full py-2 sm:py-3 rounded text-center font-semibold text-sm sm:text-base transition-colors ${
-                    !spot.isBookable 
-                      ? 'bg-muted text-muted-foreground cursor-not-allowed'
-                      : 'bg-primary text-primary-foreground hover:bg-primary/90'
-                  }`}
-                >
-                  {spot.buttonText || 'Reserve Booking'}
-                </Button>
+                <div className="w-full bg-red-500 text-white py-2 sm:py-3 rounded text-center font-semibold text-sm sm:text-base">
+                  Currently Booked
+                </div>
               </div>
-            </Card>
-          )}
+             </Card>)}
         </div>
 
         {filteredSpots.length === 0 && <div className="text-center py-12">

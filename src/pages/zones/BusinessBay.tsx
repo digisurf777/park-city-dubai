@@ -14,7 +14,6 @@ import Footer from "@/components/Footer";
 import { ParkingBookingModal } from "@/components/ParkingBookingModal";
 import ImageZoomModal from "@/components/ImageZoomModal";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-import { checkParkingAvailability, setupAvailabilitySubscriptions } from "@/utils/parkingAvailability";
 import businessBayHero from "@/assets/zones/business-bay-real.jpg";
 
 
@@ -36,10 +35,23 @@ const BusinessBay = () => {
   useEffect(() => {
     fetchParkingSpots();
 
-    // Set up real-time subscriptions for availability changes
-    const cleanup = setupAvailabilitySubscriptions('Business Bay', fetchParkingSpots);
+    // Set up real-time subscription to parking_listings changes
+    const channel = supabase
+      .channel('parking-listings-business-bay')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'parking_listings'
+      }, (payload) => {
+        console.log('Real-time parking listing change in Business Bay:', payload);
+        // Refetch data when any parking listing changes
+        fetchParkingSpots();
+      })
+      .subscribe();
 
-    return cleanup;
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const fetchParkingSpots = async () => {
@@ -58,17 +70,14 @@ const BusinessBay = () => {
         image: spot.images && spot.images.length > 0 ? spot.images[0] : "/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.png",
         images: spot.images || [],
         specs: spot.features || ["Access Card", "Covered", "2.1m Height"],
+        available: true,
         address: spot.address,
-        zone: "Business Bay",
         description: spot.description
       }));
 
       console.log("Transformed data:", transformedData);
 
-      // Check availability for all spots
-      const spotsWithAvailability = await checkParkingAvailability(transformedData);
-
-      setParkingSpots(spotsWithAvailability.length > 0 ? spotsWithAvailability : [
+      setParkingSpots(transformedData.length > 0 ? transformedData : [
         {
           id: "demo-1",
           name: "Zada Tower",
@@ -279,17 +288,9 @@ const BusinessBay = () => {
                     <span className="text-xl sm:text-2xl font-bold text-primary">From AED {spot.price}/month</span>
                   </div>
 
-                  <Button 
-                    onClick={() => handleReserveClick(spot)}
-                    disabled={!spot.isBookable}
-                    className={`w-full py-2 sm:py-3 rounded text-center font-semibold text-sm sm:text-base transition-colors ${
-                      !spot.isBookable 
-                        ? 'bg-muted text-muted-foreground cursor-not-allowed'
-                        : 'bg-primary text-primary-foreground hover:bg-primary/90'
-                    }`}
-                  >
-                    {spot.buttonText || 'Reserve Booking'}
-                  </Button>
+                  <div className="w-full bg-red-500 text-white py-2 sm:py-3 rounded text-center font-semibold text-sm sm:text-base">
+                    Currently Booked
+                  </div>
                 </div>
               </Card>
             ))}

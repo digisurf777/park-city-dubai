@@ -13,7 +13,6 @@ import Footer from "@/components/Footer";
 import { ParkingBookingModal } from "@/components/ParkingBookingModal";
 import ImageZoomModal from "@/components/ImageZoomModal";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-import { checkParkingAvailability, setupAvailabilitySubscriptions } from "@/utils/parkingAvailability";
 import downtownHero from "/lovable-uploads/f676da2a-39c9-4211-8561-5b884e0ceed8.png";
 
 const Downtown = () => {
@@ -35,10 +34,19 @@ const Downtown = () => {
   useEffect(() => {
     fetchParkingSpots();
 
-    // Set up real-time subscriptions for availability changes
-    const cleanup = setupAvailabilitySubscriptions('Downtown', fetchParkingSpots);
-
-    return cleanup;
+    // Set up real-time subscription to parking_listings changes
+    const channel = supabase.channel('parking-listings-downtown').on('postgres_changes', {
+      event: '*',
+      schema: 'public',
+      table: 'parking_listings'
+    }, payload => {
+      console.log('Real-time parking listing change in Downtown:', payload);
+      // Refetch data when any parking listing changes
+      fetchParkingSpots();
+    }).subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
   const fetchParkingSpots = async () => {
     console.log('Fetching parking spots for Downtown...');
@@ -60,17 +68,14 @@ const Downtown = () => {
         image: spot.images && spot.images.length > 0 ? spot.images[0] : "/lovable-uploads/161ee737-1491-45d6-a5e3-a642b7ff0806.png",
         images: spot.images || [],
         specs: spot.features || ["Access Card", "Covered", "2.1m Height"],
+        available: true,
         address: spot.address,
-        zone: "Downtown",
         description: spot.description
       }));
       console.log('Transformed data:', transformedData);
 
-      // Check availability for all spots
-      const spotsWithAvailability = await checkParkingAvailability(transformedData);
-
       // Always show transformed data (real data from database when available)
-      setParkingSpots(spotsWithAvailability.length > 0 ? spotsWithAvailability : [
+      setParkingSpots(transformedData.length > 0 ? transformedData : [
         {
           id: "demo-1",
           name: "The Lofts Central Tower",
@@ -262,17 +267,9 @@ const Downtown = () => {
                   <span className="text-xl sm:text-2xl font-bold text-primary">From AED {spot.price}/month</span>
                 </div>
 
-                <Button 
-                  onClick={() => handleReserveClick(spot)}
-                  disabled={!spot.isBookable}
-                  className={`w-full py-2 sm:py-3 rounded text-center font-semibold text-sm sm:text-base transition-colors ${
-                    !spot.isBookable 
-                      ? 'bg-muted text-muted-foreground cursor-not-allowed'
-                      : 'bg-primary text-primary-foreground hover:bg-primary/90'
-                  }`}
-                >
-                  {spot.buttonText || 'Reserve Booking'}
-                </Button>
+                <div className="w-full bg-red-500 text-white py-2 sm:py-3 rounded text-center font-semibold text-sm sm:text-base">
+                  Currently Booked
+                </div>
               </div>
             </Card>)}
         </div>
