@@ -21,6 +21,7 @@ import '../styles/quill.css';
 import SecureDocumentViewer from '@/components/SecureDocumentViewer';
 import SpaceManagement from '@/components/SpaceManagement';
 import AdminNotifications from '@/components/AdminNotifications';
+import LiveBookingControl from '@/components/LiveBookingControl';
 
 interface NewsPost {
   id: string;
@@ -2352,6 +2353,10 @@ const AdminPanel = () => {
               <Grid className="h-4 w-4 mr-1" />
               Space Management
             </TabsTrigger>
+            <TabsTrigger value="live-booking" className="text-xs lg:text-sm">
+              <CheckCircle className="h-4 w-4 mr-1" />
+              Live Booking Control
+            </TabsTrigger>
             <TabsTrigger value="bookings" className="text-xs lg:text-sm">Booking Management</TabsTrigger>
             <TabsTrigger value="verifications" className="text-xs lg:text-sm">User Verifications</TabsTrigger>
             <TabsTrigger value="messages" className="text-xs lg:text-sm">Send Messages</TabsTrigger>
@@ -2998,6 +3003,13 @@ const AdminPanel = () => {
 
           <TabsContent value="spaces" className="space-y-6">
             <SpaceManagement onRefresh={() => {
+              fetchParkingListings();
+              fetchParkingBookings();
+            }} />
+          </TabsContent>
+
+          <TabsContent value="live-booking" className="space-y-6">
+            <LiveBookingControl onRefresh={() => {
               fetchParkingListings();
               fetchParkingBookings();
             }} />
