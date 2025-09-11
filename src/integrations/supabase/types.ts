@@ -14,6 +14,53 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_notifications: {
+        Row: {
+          booking_id: string | null
+          created_at: string | null
+          id: string
+          is_read: boolean | null
+          message: string
+          notification_type: string
+          priority: string | null
+          read_at: string | null
+          title: string
+          user_id: string | null
+        }
+        Insert: {
+          booking_id?: string | null
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          message: string
+          notification_type: string
+          priority?: string | null
+          read_at?: string | null
+          title: string
+          user_id?: string | null
+        }
+        Update: {
+          booking_id?: string | null
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          message?: string
+          notification_type?: string
+          priority?: string | null
+          read_at?: string | null
+          title?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_notifications_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "parking_bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       blog_posts: {
         Row: {
           author: string | null
@@ -857,6 +904,50 @@ export type Database = {
         }
         Relationships: []
       }
+      user_notifications: {
+        Row: {
+          booking_id: string | null
+          created_at: string | null
+          id: string
+          is_read: boolean | null
+          message: string
+          notification_type: string
+          read_at: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          booking_id?: string | null
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          message: string
+          notification_type: string
+          read_at?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          booking_id?: string | null
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          message?: string
+          notification_type?: string
+          read_at?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_notifications_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "parking_bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string | null
@@ -1055,6 +1146,16 @@ export type Database = {
         Args: { requesting_user_id?: string; verification_id: string }
         Returns: boolean
       }
+      check_booking_conflicts: {
+        Args: {
+          p_end_time: string
+          p_exclude_booking_id?: string
+          p_location: string
+          p_start_time: string
+          p_zone: string
+        }
+        Returns: boolean
+      }
       create_parking_spaces_for_listing: {
         Args: {
           listing_id: string
@@ -1070,6 +1171,10 @@ export type Database = {
       encrypt_document_reference: {
         Args: { verification_id: string }
         Returns: boolean
+      }
+      ensure_profile_email: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
       expire_booking_chats: {
         Args: Record<PropertyKey, never>
@@ -1089,6 +1194,10 @@ export type Database = {
       }
       generate_secure_document_url: {
         Args: { access_duration_minutes?: number; verification_id: string }
+        Returns: Json
+      }
+      get_admin_booking_stats: {
+        Args: Record<PropertyKey, never>
         Returns: Json
       }
       get_booking_contact_info: {
@@ -1352,6 +1461,12 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
+      booking_status:
+        | "pending"
+        | "approved"
+        | "rejected"
+        | "completed"
+        | "cancelled"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1480,6 +1595,13 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "moderator", "user"],
+      booking_status: [
+        "pending",
+        "approved",
+        "rejected",
+        "completed",
+        "cancelled",
+      ],
     },
   },
 } as const
