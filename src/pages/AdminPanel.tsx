@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Pencil, Trash2, Plus, CheckCircle, XCircle, FileText, Mail, Upload, X, Eye, Edit, Lightbulb, Camera, Settings, RefreshCw, MessageCircle, Send, LogOut, Home, Grid } from 'lucide-react';
+import { Pencil, Trash2, Plus, CheckCircle, XCircle, FileText, Mail, Upload, X, Eye, Edit, Lightbulb, Camera, Settings, RefreshCw, MessageCircle, Send, LogOut, Home, Grid, Bell } from 'lucide-react';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -20,6 +20,7 @@ import 'react-quill/dist/quill.snow.css';
 import '../styles/quill.css';
 import SecureDocumentViewer from '@/components/SecureDocumentViewer';
 import SpaceManagement from '@/components/SpaceManagement';
+import AdminNotifications from '@/components/AdminNotifications';
 
 interface NewsPost {
   id: string;
@@ -176,6 +177,9 @@ const AdminPanel = () => {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [newMessageAlert, setNewMessageAlert] = useState<string | null>(null);
   const listingFileInputRef = useRef<HTMLInputElement>(null);
+  
+  // Notifications state
+  const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(0);
 
   useEffect(() => {
     console.log('=== AUTH EFFECT TRIGGER ===');
@@ -214,6 +218,47 @@ const AdminPanel = () => {
 
     return () => {
       supabase.removeChannel(channel);
+    };
+  }, [isAdmin]);
+
+  // Fetch unread notifications count
+  useEffect(() => {
+    if (!isAdmin) return;
+
+    const fetchNotificationsCount = async () => {
+      try {
+        const { count, error } = await supabase
+          .from('admin_notifications')
+          .select('*', { count: 'exact', head: true })
+          .eq('is_read', false);
+
+        if (error) throw error;
+        setUnreadNotificationsCount(count || 0);
+      } catch (error) {
+        console.error('Error fetching notifications count:', error);
+      }
+    };
+
+    fetchNotificationsCount();
+
+    // Set up real-time subscription for notifications
+    const notificationChannel = supabase
+      .channel('admin-notifications-count')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'admin_notifications'
+        },
+        () => {
+          fetchNotificationsCount();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(notificationChannel);
     };
   }, [isAdmin]);
 
@@ -2060,6 +2105,17 @@ const AdminPanel = () => {
         <Tabs defaultValue="chat" className="w-full">
           <TabsList className="flex flex-wrap w-full gap-1 h-auto p-2">
             <TabsTrigger value="news" className="text-xs lg:text-sm">News Management</TabsTrigger>
+            <TabsTrigger value="notifications" className="text-xs lg:text-sm relative">
+              <Bell className="h-4 w-4 mr-1" />
+              Notifications
+              {unreadNotificationsCount > 0 && (
+                <Badge 
+                  className="absolute -top-2 -right-2 h-5 w-5 p-0 text-xs bg-red-500 text-white rounded-full flex items-center justify-center"
+                >
+                  {unreadNotificationsCount > 9 ? '9+' : unreadNotificationsCount}
+                </Badge>
+              )}
+            </TabsTrigger>
             <TabsTrigger value="listings" className="text-xs lg:text-sm">Parking Listings</TabsTrigger>
             <TabsTrigger value="spaces" className="text-xs lg:text-sm">
               <Grid className="h-4 w-4 mr-1" />
@@ -3281,6 +3337,10 @@ const AdminPanel = () => {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="notifications" className="space-y-6">
+            <AdminNotifications isAdmin={isAdmin} />
           </TabsContent>
         </Tabs>
       </div>
