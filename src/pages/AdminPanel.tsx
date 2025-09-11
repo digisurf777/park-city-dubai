@@ -2102,21 +2102,21 @@ const AdminPanel = () => {
             </Button>
           </div>
         </div>
-        <Tabs defaultValue="chat" className="w-full">
-          <TabsList className="flex flex-wrap w-full gap-1 h-auto p-2">
-            <TabsTrigger value="news" className="text-xs lg:text-sm">News Management</TabsTrigger>
-            <TabsTrigger value="notifications" className="text-xs lg:text-sm relative">
+        <Tabs defaultValue="notifications" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 xl:grid-cols-9 gap-1">
+            <TabsTrigger value="news" className="text-xs lg:text-sm">News</TabsTrigger>
+            <TabsTrigger value="notifications" className="text-xs lg:text-sm relative bg-primary/10 font-semibold">
               <Bell className="h-4 w-4 mr-1" />
               Notifications
               {unreadNotificationsCount > 0 && (
                 <Badge 
-                  className="absolute -top-2 -right-2 h-5 w-5 p-0 text-xs bg-red-500 text-white rounded-full flex items-center justify-center"
+                  className="absolute -top-1 -right-1 h-4 w-4 p-0 text-xs bg-red-500 text-white rounded-full flex items-center justify-center"
                 >
                   {unreadNotificationsCount > 9 ? '9+' : unreadNotificationsCount}
                 </Badge>
               )}
             </TabsTrigger>
-            <TabsTrigger value="listings" className="text-xs lg:text-sm">Parking Listings</TabsTrigger>
+            <TabsTrigger value="listings" className="text-xs lg:text-sm">Listings</TabsTrigger>
             <TabsTrigger value="spaces" className="text-xs lg:text-sm">
               <Grid className="h-4 w-4 mr-1" />
               Space Management
