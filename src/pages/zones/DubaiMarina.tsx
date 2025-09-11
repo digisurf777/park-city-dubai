@@ -12,6 +12,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ParkingBookingModal } from "@/components/ParkingBookingModal";
 import ImageZoomModal from "@/components/ImageZoomModal";
+import { checkParkingAvailability, setupAvailabilitySubscriptions } from "@/utils/parkingAvailability";
 import dubaiMarinaHero from "@/assets/zones/dubai-marina-real.jpg";
 
 const DubaiMarina = () => {
@@ -33,19 +34,10 @@ const DubaiMarina = () => {
   useEffect(() => {
     fetchParkingSpots();
 
-    // Set up real-time subscription to parking_listings changes
-    const channel = supabase.channel('parking-listings-dubai-marina').on('postgres_changes', {
-      event: '*',
-      schema: 'public',
-      table: 'parking_listings'
-    }, payload => {
-      console.log('Real-time parking listing change in Dubai Marina:', payload);
-      // Refetch data when any parking listing changes
-      fetchParkingSpots();
-    }).subscribe();
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    // Set up real-time subscriptions for availability changes
+    const cleanup = setupAvailabilitySubscriptions('Dubai Marina', fetchParkingSpots);
+
+    return cleanup;
   }, []);
   const fetchParkingSpots = async () => {
     console.log('Fetching parking spots for Dubai Marina...');
@@ -68,14 +60,17 @@ const DubaiMarina = () => {
         images: spot.images || [],
         // Pass the full images array
         specs: spot.features || ["Access Card", "Covered", "2.1m Height"],
-        available: true,
         address: spot.address,
+        zone: "Dubai Marina",
         description: spot.description
       }));
       console.log('Transformed data:', transformedData);
 
+      // Check availability for all spots
+      const spotsWithAvailability = await checkParkingAvailability(transformedData);
+
       // If no data from database, use demo data
-      if (transformedData.length === 0) {
+      if (spotsWithAvailability.length === 0) {
         console.log('No data from database, using demo data');
         setParkingSpots([
           {
@@ -140,7 +135,7 @@ const DubaiMarina = () => {
           }
         ]);
       } else {
-        setParkingSpots(transformedData);
+        setParkingSpots(spotsWithAvailability);
       }
     } catch (error) {
       console.error('Error fetching parking spots:', error);
@@ -349,9 +344,14 @@ const DubaiMarina = () => {
 
                 <Button 
                   onClick={() => handleReserveClick(spot)}
-                  className="w-full bg-primary text-primary-foreground py-2 sm:py-3 rounded text-center font-semibold text-sm sm:text-base hover:bg-primary/90"
+                  disabled={!spot.isBookable}
+                  className={`w-full py-2 sm:py-3 rounded text-center font-semibold text-sm sm:text-base transition-colors ${
+                    !spot.isBookable 
+                      ? 'bg-muted text-muted-foreground cursor-not-allowed'
+                      : 'bg-primary text-primary-foreground hover:bg-primary/90'
+                  }`}
                 >
-                  Reserve Booking
+                  {spot.buttonText || 'Reserve Booking'}
                 </Button>
               </div>
             </Card>

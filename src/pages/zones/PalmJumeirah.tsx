@@ -8,6 +8,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ParkingBookingModal } from "@/components/ParkingBookingModal";
 import ImageZoomModal from "@/components/ImageZoomModal";
+import { checkParkingAvailability, setupAvailabilitySubscriptions } from "@/utils/parkingAvailability";
 
 
 const PalmJumeirah = () => {
@@ -27,6 +28,11 @@ const PalmJumeirah = () => {
 
   useEffect(() => {
     fetchParkingSpots();
+
+    // Set up real-time subscriptions for availability changes
+    const cleanup = setupAvailabilitySubscriptions('Palm Jumeirah', fetchParkingSpots);
+
+    return cleanup;
   }, []);
 
   const fetchParkingSpots = async () => {
@@ -46,15 +52,18 @@ const PalmJumeirah = () => {
         image: spot.images && spot.images.length > 0 ? spot.images[0] : "/lovable-uploads/ba4a4def-2cd7-4e97-89d5-074c13f0bbe8.png",
         images: spot.images || [],
         specs: spot.features || ["Access Card", "Covered", "2.1m Height"],
-        available: true,
         address: spot.address,
+        zone: "Palm Jumeirah",
         description: spot.description
       }));
 
       console.log("Transformed data:", transformedData);
 
+      // Check availability for all spots
+      const spotsWithAvailability = await checkParkingAvailability(transformedData);
+
       // If no data from database, use demo data
-      if (transformedData.length === 0) {
+      if (spotsWithAvailability.length === 0) {
         console.log("No data from database, using demo data");
         setParkingSpots([
           {
@@ -94,7 +103,7 @@ const PalmJumeirah = () => {
           }
         ]);
       } else {
-        setParkingSpots(transformedData);
+        setParkingSpots(spotsWithAvailability);
       }
     } catch (error) {
       console.error("Error fetching parking spots:", error);
@@ -296,9 +305,14 @@ const PalmJumeirah = () => {
 
                   <Button 
                     onClick={() => handleReserveClick(spot)}
-                    className="w-full bg-primary text-primary-foreground py-2 sm:py-3 rounded text-center font-semibold text-sm sm:text-base hover:bg-primary/90"
+                    disabled={!spot.isBookable}
+                    className={`w-full py-2 sm:py-3 rounded text-center font-semibold text-sm sm:text-base transition-colors ${
+                      !spot.isBookable 
+                        ? 'bg-muted text-muted-foreground cursor-not-allowed'
+                        : 'bg-primary text-primary-foreground hover:bg-primary/90'
+                    }`}
                   >
-                    Reserve Booking
+                    {spot.buttonText || 'Reserve Booking'}
                   </Button>
                 </div>
               </Card>

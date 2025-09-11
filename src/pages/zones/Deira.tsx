@@ -15,6 +15,7 @@ import Footer from "@/components/Footer";
 import { ParkingBookingModal } from "@/components/ParkingBookingModal";
 import ImageZoomModal from "@/components/ImageZoomModal";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import { checkParkingAvailability, setupAvailabilitySubscriptions } from "@/utils/parkingAvailability";
 import deiraHero from "@/assets/zones/deira-real.jpg";
 
 
@@ -68,6 +69,11 @@ const Deira = () => {
 
   useEffect(() => {
     fetchParkingSpots();
+
+    // Set up real-time subscriptions for availability changes
+    const cleanup = setupAvailabilitySubscriptions('Deira', fetchParkingSpots);
+
+    return cleanup;
   }, []);
 
   const fetchParkingSpots = async () => {
@@ -86,14 +92,17 @@ const Deira = () => {
         image: spot.images && spot.images.length > 0 ? spot.images[0] : "/lovable-uploads/747c1f5d-d6b2-4f6a-94a2-aca1927ee856.png",
         images: spot.images || [],
         specs: spot.features || ["Access Card", "Covered", "2.1m Height"],
-        available: true,
         address: spot.address,
+        zone: "Deira",
         description: spot.description
       }));
 
       console.log("Transformed data:", transformedData);
 
-      if (transformedData.length === 0) {
+      // Check availability for all spots
+      const spotsWithAvailability = await checkParkingAvailability(transformedData);
+
+      if (spotsWithAvailability.length === 0) {
         console.log("No data from database, using demo data");
         setParkingSpots([
           {
@@ -120,7 +129,7 @@ const Deira = () => {
           }
         ]);
       } else {
-        setParkingSpots(transformedData);
+        setParkingSpots(spotsWithAvailability);
       }
     } catch (error) {
       console.error("Error fetching parking spots:", error);
@@ -314,9 +323,14 @@ const Deira = () => {
 
                   <Button 
                     onClick={() => handleReserveClick(spot)}
-                    className="w-full bg-primary text-primary-foreground py-2 sm:py-3 rounded text-center font-semibold text-sm sm:text-base hover:bg-primary/90"
+                    disabled={!spot.isBookable}
+                    className={`w-full py-2 sm:py-3 rounded text-center font-semibold text-sm sm:text-base transition-colors ${
+                      !spot.isBookable 
+                        ? 'bg-muted text-muted-foreground cursor-not-allowed'
+                        : 'bg-primary text-primary-foreground hover:bg-primary/90'
+                    }`}
                   >
-                    Reserve Booking
+                    {spot.buttonText || 'Reserve Booking'}
                   </Button>
                 </div>
               </Card>
