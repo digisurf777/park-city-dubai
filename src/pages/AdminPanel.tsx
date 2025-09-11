@@ -198,11 +198,78 @@ const AdminPanelOrganized = () => {
     authStateHistory: [] as string[]
   });
 
-  // Placeholder functions (import from original AdminPanel)
+  // Fetch functions implementation
+  const fetchPosts = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('news')
+        .select('*')
+        .order('publication_date', { ascending: false });
+
+      if (error) throw error;
+      setPosts(data || []);
+    } catch (error) {
+      console.error('Error fetching posts:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch posts",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const checkAdminRole = async () => {
-    // Copy implementation from original
-    setIsAdmin(true);
-    setCheckingAdmin(false);
+    if (!user) {
+      setIsAdmin(false);
+      setCheckingAdmin(false);
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .eq('role', 'admin')
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error checking admin role:', error);
+      }
+      
+      setIsAdmin(!!data);
+    } catch (error) {
+      console.error('Error in admin check:', error);
+      setIsAdmin(false);
+    } finally {
+      setCheckingAdmin(false);
+    }
+  };
+
+  const setupAdminAccess = async () => {
+    try {
+      const { data, error } = await supabase.functions.invoke('setup-admin');
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Success",
+        description: "Admin access has been set up successfully",
+      });
+      
+      // Recheck admin role
+      checkAdminRole();
+    } catch (error) {
+      console.error('Setup admin error:', error);
+      toast({
+        title: "Error", 
+        description: "Failed to setup admin access",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleLogout = async () => {
@@ -215,7 +282,6 @@ const AdminPanelOrganized = () => {
   };
 
   // Placeholder for all other functions
-  const fetchPosts = async () => {};
   const fetchVerifications = async () => {};
   const fetchParkingListings = async () => {};
   const fetchParkingBookings = async () => {};
@@ -223,17 +289,153 @@ const AdminPanelOrganized = () => {
   const fetchDetailedUsers = async () => {};
   const fetchChatMessages = async () => {};
   const fetchChatUsers = async () => {};
-  const setupAdminAccess = async () => {};
-  const handleCreate = () => {};
-  const handleSave = async () => {};
-  const handleDelete = async (id: string) => {};
-  const sendChatReply = async () => {};
+  const handleCreate = () => {
+    setIsCreating(true);
+    setEditingPost(null);
+    // Reset form
+    setTitle('');
+    setContent('');
+    setImageUrl('');
+    setTags('');
+    setStatus('published');
+    setMetaTitle('');
+    setMetaDescription('');
+    setPublicationDate(new Date().toISOString().slice(0, 16));
+  };
+
+  const handleSave = async () => {
+    if (!title.trim() || !content.trim()) {
+      toast({
+        title: "Error",
+        description: "Title and content are required",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const postData = {
+        title: title.trim(),
+        content: content.trim(),
+        image_url: imageUrl.trim() || null,
+        publication_date: publicationDate || new Date().toISOString(),
+        tags: tags.split(',').map(tag => tag.trim()).filter(Boolean),
+        status: status,
+        meta_title: metaTitle.trim() || null,
+        meta_description: metaDescription.trim() || null,
+      };
+
+      if (editingPost) {
+        const { error } = await supabase
+          .from('news')
+          .update(postData)
+          .eq('id', editingPost.id);
+
+        if (error) throw error;
+
+        toast({
+          title: "Success",
+          description: "News post updated successfully",
+        });
+      } else {
+        const { error } = await supabase
+          .from('news')
+          .insert([postData]);
+
+        if (error) throw error;
+
+        toast({
+          title: "Success", 
+          description: "News post created successfully",
+        });
+      }
+
+      setIsCreating(false);
+      setEditingPost(null);
+      fetchPosts();
+    } catch (error) {
+      console.error('Error saving post:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save post. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this post?')) return;
+
+    try {
+      const { error } = await supabase
+        .from('news')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Post deleted successfully",
+      });
+      
+      fetchPosts();
+    } catch (error) {
+      console.error('Error deleting post:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete post",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const sendChatReply = async () => {
+    if (!chatReply.trim() || !selectedChatUser) return;
+
+    setSendingReply(true);
+    try {
+      const { error } = await supabase
+        .from('user_messages')
+        .insert([{
+          user_id: selectedChatUser,
+          subject: 'Admin Reply',
+          message: chatReply.trim(),
+          from_admin: true
+        }]);
+
+      if (error) throw error;
+
+      setChatReply('');
+      toast({
+        title: "Success",
+        description: "Reply sent successfully",
+      });
+      
+      fetchChatMessages();
+    } catch (error) {
+      console.error('Error sending reply:', error);
+      toast({
+        title: "Error",
+        description: "Failed to send reply",
+        variant: "destructive",
+      });
+    } finally {
+      setSendingReply(false);
+    }
+  };
 
   useEffect(() => {
     if (user) {
       checkAdminRole();
     }
   }, [user]);
+
+  useEffect(() => {
+    if (isAdmin) {
+      fetchPosts();
+    }
+  }, [isAdmin]);
 
   if (checkingAdmin) {
     return (
@@ -383,10 +585,241 @@ const AdminPanelOrganized = () => {
                     </Button>
                   </div>
                 </div>
-                {/* News content would go here - copy from original */}
+                {/* Create/Edit News Post Dialog */}
+                {(isCreating || editingPost) && (
+                  <Dialog open={true} onOpenChange={() => {
+                    setIsCreating(false);
+                    setEditingPost(null);
+                  }}>
+                    <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                      <DialogHeader>
+                        <DialogTitle>
+                          {editingPost ? 'Edit News Post' : 'Create New News Post'}
+                        </DialogTitle>
+                      </DialogHeader>
+                      
+                      <div className="space-y-6">
+                        {/* Title */}
+                        <div>
+                          <Label htmlFor="title">Title</Label>
+                          <Input
+                            id="title"
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                            placeholder="Enter post title"
+                            className="mt-1"
+                          />
+                        </div>
+
+                        {/* Content */}
+                        <div>
+                          <Label htmlFor="content">Content</Label>
+                          <div className="mt-1">
+                            <ReactQuill
+                              theme="snow"
+                              value={content}
+                              onChange={setContent}
+                              placeholder="Enter post content..."
+                              style={{ height: '300px', marginBottom: '50px' }}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Tags */}
+                        <div>
+                          <Label htmlFor="tags">Tags (comma separated)</Label>
+                          <Input
+                            id="tags"
+                            value={tags}
+                            onChange={(e) => setTags(e.target.value)}
+                            placeholder="Enter tags separated by commas"
+                            className="mt-1"
+                          />
+                        </div>
+
+                        {/* Status */}
+                        <div>
+                          <Label htmlFor="status">Status</Label>
+                          <Select value={status} onValueChange={setStatus}>
+                            <SelectTrigger className="mt-1">
+                              <SelectValue placeholder="Select status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="published">Published</SelectItem>
+                              <SelectItem value="draft">Draft</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        {/* Featured Image */}
+                        <div>
+                          <Label htmlFor="image">Featured Image</Label>
+                          <div className="mt-1 space-y-2">
+                            <div className="flex gap-2">
+                              <Input
+                                type="file"
+                                ref={fileInputRef}
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) setImageFile(file);
+                                }}
+                                accept="image/*"
+                                className="hidden"
+                              />
+                              <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => fileInputRef.current?.click()}
+                                disabled={imageUploading}
+                              >
+                                <Upload className="h-4 w-4 mr-2" />
+                                Upload Image
+                              </Button>
+                            </div>
+                            <Input
+                              value={imageUrl}
+                              onChange={(e) => setImageUrl(e.target.value)}
+                              placeholder="Or enter image URL"
+                            />
+                          </div>
+                        </div>
+
+                        {/* SEO Fields */}
+                        <div>
+                          <Label htmlFor="metaTitle">SEO Title (optional)</Label>
+                          <Input
+                            id="metaTitle"
+                            value={metaTitle}
+                            onChange={(e) => setMetaTitle(e.target.value)}
+                            placeholder="SEO title for search engines"
+                            className="mt-1"
+                          />
+                        </div>
+
+                        <div>
+                          <Label htmlFor="metaDescription">SEO Description (optional)</Label>
+                          <Textarea
+                            id="metaDescription"
+                            value={metaDescription}
+                            onChange={(e) => setMetaDescription(e.target.value)}
+                            placeholder="SEO description for search engines"
+                            className="mt-1"
+                            rows={3}
+                          />
+                        </div>
+
+                        {/* Publication Date */}
+                        <div>
+                          <Label htmlFor="publicationDate">Publication Date</Label>
+                          <Input
+                            id="publicationDate"
+                            type="datetime-local"
+                            value={publicationDate}
+                            onChange={(e) => setPublicationDate(e.target.value)}
+                            className="mt-1"
+                          />
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="flex gap-2 pt-4">
+                          <Button onClick={handleSave} className="flex-1">
+                            Save Post
+                          </Button>
+                          <Button
+                            variant="outline"
+                            onClick={() => setIsPreviewMode(true)}
+                            className="flex-1"
+                          >
+                            Preview
+                          </Button>
+                          <Button
+                            variant="outline"
+                            onClick={() => {
+                              setIsCreating(false);
+                              setEditingPost(null);
+                            }}
+                            className="flex-1"
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                )}
+
+                {/* News Posts List */}
                 <Card>
-                  <CardContent className="pt-6">
-                    <p className="text-center text-muted-foreground">News management interface will be here</p>
+                  <CardHeader>
+                    <CardTitle>All News Posts</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {loading ? (
+                      <div className="text-center py-8">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+                        <p className="text-muted-foreground mt-2">Loading posts...</p>
+                      </div>
+                    ) : posts.length > 0 ? (
+                      <div className="space-y-4">
+                        {posts.map((post) => (
+                          <div key={post.id} className="border rounded-lg p-4 flex justify-between items-start">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-2">
+                                <h3 className="font-semibold text-lg">{post.title}</h3>
+                                <Badge variant={post.status === 'published' ? 'default' : 'secondary'}>
+                                  {post.status}
+                                </Badge>
+                              </div>
+                              <p className="text-muted-foreground text-sm mb-2">
+                                Published: {format(new Date(post.publication_date), 'MMM dd, yyyy h:mm a')}
+                              </p>
+                              {post.image_url && (
+                                <img
+                                  src={post.image_url}
+                                  alt={post.title}
+                                  className="w-20 h-20 object-cover rounded mt-2"
+                                />
+                              )}
+                            </div>
+                            <div className="flex gap-2 ml-4">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  setEditingPost(post);
+                                  setTitle(post.title);
+                                  setContent(post.content);
+                                  setImageUrl(post.image_url || '');
+                                  setTags(post.tags?.join(', ') || '');
+                                  setStatus(post.status || 'published');
+                                  setMetaTitle(post.meta_title || '');
+                                  setMetaDescription(post.meta_description || '');
+                                  setPublicationDate(post.publication_date.slice(0, 16));
+                                }}
+                              >
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleDelete(post.id)}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-8">
+                        <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                        <p className="text-muted-foreground">No news posts found</p>
+                        <Button onClick={handleCreate} className="mt-4">
+                          <Plus className="h-4 w-4 mr-2" />
+                          Create Your First Post
+                        </Button>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               </TabsContent>
