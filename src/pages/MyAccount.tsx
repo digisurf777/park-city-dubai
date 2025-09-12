@@ -114,12 +114,23 @@ const MyAccount = () => {
       const {
         data,
         error
-      } = await supabase.from('profiles').select('*').eq('user_id', user.id).single();
+      } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
       if (error) {
         console.error('Error fetching profile:', error);
+        setProfile(null);
+        setIsParkingOwner(false);
+      } else if (!data) {
+        // No profile yet
+        setProfile(null);
+        setIsParkingOwner(false);
       } else {
         setProfile(data);
-        setIsParkingOwner(data?.user_type === 'owner');
+        setIsParkingOwner(data.user_type === 'owner');
       }
     } catch (error) {
       console.error('Error fetching profile:', error);
@@ -170,16 +181,16 @@ const MyAccount = () => {
           full_name: profile.full_name,
           phone: profile.phone,
           email: user.email, // keep email in sync with auth
-          user_type: isParkingOwner ? 'owner' : 'renter',
+          user_type: isParkingOwner ? 'owner' : 'seeker',
         });
 
       query = profile?.id ? query.eq('id', profile.id) : query.eq('user_id', user.id);
 
       const { data, error } = await query.select().maybeSingle();
 
-      if (error) {
-        console.error('Profile update error:', error);
-        // Fallback: create profile if it doesn't exist
+      if (error || !data) {
+        console.error('Profile update error or no row updated:', error);
+        // Fallback: create profile if it doesn't exist or nothing was updated
         const { error: insertError, data: insertData } = await supabase
           .from('profiles')
           .insert({
@@ -187,21 +198,21 @@ const MyAccount = () => {
             email: user.email,
             full_name: profile.full_name,
             phone: profile.phone,
-            user_type: isParkingOwner ? 'owner' : 'renter',
+            user_type: isParkingOwner ? 'owner' : 'seeker',
           })
           .select()
           .maybeSingle();
 
         if (insertError) {
           console.error('Profile insert fallback error:', insertError);
-          toast.error(`Failed to update profile: ${error.message}`);
+          toast.error(`Failed to save profile: ${(error || insertError).message}`);
         } else {
-          toast.success('Profile created successfully');
+          toast.success('Profile saved successfully');
           if (insertData) setProfile(prev => ({ ...(prev || {} as any), ...insertData }));
         }
       } else {
         toast.success('Profile updated successfully');
-        if (data) setProfile(prev => ({ ...(prev || {} as any), ...data }));
+        setProfile(prev => ({ ...(prev || {} as any), ...data }));
       }
     } catch (error: any) {
       console.error('Profile update exception:', error);
