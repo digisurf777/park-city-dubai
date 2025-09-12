@@ -597,20 +597,6 @@ const AdminNotifications = ({ isAdmin }: AdminNotificationsProps) => {
                       </Button>
                     </div>
                   )}
-
-                  {notification.parking_bookings.status !== 'pending' && (
-                    <div className="text-center py-2">
-                      <Badge 
-                        className={
-                          notification.parking_bookings.status === 'confirmed' 
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-red-100 text-red-800'
-                        }
-                      >
-                        {notification.parking_bookings.status === 'confirmed' ? 'Approved' : 'Rejected'}
-                      </Badge>
-                    </div>
-                  )}
                 </CardContent>
               )}
             </Card>
