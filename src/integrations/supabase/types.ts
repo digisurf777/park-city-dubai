@@ -574,7 +574,7 @@ export type Database = {
           new_status: string
           old_status: string | null
           override_reason: string | null
-          space_id: string
+          space_id: string | null
         }
         Insert: {
           changed_at?: string
@@ -584,7 +584,7 @@ export type Database = {
           new_status: string
           old_status?: string | null
           override_reason?: string | null
-          space_id: string
+          space_id?: string | null
         }
         Update: {
           changed_at?: string
@@ -594,7 +594,7 @@ export type Database = {
           new_status?: string
           old_status?: string | null
           override_reason?: string | null
-          space_id?: string
+          space_id?: string | null
         }
         Relationships: [
           {
