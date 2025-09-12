@@ -532,8 +532,100 @@ const AdminPanelOrganized = () => {
   const fetchParkingBookings = async () => {};
   const fetchAllUsers = async () => {};
   const fetchDetailedUsers = async () => {};
-  const fetchChatMessages = async () => {};
-  const fetchChatUsers = async () => {};
+  
+  const fetchChatMessages = async () => {
+    setChatLoading(true);
+    try {
+      // First get messages
+      const { data: messages, error: msgError } = await supabase
+        .from('user_messages')
+        .select('*')
+        .order('created_at', { ascending: true });
+
+      if (msgError) throw msgError;
+
+      // Then get profiles for the user IDs
+      if (messages && messages.length > 0) {
+        const userIds = [...new Set(messages.map(msg => msg.user_id))];
+        
+        const { data: profiles, error: profileError } = await supabase
+          .from('profiles')
+          .select('user_id, full_name')
+          .in('user_id', userIds);
+
+        if (profileError) {
+          console.error('Error fetching profiles:', profileError);
+        }
+
+        // Combine messages with profile data
+        const messagesWithProfiles = messages.map(msg => ({
+          ...msg,
+          profiles: profiles?.find(p => p.user_id === msg.user_id) || { full_name: 'Unknown User', user_id: msg.user_id }
+        }));
+
+        setChatMessages(messagesWithProfiles as ChatMessage[]);
+      } else {
+        setChatMessages([]);
+      }
+    } catch (error) {
+      console.error('Error fetching chat messages:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch chat messages",
+        variant: "destructive",
+      });
+    } finally {
+      setChatLoading(false);
+    }
+  };
+
+  const fetchChatUsers = async () => {
+    try {
+      // Get all messages
+      const { data: messages, error: msgError } = await supabase
+        .from('user_messages')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (msgError) throw msgError;
+
+      if (messages && messages.length > 0) {
+        // Get unique user IDs
+        const userIds = [...new Set(messages.map(msg => msg.user_id))];
+        
+        // Get profiles for these users
+        const { data: profiles, error: profileError } = await supabase
+          .from('profiles')
+          .select('user_id, full_name')
+          .in('user_id', userIds);
+
+        if (profileError) {
+          console.error('Error fetching profiles:', profileError);
+        }
+
+        // Create user map with unread counts
+        const userMap = new Map();
+        userIds.forEach(userId => {
+          const profile = profiles?.find(p => p.user_id === userId);
+          const unreadCount = messages.filter(msg => 
+            msg.user_id === userId && !msg.from_admin && !msg.read_status
+          ).length;
+
+          userMap.set(userId, {
+            user_id: userId,
+            full_name: profile?.full_name || 'Unknown User',
+            unread_count: unreadCount
+          });
+        });
+
+        setChatUsers(Array.from(userMap.values()));
+      } else {
+        setChatUsers([]);
+      }
+    } catch (error) {
+      console.error('Error fetching chat users:', error);
+    }
+  };
   const handleCreate = () => {
     setIsCreating(true);
     setEditingPost(null);
@@ -796,7 +888,42 @@ const AdminPanelOrganized = () => {
       fetchPosts();
       fetchVerifications();
       fetchParkingListings();
+      fetchChatMessages();
+      fetchChatUsers();
     }
+  }, [isAdmin]);
+
+  // Set up real-time subscription for chat messages
+  useEffect(() => {
+    if (!isAdmin) return;
+
+    const channel = supabase
+      .channel('admin-chat-messages')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'user_messages'
+        },
+        (payload) => {
+          console.log('Chat message update:', payload);
+          // Refresh chat messages and users when there's a change
+          fetchChatMessages();
+          fetchChatUsers();
+          
+          // Show notification for new user messages
+          if (payload.eventType === 'INSERT' && !payload.new.from_admin) {
+            setNewMessageAlert(`New message from user`);
+            setTimeout(() => setNewMessageAlert(null), 5000);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [isAdmin]);
 
   if (checkingAdmin) {
