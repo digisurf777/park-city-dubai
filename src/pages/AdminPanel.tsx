@@ -56,7 +56,15 @@ interface Verification {
   document_type: string;
   document_image_url: string;
   verification_status: string;
+  nationality?: string;
   created_at: string;
+  profiles?: {
+    user_id: string;
+    full_name: string;
+    email: string;
+    phone?: string;
+    user_type: string;
+  } | null;
 }
 
 interface ParkingListing {
@@ -281,8 +289,136 @@ const AdminPanelOrganized = () => {
     }
   };
 
-  // Placeholder for all other functions
-  const fetchVerifications = async () => {};
+  // Fetch verifications function
+  const fetchVerifications = async () => {
+    try {
+      setVerificationsLoading(true);
+      
+      // First get verifications
+      const { data: verificationsData, error: verifyError } = await supabase
+        .from('user_verifications')
+        .select(`
+          id,
+          user_id,
+          full_name,
+          document_type,
+          document_image_url,
+          verification_status,
+          nationality,
+          created_at
+        `)
+        .order('created_at', { ascending: false });
+
+      if (verifyError) throw verifyError;
+
+      // Then get profiles for each verification
+      if (verificationsData && verificationsData.length > 0) {
+        const userIds = verificationsData.map(v => v.user_id);
+        
+        const { data: profilesData, error: profileError } = await supabase
+          .from('profiles')
+          .select('user_id, full_name, email, phone, user_type')
+          .in('user_id', userIds);
+
+        if (profileError) {
+          console.error('Error fetching profiles:', profileError);
+        }
+
+        // Combine the data
+        const verificationsWithProfiles = verificationsData.map(verification => ({
+          ...verification,
+          profiles: profilesData?.find(p => p.user_id === verification.user_id) || null
+        }));
+
+        setVerifications(verificationsWithProfiles as Verification[]);
+      } else {
+        setVerifications([]);
+      }
+    } catch (error) {
+      console.error('Error fetching verifications:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch verifications",
+        variant: "destructive",
+      });
+    } finally {
+      setVerificationsLoading(false);
+    }
+  };
+
+  const updateVerificationStatus = async (verificationId: string, newStatus: 'approved' | 'rejected') => {
+    setVerificationUpdating(verificationId);
+    try {
+      const { error } = await supabase
+        .from('user_verifications')
+        .update({ 
+          verification_status: newStatus,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', verificationId);
+
+      if (error) throw error;
+
+      // Find verification to get user details
+      const verification = verifications.find(v => v.id === verificationId);
+      if (verification) {
+        // Send notification email
+        const { error: emailError } = await supabase.functions.invoke('send-verification-approval', {
+          body: {
+            userId: verification.user_id,
+            userEmail: verification.profiles?.email,
+            userName: verification.profiles?.full_name || verification.full_name,
+            isApproved: newStatus === 'approved'
+          }
+        });
+
+        if (emailError) {
+          console.error('Email notification error:', emailError);
+        }
+      }
+
+      toast({
+        title: "Success",
+        description: `Verification ${newStatus} successfully`,
+      });
+
+      // Refresh verifications list
+      fetchVerifications();
+    } catch (error) {
+      console.error('Error updating verification:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update verification status",
+        variant: "destructive",
+      });
+    } finally {
+      setVerificationUpdating(null);
+    }
+  };
+
+  const getStatusBadgeVariant = (status: string) => {
+    switch (status) {
+      case 'approved': return 'default';
+      case 'verified': return 'default';
+      case 'pending': return 'secondary';
+      case 'rejected': return 'destructive';
+      default: return 'secondary';
+    }
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'approved':
+      case 'verified':
+        return <CheckCircle className="h-4 w-4 text-green-500" />;
+      case 'pending':
+        return <RefreshCw className="h-4 w-4 text-yellow-500" />;
+      case 'rejected':
+        return <XCircle className="h-4 w-4 text-red-500" />;
+      default:
+        return <RefreshCw className="h-4 w-4 text-gray-500" />;
+    }
+  };
   const fetchParkingListings = async () => {};
   const fetchParkingBookings = async () => {};
   const fetchAllUsers = async () => {};
@@ -434,6 +570,7 @@ const AdminPanelOrganized = () => {
   useEffect(() => {
     if (isAdmin) {
       fetchPosts();
+      fetchVerifications();
     }
   }, [isAdmin]);
 
@@ -901,10 +1038,140 @@ const AdminPanelOrganized = () => {
               <TabsContent value="verifications" className="space-y-6">
                 <Card>
                   <CardHeader>
-                    <CardTitle>User Verifications</CardTitle>
+                    <div className="flex justify-between items-center">
+                      <CardTitle className="flex items-center gap-2">
+                        <CheckCircle className="h-5 w-5" />
+                        User Verifications ({verifications.length})
+                      </CardTitle>
+                      <Button
+                        onClick={fetchVerifications}
+                        variant="outline"
+                        size="sm"
+                        disabled={verificationsLoading}
+                      >
+                        <RefreshCw className={`h-4 w-4 mr-2 ${verificationsLoading ? 'animate-spin' : ''}`} />
+                        Refresh
+                      </Button>
+                    </div>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-center text-muted-foreground">User verification interface will be here</p>
+                    {verificationsLoading ? (
+                      <div className="text-center py-8">
+                        <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground mx-auto mb-4" />
+                        <p className="text-muted-foreground">Loading verifications...</p>
+                      </div>
+                    ) : verifications.length === 0 ? (
+                      <div className="text-center py-8">
+                        <CheckCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                        <p className="text-muted-foreground">No verifications found</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {verifications.map((verification) => (
+                          <Card key={verification.id} className="border">
+                            <CardContent className="p-6">
+                              <div className="flex flex-col lg:flex-row gap-6">
+                                {/* User Info */}
+                                <div className="flex-1 space-y-3">
+                                  <div className="flex items-start justify-between">
+                                    <div>
+                                      <h3 className="font-semibold text-lg">
+                                        {verification.full_name}
+                                      </h3>
+                                      <p className="text-sm text-muted-foreground">
+                                        {verification.profiles?.email || 'Email not available'}
+                                      </p>
+                                      {verification.profiles?.phone && (
+                                        <p className="text-sm text-muted-foreground">
+                                          {verification.profiles.phone}
+                                        </p>
+                                      )}
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      {getStatusIcon(verification.verification_status)}
+                                      <Badge variant={getStatusBadgeVariant(verification.verification_status)}>
+                                        {verification.verification_status.toUpperCase()}
+                                      </Badge>
+                                    </div>
+                                  </div>
+
+                                  <div className="grid grid-cols-2 gap-4 text-sm">
+                                    <div>
+                                      <p className="font-medium">Document Type</p>
+                                      <p className="text-muted-foreground">
+                                        {verification.document_type.replace('_', ' ').toUpperCase()}
+                                      </p>
+                                    </div>
+                                    <div>
+                                      <p className="font-medium">Nationality</p>
+                                      <p className="text-muted-foreground">
+                                        {verification.nationality || 'Not specified'}
+                                      </p>
+                                    </div>
+                                    <div>
+                                      <p className="font-medium">Submitted</p>
+                                      <p className="text-muted-foreground">
+                                        {format(new Date(verification.created_at), 'MMM dd, yyyy HH:mm')}
+                                      </p>
+                                    </div>
+                                    <div>
+                                      <p className="font-medium">User Type</p>
+                                      <p className="text-muted-foreground">
+                                        {verification.profiles?.user_type || 'Unknown'}
+                                      </p>
+                                    </div>
+                                  </div>
+
+                                  {/* Action Buttons */}
+                                  <div className="flex gap-2 mt-4">
+                                    {verification.verification_status === 'pending' && (
+                                      <>
+                                        <Button
+                                          onClick={() => updateVerificationStatus(verification.id, 'approved')}
+                                          disabled={verificationUpdating === verification.id}
+                                          size="sm"
+                                          className="bg-green-600 hover:bg-green-700"
+                                        >
+                                          <CheckCircle className="h-4 w-4 mr-2" />
+                                          Approve
+                                        </Button>
+                                        <Button
+                                          onClick={() => updateVerificationStatus(verification.id, 'rejected')}
+                                          disabled={verificationUpdating === verification.id}
+                                          variant="destructive"
+                                          size="sm"
+                                        >
+                                          <XCircle className="h-4 w-4 mr-2" />
+                                          Reject
+                                        </Button>
+                                      </>
+                                    )}
+                                    
+                                    {verificationUpdating === verification.id && (
+                                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                        <RefreshCw className="h-4 w-4 animate-spin" />
+                                        Processing...
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+
+                                {/* Document Viewer */}
+                                <div className="lg:w-80">
+                                  <SecureDocumentViewer
+                                    verificationId={verification.id}
+                                    documentType={verification.document_type}
+                                    fullName={verification.full_name}
+                                    verificationStatus={verification.verification_status}
+                                    isAdmin={true}
+                                  />
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               </TabsContent>
