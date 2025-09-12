@@ -67,6 +67,7 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
     reason: ''
   });
   const [viewMode, setViewMode] = useState<'listings' | 'spaces'>('listings');
+  const [listingFilter, setListingFilter] = useState<string | 'all'>('all');
 
   useEffect(() => {
     fetchSpaces();
@@ -83,7 +84,37 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
       
       if (error) throw error;
       
-      setSpaces(data || []);
+      // Deduplicate rows: prefer real space_id; fallback to per-listing unique when spaces are virtual
+      const normalize = (v?: string) => (v || '').trim().toLowerCase().replace(/\s+/g, ' ');
+      const byKey = new Map<string, ParkingSpace>();
+      (data || []).forEach((s: ParkingSpace) => {
+        const hasValidId = s.space_id && s.space_id !== 'null' && s.space_id !== 'undefined';
+        const key = hasValidId ? s.space_id : `${s.listing_id}|${normalize(s.space_number)}`;
+        const existing = byKey.get(key);
+        if (!existing) {
+          byKey.set(key, s);
+        } else {
+          // keep the latest
+          const prev = existing.last_updated ? new Date(existing.last_updated).getTime() : 0;
+          const next = s.last_updated ? new Date(s.last_updated).getTime() : 0;
+          if (next > prev) byKey.set(key, s);
+        }
+      });
+      
+      // Additionally, if a listing ended up with multiple rows, keep just one (since each car park has one space)
+      const onePerListing = new Map<string, ParkingSpace>();
+      Array.from(byKey.values()).forEach((s) => {
+        const existing = onePerListing.get(s.listing_id);
+        if (!existing) {
+          onePerListing.set(s.listing_id, s);
+        } else {
+          const prev = existing.last_updated ? new Date(existing.last_updated).getTime() : 0;
+          const next = s.last_updated ? new Date(s.last_updated).getTime() : 0;
+          if (next > prev) onePerListing.set(s.listing_id, s);
+        }
+      });
+
+      setSpaces(Array.from(onePerListing.values()));
     } catch (error) {
       console.error('Error fetching spaces:', error);
       toast({
@@ -125,6 +156,11 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
         if (overrideFilter === 'automatic') return !space.override_status;
         return true;
       });
+    }
+
+    // Listing filter (set from "Manage spaces")
+    if (listingFilter !== 'all') {
+      filtered = filtered.filter(space => space.listing_id === listingFilter);
     }
 
     setFilteredSpaces(filtered);
@@ -268,8 +304,13 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
   };
 
   const getUniqueListings = () => {
-    return Array.from(new Set(spaces.map(space => ({ id: space.listing_id, title: space.listing_title }))))
-      .filter(listing => listing.id);
+    const byId = new Map<string, { id: string; title: string }>();
+    spaces.forEach(space => {
+      if (space.listing_id && !byId.has(space.listing_id)) {
+        byId.set(space.listing_id, { id: space.listing_id, title: space.listing_title });
+      }
+    });
+    return Array.from(byId.values());
   };
 
   // Build per-listing summaries from filtered spaces
@@ -519,6 +560,14 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
               )}
             </div>
           </div>
+          {listingFilter !== 'all' && (
+            <div className="mt-4 flex items-center gap-2">
+              <Badge variant="outline">
+                Filtering by listing: {spaces.find(s => s.listing_id === listingFilter)?.listing_title || listingFilter}
+              </Badge>
+              <Button variant="ghost" size="sm" onClick={() => setListingFilter('all')}>Clear</Button>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -619,7 +668,7 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Button size="sm" variant="outline" onClick={() => setViewMode('spaces')}>
+                      <Button size="sm" variant="outline" onClick={() => { setViewMode('spaces'); setListingFilter(l.listing_id); }}>
                         Manage spaces
                       </Button>
                     </TableCell>
