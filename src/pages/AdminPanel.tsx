@@ -608,6 +608,63 @@ const AdminPanelOrganized = () => {
     }
   };
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+
+    setUploadingImage(true);
+    try {
+      const uploadPromises = files.map(async (file, index) => {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Date.now()}-${index}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+        
+        const { data, error } = await supabase.storage
+          .from('parking-images')
+          .upload(fileName, file, {
+            cacheControl: '3600',
+            upsert: false
+          });
+
+        if (error) throw error;
+
+        const { data: publicUrl } = supabase.storage
+          .from('parking-images')
+          .getPublicUrl(fileName);
+
+        return publicUrl.publicUrl;
+      });
+
+      const uploadedUrls = await Promise.all(uploadPromises);
+      setListingImages(prev => [...prev, ...uploadedUrls]);
+      
+      toast({
+        title: "Success",
+        description: `${uploadedUrls.length} image(s) uploaded successfully`,
+      });
+    } catch (error) {
+      console.error('Error uploading images:', error);
+      toast({
+        title: "Error",
+        description: "Failed to upload images",
+        variant: "destructive",
+      });
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  const addImageUrl = () => {
+    if (!newImageUrl.trim()) return;
+    
+    setListingImages(prev => [...prev, newImageUrl.trim()]);
+    setNewImageUrl('');
+    
+    toast({
+      title: "Success",
+      description: "Image URL added successfully",
+    });
+  };
+
   const handleSaveListing = async () => {
     if (!listingTitle.trim() || !listingAddress.trim() || !listingZone.trim()) {
       toast({
@@ -630,6 +687,7 @@ const AdminPanelOrganized = () => {
         price_per_month: listingPricePerMonth || null,
         contact_email: listingContactEmail.trim() || null,
         contact_phone: listingContactPhone.trim() || null,
+        images: listingImages,
         updated_at: new Date().toISOString(),
       };
 
@@ -1047,20 +1105,50 @@ const AdminPanelOrganized = () => {
                 {/* Edit Parking Listing Dialog */}
                 {editingListing && (
                   <Dialog open={true} onOpenChange={() => setEditingListing(null)}>
-                    <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                    <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
                       <DialogHeader>
                         <DialogTitle>Edit Parking Listing</DialogTitle>
                       </DialogHeader>
                       
-                      <div className="space-y-4">
-                        {/* Title */}
+                      <div className="space-y-6">
+                        {/* Title and Zone */}
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <Label htmlFor="listingTitle">Title *</Label>
+                            <Input
+                              id="listingTitle"
+                              value={listingTitle}
+                              onChange={(e) => setListingTitle(e.target.value)}
+                              placeholder="Enter listing title"
+                              className="mt-1"
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="listingZone">Zone *</Label>
+                            <Select value={listingZone} onValueChange={setListingZone}>
+                              <SelectTrigger className="mt-1">
+                                <SelectValue placeholder="Select zone" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="downtown">Downtown</SelectItem>
+                                <SelectItem value="deira">Deira</SelectItem>
+                                <SelectItem value="business-bay">Business Bay</SelectItem>
+                                <SelectItem value="dubai-marina">Dubai Marina</SelectItem>
+                                <SelectItem value="difc">DIFC</SelectItem>
+                                <SelectItem value="palm-jumeirah">Palm Jumeirah</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+
+                        {/* Address */}
                         <div>
-                          <Label htmlFor="listingTitle">Title</Label>
+                          <Label htmlFor="listingAddress">Address *</Label>
                           <Input
-                            id="listingTitle"
-                            value={listingTitle}
-                            onChange={(e) => setListingTitle(e.target.value)}
-                            placeholder="Enter listing title"
+                            id="listingAddress"
+                            value={listingAddress}
+                            onChange={(e) => setListingAddress(e.target.value)}
+                            placeholder="Enter address"
                             className="mt-1"
                           />
                         </div>
@@ -1075,30 +1163,6 @@ const AdminPanelOrganized = () => {
                             placeholder="Enter listing description"
                             className="mt-1"
                             rows={3}
-                          />
-                        </div>
-
-                        {/* Address */}
-                        <div>
-                          <Label htmlFor="listingAddress">Address</Label>
-                          <Input
-                            id="listingAddress"
-                            value={listingAddress}
-                            onChange={(e) => setListingAddress(e.target.value)}
-                            placeholder="Enter address"
-                            className="mt-1"
-                          />
-                        </div>
-
-                        {/* Zone */}
-                        <div>
-                          <Label htmlFor="listingZone">Zone</Label>
-                          <Input
-                            id="listingZone"
-                            value={listingZone}
-                            onChange={(e) => setListingZone(e.target.value)}
-                            placeholder="Enter zone"
-                            className="mt-1"
                           />
                         </div>
 
@@ -1154,6 +1218,95 @@ const AdminPanelOrganized = () => {
                               placeholder="+971 50 123 4567"
                               className="mt-1"
                             />
+                          </div>
+                        </div>
+
+                        {/* Images Management */}
+                        <div className="space-y-4">
+                          <div className="flex items-center gap-2">
+                            <Camera className="h-5 w-5" />
+                            <h3 className="text-lg font-semibold">Images Management</h3>
+                          </div>
+
+                          {/* Current Images */}
+                          {listingImages && listingImages.length > 0 && (
+                            <div className="space-y-2">
+                              <h4 className="font-medium">Current Images ({listingImages.length})</h4>
+                              <div className="grid grid-cols-3 gap-4">
+                                {listingImages.map((imageUrl, index) => (
+                                  <div key={index} className="relative group">
+                                    <img
+                                      src={imageUrl}
+                                      alt={`Listing image ${index + 1}`}
+                                      className="w-full h-32 object-cover rounded-lg border"
+                                    />
+                                    <Button
+                                      size="sm"
+                                      variant="destructive"
+                                      className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                                      onClick={() => {
+                                        const newImages = listingImages.filter((_, i) => i !== index);
+                                        setListingImages(newImages);
+                                      }}
+                                    >
+                                      <X className="h-4 w-4" />
+                                    </Button>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Add New Images */}
+                          <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 space-y-4">
+                            <h4 className="font-medium">Add New Images</h4>
+                            
+                            <div className="flex items-center gap-4">
+                              <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => listingFileInputRef.current?.click()}
+                                disabled={uploadingImage}
+                                className="bg-teal-500 hover:bg-teal-600 text-white border-teal-500"
+                              >
+                                {uploadingImage ? (
+                                  <>
+                                    <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                                    Uploading...
+                                  </>
+                                ) : (
+                                  <>
+                                    <Upload className="h-4 w-4 mr-2" />
+                                    Upload (1/5)
+                                  </>
+                                )}
+                              </Button>
+                              <input
+                                type="file"
+                                ref={listingFileInputRef}
+                                onChange={handleImageUpload}
+                                accept="image/*"
+                                multiple
+                                className="hidden"
+                              />
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                              <Input
+                                value={newImageUrl}
+                                onChange={(e) => setNewImageUrl(e.target.value)}
+                                placeholder="Or paste image URL here"
+                                className="flex-1"
+                              />
+                              <Button
+                                onClick={addImageUrl}
+                                variant="outline"
+                                disabled={!newImageUrl.trim()}
+                              >
+                                <Plus className="h-4 w-4 mr-1" />
+                                Add URL
+                              </Button>
+                            </div>
                           </div>
                         </div>
 
