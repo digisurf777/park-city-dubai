@@ -12,7 +12,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Search, Filter, Plus, Settings, RefreshCw, CheckCircle, XCircle, Wrench, Clock, Zap, Loader2 } from 'lucide-react';
+import { Search, Filter, Plus, Settings, RefreshCw, CheckCircle, XCircle, Wrench, Clock, Zap, Loader2, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useSpaceInitializer } from '@/hooks/useSpaceInitializer';
 
@@ -262,6 +262,67 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
       });
     } finally {
       // Remove from loading state
+      setLoadingSpaces(prev => {
+        const next = new Set(prev);
+        next.delete(spaceId);
+        return next;
+      });
+    }
+  };
+
+  const deleteSpace = async (spaceId: string, spaceNumber: string, listingTitle: string) => {
+    if (!spaceId || spaceId === 'null' || spaceId === 'undefined') {
+      toast({
+        title: "Error",
+        description: "Invalid space ID. Cannot delete this space.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setLoadingSpaces(prev => new Set(prev.add(spaceId)));
+      
+      const { data, error } = await supabase.rpc('delete_parking_space', {
+        space_id: spaceId
+      });
+
+      if (error) {
+        console.error('Database error:', error);
+        throw new Error(error.message || 'Failed to delete space');
+      }
+
+      if (data && typeof data === 'object' && 'success' in data && (data as any).success) {
+        toast({
+          title: "Space Deleted Successfully",
+          description: `${listingTitle} - ${spaceNumber} has been permanently deleted`,
+        });
+
+        // Refresh the data to show live updates
+        await fetchSpaces();
+        onRefresh?.();
+      } else {
+        const errorMsg = (data && typeof data === 'object' && 'message' in data) 
+          ? (data as any).message 
+          : 'Delete failed';
+        throw new Error(errorMsg);
+      }
+    } catch (error: any) {
+      console.error('Error deleting space:', error);
+      
+      let errorMessage = "Failed to delete space";
+      if (error?.message?.includes('Access denied')) {
+        errorMessage = "Access denied: Admin privileges required";
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+      
+      toast({
+        title: "Delete Failed",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    } finally {
       setLoadingSpaces(prev => {
         const next = new Set(prev);
         next.delete(spaceId);
@@ -910,6 +971,51 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
                             </TooltipContent>
                           </Tooltip>
                         </TooltipProvider>
+
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              disabled={loadingSpaces.has(space.space_id)}
+                              className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                            >
+                              {loadingSpaces.has(space.space_id) ? (
+                                <Loader2 className="h-3 w-3 animate-spin" />
+                              ) : (
+                                <Trash2 className="h-3 w-3" />
+                              )}
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete Parking Space</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                <div className="space-y-2">
+                                  <p>Are you sure you want to permanently delete this parking space?</p>
+                                  <div className="bg-yellow-50 p-3 rounded border border-yellow-200">
+                                    <p className="text-sm font-medium text-yellow-800">Space Details:</p>
+                                    <p className="text-sm text-yellow-700">
+                                      {space.listing_title} - {space.space_number}
+                                    </p>
+                                  </div>
+                                  <p className="text-sm text-red-600 font-medium">
+                                    This action cannot be undone and will be immediately reflected on your website.
+                                  </p>
+                                </div>
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => deleteSpace(space.space_id, space.space_number, space.listing_title)}
+                                className="bg-red-600 hover:bg-red-700 text-white"
+                              >
+                                Delete Space
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </div>
                     </TableCell>
                   </TableRow>

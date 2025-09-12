@@ -1168,6 +1168,10 @@ export type Database = {
         Args: { p_full_name?: string; p_user_id: string; p_user_type?: string }
         Returns: undefined
       }
+      delete_parking_space: {
+        Args: { space_id: string }
+        Returns: Json
+      }
       encrypt_document_reference: {
         Args: { verification_id: string }
         Returns: boolean
