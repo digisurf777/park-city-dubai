@@ -745,6 +745,47 @@ const AdminPanelOrganized = () => {
     }
   };
 
+  const handleBlogImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setImageUploading(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `blog-${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+      
+      const { data, error } = await supabase.storage
+        .from('parking-images')
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (error) throw error;
+
+      const { data: publicUrl } = supabase.storage
+        .from('parking-images')
+        .getPublicUrl(fileName);
+
+      setImageUrl(publicUrl.publicUrl);
+      setImageFile(file);
+      
+      toast({
+        title: "Success",
+        description: "Image uploaded successfully",
+      });
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      toast({
+        title: "Error",
+        description: "Failed to upload image",
+        variant: "destructive",
+      });
+    } finally {
+      setImageUploading(false);
+    }
+  };
+
   const addImageUrl = () => {
     if (!newImageUrl.trim()) return;
     
@@ -1148,10 +1189,7 @@ const AdminPanelOrganized = () => {
                               <Input
                                 type="file"
                                 ref={fileInputRef}
-                                onChange={(e) => {
-                                  const file = e.target.files?.[0];
-                                  if (file) setImageFile(file);
-                                }}
+                                onChange={handleBlogImageUpload}
                                 accept="image/*"
                                 className="hidden"
                               />
