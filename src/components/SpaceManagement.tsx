@@ -522,7 +522,6 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Space</TableHead>
                   <TableHead>Listing</TableHead>
                   <TableHead>Zone</TableHead>
                   <TableHead>Status</TableHead>
@@ -534,9 +533,6 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
               <TableBody>
                 {filteredSpaces.map((space) => (
                   <TableRow key={space.space_id}>
-                    <TableCell className="font-medium">
-                      {space.space_number}
-                    </TableCell>
                     <TableCell>
                       <div>
                         <div className="font-medium">{space.listing_title}</div>
