@@ -867,7 +867,7 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
                                 size="sm"
                                 variant={space.space_status === 'available' ? "default" : "outline"}
                                 onClick={() => updateSpaceStatus(space.space_id, 'available')}
-                                disabled={loadingSpaces.has(space.space_id)}
+                                disabled={!space.space_id || loadingSpaces.has(space.space_id)}
                                 className="h-8 w-8 p-0"
                               >
                                 {loadingSpaces.has(space.space_id) ? (
@@ -890,7 +890,7 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
                                 size="sm"
                                 variant={space.space_status === 'booked' ? "default" : "outline"}
                                 onClick={() => updateSpaceStatus(space.space_id, 'booked')}
-                                disabled={loadingSpaces.has(space.space_id)}
+                                disabled={!space.space_id || loadingSpaces.has(space.space_id)}
                                 className="h-8 w-8 p-0"
                               >
                                 {loadingSpaces.has(space.space_id) ? (
@@ -911,7 +911,7 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
                             <Button
                               size="sm"
                               variant={space.space_status === 'maintenance' ? "default" : "outline"}
-                              disabled={loadingSpaces.has(space.space_id)}
+                              disabled={!space.space_id || loadingSpaces.has(space.space_id)}
                               className="h-8 w-8 p-0"
                             >
                               {loadingSpaces.has(space.space_id) ? (
@@ -938,7 +938,9 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
                             <AlertDialogFooter>
                               <AlertDialogCancel>Cancel</AlertDialogCancel>
                               <AlertDialogAction
+                                disabled={!space.space_id}
                                 onClick={() => {
+                                  if (!space.space_id) return;
                                   updateSpaceStatus(space.space_id, 'maintenance', true, maintenanceReason);
                                   setMaintenanceReason('');
                                 }}
@@ -956,7 +958,7 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
                                 size="sm"
                                 variant={space.space_status === 'reserved' ? "default" : "outline"}
                                 onClick={() => updateSpaceStatus(space.space_id, 'reserved')}
-                                disabled={loadingSpaces.has(space.space_id)}
+                                disabled={!space.space_id || loadingSpaces.has(space.space_id)}
                                 className="h-8 w-8 p-0"
                               >
                                 {loadingSpaces.has(space.space_id) ? (
@@ -1008,7 +1010,8 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
                             <AlertDialogFooter>
                               <AlertDialogCancel>Cancel</AlertDialogCancel>
                               <AlertDialogAction
-                                onClick={() => deleteSpace(space.space_id, space.space_number, space.listing_title)}
+                                disabled={!space.space_id}
+                                onClick={() => space.space_id && deleteSpace(space.space_id, space.space_number, space.listing_title)}
                                 className="bg-red-600 hover:bg-red-700 text-white"
                               >
                                 Delete Space
