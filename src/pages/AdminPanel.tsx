@@ -455,14 +455,7 @@ const AdminPanelOrganized = () => {
     try {
       const { data, error } = await supabase
         .from('parking_listings')
-        .select(`
-          *,
-          profiles:owner_id (
-            full_name,
-            email,
-            phone
-          )
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -471,7 +464,7 @@ const AdminPanelOrganized = () => {
       console.error('Error fetching parking listings:', error);
       toast({
         title: "Error",
-        description: "Failed to fetch parking listings",
+        description: "Failed to fetch parking listings. Please try again.",
         variant: "destructive",
       });
     } finally {
