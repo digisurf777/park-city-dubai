@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { CheckCircle, XCircle, Clock, MapPin, Calendar, DollarSign, User, Loader2 } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, MapPin, Calendar, DollarSign, User, Loader2, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface AdminNotification {
@@ -268,6 +268,48 @@ const AdminNotifications = ({ isAdmin }: AdminNotificationsProps) => {
     }
   };
 
+  const deleteBooking = async (notification: AdminNotification) => {
+    if (!notification.booking_id) return;
+    
+    // Show confirmation dialog
+    const confirmed = window.confirm(
+      `Are you sure you want to delete this booking permanently?\n\n` +
+      `Location: ${notification.parking_bookings?.location}\n` +
+      `Cost: ${notification.parking_bookings?.cost_aed} AED\n\n` +
+      `This action cannot be undone.`
+    );
+    
+    if (!confirmed) return;
+    
+    setActionLoading(`delete-${notification.id}`);
+    
+    try {
+      // Call the delete function
+      const { data, error } = await supabase.rpc('admin_delete_booking_complete', {
+        booking_id: notification.booking_id
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Booking deleted successfully",
+      });
+
+      // Refresh notifications list
+      fetchNotifications();
+    } catch (error) {
+      console.error('Error deleting booking:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete booking",
+        variant: "destructive",
+      });
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
   const rejectBooking = async (notification: AdminNotification) => {
     if (!notification.booking_id || !notification.parking_bookings) return;
     
@@ -475,7 +517,7 @@ const AdminNotifications = ({ isAdmin }: AdminNotificationsProps) => {
                   </div>
 
                   {notification.parking_bookings.status === 'pending' && (
-                    <div className="flex gap-3">
+                    <div className="flex gap-2">
                       <Button
                         onClick={() => approveBooking(notification)}
                         disabled={actionLoading !== null}
@@ -486,7 +528,7 @@ const AdminNotifications = ({ isAdmin }: AdminNotificationsProps) => {
                         ) : (
                           <CheckCircle className="h-4 w-4 mr-2" />
                         )}
-                        Approve Booking
+                        Approve
                       </Button>
                       
                       <Button
@@ -500,7 +542,21 @@ const AdminNotifications = ({ isAdmin }: AdminNotificationsProps) => {
                         ) : (
                           <XCircle className="h-4 w-4 mr-2" />
                         )}
-                        Reject Booking
+                        Reject
+                      </Button>
+                      
+                      <Button
+                        onClick={() => deleteBooking(notification)}
+                        disabled={actionLoading !== null}
+                        variant="destructive"
+                        className="flex-1 bg-red-600 hover:bg-red-700"
+                      >
+                        {actionLoading === `delete-${notification.id}` ? (
+                          <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                        ) : (
+                          <Trash2 className="h-4 w-4 mr-2" />
+                        )}
+                        Delete
                       </Button>
                     </div>
                   )}

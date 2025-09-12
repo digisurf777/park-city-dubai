@@ -1061,6 +1061,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_delete_booking_complete: {
+        Args: { booking_id: string }
+        Returns: Json
+      }
       admin_delete_parking_listing: {
         Args: { listing_id: string }
         Returns: Json
