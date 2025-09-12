@@ -688,6 +688,7 @@ const AdminPanelOrganized = () => {
         contact_email: listingContactEmail.trim() || null,
         contact_phone: listingContactPhone.trim() || null,
         images: listingImages,
+        status: 'approved', // Ensure the listing is published live
         updated_at: new Date().toISOString(),
       };
 
@@ -698,9 +699,16 @@ const AdminPanelOrganized = () => {
 
       if (error) throw error;
 
+      // Refresh the public listings so changes go live immediately
+      try {
+        await supabase.rpc('refresh_parking_listings_public');
+      } catch (e) {
+        console.error('Failed to refresh public listings:', e);
+      }
+
       toast({
         title: "Success",
-        description: "Parking listing updated successfully",
+        description: "Parking listing updated and published live",
       });
 
       setEditingListing(null);
@@ -1713,14 +1721,14 @@ const AdminPanelOrganized = () => {
                         <SelectTrigger className="mt-1">
                           <SelectValue placeholder="Select zone" />
                         </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="downtown">Downtown</SelectItem>
-                          <SelectItem value="deira">Deira</SelectItem>
-                          <SelectItem value="business-bay">Business Bay</SelectItem>
-                          <SelectItem value="dubai-marina">Dubai Marina</SelectItem>
-                          <SelectItem value="difc">DIFC</SelectItem>
-                          <SelectItem value="palm-jumeirah">Palm Jumeirah</SelectItem>
-                        </SelectContent>
+                          <SelectContent>
+                            <SelectItem value="Downtown">Downtown</SelectItem>
+                            <SelectItem value="Deira">Deira</SelectItem>
+                            <SelectItem value="Business Bay">Business Bay</SelectItem>
+                            <SelectItem value="Dubai Marina">Dubai Marina</SelectItem>
+                            <SelectItem value="DIFC">DIFC</SelectItem>
+                            <SelectItem value="Palm Jumeirah">Palm Jumeirah</SelectItem>
+                          </SelectContent>
                       </Select>
                     </div>
                   </div>
