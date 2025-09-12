@@ -786,6 +786,60 @@ const AdminPanelOrganized = () => {
     }
   };
 
+  // Handle content image upload for ReactQuill
+  const handleContentImageUpload = async () => {
+    const input = document.createElement('input');
+    input.setAttribute('type', 'file');
+    input.setAttribute('accept', 'image/*');
+    input.click();
+
+    input.onchange = async () => {
+      const file = input.files?.[0];
+      if (!file) return;
+
+      try {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `content-${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+        
+        const { data, error } = await supabase.storage
+          .from('parking-images')
+          .upload(fileName, file, {
+            cacheControl: '3600',
+            upsert: false
+          });
+
+        if (error) throw error;
+
+        const { data: publicUrl } = supabase.storage
+          .from('parking-images')
+          .getPublicUrl(fileName);
+
+        // Insert image into ReactQuill content
+        const quill = document.querySelector('.ql-editor');
+        if (quill) {
+          const range = window.getSelection()?.getRangeAt(0);
+          const img = `<img src="${publicUrl.publicUrl}" alt="Content image" style="max-width: 100%; height: auto;" />`;
+          
+          // Insert at cursor position or append to content
+          const currentContent = content || '';
+          setContent(currentContent + img);
+        }
+        
+        toast({
+          title: "Success",
+          description: "Image inserted into content",
+        });
+      } catch (error) {
+        console.error('Error uploading content image:', error);
+        toast({
+          title: "Error",
+          description: "Failed to upload image",
+          variant: "destructive",
+        });
+      }
+    };
+  };
+
   const addImageUrl = () => {
     if (!newImageUrl.trim()) return;
     
@@ -1145,12 +1199,42 @@ const AdminPanelOrganized = () => {
                         <div>
                           <Label htmlFor="content">Content</Label>
                           <div className="mt-1">
+                            {/* Custom toolbar */}
+                            <div id="toolbar" className="bg-gray-50 border rounded-t-md p-2 flex items-center gap-1">
+                              <select className="ql-header" defaultValue="">
+                                <option value="1">Heading 1</option>
+                                <option value="2">Heading 2</option>
+                                <option value="3">Heading 3</option>
+                                <option value="">Normal</option>
+                              </select>
+                              <button className="ql-bold" title="Bold"></button>
+                              <button className="ql-italic" title="Italic"></button>
+                              <button className="ql-underline" title="Underline"></button>
+                              <button className="ql-link" title="Link"></button>
+                              <button className="ql-list" value="ordered" title="Numbered List"></button>
+                              <button className="ql-list" value="bullet" title="Bullet List"></button>
+                              <span className="ql-formats">
+                                <Button
+                                  type="button"
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={handleContentImageUpload}
+                                  className="h-8 px-2 text-xs"
+                                  title="Insert Image"
+                                >
+                                  <Upload className="h-3 w-3" />
+                                </Button>
+                              </span>
+                            </div>
                             <ReactQuill
                               theme="snow"
                               value={content}
                               onChange={setContent}
                               placeholder="Enter post content..."
                               style={{ height: '300px', marginBottom: '50px' }}
+                              modules={{
+                                toolbar: '#toolbar'
+                              }}
                             />
                           </div>
                         </div>
