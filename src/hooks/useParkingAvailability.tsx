@@ -42,8 +42,9 @@ export const useParkingAvailability = (zone?: string) => {
       console.log('Raw availability data:', data);
 
       // Filter by zone if specified and transform data
-      const filteredData = zone 
-        ? data?.filter((listing: any) => listing.zone === zone) || []
+      const zoneFilter = zone ? zone.trim().toLowerCase() : null;
+      const filteredData = zoneFilter 
+        ? data?.filter((listing: any) => (listing.zone || '').trim().toLowerCase() === zoneFilter) || []
         : data || [];
 
       const transformedData = filteredData.map((spot: any) => {
@@ -76,10 +77,17 @@ export const useParkingAvailability = (zone?: string) => {
         };
       });
 
-      // Deduplicate by ID to prevent duplicate listings
-      const uniqueData = transformedData.filter((spot, index, array) => 
-        array.findIndex(item => item.id === spot.id) === index
-      );
+      // Deduplicate by normalized name + address + district to avoid duplicates across IDs
+      const normalize = (v?: string) => (v || '').trim().toLowerCase().replace(/\s+/g, ' ');
+      const seen = new Map<string, typeof transformedData[number]>();
+      for (const s of transformedData) {
+        const key = `${normalize(s.name)}|${normalize(s.address)}|${normalize(s.district)}`;
+        const existing = seen.get(key);
+        if (!existing || s.availableSpaces > existing.availableSpaces) {
+          seen.set(key, s);
+        }
+      }
+      const uniqueData = Array.from(seen.values());
 
       console.log('Transformed availability data:', uniqueData);
       console.log('Deduplicated listings count:', uniqueData.length);
