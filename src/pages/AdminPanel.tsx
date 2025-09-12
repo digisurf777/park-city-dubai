@@ -608,6 +608,55 @@ const AdminPanelOrganized = () => {
     }
   };
 
+  const handleSaveListing = async () => {
+    if (!listingTitle.trim() || !listingAddress.trim() || !listingZone.trim()) {
+      toast({
+        title: "Error",
+        description: "Title, address, and zone are required",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!editingListing) return;
+
+    try {
+      const listingData = {
+        title: listingTitle.trim(),
+        description: listingDescription.trim() || null,
+        address: listingAddress.trim(),
+        zone: listingZone.trim(),
+        price_per_hour: listingPricePerHour,
+        price_per_month: listingPricePerMonth || null,
+        contact_email: listingContactEmail.trim() || null,
+        contact_phone: listingContactPhone.trim() || null,
+        updated_at: new Date().toISOString(),
+      };
+
+      const { error } = await supabase
+        .from('parking_listings')
+        .update(listingData)
+        .eq('id', editingListing.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Parking listing updated successfully",
+      });
+
+      setEditingListing(null);
+      fetchParkingListings();
+    } catch (error) {
+      console.error('Error saving listing:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save listing. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this post?')) return;
 
@@ -995,6 +1044,137 @@ const AdminPanelOrganized = () => {
                   </Dialog>
                 )}
 
+                {/* Edit Parking Listing Dialog */}
+                {editingListing && (
+                  <Dialog open={true} onOpenChange={() => setEditingListing(null)}>
+                    <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                      <DialogHeader>
+                        <DialogTitle>Edit Parking Listing</DialogTitle>
+                      </DialogHeader>
+                      
+                      <div className="space-y-4">
+                        {/* Title */}
+                        <div>
+                          <Label htmlFor="listingTitle">Title</Label>
+                          <Input
+                            id="listingTitle"
+                            value={listingTitle}
+                            onChange={(e) => setListingTitle(e.target.value)}
+                            placeholder="Enter listing title"
+                            className="mt-1"
+                          />
+                        </div>
+
+                        {/* Description */}
+                        <div>
+                          <Label htmlFor="listingDescription">Description</Label>
+                          <Textarea
+                            id="listingDescription"
+                            value={listingDescription}
+                            onChange={(e) => setListingDescription(e.target.value)}
+                            placeholder="Enter listing description"
+                            className="mt-1"
+                            rows={3}
+                          />
+                        </div>
+
+                        {/* Address */}
+                        <div>
+                          <Label htmlFor="listingAddress">Address</Label>
+                          <Input
+                            id="listingAddress"
+                            value={listingAddress}
+                            onChange={(e) => setListingAddress(e.target.value)}
+                            placeholder="Enter address"
+                            className="mt-1"
+                          />
+                        </div>
+
+                        {/* Zone */}
+                        <div>
+                          <Label htmlFor="listingZone">Zone</Label>
+                          <Input
+                            id="listingZone"
+                            value={listingZone}
+                            onChange={(e) => setListingZone(e.target.value)}
+                            placeholder="Enter zone"
+                            className="mt-1"
+                          />
+                        </div>
+
+                        {/* Pricing */}
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <Label htmlFor="pricePerHour">Price per Hour (AED)</Label>
+                            <Input
+                              id="pricePerHour"
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              value={listingPricePerHour}
+                              onChange={(e) => setListingPricePerHour(parseFloat(e.target.value) || 0)}
+                              placeholder="0.00"
+                              className="mt-1"
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="pricePerMonth">Price per Month (AED)</Label>
+                            <Input
+                              id="pricePerMonth"
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              value={listingPricePerMonth}
+                              onChange={(e) => setListingPricePerMonth(parseFloat(e.target.value) || 0)}
+                              placeholder="0.00"
+                              className="mt-1"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Contact Information */}
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <Label htmlFor="contactEmail">Contact Email</Label>
+                            <Input
+                              id="contactEmail"
+                              type="email"
+                              value={listingContactEmail}
+                              onChange={(e) => setListingContactEmail(e.target.value)}
+                              placeholder="contact@example.com"
+                              className="mt-1"
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="contactPhone">Contact Phone</Label>
+                            <Input
+                              id="contactPhone"
+                              value={listingContactPhone}
+                              onChange={(e) => setListingContactPhone(e.target.value)}
+                              placeholder="+971 50 123 4567"
+                              className="mt-1"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="flex gap-2 pt-4">
+                          <Button onClick={handleSaveListing} className="flex-1">
+                            Save Changes
+                          </Button>
+                          <Button
+                            variant="outline"
+                            onClick={() => setEditingListing(null)}
+                            className="flex-1"
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                )}
+
                 {/* News Posts List */}
                 <Card>
                   <CardHeader>
@@ -1186,48 +1366,68 @@ const AdminPanelOrganized = () => {
                                 )}
                               </div>
                               
-                              <div className="flex items-center gap-2 mt-4 pt-4 border-t">
-                                {listing.status === 'pending' && (
-                                  <>
-                                    <Button
-                                      size="sm"
-                                      onClick={() => updateListingStatus(listing.id, 'approved')}
-                                      className="bg-green-600 hover:bg-green-700"
-                                    >
-                                      <CheckCircle className="h-4 w-4 mr-1" />
-                                      Approve
-                                    </Button>
-                                    <Button
-                                      size="sm"
-                                      variant="destructive"
-                                      onClick={() => updateListingStatus(listing.id, 'rejected')}
-                                    >
-                                      <XCircle className="h-4 w-4 mr-1" />
-                                      Reject
-                                    </Button>
-                                  </>
-                                )}
-                                
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => deleteListing(listing.id)}
-                                >
-                                  <Trash2 className="h-4 w-4 mr-1" />
-                                  Delete
-                                </Button>
-                                
-                                {listing.images && listing.images.length > 0 && (
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => window.open(listing.images[0], '_blank')}
-                                  >
-                                    <Eye className="h-4 w-4 mr-1" />
-                                    View Images
-                                  </Button>
-                                )}
-                              </div>
+                <div className="flex items-center gap-2 mt-4 pt-4 border-t">
+                  {listing.status === 'pending' && (
+                    <>
+                      <Button
+                        size="sm"
+                        onClick={() => updateListingStatus(listing.id, 'approved')}
+                        className="bg-green-600 hover:bg-green-700"
+                      >
+                        <CheckCircle className="h-4 w-4 mr-1" />
+                        Approve
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => updateListingStatus(listing.id, 'rejected')}
+                      >
+                        <XCircle className="h-4 w-4 mr-1" />
+                        Reject
+                      </Button>
+                    </>
+                  )}
+                  
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setEditingListing(listing);
+                      setListingTitle(listing.title);
+                      setListingDescription(listing.description || '');
+                      setListingAddress(listing.address);
+                      setListingZone(listing.zone);
+                      setListingPricePerHour(listing.price_per_hour || 0);
+                      setListingPricePerMonth(listing.price_per_month || 0);
+                      setListingContactEmail(listing.contact_email || '');
+                      setListingContactPhone(listing.contact_phone || '');
+                      setListingImages(listing.images || []);
+                    }}
+                  >
+                    <Edit className="h-4 w-4 mr-1" />
+                    Edit
+                  </Button>
+                  
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => deleteListing(listing.id)}
+                  >
+                    <Trash2 className="h-4 w-4 mr-1" />
+                    Delete
+                  </Button>
+                  
+                  {listing.images && listing.images.length > 0 && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => window.open(listing.images[0], '_blank')}
+                    >
+                      <Eye className="h-4 w-4 mr-1" />
+                      View Images
+                    </Button>
+                  )}
+                </div>
                             </Card>
                           ))}
                         </div>
