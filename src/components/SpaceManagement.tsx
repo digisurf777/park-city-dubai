@@ -505,6 +505,207 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
         </DialogContent>
       </Dialog>
 
+      {/* Parking Spaces Table */}
+      {hasActualSpaces && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between">
+              <span>Parking Spaces ({filteredSpaces.length})</span>
+              <div className="text-sm text-muted-foreground">
+                Available: {filteredSpaces.filter(s => s.space_status === 'available').length} | 
+                Booked: {filteredSpaces.filter(s => s.space_status === 'booked').length} | 
+                Maintenance: {filteredSpaces.filter(s => s.space_status === 'maintenance').length}
+              </div>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Space</TableHead>
+                  <TableHead>Listing</TableHead>
+                  <TableHead>Zone</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Override</TableHead>
+                  <TableHead>Last Updated</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredSpaces.map((space) => (
+                  <TableRow key={space.space_id}>
+                    <TableCell className="font-medium">
+                      {space.space_number}
+                    </TableCell>
+                    <TableCell>
+                      <div>
+                        <div className="font-medium">{space.listing_title}</div>
+                        <div className="text-sm text-muted-foreground">{space.listing_address}</div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline">{space.listing_zone}</Badge>
+                    </TableCell>
+                    <TableCell>
+                      {getStatusBadge(space.space_status, space.override_status)}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-col gap-1">
+                        {space.override_status ? (
+                          <div>
+                            <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200">
+                              Manual
+                            </Badge>
+                            {space.override_reason && (
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger>
+                                    <div className="text-xs text-muted-foreground mt-1 truncate max-w-[100px]">
+                                      {space.override_reason}
+                                    </div>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>{space.override_reason}</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            )}
+                          </div>
+                        ) : (
+                          <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-200">
+                            Auto
+                          </Badge>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="text-sm text-muted-foreground">
+                        {format(new Date(space.last_updated), 'MMM d, HH:mm')}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex gap-1">
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                size="sm"
+                                variant={space.space_status === 'available' ? "default" : "outline"}
+                                onClick={() => updateSpaceStatus(space.space_id, 'available')}
+                                disabled={loadingSpaces.has(space.space_id)}
+                                className="h-8 w-8 p-0"
+                              >
+                                {loadingSpaces.has(space.space_id) ? (
+                                  <Loader2 className="h-3 w-3 animate-spin" />
+                                ) : (
+                                  <CheckCircle className="h-3 w-3" />
+                                )}
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Set Available</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                size="sm"
+                                variant={space.space_status === 'booked' ? "default" : "outline"}
+                                onClick={() => updateSpaceStatus(space.space_id, 'booked')}
+                                disabled={loadingSpaces.has(space.space_id)}
+                                className="h-8 w-8 p-0"
+                              >
+                                {loadingSpaces.has(space.space_id) ? (
+                                  <Loader2 className="h-3 w-3 animate-spin" />
+                                ) : (
+                                  <XCircle className="h-3 w-3" />
+                                )}
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Set Booked</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              size="sm"
+                              variant={space.space_status === 'maintenance' ? "default" : "outline"}
+                              disabled={loadingSpaces.has(space.space_id)}
+                              className="h-8 w-8 p-0"
+                            >
+                              {loadingSpaces.has(space.space_id) ? (
+                                <Loader2 className="h-3 w-3 animate-spin" />
+                              ) : (
+                                <Wrench className="h-3 w-3" />
+                              )}
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Set Maintenance Mode</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                <div className="space-y-2">
+                                  <p>This will mark the space as under maintenance.</p>
+                                  <Textarea
+                                    placeholder="Reason for maintenance (optional)"
+                                    value={maintenanceReason}
+                                    onChange={(e) => setMaintenanceReason(e.target.value)}
+                                  />
+                                </div>
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => {
+                                  updateSpaceStatus(space.space_id, 'maintenance', true, maintenanceReason);
+                                  setMaintenanceReason('');
+                                }}
+                              >
+                                Set Maintenance
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                size="sm"
+                                variant={space.space_status === 'reserved' ? "default" : "outline"}
+                                onClick={() => updateSpaceStatus(space.space_id, 'reserved')}
+                                disabled={loadingSpaces.has(space.space_id)}
+                                className="h-8 w-8 p-0"
+                              >
+                                {loadingSpaces.has(space.space_id) ? (
+                                  <Loader2 className="h-3 w-3 animate-spin" />
+                                ) : (
+                                  <Clock className="h-3 w-3" />
+                                )}
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Set Reserved</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Bulk Update Modal */}
       <Dialog open={showBulkModal} onOpenChange={setShowBulkModal}>
         <DialogContent>
