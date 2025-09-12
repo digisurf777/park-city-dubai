@@ -191,15 +191,8 @@ const PalmJumeirah = () => {
                     </Button>
                   ) : (
                     <div className="w-full bg-red-500 text-white py-2 sm:py-3 rounded text-center font-semibold text-sm sm:text-base">
-                      {spot.availabilityText || "Currently Booked"}
+                      Currently Booked
                     </div>
-                  )}
-                  
-                  {/* Availability info */}
-                  {spot.totalSpaces > 0 && (
-                    <p className="text-xs text-muted-foreground mt-2 text-center">
-                      {spot.availabilityText}
-                    </p>
                   )}
                 </div>
               </Card>
