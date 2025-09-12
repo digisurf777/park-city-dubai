@@ -163,25 +163,49 @@ const MyAccount = () => {
     if (!profile) return;
     setUpdating(true);
     try {
-      const {
-        error
-      } = await supabase.from('profiles').update({
-        full_name: profile.full_name,
-        phone: profile.phone,
-        email: user.email, // Sync email from auth user
-        user_type: isParkingOwner ? 'owner' : 'renter'
-      }).eq('user_id', user.id);
+      console.log('Attempting profile update', { userId: user.id, profileId: profile?.id });
+      let query = supabase
+        .from('profiles')
+        .update({
+          full_name: profile.full_name,
+          phone: profile.phone,
+          email: user.email, // keep email in sync with auth
+          user_type: isParkingOwner ? 'owner' : 'renter',
+        });
+
+      query = profile?.id ? query.eq('id', profile.id) : query.eq('user_id', user.id);
+
+      const { data, error } = await query.select().maybeSingle();
+
       if (error) {
         console.error('Profile update error:', error);
-        toast.error('Failed to update profile');
+        // Fallback: create profile if it doesn't exist
+        const { error: insertError, data: insertData } = await supabase
+          .from('profiles')
+          .insert({
+            user_id: user.id,
+            email: user.email,
+            full_name: profile.full_name,
+            phone: profile.phone,
+            user_type: isParkingOwner ? 'owner' : 'renter',
+          })
+          .select()
+          .maybeSingle();
+
+        if (insertError) {
+          console.error('Profile insert fallback error:', insertError);
+          toast.error(`Failed to update profile: ${error.message}`);
+        } else {
+          toast.success('Profile created successfully');
+          if (insertData) setProfile(prev => ({ ...(prev || {} as any), ...insertData }));
+        }
       } else {
         toast.success('Profile updated successfully');
-        // Refresh profile data after successful update
-        fetchProfile();
+        if (data) setProfile(prev => ({ ...(prev || {} as any), ...data }));
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Profile update exception:', error);
-      toast.error('An error occurred while updating profile');
+      toast.error(`An error occurred while updating profile: ${error.message || 'Unknown error'}`);
     } finally {
       setUpdating(false);
     }
