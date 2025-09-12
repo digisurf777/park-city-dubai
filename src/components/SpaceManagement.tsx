@@ -130,6 +130,16 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
   };
 
   const updateSpaceStatus = async (spaceId: string, newStatus: string, isOverride: boolean = true, reason?: string) => {
+    // Validate that we have a real space ID
+    if (!spaceId || spaceId === 'null' || spaceId === 'undefined') {
+      toast({
+        title: "No Parking Spaces Found",
+        description: "Please click 'Initialize Test Spaces' first to create parking space records.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       // Add to loading state
       setLoadingSpaces(prev => new Set(prev.add(spaceId)));
@@ -157,11 +167,17 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
 
       fetchSpaces();
       onRefresh?.();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating space:', error);
+      
+      let errorMessage = "Failed to update space status";
+      if (error?.message?.includes('Parking space not found')) {
+        errorMessage = "Parking space not found. Please initialize parking spaces first using the 'Initialize Test Spaces' button.";
+      }
+      
       toast({
         title: "Error",
-        description: "Failed to update space status",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -255,6 +271,10 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
       .filter(listing => listing.id);
   };
 
+  // Check if we have actual parking spaces or just listings
+  const hasActualSpaces = spaces.some(space => space.space_id && space.space_id !== 'null');
+  const hasListingsButNoSpaces = spaces.length > 0 && !hasActualSpaces;
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-8">
@@ -274,9 +294,9 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
               initializeSpacesForListings();
               setTimeout(fetchSpaces, 1000);
             }} 
-            variant="secondary" 
+            variant={hasListingsButNoSpaces ? "default" : "secondary"}
             disabled={isInitializing}
-            className="flex items-center gap-2"
+            className={`flex items-center gap-2 ${hasListingsButNoSpaces ? 'bg-blue-600 hover:bg-blue-700 text-white animate-pulse' : ''}`}
           >
             <Zap className="h-4 w-4" />
             {isInitializing ? 'Initializing...' : 'Initialize Test Spaces'}
@@ -291,6 +311,61 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
           </Button>
         </div>
       </div>
+
+      {/* Warning Notice */}
+      {hasListingsButNoSpaces && (
+        <Card className="border-orange-200 bg-orange-50">
+          <CardContent className="pt-6">
+            <div className="flex items-start gap-4">
+              <div className="flex-shrink-0">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-orange-100">
+                  <Zap className="h-5 w-5 text-orange-600" />
+                </div>
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-orange-800">
+                  No Parking Spaces Found
+                </h3>
+                <p className="mt-1 text-sm text-orange-700">
+                  You have {spaces.length} approved parking listings but no actual parking space records. 
+                  The action buttons (Available, Booked, Maintenance) won't work until you create parking spaces.
+                </p>
+                <div className="mt-4">
+                  <Button 
+                    onClick={() => {
+                      initializeSpacesForListings();
+                      setTimeout(fetchSpaces, 1000);
+                    }} 
+                    disabled={isInitializing}
+                    className="bg-orange-600 hover:bg-orange-700 text-white"
+                  >
+                    <Zap className="h-4 w-4 mr-2" />
+                    {isInitializing ? 'Creating Spaces...' : 'Initialize Spaces Now'}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {spaces.length === 0 && (
+        <Card className="border-gray-200 bg-gray-50">
+          <CardContent className="pt-6">
+            <div className="text-center py-8">
+              <div className="flex justify-center mb-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100">
+                  <Settings className="h-6 w-6 text-gray-600" />
+                </div>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-800">No Parking Listings Found</h3>
+              <p className="mt-1 text-sm text-gray-600">
+                Create some approved parking listings first, then return here to manage parking spaces.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Filters */}
       <Card>
@@ -457,7 +532,7 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
                                 size="sm"
                                 variant={space.space_status === 'available' ? 'default' : 'outline'}
                                 onClick={() => updateSpaceStatus(space.space_id, 'available', true)}
-                                disabled={space.space_status === 'available' || loadingSpaces.has(space.space_id)}
+                                disabled={space.space_status === 'available' || loadingSpaces.has(space.space_id) || !space.space_id}
                                 className={`text-green-600 hover:text-green-700 border-green-200 hover:border-green-300 ${
                                   space.space_status === 'available' 
                                     ? 'bg-green-50 text-green-700 border-green-300' 
@@ -485,7 +560,7 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
                                 size="sm"
                                 variant={space.space_status === 'booked' ? 'default' : 'outline'}
                                 onClick={() => updateSpaceStatus(space.space_id, 'booked', true)}
-                                disabled={space.space_status === 'booked' || loadingSpaces.has(space.space_id)}
+                                disabled={space.space_status === 'booked' || loadingSpaces.has(space.space_id) || !space.space_id}
                                 className={`text-red-600 hover:text-red-700 border-red-200 hover:border-red-300 ${
                                   space.space_status === 'booked' 
                                     ? 'bg-red-50 text-red-700 border-red-300' 
@@ -514,7 +589,7 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
                                   <Button
                                     size="sm"
                                     variant={space.space_status === 'maintenance' ? 'default' : 'outline'}
-                                    disabled={space.space_status === 'maintenance' || loadingSpaces.has(space.space_id)}
+                                    disabled={space.space_status === 'maintenance' || loadingSpaces.has(space.space_id) || !space.space_id}
                                     className={`text-yellow-600 hover:text-yellow-700 border-yellow-200 hover:border-yellow-300 ${
                                       space.space_status === 'maintenance' 
                                         ? 'bg-yellow-50 text-yellow-700 border-yellow-300' 
