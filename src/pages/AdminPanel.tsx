@@ -1102,231 +1102,7 @@ const AdminPanelOrganized = () => {
                   </Dialog>
                 )}
 
-                {/* Edit Parking Listing Dialog */}
-                {editingListing && (
-                  <Dialog open={true} onOpenChange={() => setEditingListing(null)}>
-                    <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-                      <DialogHeader>
-                        <DialogTitle>Edit Parking Listing</DialogTitle>
-                      </DialogHeader>
-                      
-                      <div className="space-y-6">
-                        {/* Title and Zone */}
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <Label htmlFor="listingTitle">Title *</Label>
-                            <Input
-                              id="listingTitle"
-                              value={listingTitle}
-                              onChange={(e) => setListingTitle(e.target.value)}
-                              placeholder="Enter listing title"
-                              className="mt-1"
-                            />
-                          </div>
-                          <div>
-                            <Label htmlFor="listingZone">Zone *</Label>
-                            <Select value={listingZone} onValueChange={setListingZone}>
-                              <SelectTrigger className="mt-1">
-                                <SelectValue placeholder="Select zone" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="downtown">Downtown</SelectItem>
-                                <SelectItem value="deira">Deira</SelectItem>
-                                <SelectItem value="business-bay">Business Bay</SelectItem>
-                                <SelectItem value="dubai-marina">Dubai Marina</SelectItem>
-                                <SelectItem value="difc">DIFC</SelectItem>
-                                <SelectItem value="palm-jumeirah">Palm Jumeirah</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        </div>
-
-                        {/* Address */}
-                        <div>
-                          <Label htmlFor="listingAddress">Address *</Label>
-                          <Input
-                            id="listingAddress"
-                            value={listingAddress}
-                            onChange={(e) => setListingAddress(e.target.value)}
-                            placeholder="Enter address"
-                            className="mt-1"
-                          />
-                        </div>
-
-                        {/* Description */}
-                        <div>
-                          <Label htmlFor="listingDescription">Description</Label>
-                          <Textarea
-                            id="listingDescription"
-                            value={listingDescription}
-                            onChange={(e) => setListingDescription(e.target.value)}
-                            placeholder="Enter listing description"
-                            className="mt-1"
-                            rows={3}
-                          />
-                        </div>
-
-                        {/* Pricing */}
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <Label htmlFor="pricePerHour">Price per Hour (AED)</Label>
-                            <Input
-                              id="pricePerHour"
-                              type="number"
-                              step="0.01"
-                              min="0"
-                              value={listingPricePerHour}
-                              onChange={(e) => setListingPricePerHour(parseFloat(e.target.value) || 0)}
-                              placeholder="0.00"
-                              className="mt-1"
-                            />
-                          </div>
-                          <div>
-                            <Label htmlFor="pricePerMonth">Price per Month (AED)</Label>
-                            <Input
-                              id="pricePerMonth"
-                              type="number"
-                              step="0.01"
-                              min="0"
-                              value={listingPricePerMonth}
-                              onChange={(e) => setListingPricePerMonth(parseFloat(e.target.value) || 0)}
-                              placeholder="0.00"
-                              className="mt-1"
-                            />
-                          </div>
-                        </div>
-
-                        {/* Contact Information */}
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <Label htmlFor="contactEmail">Contact Email</Label>
-                            <Input
-                              id="contactEmail"
-                              type="email"
-                              value={listingContactEmail}
-                              onChange={(e) => setListingContactEmail(e.target.value)}
-                              placeholder="contact@example.com"
-                              className="mt-1"
-                            />
-                          </div>
-                          <div>
-                            <Label htmlFor="contactPhone">Contact Phone</Label>
-                            <Input
-                              id="contactPhone"
-                              value={listingContactPhone}
-                              onChange={(e) => setListingContactPhone(e.target.value)}
-                              placeholder="+971 50 123 4567"
-                              className="mt-1"
-                            />
-                          </div>
-                        </div>
-
-                        {/* Images Management */}
-                        <div className="space-y-4">
-                          <div className="flex items-center gap-2">
-                            <Camera className="h-5 w-5" />
-                            <h3 className="text-lg font-semibold">Images Management</h3>
-                          </div>
-
-                          {/* Current Images */}
-                          {listingImages && listingImages.length > 0 && (
-                            <div className="space-y-2">
-                              <h4 className="font-medium">Current Images ({listingImages.length})</h4>
-                              <div className="grid grid-cols-3 gap-4">
-                                {listingImages.map((imageUrl, index) => (
-                                  <div key={index} className="relative group">
-                                    <img
-                                      src={imageUrl}
-                                      alt={`Listing image ${index + 1}`}
-                                      className="w-full h-32 object-cover rounded-lg border"
-                                    />
-                                    <Button
-                                      size="sm"
-                                      variant="destructive"
-                                      className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                                      onClick={() => {
-                                        const newImages = listingImages.filter((_, i) => i !== index);
-                                        setListingImages(newImages);
-                                      }}
-                                    >
-                                      <X className="h-4 w-4" />
-                                    </Button>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Add New Images */}
-                          <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 space-y-4">
-                            <h4 className="font-medium">Add New Images</h4>
-                            
-                            <div className="flex items-center gap-4">
-                              <Button
-                                type="button"
-                                variant="outline"
-                                onClick={() => listingFileInputRef.current?.click()}
-                                disabled={uploadingImage}
-                                className="bg-teal-500 hover:bg-teal-600 text-white border-teal-500"
-                              >
-                                {uploadingImage ? (
-                                  <>
-                                    <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                                    Uploading...
-                                  </>
-                                ) : (
-                                  <>
-                                    <Upload className="h-4 w-4 mr-2" />
-                                    Upload (1/5)
-                                  </>
-                                )}
-                              </Button>
-                              <input
-                                type="file"
-                                ref={listingFileInputRef}
-                                onChange={handleImageUpload}
-                                accept="image/*"
-                                multiple
-                                className="hidden"
-                              />
-                            </div>
-
-                            <div className="flex items-center gap-2">
-                              <Input
-                                value={newImageUrl}
-                                onChange={(e) => setNewImageUrl(e.target.value)}
-                                placeholder="Or paste image URL here"
-                                className="flex-1"
-                              />
-                              <Button
-                                onClick={addImageUrl}
-                                variant="outline"
-                                disabled={!newImageUrl.trim()}
-                              >
-                                <Plus className="h-4 w-4 mr-1" />
-                                Add URL
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Action Buttons */}
-                        <div className="flex gap-2 pt-4">
-                          <Button onClick={handleSaveListing} className="flex-1">
-                            Save Changes
-                          </Button>
-                          <Button
-                            variant="outline"
-                            onClick={() => setEditingListing(null)}
-                            className="flex-1"
-                          >
-                            Cancel
-                          </Button>
-                        </div>
-                      </div>
-                    </DialogContent>
-                  </Dialog>
-                )}
+                {/* Edit Listing Dialog moved to global position */}
 
                 {/* News Posts List */}
                 <Card>
@@ -1910,6 +1686,232 @@ const AdminPanelOrganized = () => {
               </CardContent>
             </Card>
           </TabsContent>
+          {/* Global Edit Parking Listing Dialog - available across all tabs */}
+          {editingListing && (
+            <Dialog open={true} onOpenChange={() => setEditingListing(null)}>
+              <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>Edit Parking Listing</DialogTitle>
+                </DialogHeader>
+                
+                <div className="space-y-6">
+                  {/* Title and Zone */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="listingTitle">Title *</Label>
+                      <Input
+                        id="listingTitle"
+                        value={listingTitle}
+                        onChange={(e) => setListingTitle(e.target.value)}
+                        placeholder="Enter listing title"
+                        className="mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="listingZone">Zone *</Label>
+                      <Select value={listingZone} onValueChange={setListingZone}>
+                        <SelectTrigger className="mt-1">
+                          <SelectValue placeholder="Select zone" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="downtown">Downtown</SelectItem>
+                          <SelectItem value="deira">Deira</SelectItem>
+                          <SelectItem value="business-bay">Business Bay</SelectItem>
+                          <SelectItem value="dubai-marina">Dubai Marina</SelectItem>
+                          <SelectItem value="difc">DIFC</SelectItem>
+                          <SelectItem value="palm-jumeirah">Palm Jumeirah</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  {/* Address */}
+                  <div>
+                    <Label htmlFor="listingAddress">Address *</Label>
+                    <Input
+                      id="listingAddress"
+                      value={listingAddress}
+                      onChange={(e) => setListingAddress(e.target.value)}
+                      placeholder="Enter address"
+                      className="mt-1"
+                    />
+                  </div>
+
+                  {/* Description */}
+                  <div>
+                    <Label htmlFor="listingDescription">Description</Label>
+                    <Textarea
+                      id="listingDescription"
+                      value={listingDescription}
+                      onChange={(e) => setListingDescription(e.target.value)}
+                      placeholder="Enter listing description"
+                      className="mt-1"
+                      rows={3}
+                    />
+                  </div>
+
+                  {/* Pricing */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="pricePerHour">Price per Hour (AED)</Label>
+                      <Input
+                        id="pricePerHour"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={listingPricePerHour}
+                        onChange={(e) => setListingPricePerHour(parseFloat(e.target.value) || 0)}
+                        placeholder="0.00"
+                        className="mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="pricePerMonth">Price per Month (AED)</Label>
+                      <Input
+                        id="pricePerMonth"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={listingPricePerMonth}
+                        onChange={(e) => setListingPricePerMonth(parseFloat(e.target.value) || 0)}
+                        placeholder="0.00"
+                        className="mt-1"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Contact Information */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="contactEmail">Contact Email</Label>
+                      <Input
+                        id="contactEmail"
+                        type="email"
+                        value={listingContactEmail}
+                        onChange={(e) => setListingContactEmail(e.target.value)}
+                        placeholder="contact@example.com"
+                        className="mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="contactPhone">Contact Phone</Label>
+                      <Input
+                        id="contactPhone"
+                        value={listingContactPhone}
+                        onChange={(e) => setListingContactPhone(e.target.value)}
+                        placeholder="+971 50 123 4567"
+                        className="mt-1"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Images Management */}
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2">
+                      <Camera className="h-5 w-5" />
+                      <h3 className="text-lg font-semibold">Images Management</h3>
+                    </div>
+
+                    {/* Current Images */}
+                    {listingImages && listingImages.length > 0 && (
+                      <div className="space-y-2">
+                        <h4 className="font-medium">Current Images ({listingImages.length})</h4>
+                        <div className="grid grid-cols-3 gap-4">
+                          {listingImages.map((imageUrl, index) => (
+                            <div key={index} className="relative group">
+                              <img
+                                src={imageUrl}
+                                alt={`Listing image ${index + 1}`}
+                                className="w-full h-32 object-cover rounded-lg border"
+                              />
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                                onClick={() => {
+                                  const newImages = listingImages.filter((_, i) => i !== index);
+                                  setListingImages(newImages);
+                                }}
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Add New Images */}
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 space-y-4">
+                      <h4 className="font-medium">Add New Images</h4>
+                      
+                      <div className="flex items-center gap-4">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => listingFileInputRef.current?.click()}
+                          disabled={uploadingImage}
+                          className="bg-teal-500 hover:bg-teal-600 text-white border-teal-500"
+                        >
+                          {uploadingImage ? (
+                            <>
+                              <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                              Uploading...
+                            </>
+                          ) : (
+                            <>
+                              <Upload className="h-4 w-4 mr-2" />
+                              Upload (1/5)
+                            </>
+                          )}
+                        </Button>
+                        <input
+                          type="file"
+                          ref={listingFileInputRef}
+                          onChange={handleImageUpload}
+                          accept="image/*"
+                          multiple
+                          className="hidden"
+                        />
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <Input
+                          value={newImageUrl}
+                          onChange={(e) => setNewImageUrl(e.target.value)}
+                          placeholder="Or paste image URL here"
+                          className="flex-1"
+                        />
+                        <Button
+                          onClick={addImageUrl}
+                          variant="outline"
+                          disabled={!newImageUrl.trim()}
+                        >
+                          <Plus className="h-4 w-4 mr-1" />
+                          Add URL
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex gap-2 pt-4">
+                    <Button onClick={handleSaveListing} className="flex-1">
+                      Save Changes
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => setEditingListing(null)}
+                      className="flex-1"
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
+          )}
+
         </Tabs>
       </div>
     </div>
