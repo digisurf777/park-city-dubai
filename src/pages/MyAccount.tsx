@@ -168,14 +168,19 @@ const MyAccount = () => {
       } = await supabase.from('profiles').update({
         full_name: profile.full_name,
         phone: profile.phone,
+        email: user.email, // Sync email from auth user
         user_type: isParkingOwner ? 'owner' : 'renter'
       }).eq('user_id', user.id);
       if (error) {
+        console.error('Profile update error:', error);
         toast.error('Failed to update profile');
       } else {
         toast.success('Profile updated successfully');
+        // Refresh profile data after successful update
+        fetchProfile();
       }
     } catch (error) {
+      console.error('Profile update exception:', error);
       toast.error('An error occurred while updating profile');
     } finally {
       setUpdating(false);
