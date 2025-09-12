@@ -396,6 +396,35 @@ const AdminPanelOrganized = () => {
     }
   };
 
+  const deleteVerification = async (verificationId: string) => {
+    setVerificationUpdating(verificationId);
+    try {
+      const { error } = await supabase
+        .from('user_verifications')
+        .delete()
+        .eq('id', verificationId);
+
+      if (error) throw error;
+
+      // Remove verification from local state
+      setVerifications(prev => prev.filter(v => v.id !== verificationId));
+      
+      toast({
+        title: "Success",
+        description: "Verification deleted successfully",
+      });
+    } catch (error) {
+      console.error('Error deleting verification:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete verification",
+        variant: "destructive",
+      });
+    } finally {
+      setVerificationUpdating(null);
+    }
+  };
+
   const getStatusBadgeVariant = (status: string) => {
     switch (status) {
       case 'approved': return 'default';
@@ -1146,6 +1175,17 @@ const AdminPanelOrganized = () => {
                                         </Button>
                                       </>
                                     )}
+                                    
+                                    <Button
+                                      onClick={() => deleteVerification(verification.id)}
+                                      disabled={verificationUpdating === verification.id}
+                                      variant="outline"
+                                      size="sm"
+                                      className="border-red-200 text-red-600 hover:bg-red-50"
+                                    >
+                                      <Trash2 className="h-4 w-4 mr-2" />
+                                      Delete
+                                    </Button>
                                     
                                     {verificationUpdating === verification.id && (
                                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
