@@ -270,41 +270,50 @@ const AdminNotifications = ({ isAdmin }: AdminNotificationsProps) => {
 
   const deleteBooking = async (notification: AdminNotification) => {
     if (!notification.booking_id) return;
-    
-    // Show confirmation dialog
+
     const confirmed = window.confirm(
       `Are you sure you want to delete this booking permanently?\n\n` +
       `Location: ${notification.parking_bookings?.location}\n` +
       `Cost: ${notification.parking_bookings?.cost_aed} AED\n\n` +
       `This action cannot be undone.`
     );
-    
     if (!confirmed) return;
-    
+
     setActionLoading(`delete-${notification.id}`);
-    
+
     try {
-      // Call the delete function
+      // Primary: call secure RPC that cleans related records
       const { data, error } = await supabase.rpc('admin_delete_booking_complete', {
         booking_id: notification.booking_id
       });
 
       if (error) throw error;
 
-      toast({
-        title: "Success",
-        description: "Booking deleted successfully",
-      });
-
-      // Refresh notifications list
+      // Mark as read and refresh
+      await markAsRead(notification.id);
+      toast({ title: 'Success', description: 'Booking deleted successfully' });
       fetchNotifications();
-    } catch (error) {
-      console.error('Error deleting booking:', error);
-      toast({
-        title: "Error",
-        description: "Failed to delete booking",
-        variant: "destructive",
-      });
+    } catch (err: any) {
+      console.error('RPC delete failed, attempting fallback deletes...', err);
+      try {
+        // Fallback: perform explicit deletes with admin RLS policies
+        await supabase.from('driver_owner_messages').delete().eq('booking_id', notification.booking_id);
+        await supabase.from('admin_notifications').delete().eq('booking_id', notification.booking_id);
+        await supabase.from('user_notifications').delete().eq('booking_id', notification.booking_id);
+        const { error: delBookingErr } = await supabase.from('parking_bookings').delete().eq('id', notification.booking_id);
+        if (delBookingErr) throw delBookingErr;
+
+        await markAsRead(notification.id);
+        toast({ title: 'Success', description: 'Booking deleted successfully' });
+        fetchNotifications();
+      } catch (finalErr: any) {
+        console.error('Fallback delete failed:', finalErr);
+        toast({
+          title: 'Error',
+          description: `Failed to delete booking: ${finalErr?.message || 'Unknown error'}`,
+          variant: 'destructive',
+        });
+      }
     } finally {
       setActionLoading(null);
     }
