@@ -71,6 +71,24 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
 
   useEffect(() => {
     fetchSpaces();
+
+    // Set up real-time subscription for parking spaces changes
+    const spacesChannel = supabase
+      .channel('parking-spaces-admin')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'parking_spaces'
+      }, (payload) => {
+        console.log('Real-time parking spaces change detected:', payload);
+        // Refresh spaces data when changes occur
+        fetchSpaces();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(spacesChannel);
+    };
   }, []);
 
   useEffect(() => {
@@ -177,6 +195,16 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
       return;
     }
 
+    const space = spaces.find(s => s.space_id === spaceId);
+    if (!space) {
+      toast({
+        title: "Error",
+        description: "Space not found",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       // Add to loading state
       setLoadingSpaces(prev => new Set(prev.add(spaceId)));
@@ -188,32 +216,47 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
         override_reason: reason || null
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Database error:', error);
+        throw new Error(error.message || 'Failed to update space status');
+      }
 
-      const statusLabels = {
-        available: 'Available to Rent',
-        booked: 'Currently Booked',
-        maintenance: 'Under Maintenance',
-        reserved: 'Reserved'
-      };
+      if (data && typeof data === 'object' && 'success' in data && (data as any).success) {
+        const statusLabels = {
+          available: 'Available to Rent',
+          booked: 'Currently Booked',
+          maintenance: 'Under Maintenance',
+          reserved: 'Reserved'
+        };
 
-      toast({
-        title: "Success",
-        description: `Space status changed to ${statusLabels[newStatus as keyof typeof statusLabels]}`,
-      });
+        toast({
+          title: "Status Updated Successfully",
+          description: `${space.listing_title} - ${space.space_number} is now ${statusLabels[newStatus as keyof typeof statusLabels]}`,
+        });
 
-      fetchSpaces();
-      onRefresh?.();
+        // Refresh the data to show live updates
+        await fetchSpaces();
+        onRefresh?.();
+      } else {
+        const errorMsg = (data && typeof data === 'object' && 'message' in data) 
+          ? (data as any).message 
+          : 'Update failed';
+        throw new Error(errorMsg);
+      }
     } catch (error: any) {
       console.error('Error updating space:', error);
       
       let errorMessage = "Failed to update space status";
       if (error?.message?.includes('Parking space not found')) {
         errorMessage = "Parking space not found. Please initialize parking spaces first using the 'Initialize Test Spaces' button.";
+      } else if (error?.message?.includes('Access denied')) {
+        errorMessage = "Access denied: Admin privileges required";
+      } else if (error?.message) {
+        errorMessage = error.message;
       }
       
       toast({
-        title: "Error",
+        title: "Update Failed",
         description: errorMessage,
         variant: "destructive",
       });
