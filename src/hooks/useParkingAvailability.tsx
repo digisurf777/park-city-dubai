@@ -76,8 +76,15 @@ export const useParkingAvailability = (zone?: string) => {
         };
       });
 
-      console.log('Transformed availability data:', transformedData);
-      setParkingSpots(transformedData);
+      // Deduplicate by ID to prevent duplicate listings
+      const uniqueData = transformedData.filter((spot, index, array) => 
+        array.findIndex(item => item.id === spot.id) === index
+      );
+
+      console.log('Transformed availability data:', uniqueData);
+      console.log('Deduplicated listings count:', uniqueData.length);
+      
+      setParkingSpots(uniqueData);
     } catch (err) {
       console.error('Error in fetchParkingSpots:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch parking spots');
