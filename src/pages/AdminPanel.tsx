@@ -346,7 +346,7 @@ const AdminPanelOrganized = () => {
     }
   };
 
-  const updateVerificationStatus = async (verificationId: string, newStatus: 'approved' | 'rejected') => {
+  const updateVerificationStatus = async (verificationId: string, newStatus: 'verified' | 'rejected') => {
     setVerificationUpdating(verificationId);
     try {
       const { error } = await supabase
@@ -368,7 +368,7 @@ const AdminPanelOrganized = () => {
             userId: verification.user_id,
             userEmail: verification.profiles?.email,
             userName: verification.profiles?.full_name || verification.full_name,
-            isApproved: newStatus === 'approved'
+            isApproved: newStatus === 'verified'
           }
         });
 
@@ -1127,7 +1127,7 @@ const AdminPanelOrganized = () => {
                                     {verification.verification_status === 'pending' && (
                                       <>
                                         <Button
-                                          onClick={() => updateVerificationStatus(verification.id, 'approved')}
+                                          onClick={() => updateVerificationStatus(verification.id, 'verified')}
                                           disabled={verificationUpdating === verification.id}
                                           size="sm"
                                           className="bg-green-600 hover:bg-green-700"
