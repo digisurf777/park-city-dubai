@@ -1158,7 +1158,7 @@ export type Database = {
       }
       create_parking_spaces_for_listing: {
         Args: {
-          listing_id: string
+          p_listing_id: string
           space_count?: number
           space_prefix?: string
         }
