@@ -74,10 +74,12 @@ interface ParkingListing {
   address: string;
   zone: string;
   price_per_hour: number;
+  price_per_day?: number;
   price_per_month: number;
   status: string;
   owner_id: string;
   images: string[];
+  features?: string[];
   contact_phone: string;
   contact_email: string;
   created_at: string;
@@ -448,7 +450,92 @@ const AdminPanelOrganized = () => {
         return <RefreshCw className="h-4 w-4 text-gray-500" />;
     }
   };
-  const fetchParkingListings = async () => {};
+  const fetchParkingListings = async () => {
+    setListingsLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('parking_listings')
+        .select(`
+          *,
+          profiles:owner_id (
+            full_name,
+            email,
+            phone
+          )
+        `)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setParkingListings(data || []);
+    } catch (error) {
+      console.error('Error fetching parking listings:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch parking listings",
+        variant: "destructive",
+      });
+    } finally {
+      setListingsLoading(false);
+    }
+  };
+  
+  const updateListingStatus = async (listingId: string, status: 'approved' | 'rejected') => {
+    try {
+      const { error } = await supabase
+        .from('parking_listings')
+        .update({ status })
+        .eq('id', listingId);
+
+      if (error) throw error;
+
+      // Update local state
+      setParkingListings(prev => 
+        prev.map(listing => 
+          listing.id === listingId ? { ...listing, status } : listing
+        )
+      );
+
+      toast({
+        title: "Success",
+        description: `Listing ${status} successfully`,
+      });
+    } catch (error) {
+      console.error('Error updating listing status:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update listing status",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const deleteListing = async (listingId: string) => {
+    if (!confirm('Are you sure you want to delete this listing? This action cannot be undone.')) return;
+
+    try {
+      const { error } = await supabase.rpc('admin_delete_parking_listing_complete', {
+        listing_id: listingId
+      });
+
+      if (error) throw error;
+
+      // Remove from local state
+      setParkingListings(prev => prev.filter(listing => listing.id !== listingId));
+      
+      toast({
+        title: "Success",
+        description: "Listing deleted successfully",
+      });
+    } catch (error) {
+      console.error('Error deleting listing:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete listing",
+        variant: "destructive",
+      });
+    }
+  };
+  
   const fetchParkingBookings = async () => {};
   const fetchAllUsers = async () => {};
   const fetchDetailedUsers = async () => {};
@@ -600,6 +687,7 @@ const AdminPanelOrganized = () => {
     if (isAdmin) {
       fetchPosts();
       fetchVerifications();
+      fetchParkingListings();
     }
   }, [isAdmin]);
 
@@ -1017,10 +1105,141 @@ const AdminPanelOrganized = () => {
               <TabsContent value="listings" className="space-y-6">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Parking Listings</CardTitle>
+                    <CardTitle className="flex items-center gap-2">
+                      <Car className="h-5 w-5" />
+                      Parking Listings Management
+                      {listingsLoading && <RefreshCw className="h-4 w-4 animate-spin" />}
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-center text-muted-foreground">Listings management interface will be here</p>
+                    {listingsLoading ? (
+                      <div className="flex items-center justify-center py-8">
+                        <RefreshCw className="h-6 w-6 animate-spin" />
+                        <span className="ml-2">Loading listings...</span>
+                      </div>
+                    ) : parkingListings.length === 0 ? (
+                      <div className="text-center py-8">
+                        <Car className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                        <p className="text-muted-foreground">No parking listings found</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <p className="text-sm text-muted-foreground">
+                            Total listings: {parkingListings.length}
+                          </p>
+                          <Button onClick={fetchParkingListings} variant="outline" size="sm">
+                            <RefreshCw className="h-4 w-4 mr-2" />
+                            Refresh
+                          </Button>
+                        </div>
+                        
+                        <div className="grid gap-4">
+                          {parkingListings.map((listing) => (
+                            <Card key={listing.id} className="p-4">
+                              <div className="flex items-start justify-between">
+                                <div className="flex-1 space-y-2">
+                                  <div className="flex items-center gap-3">
+                                    <h3 className="font-semibold">{listing.title}</h3>
+                                    <Badge variant={getStatusBadgeVariant(listing.status)}>
+                                      {listing.status}
+                                    </Badge>
+                                  </div>
+                                  
+                                  <p className="text-sm text-muted-foreground">
+                                    📍 {listing.address} • {listing.zone}
+                                  </p>
+                                  
+                                  <p className="text-sm line-clamp-2">{listing.description}</p>
+                                  
+                                  <div className="flex items-center gap-4 text-sm">
+                                    <span>💰 {listing.price_per_hour} AED/hour</span>
+                                    {listing.price_per_day && (
+                                      <span>{listing.price_per_day} AED/day</span>
+                                    )}
+                                    {listing.price_per_month && (
+                                      <span>{listing.price_per_month} AED/month</span>
+                                    )}
+                                  </div>
+                                  
+                                  {listing.features && listing.features.length > 0 && (
+                                    <div className="flex flex-wrap gap-1">
+                                      {listing.features.slice(0, 3).map((feature, idx) => (
+                                        <Badge key={idx} variant="outline" className="text-xs">
+                                          {feature}
+                                        </Badge>
+                                      ))}
+                                      {listing.features.length > 3 && (
+                                        <Badge variant="outline" className="text-xs">
+                                          +{listing.features.length - 3}
+                                        </Badge>
+                                      )}
+                                    </div>
+                                  )}
+                                  
+                                  <p className="text-xs text-muted-foreground">
+                                    Created: {format(new Date(listing.created_at), 'PPP')}
+                                  </p>
+                                </div>
+                                
+                                {listing.images && listing.images.length > 0 && (
+                                  <div className="ml-4">
+                                    <img 
+                                      src={listing.images[0]} 
+                                      alt={listing.title}
+                                      className="w-20 h-20 object-cover rounded"
+                                    />
+                                  </div>
+                                )}
+                              </div>
+                              
+                              <div className="flex items-center gap-2 mt-4 pt-4 border-t">
+                                {listing.status === 'pending' && (
+                                  <>
+                                    <Button
+                                      size="sm"
+                                      onClick={() => updateListingStatus(listing.id, 'approved')}
+                                      className="bg-green-600 hover:bg-green-700"
+                                    >
+                                      <CheckCircle className="h-4 w-4 mr-1" />
+                                      Approve
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="destructive"
+                                      onClick={() => updateListingStatus(listing.id, 'rejected')}
+                                    >
+                                      <XCircle className="h-4 w-4 mr-1" />
+                                      Reject
+                                    </Button>
+                                  </>
+                                )}
+                                
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => deleteListing(listing.id)}
+                                >
+                                  <Trash2 className="h-4 w-4 mr-1" />
+                                  Delete
+                                </Button>
+                                
+                                {listing.images && listing.images.length > 0 && (
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => window.open(listing.images[0], '_blank')}
+                                  >
+                                    <Eye className="h-4 w-4 mr-1" />
+                                    View Images
+                                  </Button>
+                                )}
+                              </div>
+                            </Card>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               </TabsContent>

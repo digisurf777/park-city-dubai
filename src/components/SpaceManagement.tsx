@@ -193,7 +193,7 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
   const createSpacesForListing = async () => {
     try {
       const { data, error } = await supabase.rpc('create_parking_spaces_for_listing', {
-        listing_id: createForm.listingId,
+        p_listing_id: createForm.listingId,
         space_count: createForm.spaceCount,
         space_prefix: createForm.spacePrefix
       });

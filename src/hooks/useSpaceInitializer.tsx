@@ -54,7 +54,7 @@ export const useSpaceInitializer = () => {
           
           try {
             const { error: createError } = await supabase.rpc('create_parking_spaces_for_listing', {
-              listing_id: listing.id,
+              p_listing_id: listing.id,
               space_count: spaceCount,
               space_prefix: 'Space'
             });
