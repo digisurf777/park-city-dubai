@@ -294,13 +294,20 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
 
       if (data && typeof data === 'object' && 'success' in data && (data as any).success) {
         toast({
-          title: "Space Deleted Successfully",
-          description: `${listingTitle} - ${spaceNumber} has been permanently deleted`,
+          title: "Car Park Deleted Successfully",
+          description: `${listingTitle} has been permanently removed from both admin panel and website`,
         });
 
-        // Refresh the data to show live updates
+        // Refresh the data immediately to show live updates
         await fetchSpaces();
+        
+        // Also trigger refresh callback for any parent components
         onRefresh?.();
+        
+        // Force a browser refresh to ensure website updates immediately
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
       } else {
         const errorMsg = (data && typeof data === 'object' && 'message' in data) 
           ? (data as any).message 
@@ -310,7 +317,7 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
     } catch (error: any) {
       console.error('Error deleting space:', error);
       
-      let errorMessage = "Failed to delete space";
+      let errorMessage = "Failed to delete car park";
       if (error?.message?.includes('Access denied')) {
         errorMessage = "Access denied: Admin privileges required";
       } else if (error?.message) {
@@ -335,27 +342,35 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
     try {
       const { data, error } = await supabase.rpc('create_parking_spaces_for_listing', {
         p_listing_id: createForm.listingId,
-        space_count: createForm.spaceCount,
-        space_prefix: createForm.spacePrefix
+        space_count: 1, // Always create only 1 space per car park
+        space_prefix: 'Main'
       });
 
       if (error) throw error;
 
       const result = data as unknown as CreateSpacesResponse;
 
-      toast({
-        title: "Success",
-        description: `${result.spaces_created} spaces created successfully`,
-      });
+      if (result.success) {
+        toast({
+          title: "Success",
+          description: `Car park space created successfully`,
+        });
 
-      setShowCreateModal(false);
-      setCreateForm({ listingId: '', spaceCount: 1, spacePrefix: 'Space' });
-      fetchSpaces();
+        setShowCreateModal(false);
+        setCreateForm({ listingId: '', spaceCount: 1, spacePrefix: 'Main' });
+        fetchSpaces();
+      } else {
+        toast({
+          title: "Info",
+          description: result.message || "Space already exists for this car park",
+          variant: "default",
+        });
+      }
     } catch (error) {
       console.error('Error creating spaces:', error);
       toast({
         title: "Error",
-        description: "Failed to create spaces",
+        description: "Failed to create car park space",
         variant: "destructive",
       });
     }
@@ -695,23 +710,8 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
                 </SelectContent>
               </Select>
             </div>
-            <div>
-              <Label>Number of Spaces</Label>
-              <Input
-                type="number"
-                min="1"
-                max="100"
-                value={createForm.spaceCount}
-                onChange={(e) => setCreateForm({...createForm, spaceCount: parseInt(e.target.value) || 1})}
-              />
-            </div>
-            <div>
-              <Label>Space Prefix</Label>
-              <Input
-                value={createForm.spacePrefix}
-                onChange={(e) => setCreateForm({...createForm, spacePrefix: e.target.value})}
-                placeholder="e.g., Space, Slot, Bay"
-              />
+            <div className="text-sm text-muted-foreground bg-blue-50 p-3 rounded-md">
+              <p><strong>Note:</strong> Each car park listing can only have one parking space. This ensures a 1:1 relationship between listings and available spaces on the website.</p>
             </div>
             <div className="flex gap-2 pt-4">
               <Button onClick={createSpacesForListing} className="flex-1">Create Spaces</Button>
