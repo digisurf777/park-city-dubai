@@ -1600,6 +1600,14 @@ const AdminPanelOrganized = () => {
                                     </div>
                                   </div>
 
+                                  {/* Verification ID */}
+                                  <div className="mb-3 p-2 bg-muted/50 rounded border">
+                                    <p className="font-medium text-xs">Verification ID</p>
+                                    <p className="text-xs font-mono text-muted-foreground break-all select-all">
+                                      {verification.id}
+                                    </p>
+                                  </div>
+
                                   <div className="grid grid-cols-2 gap-4 text-sm">
                                     <div>
                                       <p className="font-medium">Document Type</p>
