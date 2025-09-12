@@ -1264,6 +1264,30 @@ export type Database = {
           verification_status: string
         }[]
       }
+      get_parking_listings_with_availability: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          address: string
+          availability_schedule: Json
+          available_spaces: number
+          booked_spaces: number
+          created_at: string
+          description: string
+          features: string[]
+          id: string
+          images: string[]
+          is_available: boolean
+          maintenance_spaces: number
+          price_per_day: number
+          price_per_hour: number
+          price_per_month: number
+          status: string
+          title: string
+          total_spaces: number
+          updated_at: string
+          zone: string
+        }[]
+      }
       get_parking_spaces_overview: {
         Args: Record<PropertyKey, never>
         Returns: {

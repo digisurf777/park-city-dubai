@@ -285,7 +285,15 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
   }
 
   return (
-    <div className="space-y-6">
+        {/* Availability Overview */}
+        <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+          <h3 className="text-lg font-semibold text-blue-800 mb-2">Parking Availability Overview</h3>
+          <p className="text-blue-600 text-sm">
+            Changes to individual parking spaces now update live on the website. 
+            When all spaces for a listing are booked/maintenance, it shows "Currently Booked". 
+            When spaces are available, it shows "Book Now" with availability count.
+          </p>
+        </div>
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-semibold">Space Management</h2>
         <div className="flex gap-2">

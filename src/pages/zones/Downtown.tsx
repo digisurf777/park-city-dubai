@@ -5,13 +5,13 @@ import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Search, Car, CreditCard, Ruler, MapPin, ChevronLeft, ChevronRight } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ParkingBookingModal } from "@/components/ParkingBookingModal";
 import ImageZoomModal from "@/components/ImageZoomModal";
+import { useParkingAvailability } from "@/hooks/useParkingAvailability";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import downtownHero from "/lovable-uploads/f676da2a-39c9-4211-8561-5b884e0ceed8.png";
 
@@ -19,8 +19,6 @@ const Downtown = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [priceRange, setPriceRange] = useState([0, 20000]);
   const [showAvailableOnly, setShowAvailableOnly] = useState(false);
-  const [parkingSpots, setParkingSpots] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
   const [selectedSpot, setSelectedSpot] = useState<any>(null);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [currentImageIndexes, setCurrentImageIndexes] = useState<{
@@ -31,109 +29,8 @@ const Downtown = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [selectedSpotName, setSelectedSpotName] = useState("");
   
-  useEffect(() => {
-    fetchParkingSpots();
-
-    // Set up real-time subscription to parking_listings changes
-    const channel = supabase.channel('parking-listings-downtown').on('postgres_changes', {
-      event: '*',
-      schema: 'public',
-      table: 'parking_listings'
-    }, payload => {
-      console.log('Real-time parking listing change in Downtown:', payload);
-      // Refetch data when any parking listing changes
-      fetchParkingSpots();
-    }).subscribe();
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, []);
-  const fetchParkingSpots = async () => {
-    console.log('Fetching parking spots for Downtown...');
-    try {
-      // For security: Only fetch contact info if user is authenticated
-      const { data, error } = await supabase.from('parking_listings_public').select("*").eq('zone', 'Downtown');
-      console.log('Supabase query result:', {
-        data,
-        error
-      });
-      if (error) throw error;
-
-      // Transform data to match UI expectations
-      const transformedData = data.map(spot => ({
-        id: spot.id,
-        name: spot.title,
-        district: "Downtown",
-        price: spot.price_per_month || 0,
-        image: spot.images && spot.images.length > 0 ? spot.images[0] : "/lovable-uploads/161ee737-1491-45d6-a5e3-a642b7ff0806.png",
-        images: spot.images || [],
-        specs: spot.features || ["Access Card", "Covered", "2.1m Height"],
-        available: true,
-        address: spot.address,
-        description: spot.description
-      }));
-      console.log('Transformed data:', transformedData);
-
-      // Always show transformed data (real data from database when available)
-      setParkingSpots(transformedData.length > 0 ? transformedData : [
-        {
-          id: "demo-1",
-          name: "The Lofts Central Tower",
-          district: "Downtown",
-          price: 250,
-          image: "/lovable-uploads/25c56481-0d03-4055-bd47-67635ac0d1b0.png",
-          images: ["/lovable-uploads/25c56481-0d03-4055-bd47-67635ac0d1b0.png", "/lovable-uploads/32249908-791f-4751-bdaa-b25414bbcd86.png"],
-          specs: ["Access Card", "Covered", "2.5m Height"],
-          available: true,
-          address: "The Lofts Central Tower, Downtown Dubai",
-          description: "Prime downtown parking in The Lofts Central Tower. Secure underground parking with 24/7 access and CCTV surveillance."
-        },
-        {
-          id: "demo-2",
-          name: "Burj Vista",
-          district: "Downtown",
-          price: 860,
-          image: "/lovable-uploads/32249908-791f-4751-bdaa-b25414bbcd86.png",
-          images: ["/lovable-uploads/32249908-791f-4751-bdaa-b25414bbcd86.png", "/lovable-uploads/25c56481-0d03-4055-bd47-67635ac0d1b0.png"],
-          specs: ["CCTV", "24h Security", "Concierge"],
-          available: true,
-          address: "Burj Vista, Downtown Dubai",
-          description: "Basement-level parking space in the heart of Downtown. CCTV surveillance, 24-hour maintenance, and concierge services available."
-        }
-      ]);
-    } catch (error) {
-      console.error('Error fetching parking spots:', error);
-      // Fallback to demo data if database query fails
-      setParkingSpots([
-        {
-          id: "demo-1",
-          name: "The Lofts Central Tower",
-          district: "Downtown",
-          price: 250,
-          image: "/lovable-uploads/25c56481-0d03-4055-bd47-67635ac0d1b0.png",
-          images: ["/lovable-uploads/25c56481-0d03-4055-bd47-67635ac0d1b0.png", "/lovable-uploads/32249908-791f-4751-bdaa-b25414bbcd86.png"],
-          specs: ["Access Card", "Covered", "2.5m Height"],
-          available: true,
-          address: "The Lofts Central Tower, Downtown Dubai",
-          description: "Prime downtown parking with 24/7 security and premium amenities."
-        },
-        {
-          id: "demo-2",
-          name: "Burj Vista",
-          district: "Downtown",
-          price: 860,
-          image: "/lovable-uploads/32249908-791f-4751-bdaa-b25414bbcd86.png",
-          images: ["/lovable-uploads/32249908-791f-4751-bdaa-b25414bbcd86.png", "/lovable-uploads/25c56481-0d03-4055-bd47-67635ac0d1b0.png"],
-          specs: ["CCTV", "24h Security", "Concierge"],
-          available: true,
-          address: "Burj Vista, Downtown Dubai",
-          description: "Basement-level parking with CCTV surveillance and concierge services."
-        }
-      ]);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Use the new parking availability hook
+  const { parkingSpots, loading, error } = useParkingAvailability("Downtown");
   const clearFilters = () => {
     setSearchTerm("");
     setPriceRange([0, 20000]);
@@ -267,9 +164,25 @@ const Downtown = () => {
                   <span className="text-xl sm:text-2xl font-bold text-primary">From AED {spot.price}/month</span>
                 </div>
 
-                <div className="w-full bg-red-500 text-white py-2 sm:py-3 rounded text-center font-semibold text-sm sm:text-base">
-                  Currently Booked
-                </div>
+                {spot.available ? (
+                  <Button 
+                    onClick={() => handleReserveClick(spot)}
+                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-2 sm:py-3 rounded font-semibold text-sm sm:text-base"
+                  >
+                    Book Now
+                  </Button>
+                ) : (
+                  <div className="w-full bg-red-500 text-white py-2 sm:py-3 rounded text-center font-semibold text-sm sm:text-base">
+                    {spot.availabilityText || "Currently Booked"}
+                  </div>
+                )}
+                
+                {/* Availability info */}
+                {spot.totalSpaces > 0 && (
+                  <p className="text-xs text-muted-foreground mt-2 text-center">
+                    {spot.availabilityText}
+                  </p>
+                )}
               </div>
             </Card>)}
         </div>

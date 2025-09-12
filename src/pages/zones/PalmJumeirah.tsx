@@ -2,20 +2,18 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ParkingBookingModal } from "@/components/ParkingBookingModal";
 import ImageZoomModal from "@/components/ImageZoomModal";
+import { useParkingAvailability } from "@/hooks/useParkingAvailability";
 
 
 const PalmJumeirah = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [priceRange, setPriceRange] = useState([0, 1500]);
   const [showAvailableOnly, setShowAvailableOnly] = useState(false);
-  const [parkingSpots, setParkingSpots] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
   const [selectedSpot, setSelectedSpot] = useState<any>(null);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [currentImageIndexes, setCurrentImageIndexes] = useState<{ [key: string]: number }>({});
@@ -24,119 +22,9 @@ const PalmJumeirah = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [selectedSpotName, setSelectedSpotName] = useState("");
   
+  // Use the new parking availability hook
+  const { parkingSpots, loading, error } = useParkingAvailability("Palm Jumeirah");
 
-  useEffect(() => {
-    fetchParkingSpots();
-  }, []);
-
-  const fetchParkingSpots = async () => {
-    console.log("Fetching parking spots for Palm Jumeirah...");
-    try {
-      const { data, error } = await supabase.from("parking_listings_public").select("*").eq("zone", "Palm Jumeirah");
-      
-      console.log("Supabase query result:", { data, error });
-      if (error) throw error;
-
-      // Transform data to match UI expectations
-      const transformedData = data.map(spot => ({
-        id: spot.id,
-        name: spot.title,
-        district: "Palm Jumeirah",
-        price: spot.price_per_month || 0,
-        image: spot.images && spot.images.length > 0 ? spot.images[0] : "/lovable-uploads/ba4a4def-2cd7-4e97-89d5-074c13f0bbe8.png",
-        images: spot.images || [],
-        specs: spot.features || ["Access Card", "Covered", "2.1m Height"],
-        available: true,
-        address: spot.address,
-        description: spot.description
-      }));
-
-      console.log("Transformed data:", transformedData);
-
-      // If no data from database, use demo data
-      if (transformedData.length === 0) {
-        console.log("No data from database, using demo data");
-        setParkingSpots([
-          {
-            id: 1,
-            name: "East Golf Tower",
-            district: "Palm Jumeirah",
-            price: 500,
-            image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
-            specs: ["Covered", "24/7 Security", "Premium"],
-            available: true,
-            address: "East Golf Tower, Palm Jumeirah",
-            description: "Secure parking space in East Golf Tower with 24/7 access and premium amenities in the heart of Palm Jumeirah."
-          },
-          {
-            id: "demo-2",
-            name: "Shoreline Apartments",
-            district: "Palm Jumeirah",
-            price: 900,
-            image: "/lovable-uploads/20c287e2-e6e7-4c77-9fb2-30d50523dbca.png",
-            images: ["/lovable-uploads/20c287e2-e6e7-4c77-9fb2-30d50523dbca.png", "/lovable-uploads/1dda1396-7e61-4941-b3c2-e7badd6fc5bc.png"],
-            specs: ["Underground", "24/7 Security", "CCTV"],
-            available: true,
-            address: "Shoreline Apartments, Palm Jumeirah",
-            description: "Secure underground parking in the heart of Palm Jumeirah with 24/7 security and CCTV surveillance."
-          },
-          {
-            id: "demo-3",
-            name: "The Palm Tower",
-            district: "Palm Jumeirah",
-            price: 800,
-            image: "/lovable-uploads/1dda1396-7e61-4941-b3c2-e7badd6fc5bc.png",
-            images: ["/lovable-uploads/1dda1396-7e61-4941-b3c2-e7badd6fc5bc.png", "/lovable-uploads/20c287e2-e6e7-4c77-9fb2-30d50523dbca.png"],
-            specs: ["Underground", "24/7 Security", "Premium"],
-            available: true,
-            address: "The Palm Tower, Palm Jumeirah",
-            description: "Underground parking garage in The Palm Tower, in the heart of Palm Jumeirah with 24/7 security."
-          }
-        ]);
-      } else {
-        setParkingSpots(transformedData);
-      }
-    } catch (error) {
-      console.error("Error fetching parking spots:", error);
-      setParkingSpots([
-        {
-          id: 1,
-          name: "East Golf Tower",
-          district: "Palm Jumeirah",
-          price: 500,
-          image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
-          specs: ["Covered", "24/7 Security", "Premium"],
-          available: true,
-          address: "East Golf Tower, Palm Jumeirah",
-          description: "Secure parking space in East Golf Tower with 24/7 access and premium amenities in the heart of Palm Jumeirah."
-        },
-        {
-          id: 2,
-          name: "Shoreline Apartments",
-          district: "Palm Jumeirah",
-          price: 900,
-          image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
-          specs: ["Underground", "24/7 Security", "CCTV"],
-          available: true,
-          address: "Shoreline Apartments, Palm Jumeirah",
-          description: "Secure underground parking in the heart of Palm Jumeirah with 24/7 security and CCTV surveillance."
-        },
-        {
-          id: 3,
-          name: "The Palm Tower",
-          district: "Palm Jumeirah",
-          price: 800,
-          image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
-          specs: ["Underground", "24/7 Security", "Premium"],
-          available: true,
-          address: "The Palm Tower, Palm Jumeirah",
-          description: "Underground parking garage in The Palm Tower, in the heart of Palm Jumeirah with 24/7 security."
-        }
-      ]);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const clearFilters = () => {
     setSearchTerm("");
@@ -294,9 +182,25 @@ const PalmJumeirah = () => {
                     <span className="text-xl sm:text-2xl font-bold text-primary">From AED {spot.price}/month</span>
                   </div>
 
-                  <div className="w-full bg-red-500 text-white py-2 sm:py-3 rounded text-center font-semibold text-sm sm:text-base">
-                    Currently Booked
-                  </div>
+                  {spot.available ? (
+                    <Button 
+                      onClick={() => handleReserveClick(spot)}
+                      className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-2 sm:py-3 rounded font-semibold text-sm sm:text-base"
+                    >
+                      Book Now
+                    </Button>
+                  ) : (
+                    <div className="w-full bg-red-500 text-white py-2 sm:py-3 rounded text-center font-semibold text-sm sm:text-base">
+                      {spot.availabilityText || "Currently Booked"}
+                    </div>
+                  )}
+                  
+                  {/* Availability info */}
+                  {spot.totalSpaces > 0 && (
+                    <p className="text-xs text-muted-foreground mt-2 text-center">
+                      {spot.availabilityText}
+                    </p>
+                  )}
                 </div>
               </Card>
             ))}

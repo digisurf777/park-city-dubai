@@ -5,15 +5,15 @@ import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Search, Car, CreditCard, Ruler, MapPin, ChevronLeft, ChevronRight, Mail } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ParkingBookingModal } from "@/components/ParkingBookingModal";
 import ImageZoomModal from "@/components/ImageZoomModal";
+import { useParkingAvailability } from "@/hooks/useParkingAvailability";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import deiraHero from "@/assets/zones/deira-real.jpg";
 
@@ -24,8 +24,6 @@ const Deira = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [priceRange, setPriceRange] = useState([0, 500]);
   const [showAvailableOnly, setShowAvailableOnly] = useState(false);
-  const [parkingSpots, setParkingSpots] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
   const [selectedSpot, setSelectedSpot] = useState<any>(null);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [currentImageIndexes, setCurrentImageIndexes] = useState<{ [key: string]: number }>({});
@@ -34,124 +32,9 @@ const Deira = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [selectedSpotName, setSelectedSpotName] = useState("");
   
+  // Use the new parking availability hook
+  const { parkingSpots, loading, error } = useParkingAvailability("Deira");
 
-  const testEmail = async () => {
-    if (!user?.email) {
-      toast({
-        title: "Error",
-        description: "Please log in to test email functionality",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      const { data, error } = await supabase.functions.invoke('test-email', {
-        body: { email: user.email }
-      });
-
-      if (error) throw error;
-
-      toast({
-        title: "Test Email Sent!",
-        description: `Test email sent to ${user.email}. Check your inbox.`,
-      });
-    } catch (error) {
-      console.error('Test email error:', error);
-      toast({
-        title: "Error",
-        description: "Failed to send test email. Check console for details.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  useEffect(() => {
-    fetchParkingSpots();
-  }, []);
-
-  const fetchParkingSpots = async () => {
-    console.log("Fetching parking spots for Deira...");
-    try {
-      // For security: Only fetch contact info if user is authenticated
-      const { data, error } = await supabase.from("parking_listings_public").select("*").eq("zone", "Deira");
-      console.log("Supabase query result:", { data, error });
-      if (error) throw error;
-
-      const transformedData = data.map(spot => ({
-        id: spot.id,
-        name: spot.title,
-        district: "Deira",
-        price: spot.price_per_month || 0,
-        image: spot.images && spot.images.length > 0 ? spot.images[0] : "/lovable-uploads/747c1f5d-d6b2-4f6a-94a2-aca1927ee856.png",
-        images: spot.images || [],
-        specs: spot.features || ["Access Card", "Covered", "2.1m Height"],
-        available: true,
-        address: spot.address,
-        description: spot.description
-      }));
-
-      console.log("Transformed data:", transformedData);
-
-      if (transformedData.length === 0) {
-        console.log("No data from database, using demo data");
-        setParkingSpots([
-          {
-            id: 1,
-            name: "Abraj Al Mamzar",
-            district: "Deira",
-            price: 200,
-            image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
-            specs: ["Underground", "Secure", "Al Mulla Plaza"],
-            available: true,
-            address: "Abraj Al Mamzar, Deira",
-            description: "Secure underground parking close to Al Mulla Plaza with convenient access and safety features."
-          },
-          {
-            id: 2,
-            name: "Al Meraikhi Tower 2",
-            district: "Deira",
-            price: 300,
-            image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
-            specs: ["Covered", "Elevator Access", "CCTV"],
-            available: true,
-            address: "Al Meraikhi Tower 2, Deira",
-            description: "Convenient covered parking space in Al Meraikhi Tower 2 with easy elevator access and CCTV surveillance."
-          }
-        ]);
-      } else {
-        setParkingSpots(transformedData);
-      }
-    } catch (error) {
-      console.error("Error fetching parking spots:", error);
-      setParkingSpots([
-        {
-          id: 1,
-          name: "Abraj Al Mamzar",
-          district: "Deira",
-          price: 200,
-          image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
-          specs: ["Underground", "Secure", "Al Mulla Plaza"],
-          available: true,
-          address: "Abraj Al Mamzar, Deira",
-          description: "Secure underground parking close to Al Mulla Plaza with convenient access and safety features."
-        },
-        {
-          id: 2,
-          name: "Al Meraikhi Tower 2",
-          district: "Deira",
-          price: 300,
-          image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
-          specs: ["Covered", "Elevator Access", "CCTV"],
-          available: true,
-          address: "Al Meraikhi Tower 2, Deira",
-          description: "Convenient covered parking space in Al Meraikhi Tower 2 with easy elevator access and CCTV surveillance."
-        }
-      ]);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const clearFilters = () => {
     setSearchTerm("");
@@ -312,9 +195,25 @@ const Deira = () => {
                     <span className="text-xl sm:text-2xl font-bold text-primary">From AED {spot.price}/month</span>
                   </div>
 
-                  <div className="w-full bg-red-500 text-white py-2 sm:py-3 rounded text-center font-semibold text-sm sm:text-base">
-                    Currently Booked
-                  </div>
+                  {spot.available ? (
+                    <Button 
+                      onClick={() => handleReserveClick(spot)}
+                      className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-2 sm:py-3 rounded font-semibold text-sm sm:text-base"
+                    >
+                      Book Now
+                    </Button>
+                  ) : (
+                    <div className="w-full bg-red-500 text-white py-2 sm:py-3 rounded text-center font-semibold text-sm sm:text-base">
+                      {spot.availabilityText || "Currently Booked"}
+                    </div>
+                  )}
+                  
+                  {/* Availability info */}
+                  {spot.totalSpaces > 0 && (
+                    <p className="text-xs text-muted-foreground mt-2 text-center">
+                      {spot.availabilityText}
+                    </p>
+                  )}
                 </div>
               </Card>
             ))}

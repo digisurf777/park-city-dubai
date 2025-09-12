@@ -6,13 +6,13 @@ import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Search, Car, CreditCard, Ruler, MapPin, ChevronLeft, ChevronRight } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ParkingBookingModal } from "@/components/ParkingBookingModal";
 import ImageZoomModal from "@/components/ImageZoomModal";
+import { useParkingAvailability } from "@/hooks/useParkingAvailability";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import businessBayHero from "@/assets/zones/business-bay-real.jpg";
 
@@ -21,8 +21,6 @@ const BusinessBay = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [priceRange, setPriceRange] = useState([0, 5000]);
   const [showAvailableOnly, setShowAvailableOnly] = useState(false);
-  const [parkingSpots, setParkingSpots] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
   const [selectedSpot, setSelectedSpot] = useState<any>(null);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [currentImageIndexes, setCurrentImageIndexes] = useState<{ [key: string]: number }>({});
@@ -31,109 +29,9 @@ const BusinessBay = () => {
   const [selectedSpotName, setSelectedSpotName] = useState("");
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   
+  // Use the new parking availability hook
+  const { parkingSpots, loading, error } = useParkingAvailability("Business Bay");
 
-  useEffect(() => {
-    fetchParkingSpots();
-
-    // Set up real-time subscription to parking_listings changes
-    const channel = supabase
-      .channel('parking-listings-business-bay')
-      .on('postgres_changes', {
-        event: '*',
-        schema: 'public',
-        table: 'parking_listings'
-      }, (payload) => {
-        console.log('Real-time parking listing change in Business Bay:', payload);
-        // Refetch data when any parking listing changes
-        fetchParkingSpots();
-      })
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, []);
-
-  const fetchParkingSpots = async () => {
-    console.log("Fetching parking spots for Business Bay...");
-    try {
-      // For security: Only fetch contact info if user is authenticated
-      const { data, error } = await supabase.from("parking_listings_public").select("*").eq("zone", "Business Bay");
-      console.log("Supabase query result:", { data, error });
-      if (error) throw error;
-
-      const transformedData = data.map(spot => ({
-        id: spot.id,
-        name: spot.title,
-        district: "Business Bay",
-        price: spot.price_per_month || 0,
-        image: spot.images && spot.images.length > 0 ? spot.images[0] : "/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.png",
-        images: spot.images || [],
-        specs: spot.features || ["Access Card", "Covered", "2.1m Height"],
-        available: true,
-        address: spot.address,
-        description: spot.description
-      }));
-
-      console.log("Transformed data:", transformedData);
-
-      setParkingSpots(transformedData.length > 0 ? transformedData : [
-        {
-          id: "demo-1",
-          name: "Zada Tower",
-          district: "Business Bay",
-          price: 4000,
-          image: "/lovable-uploads/5b75f24f-2a35-495b-8178-6fcde41d69c8.png",
-          images: ["/lovable-uploads/5b75f24f-2a35-495b-8178-6fcde41d69c8.png", "/lovable-uploads/63d539ac-8cbb-46b2-aa39-3de0695ef8c9.png"],
-          specs: ["Premium", "Ultra Luxury", "24/7 Security"],
-          available: true,
-          address: "Zada Tower, Business Bay",
-          description: "Ultra-premium parking space in the luxury Zada Tower with top-tier amenities and 24/7 security."
-        },
-        {
-          id: "demo-2",
-          name: "Millenium Binghatti Residence",
-          district: "Business Bay",
-          price: 1000,
-          image: "/lovable-uploads/63d539ac-8cbb-46b2-aa39-3de0695ef8c9.png",
-          images: ["/lovable-uploads/63d539ac-8cbb-46b2-aa39-3de0695ef8c9.png", "/lovable-uploads/5b75f24f-2a35-495b-8178-6fcde41d69c8.png"],
-          specs: ["Residential", "Modern", "Secure"],
-          available: true,
-          address: "Millenium Binghatti Residence, Business Bay",
-          description: "Modern residential parking in Millenium Binghatti with secure access and contemporary amenities."
-        },
-        {
-          id: "demo-3",
-          name: "Reva Residence DAMAC",
-          district: "Business Bay",
-          price: 600,
-          image: "/lovable-uploads/5b75f24f-2a35-495b-8178-6fcde41d69c8.png",
-          images: ["/lovable-uploads/5b75f24f-2a35-495b-8178-6fcde41d69c8.png", "/lovable-uploads/63d539ac-8cbb-46b2-aa39-3de0695ef8c9.png"],
-          specs: ["DAMAC Quality", "Covered", "24/7"],
-          available: true,
-          address: "Reva Residence DAMAC, Business Bay",
-          description: "Quality DAMAC parking with covered spaces and 24/7 access in the heart of Business Bay."
-        }
-      ]);
-    } catch (error) {
-      console.error("Error fetching parking spots:", error);
-      setParkingSpots([
-        {
-          id: 1,
-          name: "Zada Tower",
-          district: "Business Bay",
-          price: 4000,
-          image: "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
-          specs: ["Premium", "Ultra Luxury", "24/7 Security"],
-          available: true,
-          address: "Zada Tower, Business Bay",
-          description: "Ultra-premium parking space in the luxury Zada Tower with top-tier amenities and 24/7 security."
-        }
-      ]);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const clearFilters = () => {
     setSearchTerm("");
@@ -288,9 +186,25 @@ const BusinessBay = () => {
                     <span className="text-xl sm:text-2xl font-bold text-primary">From AED {spot.price}/month</span>
                   </div>
 
-                  <div className="w-full bg-red-500 text-white py-2 sm:py-3 rounded text-center font-semibold text-sm sm:text-base">
-                    Currently Booked
-                  </div>
+                  {spot.available ? (
+                    <Button 
+                      onClick={() => handleReserveClick(spot)}
+                      className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-2 sm:py-3 rounded font-semibold text-sm sm:text-base"
+                    >
+                      Book Now
+                    </Button>
+                  ) : (
+                    <div className="w-full bg-red-500 text-white py-2 sm:py-3 rounded text-center font-semibold text-sm sm:text-base">
+                      {spot.availabilityText || "Currently Booked"}
+                    </div>
+                  )}
+                  
+                  {/* Availability info */}
+                  {spot.totalSpaces > 0 && (
+                    <p className="text-xs text-muted-foreground mt-2 text-center">
+                      {spot.availabilityText}
+                    </p>
+                  )}
                 </div>
               </Card>
             ))}

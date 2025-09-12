@@ -6,13 +6,13 @@ import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Search, Car, CreditCard, Ruler, MapPin, ChevronLeft, ChevronRight } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ParkingBookingModal } from "@/components/ParkingBookingModal";
 import ImageZoomModal from "@/components/ImageZoomModal";
+import { useParkingAvailability } from "@/hooks/useParkingAvailability";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import difcHero from "@/assets/zones/difc-real.jpg";
 
@@ -21,8 +21,6 @@ const DIFC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [priceRange, setPriceRange] = useState([0, 2000]);
   const [showAvailableOnly, setShowAvailableOnly] = useState(false);
-  const [parkingSpots, setParkingSpots] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
   const [selectedSpot, setSelectedSpot] = useState<any>(null);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [currentImageIndexes, setCurrentImageIndexes] = useState<{ [key: string]: number }>({});
@@ -31,101 +29,9 @@ const DIFC = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [selectedSpotName, setSelectedSpotName] = useState("");
   
+  // Use the new parking availability hook
+  const { parkingSpots, loading, error } = useParkingAvailability("DIFC");
 
-  useEffect(() => {
-    fetchParkingSpots();
-
-    // Set up real-time subscription to parking_listings changes
-    const channel = supabase
-      .channel('parking-listings-difc')
-      .on('postgres_changes', {
-        event: '*',
-        schema: 'public',
-        table: 'parking_listings'
-      }, (payload) => {
-        console.log('Real-time parking listing change in DIFC:', payload);
-        // Refetch data when any parking listing changes
-        fetchParkingSpots();
-      })
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, []);
-
-  const fetchParkingSpots = async () => {
-    console.log("Fetching parking spots for DIFC...");
-    try {
-      // For security: Only fetch contact info if user is authenticated
-      const { data, error } = await supabase.from("parking_listings_public").select("*").eq("zone", "DIFC");
-      
-      console.log("Supabase query result:", { data, error });
-      if (error) throw error;
-
-      // Transform data to match UI expectations
-      const transformedData = data.map(spot => ({
-        id: spot.id,
-        name: spot.title,
-        district: "DIFC",
-        price: spot.price_per_month || 0,
-        image: spot.images && spot.images.length > 0 ? spot.images[0] : "/lovable-uploads/161ee737-1491-45d6-a5e3-a642b7ff0806.png",
-        images: spot.images || [],
-        specs: spot.features || ["Access Card", "Covered", "2.1m Height"],
-        available: true,
-        address: spot.address,
-        description: spot.description
-      }));
-
-      console.log("Transformed data:", transformedData);
-
-      // Always show transformed data (real data from database when available)
-      setParkingSpots(transformedData.length > 0 ? transformedData : [
-        {
-          id: "demo-1",
-          name: "Index Tower",
-          district: "DIFC",
-          price: 1200,
-          image: "/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.png",
-          images: ["/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.png", "/lovable-uploads/90ac71db-2b33-4d06-8b4e-7fdb761027f4.png"],
-          specs: ["Premium", "24/7 Security", "Concierge"],
-          available: true,
-          address: "Index Tower, DIFC",
-          description: "Premium parking space in Index Tower with 24/7 security and concierge services in the heart of DIFC."
-        },
-        {
-          id: "demo-2",
-          name: "Gate Village",
-          district: "DIFC",
-          price: 1500,
-          image: "/lovable-uploads/90ac71db-2b33-4d06-8b4e-7fdb761027f4.png",
-          images: ["/lovable-uploads/90ac71db-2b33-4d06-8b4e-7fdb761027f4.png", "/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.png"],
-          specs: ["Underground", "CCTV", "Premium"],
-          available: true,
-          address: "Gate Village, DIFC",
-          description: "Secure underground parking in the prestigious Gate Village with CCTV surveillance and premium amenities."
-        }
-      ]);
-    } catch (error) {
-      console.error("Error fetching parking spots:", error);
-      setParkingSpots([
-        {
-          id: "demo-1",
-          name: "Index Tower",
-          district: "DIFC",
-          price: 1200,
-          image: "/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.png",
-          images: ["/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.png", "/lovable-uploads/90ac71db-2b33-4d06-8b4e-7fdb761027f4.png"],
-          specs: ["Premium", "24/7 Security", "Concierge"],
-          available: true,
-          address: "Index Tower, DIFC",
-          description: "Premium parking space in Index Tower with 24/7 security and concierge services in the heart of DIFC."
-        }
-      ]);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const clearFilters = () => {
     setSearchTerm("");
@@ -283,9 +189,25 @@ const DIFC = () => {
                     <span className="text-xl sm:text-2xl font-bold text-primary">From AED {spot.price}/month</span>
                   </div>
 
-                  <div className="w-full bg-red-500 text-white py-2 sm:py-3 rounded text-center font-semibold text-sm sm:text-base">
-                    Currently Booked
-                  </div>
+                  {spot.available ? (
+                    <Button 
+                      onClick={() => handleReserveClick(spot)}
+                      className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-2 sm:py-3 rounded font-semibold text-sm sm:text-base"
+                    >
+                      Book Now
+                    </Button>
+                  ) : (
+                    <div className="w-full bg-red-500 text-white py-2 sm:py-3 rounded text-center font-semibold text-sm sm:text-base">
+                      {spot.availabilityText || "Currently Booked"}
+                    </div>
+                  )}
+                  
+                  {/* Availability info */}
+                  {spot.totalSpaces > 0 && (
+                    <p className="text-xs text-muted-foreground mt-2 text-center">
+                      {spot.availabilityText}
+                    </p>
+                  )}
                 </div>
               </Card>
             ))}
