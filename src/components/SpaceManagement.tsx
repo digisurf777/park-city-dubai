@@ -86,8 +86,23 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
       })
       .subscribe();
 
+    // Set up real-time subscription for parking listings changes
+    const listingsChannel = supabase
+      .channel('parking-listings-admin')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'parking_listings'
+      }, (payload) => {
+        console.log('Real-time parking listings change detected:', payload);
+        // Refresh spaces data when changes occur
+        fetchSpaces();
+      })
+      .subscribe();
+
     return () => {
       supabase.removeChannel(spacesChannel);
+      supabase.removeChannel(listingsChannel);
     };
   }, []);
 
@@ -265,6 +280,60 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
       setLoadingSpaces(prev => {
         const next = new Set(prev);
         next.delete(spaceId);
+        return next;
+      });
+    }
+  };
+
+  const deleteCarPark = async (listingId: string, listingTitle: string) => {
+    try {
+      setLoadingSpaces(prev => new Set(prev.add(listingId)));
+      
+      const { data, error } = await supabase.rpc('admin_delete_parking_listing_complete', {
+        listing_id: listingId
+      });
+
+      if (error) {
+        console.error('Database error:', error);
+        throw new Error(error.message || 'Failed to delete car park');
+      }
+
+      if (data && typeof data === 'object' && 'success' in data && (data as any).success) {
+        toast({
+          title: "Car Park Deleted Successfully",
+          description: `${listingTitle} has been permanently removed from both admin panel and website`,
+        });
+
+        // Refresh the data immediately to show live updates
+        await fetchSpaces();
+        
+        // Also trigger refresh callback for any parent components
+        onRefresh?.();
+      } else {
+        const errorMsg = (data && typeof data === 'object' && 'message' in data) 
+          ? (data as any).message 
+          : 'Delete failed';
+        throw new Error(errorMsg);
+      }
+    } catch (error: any) {
+      console.error('Error deleting car park:', error);
+      
+      let errorMessage = "Failed to delete car park";
+      if (error?.message?.includes('Access denied')) {
+        errorMessage = "Access denied: Admin privileges required";
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+      
+      toast({
+        title: "Delete Failed",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    } finally {
+      setLoadingSpaces(prev => {
+        const next = new Set(prev);
+        next.delete(listingId);
         return next;
       });
     }
@@ -979,10 +1048,10 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
                             <Button
                               size="sm"
                               variant="outline"
-                              disabled={loadingSpaces.has(space.space_id)}
+                              disabled={loadingSpaces.has(space.space_id || space.listing_id)}
                               className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
                             >
-                              {loadingSpaces.has(space.space_id) ? (
+                              {loadingSpaces.has(space.space_id || space.listing_id) ? (
                                 <Loader2 className="h-3 w-3 animate-spin" />
                               ) : (
                                 <Trash2 className="h-3 w-3" />
@@ -991,18 +1060,29 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
-                              <AlertDialogTitle>Delete Parking Space</AlertDialogTitle>
+                              <AlertDialogTitle>
+                                {space.space_id ? "Delete Parking Space" : "Delete Car Park"}
+                              </AlertDialogTitle>
                               <AlertDialogDescription>
                                 <div className="space-y-2">
-                                  <p>Are you sure you want to permanently delete this parking space?</p>
+                                  <p>
+                                    {space.space_id 
+                                      ? "Are you sure you want to permanently delete this parking space?"
+                                      : "Are you sure you want to permanently delete this entire car park?"
+                                    }
+                                  </p>
                                   <div className="bg-yellow-50 p-3 rounded border border-yellow-200">
-                                    <p className="text-sm font-medium text-yellow-800">Space Details:</p>
+                                    <p className="text-sm font-medium text-yellow-800">
+                                      {space.space_id ? "Space Details:" : "Car Park Details:"}
+                                    </p>
                                     <p className="text-sm text-yellow-700">
-                                      {space.listing_title} - {space.space_number}
+                                      {space.listing_title}
+                                      {space.space_id && ` - ${space.space_number}`}
                                     </p>
                                   </div>
                                   <p className="text-sm text-red-600 font-medium">
                                     This action cannot be undone and will be immediately reflected on your website.
+                                    {!space.space_id && " All associated data will be permanently deleted."}
                                   </p>
                                 </div>
                               </AlertDialogDescription>
@@ -1010,11 +1090,16 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
                             <AlertDialogFooter>
                               <AlertDialogCancel>Cancel</AlertDialogCancel>
                               <AlertDialogAction
-                                disabled={!space.space_id}
-                                onClick={() => space.space_id && deleteSpace(space.space_id, space.space_number, space.listing_title)}
+                                onClick={() => {
+                                  if (space.space_id) {
+                                    deleteSpace(space.space_id, space.space_number, space.listing_title);
+                                  } else {
+                                    deleteCarPark(space.listing_id, space.listing_title);
+                                  }
+                                }}
                                 className="bg-red-600 hover:bg-red-700 text-white"
                               >
-                                Delete Space
+                                {space.space_id ? "Delete Space" : "Delete Car Park"}
                               </AlertDialogAction>
                             </AlertDialogFooter>
                           </AlertDialogContent>
