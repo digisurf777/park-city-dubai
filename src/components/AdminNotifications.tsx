@@ -570,6 +570,34 @@ const AdminNotifications = ({ isAdmin }: AdminNotificationsProps) => {
                     </div>
                   )}
 
+                  {(notification.parking_bookings.status === 'confirmed' || 
+                    notification.parking_bookings.status === 'cancelled') && (
+                    <div className="flex gap-2">
+                      <div className="flex-1 flex items-center justify-center py-2">
+                        <Badge 
+                          variant={notification.parking_bookings.status === 'confirmed' ? 'default' : 'destructive'}
+                          className="text-sm"
+                        >
+                          {notification.parking_bookings.status === 'confirmed' ? 'Approved' : 'Rejected'}
+                        </Badge>
+                      </div>
+                      
+                      <Button
+                        onClick={() => deleteBooking(notification)}
+                        disabled={actionLoading !== null}
+                        variant="destructive"
+                        className="bg-red-600 hover:bg-red-700"
+                      >
+                        {actionLoading === `delete-${notification.id}` ? (
+                          <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                        ) : (
+                          <Trash2 className="h-4 w-4 mr-2" />
+                        )}
+                        Delete
+                      </Button>
+                    </div>
+                  )}
+
                   {notification.parking_bookings.status !== 'pending' && (
                     <div className="text-center py-2">
                       <Badge 
