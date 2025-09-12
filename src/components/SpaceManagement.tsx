@@ -66,6 +66,7 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
     status: 'available' as const,
     reason: ''
   });
+  const [viewMode, setViewMode] = useState<'listings' | 'spaces'>('listings');
 
   useEffect(() => {
     fetchSpaces();
@@ -271,6 +272,52 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
       .filter(listing => listing.id);
   };
 
+  // Build per-listing summaries from filtered spaces
+  type ListingSummary = {
+    listing_id: string;
+    listing_title: string;
+    listing_address: string;
+    listing_zone: string;
+    total: number;
+    available: number;
+    booked: number;
+    maintenance: number;
+    reserved: number;
+    overridesManual: number;
+    last_updated: string | null;
+  };
+
+  const listingSummaries: ListingSummary[] = Object.values(
+    filteredSpaces.reduce((acc, s) => {
+      const id = s.listing_id;
+      if (!acc[id]) {
+        acc[id] = {
+          listing_id: id,
+          listing_title: s.listing_title,
+          listing_address: s.listing_address,
+          listing_zone: s.listing_zone,
+          total: 0,
+          available: 0,
+          booked: 0,
+          maintenance: 0,
+          reserved: 0,
+          overridesManual: 0,
+          last_updated: null
+        } as ListingSummary;
+      }
+      acc[id].total += 1;
+      if (s.space_status === 'available') acc[id].available += 1;
+      if (s.space_status === 'booked') acc[id].booked += 1;
+      if (s.space_status === 'maintenance') acc[id].maintenance += 1;
+      if (s.space_status === 'reserved') acc[id].reserved += 1;
+      if (s.override_status) acc[id].overridesManual += 1;
+      const current = acc[id].last_updated ? new Date(acc[id].last_updated) : null;
+      const next = s.last_updated ? new Date(s.last_updated) : null;
+      if (next && (!current || next > current)) acc[id].last_updated = s.last_updated;
+      return acc;
+    }, {} as Record<string, ListingSummary>)
+  );
+
   // Check if we have actual parking spaces or just listings
   const hasActualSpaces = spaces.some(space => space.space_id && space.space_id !== 'null');
   const hasListingsButNoSpaces = spaces.length > 0 && !hasActualSpaces;
@@ -297,7 +344,23 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
       </div>
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-semibold">Space Management</h2>
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center">
+          <div className="flex rounded-md border">
+            <Button 
+              variant={viewMode === 'listings' ? 'default' : 'outline'}
+              onClick={() => setViewMode('listings')}
+              className="rounded-r-none"
+            >
+              Listings
+            </Button>
+            <Button 
+              variant={viewMode === 'spaces' ? 'default' : 'outline'}
+              onClick={() => setViewMode('spaces')}
+              className="rounded-l-none border-l"
+            >
+              Spaces
+            </Button>
+          </div>
           <Button 
             onClick={() => {
               initializeSpacesForListings();
@@ -505,8 +568,71 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
         </DialogContent>
       </Dialog>
 
+      {/* Listings Overview Table (deduplicated by listing) */}
+      {viewMode === 'listings' && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between">
+              <span>Listings Overview ({listingSummaries.length})</span>
+              <div className="text-sm text-muted-foreground">
+                Available: {listingSummaries.reduce((a,l)=>a+l.available,0)} | 
+                Booked: {listingSummaries.reduce((a,l)=>a+l.booked,0)} | 
+                Maintenance: {listingSummaries.reduce((a,l)=>a+l.maintenance,0)}
+              </div>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Listing</TableHead>
+                  <TableHead>Zone</TableHead>
+                  <TableHead>Spaces</TableHead>
+                  <TableHead>Booked</TableHead>
+                  <TableHead>Maintenance</TableHead>
+                  <TableHead>Overrides</TableHead>
+                  <TableHead>Last Updated</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {listingSummaries.map((l) => (
+                  <TableRow key={l.listing_id}>
+                    <TableCell>
+                      <div>
+                        <div className="font-medium">{l.listing_title}</div>
+                        <div className="text-sm text-muted-foreground">{l.listing_address}</div>
+                      </div>
+                    </TableCell>
+                    <TableCell><Badge variant="outline">{l.listing_zone}</Badge></TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                        {l.available} / {l.total} Available
+                      </Badge>
+                    </TableCell>
+                    <TableCell>{l.booked}</TableCell>
+                    <TableCell>{l.maintenance}</TableCell>
+                    <TableCell>{l.overridesManual}</TableCell>
+                    <TableCell>
+                      <div className="text-sm text-muted-foreground">
+                        {l.last_updated ? format(new Date(l.last_updated), 'MMM d, HH:mm') : '—'}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Button size="sm" variant="outline" onClick={() => setViewMode('spaces')}>
+                        Manage spaces
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Parking Spaces Table */}
-      {hasActualSpaces && (
+      {viewMode === 'spaces' && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
