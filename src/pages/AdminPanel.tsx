@@ -14,7 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { 
   Pencil, Trash2, Plus, CheckCircle, XCircle, FileText, Mail, Upload, X, 
   Eye, Edit, Lightbulb, Camera, Settings, RefreshCw, MessageCircle, Send, 
-  LogOut, Home, Grid, Bell, Users, Car
+  LogOut, Home, Grid, Bell, Users, Car, Copy, ExternalLink, Image
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
@@ -207,6 +207,14 @@ const AdminPanelOrganized = () => {
     lastError: null as string | null,
     authStateHistory: [] as string[]
   });
+
+  // Document viewing state
+  const [verificationSearchTerm, setVerificationSearchTerm] = useState('');
+  const [verificationStatusFilter, setVerificationStatusFilter] = useState('all');
+  const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(null);
+  const [documentViewDialog, setDocumentViewDialog] = useState(false);
+  const [documentImageUrl, setDocumentImageUrl] = useState<string>('');
+  const [documentLoading, setDocumentLoading] = useState(false);
 
   // Fetch functions implementation
   const fetchPosts = async () => {
@@ -449,6 +457,65 @@ const AdminPanelOrganized = () => {
       default:
         return <RefreshCw className="h-4 w-4 text-gray-500" />;
     }
+  };
+
+  const copyToClipboard = async (text: string, label: string = 'Text') => {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast({
+        title: "Copied!",
+        description: `${label} copied to clipboard`,
+      });
+    } catch (error) {
+      console.error('Failed to copy to clipboard:', error);
+      toast({
+        title: "Error",
+        description: "Failed to copy to clipboard",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const openInSupabase = (verificationId: string) => {
+    const query = `SELECT * FROM user_verifications WHERE id = '${verificationId}';`;
+    const encodedQuery = encodeURIComponent(query);
+    const supabaseUrl = `https://supabase.com/dashboard/project/eoknluyunximjlsnyceb/sql/new?content=${encodedQuery}`;
+    window.open(supabaseUrl, '_blank');
+  };
+
+  const handleViewDocument = async (verificationId: string) => {
+    setDocumentLoading(true);
+    setSelectedDocumentId(verificationId);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('admin-get-document', {
+        body: { verification_id: verificationId }
+      });
+
+      if (error) {
+        throw new Error(error.message || 'Failed to get document access');
+      }
+
+      if (data && data.signed_url) {
+        setDocumentImageUrl(data.signed_url);
+        setDocumentViewDialog(true);
+      } else {
+        throw new Error('No document URL received');
+      }
+    } catch (error: any) {
+      console.error('Error accessing document:', error);
+      toast({
+        title: "Error",
+        description: `Failed to access document: ${error.message}`,
+        variant: "destructive",
+      });
+    } finally {
+      setDocumentLoading(false);
+    }
+  };
+
+  const handleVerificationAction = async (verificationId: string, action: 'approved' | 'rejected') => {
+    await updateVerificationStatus(verificationId, action === 'approved' ? 'verified' : 'rejected');
   };
   const fetchParkingListings = async () => {
     setListingsLoading(true);
@@ -1615,9 +1682,50 @@ const AdminPanelOrganized = () => {
                   )}
                 </div>
                             </Card>
-                          ))}
-                        </div>
-                      </div>
+            ))}
+          </div>
+
+          {/* Document View Dialog */}
+          <Dialog open={documentViewDialog} onOpenChange={setDocumentViewDialog}>
+            <DialogContent className="max-w-4xl max-h-[90vh]">
+              <DialogHeader>
+                <DialogTitle>Verification Document</DialogTitle>
+              </DialogHeader>
+              <div className="flex justify-center items-center p-4">
+                {documentImageUrl && (
+                  <img 
+                    src={documentImageUrl} 
+                    alt="Verification Document" 
+                    className="max-w-full max-h-[70vh] object-contain rounded-lg shadow-lg"
+                    onError={() => {
+                      toast({
+                        title: "Error",
+                        description: "Failed to load document image",
+                        variant: "destructive",
+                      });
+                    }}
+                  />
+                )}
+              </div>
+              <div className="flex justify-center gap-2 mt-4">
+                <Button
+                  variant="outline"
+                  onClick={() => copyToClipboard(documentImageUrl, 'Document URL')}
+                >
+                  <Copy className="h-4 w-4 mr-2" />
+                  Copy URL
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => window.open(documentImageUrl, '_blank')}
+                >
+                  <ExternalLink className="h-4 w-4 mr-2" />
+                  Open in New Tab
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
                     )}
                   </CardContent>
                 </Card>
@@ -1668,7 +1776,17 @@ const AdminPanelOrganized = () => {
                     <div className="flex justify-between items-center">
                       <CardTitle className="flex items-center gap-2">
                         <CheckCircle className="h-5 w-5" />
-                        User Verifications ({verifications.length})
+                        User Verifications ({verifications.filter(v => {
+                          const matchesSearch = !verificationSearchTerm || 
+                            v.id.toLowerCase().includes(verificationSearchTerm.toLowerCase()) ||
+                            v.full_name?.toLowerCase().includes(verificationSearchTerm.toLowerCase()) ||
+                            v.user_id?.toLowerCase().includes(verificationSearchTerm.toLowerCase());
+                          
+                          const matchesStatus = verificationStatusFilter === 'all' || 
+                            v.verification_status === verificationStatusFilter;
+                          
+                          return matchesSearch && matchesStatus;
+                        }).length})
                       </CardTitle>
                       <Button
                         onClick={fetchVerifications}
@@ -1682,6 +1800,29 @@ const AdminPanelOrganized = () => {
                     </div>
                   </CardHeader>
                   <CardContent>
+                    {/* Search and Filter Controls */}
+                    <div className="flex gap-4 mb-6">
+                      <div className="flex-1">
+                        <Input
+                          placeholder="Search by Verification ID, Full Name, or User ID..."
+                          value={verificationSearchTerm}
+                          onChange={(e) => setVerificationSearchTerm(e.target.value)}
+                          className="max-w-md"
+                        />
+                      </div>
+                      <Select value={verificationStatusFilter} onValueChange={setVerificationStatusFilter}>
+                        <SelectTrigger className="w-40">
+                          <SelectValue placeholder="Filter by Status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Statuses</SelectItem>
+                          <SelectItem value="pending">Pending</SelectItem>
+                          <SelectItem value="verified">Verified</SelectItem>
+                          <SelectItem value="rejected">Rejected</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
                     {verificationsLoading ? (
                       <div className="text-center py-8">
                         <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground mx-auto mb-4" />
@@ -1694,7 +1835,19 @@ const AdminPanelOrganized = () => {
                       </div>
                     ) : (
                       <div className="space-y-4">
-                        {verifications.map((verification) => (
+                        {verifications
+                          .filter(verification => {
+                            const matchesSearch = !verificationSearchTerm || 
+                              verification.id.toLowerCase().includes(verificationSearchTerm.toLowerCase()) ||
+                              verification.full_name?.toLowerCase().includes(verificationSearchTerm.toLowerCase()) ||
+                              verification.user_id?.toLowerCase().includes(verificationSearchTerm.toLowerCase());
+                            
+                            const matchesStatus = verificationStatusFilter === 'all' || 
+                              verification.verification_status === verificationStatusFilter;
+                            
+                            return matchesSearch && matchesStatus;
+                          })
+                          .map((verification) => (
                           <Card key={verification.id} className="border">
                             <CardContent className="p-6">
                               <div className="flex flex-col lg:flex-row gap-6">
@@ -1722,12 +1875,30 @@ const AdminPanelOrganized = () => {
                                     </div>
                                   </div>
 
-                                  {/* Verification ID */}
+                                  {/* Verification ID with Actions */}
                                   <div className="mb-3 p-2 bg-muted/50 rounded border">
-                                    <p className="font-medium text-xs">Verification ID</p>
-                                    <p className="text-xs font-mono text-muted-foreground break-all select-all">
-                                      {verification.id}
-                                    </p>
+                                    <p className="font-medium text-xs mb-1">Verification ID</p>
+                                    <div className="flex items-center gap-2">
+                                      <code className="text-xs bg-muted px-2 py-1 rounded flex-1">
+                                        {verification.id}
+                                      </code>
+                                      <Button
+                                        size="sm"
+                                        variant="ghost"
+                                        onClick={() => copyToClipboard(verification.id, 'Verification ID')}
+                                        className="h-6 w-6 p-0"
+                                      >
+                                        <Copy className="h-3 w-3" />
+                                      </Button>
+                                      <Button
+                                        size="sm"
+                                        variant="ghost"
+                                        onClick={() => openInSupabase(verification.id)}
+                                        className="h-6 w-6 p-0"
+                                      >
+                                        <ExternalLink className="h-3 w-3" />
+                                      </Button>
+                                    </div>
                                   </div>
 
                                   <div className="grid grid-cols-2 gap-4 text-sm">
@@ -1759,22 +1930,34 @@ const AdminPanelOrganized = () => {
 
                                   {/* Action Buttons */}
                                   <div className="flex gap-2 mt-4">
+                                    <Button
+                                      variant="secondary"
+                                      size="sm"
+                                      onClick={() => handleViewDocument(verification.id)}
+                                      disabled={documentLoading && selectedDocumentId === verification.id}
+                                      className="flex-1"
+                                    >
+                                      <Image className="w-4 h-4 mr-2" />
+                                      {documentLoading && selectedDocumentId === verification.id ? 'Loading...' : 'Quick View'}
+                                    </Button>
+
                                     {verification.verification_status === 'pending' && (
                                       <>
                                         <Button
-                                          onClick={() => updateVerificationStatus(verification.id, 'verified')}
+                                          onClick={() => handleVerificationAction(verification.id, 'approved')}
                                           disabled={verificationUpdating === verification.id}
                                           size="sm"
-                                          className="bg-green-600 hover:bg-green-700"
+                                          className="bg-green-600 hover:bg-green-700 flex-1"
                                         >
                                           <CheckCircle className="h-4 w-4 mr-2" />
                                           Approve
                                         </Button>
                                         <Button
-                                          onClick={() => updateVerificationStatus(verification.id, 'rejected')}
+                                          onClick={() => handleVerificationAction(verification.id, 'rejected')}
                                           disabled={verificationUpdating === verification.id}
                                           variant="destructive"
                                           size="sm"
+                                          className="flex-1"
                                         >
                                           <XCircle className="h-4 w-4 mr-2" />
                                           Reject
@@ -1820,6 +2003,47 @@ const AdminPanelOrganized = () => {
                     )}
                   </CardContent>
                 </Card>
+
+                {/* Document View Dialog */}
+                <Dialog open={documentViewDialog} onOpenChange={setDocumentViewDialog}>
+                  <DialogContent className="max-w-4xl max-h-[90vh]">
+                    <DialogHeader>
+                      <DialogTitle>Verification Document</DialogTitle>
+                    </DialogHeader>
+                    <div className="flex justify-center items-center p-4">
+                      {documentImageUrl && (
+                        <img 
+                          src={documentImageUrl} 
+                          alt="Verification Document" 
+                          className="max-w-full max-h-[70vh] object-contain rounded-lg shadow-lg"
+                          onError={() => {
+                            toast({
+                              title: "Error",
+                              description: "Failed to load document image",
+                              variant: "destructive",
+                            });
+                          }}
+                        />
+                      )}
+                    </div>
+                    <div className="flex justify-center gap-2 mt-4">
+                      <Button
+                        variant="outline"
+                        onClick={() => copyToClipboard(documentImageUrl, 'Document URL')}
+                      >
+                        <Copy className="h-4 w-4 mr-2" />
+                        Copy URL
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => window.open(documentImageUrl, '_blank')}
+                      >
+                        <ExternalLink className="h-4 w-4 mr-2" />
+                        Open in New Tab
+                      </Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
               </TabsContent>
 
               <TabsContent value="messages" className="space-y-6">

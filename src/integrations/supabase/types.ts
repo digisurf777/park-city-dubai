@@ -1090,6 +1090,10 @@ export type Database = {
           user_type: string
         }[]
       }
+      admin_get_document_url: {
+        Args: { verification_id: string }
+        Returns: Json
+      }
       admin_get_profile_secure: {
         Args: {
           access_reason?: string
