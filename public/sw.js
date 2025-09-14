@@ -1,99 +1,212 @@
-// Service Worker for cache busting and preventing authentication issues
-const CACHE_VERSION = 'v' + Date.now(); // Dynamic cache version
+// Enhanced Service Worker for optimal performance and cross-browser compatibility
+const CACHE_VERSION = 'v' + Date.now();
 const CACHE_NAME = 'shazam-parking-' + CACHE_VERSION;
 
-// Clear old caches on install
+// Cache strategies for different resource types
+const STATIC_CACHE = 'static-' + CACHE_VERSION;
+const IMAGE_CACHE = 'images-' + CACHE_VERSION;
+const API_CACHE = 'api-' + CACHE_VERSION;
+const NEWS_CACHE = 'news-' + CACHE_VERSION;
+
+// Resources to cache immediately
+const CRITICAL_RESOURCES = [
+  '/',
+  '/static/css/main.css',
+  '/static/js/main.js',
+  '/assets/dubai-skyline-hero.jpg',
+  '/lovable-uploads/atlantis-hotel-hero.jpg'
+];
+
+// Install event - cache critical resources immediately
 self.addEventListener('install', (event) => {
-  console.log('Service Worker installing, cache version:', CACHE_VERSION);
+  console.log('Enhanced SW installing, version:', CACHE_VERSION);
+  
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (cacheName !== CACHE_NAME) {
-            console.log('Deleting old cache:', cacheName);
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    }).then(() => {
+    Promise.all([
+      // Clear all old caches
+      caches.keys().then((cacheNames) => {
+        return Promise.all(
+          cacheNames.map((cacheName) => {
+            if (!cacheName.includes(CACHE_VERSION)) {
+              console.log('Deleting old cache:', cacheName);
+              return caches.delete(cacheName);
+            }
+          })
+        );
+      }),
+      // Cache critical resources
+      caches.open(STATIC_CACHE).then((cache) => {
+        return cache.addAll(CRITICAL_RESOURCES);
+      })
+    ]).then(() => {
       // Force immediate activation
       return self.skipWaiting();
     })
   );
 });
 
-// Clear old caches on activate
+// Activate event - claim all clients immediately
 self.addEventListener('activate', (event) => {
-  console.log('Service Worker activated');
+  console.log('Enhanced SW activated');
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (cacheName !== CACHE_NAME) {
-            console.log('Cleaning up old cache:', cacheName);
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    }).then(() => {
+    Promise.all([
+      // Clean up old caches
+      caches.keys().then((cacheNames) => {
+        return Promise.all(
+          cacheNames.map((cacheName) => {
+            if (!cacheName.includes(CACHE_VERSION)) {
+              return caches.delete(cacheName);
+            }
+          })
+        );
+      }),
       // Claim all clients immediately
-      return self.clients.claim();
-    })
+      self.clients.claim()
+    ])
   );
 });
 
-// Network-first strategy for auth-related requests
+// Enhanced fetch strategy with intelligent caching
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
-  
-  // Always go network-first for authentication and API requests
+  const request = event.request;
+
+  // Skip non-GET requests
+  if (request.method !== 'GET') return;
+
+  // Authentication and API requests - always network first
   if (url.pathname.includes('/auth') || 
       url.pathname.includes('/api/') ||
-      url.origin.includes('supabase')) {
+      url.origin.includes('supabase') ||
+      url.pathname.includes('/rest/v1/')) {
+    
     event.respondWith(
-      fetch(event.request.clone()).catch(() => {
-        // If network fails, try cache as fallback
-        return caches.match(event.request);
+      fetch(request.clone())
+        .then(response => {
+          // Don't cache auth responses
+          return response;
+        })
+        .catch(() => {
+          // Fallback for offline scenario
+          return new Response(JSON.stringify({error: 'Offline'}), {
+            headers: {'Content-Type': 'application/json'}
+          });
+        })
+    );
+    return;
+  }
+
+  // News content - cache with network first strategy
+  if (url.pathname.includes('/news')) {
+    event.respondWith(
+      caches.open(NEWS_CACHE).then(cache => {
+        return fetch(request.clone())
+          .then(response => {
+            if (response.ok) {
+              cache.put(request, response.clone());
+            }
+            return response;
+          })
+          .catch(() => {
+            return cache.match(request);
+          });
       })
     );
     return;
   }
-  
-  // Cache-first for static assets
-  event.respondWith(
-    caches.match(event.request).then((response) => {
-      if (response) {
-        return response;
-      }
-      
-      return fetch(event.request.clone()).then((response) => {
-        if (!response || response.status !== 200 || response.type !== 'basic') {
-          return response;
-        }
-        
-        const responseToCache = response.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, responseToCache);
+
+  // Images - cache first with fallback
+  if (request.destination === 'image') {
+    event.respondWith(
+      caches.open(IMAGE_CACHE).then(cache => {
+        return cache.match(request).then(response => {
+          if (response) return response;
+          
+          return fetch(request.clone()).then(response => {
+            if (response.ok) {
+              cache.put(request, response.clone());
+            }
+            return response;
+          }).catch(() => {
+            // Return fallback image for offline
+            return new Response(
+              '<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="300" fill="#f0f0f0"/><text x="50%" y="50%" text-anchor="middle" dy=".3em" font-family="sans-serif" font-size="18" fill="#666">Image unavailable offline</text></svg>',
+              { headers: { 'Content-Type': 'image/svg+xml' } }
+            );
+          });
         });
-        
+      })
+    );
+    return;
+  }
+
+  // Static assets - cache first
+  if (url.pathname.includes('/static/') || 
+      url.pathname.includes('/assets/') ||
+      url.pathname.match(/\.(css|js|woff2?|ttf|eot)$/)) {
+    
+    event.respondWith(
+      caches.open(STATIC_CACHE).then(cache => {
+        return cache.match(request).then(response => {
+          if (response) return response;
+          
+          return fetch(request.clone()).then(response => {
+            if (response.ok) {
+              cache.put(request, response.clone());
+            }
+            return response;
+          });
+        });
+      })
+    );
+    return;
+  }
+
+  // Default strategy - network first with cache fallback
+  event.respondWith(
+    fetch(request.clone())
+      .then(response => {
+        if (response.ok && response.status === 200) {
+          const responseClone = response.clone();
+          caches.open(STATIC_CACHE).then(cache => {
+            cache.put(request, responseClone);
+          });
+        }
         return response;
-      });
-    })
+      })
+      .catch(() => {
+        return caches.match(request);
+      })
   );
 });
 
-// Handle cache cleanup messages from the app
+// Handle cache cleanup messages
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'CLEAR_AUTH_CACHE') {
     console.log('Clearing auth-related caches');
     event.waitUntil(
       caches.keys().then((cacheNames) => {
         return Promise.all(
-          cacheNames.map((cacheName) => {
-            return caches.delete(cacheName);
+          cacheNames.filter(name => name.includes('api')).map(name => {
+            return caches.delete(name);
           })
         );
       })
     );
   }
+  
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
+
+// Periodic cache cleanup
+setInterval(() => {
+  caches.keys().then(cacheNames => {
+    cacheNames.forEach(cacheName => {
+      if (!cacheName.includes(CACHE_VERSION)) {
+        caches.delete(cacheName);
+      }
+    });
+  });
+}, 30 * 60 * 1000); // Every 30 minutes

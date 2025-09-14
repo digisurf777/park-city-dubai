@@ -13,6 +13,7 @@ import PerformanceOptimizer from '@/components/PerformanceOptimizer';
 import CriticalCSS from '@/components/CriticalCSS';
 import PreloadResources from '@/components/PreloadResources';
 import PerformanceOptimizations from '@/components/PerformanceOptimizations';
+import EnhancedServiceWorker from '@/components/EnhancedServiceWorker';
 import { MobileOptimizations } from "@/components/MobileOptimizations";
 // Import Auth directly to fix dynamic import issue
 import Auth from "./pages/Auth";
@@ -79,6 +80,7 @@ const App = () => {
           <CriticalCSS />
           <PreloadResources />
           <PerformanceOptimizations />
+          <EnhancedServiceWorker />
           <MobileOptimizations />
           <Toaster />
           <Sonner />
