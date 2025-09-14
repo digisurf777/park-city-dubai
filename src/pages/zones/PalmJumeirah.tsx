@@ -1,7 +1,11 @@
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -12,7 +16,7 @@ import { useParkingAvailability } from "@/hooks/useParkingAvailability";
 
 const PalmJumeirah = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [priceRange, setPriceRange] = useState([0, 1500]);
+  const [priceRange, setPriceRange] = useState([0, 5000]);
   const [showAvailableOnly, setShowAvailableOnly] = useState(false);
   const [selectedSpot, setSelectedSpot] = useState<any>(null);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
@@ -28,7 +32,7 @@ const PalmJumeirah = () => {
 
   const clearFilters = () => {
     setSearchTerm("");
-    setPriceRange([0, 1500]);
+    setPriceRange([0, 5000]);
     setShowAvailableOnly(false);
   };
 
@@ -89,7 +93,48 @@ const PalmJumeirah = () => {
 
       {/* Filter Bar */}
       <div className="sticky top-20 z-40 bg-white border-b shadow-sm">
-        
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+            {/* Search */}
+            <div className="relative flex-1 min-w-0">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search parking spaces..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            
+            {/* Price Range */}
+            <div className="flex flex-col gap-2 min-w-[200px]">
+              <Label className="text-sm font-medium">Max Price: AED {priceRange[1]}/month</Label>
+              <Slider
+                value={priceRange}
+                onValueChange={setPriceRange}
+                max={5000}
+                min={0}
+                step={100}
+                className="w-full"
+              />
+            </div>
+            
+            {/* Available Only Toggle */}
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="available-only"
+                checked={showAvailableOnly}
+                onCheckedChange={setShowAvailableOnly}
+              />
+              <Label htmlFor="available-only" className="text-sm">Available only</Label>
+            </div>
+            
+            {/* Clear Filters */}
+            <Button variant="outline" onClick={clearFilters} className="shrink-0">
+              Clear filters
+            </Button>
+          </div>
+        </div>
       </div>
 
       {/* Results Section */}
