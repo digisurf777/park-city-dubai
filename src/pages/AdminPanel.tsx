@@ -376,6 +376,19 @@ const AdminPanelOrganized = () => {
     }
   };
 
+  // Function to start editing a parking listing
+  const startEditingListing = (listing: ParkingListing) => {
+    setEditingListing(listing);
+    
+    // Populate form fields with existing data
+    setListingTitle(listing.title);
+    setListingDescription(listing.description || '');
+    setListingAddress(listing.address);
+    setListingZone(listing.zone);
+    setListingPricePerHour(listing.price_per_hour);
+    setListingPricePerMonth(listing.price_per_month || 0);
+  };
+
   const updateVerificationStatus = async (verificationId: string, newStatus: 'verified' | 'rejected') => {
     setVerificationUpdating(verificationId);
     try {
@@ -1613,7 +1626,7 @@ const AdminPanelOrganized = () => {
                             <Button 
                               size="sm" 
                               variant="outline" 
-                              onClick={() => console.log('Edit listing:', listing.id)}
+                              onClick={() => startEditingListing(listing)}
                             >
                               <Edit className="h-4 w-4 mr-1" />
                               Edit
