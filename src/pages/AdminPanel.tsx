@@ -14,7 +14,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { 
   Pencil, Trash2, Plus, CheckCircle, XCircle, FileText, Mail, Upload, X, 
   Eye, Edit, Lightbulb, Camera, Settings, RefreshCw, MessageCircle, Send, 
-  LogOut, Home, Grid, Bell, Users, Car, Copy, ExternalLink, Image, CreditCard
+  LogOut, Home, Grid, Bell, Users, Car, Copy, ExternalLink, Image, CreditCard,
+  Calendar, Clock, DollarSign, AlertTriangle, RotateCcw
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
@@ -1160,39 +1161,48 @@ const AdminPanelOrganized = () => {
 
         {/* Main Tabs */}
         <Tabs defaultValue="content" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 gap-3 h-auto p-2 bg-gradient-to-r from-background to-muted/20 rounded-xl border shadow-sm">
+          <TabsList className="grid w-full grid-cols-5 gap-2 h-auto p-2 bg-gradient-to-r from-background to-muted/20 rounded-xl border shadow-sm">
             <TabsTrigger 
               value="content" 
-              className="flex flex-col items-center p-4 h-auto text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg"
+              className="flex flex-col items-center p-3 h-auto text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg"
             >
-              <FileText className="h-6 w-6 mb-2" />
+              <FileText className="h-5 w-5 mb-1" />
               <span className="font-semibold">Content</span>
               <span className="text-xs opacity-70 mt-1">News & Updates</span>
             </TabsTrigger>
             
             <TabsTrigger 
               value="parking" 
-              className="flex flex-col items-center p-4 h-auto text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg"
+              className="flex flex-col items-center p-3 h-auto text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg"
             >
-              <Car className="h-6 w-6 mb-2" />
+              <Car className="h-5 w-5 mb-1" />
               <span className="font-semibold">Parking</span>
               <span className="text-xs opacity-70 mt-1">Spaces & Bookings</span>
+            </TabsTrigger>
+
+            <TabsTrigger 
+              value="pre-auth" 
+              className="flex flex-col items-center p-3 h-auto text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg relative"
+            >
+              <CreditCard className="h-5 w-5 mb-1" />
+              <span className="font-semibold">Pre-Auth</span>
+              <span className="text-xs opacity-70 mt-1">Payment Holds</span>
             </TabsTrigger>
             
             <TabsTrigger 
               value="users" 
-              className="flex flex-col items-center p-4 h-auto text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg"
+              className="flex flex-col items-center p-3 h-auto text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg"
             >
-              <Users className="h-6 w-6 mb-2" />
+              <Users className="h-5 w-5 mb-1" />
               <span className="font-semibold">Users</span>
               <span className="text-xs opacity-70 mt-1">Manage & Message</span>
             </TabsTrigger>
             
             <TabsTrigger 
               value="chat" 
-              className="flex flex-col items-center p-4 h-auto text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-red-500 data-[state=active]:text-white bg-gradient-to-br from-red-50 to-red-100 border-red-200 animate-pulse rounded-lg"
+              className="flex flex-col items-center p-3 h-auto text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-red-500 data-[state=active]:text-white bg-gradient-to-br from-red-50 to-red-100 border-red-200 animate-pulse rounded-lg"
             >
-              <MessageCircle className="h-6 w-6 mb-2" />
+              <MessageCircle className="h-5 w-5 mb-1" />
               <span className="font-bold">🔥 Live Chat</span>
               <span className="text-xs mt-1">Real-time Support</span>
             </TabsTrigger>
@@ -1510,7 +1520,7 @@ const AdminPanelOrganized = () => {
           {/* Parking Management Tab */}
           <TabsContent value="parking" className="space-y-6 mt-6">
             <Tabs defaultValue="spaces" className="w-full">
-              <TabsList className="grid w-full grid-cols-4 gap-1 bg-muted/30 p-1">
+              <TabsList className="grid w-full grid-cols-3 gap-1 bg-muted/30 p-1">
                 <TabsTrigger value="listings" className="flex items-center gap-1 text-xs">
                   <Grid className="h-3 w-3" />
                   Listings
@@ -1520,220 +1530,90 @@ const AdminPanelOrganized = () => {
                   Spaces
                 </TabsTrigger>
                 <TabsTrigger value="live-booking" className="flex items-center gap-1 text-xs">
-                  <CheckCircle className="h-3 w-3" />
-                  Live Control
-                </TabsTrigger>
-                <TabsTrigger value="bookings" className="flex items-center gap-1 text-xs">
-                  <FileText className="h-3 w-3" />
-                  Bookings
-                </TabsTrigger>
-                <TabsTrigger value="pre-auth" className="flex items-center gap-1 text-xs">
-                  <CreditCard className="h-3 w-3" />
-                  Pre-Auth
+                  <Calendar className="h-3 w-3" />
+                  Live Booking
                 </TabsTrigger>
               </TabsList>
 
               <TabsContent value="listings" className="space-y-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Car className="h-5 w-5" />
-                      Parking Listings Management
-                      {listingsLoading && <RefreshCw className="h-4 w-4 animate-spin" />}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    {listingsLoading ? (
-                      <div className="flex items-center justify-center py-8">
-                        <RefreshCw className="h-6 w-6 animate-spin" />
-                        <span className="ml-2">Loading listings...</span>
-                      </div>
-                    ) : parkingListings.length === 0 ? (
-                      <div className="text-center py-8">
-                        <Car className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                        <p className="text-muted-foreground">No parking listings found</p>
-                      </div>
-                    ) : (
-                      <div className="space-y-4">
-                        <div className="flex items-center justify-between">
-                          <p className="text-sm text-muted-foreground">
-                            Total listings: {parkingListings.length}
-                          </p>
-                          <Button onClick={fetchParkingListings} variant="outline" size="sm">
-                            <RefreshCw className="h-4 w-4 mr-2" />
-                            Refresh
-                          </Button>
-                        </div>
-                        
-                        <div className="grid gap-4">
-                          {parkingListings.map((listing) => (
-                            <Card key={listing.id} className="p-4">
-                              <div className="flex items-start justify-between">
-                                <div className="flex-1 space-y-2">
-                                  <div className="flex items-center gap-3">
-                                    <h3 className="font-semibold">{listing.title}</h3>
-                                    <Badge variant={getStatusBadgeVariant(listing.status)}>
-                                      {listing.status}
-                                    </Badge>
-                                  </div>
-                                  
-                                  <p className="text-sm text-muted-foreground">
-                                    📍 {listing.address} • {listing.zone}
-                                  </p>
-                                  
-                                  <p className="text-sm line-clamp-2">{listing.description}</p>
-                                  
-                                  <div className="flex items-center gap-4 text-sm">
-                                    <span>💰 {listing.price_per_hour} AED/hour</span>
-                                    {listing.price_per_day && (
-                                      <span>{listing.price_per_day} AED/day</span>
-                                    )}
-                                    {listing.price_per_month && (
-                                      <span>{listing.price_per_month} AED/month</span>
-                                    )}
-                                  </div>
-                                  
-                                  {listing.features && listing.features.length > 0 && (
-                                    <div className="flex flex-wrap gap-1">
-                                      {listing.features.slice(0, 3).map((feature, idx) => (
-                                        <Badge key={idx} variant="outline" className="text-xs">
-                                          {feature}
-                                        </Badge>
-                                      ))}
-                                      {listing.features.length > 3 && (
-                                        <Badge variant="outline" className="text-xs">
-                                          +{listing.features.length - 3}
-                                        </Badge>
-                                      )}
-                                    </div>
-                                  )}
-                                  
-                                  <p className="text-xs text-muted-foreground">
-                                    Created: {format(new Date(listing.created_at), 'PPP')}
-                                  </p>
-                                </div>
-                                
-                                {listing.images && listing.images.length > 0 && (
-                                  <div className="ml-4">
-                                    <img 
-                                      src={listing.images[0]} 
-                                      alt={listing.title}
-                                      className="w-20 h-20 object-cover rounded"
-                                    />
-                                  </div>
-                                )}
-                              </div>
-                              
-                <div className="flex items-center gap-2 mt-4 pt-4 border-t">
-                  {listing.status === 'pending' && (
-                    <>
-                      <Button
-                        size="sm"
-                        onClick={() => updateListingStatus(listing.id, 'approved')}
-                        className="bg-green-600 hover:bg-green-700"
-                      >
-                        <CheckCircle className="h-4 w-4 mr-1" />
-                        Approve
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        onClick={() => updateListingStatus(listing.id, 'rejected')}
-                      >
-                        <XCircle className="h-4 w-4 mr-1" />
-                        Reject
-                      </Button>
-                    </>
-                  )}
-                  
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => {
-                      setEditingListing(listing);
-                      setListingTitle(listing.title);
-                      setListingDescription(listing.description || '');
-                      setListingAddress(listing.address);
-                      setListingZone(listing.zone);
-                      setListingPricePerHour(listing.price_per_hour || 0);
-                      setListingPricePerMonth(listing.price_per_month || 0);
-                      setListingContactEmail(listing.contact_email || '');
-                      setListingContactPhone(listing.contact_phone || '');
-                      setListingImages(listing.images || []);
-                    }}
-                  >
-                    <Edit className="h-4 w-4 mr-1" />
-                    Edit
+                <div className="flex justify-between items-center">
+                  <h2 className="text-2xl font-semibold">Parking Listings Management</h2>
+                  <Button onClick={fetchParkingListings} variant="outline" size="sm">
+                    <RotateCcw className="h-4 w-4 mr-2" />
+                    Refresh
                   </Button>
-                  
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => deleteListing(listing.id)}
-                  >
-                    <Trash2 className="h-4 w-4 mr-1" />
-                    Delete
-                  </Button>
-                  
-                  {listing.images && listing.images.length > 0 && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => window.open(listing.images[0], '_blank')}
-                    >
-                      <Eye className="h-4 w-4 mr-1" />
-                      View Images
-                    </Button>
-                  )}
                 </div>
-                            </Card>
-            ))}
-          </div>
+                
+                {parkingListings.length === 0 ? (
+                  <Card>
+                    <CardContent className="pt-6 text-center">
+                      <p className="text-muted-foreground">No parking listings found</p>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <div className="grid gap-4">
+                    {parkingListings.map((listing) => (
+                      <Card key={listing.id} className="overflow-hidden">
+                        <CardHeader className="pb-3">
+                          <div className="flex items-center justify-between">
+                            <CardTitle className="text-lg">{listing.title}</CardTitle>
+                            <Badge
+                              variant={listing.status === 'approved' ? 'default' : 'secondary'}
+                              className={listing.status === 'approved' ? 'bg-green-500' : ''}
+                            >
+                              {listing.status}
+                            </Badge>
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            {listing.address} • {listing.zone}
+                          </div>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+                            <div>
+                              <div className="font-medium text-muted-foreground">Hourly Rate</div>
+                              <div>AED {listing.price_per_hour}/hour</div>
+                            </div>
+                            <div>
+                              <div className="font-medium text-muted-foreground">Daily Rate</div>
+                              <div>AED {listing.price_per_day}/day</div>
+                            </div>
+                            <div>
+                              <div className="font-medium text-muted-foreground">Monthly Rate</div>
+                              <div>AED {listing.price_per_month}/month</div>
+                            </div>
+                          </div>
 
-          {/* Document View Dialog */}
-          <Dialog open={documentViewDialog} onOpenChange={setDocumentViewDialog}>
-            <DialogContent className="max-w-4xl max-h-[90vh]">
-              <DialogHeader>
-                <DialogTitle>Verification Document</DialogTitle>
-              </DialogHeader>
-              <div className="flex justify-center items-center p-4">
-                {documentImageUrl && (
-                  <img 
-                    src={documentImageUrl} 
-                    alt="Verification Document" 
-                    className="max-w-full max-h-[70vh] object-contain rounded-lg shadow-lg"
-                    onError={() => {
-                      toast({
-                        title: "Error",
-                        description: "Failed to load document image",
-                        variant: "destructive",
-                      });
-                    }}
-                  />
+                          <div className="flex gap-2 flex-wrap">
+                            <Button 
+                              size="sm" 
+                              variant={listing.status === 'approved' ? 'outline' : 'default'}
+                              onClick={() => updateListingStatus(listing.id, listing.status === 'approved' ? 'rejected' : 'approved')}
+                            >
+                              {listing.status === 'approved' ? 'Unpublish' : 'Approve & Publish'}
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              onClick={() => console.log('Edit listing:', listing.id)}
+                            >
+                              <Edit className="h-4 w-4 mr-1" />
+                              Edit
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="destructive" 
+                              onClick={() => deleteListing(listing.id)}
+                            >
+                              <Trash2 className="h-4 w-4 mr-1" />
+                              Delete
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
                 )}
-              </div>
-              <div className="flex justify-center gap-2 mt-4">
-                <Button
-                  variant="outline"
-                  onClick={() => copyToClipboard(documentImageUrl, 'Document URL')}
-                >
-                  <Copy className="h-4 w-4 mr-2" />
-                  Copy URL
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => window.open(documentImageUrl, '_blank')}
-                >
-                  <ExternalLink className="h-4 w-4 mr-2" />
-                  Open in New Tab
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
-        </div>
-                    )}
-                  </CardContent>
-                </Card>
               </TabsContent>
 
               <TabsContent value="spaces" className="space-y-6">
@@ -1741,24 +1621,16 @@ const AdminPanelOrganized = () => {
               </TabsContent>
 
               <TabsContent value="live-booking" className="space-y-6">
-                <LiveBookingControl />
-              </TabsContent>
-
-              <TabsContent value="bookings" className="space-y-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Booking Management</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-center text-muted-foreground">Booking management interface will be here</p>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="pre-auth" className="space-y-6">
-                <PreAuthorizationPanel />
+                <div className="text-center text-muted-foreground p-6">
+                  Live booking management will be here
+                </div>
               </TabsContent>
             </Tabs>
+          </TabsContent>
+
+          {/* Pre-Authorization Management Tab */}
+          <TabsContent value="pre-auth" className="space-y-6 mt-6">
+            <PreAuthorizationPanel />
           </TabsContent>
 
           {/* User Management Tab */}
