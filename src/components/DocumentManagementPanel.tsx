@@ -219,22 +219,11 @@ const DocumentManagementPanel: React.FC<DocumentManagementPanelProps> = ({
                         </div>
                       </div>
 
-                      <div className="text-sm text-muted-foreground">
-                        <span>{verification.profiles?.email || 'Email not available'}</span>
-                        {' • '}
-                        <span className={
-                          verification.profiles?.user_type === 'Profile missing' || 
-                          verification.profiles?.user_type === 'Unknown' ? 'text-amber-600 font-medium' : ''
-                        }>
-                          {verification.profiles?.user_type || 'Unknown'}
-                        </span>
-                        {(verification.profiles?.user_type === 'Profile missing' || 
-                          verification.profiles?.full_name === 'Profile needs repair') && (
-                          <span className="ml-2 text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded-full">
-                            Needs repair
-                          </span>
-                        )}
-                      </div>
+                      {verification.profiles && (
+                        <div className="text-sm text-muted-foreground">
+                          {verification.profiles.email} • {verification.profiles.user_type}
+                        </div>
+                      )}
                     </div>
 
                     <div className="flex flex-wrap gap-2">

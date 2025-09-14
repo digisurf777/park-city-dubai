@@ -1439,25 +1439,6 @@ export type Database = {
           zone: string
         }[]
       }
-      get_verifications_with_profiles: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          auth_email: string
-          created_at: string
-          document_image_url: string
-          document_type: string
-          full_name: string
-          id: string
-          nationality: string
-          profile_email: string
-          profile_full_name: string
-          profile_phone: string
-          profile_user_id: string
-          profile_user_type: string
-          user_id: string
-          verification_status: string
-        }[]
-      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1497,10 +1478,6 @@ export type Database = {
       refresh_parking_listings_public: {
         Args: Record<PropertyKey, never>
         Returns: undefined
-      }
-      repair_missing_profiles: {
-        Args: Record<PropertyKey, never>
-        Returns: Json
       }
       revoke_document_access: {
         Args: { verification_id: string }
