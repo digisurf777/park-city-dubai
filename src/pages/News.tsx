@@ -1,12 +1,11 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { format } from "date-fns";
 import useSEO from "@/hooks/useSEO";
+import NewsLoadingSkeleton from "@/components/NewsLoadingSkeleton";
+import NewsPagination from "@/components/NewsPagination";
+import OptimizedNewsCard from "@/components/OptimizedNewsCard";
 
 interface NewsPost {
   id: string;
@@ -28,15 +27,34 @@ const News = () => {
 
   const [newsArticles, setNewsArticles] = useState<NewsPost[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const articlesPerPage = 9;
 
   useEffect(() => {
     const fetchNewsArticles = async () => {
       try {
+        setLoading(true);
+        
+        // Get total count first
+        const { count } = await supabase
+          .from('news')
+          .select('*', { count: 'exact', head: true })
+          .eq('status', 'published');
+
+        const totalCount = count || 0;
+        setTotalPages(Math.ceil(totalCount / articlesPerPage));
+
+        // Get articles for current page
+        const from = (currentPage - 1) * articlesPerPage;
+        const to = from + articlesPerPage - 1;
+
         const { data, error } = await supabase
           .from('news')
           .select('*')
           .eq('status', 'published')
-          .order('publication_date', { ascending: false });
+          .order('publication_date', { ascending: false })
+          .range(from, to);
 
         if (error) throw error;
         setNewsArticles(data || []);
@@ -48,7 +66,7 @@ const News = () => {
     };
 
     fetchNewsArticles();
-  }, []);
+  }, [currentPage]);
 
   return (
     <div className="min-h-screen bg-background animate-zoom-slow">
@@ -75,56 +93,26 @@ const News = () => {
       {/* News Grid */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         {loading ? (
-          <div className="text-center">Loading articles...</div>
+          <NewsLoadingSkeleton />
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {newsArticles.map((article) => (
-              <Card key={article.id} className="overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-                <div className="relative aspect-video">
-                  <img
-                    src={article.image_url || '/news/hero.jpg'}
-                    alt={article.title}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                    decoding="async"
-                  />
-                </div>
-                
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="text-xs text-muted-foreground">
-                      {format(new Date(article.publication_date), 'MMMM d, yyyy')}
-                    </span>
-                  </div>
-                
-                <h3 className="text-lg font-bold mb-3 line-clamp-2">
-                  <Link 
-                    to={`/news/${article.id}`}
-                    className="hover:text-primary transition-colors"
-                  >
-                    {article.title}
-                  </Link>
-                </h3>
-                
-                <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
-                  {article.content.replace(/<[^>]*>/g, '').substring(0, 150)}...
-                </p>
-                
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground">
-                    {format(new Date(article.publication_date), 'PPP')}
-                  </span>
-                  <Link 
-                    to={`/news/${article.id}`}
-                    className="text-sm font-medium text-primary hover:underline"
-                  >
-                    Read more
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {newsArticles.map((article, index) => (
+                <OptimizedNewsCard 
+                  key={article.id} 
+                  article={article} 
+                  priority={index < 3} // First 3 articles get priority loading
+                />
+              ))}
+            </div>
+            
+            <NewsPagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+              loading={loading}
+            />
+          </>
         )}
       </div>
 

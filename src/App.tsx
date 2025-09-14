@@ -7,9 +7,12 @@ import { HelmetProvider } from "react-helmet-async";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import TawkToChat from "@/components/TawkToChat";
-import ChatWidget from "@/components/ChatWidget";
-import PerformanceOptimizer from "@/components/PerformanceOptimizer";
+import TawkToChat from '@/components/TawkToChat';
+import ChatWidget from '@/components/ChatWidget';
+import PerformanceOptimizer from '@/components/PerformanceOptimizer';
+import CriticalCSS from '@/components/CriticalCSS';
+import PreloadResources from '@/components/PreloadResources';
+import PerformanceOptimizations from '@/components/PerformanceOptimizations';
 import { MobileOptimizations } from "@/components/MobileOptimizations";
 // Import Auth directly to fix dynamic import issue
 import Auth from "./pages/Auth";
@@ -73,6 +76,9 @@ const App = () => {
     <HelmetProvider>
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
+          <CriticalCSS />
+          <PreloadResources />
+          <PerformanceOptimizations />
           <MobileOptimizations />
           <Toaster />
           <Sonner />
