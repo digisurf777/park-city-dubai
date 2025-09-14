@@ -9,11 +9,6 @@ import { AuthProvider } from "@/hooks/useAuth";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import TawkToChat from '@/components/TawkToChat';
 import ChatWidget from '@/components/ChatWidget';
-import PerformanceOptimizer from '@/components/PerformanceOptimizer';
-import CriticalCSS from '@/components/CriticalCSS';
-import PreloadResources from '@/components/PreloadResources';
-import PerformanceOptimizations from '@/components/PerformanceOptimizations';
-import EnhancedServiceWorker from '@/components/EnhancedServiceWorker';
 import { MobileOptimizations } from "@/components/MobileOptimizations";
 // Import Auth directly to fix dynamic import issue
 import Auth from "./pages/Auth";
@@ -77,16 +72,12 @@ const App = () => {
     <HelmetProvider>
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
-          <CriticalCSS />
-          <PreloadResources />
-          <PerformanceOptimizations />
-          <EnhancedServiceWorker />
           <MobileOptimizations />
           <Toaster />
           <Sonner />
           <AuthProvider>
             <BrowserRouter>
-              <PerformanceOptimizer />
+              
               <TawkToChat />
               <ChatWidget />
               <Suspense fallback={<LoadingFallback />}>

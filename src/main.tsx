@@ -3,8 +3,6 @@ import { createRoot } from "react-dom/client";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import App from "./App.tsx";
 import "./index.css";
-import CriticalCSS from "./components/CriticalCSS.tsx";
-import PreloadResources from "./components/PreloadResources.tsx";
 
 console.log('main.tsx: Starting app initialization');
 
@@ -39,18 +37,8 @@ if ('serviceWorker' in navigator) {
       .then((registration) => {
         console.log('SW registered: ', registration);
         
-        // Force update when new version is available
-        registration.addEventListener('updatefound', () => {
-          const newWorker = registration.installing;
-          if (newWorker) {
-            newWorker.addEventListener('statechange', () => {
-              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                // New content is available, refresh the page
-                window.location.reload();
-              }
-            });
-          }
-        });
+        // Update found; defer activation without auto-reload to prevent flashing
+        // registration.addEventListener('updatefound', () => { /* no-op */ });
       })
       .catch((registrationError) => {
         console.log('SW registration failed: ', registrationError);
@@ -61,8 +49,6 @@ if ('serviceWorker' in navigator) {
 root.render(
   <StrictMode>
     <ErrorBoundary>
-      <CriticalCSS />
-      <PreloadResources />
       <App />
     </ErrorBoundary>
   </StrictMode>

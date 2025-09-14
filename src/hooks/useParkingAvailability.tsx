@@ -42,15 +42,10 @@ export const useParkingAvailability = (zone?: string) => {
       console.log('Raw availability data:', data);
 
       // Filter by zone if specified and transform data
-      const zoneFilter = zone ? zone.trim().toLowerCase().replace(/[\s-]+/g, ' ') : null;
+      const zoneFilter = zone ? zone.trim().toLowerCase() : null;
       const filteredData = zoneFilter 
-        ? data?.filter((listing: any) => {
-            const listingZone = (listing.zone || '').trim().toLowerCase().replace(/[\s-]+/g, ' ');
-            return listingZone === zoneFilter;
-          }) || []
+        ? data?.filter((listing: any) => (listing.zone || '').trim().toLowerCase() === zoneFilter) || []
         : data || [];
-
-      console.log(`Zone filter: "${zoneFilter}", Filtered count: ${filteredData.length}`);
 
       const transformedData = filteredData.map((spot: any) => {
         // Generate availability text
