@@ -390,6 +390,8 @@ export type Database = {
       }
       parking_bookings: {
         Row: {
+          authorization_extended_count: number | null
+          capture_amount: number | null
           confirmation_deadline: string | null
           cost_aed: number
           created_at: string
@@ -401,6 +403,9 @@ export type Database = {
           payment_link_url: string | null
           payment_status: string | null
           payment_type: string | null
+          pre_authorization_amount: number | null
+          pre_authorization_expires_at: string | null
+          security_deposit_amount: number | null
           start_time: string
           status: string
           stripe_customer_id: string | null
@@ -411,6 +416,8 @@ export type Database = {
           zone: string
         }
         Insert: {
+          authorization_extended_count?: number | null
+          capture_amount?: number | null
           confirmation_deadline?: string | null
           cost_aed: number
           created_at?: string
@@ -422,6 +429,9 @@ export type Database = {
           payment_link_url?: string | null
           payment_status?: string | null
           payment_type?: string | null
+          pre_authorization_amount?: number | null
+          pre_authorization_expires_at?: string | null
+          security_deposit_amount?: number | null
           start_time: string
           status?: string
           stripe_customer_id?: string | null
@@ -432,6 +442,8 @@ export type Database = {
           zone: string
         }
         Update: {
+          authorization_extended_count?: number | null
+          capture_amount?: number | null
           confirmation_deadline?: string | null
           cost_aed?: number
           created_at?: string
@@ -443,6 +455,9 @@ export type Database = {
           payment_link_url?: string | null
           payment_status?: string | null
           payment_type?: string | null
+          pre_authorization_amount?: number | null
+          pre_authorization_expires_at?: string | null
+          security_deposit_amount?: number | null
           start_time?: string
           status?: string
           stripe_customer_id?: string | null
@@ -1196,6 +1211,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      extend_authorization_period: {
+        Args: { additional_days?: number; booking_id: string }
+        Returns: Json
+      }
       generate_secure_document_token: {
         Args: {
           access_duration_minutes?: number
@@ -1314,6 +1333,23 @@ export type Database = {
           space_id: string
           space_number: string
           space_status: string
+        }[]
+      }
+      get_pre_authorization_overview: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          authorization_extended_count: number
+          booking_id: string
+          capture_amount: number
+          created_at: string
+          days_until_expiry: number
+          location: string
+          payment_status: string
+          pre_authorization_amount: number
+          pre_authorization_expires_at: string
+          security_deposit_amount: number
+          user_full_name: string
+          zone: string
         }[]
       }
       get_profile_access_stats: {

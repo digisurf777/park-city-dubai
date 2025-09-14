@@ -14,7 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { 
   Pencil, Trash2, Plus, CheckCircle, XCircle, FileText, Mail, Upload, X, 
   Eye, Edit, Lightbulb, Camera, Settings, RefreshCw, MessageCircle, Send, 
-  LogOut, Home, Grid, Bell, Users, Car, Copy, ExternalLink, Image
+  LogOut, Home, Grid, Bell, Users, Car, Copy, ExternalLink, Image, CreditCard
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
@@ -26,6 +26,7 @@ import SecureDocumentViewer from '@/components/SecureDocumentViewer';
 import SpaceManagement from '@/components/SpaceManagement';
 import AdminNotifications from '@/components/AdminNotifications';
 import LiveBookingControl from '@/components/LiveBookingControl';
+import { PreAuthorizationPanel } from '@/components/PreAuthorizationPanel';
 
 // Import all interfaces and state from original AdminPanel
 interface NewsPost {
@@ -1526,6 +1527,10 @@ const AdminPanelOrganized = () => {
                   <FileText className="h-3 w-3" />
                   Bookings
                 </TabsTrigger>
+                <TabsTrigger value="pre-auth" className="flex items-center gap-1 text-xs">
+                  <CreditCard className="h-3 w-3" />
+                  Pre-Auth
+                </TabsTrigger>
               </TabsList>
 
               <TabsContent value="listings" className="space-y-6">
@@ -1748,6 +1753,10 @@ const AdminPanelOrganized = () => {
                     <p className="text-center text-muted-foreground">Booking management interface will be here</p>
                   </CardContent>
                 </Card>
+              </TabsContent>
+
+              <TabsContent value="pre-auth" className="space-y-6">
+                <PreAuthorizationPanel />
               </TabsContent>
             </Tabs>
           </TabsContent>

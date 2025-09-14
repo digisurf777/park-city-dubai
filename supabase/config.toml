@@ -97,3 +97,9 @@ verify_jwt = true
 
 [functions.send-admin-listing-notification]
 verify_jwt = true
+
+[functions.create-pre-authorization]
+verify_jwt = true
+
+[functions.capture-pre-authorization]
+verify_jwt = true

@@ -159,6 +159,10 @@ const handler = async (req: Request): Promise<Response> => {
       paymentUrl = session.url || "";
     }
 
+    // Set pre-authorization expiry for manual capture payments
+    const preAuthExpiry = new Date();
+    preAuthExpiry.setDate(preAuthExpiry.getDate() + 7); // 7-day pre-auth hold
+
     // Update booking record with payment details
     const { error: updateError } = await supabaseServiceClient
       .from('parking_bookings')
@@ -166,10 +170,12 @@ const handler = async (req: Request): Promise<Response> => {
         stripe_customer_id: customer.id,
         stripe_payment_intent_id: paymentIntentId,
         stripe_subscription_id: subscriptionId,
-        payment_status: 'pending',
+        payment_status: paymentType === 'one_time' ? 'pre_authorized' : 'pending',
         payment_type: paymentType,
         payment_link_url: paymentUrl,
         payment_amount_cents: Math.round(amount * 100),
+        pre_authorization_amount: paymentType === 'one_time' ? Math.round(amount * 100) : null,
+        pre_authorization_expires_at: paymentType === 'one_time' ? preAuthExpiry.toISOString() : null,
         confirmation_deadline: confirmationDeadline.toISOString(),
         updated_at: new Date().toISOString(),
       })

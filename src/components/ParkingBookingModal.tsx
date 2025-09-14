@@ -324,12 +324,16 @@ export const ParkingBookingModal = ({
               className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-4 text-lg" 
               size="lg"
             >
-              {isSubmitting ? "Submitting..." : `Reserve Space - AED ${finalPrice.toLocaleString()}`}
+              {isSubmitting ? "Submitting..." : `Pre-Authorize Space - AED ${finalPrice.toLocaleString()}`}
             </Button>
 
-            <p className="text-xs text-muted-foreground text-center">
-              No charges will be made at this time. Payment link will be provided after confirmation.
-            </p>
+            <div className="space-y-2 text-xs text-muted-foreground text-center">
+              <p className="flex items-center justify-center gap-1">
+                <CreditCard className="w-3 h-3" />
+                Pre-authorization holds funds for 7 days without charging
+              </p>
+              <p>Payment will only be captured after admin approval</p>
+            </div>
           </div>
         </div>
       </DialogContent>
