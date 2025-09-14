@@ -306,46 +306,38 @@ const AdminPanelOrganized = () => {
     try {
       setVerificationsLoading(true);
       
-      // First get verifications
+      // Use the enhanced database function that includes proper JOINs and fallback data
       const { data: verificationsData, error: verifyError } = await supabase
-        .from('user_verifications')
-        .select(`
-          id,
-          user_id,
-          full_name,
-          document_type,
-          document_image_url,
-          verification_status,
-          nationality,
-          created_at
-        `)
-        .order('created_at', { ascending: false });
+        .rpc('get_verifications_with_profiles');
 
       if (verifyError) throw verifyError;
 
-      // Then get profiles for each verification
-      if (verificationsData && verificationsData.length > 0) {
-        const userIds = verificationsData.map(v => v.user_id);
-        
-        const { data: profilesData, error: profileError } = await supabase
-          .from('profiles')
-          .select('user_id, full_name, email, phone, user_type')
-          .in('user_id', userIds);
-
-        if (profileError) {
-          console.error('Error fetching profiles:', profileError);
+      // Transform the data to match our interface
+      const transformedVerifications = verificationsData?.map(v => ({
+        id: v.id,
+        user_id: v.user_id,
+        full_name: v.full_name,
+        document_type: v.document_type,
+        document_image_url: v.document_image_url,
+        verification_status: v.verification_status,
+        nationality: v.nationality,
+        created_at: v.created_at,
+        profiles: v.profile_user_id ? {
+          user_id: v.profile_user_id,
+          full_name: v.profile_full_name || 'Name not available',
+          email: v.profile_email || v.auth_email || 'Email not available',
+          phone: v.profile_phone,
+          user_type: v.profile_user_type || 'Unknown'
+        } : {
+          user_id: v.user_id,
+          full_name: 'Profile needs repair',
+          email: v.auth_email || 'Email not available',
+          phone: null,
+          user_type: 'Profile missing'
         }
+      })) || [];
 
-        // Combine the data
-        const verificationsWithProfiles = verificationsData.map(verification => ({
-          ...verification,
-          profiles: profilesData?.find(p => p.user_id === verification.user_id) || null
-        }));
-
-        setVerifications(verificationsWithProfiles as Verification[]);
-      } else {
-        setVerifications([]);
-      }
+      setVerifications(transformedVerifications as Verification[]);
     } catch (error) {
       console.error('Error fetching verifications:', error);
       toast({
@@ -355,6 +347,32 @@ const AdminPanelOrganized = () => {
       });
     } finally {
       setVerificationsLoading(false);
+    }
+  };
+
+  // Profile repair function
+  const repairProfiles = async () => {
+    try {
+      const { data, error } = await supabase.rpc('repair_missing_profiles');
+      
+      if (error) throw error;
+
+      const result = data as { success: boolean; message: string; repaired_profiles: number };
+      
+      toast({
+        title: "Success",
+        description: result.message || "Profile repair completed",
+      });
+
+      // Refresh verifications to show updated data
+      await fetchVerifications();
+    } catch (error) {
+      console.error('Error repairing profiles:', error);
+      toast({
+        title: "Error",
+        description: "Failed to repair profiles",
+        variant: "destructive",
+      });
     }
   };
 
@@ -1669,15 +1687,26 @@ const AdminPanelOrganized = () => {
                           return matchesSearch && matchesStatus;
                         }).length})
                       </CardTitle>
-                      <Button
-                        onClick={fetchVerifications}
-                        variant="outline"
-                        size="sm"
-                        disabled={verificationsLoading}
-                      >
-                        <RefreshCw className={`h-4 w-4 mr-2 ${verificationsLoading ? 'animate-spin' : ''}`} />
-                        Refresh
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button
+                          onClick={repairProfiles}
+                          variant="outline"
+                          size="sm"
+                          className="text-amber-600 border-amber-200 hover:bg-amber-50"
+                        >
+                          <Settings className="h-4 w-4 mr-2" />
+                          Repair Profiles
+                        </Button>
+                        <Button
+                          onClick={fetchVerifications}
+                          variant="outline"
+                          size="sm"
+                          disabled={verificationsLoading}
+                        >
+                          <RefreshCw className={`h-4 w-4 mr-2 ${verificationsLoading ? 'animate-spin' : ''}`} />
+                          Refresh
+                        </Button>
+                      </div>
                     </div>
                   </CardHeader>
                   <CardContent>
