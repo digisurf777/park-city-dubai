@@ -541,7 +541,7 @@ const AdminPanelOrganized = () => {
     }
   };
   
-  const updateListingStatus = async (listingId: string, status: 'approved' | 'rejected') => {
+  const updateListingStatus = async (listingId: string, status: 'approved' | 'rejected' | 'published') => {
     try {
       const { error } = await supabase
         .from('parking_listings')
@@ -566,6 +566,60 @@ const AdminPanelOrganized = () => {
       toast({
         title: "Error",
         description: "Failed to update listing status",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const rejectListing = async (listing: ParkingListing) => {
+    if (!confirm('Are you sure you want to reject this listing? The owner will be notified.')) return;
+
+    try {
+      // Update listing status to rejected
+      const { error } = await supabase
+        .from('parking_listings')
+        .update({ status: 'rejected' })
+        .eq('id', listing.id);
+
+      if (error) throw error;
+
+      // Get owner details for notification
+      const { data: owner } = await supabase
+        .from('profiles')
+        .select('email, full_name')
+        .eq('user_id', listing.owner_id)
+        .single();
+
+      // Send rejection notification email
+      if (owner?.email) {
+        await supabase.functions.invoke('send-listing-rejected', {
+          body: {
+            userEmail: owner.email,
+            userName: owner.full_name,
+            listingDetails: {
+              title: listing.title,
+              address: listing.address,
+              zone: listing.zone,
+              listingId: listing.id
+            }
+          }
+        });
+      }
+
+      // Update local state
+      setParkingListings(prev => 
+        prev.map(l => l.id === listing.id ? { ...l, status: 'rejected' as const } : l)
+      );
+
+      toast({
+        title: "Success",
+        description: "Listing rejected and owner notified",
+      });
+    } catch (error) {
+      console.error('Error rejecting listing:', error);
+      toast({
+        title: "Error",
+        description: "Failed to reject listing",
         variant: "destructive",
       });
     }
@@ -921,6 +975,19 @@ const AdminPanelOrganized = () => {
     });
   };
 
+  const startEditingListing = (listing: ParkingListing) => {
+    setEditingListing(listing);
+    setListingTitle(listing.title);
+    setListingDescription(listing.description || '');
+    setListingAddress(listing.address);
+    setListingZone(listing.zone);
+    setListingPricePerHour(listing.price_per_hour);
+    setListingPricePerMonth(listing.price_per_month || 0);
+    setListingContactEmail(listing.contact_email || '');
+    setListingContactPhone(listing.contact_phone || '');
+    setListingImages(listing.images || []);
+  };
+
   const handleSaveListing = async () => {
     if (!listingTitle.trim() || !listingAddress.trim() || !listingZone.trim()) {
       toast({
@@ -944,7 +1011,7 @@ const AdminPanelOrganized = () => {
         contact_email: listingContactEmail.trim() || null,
         contact_phone: listingContactPhone.trim() || null,
         images: listingImages,
-        status: 'approved', // Ensure the listing is published live
+        // Keep existing status - don't auto-approve
         updated_at: new Date().toISOString(),
       };
 
@@ -1585,17 +1652,61 @@ const AdminPanelOrganized = () => {
                           </div>
 
                           <div className="flex gap-2 flex-wrap">
-                            <Button 
-                              size="sm" 
-                              variant={listing.status === 'approved' ? 'outline' : 'default'}
-                              onClick={() => updateListingStatus(listing.id, listing.status === 'approved' ? 'rejected' : 'approved')}
-                            >
-                              {listing.status === 'approved' ? 'Unpublish' : 'Approve & Publish'}
-                            </Button>
+                            {/* Approve button for pending listings */}
+                            {listing.status === 'pending' && (
+                              <Button 
+                                size="sm" 
+                                variant="default"
+                                className="bg-blue-600 hover:bg-blue-700 text-white"
+                                onClick={() => updateListingStatus(listing.id, 'approved')}
+                              >
+                                <CheckCircle className="h-4 w-4 mr-1" />
+                                Approve
+                              </Button>
+                            )}
+                            
+                            {/* Publish Live button for approved listings */}
+                            {listing.status === 'approved' && (
+                              <Button 
+                                size="sm" 
+                                variant="default"
+                                className="bg-green-600 hover:bg-green-700 text-white"
+                                onClick={() => updateListingStatus(listing.id, 'published')}
+                              >
+                                <CheckCircle className="h-4 w-4 mr-1" />
+                                Publish Live
+                              </Button>
+                            )}
+                            
+                            {/* Unpublish button for published listings */}
+                            {listing.status === 'published' && (
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                className="border-orange-200 text-orange-600 hover:bg-orange-50"
+                                onClick={() => updateListingStatus(listing.id, 'approved')}
+                              >
+                                <XCircle className="h-4 w-4 mr-1" />
+                                Unpublish
+                              </Button>
+                            )}
+                            
+                            {/* Reject button for pending listings */}
+                            {listing.status === 'pending' && (
+                              <Button 
+                                size="sm" 
+                                variant="outline" 
+                                className="border-red-200 text-red-600 hover:bg-red-50"
+                                onClick={() => rejectListing(listing)}
+                              >
+                                <X className="h-4 w-4 mr-1" />
+                                Reject
+                              </Button>
+                            )}
                             <Button 
                               size="sm" 
                               variant="outline" 
-                              onClick={() => console.log('Edit listing:', listing.id)}
+                              onClick={() => startEditingListing(listing)}
                             >
                               <Edit className="h-4 w-4 mr-1" />
                               Edit
