@@ -28,6 +28,8 @@ import SpaceManagement from '@/components/SpaceManagement';
 import AdminNotifications from '@/components/AdminNotifications';
 import LiveBookingControl from '@/components/LiveBookingControl';
 import { PreAuthorizationPanel } from '@/components/PreAuthorizationPanel';
+import { useListingSpaces } from '@/hooks/useListingSpaces';
+import { ListingAvailabilityToggle } from '@/components/ListingAvailabilityToggle';
 
 // Import all interfaces and state from original AdminPanel
 interface NewsPost {
@@ -145,6 +147,20 @@ const AdminPanelOrganized = () => {
   const [messageSending, setMessageSending] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [userFilter, setUserFilter] = useState('all');
+
+  // Get published listing IDs for space tracking
+  const publishedListingIds = parkingListings
+    .filter(listing => listing.status === 'published')
+    .map(listing => listing.id);
+
+  // Use the listing spaces hook for published listings
+  const {
+    spaces: listingSpaces,
+    loading: spacesLoading,
+    createSpaceForListing,
+    updateSpaceStatus,
+    getListingSpaceStatus
+  } = useListingSpaces(publishedListingIds);
   const [detailedUsers, setDetailedUsers] = useState<any[]>([]);
   const [detailedUsersLoading, setDetailedUsersLoading] = useState(true);
   const [userStats, setUserStats] = useState({
@@ -550,6 +566,24 @@ const AdminPanelOrganized = () => {
 
       if (error) throw error;
 
+      // If status is being set to published, auto-create parking space
+      if (status === 'published') {
+        try {
+          const { error: spaceError } = await supabase.rpc('create_parking_spaces_for_listing', {
+            p_listing_id: listingId,
+            space_count: 1,
+            space_prefix: 'Main'
+          });
+
+          if (spaceError) {
+            console.warn('Failed to auto-create space for listing:', spaceError);
+            // Don't fail the status update if space creation fails
+          }
+        } catch (spaceErr) {
+          console.warn('Space creation failed:', spaceErr);
+        }
+      }
+
       // Update local state
       setParkingListings(prev => 
         prev.map(listing => 
@@ -559,7 +593,7 @@ const AdminPanelOrganized = () => {
 
       toast({
         title: "Success",
-        description: `Listing ${status} successfully`,
+        description: `Listing ${status} successfully${status === 'published' ? '. Parking space created automatically.' : ''}`,
       });
     } catch (error) {
       console.error('Error updating listing status:', error);
@@ -1650,6 +1684,23 @@ const AdminPanelOrganized = () => {
                               <div>AED {listing.price_per_month}/month</div>
                             </div>
                           </div>
+
+                          {/* Availability Toggle for Published Listings */}
+                          {listing.status === 'published' && (
+                            <div className="p-3 bg-muted/30 rounded-lg">
+                              <div className="flex items-center justify-between">
+                                <span className="text-sm font-medium text-muted-foreground">Live Status</span>
+                                <ListingAvailabilityToggle
+                                  listingId={listing.id}
+                                  listingTitle={listing.title}
+                                  spaceStatus={getListingSpaceStatus(listing.id)}
+                                  onCreateSpace={createSpaceForListing}
+                                  onUpdateStatus={updateSpaceStatus}
+                                  spaces={listingSpaces.filter(space => space.listing_id === listing.id)}
+                                />
+                              </div>
+                            </div>
+                          )}
 
                           <div className="flex gap-2 flex-wrap">
                             {/* Approve button for pending listings */}
