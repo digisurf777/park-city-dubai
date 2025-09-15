@@ -957,7 +957,7 @@ const AdminPanelOrganized = () => {
         contact_email: listingContactEmail.trim() || null,
         contact_phone: listingContactPhone.trim() || null,
         images: listingImages,
-        status: 'approved', // Ensure the listing is published live
+        // Keep existing status - don't auto-approve
         updated_at: new Date().toISOString(),
       };
 
