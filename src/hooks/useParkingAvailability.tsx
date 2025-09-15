@@ -134,7 +134,7 @@ export const useParkingAvailability = (zone?: string) => {
   useEffect(() => {
     fetchParkingSpots();
 
-    // Set up real-time subscription to both parking_listings and parking_spaces changes
+    // Set up real-time subscription to parking_listings, parking_spaces, and parking_listings_public changes
     const listingsChannel = supabase
       .channel(`parking-listings-${zone || 'all'}`)
       .on('postgres_changes', {
@@ -143,6 +143,14 @@ export const useParkingAvailability = (zone?: string) => {
         table: 'parking_listings'
       }, (payload) => {
         console.log('Real-time parking listing change:', payload);
+        fetchParkingSpots();
+      })
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'parking_listings_public'
+      }, (payload) => {
+        console.log('Real-time parking listing public change:', payload);
         fetchParkingSpots();
       })
       .subscribe();
