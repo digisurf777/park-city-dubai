@@ -24,11 +24,11 @@ export const useSpaceInitializer = () => {
         return;
       }
 
-      // Get all approved listings that might not have spaces
+      // Get all approved and published listings that might not have spaces
       const { data: listings, error: listingsError } = await supabase
         .from('parking_listings')
         .select('id, title')
-        .eq('status', 'approved');
+        .in('status', ['approved', 'published']);
 
       if (listingsError) {
         console.error('Error fetching listings:', listingsError);
