@@ -921,19 +921,6 @@ const AdminPanelOrganized = () => {
     });
   };
 
-  const startEditingListing = (listing: ParkingListing) => {
-    setEditingListing(listing);
-    setListingTitle(listing.title);
-    setListingDescription(listing.description || '');
-    setListingAddress(listing.address);
-    setListingZone(listing.zone);
-    setListingPricePerHour(listing.price_per_hour);
-    setListingPricePerMonth(listing.price_per_month || 0);
-    setListingContactEmail(listing.contact_email || '');
-    setListingContactPhone(listing.contact_phone || '');
-    setListingImages(listing.images || []);
-  };
-
   const handleSaveListing = async () => {
     if (!listingTitle.trim() || !listingAddress.trim() || !listingZone.trim()) {
       toast({
@@ -957,7 +944,7 @@ const AdminPanelOrganized = () => {
         contact_email: listingContactEmail.trim() || null,
         contact_phone: listingContactPhone.trim() || null,
         images: listingImages,
-        // Keep existing status - don't auto-approve
+        status: 'approved', // Ensure the listing is published live
         updated_at: new Date().toISOString(),
       };
 
@@ -1608,7 +1595,7 @@ const AdminPanelOrganized = () => {
                             <Button 
                               size="sm" 
                               variant="outline" 
-                              onClick={() => startEditingListing(listing)}
+                              onClick={() => console.log('Edit listing:', listing.id)}
                             >
                               <Edit className="h-4 w-4 mr-1" />
                               Edit
