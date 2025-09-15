@@ -31,8 +31,16 @@ export const useParkingAvailability = (zone?: string) => {
       
       console.log('Fetching parking spots with availability for zone:', zone);
       
-      // Call the new function that includes availability data
-      const { data, error } = await supabase.rpc('get_parking_listings_with_availability');
+      // First try the public-safe function for published listings
+      let { data, error } = await supabase.rpc('get_public_parking_listings_with_availability');
+      
+      // If public function fails or returns empty, fallback to the admin function
+      if (error || !data || data.length === 0) {
+        console.log('Public function failed or empty, trying admin function:', error);
+        const adminResult = await supabase.rpc('get_parking_listings_with_availability');
+        data = adminResult.data;
+        error = adminResult.error;
+      }
       
       if (error) {
         console.error('Error fetching parking spots:', error);
