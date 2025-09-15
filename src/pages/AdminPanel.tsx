@@ -541,7 +541,7 @@ const AdminPanelOrganized = () => {
     }
   };
   
-  const updateListingStatus = async (listingId: string, status: 'approved' | 'rejected' | 'published') => {
+  const updateListingStatus = async (listingId: string, status: 'approved' | 'rejected') => {
     try {
       const { error } = await supabase
         .from('parking_listings')
@@ -1652,51 +1652,18 @@ const AdminPanelOrganized = () => {
                           </div>
 
                           <div className="flex gap-2 flex-wrap">
-                            {/* Approve button for pending listings */}
-                            {listing.status === 'pending' && (
-                              <Button 
-                                size="sm" 
-                                variant="default"
-                                className="bg-blue-600 hover:bg-blue-700 text-white"
-                                onClick={() => updateListingStatus(listing.id, 'approved')}
-                              >
-                                <CheckCircle className="h-4 w-4 mr-1" />
-                                Approve
-                              </Button>
-                            )}
-                            
-                            {/* Publish Live button for approved listings */}
-                            {listing.status === 'approved' && (
-                              <Button 
-                                size="sm" 
-                                variant="default"
-                                className="bg-green-600 hover:bg-green-700 text-white"
-                                onClick={() => updateListingStatus(listing.id, 'published')}
-                              >
-                                <CheckCircle className="h-4 w-4 mr-1" />
-                                Publish Live
-                              </Button>
-                            )}
-                            
-                            {/* Unpublish button for published listings */}
-                            {listing.status === 'published' && (
-                              <Button 
-                                size="sm" 
-                                variant="outline"
-                                className="border-orange-200 text-orange-600 hover:bg-orange-50"
-                                onClick={() => updateListingStatus(listing.id, 'approved')}
-                              >
-                                <XCircle className="h-4 w-4 mr-1" />
-                                Unpublish
-                              </Button>
-                            )}
-                            
-                            {/* Reject button for pending listings */}
-                            {listing.status === 'pending' && (
+                            <Button 
+                              size="sm" 
+                              variant={listing.status === 'approved' ? 'outline' : 'default'}
+                              onClick={() => updateListingStatus(listing.id, listing.status === 'approved' ? 'rejected' : 'approved')}
+                            >
+                              {listing.status === 'approved' ? 'Unpublish' : 'Approve & Publish'}
+                            </Button>
+                            {listing.status !== 'rejected' && (
                               <Button 
                                 size="sm" 
                                 variant="outline" 
-                                className="border-red-200 text-red-600 hover:bg-red-50"
+                                className="border-orange-200 text-orange-600 hover:bg-orange-50"
                                 onClick={() => rejectListing(listing)}
                               >
                                 <X className="h-4 w-4 mr-1" />
