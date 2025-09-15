@@ -28,8 +28,6 @@ import SpaceManagement from '@/components/SpaceManagement';
 import AdminNotifications from '@/components/AdminNotifications';
 import LiveBookingControl from '@/components/LiveBookingControl';
 import { PreAuthorizationPanel } from '@/components/PreAuthorizationPanel';
-import { useListingSpaces } from '@/hooks/useListingSpaces';
-import { ListingAvailabilityToggle } from '@/components/ListingAvailabilityToggle';
 
 // Import all interfaces and state from original AdminPanel
 interface NewsPost {
@@ -147,20 +145,6 @@ const AdminPanelOrganized = () => {
   const [messageSending, setMessageSending] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [userFilter, setUserFilter] = useState('all');
-
-  // Get published listing IDs for space tracking
-  const publishedListingIds = parkingListings
-    .filter(listing => listing.status === 'published')
-    .map(listing => listing.id);
-
-  // Use the listing spaces hook for published listings
-  const {
-    spaces: listingSpaces,
-    loading: spacesLoading,
-    createSpaceForListing,
-    updateSpaceStatus,
-    getListingSpaceStatus
-  } = useListingSpaces(publishedListingIds);
   const [detailedUsers, setDetailedUsers] = useState<any[]>([]);
   const [detailedUsersLoading, setDetailedUsersLoading] = useState(true);
   const [userStats, setUserStats] = useState({
@@ -557,7 +541,7 @@ const AdminPanelOrganized = () => {
     }
   };
   
-  const updateListingStatus = async (listingId: string, status: 'approved' | 'rejected' | 'published') => {
+  const updateListingStatus = async (listingId: string, status: 'approved' | 'rejected') => {
     try {
       const { error } = await supabase
         .from('parking_listings')
@@ -565,24 +549,6 @@ const AdminPanelOrganized = () => {
         .eq('id', listingId);
 
       if (error) throw error;
-
-      // If status is being set to published, auto-create parking space
-      if (status === 'published') {
-        try {
-          const { error: spaceError } = await supabase.rpc('create_parking_spaces_for_listing', {
-            p_listing_id: listingId,
-            space_count: 1,
-            space_prefix: 'Main'
-          });
-
-          if (spaceError) {
-            console.warn('Failed to auto-create space for listing:', spaceError);
-            // Don't fail the status update if space creation fails
-          }
-        } catch (spaceErr) {
-          console.warn('Space creation failed:', spaceErr);
-        }
-      }
 
       // Update local state
       setParkingListings(prev => 
@@ -593,7 +559,7 @@ const AdminPanelOrganized = () => {
 
       toast({
         title: "Success",
-        description: `Listing ${status} successfully${status === 'published' ? '. Parking space created automatically.' : ''}`,
+        description: `Listing ${status} successfully`,
       });
     } catch (error) {
       console.error('Error updating listing status:', error);
@@ -1685,69 +1651,19 @@ const AdminPanelOrganized = () => {
                             </div>
                           </div>
 
-                          {/* Availability Toggle for Published Listings */}
-                          {listing.status === 'published' && (
-                            <div className="p-3 bg-muted/30 rounded-lg">
-                              <div className="flex items-center justify-between">
-                                <span className="text-sm font-medium text-muted-foreground">Live Status</span>
-                                <ListingAvailabilityToggle
-                                  listingId={listing.id}
-                                  listingTitle={listing.title}
-                                  spaceStatus={getListingSpaceStatus(listing.id)}
-                                  onCreateSpace={createSpaceForListing}
-                                  onUpdateStatus={updateSpaceStatus}
-                                  spaces={listingSpaces.filter(space => space.listing_id === listing.id)}
-                                />
-                              </div>
-                            </div>
-                          )}
-
                           <div className="flex gap-2 flex-wrap">
-                            {/* Approve button for pending listings */}
-                            {listing.status === 'pending' && (
-                              <Button 
-                                size="sm" 
-                                variant="default"
-                                className="bg-blue-600 hover:bg-blue-700 text-white"
-                                onClick={() => updateListingStatus(listing.id, 'approved')}
-                              >
-                                <CheckCircle className="h-4 w-4 mr-1" />
-                                Approve
-                              </Button>
-                            )}
-                            
-                            {/* Publish Live button for approved listings */}
-                            {listing.status === 'approved' && (
-                              <Button 
-                                size="sm" 
-                                variant="default"
-                                className="bg-green-600 hover:bg-green-700 text-white"
-                                onClick={() => updateListingStatus(listing.id, 'published')}
-                              >
-                                <CheckCircle className="h-4 w-4 mr-1" />
-                                Publish Live
-                              </Button>
-                            )}
-                            
-                            {/* Unpublish button for published listings */}
-                            {listing.status === 'published' && (
-                              <Button 
-                                size="sm" 
-                                variant="outline"
-                                className="border-orange-200 text-orange-600 hover:bg-orange-50"
-                                onClick={() => updateListingStatus(listing.id, 'approved')}
-                              >
-                                <XCircle className="h-4 w-4 mr-1" />
-                                Unpublish
-                              </Button>
-                            )}
-                            
-                            {/* Reject button for pending listings */}
-                            {listing.status === 'pending' && (
+                            <Button 
+                              size="sm" 
+                              variant={listing.status === 'approved' ? 'outline' : 'default'}
+                              onClick={() => updateListingStatus(listing.id, listing.status === 'approved' ? 'rejected' : 'approved')}
+                            >
+                              {listing.status === 'approved' ? 'Unpublish' : 'Approve & Publish'}
+                            </Button>
+                            {listing.status !== 'rejected' && (
                               <Button 
                                 size="sm" 
                                 variant="outline" 
-                                className="border-red-200 text-red-600 hover:bg-red-50"
+                                className="border-orange-200 text-orange-600 hover:bg-orange-50"
                                 onClick={() => rejectListing(listing)}
                               >
                                 <X className="h-4 w-4 mr-1" />
