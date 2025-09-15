@@ -571,60 +571,6 @@ const AdminPanelOrganized = () => {
     }
   };
 
-  const rejectListing = async (listing: ParkingListing) => {
-    if (!confirm('Are you sure you want to reject this listing? The owner will be notified.')) return;
-
-    try {
-      // Update listing status to rejected
-      const { error } = await supabase
-        .from('parking_listings')
-        .update({ status: 'rejected' })
-        .eq('id', listing.id);
-
-      if (error) throw error;
-
-      // Get owner details for notification
-      const { data: owner } = await supabase
-        .from('profiles')
-        .select('email, full_name')
-        .eq('user_id', listing.owner_id)
-        .single();
-
-      // Send rejection notification email
-      if (owner?.email) {
-        await supabase.functions.invoke('send-listing-rejected', {
-          body: {
-            userEmail: owner.email,
-            userName: owner.full_name,
-            listingDetails: {
-              title: listing.title,
-              address: listing.address,
-              zone: listing.zone,
-              listingId: listing.id
-            }
-          }
-        });
-      }
-
-      // Update local state
-      setParkingListings(prev => 
-        prev.map(l => l.id === listing.id ? { ...l, status: 'rejected' as const } : l)
-      );
-
-      toast({
-        title: "Success",
-        description: "Listing rejected and owner notified",
-      });
-    } catch (error) {
-      console.error('Error rejecting listing:', error);
-      toast({
-        title: "Error",
-        description: "Failed to reject listing",
-        variant: "destructive",
-      });
-    }
-  };
-
   const deleteListing = async (listingId: string) => {
     if (!confirm('Are you sure you want to delete this listing? This action cannot be undone.')) return;
 
@@ -1659,17 +1605,6 @@ const AdminPanelOrganized = () => {
                             >
                               {listing.status === 'approved' ? 'Unpublish' : 'Approve & Publish'}
                             </Button>
-                            {listing.status !== 'rejected' && (
-                              <Button 
-                                size="sm" 
-                                variant="outline" 
-                                className="border-orange-200 text-orange-600 hover:bg-orange-50"
-                                onClick={() => rejectListing(listing)}
-                              >
-                                <X className="h-4 w-4 mr-1" />
-                                Reject
-                              </Button>
-                            )}
                             <Button 
                               size="sm" 
                               variant="outline" 
