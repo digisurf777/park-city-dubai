@@ -859,6 +859,45 @@ export type Database = {
           },
         ]
       }
+      stripe_webhook_events: {
+        Row: {
+          booking_id: string | null
+          created_at: string | null
+          error_message: string | null
+          event_type: string
+          id: string
+          payment_intent_id: string | null
+          processed_at: string | null
+          raw_event: Json
+          status: string | null
+          stripe_event_id: string
+        }
+        Insert: {
+          booking_id?: string | null
+          created_at?: string | null
+          error_message?: string | null
+          event_type: string
+          id?: string
+          payment_intent_id?: string | null
+          processed_at?: string | null
+          raw_event: Json
+          status?: string | null
+          stripe_event_id: string
+        }
+        Update: {
+          booking_id?: string | null
+          created_at?: string | null
+          error_message?: string | null
+          event_type?: string
+          id?: string
+          payment_intent_id?: string | null
+          processed_at?: string | null
+          raw_event?: Json
+          status?: string | null
+          stripe_event_id?: string
+        }
+        Relationships: []
+      }
       system_settings: {
         Row: {
           created_at: string

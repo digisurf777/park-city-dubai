@@ -5,12 +5,13 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { CalendarIcon, Car, Clock, CreditCard, MapPin, Check } from "lucide-react";
+import { CalendarIcon, Car, Clock, CreditCard, MapPin, Check, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { loadStripe } from "@stripe/stripe-js";
 interface ParkingSpot {
   id: string | number;
   name: string;
@@ -54,6 +55,16 @@ export const ParkingBookingModal = ({
 }: ParkingBookingModalProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
+
+  // Initialize Stripe
+  useEffect(() => {
+    const initializeStripe = async () => {
+      // Use the publishable key for your Stripe account
+      const stripeInstance = await loadStripe("pk_test_51QFo5DCoXE17KEFVv2QwEHC2NSFcp8mZ6XZcuTZF8AsZlZZRhfPDJDExFCN9C5k7IhOYrSM5eQcDAPF4kse2kJQS00EqVuIUZZ");
+      setStripe(stripeInstance);
+    };
+    initializeStripe();
+  }, []);
   
   const [startDate, setStartDate] = useState<Date>();
   const [selectedDuration, setSelectedDuration] = useState(DURATION_OPTIONS[0]);
@@ -61,6 +72,9 @@ export const ParkingBookingModal = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [bookingReference, setBookingReference] = useState("");
+  const [paymentStep, setPaymentStep] = useState<'booking' | 'payment' | 'processing'>('booking');
+  const [paymentIntentData, setPaymentIntentData] = useState<any>(null);
+  const [stripe, setStripe] = useState<any>(null);
   useEffect(() => {
     if (!isOpen) {
       setStartDate(undefined);
@@ -69,6 +83,8 @@ export const ParkingBookingModal = ({
       setIsSubmitting(false);
       setShowConfirmation(false);
       setBookingReference("");
+      setPaymentStep('booking');
+      setPaymentIntentData(null);
     }
   }, [isOpen]);
   if (!parkingSpot) return null;
@@ -128,36 +144,115 @@ export const ParkingBookingModal = ({
       return;
     }
     setIsSubmitting(true);
+    setPaymentStep('booking');
+    
     try {
+      const endDate = new Date(startDate);
+      endDate.setMonth(endDate.getMonth() + selectedDuration.months);
+      
       const bookingData = {
         startDate: startDate.toISOString(),
+        endDate: endDate.toISOString(),
         duration: selectedDuration.months,
-        zone: "Find Parking Page",
+        email: user.email,
+        fullName: user.user_metadata?.full_name || "",
+        phone: user.user_metadata?.phone || "",
         location: parkingSpot.name,
+        zone: "Find Parking Page",
         costAed: finalPrice,
         parkingSpotName: parkingSpot.name
       };
-      const {
-        data,
-        error
-      } = await supabase.functions.invoke('submit-booking-request', {
+
+      // Submit booking request (this creates the pre-authorization PaymentIntent)
+      const { data, error } = await supabase.functions.invoke('submit-booking-request', {
         body: bookingData
       });
+
       if (error) throw error;
-      console.log('Booking request submitted:', data);
-      setBookingReference(data.bookingId?.slice(0, 8).toUpperCase() || "");
-      setShowConfirmation(true);
-      toast({
-        title: "Booking Submitted Successfully",
-        description: "Please check your email for the payment link to complete your booking."
-      });
+
+      setBookingReference(data.bookingId);
+      
+      // Check if we got payment data for client-side confirmation
+      if (data.clientSecret && data.paymentIntentId) {
+        setPaymentIntentData({
+          bookingId: data.bookingId,
+          clientSecret: data.clientSecret,
+          paymentIntentId: data.paymentIntentId
+        });
+        
+        // Move to payment step for client-side confirmation
+        setPaymentStep('payment');
+        
+        toast({
+          title: "Booking Created",
+          description: "Please complete payment authorization to secure your booking",
+        });
+      } else {
+        // Fallback to old email flow
+        setShowConfirmation(true);
+        toast({
+          title: "Booking Submitted Successfully",
+          description: "Please check your email for the payment link to complete your booking."
+        });
+      }
+
     } catch (error: any) {
-      console.error('Error submitting booking:', error);
+      console.error('Booking error:', error);
       toast({
-        title: "Submission Failed",
-        description: error.message || "Failed to submit booking request. Please try again.",
-        variant: "destructive"
+        title: "Booking Failed", 
+        description: error.message || "Please try again",
+        variant: "destructive",
       });
+      setIsSubmitting(false);
+    }
+  };
+
+  const handlePaymentConfirmation = async () => {
+    if (!stripe || !paymentIntentData?.clientSecret) {
+      toast({
+        title: "Payment Error",
+        description: "Payment system not ready. Please try again.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setPaymentStep('processing');
+
+    try {
+      // For demo purposes, we'll use a test payment method
+      // In a real implementation, you'd collect the payment method from the user
+      const { error, paymentIntent } = await stripe.confirmCardPayment(paymentIntentData.clientSecret, {
+        payment_method: {
+          card: {
+            token: 'tok_visa' // Test token - in production, collect real card details
+          }
+        }
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      if (paymentIntent?.status === 'requires_capture') {
+        // Pre-authorization successful
+        setShowConfirmation(true);
+        toast({
+          title: "Payment Pre-Authorized",
+          description: "Your payment has been pre-authorized. Booking is pending approval.",
+        });
+      } else {
+        throw new Error("Unexpected payment status: " + paymentIntent?.status);
+      }
+
+    } catch (error: any) {
+      console.error('Payment confirmation error:', error);
+      toast({
+        title: "Payment Failed",
+        description: error.message || "Payment authorization failed",
+        variant: "destructive",
+      });
+      setPaymentStep('payment');
     } finally {
       setIsSubmitting(false);
     }
@@ -318,14 +413,65 @@ export const ParkingBookingModal = ({
 
 
             {/* Reserve Button */}
-            <Button 
-              onClick={handleReserve} 
-              disabled={isSubmitting} 
-              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-4 text-lg" 
-              size="lg"
-            >
-              {isSubmitting ? "Submitting..." : `Pre-Authorize Space - AED ${finalPrice.toLocaleString()}`}
-            </Button>
+            {paymentStep === 'booking' && (
+              <Button 
+                onClick={handleReserve} 
+                disabled={isSubmitting} 
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-4 text-lg" 
+                size="lg"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Creating Booking...
+                  </>
+                ) : (
+                  `Pre-Authorize Space - AED ${finalPrice.toLocaleString()}`
+                )}
+              </Button>
+            )}
+
+            {paymentStep === 'payment' && (
+              <div className="space-y-4">
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <h4 className="font-semibold text-blue-800 mb-2">Payment Authorization Required</h4>
+                  <p className="text-sm text-blue-700">
+                    Your booking has been created. Please authorize payment to secure your parking space.
+                    This will pre-authorize the amount without charging until approval.
+                  </p>
+                </div>
+                <Button 
+                  onClick={handlePaymentConfirmation} 
+                  disabled={isSubmitting} 
+                  className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-4 text-lg" 
+                  size="lg"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Authorizing Payment...
+                    </>
+                  ) : (
+                    `Authorize Payment - AED ${finalPrice.toLocaleString()}`
+                  )}
+                </Button>
+                <Button 
+                  onClick={() => setPaymentStep('booking')} 
+                  variant="outline" 
+                  className="w-full"
+                  disabled={isSubmitting}
+                >
+                  Back to Booking Details
+                </Button>
+              </div>
+            )}
+
+            {paymentStep === 'processing' && (
+              <div className="text-center py-8">
+                <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" />
+                <p className="mt-4 text-sm text-muted-foreground">Processing payment authorization...</p>
+              </div>
+            )}
 
             <div className="space-y-2 text-xs text-muted-foreground text-center">
               <p className="flex items-center justify-center gap-1">

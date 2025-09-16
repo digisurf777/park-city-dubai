@@ -103,3 +103,9 @@ verify_jwt = true
 
 [functions.capture-pre-authorization]
 verify_jwt = true
+
+[functions.confirm-pre-authorization]
+verify_jwt = true
+
+[functions.stripe-webhook-handler]
+verify_jwt = false

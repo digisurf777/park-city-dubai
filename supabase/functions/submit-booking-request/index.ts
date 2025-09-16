@@ -335,6 +335,9 @@ const handler = async (req: Request): Promise<Response> => {
         paymentUrl: paymentData.payment_url,
         paymentType: paymentData.payment_type,
         confirmationDeadline: paymentData.confirmation_deadline,
+        // Include PaymentIntent details for client-side confirmation
+        paymentIntentId: paymentData.payment_intent_id,
+        clientSecret: paymentData.client_secret,
         message: "Booking request submitted successfully. Please complete your payment setup to secure your parking space.",
       }),
       {
