@@ -127,7 +127,7 @@ const handler = async (req: Request): Promise<Response> => {
       console.error("Pre-authorization creation failed:", paymentError);
       throw new Error("Failed to create pre-authorization");
     }
-    console.log("Pre-authorization created:", paymentData.url);
+    console.log("Pre-authorization created:", paymentData.payment_url);
 
     // Send admin booking notification using dedicated function  
     const customerName = userProfile?.full_name || "Customer";
@@ -237,7 +237,7 @@ const handler = async (req: Request): Promise<Response> => {
                         <div style="background-color: #dbeafe; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center;">
                           <h3 style="color: #1e40af; margin-top: 0;">Complete Your Payment Authorization</h3>
                           <p style="color: #1e40af; margin-bottom: 15px;">Your payment will be pre-authorized (not charged immediately). We will confirm your booking shortly.</p>
-                          <a href="${paymentData.url}" style="background-color: #16a34a; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">Authorize Payment</a>
+                          <a href="${paymentData.payment_url}" style="background-color: #16a34a; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">Authorize Payment</a>
                         </div>
                         
                         <div style="background-color: #fef3c7; padding: 15px; border-radius: 5px; margin: 15px 0;">
@@ -312,7 +312,7 @@ const handler = async (req: Request): Promise<Response> => {
       JSON.stringify({
         success: true,
         bookingId: booking.id,
-        paymentUrl: paymentData.url,
+        paymentUrl: paymentData.payment_url,
         message: "Booking request submitted successfully. Please complete your payment authorization to secure your parking space.",
       }),
       {

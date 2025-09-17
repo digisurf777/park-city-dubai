@@ -99,7 +99,7 @@ verify_jwt = true
 verify_jwt = true
 
 [functions.create-pre-authorization]
-verify_jwt = true
+verify_jwt = false
 
 [functions.capture-pre-authorization]
 verify_jwt = true
