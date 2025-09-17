@@ -172,23 +172,16 @@ export const ParkingBookingModal = ({
 
       setBookingReference(data.bookingId);
       
-      // Check if we got payment data for client-side confirmation
-      if (data.clientSecret && data.paymentIntentId) {
-        setPaymentIntentData({
-          bookingId: data.bookingId,
-          clientSecret: data.clientSecret,
-          paymentIntentId: data.paymentIntentId
-        });
-        
-        // Move to payment step for client-side confirmation
-        setPaymentStep('payment');
-        
+      // If we got a payment URL, open it in a new tab
+      if (data.paymentUrl) {
+        window.open(data.paymentUrl, '_blank');
         toast({
-          title: "Booking Created",
-          description: "Please complete payment authorization to secure your booking",
+          title: "Pre-Authorization Required",
+          description: "We opened Stripe to authorize your payment. A confirmation email was sent.",
         });
+        setShowConfirmation(true);
       } else {
-        // Fallback to old email flow
+        // Fallback to email flow
         setShowConfirmation(true);
         toast({
           title: "Booking Submitted Successfully",
@@ -413,65 +406,21 @@ export const ParkingBookingModal = ({
 
 
             {/* Reserve Button */}
-            {paymentStep === 'booking' && (
-              <Button 
-                onClick={handleReserve} 
-                disabled={isSubmitting} 
-                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-4 text-lg" 
-                size="lg"
-              >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Creating Booking...
-                  </>
-                ) : (
-                  `Pre-Authorize Space - AED ${finalPrice.toLocaleString()}`
-                )}
-              </Button>
-            )}
-
-            {paymentStep === 'payment' && (
-              <div className="space-y-4">
-                <div className="bg-blue-50 p-4 rounded-lg">
-                  <h4 className="font-semibold text-blue-800 mb-2">Payment Authorization Required</h4>
-                  <p className="text-sm text-blue-700">
-                    Your booking has been created. Please authorize payment to secure your parking space.
-                    This will pre-authorize the amount without charging until approval.
-                  </p>
-                </div>
-                <Button 
-                  onClick={handlePaymentConfirmation} 
-                  disabled={isSubmitting} 
-                  className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-4 text-lg" 
-                  size="lg"
-                >
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Authorizing Payment...
-                    </>
-                  ) : (
-                    `Authorize Payment - AED ${finalPrice.toLocaleString()}`
-                  )}
-                </Button>
-                <Button 
-                  onClick={() => setPaymentStep('booking')} 
-                  variant="outline" 
-                  className="w-full"
-                  disabled={isSubmitting}
-                >
-                  Back to Booking Details
-                </Button>
-              </div>
-            )}
-
-            {paymentStep === 'processing' && (
-              <div className="text-center py-8">
-                <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" />
-                <p className="mt-4 text-sm text-muted-foreground">Processing payment authorization...</p>
-              </div>
-            )}
+            <Button 
+              onClick={handleReserve} 
+              disabled={isSubmitting} 
+              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-4 text-lg" 
+              size="lg"
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Creating Pre-Authorization...
+                </>
+              ) : (
+                `Pre-Authorize Space - AED ${finalPrice.toLocaleString()}`
+              )}
+            </Button>
 
             <div className="space-y-2 text-xs text-muted-foreground text-center">
               <p className="flex items-center justify-center gap-1">

@@ -109,45 +109,33 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("Booking saved successfully:", booking.id);
 
-    // Create payment link using the new edge function
-    console.log("Creating payment link...");
+    // Create pre-authorization using the correct edge function
+    console.log("Creating pre-authorization...");
     
-    const paymentResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/create-payment-link`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${Deno.env.get('SUPABASE_ANON_KEY')}`,
-      },
-      body: JSON.stringify({
+    const { data: paymentData, error: paymentError } = await supabaseClient.functions.invoke('create-pre-authorization', {
+      body: {
         bookingId: booking.id,
         amount: costAed,
+        securityDeposit: 0,
         duration: duration,
         parkingSpotName: parkingSpotName,
         userEmail: user.email,
-      }),
+      }
     });
 
-    if (!paymentResponse.ok) {
-      const errorText = await paymentResponse.text();
-      console.error("Payment link creation failed:", errorText);
-      throw new Error("Failed to create payment link");
+    if (paymentError) {
+      console.error("Pre-authorization creation failed:", paymentError);
+      throw new Error("Failed to create pre-authorization");
     }
+    console.log("Pre-authorization created:", paymentData.url);
 
-    const paymentData = await paymentResponse.json();
-    console.log("Payment link created:", paymentData.payment_url);
-
-    // Send admin booking notification using dedicated function
+    // Send admin booking notification using dedicated function  
     const customerName = userProfile?.full_name || "Customer";
     const customerPhone = userPhone || userProfile?.phone || "Not provided";
     
     try {
-      const adminNotificationResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/send-admin-booking-notification`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${Deno.env.get('SUPABASE_ANON_KEY')}`,
-        },
-        body: JSON.stringify({
+      const { error: adminNotificationError } = await supabaseClient.functions.invoke('send-admin-booking-notification', {
+        body: {
           userName: customerName,
           userEmail: user.email,
           userPhone: customerPhone,
@@ -158,13 +146,13 @@ const handler = async (req: Request): Promise<Response> => {
           startDate: startDate,
           duration: duration,
           totalCost: costAed,
-          paymentType: paymentData.payment_type,
+          paymentType: 'pre_authorization',
           notes: notes,
-        }),
+        }
       });
 
-      if (!adminNotificationResponse.ok) {
-        console.error("Admin booking notification failed:", await adminNotificationResponse.text());
+      if (adminNotificationError) {
+        console.error("Admin booking notification failed:", adminNotificationError);
       } else {
         console.log("Admin booking notification sent successfully");
       }
@@ -175,13 +163,8 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Send "Booking Request Received" email to customer
     try {
-      const bookingReceivedResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/send-booking-received`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${Deno.env.get('SUPABASE_ANON_KEY')}`,
-        },
-        body: JSON.stringify({
+      const { error: bookingReceivedError } = await supabaseClient.functions.invoke('send-booking-received', {
+        body: {
           userEmail: user.email,
           userName: customerName,
           bookingDetails: {
@@ -190,11 +173,11 @@ const handler = async (req: Request): Promise<Response> => {
             endDate: endDate.toLocaleDateString(),
             amount: `${costAed} AED`
           }
-        }),
+        }
       });
 
-      if (!bookingReceivedResponse.ok) {
-        console.error("Booking received notification failed:", await bookingReceivedResponse.text());
+      if (bookingReceivedError) {
+        console.error("Booking received notification failed:", bookingReceivedError);
       } else {
         console.log("Booking received notification sent successfully");
       }
@@ -246,18 +229,15 @@ const handler = async (req: Request): Promise<Response> => {
                             <tr><td><strong>Start Date:</strong></td><td>${new Date(startDate).toLocaleDateString()}</td></tr>
                             <tr><td><strong>Duration:</strong></td><td>${duration} month(s)</td></tr>
                             <tr><td><strong>Total Cost:</strong></td><td>${costAed} AED</td></tr>
-                            <tr><td><strong>Payment Type:</strong></td><td>${paymentData.payment_type === 'one_time' ? 'One-time Payment' : 'Monthly Recurring Payments'}</td></tr>
+                            <tr><td><strong>Payment Type:</strong></td><td>Pre-Authorization</td></tr>
                             ${notes ? `<tr><td><strong>Notes:</strong></td><td>${notes}</td></tr>` : ''}
                           </table>
                         </div>
                         
                         <div style="background-color: #dbeafe; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center;">
-                          <h3 style="color: #1e40af; margin-top: 0;">Complete Your Payment</h3>
-                          ${paymentData.payment_type === 'one_time' 
-                            ? '<p style="color: #1e40af; margin-bottom: 15px;">Your payment will be pre-authorized (not charged immediately). We will confirm your booking shortly.</p>'
-                            : '<p style="color: #1e40af; margin-bottom: 15px;">Set up your monthly subscription. Billing starts after we confirm your booking.</p>'
-                          }
-                          <a href="${paymentData.payment_url}" style="background-color: #16a34a; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">Complete Payment Setup</a>
+                          <h3 style="color: #1e40af; margin-top: 0;">Complete Your Payment Authorization</h3>
+                          <p style="color: #1e40af; margin-bottom: 15px;">Your payment will be pre-authorized (not charged immediately). We will confirm your booking shortly.</p>
+                          <a href="${paymentData.url}" style="background-color: #16a34a; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">Authorize Payment</a>
                         </div>
                         
                         <div style="background-color: #fef3c7; padding: 15px; border-radius: 5px; margin: 15px 0;">
@@ -275,7 +255,7 @@ const handler = async (req: Request): Promise<Response> => {
                             <li>Complete your payment setup using the link above</li>
                             <li>Our team will review your booking request</li>
                             <li>You'll receive confirmation shortly</li>
-                            <li>If approved, ${paymentData.payment_type === 'one_time' ? 'your payment will be processed' : 'your subscription will begin'}</li>
+                            <li>If approved, your pre-authorized payment will be captured</li>
                             <li>If not approved, you'll receive a full refund automatically</li>
                           </ol>
                         </div>
@@ -332,13 +312,8 @@ const handler = async (req: Request): Promise<Response> => {
       JSON.stringify({
         success: true,
         bookingId: booking.id,
-        paymentUrl: paymentData.payment_url,
-        paymentType: paymentData.payment_type,
-        confirmationDeadline: paymentData.confirmation_deadline,
-        // Include PaymentIntent details for client-side confirmation
-        paymentIntentId: paymentData.payment_intent_id,
-        clientSecret: paymentData.client_secret,
-        message: "Booking request submitted successfully. Please complete your payment setup to secure your parking space.",
+        paymentUrl: paymentData.url,
+        message: "Booking request submitted successfully. Please complete your payment authorization to secure your parking space.",
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
