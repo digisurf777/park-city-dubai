@@ -139,7 +139,7 @@ const handler = async (req: Request): Promise<Response> => {
         stripe_customer_id: customer.id,
         stripe_payment_intent_id: paymentIntent.id,
         payment_status: 'pre_authorized',
-        payment_type: 'pre_authorization',
+        payment_type: 'one_time',
         payment_link_url: session.url,
         payment_amount_cents: Math.round(amount * 100),
         pre_authorization_amount: Math.round(totalAmount * 100),
