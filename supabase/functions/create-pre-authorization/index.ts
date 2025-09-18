@@ -25,8 +25,14 @@ const handler = async (req: Request): Promise<Response> => {
   try {
     console.log("Creating pre-authorization...");
     
-    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
-      apiVersion: "2023-10-16",
+    // Check if Stripe secret key exists
+    const stripeSecretKey = Deno.env.get("STRIPE_SECRET_KEY");
+    if (!stripeSecretKey) {
+      throw new Error("STRIPE_SECRET_KEY environment variable is not set");
+    }
+
+    const stripe = new Stripe(stripeSecretKey, {
+      apiVersion: "2024-06-20",
     });
 
     const supabaseServiceClient = createClient(

@@ -109,19 +109,31 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("Booking saved successfully:", booking.id);
 
-    // Create pre-authorization using the correct edge function
+    // Create pre-authorization using direct fetch (no JWT needed)
     console.log("Creating pre-authorization...");
     
-    const { data: paymentData, error: paymentError } = await supabaseClient.functions.invoke('create-pre-authorization', {
-      body: {
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
+    
+    const preAuthResponse = await fetch(`${supabaseUrl}/functions/v1/create-pre-authorization`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': supabaseAnonKey,
+      },
+      body: JSON.stringify({
         bookingId: booking.id,
         amount: costAed,
-        securityDeposit: 0,
+        securityDeposit: 10, // Standard security deposit
         duration: duration,
         parkingSpotName: parkingSpotName,
         userEmail: user.email,
-      }
+        authorizationHoldDays: 7
+      })
     });
+
+    const paymentData = await preAuthResponse.json();
+    const paymentError = !preAuthResponse.ok ? new Error(paymentData.error || 'Pre-authorization failed') : null;
 
     if (paymentError) {
       console.error("Pre-authorization creation failed:", paymentError);
@@ -133,8 +145,9 @@ const handler = async (req: Request): Promise<Response> => {
     const customerName = userProfile?.full_name || "Customer";
     const customerPhone = userPhone || userProfile?.phone || "Not provided";
     
+    // Also update notification calls to use service client with proper JWT headers
     try {
-      const { error: adminNotificationError } = await supabaseClient.functions.invoke('send-admin-booking-notification', {
+      const { error: adminNotificationError } = await supabaseServiceClient.functions.invoke('send-admin-booking-notification', {
         body: {
           userName: customerName,
           userEmail: user.email,
@@ -163,7 +176,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Send "Booking Request Received" email to customer
     try {
-      const { error: bookingReceivedError } = await supabaseClient.functions.invoke('send-booking-received', {
+      const { error: bookingReceivedError } = await supabaseServiceClient.functions.invoke('send-booking-received', {
         body: {
           userEmail: user.email,
           userName: customerName,
