@@ -23,6 +23,7 @@ interface BookingWithProfile {
   duration_hours: number;
   cost_aed: number;
   status: string;
+  payment_type?: string;
   created_at: string;
   updated_at: string;
   profiles?: {
@@ -202,6 +203,40 @@ const LiveBookingControl = ({ onRefresh }: LiveBookingControlProps) => {
       toast({
         title: "Error",
         description: "Failed to update booking status",
+        variant: "destructive",
+      });
+    } finally {
+      setUpdating(null);
+    }
+  };
+
+  const togglePaymentType = async (bookingId: string, currentPaymentType?: string) => {
+    setUpdating(bookingId);
+    try {
+      const newPaymentType = currentPaymentType === 'recurring' ? 'one_time' : 'recurring';
+      
+      const { error } = await supabase
+        .from('parking_bookings')
+        .update({ 
+          payment_type: newPaymentType,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', bookingId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: `Payment type changed to ${newPaymentType === 'recurring' ? 'Auto' : 'Manual'}`,
+      });
+
+      fetchBookings();
+      onRefresh?.();
+    } catch (error) {
+      console.error('Error updating payment type:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update payment type",
         variant: "destructive",
       });
     } finally {
@@ -471,6 +506,7 @@ const LiveBookingControl = ({ onRefresh }: LiveBookingControlProps) => {
                   <TableHead>Duration</TableHead>
                   <TableHead>Cost</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead>Payment Type</TableHead>
                   <TableHead>Time Status</TableHead>
                   <TableHead>Quick Toggle</TableHead>
                 </TableRow>
@@ -527,6 +563,21 @@ const LiveBookingControl = ({ onRefresh }: LiveBookingControlProps) => {
                         {booking.cost_aed} AED
                       </TableCell>
                       <TableCell>{getStatusBadge(booking.status)}</TableCell>
+                      <TableCell>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => togglePaymentType(booking.id, booking.payment_type)}
+                          disabled={updating === booking.id}
+                          className="min-w-[80px]"
+                        >
+                          {updating === booking.id ? (
+                            <RefreshCw className="h-4 w-4 animate-spin" />
+                          ) : (
+                            booking.payment_type === 'recurring' ? 'Auto' : 'Manual'
+                          )}
+                        </Button>
+                      </TableCell>
                       <TableCell>{getTimeStatus(booking.start_time, booking.end_time)}</TableCell>
                       <TableCell>
                         <Button
