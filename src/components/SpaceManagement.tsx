@@ -72,6 +72,23 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
   useEffect(() => {
     fetchSpaces();
 
+    // Auto-initialize spaces if we have listings but no spaces
+    const autoInitialize = async () => {
+      const spacesData = await supabase.rpc('get_parking_spaces_overview');
+      if (spacesData.data && spacesData.data.length > 0) {
+        const hasActualSpaces = spacesData.data.some((space: any) => space.space_id && space.space_id !== 'null');
+        const hasListingsButNoSpaces = spacesData.data.length > 0 && !hasActualSpaces;
+        
+        if (hasListingsButNoSpaces) {
+          console.log('Auto-initializing parking spaces...');
+          await initializeSpacesForListings();
+          setTimeout(fetchSpaces, 2000);
+        }
+      }
+    };
+    
+    autoInitialize();
+
     // Set up real-time subscription for parking spaces changes
     const spacesChannel = supabase
       .channel('parking-spaces-admin')
