@@ -92,10 +92,15 @@ export const DriverOwnerChat = ({ bookingId, isOpen, onClose }: DriverOwnerChatP
       const now = new Date();
       const startTime = new Date(data.start_time);
       const endTime = new Date(data.end_time);
-      const isActive = data.status === 'confirmed' && now >= startTime && now <= endTime;
-      const isExpiredBooking = now > endTime || data.status === 'completed';
       
-      setCanSendMessages(isActive);
+      // Chat available 48 hours before start time until 48 hours after end time
+      const chatStartTime = new Date(startTime.getTime() - (48 * 60 * 60 * 1000)); // 48 hours before
+      const chatEndTime = new Date(endTime.getTime() + (48 * 60 * 60 * 1000)); // 48 hours after
+      
+      const isChatAvailable = data.status === 'confirmed' && now >= chatStartTime && now <= chatEndTime;
+      const isExpiredBooking = now > chatEndTime || data.status === 'completed';
+      
+      setCanSendMessages(isChatAvailable);
       setIsExpired(isExpiredBooking);
       
     } catch (error) {
@@ -285,7 +290,7 @@ export const DriverOwnerChat = ({ bookingId, isOpen, onClose }: DriverOwnerChatP
             <Alert className="mb-4">
               <AlertTriangle className="h-4 w-4" />
               <AlertDescription>
-                Chat is only available during active booking periods. 
+                Chat is available from 48 hours before booking start until 48 hours after booking end. 
                 Booking period: {booking && format(new Date(booking.start_time), 'MMM d, HH:mm')} - {booking && format(new Date(booking.end_time), 'MMM d, HH:mm')}
               </AlertDescription>
             </Alert>
