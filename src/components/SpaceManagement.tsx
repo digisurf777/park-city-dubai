@@ -292,6 +292,59 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
     }
   };
 
+  // Ensure a space exists for a given listing; returns the space_id
+  const ensureSpaceForListing = async (listingId: string): Promise<string | null> => {
+    try {
+      // Try to create the space (idempotent due to ON CONFLICT in function)
+      await supabase.rpc('create_parking_spaces_for_listing', {
+        p_listing_id: listingId,
+        space_count: 1,
+        space_prefix: 'Main'
+      });
+
+      // Fetch latest overview and return the new space id
+      const { data, error } = await supabase.rpc('get_parking_spaces_overview');
+      if (error) throw error;
+      const row = (data || []).find((s: any) => s.listing_id === listingId && s.space_id && s.space_id !== 'null');
+      return row?.space_id || null;
+    } catch (e) {
+      console.error('ensureSpaceForListing error:', e);
+      return null;
+    }
+  };
+
+  // Admin-triggered manual status setter; creates a space on-demand if missing
+  const setStatusManually = async (
+    space: ParkingSpace,
+    newStatus: 'available' | 'booked' | 'maintenance' | 'reserved',
+    reason?: string
+  ) => {
+    const loadingKey = space.space_id || space.listing_id;
+    setLoadingSpaces(prev => new Set(prev.add(loadingKey)));
+    try {
+      let targetSpaceId = space.space_id;
+      if (!targetSpaceId) {
+        targetSpaceId = await ensureSpaceForListing(space.listing_id);
+      }
+      if (!targetSpaceId) {
+        toast({
+          title: 'Space not ready',
+          description: 'Could not create or find a parking space for this listing.',
+          variant: 'destructive',
+        });
+        return;
+      }
+      await updateSpaceStatus(targetSpaceId, newStatus, true, reason);
+    } catch (e) {
+      console.error('setStatusManually error:', e);
+    } finally {
+      setLoadingSpaces(prev => {
+        const next = new Set(prev);
+        next.delete(loadingKey);
+        return next;
+      });
+    }
+  };
   const deleteCarPark = async (listingId: string, listingTitle: string) => {
     try {
       setLoadingSpaces(prev => new Set(prev.add(listingId)));
@@ -924,7 +977,7 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
                           </div>
                         ) : (
                           <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-200">
-                            Auto
+                            Manual
                           </Badge>
                         )}
                       </div>
@@ -938,21 +991,21 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
                       <div className="flex gap-1">
                         <TooltipProvider>
                           <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button
-                                size="sm"
-                                variant={space.space_status === 'available' ? "default" : "outline"}
-                                onClick={() => updateSpaceStatus(space.space_id, 'available')}
-                                disabled={!space.space_id || loadingSpaces.has(space.space_id)}
-                                className="h-8 w-8 p-0"
-                              >
-                                {loadingSpaces.has(space.space_id) ? (
-                                  <Loader2 className="h-3 w-3 animate-spin" />
-                                ) : (
-                                  <CheckCircle className="h-3 w-3" />
-                                )}
-                              </Button>
-                            </TooltipTrigger>
+                          <TooltipTrigger asChild>
+                            <Button
+                              size="sm"
+                              variant={space.space_status === 'available' ? "default" : "outline"}
+                              onClick={() => setStatusManually(space, 'available')}
+                              disabled={loadingSpaces.has(space.space_id || space.listing_id)}
+                              className="h-8 w-8 p-0"
+                            >
+                              {loadingSpaces.has(space.space_id || space.listing_id) ? (
+                                <Loader2 className="h-3 w-3 animate-spin" />
+                              ) : (
+                                <CheckCircle className="h-3 w-3" />
+                              )}
+                            </Button>
+                          </TooltipTrigger>
                             <TooltipContent>
                               <p>Set Available</p>
                             </TooltipContent>
@@ -961,21 +1014,21 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
 
                         <TooltipProvider>
                           <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button
-                                size="sm"
-                                variant={space.space_status === 'booked' ? "default" : "outline"}
-                                onClick={() => updateSpaceStatus(space.space_id, 'booked')}
-                                disabled={!space.space_id || loadingSpaces.has(space.space_id)}
-                                className="h-8 w-8 p-0"
-                              >
-                                {loadingSpaces.has(space.space_id) ? (
-                                  <Loader2 className="h-3 w-3 animate-spin" />
-                                ) : (
-                                  <XCircle className="h-3 w-3" />
-                                )}
-                              </Button>
-                            </TooltipTrigger>
+                          <TooltipTrigger asChild>
+                            <Button
+                              size="sm"
+                              variant={space.space_status === 'booked' ? "default" : "outline"}
+                              onClick={() => setStatusManually(space, 'booked')}
+                              disabled={loadingSpaces.has(space.space_id || space.listing_id)}
+                              className="h-8 w-8 p-0"
+                            >
+                              {loadingSpaces.has(space.space_id || space.listing_id) ? (
+                                <Loader2 className="h-3 w-3 animate-spin" />
+                              ) : (
+                                <XCircle className="h-3 w-3" />
+                              )}
+                            </Button>
+                          </TooltipTrigger>
                             <TooltipContent>
                               <p>Set Booked</p>
                             </TooltipContent>
@@ -987,10 +1040,10 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
                             <Button
                               size="sm"
                               variant={space.space_status === 'maintenance' ? "default" : "outline"}
-                              disabled={!space.space_id || loadingSpaces.has(space.space_id)}
+                              disabled={loadingSpaces.has(space.space_id || space.listing_id)}
                               className="h-8 w-8 p-0"
                             >
-                              {loadingSpaces.has(space.space_id) ? (
+                              {loadingSpaces.has(space.space_id || space.listing_id) ? (
                                 <Loader2 className="h-3 w-3 animate-spin" />
                               ) : (
                                 <Wrench className="h-3 w-3" />
@@ -1014,10 +1067,8 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
                             <AlertDialogFooter>
                               <AlertDialogCancel>Cancel</AlertDialogCancel>
                               <AlertDialogAction
-                                disabled={!space.space_id}
                                 onClick={() => {
-                                  if (!space.space_id) return;
-                                  updateSpaceStatus(space.space_id, 'maintenance', true, maintenanceReason);
+                                  setStatusManually(space, 'maintenance', maintenanceReason);
                                   setMaintenanceReason('');
                                 }}
                               >
