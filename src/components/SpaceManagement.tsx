@@ -117,6 +117,8 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
       
       if (error) throw error;
       
+      console.log('Raw spaces data:', data);
+      
       // Deduplicate rows: prefer real space_id; fallback to per-listing unique when spaces are virtual
       const normalize = (v?: string) => (v || '').trim().toLowerCase().replace(/\s+/g, ' ');
       const byKey = new Map<string, ParkingSpace>();
@@ -147,7 +149,12 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
         }
       });
 
-      setSpaces(Array.from(onePerListing.values()));
+      const finalSpaces = Array.from(onePerListing.values());
+      console.log('Final processed spaces:', finalSpaces);
+      console.log('Spaces with valid IDs:', finalSpaces.filter(s => s.space_id && s.space_id !== 'null'));
+      console.log('Spaces without valid IDs:', finalSpaces.filter(s => !s.space_id || s.space_id === 'null'));
+
+      setSpaces(finalSpaces);
     } catch (error) {
       console.error('Error fetching spaces:', error);
       toast({
@@ -880,7 +887,7 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
               </TableHeader>
               <TableBody>
                 {filteredSpaces.map((space) => (
-                  <TableRow key={space.space_id}>
+                  <TableRow key={space.space_id || `${space.listing_id}-fallback`}>
                     <TableCell>
                       <div>
                         <div className="font-medium">{space.listing_title}</div>
