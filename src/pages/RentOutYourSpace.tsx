@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
@@ -14,6 +15,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import luxuryCar from "@/assets/luxury-car-dubai.png";
 import phoneLogo from "@/assets/phone-logo.png";
 const RentOutYourSpace = () => {
@@ -39,7 +41,8 @@ const RentOutYourSpace = () => {
     district: "",
     bayType: "",
     accessDeviceDeposit: false,
-    notes: ""
+    notes: "",
+    agreeToTerms: false
   });
   const serviceFee = Math.round(monthlyPrice * 0.03);
   const netPayout = monthlyPrice - serviceFee;
@@ -174,6 +177,14 @@ const RentOutYourSpace = () => {
       });
       return;
     }
+    if (!formData.agreeToTerms) {
+      toast({
+        title: "Terms & Conditions required",
+        description: "Please agree to the Terms & Conditions",
+        variant: "destructive"
+      });
+      return;
+    }
     setIsSubmitting(true);
     try {
       // Upload images to storage
@@ -259,7 +270,8 @@ const RentOutYourSpace = () => {
         district: "",
         bayType: "",
         accessDeviceDeposit: false,
-        notes: ""
+        notes: "",
+        agreeToTerms: false
       });
       setUploadedImages([]);
       
@@ -561,6 +573,31 @@ const RentOutYourSpace = () => {
                     rows={4} 
                     placeholder="Any additional information about your parking space..." 
                   />
+                </div>
+
+                <div className="flex items-start space-x-3">
+                  <Checkbox
+                    id="listing-terms"
+                    checked={formData.agreeToTerms}
+                    onCheckedChange={(checked) => handleInputChange('agreeToTerms', !!checked)}
+                    required
+                  />
+                  <div className="grid gap-1.5 leading-none">
+                    <Label
+                      htmlFor="listing-terms"
+                      className="text-sm font-normal leading-5 cursor-pointer"
+                    >
+                      I agree to the{" "}
+                      <Link 
+                        to="/terms-and-conditions" 
+                        target="_blank"
+                        className="text-primary hover:underline font-medium"
+                      >
+                        Terms & Conditions
+                      </Link>
+                      .
+                    </Label>
+                  </div>
                 </div>
 
                 <Button 

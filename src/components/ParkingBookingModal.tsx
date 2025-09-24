@@ -8,10 +8,13 @@ import { format } from "date-fns";
 import { CalendarIcon, Car, Clock, CreditCard, MapPin, Check, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { loadStripe } from "@stripe/stripe-js";
+import { Link } from "react-router-dom";
 interface ParkingSpot {
   id: string | number;
   name: string;
@@ -75,6 +78,7 @@ export const ParkingBookingModal = ({
   const [paymentStep, setPaymentStep] = useState<'booking' | 'payment' | 'processing'>('booking');
   const [paymentIntentData, setPaymentIntentData] = useState<any>(null);
   const [stripe, setStripe] = useState<any>(null);
+  const [agreeToTerms, setAgreeToTerms] = useState(false);
   useEffect(() => {
     if (!isOpen) {
       setStartDate(undefined);
@@ -85,6 +89,7 @@ export const ParkingBookingModal = ({
       setBookingReference("");
       setPaymentStep('booking');
       setPaymentIntentData(null);
+      setAgreeToTerms(false);
     }
   }, [isOpen]);
   if (!parkingSpot) return null;
@@ -130,6 +135,15 @@ export const ParkingBookingModal = ({
               </Button>
             </div>
           </div>,
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!agreeToTerms) {
+      toast({
+        title: "Terms & Conditions Required",
+        description: "Please agree to the Terms & Conditions before booking.",
         variant: "destructive"
       });
       return;
@@ -404,6 +418,31 @@ export const ParkingBookingModal = ({
               </CardContent>
             </Card>
 
+            {/* Terms & Conditions Checkbox */}
+            <div className="flex items-start space-x-3">
+              <Checkbox
+                id="booking-terms"
+                checked={agreeToTerms}
+                onCheckedChange={(checked) => setAgreeToTerms(!!checked)}
+                required
+              />
+              <div className="grid gap-1.5 leading-none">
+                <Label
+                  htmlFor="booking-terms"
+                  className="text-sm font-normal leading-5 cursor-pointer"
+                >
+                  I agree to the{" "}
+                  <Link 
+                    to="/terms-and-conditions" 
+                    target="_blank"
+                    className="text-primary hover:underline font-medium"
+                  >
+                    Terms & Conditions
+                  </Link>
+                  .
+                </Label>
+              </div>
+            </div>
 
             {/* Reserve Button */}
             <Button 

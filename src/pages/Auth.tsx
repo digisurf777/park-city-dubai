@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
@@ -20,7 +21,7 @@ const Auth = () => {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loginForm, setLoginForm] = useState({ email: '', password: '' });
-  const [signupForm, setSignupForm] = useState({ email: '', password: '', confirmPassword: '', fullName: '' });
+  const [signupForm, setSignupForm] = useState({ email: '', password: '', confirmPassword: '', fullName: '', agreeToTerms: false });
   const [rateLimited, setRateLimited] = useState(false);
   const { signIn, signUp, resetPassword, updatePassword, user } = useAuth();
   const navigate = useNavigate();
@@ -226,6 +227,11 @@ const Auth = () => {
       return;
     }
     
+    if (!signupForm.agreeToTerms) {
+      toast.error('Please agree to the Terms & Conditions and Privacy Policy');
+      return;
+    }
+    
     setLoading(true);
     
     try {
@@ -275,7 +281,7 @@ const Auth = () => {
           }, 3000);
           
           // Clear the form since account was likely created
-          setSignupForm({ email: '', password: '', confirmPassword: '', fullName: '' });
+          setSignupForm({ email: '', password: '', confirmPassword: '', fullName: '', agreeToTerms: false });
           
           // Reset rate limit state after 5 minutes
           setTimeout(() => {
@@ -297,7 +303,7 @@ const Auth = () => {
           duration: 6000,
           description: 'Check your inbox and confirm your email address before logging in.'
         });
-        setSignupForm({ email: '', password: '', confirmPassword: '', fullName: '' });
+        setSignupForm({ email: '', password: '', confirmPassword: '', fullName: '', agreeToTerms: false });
         
         // Show additional info about email confirmation
         setTimeout(() => {
@@ -317,7 +323,7 @@ const Auth = () => {
           duration: 8000,
           description: 'Email system is busy. Try logging in after a few minutes.'
         });
-        setSignupForm({ email: '', password: '', confirmPassword: '', fullName: '' });
+        setSignupForm({ email: '', password: '', confirmPassword: '', fullName: '', agreeToTerms: false });
       } else {
         toast.error('An unexpected error occurred during registration', {
           description: 'Please refresh the page and try again.'
@@ -715,6 +721,39 @@ const Auth = () => {
                       onChange={(e) => setSignupForm({ ...signupForm, confirmPassword: e.target.value })}
                       required
                     />
+                  </div>
+                  
+                  <div className="flex items-start space-x-3">
+                    <Checkbox
+                      id="signup-terms"
+                      checked={signupForm.agreeToTerms}
+                      onCheckedChange={(checked) => setSignupForm({ ...signupForm, agreeToTerms: !!checked })}
+                      required
+                    />
+                    <div className="grid gap-1.5 leading-none">
+                      <Label
+                        htmlFor="signup-terms"
+                        className="text-sm font-normal leading-5 cursor-pointer"
+                      >
+                        I agree to the{" "}
+                        <Link 
+                          to="/terms-and-conditions" 
+                          target="_blank"
+                          className="text-primary hover:underline font-medium"
+                        >
+                          Terms & Conditions
+                        </Link>
+                        {" "}and{" "}
+                        <Link 
+                          to="/privacy-policy"
+                          target="_blank" 
+                          className="text-primary hover:underline font-medium"
+                        >
+                          Privacy Policy
+                        </Link>
+                        .
+                      </Label>
+                    </div>
                   </div>
                   
                   <Button type="submit" className="w-full" disabled={loading || rateLimited}>
