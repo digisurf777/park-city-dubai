@@ -243,7 +243,7 @@ export const DriverOwnerChat = ({ bookingId, isOpen, onClose }: DriverOwnerChatP
         const { data: listing, error: listingError } = await supabase
           .from('parking_listings')
           .select('owner_id')
-          .or(`and(address.eq.${booking.location},zone.eq.${booking.zone}),address.ilike.%${booking.location}%`)
+          .or(`address.eq."${booking.location}",address.ilike."%${booking.location}%"`)
           .eq('status', 'approved')
           .limit(1)
           .maybeSingle();
