@@ -235,12 +235,34 @@ export const DriverOwnerChat = ({ bookingId, isOpen, onClose }: DriverOwnerChatP
     try {
       const isDriver = user.id === booking.user_id;
       
+      // Get owner_id from existing messages or fetch from listing
+      let ownerId = messages.length > 0 ? messages[0].owner_id : null;
+      
+      if (!ownerId) {
+        // Find the listing owner based on booking location with improved matching
+        const { data: listing, error: listingError } = await supabase
+          .from('parking_listings')
+          .select('owner_id')
+          .or(`and(address.eq.${booking.location},zone.eq.${booking.zone}),address.ilike.%${booking.location}%`)
+          .eq('status', 'approved')
+          .limit(1)
+          .maybeSingle();
+
+        if (listingError || !listing) {
+          toast.error("Unable to determine listing owner.");
+          setIsSubmitting(false);
+          return;
+        }
+        
+        ownerId = listing.owner_id;
+      }
+      
       const { error } = await supabase
         .from('driver_owner_messages')
         .insert({
           booking_id: bookingId,
           driver_id: booking.user_id,
-          owner_id: isDriver ? booking.user_id : user.id, // This needs to be fetched from listing
+          owner_id: ownerId,
           message: newMessage.trim(),
           from_driver: isDriver
         });
