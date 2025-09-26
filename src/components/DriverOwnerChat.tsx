@@ -62,40 +62,29 @@ export const DriverOwnerChat = ({ bookingId, isOpen, onClose }: DriverOwnerChatP
     if (!user || !bookingId) return;
 
     try {
-      // SECURITY FIX: Exclude sensitive payment fields from user access
-      const { data, error } = await supabase
-        .from('parking_bookings')
-        .select(`
-          id,
-          user_id,
-          location,
-          zone,
-          start_time,
-          end_time,
-          duration_hours,
-          cost_aed,
-          status,
-          created_at,
-          updated_at,
-          confirmation_deadline,
-          payment_type,
-          payment_status
-        `)
-        .eq('id', bookingId)
-        .single();
+      // Use secure RPC to get booking details safely (bypasses RLS for authorized users)
+      const { data, error } = await supabase.rpc('get_booking_details_for_chat', {
+        p_booking_id: bookingId
+      });
 
       if (error) throw error;
+      if (!data || data.length === 0) {
+        toast.error('Booking not found or access denied');
+        return;
+      }
       
-      setBooking(data);
+      const bookingData = data[0];
+      setBooking(bookingData);
       
       // Check if booking is active and user can send messages
       const now = new Date();
-      const startTime = new Date(data.start_time);
-      const endTime = new Date(data.end_time);
+      const startTime = new Date(bookingData.start_time);
+      const endTime = new Date(bookingData.end_time);
       const chatStartTime = new Date(startTime.getTime() - (48 * 60 * 60 * 1000)); // 48 hours before
       
       // Chat available 48 hours before booking start and remains until booking ends
-      const isChatAvailable = data.status === 'confirmed' && now >= chatStartTime && now <= endTime;
+      // Allow both 'confirmed' and 'approved' bookings
+      const isChatAvailable = bookingData.status in ['confirmed', 'approved'] && now >= chatStartTime && now <= endTime;
       const isExpiredBooking = now > endTime;
       
       setCanSendMessages(isChatAvailable);

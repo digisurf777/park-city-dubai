@@ -1278,6 +1278,18 @@ export type Database = {
           owner_id: string
         }[]
       }
+      get_booking_details_for_chat: {
+        Args: { p_booking_id: string }
+        Returns: {
+          end_time: string
+          id: string
+          location: string
+          start_time: string
+          status: string
+          user_id: string
+          zone: string
+        }[]
+      }
       get_booking_owner_id: {
         Args: { p_booking_id: string }
         Returns: string
@@ -1336,6 +1348,20 @@ export type Database = {
           security_level: string
           updated_at: string
           verification_status: string
+        }[]
+      }
+      get_owner_active_bookings: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          chat_available: boolean
+          driver_name: string
+          end_time: string
+          id: string
+          location: string
+          start_time: string
+          status: string
+          unread_messages: number
+          zone: string
         }[]
       }
       get_parking_listings_with_availability: {
