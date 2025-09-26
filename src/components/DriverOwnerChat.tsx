@@ -101,12 +101,19 @@ export const DriverOwnerChat = ({ bookingId, isOpen, onClose }: DriverOwnerChatP
 
     setLoading(true);
     try {
+      console.log(`[DriverOwnerChat] Fetching messages for booking ${bookingId} by user ${user.id}`);
+      
       // Use secure RPC that enforces access control
       const { data, error } = await supabase.rpc('get_booking_messages', {
         p_booking_id: bookingId
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('[DriverOwnerChat] Error fetching messages:', error);
+        throw error;
+      }
+      
+      console.log(`[DriverOwnerChat] Fetched ${data?.length || 0} messages`);
       setMessages(data || []);
 
       // Mark messages as read using secure RPC
@@ -212,14 +219,20 @@ export const DriverOwnerChat = ({ bookingId, isOpen, onClose }: DriverOwnerChatP
 
     setIsSubmitting(true);
     try {
+      console.log(`[DriverOwnerChat] Sending message for booking ${bookingId} by user ${user.id}`);
+      
       // Use secure RPC that handles all validation and access control
       const { data, error } = await supabase.rpc('send_booking_message', {
         p_booking_id: bookingId,
         p_message: newMessage.trim()
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('[DriverOwnerChat] Error sending message:', error);
+        throw error;
+      }
 
+      console.log(`[DriverOwnerChat] Message sent successfully:`, data);
       setNewMessage("");
       toast.success('Message sent successfully');
       

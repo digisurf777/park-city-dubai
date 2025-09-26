@@ -55,17 +55,27 @@ export const MyListings: React.FC<MyListingsProps> = ({ chatOnly = false }) => {
     if (!user) return;
 
     try {
+      console.log(`[MyListings] Fetching active bookings for user ${user.id}`);
+      
       // Use secure RPC to get owner's active bookings with chat info
       const { data: ownerBookings, error } = await supabase.rpc('get_owner_active_bookings');
 
       if (error) {
-        console.error('Error fetching owner bookings:', error);
+        console.error('[MyListings] Error fetching owner bookings:', error);
         return;
       }
+
+      console.log(`[MyListings] Found ${ownerBookings?.length || 0} active bookings:`, ownerBookings);
 
       if (!ownerBookings || ownerBookings.length === 0) {
         setActiveBookings([]);
         return;
+      }
+
+      // Debug: Check if any booking is "uncovered parking in ddd" (which should NOT be shown)
+      const suspiciousBooking = ownerBookings.find(b => b.location?.includes('uncovered parking in ddd'));
+      if (suspiciousBooking) {
+        console.error('[MyListings] ERROR: Found booking that should not be accessible:', suspiciousBooking);
       }
 
       // Transform RPC results to ActiveBooking format
