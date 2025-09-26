@@ -51,15 +51,26 @@ export const MyListings = () => {
     if (!user) return;
 
     try {
-      // First get owner's listings
-      const { data: userListings, error: listingsError } = await supabase
-        .from('parking_listings')
-        .select('address, zone')
+      // Get all bookings where this user is the owner (via driver_owner_messages)
+      const { data: ownerMessages, error: messagesError } = await supabase
+        .from('driver_owner_messages')
+        .select(`
+          booking_id,
+          driver_id,
+          owner_id,
+          read_status,
+          from_driver
+        `)
         .eq('owner_id', user.id);
 
-      if (listingsError || !userListings) return;
+      if (messagesError || !ownerMessages) return;
 
-      // Fetch bookings for this owner's listings
+      // Get unique booking IDs for this owner
+      const uniqueBookingIds = [...new Set(ownerMessages.map(msg => msg.booking_id))];
+      
+      if (uniqueBookingIds.length === 0) return;
+
+      // Fetch booking details for these IDs
       const { data: bookings, error: bookingsError } = await supabase
         .from('parking_bookings')
         .select(`
@@ -71,22 +82,16 @@ export const MyListings = () => {
           status,
           user_id
         `)
+        .in('id', uniqueBookingIds)
         .in('status', ['confirmed', 'approved'])
         .gte('end_time', new Date().toISOString())
         .order('start_time', { ascending: true });
 
       if (bookingsError || !bookings) return;
 
-      // Filter to only bookings for this owner's listings and get additional data
+      // Build owner bookings with chat info
       const ownerBookings = [];
       for (const booking of bookings) {
-        // Check if this booking matches any of the owner's listings
-        const matchesListing = userListings.some(listing => 
-          listing.address === booking.location && listing.zone === booking.zone
-        );
-
-        if (!matchesListing) continue;
-
         // Get driver name
         const { data: profile } = await supabase
           .from('profiles')
@@ -94,13 +99,12 @@ export const MyListings = () => {
           .eq('user_id', booking.user_id)
           .single();
 
-        // Get unread message count
-        const { count: unreadCount } = await supabase
-          .from('driver_owner_messages')
-          .select('*', { count: 'exact', head: true })
-          .eq('booking_id', booking.id)
-          .eq('from_driver', true)
-          .eq('read_status', false);
+        // Get unread message count from this driver
+        const unreadCount = ownerMessages.filter(msg => 
+          msg.booking_id === booking.id && 
+          msg.from_driver === true && 
+          msg.read_status === false
+        ).length;
 
         // Check if chat is available (48 hours before start)
         const now = new Date();
@@ -117,7 +121,7 @@ export const MyListings = () => {
           end_time: booking.end_time,
           status: booking.status,
           driver_name: profile?.full_name || 'Driver',
-          unread_messages: unreadCount || 0,
+          unread_messages: unreadCount,
           chat_available: chatAvailable
         });
       }

@@ -1278,6 +1278,10 @@ export type Database = {
           owner_id: string
         }[]
       }
+      get_booking_owner_id: {
+        Args: { p_booking_id: string }
+        Returns: string
+      }
       get_booking_payment_details: {
         Args: { booking_id: string }
         Returns: {

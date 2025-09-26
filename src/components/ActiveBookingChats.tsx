@@ -23,6 +23,7 @@ interface ActiveBooking {
   unread_messages: number;
   has_chat: boolean;
   is_active: boolean;
+  chat_available: boolean;
 }
 
 export const ActiveBookingChats = () => {
@@ -75,7 +76,11 @@ export const ActiveBookingChats = () => {
       const bookingsWithChatInfo = await Promise.all(
         (bookingsData || []).map(async (booking) => {
           const now = new Date();
-          const isActive = now >= new Date(booking.start_time) && now <= new Date(booking.end_time);
+          const startTime = new Date(booking.start_time);
+          const endTime = new Date(booking.end_time);
+          const chatStartTime = new Date(startTime.getTime() - (48 * 60 * 60 * 1000)); // 48 hours before
+          const isActive = now >= startTime && now <= endTime;
+          const chatAvailable = booking.status === 'confirmed' && now >= chatStartTime && now <= endTime;
 
           // Get message count and unread count
           const { data: messages, error: messagesError } = await supabase
@@ -95,7 +100,8 @@ export const ActiveBookingChats = () => {
             ...booking,
             unread_messages: unreadCount,
             has_chat: (messages || []).length > 0,
-            is_active: isActive
+            is_active: isActive,
+            chat_available: chatAvailable
           };
         })
       );
@@ -176,7 +182,7 @@ export const ActiveBookingChats = () => {
               <MessageCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <p className="text-muted-foreground">No bookings found</p>
               <p className="text-sm text-muted-foreground mt-1">
-                Make a booking request to start chatting with parking owners
+                Make a booking request to start chatting with parking owners. Chat becomes available 48 hours before your booking starts.
               </p>
             </div>
           ) : (
@@ -269,13 +275,13 @@ export const ActiveBookingChats = () => {
                           </div>
                         )}
 
-                        {booking.status === 'confirmed' && !booking.is_active && new Date() < new Date(booking.start_time) && (
-                          <div className="bg-orange-100 border border-orange-200 rounded p-2 mb-3">
-                            <p className="text-xs text-orange-800">
-                              ⏳ Chat will be available when booking starts
-                            </p>
-                          </div>
-                        )}
+        {booking.status === 'confirmed' && !booking.chat_available && new Date() < new Date(booking.start_time) && (
+          <div className="bg-orange-100 border border-orange-200 rounded p-2 mb-3">
+            <p className="text-xs text-orange-800">
+              ⏳ Chat will be available 48 hours before booking starts
+            </p>
+          </div>
+        )}
 
                         {booking.has_chat && booking.status === 'confirmed' && (
                           <p className="text-xs text-muted-foreground">
@@ -283,22 +289,22 @@ export const ActiveBookingChats = () => {
                           </p>
                         )}
 
-                        {booking.status === 'pending' && (
-                          <p className="text-xs text-muted-foreground">
-                            Chat will be available after payment confirmation
-                          </p>
-                        )}
+          {booking.status === 'pending' && (
+            <p className="text-xs text-muted-foreground">
+              Chat will be available 48 hours before booking start after payment confirmation
+            </p>
+          )}
                       </div>
                       
                       <Button 
                         variant={booking.status === 'confirmed' && booking.is_active ? "default" : "secondary"}
                         size="sm"
                         onClick={() => openChat(booking.id)}
-                        disabled={booking.status === 'pending' || (!booking.is_active && new Date() < new Date(booking.start_time))}
+                        disabled={booking.status === 'pending' || !booking.chat_available}
                       >
                         {booking.status === 'pending' 
                           ? "Payment Required" 
-                          : booking.is_active 
+                          : booking.chat_available 
                           ? "Chat Now" 
                           : booking.has_chat 
                           ? "View Chat" 
