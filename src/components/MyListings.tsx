@@ -51,6 +51,8 @@ export const MyListings = () => {
     if (!user) return;
 
     try {
+      console.log('Fetching active bookings for user:', user.id);
+      
       // Get all bookings where this user is the owner (via driver_owner_messages)
       const { data: ownerMessages, error: messagesError } = await supabase
         .from('driver_owner_messages')
@@ -63,10 +65,14 @@ export const MyListings = () => {
         `)
         .eq('owner_id', user.id);
 
+      console.log('Owner messages:', ownerMessages, 'Error:', messagesError);
+
       if (messagesError || !ownerMessages) return;
 
       // Get unique booking IDs for this owner
       const uniqueBookingIds = [...new Set(ownerMessages.map(msg => msg.booking_id))];
+      
+      console.log('Unique booking IDs:', uniqueBookingIds);
       
       if (uniqueBookingIds.length === 0) return;
 
@@ -86,6 +92,8 @@ export const MyListings = () => {
         .in('status', ['confirmed', 'approved'])
         .gte('end_time', new Date().toISOString())
         .order('start_time', { ascending: true });
+
+      console.log('Filtered bookings:', bookings, 'Error:', bookingsError);
 
       if (bookingsError || !bookings) return;
 
@@ -126,6 +134,7 @@ export const MyListings = () => {
         });
       }
 
+      console.log('Owner bookings found:', ownerBookings);
       setActiveBookings(ownerBookings);
     } catch (error) {
       console.error('Error fetching active bookings:', error);
