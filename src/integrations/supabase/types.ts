@@ -1290,6 +1290,24 @@ export type Database = {
           zone: string
         }[]
       }
+      get_booking_messages: {
+        Args: { p_booking_id: string }
+        Returns: {
+          admin_flagged: boolean
+          booking_id: string
+          contains_violation: boolean
+          created_at: string
+          driver_id: string
+          from_driver: boolean
+          id: string
+          is_expired: boolean
+          listing_id: string | null
+          message: string
+          owner_id: string
+          read_status: boolean
+          updated_at: string
+        }[]
+      }
       get_booking_owner_id: {
         Args: { p_booking_id: string }
         Returns: string
@@ -1587,6 +1605,10 @@ export type Database = {
         Args: { access_type: string; document_id: string; user_id?: string }
         Returns: undefined
       }
+      mark_booking_messages_read: {
+        Args: { p_booking_id: string }
+        Returns: number
+      }
       refresh_parking_listings_public: {
         Args: Record<PropertyKey, never>
         Returns: undefined
@@ -1612,6 +1634,24 @@ export type Database = {
           user_full_name: string
           verification_status: string
         }[]
+      }
+      send_booking_message: {
+        Args: { p_booking_id: string; p_message: string }
+        Returns: {
+          admin_flagged: boolean
+          booking_id: string
+          contains_violation: boolean
+          created_at: string
+          driver_id: string
+          from_driver: boolean
+          id: string
+          is_expired: boolean
+          listing_id: string | null
+          message: string
+          owner_id: string
+          read_status: boolean
+          updated_at: string
+        }
       }
       send_welcome_email_async: {
         Args: { user_email: string; user_full_name: string }

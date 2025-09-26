@@ -101,18 +101,17 @@ export const DriverOwnerChat = ({ bookingId, isOpen, onClose }: DriverOwnerChatP
 
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('driver_owner_messages')
-        .select('*')
-        .eq('booking_id', bookingId)
-        .order('created_at', { ascending: true });
+      // Use secure RPC that enforces access control
+      const { data, error } = await supabase.rpc('get_booking_messages', {
+        p_booking_id: bookingId
+      });
 
       if (error) throw error;
       setMessages(data || []);
 
-      // Mark messages as read
+      // Mark messages as read using secure RPC
       if (data && data.length > 0) {
-        await markMessagesAsRead(data);
+        await markMessagesAsRead();
       }
     } catch (error) {
       console.error('Error fetching messages:', error);
@@ -122,22 +121,13 @@ export const DriverOwnerChat = ({ bookingId, isOpen, onClose }: DriverOwnerChatP
     }
   };
 
-  const markMessagesAsRead = async (messagesList: Message[]) => {
-    if (!user || !booking) return;
-
-    const isDriver = user.id === booking.user_id;
-    const unreadMessages = messagesList.filter(
-      msg => !msg.read_status && 
-      ((isDriver && !msg.from_driver) || (!isDriver && msg.from_driver))
-    );
-
-    if (unreadMessages.length === 0) return;
+  const markMessagesAsRead = async () => {
+    if (!user || !bookingId) return;
 
     try {
-      const { error } = await supabase
-        .from('driver_owner_messages')
-        .update({ read_status: true })
-        .in('id', unreadMessages.map(msg => msg.id));
+      const { error } = await supabase.rpc('mark_booking_messages_read', {
+        p_booking_id: bookingId
+      });
 
       if (error) throw error;
     } catch (error) {
@@ -222,35 +212,19 @@ export const DriverOwnerChat = ({ bookingId, isOpen, onClose }: DriverOwnerChatP
 
     setIsSubmitting(true);
     try {
-      const isDriver = user.id === booking.user_id;
-      
-      // Always use RPC to get the correct owner ID to avoid using stale data
-      const { data: ownerData, error: ownerError } = await supabase
-        .rpc('get_booking_owner_id', { p_booking_id: bookingId });
-
-      if (ownerError || !ownerData) {
-        console.error('Error getting owner ID:', ownerError);
-        toast.error("Unable to determine listing owner.");
-        setIsSubmitting(false);
-        return;
-      }
-      
-      const ownerId = ownerData;
-      
-      const { error } = await supabase
-        .from('driver_owner_messages')
-        .insert({
-          booking_id: bookingId,
-          driver_id: booking.user_id,
-          owner_id: ownerId,
-          message: newMessage.trim(),
-          from_driver: isDriver
-        });
+      // Use secure RPC that handles all validation and access control
+      const { data, error } = await supabase.rpc('send_booking_message', {
+        p_booking_id: bookingId,
+        p_message: newMessage.trim()
+      });
 
       if (error) throw error;
 
       setNewMessage("");
       toast.success('Message sent successfully');
+      
+      // Refresh messages to show the new one
+      fetchMessages();
     } catch (error) {
       console.error('Error sending message:', error);
       toast.error('Failed to send message');
