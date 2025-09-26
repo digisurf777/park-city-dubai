@@ -235,23 +235,18 @@ export const DriverOwnerChat = ({ bookingId, isOpen, onClose }: DriverOwnerChatP
     try {
       const isDriver = user.id === booking.user_id;
       
-      // Get owner_id from existing messages or use RPC to fetch from listing
-      let ownerId = messages.length > 0 ? messages[0].owner_id : null;
-      
-      if (!ownerId) {
-        // Use RPC to get owner ID reliably (handles RLS properly)
-        const { data: ownerData, error: ownerError } = await supabase
-          .rpc('get_booking_owner_id', { p_booking_id: bookingId });
+      // Always use RPC to get the correct owner ID to avoid using stale data
+      const { data: ownerData, error: ownerError } = await supabase
+        .rpc('get_booking_owner_id', { p_booking_id: bookingId });
 
-        if (ownerError || !ownerData) {
-          console.error('Error getting owner ID:', ownerError);
-          toast.error("Unable to determine listing owner.");
-          setIsSubmitting(false);
-          return;
-        }
-        
-        ownerId = ownerData;
+      if (ownerError || !ownerData) {
+        console.error('Error getting owner ID:', ownerError);
+        toast.error("Unable to determine listing owner.");
+        setIsSubmitting(false);
+        return;
       }
+      
+      const ownerId = ownerData;
       
       const { error } = await supabase
         .from('driver_owner_messages')
