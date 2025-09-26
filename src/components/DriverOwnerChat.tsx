@@ -84,7 +84,7 @@ export const DriverOwnerChat = ({ bookingId, isOpen, onClose }: DriverOwnerChatP
       
       // Chat available 48 hours before booking start and remains until booking ends
       // Allow both 'confirmed' and 'approved' bookings
-      const isChatAvailable = bookingData.status in ['confirmed', 'approved'] && now >= chatStartTime && now <= endTime;
+      const isChatAvailable = ['confirmed', 'approved'].includes(bookingData.status) && now >= chatStartTime && now <= endTime;
       const isExpiredBooking = now > endTime;
       
       setCanSendMessages(isChatAvailable);
