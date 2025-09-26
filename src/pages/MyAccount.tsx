@@ -566,7 +566,10 @@ const MyAccount = () => {
           
           
           <TabsContent value="chats">
-            <ActiveBookingChats />
+            <div className="space-y-6">
+              <ActiveBookingChats />
+              <MyListings chatOnly />
+            </div>
           </TabsContent>
           
           <TabsContent value="contact">
