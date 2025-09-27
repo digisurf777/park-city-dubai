@@ -704,6 +704,9 @@ const AdminPanelOrganized = () => {
 
   const fetchChatUsers = async () => {
     try {
+      // Optionally repair missing profiles first
+      await supabase.rpc('repair_missing_profiles');
+
       // Get all messages
       const { data: messages, error: msgError } = await supabase
         .from('user_messages')
@@ -716,27 +719,39 @@ const AdminPanelOrganized = () => {
         // Get unique user IDs
         const userIds = [...new Set(messages.map(msg => msg.user_id))];
         
-        // Get profiles for these users
-        const { data: profiles, error: profileError } = await supabase
+        // Get profiles for these users with improved fallback to auth.users
+        const { data: userDetails, error: detailsError } = await supabase
           .from('profiles')
-          .select('user_id, full_name')
+          .select(`
+            user_id, 
+            full_name,
+            email
+          `)
           .in('user_id', userIds);
 
-        if (profileError) {
-          console.error('Error fetching profiles:', profileError);
+        if (detailsError) {
+          console.error('Error fetching user details:', detailsError);
         }
 
-        // Create user map with unread counts
+        // Create user map with unread counts and better name resolution
         const userMap = new Map();
         userIds.forEach(userId => {
-          const profile = profiles?.find(p => p.user_id === userId);
+          const profile = userDetails?.find(p => p.user_id === userId);
           const unreadCount = messages.filter(msg => 
             msg.user_id === userId && !msg.from_admin && !msg.read_status
           ).length;
 
+          // Better name resolution with multiple fallbacks
+          let displayName = 'Unknown User';
+          if (profile?.full_name) {
+            displayName = profile.full_name;
+          } else if (profile?.email) {
+            displayName = profile.email;
+          }
+
           userMap.set(userId, {
             user_id: userId,
-            full_name: profile?.full_name || 'Unknown User',
+            full_name: displayName,
             unread_count: unreadCount
           });
         });
