@@ -667,24 +667,36 @@ const AdminPanelOrganized = () => {
 
       if (msgError) throw msgError;
 
-      // Then get profiles for the user IDs
+      // Then resolve sender names using RPC (auth.users) with profiles fallback
       if (messages && messages.length > 0) {
         const userIds = [...new Set(messages.map(msg => msg.user_id))];
-        
-        const { data: profiles, error: profileError } = await supabase
-          .from('profiles')
-          .select('user_id, full_name')
-          .in('user_id', userIds);
 
-        if (profileError) {
-          console.error('Error fetching profiles:', profileError);
+        const { data: userInfos, error: infoErr } = await supabase
+          .rpc('get_user_basic_info', { user_ids: userIds });
+        if (infoErr) console.error('RPC names for messages failed:', infoErr);
+
+        // profiles fallback only for missing
+        const missing = (userInfos || []).filter((u: any) => !u?.full_name && !u?.email).map((u: any) => u.user_id);
+        let profiles: any[] = [];
+        if (missing.length > 0) {
+          const { data: pData, error: pErr } = await supabase
+            .from('profiles')
+            .select('user_id, full_name, email')
+            .in('user_id', missing);
+          if (pErr) console.error('Profiles fallback for messages failed:', pErr);
+          profiles = pData || [];
         }
 
-        // Combine messages with profile data
-        const messagesWithProfiles = messages.map(msg => ({
-          ...msg,
-          profiles: profiles?.find(p => p.user_id === msg.user_id) || { full_name: 'Unknown User', user_id: msg.user_id }
-        }));
+        // Combine messages with resolved display name
+        const messagesWithProfiles = messages.map(msg => {
+          const info = userInfos?.find((u: any) => u.user_id === msg.user_id);
+          const prof = profiles.find((p: any) => p.user_id === msg.user_id);
+          const name = (info?.full_name && info.full_name.trim()) || prof?.full_name?.trim() || info?.email || prof?.email || `User ${String(msg.user_id).slice(0,8)}`;
+          return {
+            ...msg,
+            profiles: { full_name: name, user_id: msg.user_id }
+          };
+        });
 
         setChatMessages(messagesWithProfiles as ChatMessage[]);
       } else {
@@ -719,34 +731,43 @@ const AdminPanelOrganized = () => {
         // Get unique user IDs
         const userIds = [...new Set(messages.map(msg => msg.user_id))];
         
-        // Use the new RPC to get real user information from auth.users
+        // Use the secure RPC to get real user information from auth.users
         const { data: userDetails, error: detailsError } = await supabase.rpc('get_user_basic_info', {
           user_ids: userIds
         });
 
         if (detailsError) {
-          console.error('Error fetching user details:', detailsError);
+          console.error('Error fetching user details (RPC):', detailsError);
+        }
+
+        // As a fallback, fetch profiles for any users still missing info
+        const missingIds = (userDetails || [])
+          .filter(u => !u?.full_name && !u?.email)
+          .map(u => u.user_id);
+
+        let profilesFallback: any[] = [];
+        if (missingIds.length > 0) {
+          const { data: profilesData, error: profilesErr } = await supabase
+            .from('profiles')
+            .select('user_id, full_name, email')
+            .in('user_id', missingIds);
+          if (profilesErr) console.error('Profiles fallback error:', profilesErr);
+          profilesFallback = profilesData || [];
         }
 
         // Create user map with unread counts and better name resolution
         const userMap = new Map();
         userIds.forEach(userId => {
-          const userInfo = userDetails?.find(u => u.user_id === userId);
+          const userInfo = userDetails?.find((u: any) => u.user_id === userId);
+          const profileInfo = profilesFallback.find((p: any) => p.user_id === userId);
           const unreadCount = messages.filter(msg => 
             msg.user_id === userId && !msg.from_admin && !msg.read_status
           ).length;
 
-          // Prefer real name; if it's missing or 'Unknown User', fall back to email
-          let displayName = 'Unknown User';
-          const candidate = userInfo?.full_name?.trim();
-          if (candidate && candidate.toLowerCase() !== 'unknown user') {
-            displayName = candidate;
-          } else if (userInfo?.email) {
-            displayName = userInfo.email;
-          } else {
-            // Last resort - use user ID as identifier
-            displayName = `User ${userId.slice(0, 8)}`;
-          }
+        // Prefer real name; else email; else short id
+          const nameCandidate = (userInfo?.full_name && userInfo.full_name.trim()) || profileInfo?.full_name?.trim();
+          const emailCandidate = userInfo?.email || profileInfo?.email;
+          const displayName = nameCandidate || emailCandidate || `User ${String(userId).slice(0,8)}`;
 
           userMap.set(userId, {
             user_id: userId,
