@@ -233,6 +233,15 @@ const handler = async (req: Request): Promise<Response> => {
                           Thank you for choosing ShazamParking! Your booking request has been received and we've created a secure payment link for you.
                         </p>
 
+                        ${costAed < 2 ? `
+                        <div style="background-color: #fff3cd; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ffc107;">
+                          <p style="color: #856404; font-weight: bold; margin: 0;">💳 Payment Processing Notice:</p>
+                          <p style="color: #856404; margin: 5px 0 0 0;">
+                            Your original booking amount was ${costAed} AED. Due to payment processor requirements (minimum 2 AED), the payment authorization will show 2 AED. However, you will only be charged the actual booking amount (${costAed} AED) once your booking is confirmed by our team.
+                          </p>
+                        </div>
+                        ` : ''}
+
                         <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #0099cc;">
                           <h3 style="color: #0099cc; margin-top: 0;">Booking Details:</h3>
                           <table style="width: 100%; color: #333;">
