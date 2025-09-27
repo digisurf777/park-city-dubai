@@ -80,26 +80,18 @@ const handler = async (req: Request): Promise<Response> => {
       // One-time payment with manual capture (pre-authorization)
       paymentType = 'one_time';
       
-      const paymentIntent = await stripe.paymentIntents.create({
-        amount: Math.round(amount * 100), // Convert to cents
-        currency: 'aed',
-        customer: customer.id,
-        capture_method: 'manual', // Pre-authorize but don't capture
-        description: `Parking booking for ${parkingSpotName} - ${duration} month`,
-        metadata: {
-          booking_id: bookingId,
-          duration: duration.toString(),
-        },
-      });
-
-      paymentIntentId = paymentIntent.id;
-      
-      // Create checkout session for the payment intent
+      // Create checkout session with manual capture
       const session = await stripe.checkout.sessions.create({
         customer: customer.id,
         locale: 'en',
         payment_intent_data: {
           setup_future_usage: 'off_session',
+          capture_method: 'manual', // Pre-authorize but don't capture
+          description: `Parking booking for ${parkingSpotName} - ${duration} month`,
+          metadata: {
+            booking_id: bookingId,
+            duration: duration.toString(),
+          },
         },
         line_items: [
           {
@@ -123,7 +115,19 @@ const handler = async (req: Request): Promise<Response> => {
         },
       });
 
+      // Get the PaymentIntent ID from the session
+      if (typeof session.payment_intent === 'string') {
+        paymentIntentId = session.payment_intent;
+      } else {
+        // Expand session to get PaymentIntent ID
+        const expandedSession = await stripe.checkout.sessions.retrieve(session.id, {
+          expand: ['payment_intent']
+        });
+        paymentIntentId = (expandedSession.payment_intent as any)?.id || null;
+      }
+
       paymentUrl = session.url || "";
+      console.log(`Created checkout session with PaymentIntent: ${paymentIntentId}`);
       
     } else {
       // Recurring monthly payments with trial period
@@ -183,7 +187,7 @@ const handler = async (req: Request): Promise<Response> => {
         stripe_customer_id: customer.id,
         stripe_payment_intent_id: paymentIntentId,
         stripe_subscription_id: subscriptionId,
-        payment_status: paymentType === 'one_time' ? 'pre_authorized' : 'pending',
+        payment_status: 'pending', // Let webhooks update to 'pre_authorized' or 'paid'
         payment_type: paymentType,
         payment_link_url: paymentUrl,
         payment_amount_cents: Math.round(amount * 100),

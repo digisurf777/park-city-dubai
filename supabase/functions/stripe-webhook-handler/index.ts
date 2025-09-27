@@ -57,7 +57,11 @@ const handler = async (req: Request): Promise<Response> => {
       .insert({
         stripe_event_id: event.id,
         event_type: event.type,
-        payment_intent_id: event.type.startsWith('payment_intent.') ? (event.data.object as any).id : null,
+        payment_intent_id: event.type.startsWith('payment_intent.') 
+          ? (event.data.object as any).id 
+          : event.type === 'checkout.session.completed' 
+          ? (event.data.object as any).payment_intent 
+          : null,
         raw_event: event,
         status: 'processing'
       });
@@ -68,6 +72,14 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Handle specific webhook events
     switch (event.type) {
+      case 'checkout.session.completed':
+        await handleCheckoutSessionCompleted(event.data.object as Stripe.Checkout.Session, supabaseServiceClient);
+        break;
+        
+      case 'payment_intent.amount_capturable_updated':
+        await handlePaymentIntentAmountCapturableUpdated(event.data.object as Stripe.PaymentIntent, supabaseServiceClient);
+        break;
+        
       case 'payment_intent.succeeded':
         await handlePaymentIntentSucceeded(event.data.object as Stripe.PaymentIntent, supabaseServiceClient);
         break;
@@ -128,17 +140,92 @@ const handler = async (req: Request): Promise<Response> => {
   }
 };
 
-async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent, supabase: any) {
-  console.log("Processing payment_intent.succeeded:", paymentIntent.id);
+async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session, supabase: any) {
+  console.log("Processing checkout.session.completed:", session.id);
   
-  // Find booking by payment intent ID
-  const { data: booking, error: bookingError } = await supabase
+  const bookingId = session.metadata?.booking_id;
+  const paymentIntentId = typeof session.payment_intent === 'string' 
+    ? session.payment_intent 
+    : (session.payment_intent as any)?.id;
+
+  if (bookingId && paymentIntentId) {
+    console.log(`Linking booking ${bookingId} to PaymentIntent ${paymentIntentId}`);
+    
+    const { error: updateError } = await supabase
+      .from('parking_bookings')
+      .update({
+        stripe_payment_intent_id: paymentIntentId,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', bookingId);
+
+    if (updateError) {
+      console.error("Error updating booking with PaymentIntent ID:", updateError);
+    }
+  }
+}
+
+async function handlePaymentIntentAmountCapturableUpdated(paymentIntent: Stripe.PaymentIntent, supabase: any) {
+  console.log("Processing payment_intent.amount_capturable_updated:", paymentIntent.id);
+  
+  if (paymentIntent.status === 'requires_capture' && paymentIntent.amount_capturable > 0) {
+    // Find booking by payment intent ID or metadata
+    let booking = await findBookingByPaymentIntent(paymentIntent, supabase);
+    
+    if (booking) {
+      const { error: updateError } = await supabase
+        .from('parking_bookings')
+        .update({
+          payment_status: 'pre_authorized',
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', booking.id);
+
+      if (updateError) {
+        console.error("Error updating booking to pre_authorized:", updateError);
+      } else {
+        console.log(`Booking ${booking.id} status updated to pre_authorized`);
+      }
+    }
+  }
+}
+
+async function findBookingByPaymentIntent(paymentIntent: Stripe.PaymentIntent, supabase: any) {
+  // Try to find by PaymentIntent ID first
+  let { data: booking, error } = await supabase
     .from('parking_bookings')
     .select('*, profiles!inner(full_name, email, phone)')
     .eq('stripe_payment_intent_id', paymentIntent.id)
     .single();
 
-  if (bookingError || !booking) {
+  if (!booking && paymentIntent.metadata?.booking_id) {
+    // Fallback: find by booking_id in metadata
+    const { data: fallbackBooking, error: fallbackError } = await supabase
+      .from('parking_bookings')
+      .select('*, profiles!inner(full_name, email, phone)')
+      .eq('id', paymentIntent.metadata.booking_id)
+      .single();
+      
+    if (!fallbackError && fallbackBooking) {
+      booking = fallbackBooking;
+      // Update the PaymentIntent ID for future lookups
+      await supabase
+        .from('parking_bookings')
+        .update({ stripe_payment_intent_id: paymentIntent.id })
+        .eq('id', booking.id);
+    }
+  }
+
+  return booking;
+}
+
+async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent, supabase: any) {
+  console.log("Processing payment_intent.succeeded:", paymentIntent.id);
+  
+  // Find booking by payment intent ID or metadata
+  const booking = await findBookingByPaymentIntent(paymentIntent, supabase);
+
+  if (!booking) {
     console.error("Booking not found for payment intent:", paymentIntent.id);
     return;
   }
@@ -227,13 +314,9 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent,
 async function handlePaymentIntentCanceled(paymentIntent: Stripe.PaymentIntent, supabase: any) {
   console.log("Processing payment_intent.canceled:", paymentIntent.id);
   
-  const { data: booking, error: bookingError } = await supabase
-    .from('parking_bookings')
-    .select('*')
-    .eq('stripe_payment_intent_id', paymentIntent.id)
-    .single();
+  const booking = await findBookingByPaymentIntent(paymentIntent, supabase);
 
-  if (bookingError || !booking) {
+  if (!booking) {
     console.error("Booking not found for payment intent:", paymentIntent.id);
     return;
   }
@@ -258,13 +341,9 @@ async function handlePaymentIntentCanceled(paymentIntent: Stripe.PaymentIntent, 
 async function handlePaymentIntentFailed(paymentIntent: Stripe.PaymentIntent, supabase: any) {
   console.log("Processing payment_intent.payment_failed:", paymentIntent.id);
   
-  const { data: booking, error: bookingError } = await supabase
-    .from('parking_bookings')
-    .select('*')
-    .eq('stripe_payment_intent_id', paymentIntent.id)
-    .single();
+  const booking = await findBookingByPaymentIntent(paymentIntent, supabase);
 
-  if (bookingError || !booking) {
+  if (!booking) {
     console.error("Booking not found for payment intent:", paymentIntent.id);
     return;
   }

@@ -245,7 +245,7 @@ export const ActiveBookingChats = () => {
                           </span>
                         </div>
 
-                         {booking.status === 'pending' && booking.payment_status !== 'paid' && (
+                         {booking.status === 'pending' && ['pending', 'failed', 'cancelled'].includes(booking.payment_status) && (
                           <div className="bg-yellow-100 border border-yellow-200 rounded p-2 mb-3">
                             <p className="text-xs text-yellow-800 font-medium">
                               💳 Payment Required - Complete payment to confirm your booking
@@ -255,7 +255,7 @@ export const ActiveBookingChats = () => {
                                 Expires: {format(new Date(booking.confirmation_deadline), 'MMM d, HH:mm')}
                               </p>
                             )}
-                            {booking.payment_link_url && (
+                            {booking.payment_link_url && booking.payment_status === 'pending' && (
                               <Button 
                                 size="sm" 
                                 className="mt-2" 
@@ -297,7 +297,7 @@ export const ActiveBookingChats = () => {
                           </p>
                         )}
 
-          {(booking.status === 'pending' && booking.payment_status !== 'paid') && (
+          {(booking.status === 'pending' && ['pending', 'failed', 'cancelled'].includes(booking.payment_status)) && (
             <p className="text-xs text-muted-foreground">
               Chat will be available 48 hours before booking start after payment confirmation
             </p>
@@ -305,12 +305,12 @@ export const ActiveBookingChats = () => {
                       </div>
                       
                        <Button 
-                        variant={(booking.status === 'confirmed' || booking.payment_status === 'paid') && booking.is_active ? "default" : "secondary"}
+                        variant={(booking.status === 'confirmed' || ['paid', 'pre_authorized', 'processing'].includes(booking.payment_status)) && booking.is_active ? "default" : "secondary"}
                         size="sm"
                         onClick={() => openChat(booking.id)}
-                        disabled={(booking.status === 'pending' && booking.payment_status !== 'paid') || !booking.chat_available}
+                        disabled={(booking.status === 'pending' && ['pending', 'failed', 'cancelled'].includes(booking.payment_status)) || !booking.chat_available}
                       >
-                        {(booking.status === 'pending' && booking.payment_status !== 'paid')
+                        {(booking.status === 'pending' && ['pending', 'failed', 'cancelled'].includes(booking.payment_status))
                           ? "Payment Required" 
                           : booking.chat_available 
                           ? "Chat Now" 
