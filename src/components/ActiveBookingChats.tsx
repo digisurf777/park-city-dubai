@@ -210,7 +210,7 @@ export const ActiveBookingChats = () => {
                           )}
                           <Badge 
                             variant={
-                              (booking.status === 'pending' && booking.payment_status !== 'paid')
+                              (booking.status === 'pending' && !(booking.payment_status === 'paid' || booking.payment_status === 'pre_authorized' || booking.payment_status === 'processing'))
                                 ? "outline" 
                                 : booking.is_active 
                                 ? "default" 
@@ -218,9 +218,9 @@ export const ActiveBookingChats = () => {
                             } 
                             className="text-xs"
                           >
-                            {(booking.status === 'pending' && booking.payment_status !== 'paid')
+                            {(booking.status === 'pending' && !(booking.payment_status === 'paid' || booking.payment_status === 'pre_authorized' || booking.payment_status === 'processing'))
                               ? "Pending Payment" 
-                              : (booking.status === 'confirmed' || booking.payment_status === 'paid')
+                              : (booking.status === 'confirmed' || booking.payment_status === 'paid' || booking.payment_status === 'pre_authorized')
                               ? (booking.is_active ? "Active Now" : "Paid") 
                               : "Upcoming"}
                           </Badge>

@@ -90,30 +90,20 @@ const handler = async (req: Request): Promise<Response> => {
     const authorizationExpiresAt = new Date();
     authorizationExpiresAt.setDate(authorizationExpiresAt.getDate() + authorizationHoldDays);
 
-    // Create payment intent with manual capture for pre-authorization
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(totalAmount * 100), // Convert to cents
-      currency: 'aed',
-      customer: customer.id,
-      capture_method: 'manual', // Pre-authorize but don't capture
-      confirmation_method: 'automatic',
-      description: `Pre-authorization: ${parkingSpotName} - ${duration} month(s)`,
-      metadata: {
-        booking_id: bookingId,
-        duration: duration.toString(),
-        booking_amount: Math.round(amount * 100).toString(),
-        authorization_type: 'parking_booking',
-        expires_at: authorizationExpiresAt.toISOString(),
-      },
-    });
-
-    // Create checkout session for the pre-authorization
+    // Create checkout session for the pre-authorization (Stripe will create a PaymentIntent for this session)
     const session = await stripe.checkout.sessions.create({
       customer: customer.id,
       locale: 'en',
       payment_intent_data: {
         setup_future_usage: 'off_session',
         capture_method: 'manual',
+        metadata: {
+          booking_id: bookingId,
+          duration: duration.toString(),
+          booking_amount: Math.round(amount * 100).toString(),
+          authorization_type: 'parking_booking',
+          expires_at: authorizationExpiresAt.toISOString(),
+        },
       },
       line_items: [
         {
@@ -138,12 +128,29 @@ const handler = async (req: Request): Promise<Response> => {
       },
     });
 
+    // Determine the PaymentIntent ID created by Checkout
+    let paymentIntentId: string | null = null;
+    if (typeof session.payment_intent === 'string') {
+      paymentIntentId = session.payment_intent;
+    } else {
+      const expanded = await stripe.checkout.sessions.retrieve(session.id, { expand: ['payment_intent'] });
+      if (typeof expanded.payment_intent === 'string') {
+        paymentIntentId = expanded.payment_intent as string;
+      } else {
+        paymentIntentId = (expanded as any).payment_intent?.id ?? null;
+      }
+    }
+
+    if (!paymentIntentId) {
+      console.warn('No payment_intent id found for session', session.id);
+    }
+
     // Update booking record with pre-authorization details
     const { error: updateError } = await supabaseServiceClient
       .from('parking_bookings')
       .update({
         stripe_customer_id: customer.id,
-        stripe_payment_intent_id: paymentIntent.id,
+        stripe_payment_intent_id: paymentIntentId,
         payment_status: 'pre_authorized',
         payment_type: 'one_time',
         payment_link_url: session.url,
@@ -166,7 +173,7 @@ const handler = async (req: Request): Promise<Response> => {
       JSON.stringify({
         success: true,
         payment_url: session.url,
-        payment_intent_id: paymentIntent.id,
+        payment_intent_id: paymentIntentId,
         pre_authorization_amount: totalAmount,
         authorization_expires_at: authorizationExpiresAt.toISOString(),
         security_deposit_amount: 0,
