@@ -1322,6 +1322,14 @@ export type Database = {
           stripe_subscription_id: string
         }[]
       }
+      get_chat_users_overview: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          display_name: string
+          unread_count: number
+          user_id: string
+        }[]
+      }
       get_email_confirmation_expiry: {
         Args: Record<PropertyKey, never>
         Returns: number

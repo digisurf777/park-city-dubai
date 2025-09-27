@@ -716,70 +716,17 @@ const AdminPanelOrganized = () => {
 
   const fetchChatUsers = async () => {
     try {
-      // Optionally repair missing profiles first
-      await supabase.rpc('repair_missing_profiles');
+      // Build list via RPC that resolves names and unread counts on the server
+      const { data, error } = await supabase.rpc('get_chat_users_overview');
+      if (error) throw error;
 
-      // Get all messages
-      const { data: messages, error: msgError } = await supabase
-        .from('user_messages')
-        .select('*')
-        .order('created_at', { ascending: false });
+      const users = (data || []).map((u: any) => ({
+        user_id: u.user_id,
+        full_name: u.display_name || `User ${String(u.user_id).slice(0,8)}`,
+        unread_count: u.unread_count || 0,
+      }));
 
-      if (msgError) throw msgError;
-
-      if (messages && messages.length > 0) {
-        // Get unique user IDs
-        const userIds = [...new Set(messages.map(msg => msg.user_id))];
-        
-        // Use the secure RPC to get real user information from auth.users
-        const { data: userDetails, error: detailsError } = await supabase.rpc('get_user_basic_info', {
-          user_ids: userIds
-        });
-
-        if (detailsError) {
-          console.error('Error fetching user details (RPC):', detailsError);
-        }
-
-        // As a fallback, fetch profiles for any users still missing info
-        const missingIds = (userDetails || [])
-          .filter(u => !u?.full_name && !u?.email)
-          .map(u => u.user_id);
-
-        let profilesFallback: any[] = [];
-        if (missingIds.length > 0) {
-          const { data: profilesData, error: profilesErr } = await supabase
-            .from('profiles')
-            .select('user_id, full_name, email')
-            .in('user_id', missingIds);
-          if (profilesErr) console.error('Profiles fallback error:', profilesErr);
-          profilesFallback = profilesData || [];
-        }
-
-        // Create user map with unread counts and better name resolution
-        const userMap = new Map();
-        userIds.forEach(userId => {
-          const userInfo = userDetails?.find((u: any) => u.user_id === userId);
-          const profileInfo = profilesFallback.find((p: any) => p.user_id === userId);
-          const unreadCount = messages.filter(msg => 
-            msg.user_id === userId && !msg.from_admin && !msg.read_status
-          ).length;
-
-        // Prefer real name; else email; else short id
-          const nameCandidate = (userInfo?.full_name && userInfo.full_name.trim()) || profileInfo?.full_name?.trim();
-          const emailCandidate = userInfo?.email || profileInfo?.email;
-          const displayName = nameCandidate || emailCandidate || `User ${String(userId).slice(0,8)}`;
-
-          userMap.set(userId, {
-            user_id: userId,
-            full_name: displayName,
-            unread_count: unreadCount
-          });
-        });
-
-        setChatUsers(Array.from(userMap.values()));
-      } else {
-        setChatUsers([]);
-      }
+      setChatUsers(users);
     } catch (error) {
       console.error('Error fetching chat users:', error);
     }
