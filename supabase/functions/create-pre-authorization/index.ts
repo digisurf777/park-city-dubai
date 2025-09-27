@@ -78,8 +78,8 @@ const handler = async (req: Request): Promise<Response> => {
       console.log("Created new customer:", customer.id);
     }
 
-    // Calculate total amount (booking + security deposit)
-    const totalAmount = amount + securityDeposit;
+    // Use booking amount only (no security deposit)
+    const totalAmount = amount;
     const authorizationExpiresAt = new Date();
     authorizationExpiresAt.setDate(authorizationExpiresAt.getDate() + authorizationHoldDays);
 
@@ -90,12 +90,11 @@ const handler = async (req: Request): Promise<Response> => {
       customer: customer.id,
       capture_method: 'manual', // Pre-authorize but don't capture
       confirmation_method: 'automatic',
-      description: `Pre-authorization: ${parkingSpotName} - ${duration} month(s) + Security Deposit`,
+      description: `Pre-authorization: ${parkingSpotName} - ${duration} month(s)`,
       metadata: {
         booking_id: bookingId,
         duration: duration.toString(),
         booking_amount: Math.round(amount * 100).toString(),
-        security_deposit: Math.round(securityDeposit * 100).toString(),
         authorization_type: 'parking_booking',
         expires_at: authorizationExpiresAt.toISOString(),
       },
@@ -115,7 +114,7 @@ const handler = async (req: Request): Promise<Response> => {
             currency: 'aed',
             product_data: {
               name: `${parkingSpotName} - ${duration} Month(s) Parking`,
-              description: `Secure parking space pre-authorization for ${duration} month(s)${securityDeposit > 0 ? ` + AED ${securityDeposit} security deposit` : ''}`,
+              description: `Secure parking space pre-authorization for ${duration} month(s)`,
             },
             unit_amount: Math.round(totalAmount * 100),
           },
@@ -143,7 +142,7 @@ const handler = async (req: Request): Promise<Response> => {
         payment_link_url: session.url,
         payment_amount_cents: Math.round(amount * 100),
         pre_authorization_amount: Math.round(totalAmount * 100),
-        security_deposit_amount: Math.round(securityDeposit * 100),
+        security_deposit_amount: 0,
         pre_authorization_expires_at: authorizationExpiresAt.toISOString(),
         updated_at: new Date().toISOString(),
       })
@@ -163,7 +162,7 @@ const handler = async (req: Request): Promise<Response> => {
         payment_intent_id: paymentIntent.id,
         pre_authorization_amount: totalAmount,
         authorization_expires_at: authorizationExpiresAt.toISOString(),
-        security_deposit_amount: securityDeposit,
+        security_deposit_amount: 0,
         hold_period_days: authorizationHoldDays,
       }),
       {
