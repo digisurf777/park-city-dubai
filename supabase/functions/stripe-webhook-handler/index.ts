@@ -134,7 +134,7 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent,
   // Find booking by payment intent ID
   const { data: booking, error: bookingError } = await supabase
     .from('parking_bookings')
-    .select('*')
+    .select('*, profiles!inner(full_name, email, phone)')
     .eq('stripe_payment_intent_id', paymentIntent.id)
     .single();
 
@@ -172,6 +172,45 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent,
   }
 
   console.log(`Booking ${booking.id} updated: status=${newStatus}, payment_status=${newPaymentStatus}`);
+
+  // Send admin notification for successful payment
+  if (paymentIntent.status === 'succeeded' && booking.profiles) {
+    try {
+      // Create admin notification in database
+      await supabase
+        .from('admin_notifications')
+        .insert({
+          notification_type: 'payment_received',
+          title: '💳 Payment Received',
+          message: `Payment of ${paymentIntent.amount / 100} ${paymentIntent.currency.toUpperCase()} received for booking #${booking.id.slice(0, 8)} by ${booking.profiles.full_name}`,
+          booking_id: booking.id,
+          user_id: booking.user_id,
+          priority: 'high'
+        });
+
+      // Send email notification to admin
+      await supabase.functions.invoke('send-admin-booking-notification', {
+        body: {
+          userName: booking.profiles.full_name,
+          userEmail: booking.profiles.email,
+          userPhone: booking.profiles.phone,
+          bookingId: booking.id,
+          parkingSpotName: booking.location,
+          zone: booking.zone,
+          location: booking.location,
+          startDate: booking.start_time,
+          duration: booking.duration_hours / 24 / 30 || 1,
+          totalCost: booking.cost_aed,
+          paymentType: booking.payment_type,
+          notes: `Payment completed via Stripe. Payment Intent: ${paymentIntent.id}`
+        }
+      });
+
+      console.log(`Admin notification sent for payment: ${paymentIntent.id}`);
+    } catch (notificationError) {
+      console.error("Error sending admin payment notification:", notificationError);
+    }
+  }
 }
 
 async function handlePaymentIntentCanceled(paymentIntent: Stripe.PaymentIntent, supabase: any) {

@@ -1234,7 +1234,7 @@ const AdminPanelOrganized = () => {
     }
   }, [isAdmin]);
 
-  // Set up real-time subscription for chat messages
+  // Set up real-time subscription for chat messages and admin notifications
   useEffect(() => {
     if (!isAdmin) return;
 
@@ -1264,6 +1264,29 @@ const AdminPanelOrganized = () => {
           // Refresh chat messages and users when there's a change
           fetchChatMessages();
           fetchChatUsers();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'admin_notifications'
+        },
+        (payload) => {
+          console.log('New admin notification:', payload);
+          
+          // Show immediate alert for payment notifications
+          if (payload.new.notification_type === 'payment_received') {
+            toast({
+              title: "💳 Payment Received!",
+              description: payload.new.message,
+              duration: 8000,
+            });
+          }
+          
+          // Update unread notifications count
+          setUnreadNotificationsCount(prev => prev + 1);
         }
       )
       .subscribe();
