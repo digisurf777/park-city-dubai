@@ -33,9 +33,22 @@ const handler = async (req: Request): Promise<Response> => {
       { auth: { persistSession: false } }
     );
 
-    const { bookingId, amount, duration, parkingSpotName, userEmail }: PaymentLinkRequest = await req.json();
+    const { bookingId, amount: rawAmount, duration, parkingSpotName, userEmail }: PaymentLinkRequest = await req.json();
     
-    console.log("Payment request details:", { bookingId, amount, duration, parkingSpotName, userEmail });
+    // Stripe minimum amount check for AED is 2.00
+    const amount = rawAmount < 2 ? 2 : rawAmount;
+    if (rawAmount < 2) {
+      console.log(`Amount ${rawAmount} AED is below Stripe minimum. Adjusting to 2 AED.`);
+    }
+    
+    console.log("Payment request details:", { 
+      bookingId, 
+      originalAmount: rawAmount,
+      adjustedAmount: amount, 
+      duration, 
+      parkingSpotName, 
+      userEmail 
+    });
 
     // Find or create Stripe customer
     let customer;

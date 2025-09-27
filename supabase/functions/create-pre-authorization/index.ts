@@ -43,7 +43,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     const { 
       bookingId, 
-      amount, 
+      amount: rawAmount, 
       securityDeposit = 0,
       duration, 
       parkingSpotName, 
@@ -51,9 +51,16 @@ const handler = async (req: Request): Promise<Response> => {
       authorizationHoldDays = 7
     }: PreAuthorizationRequest = await req.json();
     
+    // Stripe minimum amount check for AED is 2.00
+    const amount = rawAmount < 2 ? 2 : rawAmount;
+    if (rawAmount < 2) {
+      console.log(`Amount ${rawAmount} AED is below Stripe minimum. Adjusting to 2 AED.`);
+    }
+    
     console.log("Pre-authorization request:", { 
       bookingId, 
-      amount, 
+      originalAmount: rawAmount,
+      adjustedAmount: amount, 
       securityDeposit, 
       duration, 
       parkingSpotName, 
