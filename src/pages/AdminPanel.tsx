@@ -120,6 +120,14 @@ interface ChatMessage {
   };
 }
 
+interface ChatUser {
+  user_id: string;
+  full_name: string;
+  unread_count: number;
+  last_message_at?: string | null;
+  last_message_preview?: string;
+}
+
 const AdminPanelOrganized = () => {
   const { user, signOut } = useAuth();
   const { toast } = useToast();
@@ -161,7 +169,8 @@ const AdminPanelOrganized = () => {
   const [selectedChatUser, setSelectedChatUser] = useState<string | null>(null);
   const [chatReply, setChatReply] = useState('');
   const [sendingReply, setSendingReply] = useState(false);
-  const [chatUsers, setChatUsers] = useState<any[]>([]);
+  const [chatUsers, setChatUsers] = useState<ChatUser[]>([]);
+  const [chatTotalUnread, setChatTotalUnread] = useState(0);
   const chatMessagesEndRef = useRef<HTMLDivElement>(null);
 
   // Form state
@@ -720,7 +729,7 @@ const AdminPanelOrganized = () => {
       const { data: overview, error } = await supabase.rpc('get_chat_users_overview');
       if (error) throw error;
 
-      let users: { user_id: string; full_name: string; unread_count: number }[] = (overview || []).map((u: any) => ({
+      let users: ChatUser[] = (overview || []).map((u: any) => ({
         user_id: u.user_id as string,
         full_name: (u.display_name && String(u.display_name).trim()) || '',
         unread_count: Number(u.unread_count || 0),
@@ -730,7 +739,7 @@ const AdminPanelOrganized = () => {
       if (!users || users.length === 0) {
         const { data: msgs, error: msgsErr } = await supabase
           .from('user_messages')
-          .select('user_id, read_status, from_admin, created_at')
+          .select('user_id, read_status, from_admin, created_at, message')
           .order('created_at', { ascending: false });
         if (msgsErr) throw msgsErr;
 
@@ -738,7 +747,12 @@ const AdminPanelOrganized = () => {
 
         // Build unread counts per user (only user -> admin messages that are unread)
         const unreadMap = new Map<string, number>();
+        const lastMap = new Map<string, { at: string; preview: string }>();
+
         (msgs || []).forEach((m: any) => {
+          if (!lastMap.has(m.user_id)) {
+            lastMap.set(m.user_id, { at: m.created_at, preview: m.message?.slice(0, 80) || '' });
+          }
           if (!m.from_admin && !m.read_status && m.user_id) {
             unreadMap.set(m.user_id, (unreadMap.get(m.user_id) || 0) + 1);
           }
@@ -755,12 +769,35 @@ const AdminPanelOrganized = () => {
         users = allIds.map((id) => {
           const b = nameMap.get(id);
           const name = (b?.full_name && String(b.full_name).trim()) || b?.email || '';
+          const last = lastMap.get(id);
           return {
             user_id: id,
             full_name: name,
             unread_count: unreadMap.get(id) || 0,
+            last_message_at: last?.at || null,
+            last_message_preview: last?.preview || '',
           };
         });
+      } else {
+        // Get last message times to sort correctly (works regardless of RPC presence)
+        const { data: recent } = await supabase
+          .from('user_messages')
+          .select('user_id, created_at, message')
+          .order('created_at', { ascending: false })
+          .limit(1000);
+
+        const lastMap = new Map<string, { at: string; preview: string }>();
+        (recent || []).forEach((m: any) => {
+          if (!lastMap.has(m.user_id)) {
+            lastMap.set(m.user_id, { at: m.created_at, preview: m.message?.slice(0, 80) || '' });
+          }
+        });
+
+        users = users.map(u => ({
+          ...u,
+          last_message_at: lastMap.get(u.user_id)?.at || null,
+          last_message_preview: lastMap.get(u.user_id)?.preview || '',
+        }));
       }
 
       // Fill missing names and final fallback
@@ -784,12 +821,44 @@ const AdminPanelOrganized = () => {
         full_name: u.full_name || `User ${String(u.user_id).slice(0, 8)}`,
       }));
 
+      // Sort: unread first (desc), then newest message (desc)
+      users.sort((a, b) => {
+        if ((b.unread_count > 0 ? 1 : 0) !== (a.unread_count > 0 ? 1 : 0)) {
+          return (b.unread_count > 0 ? 1 : 0) - (a.unread_count > 0 ? 1 : 0);
+        }
+        const ta = a.last_message_at ? new Date(a.last_message_at).getTime() : 0;
+        const tb = b.last_message_at ? new Date(b.last_message_at).getTime() : 0;
+        return tb - ta;
+      });
+
       setChatUsers(users);
-      console.info('Set chat users:', users);
+      setChatTotalUnread(users.reduce((sum, u) => sum + (u.unread_count || 0), 0));
     } catch (error) {
       console.error('Error fetching chat users:', error);
     }
   };
+
+  const markThreadAsRead = async (userId: string) => {
+    try {
+      await supabase
+        .from('user_messages')
+        .update({ read_status: true })
+        .eq('user_id', userId)
+        .eq('from_admin', false)
+        .eq('read_status', false);
+
+      // Optimistic UI update
+      setChatUsers(prev => prev.map(u => u.user_id === userId ? { ...u, unread_count: 0 } : u));
+      setChatTotalUnread(prev => {
+        const target = chatUsers.find(u => u.user_id === userId)?.unread_count || 0;
+        return Math.max(0, prev - target);
+      });
+      setChatMessages(prev => prev.map(m => (m.user_id === userId && !m.from_admin ? { ...m, read_status: true } : m)));
+    } catch (e) {
+      console.error('Failed to mark thread read:', e);
+    }
+  };
+
   const handleCreate = () => {
     setIsCreating(true);
     setEditingPost(null);
@@ -1180,15 +1249,21 @@ const AdminPanelOrganized = () => {
         },
         (payload) => {
           console.log('Chat message update:', payload);
+          
+          // Show notification and handle auto-mark-as-read for new user messages
+          if (payload.eventType === 'INSERT' && !payload.new.from_admin) {
+            if (selectedChatUser === payload.new.user_id) {
+              // Admin is viewing this thread: auto-mark read
+              markThreadAsRead(payload.new.user_id);
+            } else {
+              setNewMessageAlert(`New message from user`);
+              setTimeout(() => setNewMessageAlert(null), 5000);
+            }
+          }
+          
           // Refresh chat messages and users when there's a change
           fetchChatMessages();
           fetchChatUsers();
-          
-          // Show notification for new user messages
-          if (payload.eventType === 'INSERT' && !payload.new.from_admin) {
-            setNewMessageAlert(`New message from user`);
-            setTimeout(() => setNewMessageAlert(null), 5000);
-          }
         }
       )
       .subscribe();
@@ -1196,7 +1271,7 @@ const AdminPanelOrganized = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [isAdmin]);
+  }, [isAdmin, selectedChatUser]);
 
   if (checkingAdmin) {
     return (
@@ -1308,11 +1383,16 @@ const AdminPanelOrganized = () => {
             
             <TabsTrigger 
               value="chat" 
-              className="flex flex-col items-center p-3 h-auto text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-red-500 data-[state=active]:text-white bg-gradient-to-br from-red-50 to-red-100 border-red-200 animate-pulse rounded-lg"
+              className="flex flex-col items-center p-3 h-auto text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-red-500 data-[state=active]:text-white bg-gradient-to-br from-red-50 to-red-100 border-red-200 animate-pulse rounded-lg relative"
             >
               <MessageCircle className="h-5 w-5 mb-1" />
               <span className="font-bold">🔥 Live Chat</span>
               <span className="text-xs mt-1">Real-time Support</span>
+              {chatTotalUnread > 0 && (
+                <Badge variant="destructive" className="absolute -top-1 -right-1 min-w-[20px] h-5 text-xs px-1">
+                  {chatTotalUnread}
+                </Badge>
+              )}
             </TabsTrigger>
           </TabsList>
 
@@ -2110,6 +2190,11 @@ const AdminPanelOrganized = () => {
                 <CardTitle className="flex items-center gap-2">
                   <MessageCircle className="h-5 w-5 text-red-500" />
                   Live Chat Management
+                  {chatTotalUnread > 0 && (
+                    <Badge variant="destructive" className="ml-2">
+                      {chatTotalUnread}
+                    </Badge>
+                  )}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -2120,26 +2205,41 @@ const AdminPanelOrganized = () => {
                     {chatUsers.length === 0 ? (
                       <p className="text-muted-foreground text-sm">No conversations yet</p>
                     ) : (
-                      chatUsers.map((user) => (
-                        <div
-                          key={user.user_id}
-                          className={`p-3 border rounded-lg cursor-pointer transition-colors ${
-                            selectedChatUser === user.user_id 
-                              ? 'bg-primary/10 border-primary' 
-                              : 'hover:bg-muted/50'
-                          }`}
-                          onClick={() => setSelectedChatUser(user.user_id)}
-                        >
-                          <div className="flex items-center justify-between">
-                            <span className="font-medium">{user.full_name}</span>
-                            {user.unread_count > 0 && (
-                              <Badge variant="destructive" className="text-xs">
-                                {user.unread_count}
-                              </Badge>
-                            )}
-                          </div>
-                        </div>
-                      ))
+                       chatUsers.map((user) => (
+                         <div
+                           key={user.user_id}
+                           className={`p-3 border rounded-lg cursor-pointer transition-colors ${
+                             selectedChatUser === user.user_id 
+                               ? 'bg-primary/10 border-primary' 
+                               : 'hover:bg-muted/50'
+                           }`}
+                           onClick={() => {
+                             setSelectedChatUser(user.user_id);
+                             markThreadAsRead(user.user_id);
+                           }}
+                         >
+                           <div className="flex items-center justify-between">
+                             <div className="flex flex-col min-w-0 flex-1">
+                               <span className="font-medium truncate">{user.full_name}</span>
+                               {user.last_message_at && (
+                                 <span className="text-xs text-muted-foreground">
+                                   {new Date(user.last_message_at).toLocaleString()}
+                                 </span>
+                               )}
+                               {user.last_message_preview && (
+                                 <span className="text-xs text-muted-foreground mt-1 truncate">
+                                   {user.last_message_preview}
+                                 </span>
+                               )}
+                             </div>
+                             {user.unread_count > 0 && (
+                               <Badge variant="destructive" className="ml-2">
+                                 {user.unread_count}
+                               </Badge>
+                             )}
+                           </div>
+                         </div>
+                       ))
                     )}
                   </div>
 
