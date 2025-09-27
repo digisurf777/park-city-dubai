@@ -76,8 +76,11 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Get user data from Supabase
-    const { data: userData, error: userError } = await supabaseAdmin.auth.admin.getUserByEmail(email);
+    // Get user data from Supabase - Find user by email  
+    const { data: users, error: userError } = await supabaseAdmin.auth.admin.listUsers();
+    
+    const userData = users && users.users.find(u => u.email === email) ? 
+      { user: users.users.find(u => u.email === email)! } : null;
     
     if (userError || !userData?.user) {
       console.error('User not found:', userError);
@@ -114,9 +117,7 @@ const handler = async (req: Request): Promise<Response> => {
     const { data: linkData, error: resendError } = await supabaseAdmin.auth.admin.generateLink({
       type: 'signup',
       email: email,
-      options: {
-        redirectTo: 'https://shazamparking.ae/email-confirmed?redirect_to=/my-account'
-      }
+      password: 'temp-password-for-link-generation'
     });
 
     if (resendError || !linkData?.properties?.action_link) {

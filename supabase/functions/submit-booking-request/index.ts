@@ -115,6 +115,10 @@ const handler = async (req: Request): Promise<Response> => {
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
     const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
     
+    if (!supabaseUrl || !supabaseAnonKey) {
+      throw new Error('Missing Supabase configuration');
+    }
+    
     const preAuthResponse = await fetch(`${supabaseUrl}/functions/v1/create-pre-authorization`, {
       method: 'POST',
       headers: {

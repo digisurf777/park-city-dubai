@@ -261,7 +261,7 @@ const handler = async (req: Request): Promise<Response> => {
     const emailResponse = await retryEmailSend(emailData);
 
     console.log("Confirmation email sent successfully:", {
-      id: emailResponse.data?.id,
+      id: emailResponse?.data?.id || 'unknown',
       email,
       language,
       isResend
@@ -269,7 +269,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     return new Response(JSON.stringify({
       success: true,
-      emailId: emailResponse.data?.id,
+      emailId: emailResponse?.data?.id || null,
       message: isResend ? 'Confirmation email resent successfully' : 'Confirmation email sent successfully',
       language
     }), {

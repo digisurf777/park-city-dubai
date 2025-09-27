@@ -103,8 +103,7 @@ serve(async (req) => {
       .update({
         document_access_token: tempToken,
         token_expires_at: expiresAt.toISOString(),
-        last_accessed_at: new Date().toISOString(),
-        access_count: supabaseClient.raw('access_count + 1')
+        last_accessed_at: new Date().toISOString()
       })
       .eq('id', reference.encrypted_ref_id)
 
