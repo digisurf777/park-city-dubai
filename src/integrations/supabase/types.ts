@@ -1531,6 +1531,14 @@ export type Database = {
           signed_url: string
         }[]
       }
+      get_user_basic_info: {
+        Args: { user_ids: string[] }
+        Returns: {
+          email: string
+          full_name: string
+          user_id: string
+        }[]
+      }
       get_user_bookings_safe: {
         Args: { user_uuid?: string }
         Returns: {

@@ -719,15 +719,10 @@ const AdminPanelOrganized = () => {
         // Get unique user IDs
         const userIds = [...new Set(messages.map(msg => msg.user_id))];
         
-        // Get profiles for these users with improved fallback to auth.users
-        const { data: userDetails, error: detailsError } = await supabase
-          .from('profiles')
-          .select(`
-            user_id, 
-            full_name,
-            email
-          `)
-          .in('user_id', userIds);
+        // Use the new RPC to get real user information from auth.users
+        const { data: userDetails, error: detailsError } = await supabase.rpc('get_user_basic_info', {
+          user_ids: userIds
+        });
 
         if (detailsError) {
           console.error('Error fetching user details:', detailsError);
@@ -736,17 +731,20 @@ const AdminPanelOrganized = () => {
         // Create user map with unread counts and better name resolution
         const userMap = new Map();
         userIds.forEach(userId => {
-          const profile = userDetails?.find(p => p.user_id === userId);
+          const userInfo = userDetails?.find(u => u.user_id === userId);
           const unreadCount = messages.filter(msg => 
             msg.user_id === userId && !msg.from_admin && !msg.read_status
           ).length;
 
-          // Better name resolution with multiple fallbacks
+          // Better name resolution with multiple fallbacks from auth.users
           let displayName = 'Unknown User';
-          if (profile?.full_name) {
-            displayName = profile.full_name;
-          } else if (profile?.email) {
-            displayName = profile.email;
+          if (userInfo?.full_name && userInfo.full_name.trim()) {
+            displayName = userInfo.full_name.trim();
+          } else if (userInfo?.email) {
+            displayName = userInfo.email;
+          } else {
+            // Last resort - use user ID as identifier
+            displayName = `User ${userId.slice(0, 8)}`;
           }
 
           userMap.set(userId, {
@@ -758,6 +756,12 @@ const AdminPanelOrganized = () => {
 
         setChatUsers(Array.from(userMap.values()));
       } else {
+        setChatUsers([]);
+      }
+    } catch (error) {
+      console.error('Error fetching chat users:', error);
+    }
+  };
         setChatUsers([]);
       }
     } catch (error) {
