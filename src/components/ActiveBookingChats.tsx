@@ -210,7 +210,7 @@ export const ActiveBookingChats = () => {
                           )}
                           <Badge 
                             variant={
-                              booking.status === 'pending' 
+                              (booking.status === 'pending' && booking.payment_status !== 'paid')
                                 ? "outline" 
                                 : booking.is_active 
                                 ? "default" 
@@ -218,10 +218,10 @@ export const ActiveBookingChats = () => {
                             } 
                             className="text-xs"
                           >
-                            {booking.status === 'pending' 
+                            {(booking.status === 'pending' && booking.payment_status !== 'paid')
                               ? "Pending Payment" 
-                              : booking.is_active 
-                              ? "Active Now" 
+                              : (booking.status === 'confirmed' || booking.payment_status === 'paid')
+                              ? (booking.is_active ? "Active Now" : "Paid") 
                               : "Upcoming"}
                           </Badge>
                         </div>
@@ -245,7 +245,7 @@ export const ActiveBookingChats = () => {
                           </span>
                         </div>
 
-                        {booking.status === 'pending' && (
+                         {booking.status === 'pending' && booking.payment_status !== 'paid' && (
                           <div className="bg-yellow-100 border border-yellow-200 rounded p-2 mb-3">
                             <p className="text-xs text-yellow-800 font-medium">
                               💳 Payment Required - Complete payment to confirm your booking
@@ -264,6 +264,14 @@ export const ActiveBookingChats = () => {
                                 Complete Payment
                               </Button>
                             )}
+                          </div>
+                        )}
+
+                        {(booking.status === 'confirmed' || booking.payment_status === 'paid') && !booking.is_active && new Date() > new Date(booking.start_time) && (
+                          <div className="bg-green-100 border border-green-200 rounded p-2 mb-3">
+                            <p className="text-xs text-green-800 font-medium">
+                              ✅ Payment Completed - Booking confirmed
+                            </p>
                           </div>
                         )}
 
@@ -289,20 +297,20 @@ export const ActiveBookingChats = () => {
                           </p>
                         )}
 
-          {booking.status === 'pending' && (
+          {(booking.status === 'pending' && booking.payment_status !== 'paid') && (
             <p className="text-xs text-muted-foreground">
               Chat will be available 48 hours before booking start after payment confirmation
             </p>
           )}
                       </div>
                       
-                      <Button 
-                        variant={booking.status === 'confirmed' && booking.is_active ? "default" : "secondary"}
+                       <Button 
+                        variant={(booking.status === 'confirmed' || booking.payment_status === 'paid') && booking.is_active ? "default" : "secondary"}
                         size="sm"
                         onClick={() => openChat(booking.id)}
-                        disabled={booking.status === 'pending' || !booking.chat_available}
+                        disabled={(booking.status === 'pending' && booking.payment_status !== 'paid') || !booking.chat_available}
                       >
-                        {booking.status === 'pending' 
+                        {(booking.status === 'pending' && booking.payment_status !== 'paid')
                           ? "Payment Required" 
                           : booking.chat_available 
                           ? "Chat Now" 

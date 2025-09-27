@@ -147,14 +147,25 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent,
   let newStatus = 'pending';
   let newPaymentStatus = 'pre_authorized';
 
+  console.log(`PaymentIntent status: ${paymentIntent.status}`);
+
   if (paymentIntent.status === 'succeeded') {
     // Payment was captured (fully charged)
     newStatus = 'confirmed';
     newPaymentStatus = 'paid';
+    console.log('Payment succeeded - setting status to confirmed and payment_status to paid');
   } else if (paymentIntent.status === 'requires_capture') {
     // Payment is pre-authorized but not captured yet
     newStatus = 'pending';
     newPaymentStatus = 'pre_authorized';
+    console.log('Payment requires capture - keeping status as pending');
+  } else if (paymentIntent.status === 'processing') {
+    // Payment is being processed
+    newStatus = 'pending';
+    newPaymentStatus = 'processing';
+    console.log('Payment is processing - keeping status as pending');
+  } else {
+    console.log(`Unhandled payment intent status: ${paymentIntent.status}`);
   }
 
   const { error: updateError } = await supabase
