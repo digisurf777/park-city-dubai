@@ -736,10 +736,11 @@ const AdminPanelOrganized = () => {
             msg.user_id === userId && !msg.from_admin && !msg.read_status
           ).length;
 
-          // Better name resolution with multiple fallbacks from auth.users
+          // Prefer real name; if it's missing or 'Unknown User', fall back to email
           let displayName = 'Unknown User';
-          if (userInfo?.full_name && userInfo.full_name.trim()) {
-            displayName = userInfo.full_name.trim();
+          const candidate = userInfo?.full_name?.trim();
+          if (candidate && candidate.toLowerCase() !== 'unknown user') {
+            displayName = candidate;
           } else if (userInfo?.email) {
             displayName = userInfo.email;
           } else {
@@ -756,12 +757,6 @@ const AdminPanelOrganized = () => {
 
         setChatUsers(Array.from(userMap.values()));
       } else {
-        setChatUsers([]);
-      }
-    } catch (error) {
-      console.error('Error fetching chat users:', error);
-    }
-  };
         setChatUsers([]);
       }
     } catch (error) {
