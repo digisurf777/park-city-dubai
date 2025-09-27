@@ -716,23 +716,60 @@ const AdminPanelOrganized = () => {
 
   const fetchChatUsers = async () => {
     try {
-      // Build list via RPC that resolves names and unread counts on the server
+      // Try RPC that resolves names and unread counts on the server
       const { data: overview, error } = await supabase.rpc('get_chat_users_overview');
       if (error) throw error;
 
-      let users = (overview || []).map((u: any) => ({
+      let users: { user_id: string; full_name: string; unread_count: number }[] = (overview || []).map((u: any) => ({
         user_id: u.user_id as string,
         full_name: (u.display_name && String(u.display_name).trim()) || '',
-        unread_count: u.unread_count || 0,
+        unread_count: Number(u.unread_count || 0),
       }));
 
-      // Fetch missing names via secondary RPC
-      const missingIds = users.filter(u => !u.full_name).map(u => u.user_id);
+      // Fallback: if RPC returned nothing, derive from user_messages directly
+      if (!users || users.length === 0) {
+        const { data: msgs, error: msgsErr } = await supabase
+          .from('user_messages')
+          .select('user_id, read_status, from_admin, created_at')
+          .order('created_at', { ascending: false });
+        if (msgsErr) throw msgsErr;
+
+        const allIds = Array.from(new Set((msgs || []).map((m: any) => m.user_id).filter(Boolean)));
+
+        // Build unread counts per user (only user -> admin messages that are unread)
+        const unreadMap = new Map<string, number>();
+        (msgs || []).forEach((m: any) => {
+          if (!m.from_admin && !m.read_status && m.user_id) {
+            unreadMap.set(m.user_id, (unreadMap.get(m.user_id) || 0) + 1);
+          }
+        });
+
+        // Resolve names via secondary RPC
+        let nameMap = new Map<string, { full_name?: string; email?: string }>();
+        if (allIds.length > 0) {
+          const { data: basic, error: basicErr } = await supabase.rpc('get_user_basic_info', { user_ids: allIds });
+          if (basicErr) console.error('get_user_basic_info failed:', basicErr);
+          nameMap = new Map((basic || []).map((b: any) => [b.user_id, b]));
+        }
+
+        users = allIds.map((id) => {
+          const b = nameMap.get(id);
+          const name = (b?.full_name && String(b.full_name).trim()) || b?.email || '';
+          return {
+            user_id: id,
+            full_name: name,
+            unread_count: unreadMap.get(id) || 0,
+          };
+        });
+      }
+
+      // Fill missing names and final fallback
+      const missingIds = users.filter((u) => !u.full_name).map((u) => u.user_id);
       if (missingIds.length > 0) {
         const { data: basic, error: basicErr } = await supabase.rpc('get_user_basic_info', { user_ids: missingIds });
         if (basicErr) console.error('get_user_basic_info failed:', basicErr);
         const basicMap = new Map((basic || []).map((b: any) => [b.user_id, b]));
-        users = users.map(u => {
+        users = users.map((u) => {
           if (!u.full_name) {
             const b = basicMap.get(u.user_id);
             const name = (b?.full_name && String(b.full_name).trim()) || b?.email || '';
@@ -742,13 +779,13 @@ const AdminPanelOrganized = () => {
         });
       }
 
-      // Final fallback
-      users = users.map(u => ({
+      users = users.map((u) => ({
         ...u,
         full_name: u.full_name || `User ${String(u.user_id).slice(0, 8)}`,
       }));
 
       setChatUsers(users);
+      console.info('Set chat users:', users);
     } catch (error) {
       console.error('Error fetching chat users:', error);
     }
