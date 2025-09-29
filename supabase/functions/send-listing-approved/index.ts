@@ -38,7 +38,31 @@ const handler = async (req: Request): Promise<Response> => {
       accessDeviceDeposit,
     }: ListingApprovedRequest = await req.json();
 
+    console.log('Received listing approval request:', {
+      listingId,
+      userName,
+      userEmail,
+      buildingName
+    });
+
+    // Validate email
+    if (!userEmail || typeof userEmail !== 'string' || !userEmail.includes('@')) {
+      console.error('Invalid email address:', userEmail);
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: 'Invalid email address provided'
+        }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
+
     const listingTitle = `${buildingName} - ${bayType} in ${district}`;
+
+    console.log('Sending email to:', userEmail);
 
     const emailResponse = await resend.emails.send({
       from: "ShazamParking <noreply@shazamparking.ae>",

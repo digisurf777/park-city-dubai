@@ -560,6 +560,8 @@ const AdminPanelOrganized = () => {
       // Get listing details before updating
       const listing = parkingListings.find(l => l.id === listingId);
       
+      console.log('Updating listing status:', { listingId, status, listing });
+      
       const { error } = await supabase
         .from('parking_listings')
         .update({ status })
@@ -570,30 +572,63 @@ const AdminPanelOrganized = () => {
       // If approving, send notification email to owner
       if (status === 'approved' && listing) {
         try {
+          console.log('Fetching owner details for listing approval email...');
+          
           // Get owner details
-          const { data: owner } = await supabase
+          const { data: owner, error: ownerError } = await supabase
             .from('profiles')
             .select('email, full_name')
             .eq('user_id', listing.owner_id)
             .single();
 
-          if (owner?.email) {
-            await supabase.functions.invoke('send-listing-approved', {
-              body: {
-                listingId: listing.id,
-                userName: owner.full_name || 'Property Owner',
-                userEmail: owner.email,
-                buildingName: listing.title,
-                district: listing.zone,
-                bayType: listing.description || 'Parking Space',
-                monthlyPrice: listing.price_per_month || 0,
-                accessDeviceDeposit: listing.access_device_deposit_required ? (listing.deposit_amount_aed || 500) : 0
-              }
+          console.log('Owner details:', { owner, ownerError });
+
+          if (ownerError) {
+            console.error('Error fetching owner:', ownerError);
+            throw ownerError;
+          }
+
+          if (!owner?.email) {
+            console.error('No email found for owner:', listing.owner_id);
+            toast({
+              title: "Warning",
+              description: "Listing approved but owner email not found - cannot send notification",
+              variant: "destructive",
             });
+          } else {
+            console.log('Sending approval email to:', owner.email);
+            
+            const emailPayload = {
+              listingId: listing.id,
+              userName: owner.full_name || 'Property Owner',
+              userEmail: owner.email,
+              buildingName: listing.title,
+              district: listing.zone,
+              bayType: listing.description || 'Parking Space',
+              monthlyPrice: listing.price_per_month || 0,
+              accessDeviceDeposit: listing.access_device_deposit_required ? (listing.deposit_amount_aed || 500) : 0
+            };
+            
+            console.log('Email payload:', emailPayload);
+            
+            const { data: emailData, error: emailError } = await supabase.functions.invoke('send-listing-approved', {
+              body: emailPayload
+            });
+
+            console.log('Email function response:', { emailData, emailError });
+
+            if (emailError) {
+              console.error('Email function error:', emailError);
+              throw emailError;
+            }
           }
         } catch (emailError) {
           console.error('Error sending approval email:', emailError);
-          // Don't fail the whole operation if email fails
+          toast({
+            title: "Warning",
+            description: "Listing approved but email notification failed: " + (emailError as Error).message,
+            variant: "destructive",
+          });
         }
       }
 
