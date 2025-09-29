@@ -17,6 +17,7 @@ interface ListingConfirmationRequest {
   district: string;
   bayType: string;
   monthlyPrice: number;
+  accessDeviceDeposit?: number;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -34,6 +35,7 @@ const handler = async (req: Request): Promise<Response> => {
       district,
       bayType,
       monthlyPrice,
+      accessDeviceDeposit,
     }: ListingConfirmationRequest = await req.json();
 
     const listingTitle = `${buildingName} - ${bayType} in ${district}`;
@@ -63,6 +65,7 @@ const handler = async (req: Request): Promise<Response> => {
               <p style="margin: 8px 0; color: #374151;"><strong>Reference ID:</strong> ${listingId}</p>
               <p style="margin: 8px 0; color: #374151;"><strong>Property:</strong> ${listingTitle}</p>
               <p style="margin: 8px 0; color: #374151;"><strong>Monthly Price:</strong> ${monthlyPrice} AED</p>
+              ${accessDeviceDeposit ? `<p style="margin: 8px 0; color: #374151;"><strong>Access Device Deposit:</strong> ${accessDeviceDeposit} AED</p>` : ''}
             </div>
             
             <div style="background: #fef3c7; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #f59e0b;">
