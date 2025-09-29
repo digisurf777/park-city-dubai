@@ -97,7 +97,7 @@ const handler = async (req: Request): Promise<Response> => {
         <p style="color: #666; font-size: 12px; text-align: center;">
           This is an automated email from the ShazamParking booking notification system.<br>
           <strong>ShazamParking Team</strong><br>
-          support@shazam.ae<br>
+          support@shazamparking.ae<br>
           www.shazamparking.ae
         </p>
       </div>
@@ -105,7 +105,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     const emailResponse = await resend.emails.send({
       from: "ShazamParking Bookings <noreply@shazamparking.ae>",
-      to: ["support@shazam.ae"],
+      to: ["support@shazamparking.ae"],
       subject: subject,
       html: htmlContent,
     });

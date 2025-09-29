@@ -70,10 +70,10 @@ const handler = async (req: Request): Promise<Response> => {
             </p>
             <div style="margin-top: 15px;">
               <p style="color: #9ca3af; font-size: 12px; margin: 0;">
-                <a href="mailto:support@shazam.ae" style="color: #10b981; text-decoration: none;">support@shazam.ae</a>
-              </p>
-              <p style="color: #9ca3af; font-size: 12px; margin: 5px 0 0 0;">
-                <a href="https://www.shazamparking.ae" style="color: #10b981; text-decoration: none;">www.shazamparking.ae</a>
+                 <a href="mailto:support@shazamparking.ae" style="color: #10b981; text-decoration: none;">support@shazamparking.ae</a>
+               </p>
+               <p style="color: #9ca3af; font-size: 12px; margin: 5px 0 0 0;">
+                 <a href="https://www.shazamparking.ae" style="color: #10b981; text-decoration: none;">www.shazamparking.ae</a>
               </p>
             </div>
           </div>

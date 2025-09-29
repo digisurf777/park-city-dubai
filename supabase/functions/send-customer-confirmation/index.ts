@@ -84,7 +84,7 @@ const handler = async (req: Request): Promise<Response> => {
 
           <p style="color: #666; font-size: 14px; line-height: 1.6;">
             Have questions? Reply to this email or contact us at 
-            <a href="mailto:support@shazam.ae" style="color: #007bff;">support@shazam.ae</a>
+            <a href="mailto:support@shazamparking.ae" style="color: #007bff;">support@shazamparking.ae</a>
           </p>
 
           <p style="color: #666; font-size: 14px;">
