@@ -85,6 +85,11 @@ interface ParkingListing {
   contact_phone: string;
   contact_email: string;
   created_at: string;
+  access_device_deposit_required?: boolean;
+  deposit_amount_aed?: number;
+  deposit_payment_status?: string;
+  deposit_payment_link?: string;
+  deposit_stripe_session_id?: string;
 }
 
 interface ParkingBooking {
@@ -552,12 +557,45 @@ const AdminPanelOrganized = () => {
   
   const updateListingStatus = async (listingId: string, status: 'approved' | 'rejected' | 'published') => {
     try {
+      // Get listing details before updating
+      const listing = parkingListings.find(l => l.id === listingId);
+      
       const { error } = await supabase
         .from('parking_listings')
         .update({ status })
         .eq('id', listingId);
 
       if (error) throw error;
+
+      // If approving, send notification email to owner
+      if (status === 'approved' && listing) {
+        try {
+          // Get owner details
+          const { data: owner } = await supabase
+            .from('profiles')
+            .select('email, full_name')
+            .eq('user_id', listing.owner_id)
+            .single();
+
+          if (owner?.email) {
+            await supabase.functions.invoke('send-listing-approved', {
+              body: {
+                listingId: listing.id,
+                userName: owner.full_name || 'Property Owner',
+                userEmail: owner.email,
+                buildingName: listing.title,
+                district: listing.zone,
+                bayType: listing.description || 'Parking Space',
+                monthlyPrice: listing.price_per_month || 0,
+                accessDeviceDeposit: listing.access_device_deposit_required ? (listing.deposit_amount_aed || 500) : 0
+              }
+            });
+          }
+        } catch (emailError) {
+          console.error('Error sending approval email:', emailError);
+          // Don't fail the whole operation if email fails
+        }
+      }
 
       // Update local state
       setParkingListings(prev => 
@@ -568,7 +606,7 @@ const AdminPanelOrganized = () => {
 
       toast({
         title: "Success",
-        description: `Listing ${status} successfully`,
+        description: `Listing ${status} successfully${status === 'approved' ? ' - Owner notified by email' : ''}`,
       });
     } catch (error) {
       console.error('Error updating listing status:', error);
