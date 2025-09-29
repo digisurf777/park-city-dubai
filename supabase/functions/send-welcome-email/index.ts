@@ -94,7 +94,7 @@ const handler = async (req: Request): Promise<Response> => {
           
           <div style="border-top: 2px solid #e5e7eb; padding-top: 25px; margin-top: 30px; text-align: center;">
             <p style="color: #6b7280; font-size: 14px; margin: 0 0 10px 0;">
-              Need help? Contact us at <a href="mailto:support@shazamparking.ae" style="color: #10b981; text-decoration: none; font-weight: 600;">support@shazamparking.ae</a>
+              Need help? Contact us at <a href="mailto:support@shazam.ae" style="color: #10b981; text-decoration: none; font-weight: 600;">support@shazam.ae</a>
             </p>
             <div style="margin-top: 15px;">
               <p style="color: #9ca3af; font-size: 12px; margin: 0;">ShazamParking - Your Trusted Parking Platform in Dubai</p>

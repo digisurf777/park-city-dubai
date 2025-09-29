@@ -57,7 +57,7 @@ const handler = async (req: Request): Promise<Response> => {
             </p>
             
             <p style="color: #4b5563; line-height: 1.6; margin: 20px 0 0 0; font-size: 16px;">
-              Should you require any further assistance, feel free to contact us at support@shazamparking.ae.
+              Should you require any further assistance, feel free to contact us at support@shazam.ae.
             </p>
           </div>
           

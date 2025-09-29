@@ -90,7 +90,7 @@ const getEmailTemplate = (fullName: string, confirmationUrl: string, language: '
                     <tr>
                       <td style="padding: 30px 40px; text-align: center; font-size: 12px; color: #9ca3af; background-color: #f9fafb; border-top: 1px solid #e5e7eb;">
                         <p style="margin: 0 0 10px 0;">
-                          Need help? Contact us at <a href="mailto:support@shazamparking.ae" style="color: #10b981;">support@shazamparking.ae</a>
+                          Need help? Contact us at <a href="mailto:support@shazam.ae" style="color: #10b981;">support@shazam.ae</a>
                         </p>
                         <p style="margin: 0;">
                           Best regards,<br />
@@ -155,7 +155,7 @@ const getEmailTemplate = (fullName: string, confirmationUrl: string, language: '
                     <tr>
                       <td style="padding: 30px 40px; text-align: center; font-size: 12px; color: #9ca3af; background-color: #f9fafb; border-top: 1px solid #e5e7eb;">
                         <p style="margin: 0 0 10px 0;">
-                          تحتاج مساعدة؟ تواصل معنا على <a href="mailto:support@shazamparking.ae" style="color: #10b981;">support@shazamparking.ae</a>
+                          تحتاج مساعدة؟ تواصل معنا على <a href="mailto:support@shazam.ae" style="color: #10b981;">support@shazam.ae</a>
                         </p>
                         <p style="margin: 0;">
                           مع أطيب التحيات،<br />

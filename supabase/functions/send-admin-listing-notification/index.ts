@@ -104,14 +104,14 @@ const handler = async (req: Request): Promise<Response> => {
         <p style="color: #666; font-size: 12px; text-align: center;">
           This is an automated email from the ShazamParking listing notification system.<br>
           <strong>ShazamParking Team</strong><br>
-          support@shazamparking.ae<br>
+          support@shazam.ae<br>
           www.shazamparking.ae
         </p>
       </div>
     `;
 
     // Send to admin if it's a new submission, send to user if it's approved
-    const recipientEmail = isApproved && userEmail ? userEmail : "support@shazamparking.ae";
+    const recipientEmail = isApproved && userEmail ? userEmail : "support@shazam.ae";
 
     const emailResponse = await resend.emails.send({
       from: "ShazamParking <noreply@shazamparking.ae>",

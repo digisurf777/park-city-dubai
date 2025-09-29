@@ -79,7 +79,7 @@ const handler = async (req: Request): Promise<Response> => {
                style="background-color: #10b981; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; display: inline-block; margin-right: 10px;">
               Submit New Listing
             </a>
-            <a href="mailto:support@shazamparking.ae" 
+            <a href="mailto:support@shazam.ae"
                style="background-color: #6b7280; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; display: inline-block;">
               Contact Support
             </a>
@@ -92,7 +92,7 @@ const handler = async (req: Request): Promise<Response> => {
             </p>
             <div style="margin-top: 15px;">
               <p style="color: #9ca3af; font-size: 12px; margin: 0;">
-                <a href="mailto:support@shazamparking.ae" style="color: #10b981; text-decoration: none;">support@shazamparking.ae</a>
+                <a href="mailto:support@shazam.ae" style="color: #10b981; text-decoration: none;">support@shazam.ae</a>
               </p>
               <p style="color: #9ca3af; font-size: 12px; margin: 5px 0 0 0;">
                 <a href="https://www.shazamparking.ae" style="color: #10b981; text-decoration: none;">www.shazamparking.ae</a>
