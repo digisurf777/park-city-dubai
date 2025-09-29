@@ -109,3 +109,6 @@ verify_jwt = true
 
 [functions.stripe-webhook-handler]
 verify_jwt = false
+
+[functions.send-listing-approved]
+verify_jwt = true
