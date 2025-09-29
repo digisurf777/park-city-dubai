@@ -574,34 +574,47 @@ const AdminPanelOrganized = () => {
         try {
           console.log('Fetching owner details for listing approval email...');
           
-          // Get owner details
+          // Get owner details from profiles first
           const { data: owner, error: ownerError } = await supabase
             .from('profiles')
             .select('email, full_name')
             .eq('user_id', listing.owner_id)
-            .single();
+            .maybeSingle();
 
-          console.log('Owner details:', { owner, ownerError });
+          console.log('Owner profile data:', { owner, ownerError });
 
-          if (ownerError) {
-            console.error('Error fetching owner:', ownerError);
-            throw ownerError;
+          let ownerEmail = owner?.email;
+          let ownerName = owner?.full_name;
+
+          // If no profile or no email, try to get from auth.users
+          if (!ownerEmail) {
+            console.log('No email in profile, fetching from auth.users...');
+            
+            const { data: { user: authUser }, error: authError } = await supabase.auth.admin.getUserById(listing.owner_id);
+            
+            if (authUser?.email) {
+              ownerEmail = authUser.email;
+              ownerName = ownerName || authUser.user_metadata?.full_name || authUser.user_metadata?.name || 'Property Owner';
+              console.log('Got email from auth.users:', ownerEmail);
+            } else {
+              console.error('Cannot find email for user:', listing.owner_id, authError);
+            }
           }
 
-          if (!owner?.email) {
-            console.error('No email found for owner:', listing.owner_id);
+          if (!ownerEmail) {
+            console.error('No email found for owner after all attempts:', listing.owner_id);
             toast({
               title: "Warning",
               description: "Listing approved but owner email not found - cannot send notification",
               variant: "destructive",
             });
           } else {
-            console.log('Sending approval email to:', owner.email);
+            console.log('Sending approval email to:', ownerEmail);
             
             const emailPayload = {
               listingId: listing.id,
-              userName: owner.full_name || 'Property Owner',
-              userEmail: owner.email,
+              userName: ownerName || 'Property Owner',
+              userEmail: ownerEmail,
               buildingName: listing.title,
               district: listing.zone,
               bayType: listing.description || 'Parking Space',
@@ -620,6 +633,20 @@ const AdminPanelOrganized = () => {
             if (emailError) {
               console.error('Email function error:', emailError);
               throw emailError;
+            }
+
+            // Also send a message to user's inbox
+            try {
+              await supabase.from('user_messages').insert({
+                user_id: listing.owner_id,
+                subject: '🎉 Your Parking Listing Has Been Approved!',
+                message: `Great news! Your parking listing "${listing.title}" in ${listing.zone} has been approved and is now live on ShazamParking. Customers can now find and book your parking space. You'll receive booking notifications when customers request your space.`,
+                from_admin: true,
+                read_status: false
+              });
+              console.log('Inbox notification sent');
+            } catch (inboxError) {
+              console.error('Failed to send inbox notification:', inboxError);
             }
           }
         } catch (emailError) {
