@@ -69,7 +69,7 @@ const handler = async (req: Request): Promise<Response> => {
           <p><strong>Building:</strong> ${buildingName}</p>
           <p><strong>Bay Type:</strong> ${bayType}</p>
           <p><strong>Monthly Price:</strong> ${monthlyPrice} AED</p>
-          <p><strong>Access Device Deposit:</strong> ${accessDeviceDeposit && accessDeviceDeposit > 0 ? `Yes (${accessDeviceDeposit} AED)` : 'No'}</p>
+          <p><strong>Access Device Deposit:</strong> ${accessDeviceDeposit && accessDeviceDeposit > 0 ? 'Yes' : 'No'}</p>
           <p><strong>Email:</strong> ${userEmail}</p>
           ${userPhone ? `<p><strong>Phone:</strong> ${userPhone}</p>` : ''}
           ${notes ? `<p><strong>Notes:</strong> ${notes}</p>` : ''}

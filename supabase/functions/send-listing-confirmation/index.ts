@@ -65,7 +65,7 @@ const handler = async (req: Request): Promise<Response> => {
               <p style="margin: 8px 0; color: #374151;"><strong>Reference ID:</strong> ${listingId}</p>
               <p style="margin: 8px 0; color: #374151;"><strong>Property:</strong> ${listingTitle}</p>
               <p style="margin: 8px 0; color: #374151;"><strong>Monthly Price:</strong> ${monthlyPrice} AED</p>
-              ${accessDeviceDeposit ? `<p style="margin: 8px 0; color: #374151;"><strong>Access Device Deposit:</strong> ${accessDeviceDeposit} AED</p>` : ''}
+              ${accessDeviceDeposit && accessDeviceDeposit > 0 ? `<p style="margin: 8px 0; color: #374151;"><strong>Access Device Deposit:</strong> Yes</p>` : `<p style="margin: 8px 0; color: #374151;"><strong>Access Device Deposit:</strong> No</p>`}
             </div>
             
             <div style="background: #fef3c7; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #f59e0b;">
