@@ -574,47 +574,33 @@ const AdminPanelOrganized = () => {
         try {
           console.log('Fetching owner details for listing approval email...');
           
-          // Get owner details from profiles first
-          const { data: owner, error: ownerError } = await supabase
-            .from('profiles')
-            .select('email, full_name')
-            .eq('user_id', listing.owner_id)
-            .maybeSingle();
+          // Use secure RPC function to get email from either profiles or auth.users
+          const { data: ownerData, error: ownerError } = await supabase
+            .rpc('get_user_email_and_name', { user_uuid: listing.owner_id });
 
-          console.log('Owner profile data:', { owner, ownerError });
+          console.log('Owner data from RPC:', { ownerData, ownerError });
 
-          let ownerEmail = owner?.email;
-          let ownerName = owner?.full_name;
-
-          // If no profile or no email, try to get from auth.users
-          if (!ownerEmail) {
-            console.log('No email in profile, fetching from auth.users...');
-            
-            const { data: { user: authUser }, error: authError } = await supabase.auth.admin.getUserById(listing.owner_id);
-            
-            if (authUser?.email) {
-              ownerEmail = authUser.email;
-              ownerName = ownerName || authUser.user_metadata?.full_name || authUser.user_metadata?.name || 'Property Owner';
-              console.log('Got email from auth.users:', ownerEmail);
-            } else {
-              console.error('Cannot find email for user:', listing.owner_id, authError);
-            }
+          if (ownerError) {
+            console.error('Error fetching owner data:', ownerError);
+            throw ownerError;
           }
 
-          if (!ownerEmail) {
-            console.error('No email found for owner after all attempts:', listing.owner_id);
+          const owner = ownerData?.[0];
+
+          if (!owner?.email) {
+            console.error('No email found for owner:', listing.owner_id);
             toast({
               title: "Warning",
               description: "Listing approved but owner email not found - cannot send notification",
               variant: "destructive",
             });
           } else {
-            console.log('Sending approval email to:', ownerEmail);
+            console.log('Sending approval email to:', owner.email);
             
             const emailPayload = {
               listingId: listing.id,
-              userName: ownerName || 'Property Owner',
-              userEmail: ownerEmail,
+              userName: owner.full_name || 'Property Owner',
+              userEmail: owner.email,
               buildingName: listing.title,
               district: listing.zone,
               bayType: listing.description || 'Parking Space',
@@ -637,16 +623,21 @@ const AdminPanelOrganized = () => {
 
             // Also send a message to user's inbox
             try {
-              await supabase.from('user_messages').insert({
+              const { error: inboxError } = await supabase.from('user_messages').insert({
                 user_id: listing.owner_id,
                 subject: '🎉 Your Parking Listing Has Been Approved!',
                 message: `Great news! Your parking listing "${listing.title}" in ${listing.zone} has been approved and is now live on ShazamParking. Customers can now find and book your parking space. You'll receive booking notifications when customers request your space.`,
                 from_admin: true,
                 read_status: false
               });
-              console.log('Inbox notification sent');
+              
+              if (inboxError) {
+                console.error('Failed to send inbox notification:', inboxError);
+              } else {
+                console.log('Inbox notification sent successfully');
+              }
             } catch (inboxError) {
-              console.error('Failed to send inbox notification:', inboxError);
+              console.error('Exception sending inbox notification:', inboxError);
             }
           }
         } catch (emailError) {

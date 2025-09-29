@@ -112,6 +112,53 @@ export type Database = {
         }
         Relationships: []
       }
+      deposit_payments: {
+        Row: {
+          amount_aed: number
+          created_at: string | null
+          id: string
+          listing_id: string
+          owner_id: string
+          paid_at: string | null
+          payment_status: string | null
+          stripe_payment_intent_id: string | null
+          stripe_session_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          amount_aed?: number
+          created_at?: string | null
+          id?: string
+          listing_id: string
+          owner_id: string
+          paid_at?: string | null
+          payment_status?: string | null
+          stripe_payment_intent_id?: string | null
+          stripe_session_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          amount_aed?: number
+          created_at?: string | null
+          id?: string
+          listing_id?: string
+          owner_id?: string
+          paid_at?: string | null
+          payment_status?: string | null
+          stripe_payment_intent_id?: string | null
+          stripe_session_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deposit_payments_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "parking_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       documents: {
         Row: {
           bucket_id: string
@@ -471,11 +518,16 @@ export type Database = {
       }
       parking_listings: {
         Row: {
+          access_device_deposit_required: boolean | null
           address: string
           availability_schedule: Json | null
           contact_email: string | null
           contact_phone: string | null
           created_at: string | null
+          deposit_amount_aed: number | null
+          deposit_payment_link: string | null
+          deposit_payment_status: string | null
+          deposit_stripe_session_id: string | null
           description: string | null
           features: string[] | null
           id: string
@@ -490,11 +542,16 @@ export type Database = {
           zone: string
         }
         Insert: {
+          access_device_deposit_required?: boolean | null
           address: string
           availability_schedule?: Json | null
           contact_email?: string | null
           contact_phone?: string | null
           created_at?: string | null
+          deposit_amount_aed?: number | null
+          deposit_payment_link?: string | null
+          deposit_payment_status?: string | null
+          deposit_stripe_session_id?: string | null
           description?: string | null
           features?: string[] | null
           id?: string
@@ -509,11 +566,16 @@ export type Database = {
           zone: string
         }
         Update: {
+          access_device_deposit_required?: boolean | null
           address?: string
           availability_schedule?: Json | null
           contact_email?: string | null
           contact_phone?: string | null
           created_at?: string | null
+          deposit_amount_aed?: number | null
+          deposit_payment_link?: string | null
+          deposit_payment_status?: string | null
+          deposit_stripe_session_id?: string | null
           description?: string | null
           features?: string[] | null
           id?: string
@@ -1564,6 +1626,13 @@ export type Database = {
           updated_at: string
           user_id: string
           zone: string
+        }[]
+      }
+      get_user_email_and_name: {
+        Args: { user_uuid: string }
+        Returns: {
+          email: string
+          full_name: string
         }[]
       }
       get_verifications_with_profiles: {
