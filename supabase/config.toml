@@ -112,3 +112,12 @@ verify_jwt = false
 
 [functions.send-listing-approved]
 verify_jwt = true
+
+[functions.create-deposit-payment-link]
+verify_jwt = true
+
+[functions.send-deposit-payment-request]
+verify_jwt = true
+
+[functions.send-deposit-payment-confirmation]
+verify_jwt = true

@@ -35,7 +35,7 @@ const handler = async (req: Request): Promise<Response> => {
     // Get raw body for signature verification
     const body = await req.text();
     
-    // Verify webhook signature (you'll need to set STRIPE_WEBHOOK_SECRET in Supabase)
+    // Verify webhook signature
     const webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET");
     if (!webhookSecret) {
       console.error("STRIPE_WEBHOOK_SECRET not configured");
@@ -143,6 +143,75 @@ const handler = async (req: Request): Promise<Response> => {
 async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session, supabase: any) {
   console.log("Processing checkout.session.completed:", session.id);
   
+  const paymentType = session.metadata?.payment_type;
+  
+  // Handle deposit payments
+  if (paymentType === 'deposit') {
+    const listingId = session.metadata?.listing_id;
+    const paymentIntentId = typeof session.payment_intent === 'string' 
+      ? session.payment_intent 
+      : (session.payment_intent as any)?.id;
+    
+    if (listingId && paymentIntentId) {
+      console.log(`Processing deposit payment for listing ${listingId}`);
+      
+      // Update deposit payment record
+      const { error: depositError } = await supabase
+        .from('deposit_payments')
+        .update({
+          stripe_payment_intent_id: paymentIntentId,
+          payment_status: 'paid',
+          paid_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        })
+        .eq('stripe_session_id', session.id);
+
+      if (depositError) {
+        console.error("Error updating deposit payment:", depositError);
+      }
+      
+      // Update listing status
+      const { error: listingError } = await supabase
+        .from('parking_listings')
+        .update({
+          deposit_payment_status: 'paid',
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', listingId);
+
+      if (listingError) {
+        console.error("Error updating listing deposit status:", listingError);
+      }
+      
+      // Get listing and owner details for confirmation email
+      const { data: listing } = await supabase
+        .from('parking_listings')
+        .select('title, owner_id, profiles!inner(full_name, email)')
+        .eq('id', listingId)
+        .single();
+        
+      if (listing) {
+        // Send confirmation email
+        try {
+          await supabase.functions.invoke('send-deposit-payment-confirmation', {
+            body: {
+              ownerName: listing.profiles.full_name,
+              ownerEmail: listing.profiles.email,
+              listingTitle: listing.title,
+              depositAmount: 500,
+              transactionId: paymentIntentId,
+            }
+          });
+          console.log("Deposit confirmation email sent");
+        } catch (emailError) {
+          console.error("Error sending deposit confirmation email:", emailError);
+        }
+      }
+    }
+    return;
+  }
+  
+  // Handle booking payments
   const bookingId = session.metadata?.booking_id;
   const paymentIntentId = typeof session.payment_intent === 'string' 
     ? session.payment_intent 
@@ -221,6 +290,13 @@ async function findBookingByPaymentIntent(paymentIntent: Stripe.PaymentIntent, s
 
 async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent, supabase: any) {
   console.log("Processing payment_intent.succeeded:", paymentIntent.id);
+  
+  // Check if this is a deposit payment
+  if (paymentIntent.metadata?.payment_type === 'deposit') {
+    console.log("Handling deposit payment success");
+    // Deposit payments are handled in checkout.session.completed
+    return;
+  }
   
   // Find booking by payment intent ID or metadata
   const booking = await findBookingByPaymentIntent(paymentIntent, supabase);
