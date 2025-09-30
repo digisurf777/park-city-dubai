@@ -149,8 +149,15 @@ const handler = async (req: Request): Promise<Response> => {
     const customerName = userProfile?.full_name || "Customer";
     const customerPhone = userPhone || userProfile?.phone || "Not provided";
     
+    // Track email statuses
+    let adminEmailSent = false;
+    let bookingReceivedEmailSent = false;
+    let customerEmailSent = false;
+    let customerEmailError: string | null = null;
+    
     // Also update notification calls to use service client with proper JWT headers
     try {
+      console.log(`📧 Sending admin notification for booking ${booking.id}...`);
       const { error: adminNotificationError } = await supabaseServiceClient.functions.invoke('send-admin-booking-notification', {
         body: {
           userName: customerName,
@@ -169,17 +176,19 @@ const handler = async (req: Request): Promise<Response> => {
       });
 
       if (adminNotificationError) {
-        console.error("Admin booking notification failed:", adminNotificationError);
+        console.error("❌ Admin booking notification failed:", adminNotificationError);
       } else {
-        console.log("Admin booking notification sent successfully");
+        console.log("✅ Admin booking notification sent successfully");
+        adminEmailSent = true;
       }
     } catch (notificationError) {
-      console.error("Admin booking notification error:", notificationError);
+      console.error("❌ Admin booking notification error:", notificationError);
       // Don't fail the booking if admin notification fails
     }
 
     // Send "Booking Request Received" email to customer
     try {
+      console.log(`📧 Sending booking received email to ${user.email}...`);
       const { error: bookingReceivedError } = await supabaseServiceClient.functions.invoke('send-booking-received', {
         body: {
           userEmail: user.email,
@@ -194,143 +203,193 @@ const handler = async (req: Request): Promise<Response> => {
       });
 
       if (bookingReceivedError) {
-        console.error("Booking received notification failed:", bookingReceivedError);
+        console.error("❌ Booking received notification failed:", bookingReceivedError);
       } else {
-        console.log("Booking received notification sent successfully");
+        console.log("✅ Booking received notification sent successfully to", user.email);
+        bookingReceivedEmailSent = true;
       }
     } catch (notificationError) {
-      console.error("Booking received notification error:", notificationError);
+      console.error("❌ Booking received notification error:", notificationError);
       // Don't fail the booking if notification fails
     }
 
     // Send enhanced confirmation email to customer with payment link
-    const customerEmailResponse = await resend.emails.send({
-      from: "ShazamParking <noreply@shazamparking.ae>",
-      to: [user.email],
-      subject: "Complete Your Parking Booking Payment - ShazamParking",
-      html: `
-        <!DOCTYPE html>
-        <html lang="en" style="font-family: Arial, sans-serif;">
-          <head>
-            <meta charset="UTF-8" />
-            <title>Complete Your Parking Booking</title>
-          </head>
-          <body style="margin: 0; padding: 0; background-color: #f9f9f9;">
-            <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f9f9f9;">
-              <tr>
-                <td align="center">
-                  <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; margin-top: 30px; border-radius: 10px; overflow: hidden;">
-                    <tr>
-                      <td style="padding: 20px; text-align: center; background-color: #0099cc;">
-                        <img src="https://shazamparking.ae/wp-content/uploads/2024/11/shazam-logo-blue.png" alt="Shazam Parking Logo" width="140" style="margin-bottom: 10px;" />
-                        <h1 style="color: white; margin: 0; font-size: 24px;">Booking Confirmation</h1>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td style="padding: 30px 40px; text-align: left;">
-                        <h2 style="color: #333333; margin-top: 0;">Dear ${customerName}! 👋</h2>
-                        <p style="font-size: 16px; color: #555555; line-height: 1.6;">
-                          Thank you for choosing ShazamParking! Your booking request has been received and we've created a secure payment link for you.
-                        </p>
-
-                        ${costAed < 2 ? `
-                        <div style="background-color: #fff3cd; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ffc107;">
-                          <p style="color: #856404; font-weight: bold; margin: 0;">💳 Payment Processing Notice:</p>
-                          <p style="color: #856404; margin: 5px 0 0 0;">
-                            Your original booking amount was ${costAed} AED. Due to payment processor requirements (minimum 2 AED), the payment authorization will show 2 AED. However, you will only be charged the actual booking amount (${costAed} AED) once your booking is confirmed by our team.
+    console.log(`📧 Sending detailed confirmation email to ${user.email}...`);
+    try {
+      const customerEmailResponse = await resend.emails.send({
+        from: "ShazamParking <noreply@shazamparking.ae>",
+        to: [user.email],
+        subject: "Complete Your Parking Booking Payment - ShazamParking",
+        html: `
+          <!DOCTYPE html>
+          <html lang="en" style="font-family: Arial, sans-serif;">
+            <head>
+              <meta charset="UTF-8" />
+              <title>Complete Your Parking Booking</title>
+            </head>
+            <body style="margin: 0; padding: 0; background-color: #f9f9f9;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f9f9f9;">
+                <tr>
+                  <td align="center">
+                    <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; margin-top: 30px; border-radius: 10px; overflow: hidden;">
+                      <tr>
+                        <td style="padding: 20px; text-align: center; background-color: #0099cc;">
+                          <img src="https://shazamparking.ae/wp-content/uploads/2024/11/shazam-logo-blue.png" alt="Shazam Parking Logo" width="140" style="margin-bottom: 10px;" />
+                          <h1 style="color: white; margin: 0; font-size: 24px;">Booking Confirmation</h1>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 30px 40px; text-align: left;">
+                          <h2 style="color: #333333; margin-top: 0;">Dear ${customerName}! 👋</h2>
+                          <p style="font-size: 16px; color: #555555; line-height: 1.6;">
+                            Thank you for choosing ShazamParking! Your booking request has been received and we've created a secure payment link for you.
                           </p>
-                        </div>
-                        ` : ''}
 
-                        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #0099cc;">
-                          <h3 style="color: #0099cc; margin-top: 0;">Booking Details:</h3>
-                          <table style="width: 100%; color: #333;">
-                            <tr><td><strong>Reference Number:</strong></td><td>${booking.id}</td></tr>
-                            <tr><td><strong>Customer Name:</strong></td><td>${customerName}</td></tr>
-                            <tr><td><strong>Email:</strong></td><td>${user.email}</td></tr>
-                            <tr><td><strong>Phone:</strong></td><td>${customerPhone}</td></tr>
-                            <tr><td><strong>Parking Spot:</strong></td><td>${parkingSpotName}</td></tr>
-                            <tr><td><strong>Zone:</strong></td><td>${zone}</td></tr>
-                            <tr><td><strong>Location:</strong></td><td>${location}</td></tr>
-                            <tr><td><strong>Start Date:</strong></td><td>${new Date(startDate).toLocaleDateString()}</td></tr>
-                            <tr><td><strong>Duration:</strong></td><td>${duration} month(s)</td></tr>
-                            <tr><td><strong>Total Cost:</strong></td><td>${costAed} AED</td></tr>
-                            <tr><td><strong>Payment Type:</strong></td><td>Pre-Authorization</td></tr>
-                            ${notes ? `<tr><td><strong>Notes:</strong></td><td>${notes}</td></tr>` : ''}
-                          </table>
-                        </div>
-                        
-                        <div style="background-color: #dbeafe; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center;">
-                          <h3 style="color: #1e40af; margin-top: 0;">Complete Your Payment Authorization</h3>
-                          <p style="color: #1e40af; margin-bottom: 15px;">Your payment will be pre-authorized (not charged immediately). We will confirm your booking shortly.</p>
-                          <a href="${paymentData.payment_url}" style="background-color: #16a34a; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">Authorize Payment</a>
-                        </div>
-                        
-                        <div style="background-color: #fef3c7; padding: 15px; border-radius: 5px; margin: 15px 0;">
-                          <p style="color: #92400e; font-weight: bold; margin: 0;">⏰ Important Timeline:</p>
-                          <p style="color: #92400e; margin: 5px 0 0 0;">
-                            • Complete payment setup as soon as possible<br>
-                            • We will review and confirm your booking shortly<br>
-                            • If not confirmed, the payment will be automatically refunded
-                          </p>
-                        </div>
-                        
-                        <div style="background-color: #e8f4fd; padding: 20px; border-radius: 8px; margin: 20px 0;">
-                          <h3 style="color: #007bff; margin-top: 0;">What happens next?</h3>
-                          <ol style="margin: 0; padding-left: 20px; color: #333; line-height: 1.6;">
-                            <li>Complete your payment setup using the link above</li>
-                            <li>Our team will review your booking request</li>
-                            <li>You'll receive confirmation shortly</li>
-                            <li>If approved, your pre-authorized payment will be captured</li>
-                            <li>If not approved, you'll receive a full refund automatically</li>
-                          </ol>
-                        </div>
-                        
-        <div style="background-color: #d1ecf1; padding: 15px; border-radius: 5px; margin: 20px 0;">
-          <p style="color: #0c5460; margin: 0;">
-            <strong>📞 Need Help?</strong><br>
-            Contact us at <a href="mailto:support@shazamparking.ae" style="color: #0099cc;">support@shazamparking.ae</a>
-          </p>
-        </div>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td style="padding: 20px 40px; text-align: center; font-size: 12px; color: #999999;">
-                        Thank you for choosing ShazamParking!<br />
-                        <br />
-                        Best regards,<br />
-                        <strong>The ShazamParking Team</strong>
-                      </td>
-                    </tr>
-                  </table>
-                </td>
-              </tr>
-            </table>
-          </body>
-        </html>
-      `,
-    });
+                          ${costAed < 2 ? `
+                          <div style="background-color: #fff3cd; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ffc107;">
+                            <p style="color: #856404; font-weight: bold; margin: 0;">💳 Payment Processing Notice:</p>
+                            <p style="color: #856404; margin: 5px 0 0 0;">
+                              Your original booking amount was ${costAed} AED. Due to payment processor requirements (minimum 2 AED), the payment authorization will show 2 AED. However, you will only be charged the actual booking amount (${costAed} AED) once your booking is confirmed by our team.
+                            </p>
+                          </div>
+                          ` : ''}
 
-    if (customerEmailResponse.error) {
-      console.error("Customer email error:", customerEmailResponse.error);
-      // Log error but don't fail the booking
+                          <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #0099cc;">
+                            <h3 style="color: #0099cc; margin-top: 0;">Booking Details:</h3>
+                            <table style="width: 100%; color: #333;">
+                              <tr><td><strong>Reference Number:</strong></td><td>${booking.id}</td></tr>
+                              <tr><td><strong>Customer Name:</strong></td><td>${customerName}</td></tr>
+                              <tr><td><strong>Email:</strong></td><td>${user.email}</td></tr>
+                              <tr><td><strong>Phone:</strong></td><td>${customerPhone}</td></tr>
+                              <tr><td><strong>Parking Spot:</strong></td><td>${parkingSpotName}</td></tr>
+                              <tr><td><strong>Zone:</strong></td><td>${zone}</td></tr>
+                              <tr><td><strong>Location:</strong></td><td>${location}</td></tr>
+                              <tr><td><strong>Start Date:</strong></td><td>${new Date(startDate).toLocaleDateString()}</td></tr>
+                              <tr><td><strong>Duration:</strong></td><td>${duration} month(s)</td></tr>
+                              <tr><td><strong>Total Cost:</strong></td><td>${costAed} AED</td></tr>
+                              <tr><td><strong>Payment Type:</strong></td><td>Pre-Authorization</td></tr>
+                              ${notes ? `<tr><td><strong>Notes:</strong></td><td>${notes}</td></tr>` : ''}
+                            </table>
+                          </div>
+                          
+                          <div style="background-color: #dbeafe; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center;">
+                            <h3 style="color: #1e40af; margin-top: 0;">Complete Your Payment Authorization</h3>
+                            <p style="color: #1e40af; margin-bottom: 15px;">Your payment will be pre-authorized (not charged immediately). We will confirm your booking shortly.</p>
+                            <a href="${paymentData.payment_url}" style="background-color: #16a34a; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">Authorize Payment</a>
+                          </div>
+                          
+                          <div style="background-color: #fef3c7; padding: 15px; border-radius: 5px; margin: 15px 0;">
+                            <p style="color: #92400e; font-weight: bold; margin: 0;">⏰ Important Timeline:</p>
+                            <p style="color: #92400e; margin: 5px 0 0 0;">
+                              • Complete payment setup as soon as possible<br>
+                              • We will review and confirm your booking shortly<br>
+                              • If not confirmed, the payment will be automatically refunded
+                            </p>
+                          </div>
+                          
+                          <div style="background-color: #e8f4fd; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                            <h3 style="color: #007bff; margin-top: 0;">What happens next?</h3>
+                            <ol style="margin: 0; padding-left: 20px; color: #333; line-height: 1.6;">
+                              <li>Complete your payment setup using the link above</li>
+                              <li>Our team will review your booking request</li>
+                              <li>You'll receive confirmation shortly</li>
+                              <li>If approved, your pre-authorized payment will be captured</li>
+                              <li>If not approved, you'll receive a full refund automatically</li>
+                            </ol>
+                          </div>
+                          
+          <div style="background-color: #d1ecf1; padding: 15px; border-radius: 5px; margin: 20px 0;">
+            <p style="color: #0c5460; margin: 0;">
+              <strong>📞 Need Help?</strong><br>
+              Contact us at <a href="mailto:support@shazamparking.ae" style="color: #0099cc;">support@shazamparking.ae</a>
+            </p>
+          </div>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 20px 40px; text-align: center; font-size: 12px; color: #999999;">
+                          Thank you for choosing ShazamParking!<br />
+                          <br />
+                          Best regards,<br />
+                          <strong>The ShazamParking Team</strong>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </body>
+          </html>
+        `,
+      });
+
+      if (customerEmailResponse.error) {
+        console.error("❌ Customer email error:", customerEmailResponse.error);
+        customerEmailError = customerEmailResponse.error.message || "Unknown error";
+      } else {
+        console.log("✅ Customer confirmation email sent successfully to", user.email);
+        console.log("📧 Email ID:", customerEmailResponse.data?.id);
+        customerEmailSent = true;
+      }
+    } catch (emailError) {
+      console.error("❌ Customer email exception:", emailError);
+      customerEmailError = emailError instanceof Error ? emailError.message : "Unknown error";
+    }
+
+    // Update booking with email delivery status
+    try {
+      const { error: updateError } = await supabaseServiceClient
+        .from("parking_bookings")
+        .update({
+          customer_email_sent: customerEmailSent,
+          customer_email_sent_at: customerEmailSent ? new Date().toISOString() : null,
+          customer_email_error: customerEmailError,
+          admin_email_sent: adminEmailSent,
+          admin_email_sent_at: adminEmailSent ? new Date().toISOString() : null,
+          booking_received_email_sent: bookingReceivedEmailSent,
+          booking_received_email_sent_at: bookingReceivedEmailSent ? new Date().toISOString() : null,
+        })
+        .eq("id", booking.id);
+
+      if (updateError) {
+        console.error("❌ Failed to update email status:", updateError);
+      } else {
+        console.log("✅ Email delivery status tracked in database");
+      }
+    } catch (trackingError) {
+      console.error("❌ Email tracking error:", trackingError);
+    }
+
+    // Log final email delivery summary
+    console.log("📊 Email Delivery Summary for booking", booking.id);
+    console.log("   - Admin email:", adminEmailSent ? "✅ Sent" : "❌ Failed");
+    console.log("   - Booking received email:", bookingReceivedEmailSent ? "✅ Sent" : "❌ Failed");
+    console.log("   - Customer confirmation email:", customerEmailSent ? "✅ Sent" : "❌ Failed");
+    if (customerEmailError) {
+      console.log("   - Customer email error:", customerEmailError);
+    }
+
+    // Return response with email status
+    if (!customerEmailSent) {
       return new Response(
         JSON.stringify({
           success: true,
           bookingId: booking.id,
           paymentUrl: paymentData.payment_url,
-          paymentType: paymentData.payment_type,
-          confirmationDeadline: paymentData.confirmation_deadline,
-          warning: "Booking created successfully but confirmation email failed. Please save your booking reference: " + booking.id,
+          warning: "Booking created but confirmation email failed. Please save your booking reference: " + booking.id,
           message: "Booking request submitted successfully. Please complete your payment setup to secure your parking space.",
+          emailStatus: {
+            customerEmail: false,
+            adminEmail: adminEmailSent,
+            bookingReceivedEmail: bookingReceivedEmailSent,
+            error: customerEmailError
+          }
         }),
         {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
           status: 200,
         }
       );
-    } else {
-      console.log("Customer confirmation sent successfully");
     }
 
     return new Response(
@@ -339,6 +398,11 @@ const handler = async (req: Request): Promise<Response> => {
         bookingId: booking.id,
         paymentUrl: paymentData.payment_url,
         message: "Booking request submitted successfully. Please complete your payment authorization to secure your parking space.",
+        emailStatus: {
+          customerEmail: customerEmailSent,
+          adminEmail: adminEmailSent,
+          bookingReceivedEmail: bookingReceivedEmailSent
+        }
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },

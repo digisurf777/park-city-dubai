@@ -437,11 +437,18 @@ export type Database = {
       }
       parking_bookings: {
         Row: {
+          admin_email_sent: boolean | null
+          admin_email_sent_at: string | null
           authorization_extended_count: number | null
+          booking_received_email_sent: boolean | null
+          booking_received_email_sent_at: string | null
           capture_amount: number | null
           confirmation_deadline: string | null
           cost_aed: number
           created_at: string
+          customer_email_error: string | null
+          customer_email_sent: boolean | null
+          customer_email_sent_at: string | null
           duration_hours: number
           end_time: string
           id: string
@@ -463,11 +470,18 @@ export type Database = {
           zone: string
         }
         Insert: {
+          admin_email_sent?: boolean | null
+          admin_email_sent_at?: string | null
           authorization_extended_count?: number | null
+          booking_received_email_sent?: boolean | null
+          booking_received_email_sent_at?: string | null
           capture_amount?: number | null
           confirmation_deadline?: string | null
           cost_aed: number
           created_at?: string
+          customer_email_error?: string | null
+          customer_email_sent?: boolean | null
+          customer_email_sent_at?: string | null
           duration_hours: number
           end_time: string
           id?: string
@@ -489,11 +503,18 @@ export type Database = {
           zone: string
         }
         Update: {
+          admin_email_sent?: boolean | null
+          admin_email_sent_at?: string | null
           authorization_extended_count?: number | null
+          booking_received_email_sent?: boolean | null
+          booking_received_email_sent_at?: string | null
           capture_amount?: number | null
           confirmation_deadline?: string | null
           cost_aed?: number
           created_at?: string
+          customer_email_error?: string | null
+          customer_email_sent?: boolean | null
+          customer_email_sent_at?: string | null
           duration_hours?: number
           end_time?: string
           id?: string
