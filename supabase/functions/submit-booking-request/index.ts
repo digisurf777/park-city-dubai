@@ -216,10 +216,28 @@ const handler = async (req: Request): Promise<Response> => {
     // Send enhanced confirmation email to customer with payment link
     console.log(`📧 Sending detailed confirmation email to ${user.email}...`);
     try {
+      // Prepare inline logo for reliable rendering in email clients
+      let logoFile: Uint8Array | null = null;
+      try {
+        logoFile = await Deno.readFile(new URL('./email-logo.png', import.meta.url));
+      } catch (e) {
+        console.warn('⚠️ Email logo file not found or unreadable:', e);
+      }
+
       const customerEmailResponse = await resend.emails.send({
         from: "ShazamParking <noreply@shazamparking.ae>",
         to: [user.email],
         subject: "Complete Your Parking Booking Payment - ShazamParking",
+        attachments: logoFile
+          ? [{
+              filename: 'logo.png',
+              // Resend accepts Buffer/Uint8Array in Deno
+              content: logoFile as unknown as Uint8Array,
+              contentType: 'image/png',
+              contentId: 'shazam_logo',
+              disposition: 'inline',
+            }]
+          : undefined,
         html: `
           <!DOCTYPE html>
           <html lang="en" style="font-family: Arial, sans-serif;">
@@ -234,7 +252,7 @@ const handler = async (req: Request): Promise<Response> => {
                     <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; margin-top: 30px; border-radius: 10px; overflow: hidden;">
                       <tr>
                         <td style="padding: 20px; text-align: center; background-color: #0099cc;">
-                          <img src="https://shazamparking.ae/shazam-logo.png" alt="Shazam Parking Logo" width="120" style="margin-bottom: 10px;" />
+                          <img src="cid:shazam_logo" alt="Shazam Parking Logo" width="120" style="margin-bottom: 10px;" />
                           <h1 style="color: white; margin: 0; font-size: 24px;">Booking Confirmation</h1>
                         </td>
                       </tr>
