@@ -192,6 +192,24 @@ const AdminNotifications = ({
       console.error('Error marking notification as read:', error);
     }
   };
+
+  const sendSupportChatNotification = async (userId: string, subject: string, message: string) => {
+    try {
+      const { error } = await supabase.from('user_messages').insert({
+        user_id: userId,
+        subject,
+        message,
+        from_admin: true,
+        read_status: false
+      });
+      
+      if (error) throw error;
+      console.log('✅ Support chat notification sent successfully');
+    } catch (error) {
+      console.error('❌ Failed to send support chat notification:', error);
+      // Don't throw - we don't want to break the main flow
+    }
+  };
   const approveBooking = async (notification: AdminNotification) => {
     if (!notification.booking_id || !notification.parking_bookings) return;
     setActionLoading(`approve-${notification.id}`);
@@ -228,6 +246,18 @@ const AdminNotifications = ({
         console.error('Failed to send approval email:', emailError);
         // Don't fail the approval if email fails
       }
+
+      // Send support chat notification
+      await sendSupportChatNotification(
+        booking.user_id,
+        'Booking Approved ✅',
+        `Great news! Your parking booking has been approved.\n\n` +
+        `📍 Location: ${booking.location}\n` +
+        `📅 Start: ${format(new Date(booking.start_time), 'PPP')}\n` +
+        `📅 End: ${format(new Date(booking.end_time), 'PPP')}\n` +
+        `💰 Amount: ${booking.cost_aed} AED\n\n` +
+        `Please check your email for payment details and further instructions.`
+      );
 
       // Mark notification as read
       await markAsRead(notification.id);
@@ -334,6 +364,16 @@ const AdminNotifications = ({
         console.error('Failed to send rejection email:', emailError);
         // Don't fail the rejection if email fails
       }
+
+      // Send support chat notification
+      await sendSupportChatNotification(
+        booking.user_id,
+        'Booking Update ❌',
+        `We're sorry, but your parking booking request could not be approved at this time.\n\n` +
+        `📍 Location: ${booking.location}\n` +
+        `📅 Dates: ${format(new Date(booking.start_time), 'PPP')} - ${format(new Date(booking.end_time), 'PPP')}\n\n` +
+        `Please contact our support team if you need alternative parking options or have any questions.`
+      );
 
       // Mark notification as read
       await markAsRead(notification.id);
