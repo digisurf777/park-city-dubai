@@ -537,19 +537,35 @@ const AdminPanelOrganized = () => {
   const fetchParkingListings = async () => {
     setListingsLoading(true);
     try {
-      const { data, error } = await supabase
+      // Step 1: fetch listings only (avoid broken FK joins)
+      const { data: listings, error } = await supabase
         .from('parking_listings')
-        .select('*, profiles!parking_listings_owner_id_fkey(full_name)')
+        .select('*')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      
-      // Map the data to include owner_name
-      const listingsWithOwnerName = (data || []).map((listing: any) => ({
-        ...listing,
-        owner_name: listing.profiles?.full_name || 'Unknown Owner'
-      }));
-      
+
+      let listingsWithOwnerName: any[] = listings || [];
+
+      // Step 2: fetch owners' names via secure RPC and merge
+      if (listings && listings.length > 0) {
+        const ownerIds = Array.from(new Set(listings.map((l: any) => l.owner_id).filter(Boolean)));
+        if (ownerIds.length > 0) {
+          const { data: owners, error: ownersError } = await supabase
+            .rpc('get_user_basic_info', { user_ids: ownerIds });
+
+          if (!ownersError && owners) {
+            const nameMap = new Map(owners.map((o: any) => [o.user_id, o.full_name]));
+            listingsWithOwnerName = listings.map((l: any) => ({
+              ...l,
+              owner_name: nameMap.get(l.owner_id) || 'Unknown Owner',
+            }));
+          } else if (ownersError) {
+            console.warn('Failed to fetch owner names via RPC:', ownersError);
+          }
+        }
+      }
+
       setParkingListings(listingsWithOwnerName);
     } catch (error) {
       console.error('Error fetching parking listings:', error);
