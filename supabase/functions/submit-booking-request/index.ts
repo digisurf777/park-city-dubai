@@ -234,7 +234,7 @@ const handler = async (req: Request): Promise<Response> => {
                     <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; margin-top: 30px; border-radius: 10px; overflow: hidden;">
                       <tr>
                         <td style="padding: 20px; text-align: center; background-color: #0099cc;">
-                          <img src="https://shazamparking.ae/wp-content/uploads/2024/11/shazam-logo-blue.png" alt="Shazam Parking Logo" width="140" style="margin-bottom: 10px;" />
+                          <img src="https://shazamparking.ae/shazam-logo.png" alt="Shazam Parking Logo" width="120" style="margin-bottom: 10px;" />
                           <h1 style="color: white; margin: 0; font-size: 24px;">Booking Confirmation</h1>
                         </td>
                       </tr>
