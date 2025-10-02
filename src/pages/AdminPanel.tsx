@@ -80,6 +80,7 @@ interface ParkingListing {
   price_per_month: number;
   status: string;
   owner_id: string;
+  owner_name?: string;
   images: string[];
   features?: string[];
   contact_phone: string;
@@ -538,11 +539,18 @@ const AdminPanelOrganized = () => {
     try {
       const { data, error } = await supabase
         .from('parking_listings')
-        .select('*')
+        .select('*, profiles!parking_listings_owner_id_fkey(full_name)')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setParkingListings(data || []);
+      
+      // Map the data to include owner_name
+      const listingsWithOwnerName = (data || []).map((listing: any) => ({
+        ...listing,
+        owner_name: listing.profiles?.full_name || 'Unknown Owner'
+      }));
+      
+      setParkingListings(listingsWithOwnerName);
     } catch (error) {
       console.error('Error fetching parking listings:', error);
       toast({
@@ -2431,6 +2439,19 @@ const AdminPanelOrganized = () => {
                 </DialogHeader>
                 
                 <div className="space-y-6">
+                  {/* Owner Information */}
+                  <div className="bg-muted/50 p-4 rounded-lg border">
+                    <Label className="flex items-center gap-2 mb-2">
+                      <Users className="h-4 w-4" />
+                      Listing Owner
+                    </Label>
+                    <Input
+                      value={editingListing?.owner_name || 'Unknown Owner'}
+                      disabled
+                      className="bg-background"
+                    />
+                  </div>
+
                   {/* Title and Zone */}
                   <div className="grid grid-cols-2 gap-4">
                     <div>
