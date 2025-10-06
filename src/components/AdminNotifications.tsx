@@ -26,6 +26,11 @@ interface AdminNotification {
     duration_hours: number;
     status: string;
     user_id: string;
+    profiles?: {
+      full_name: string;
+      email: string;
+      phone: string;
+    };
   };
 }
 interface UserProfile {
@@ -134,7 +139,7 @@ const AdminNotifications = ({
         error
       } = await supabase.from('admin_notifications').select(`
           *,
-          parking_bookings (
+          parking_bookings!inner (
             id,
             location,
             zone,
@@ -148,9 +153,37 @@ const AdminNotifications = ({
         `).order('created_at', {
         ascending: false
       }).limit(50);
+      
       if (error) throw error;
-      console.log('✅ Fetched notifications successfully:', data?.length || 0, 'notifications');
-      setNotifications(data || []);
+
+      // Fetch user profiles separately for each booking
+      if (data) {
+        const enrichedData = await Promise.all(
+          data.map(async (notification) => {
+            if (notification.parking_bookings?.user_id) {
+              const { data: profile } = await supabase
+                .from('profiles')
+                .select('full_name, email, phone')
+                .eq('user_id', notification.parking_bookings.user_id)
+                .single();
+              
+              return {
+                ...notification,
+                parking_bookings: {
+                  ...notification.parking_bookings,
+                  profiles: profile
+                }
+              };
+            }
+            return notification;
+          })
+        );
+        
+        console.log('✅ Fetched notifications successfully:', enrichedData.length, 'notifications');
+        setNotifications(enrichedData);
+      } else {
+        setNotifications([]);
+      }
 
       // Clear any auth errors on success
       setDebugInfo(prev => ({
@@ -468,20 +501,38 @@ const AdminNotifications = ({
               </CardHeader>
 
               {notification.parking_bookings && <CardContent className="pt-0">
+                  {/* Customer Information */}
+                  {notification.parking_bookings.profiles && (
+                    <div className="bg-blue-50 rounded-lg p-4 mb-4 border border-blue-100">
+                      <h4 className="font-semibold mb-3 flex items-center gap-2 text-blue-900">
+                        <User className="h-4 w-4" />
+                        Customer Information
+                      </h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                        <div>
+                          <span className="text-gray-500 block mb-1">Name:</span>
+                          <span className="font-medium">{notification.parking_bookings.profiles.full_name || 'N/A'}</span>
+                        </div>
+                        <div>
+                          <span className="text-gray-500 block mb-1">Email:</span>
+                          <span className="font-medium">{notification.parking_bookings.profiles.email || 'N/A'}</span>
+                        </div>
+                        <div className="md:col-span-2">
+                          <span className="text-gray-500 block mb-1">Phone:</span>
+                          <span className="font-medium">{notification.parking_bookings.profiles.phone || 'Not provided'}</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Booking Details */}
                   <div className="bg-gray-50 rounded-lg p-4 mb-4">
                     <h4 className="font-semibold mb-3 flex items-center gap-2">
-                      <User className="h-4 w-4" />
+                      <MapPin className="h-4 w-4" />
                       Booking Details
                     </h4>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                      <div className="flex items-center gap-2">
-                        <User className="h-4 w-4 text-gray-500" />
-                        <span className="font-medium">
-                          Booking Request
-                        </span>
-                      </div>
-                      
                       <div className="flex items-center gap-2">
                         <MapPin className="h-4 w-4 text-gray-500" />
                         <span>{notification.parking_bookings.location}</span>
