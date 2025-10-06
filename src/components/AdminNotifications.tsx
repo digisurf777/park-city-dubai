@@ -26,11 +26,11 @@ interface AdminNotification {
     duration_hours: number;
     status: string;
     user_id: string;
-    profiles?: {
-      full_name: string;
-      email: string;
-      phone: string;
-    };
+  };
+  customerProfile?: {
+    full_name: string;
+    email: string;
+    phone: string;
   };
 }
 interface UserProfile {
@@ -161,18 +161,17 @@ const AdminNotifications = ({
         const enrichedData = await Promise.all(
           data.map(async (notification) => {
             if (notification.parking_bookings?.user_id) {
-              const { data: profile } = await supabase
+              const { data: profile, error: profileError } = await supabase
                 .from('profiles')
                 .select('full_name, email, phone')
                 .eq('user_id', notification.parking_bookings.user_id)
                 .single();
               
+              console.log('Profile fetched for user:', notification.parking_bookings.user_id, profile);
+              
               return {
                 ...notification,
-                parking_bookings: {
-                  ...notification.parking_bookings,
-                  profiles: profile
-                }
+                customerProfile: profile || undefined
               };
             }
             return notification;
@@ -502,7 +501,7 @@ const AdminNotifications = ({
 
               {notification.parking_bookings && <CardContent className="pt-0">
                   {/* Customer Information */}
-                  {notification.parking_bookings.profiles && (
+                  {notification.customerProfile && (
                     <div className="bg-blue-50 rounded-lg p-4 mb-4 border border-blue-100">
                       <h4 className="font-semibold mb-3 flex items-center gap-2 text-blue-900">
                         <User className="h-4 w-4" />
@@ -511,15 +510,15 @@ const AdminNotifications = ({
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                         <div>
                           <span className="text-gray-500 block mb-1">Name:</span>
-                          <span className="font-medium">{notification.parking_bookings.profiles.full_name || 'N/A'}</span>
+                          <span className="font-medium">{notification.customerProfile.full_name || 'N/A'}</span>
                         </div>
                         <div>
                           <span className="text-gray-500 block mb-1">Email:</span>
-                          <span className="font-medium">{notification.parking_bookings.profiles.email || 'N/A'}</span>
+                          <span className="font-medium">{notification.customerProfile.email || 'N/A'}</span>
                         </div>
                         <div className="md:col-span-2">
                           <span className="text-gray-500 block mb-1">Phone:</span>
-                          <span className="font-medium">{notification.parking_bookings.profiles.phone || 'Not provided'}</span>
+                          <span className="font-medium">{notification.customerProfile.phone || 'Not provided'}</span>
                         </div>
                       </div>
                     </div>

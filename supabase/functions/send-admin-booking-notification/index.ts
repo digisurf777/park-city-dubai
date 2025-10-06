@@ -48,15 +48,22 @@ const handler = async (req: Request): Promise<Response> => {
     
     console.log(`Sending admin booking notification for booking ${bookingId} from ${userName}`);
 
-    const subject = `🚗 New Parking Booking Request - ${parkingSpotName}`;
+    const subject = `🚗 New Booking from ${userName} - ${parkingSpotName}`;
     const htmlContent = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h1 style="color: #333; border-bottom: 2px solid #007bff; padding-bottom: 10px;">
           New Parking Booking Request
         </h1>
         
+        <div style="background: #e3f2fd; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #007bff;">
+          <h2 style="color: #0d47a1; margin-top: 0;">👤 Customer Information:</h2>
+          <p><strong>Name:</strong> ${userName}</p>
+          <p><strong>Email:</strong> <a href="mailto:${userEmail}">${userEmail}</a></p>
+          <p><strong>Phone:</strong> ${userPhone || 'Not provided'}</p>
+        </div>
+
         <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
-          <h2 style="color: #007bff; margin-top: 0;">Booking Details:</h2>
+          <h2 style="color: #007bff; margin-top: 0;">📍 Booking Details:</h2>
           <p><strong>Reference:</strong> ${bookingId}</p>
           <p><strong>Parking Spot:</strong> ${parkingSpotName}</p>
           <p><strong>Zone:</strong> ${zone}</p>
@@ -66,13 +73,6 @@ const handler = async (req: Request): Promise<Response> => {
           <p><strong>Total Cost:</strong> ${totalCost} AED</p>
           <p><strong>Payment Type:</strong> ${paymentType === 'one_time' ? 'One-time Payment' : 'Monthly Recurring'}</p>
           ${notes ? `<p><strong>Notes:</strong> ${notes}</p>` : ''}
-        </div>
-
-        <div style="background: #e9ecef; padding: 20px; border-radius: 8px; margin: 20px 0;">
-          <h2 style="color: #333; margin-top: 0;">Customer Information:</h2>
-          <p><strong>Name:</strong> ${userName}</p>
-          <p><strong>Email:</strong> ${userEmail}</p>
-          <p><strong>Phone:</strong> ${userPhone || 'Not provided'}</p>
         </div>
 
         <div style="background: #fff3cd; padding: 20px; border-radius: 8px; margin: 20px 0;">
