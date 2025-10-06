@@ -1655,6 +1655,7 @@ export type Database = {
           email: string
           full_name: string
           phone: string
+          verification_status: string
         }[]
       }
       get_user_email_and_name: {

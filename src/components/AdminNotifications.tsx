@@ -31,6 +31,7 @@ interface AdminNotification {
     full_name: string;
     email: string;
     phone: string;
+    verification_status: string;
   };
 }
 interface UserProfile {
@@ -498,7 +499,7 @@ const AdminNotifications = ({
 
               {notification.parking_bookings && <CardContent className="pt-0">
                   {/* Customer Information - Always show when booking exists */}
-                  <div className="bg-blue-50 rounded-lg p-4 mb-4 border border-blue-100">
+                    <div className="bg-blue-50 rounded-lg p-4 mb-4 border border-blue-100">
                       <h4 className="font-semibold mb-3 flex items-center gap-2 text-blue-900">
                         <User className="h-4 w-4" />
                         Customer Information
@@ -506,7 +507,21 @@ const AdminNotifications = ({
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                         <div>
                           <span className="text-gray-500 block mb-1">Name:</span>
-                          <span className="font-medium">{notification.customerProfile.full_name || 'N/A'}</span>
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium">{notification.customerProfile?.full_name || 'N/A'}</span>
+                            {notification.customerProfile?.verification_status === 'approved' && (
+                              <Badge className="bg-green-100 text-green-800 border-green-200">Verified</Badge>
+                            )}
+                            {notification.customerProfile?.verification_status === 'pending' && (
+                              <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">Pending</Badge>
+                            )}
+                            {notification.customerProfile?.verification_status === 'rejected' && (
+                              <Badge className="bg-red-100 text-red-800 border-red-200">Rejected</Badge>
+                            )}
+                            {notification.customerProfile?.verification_status === 'not_verified' && (
+                              <Badge className="bg-gray-100 text-gray-800 border-gray-200">Not Verified</Badge>
+                            )}
+                          </div>
                         </div>
                         <div>
                           <span className="text-gray-500 block mb-1">Email:</span>
