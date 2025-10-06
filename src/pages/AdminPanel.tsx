@@ -1991,9 +1991,7 @@ const AdminPanelOrganized = () => {
               </TabsContent>
 
               <TabsContent value="live-booking" className="space-y-6">
-                <div className="text-center text-muted-foreground p-6">
-                  Live booking management will be here
-                </div>
+                <LiveBookingControl />
               </TabsContent>
             </Tabs>
           </TabsContent>
