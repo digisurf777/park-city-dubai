@@ -156,22 +156,19 @@ const AdminNotifications = ({
       
       if (error) throw error;
 
-      // Fetch user profiles separately for each booking
+      // Fetch user info using the new function with fallback to auth.users
       if (data) {
         const enrichedData = await Promise.all(
           data.map(async (notification) => {
             if (notification.parking_bookings?.user_id) {
-              const { data: profile, error: profileError } = await supabase
-                .from('profiles')
-                .select('full_name, email, phone')
-                .eq('user_id', notification.parking_bookings.user_id)
-                .single();
+              const { data: userInfo, error: userError } = await supabase
+                .rpc('get_user_display_info', { user_uuid: notification.parking_bookings.user_id });
               
-              console.log('Profile fetched for user:', notification.parking_bookings.user_id, profile);
+              console.log('User info fetched for:', notification.parking_bookings.user_id, userInfo);
               
               return {
                 ...notification,
-                customerProfile: profile || undefined
+                customerProfile: userInfo?.[0] || undefined
               };
             }
             return notification;
@@ -500,9 +497,8 @@ const AdminNotifications = ({
               </CardHeader>
 
               {notification.parking_bookings && <CardContent className="pt-0">
-                  {/* Customer Information */}
-                  {notification.customerProfile && (
-                    <div className="bg-blue-50 rounded-lg p-4 mb-4 border border-blue-100">
+                  {/* Customer Information - Always show when booking exists */}
+                  <div className="bg-blue-50 rounded-lg p-4 mb-4 border border-blue-100">
                       <h4 className="font-semibold mb-3 flex items-center gap-2 text-blue-900">
                         <User className="h-4 w-4" />
                         Customer Information
@@ -522,7 +518,6 @@ const AdminNotifications = ({
                         </div>
                       </div>
                     </div>
-                  )}
 
                   {/* Booking Details */}
                   <div className="bg-gray-50 rounded-lg p-4 mb-4">

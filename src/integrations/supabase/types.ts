@@ -1649,6 +1649,14 @@ export type Database = {
           zone: string
         }[]
       }
+      get_user_display_info: {
+        Args: { user_uuid: string }
+        Returns: {
+          email: string
+          full_name: string
+          phone: string
+        }[]
+      }
       get_user_email_and_name: {
         Args: { user_uuid: string }
         Returns: {
