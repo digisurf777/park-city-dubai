@@ -15,7 +15,6 @@ import { useToast } from '@/hooks/use-toast';
 import { Search, Filter, Plus, Settings, RefreshCw, CheckCircle, XCircle, Wrench, Clock, Zap, Loader2, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useSpaceInitializer } from '@/hooks/useSpaceInitializer';
-
 interface ParkingSpace {
   space_id: string;
   listing_id: string;
@@ -29,7 +28,6 @@ interface ParkingSpace {
   override_by: string | null;
   last_updated: string;
 }
-
 interface CreateSpacesResponse {
   success: boolean;
   listing_id: string;
@@ -37,14 +35,19 @@ interface CreateSpacesResponse {
   total_requested: number;
   message: string;
 }
-
 interface SpaceManagementProps {
   onRefresh?: () => void;
 }
-
-const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
-  const { toast } = useToast();
-  const { initializeSpacesForListings, isInitializing } = useSpaceInitializer();
+const SpaceManagement = ({
+  onRefresh
+}: SpaceManagementProps) => {
+  const {
+    toast
+  } = useToast();
+  const {
+    initializeSpacesForListings,
+    isInitializing
+  } = useSpaceInitializer();
   const [spaces, setSpaces] = useState<ParkingSpace[]>([]);
   const [filteredSpaces, setFilteredSpaces] = useState<ParkingSpace[]>([]);
   const [loading, setLoading] = useState(true);
@@ -68,57 +71,48 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
   });
   const [viewMode, setViewMode] = useState<'listings' | 'spaces'>('listings');
   const [listingFilter, setListingFilter] = useState<string | 'all'>('all');
-
   useEffect(() => {
     fetchSpaces();
 
     // Set up real-time subscription for parking spaces changes
-    const spacesChannel = supabase
-      .channel('parking-spaces-admin')
-      .on('postgres_changes', {
-        event: '*',
-        schema: 'public',
-        table: 'parking_spaces'
-      }, (payload) => {
-        console.log('Real-time parking spaces change detected:', payload);
-        // Refresh spaces data when changes occur
-        fetchSpaces();
-      })
-      .subscribe();
+    const spacesChannel = supabase.channel('parking-spaces-admin').on('postgres_changes', {
+      event: '*',
+      schema: 'public',
+      table: 'parking_spaces'
+    }, payload => {
+      console.log('Real-time parking spaces change detected:', payload);
+      // Refresh spaces data when changes occur
+      fetchSpaces();
+    }).subscribe();
 
     // Set up real-time subscription for parking listings changes
-    const listingsChannel = supabase
-      .channel('parking-listings-admin')
-      .on('postgres_changes', {
-        event: '*',
-        schema: 'public',
-        table: 'parking_listings'
-      }, (payload) => {
-        console.log('Real-time parking listings change detected:', payload);
-        // Refresh spaces data when changes occur
-        fetchSpaces();
-      })
-      .subscribe();
-
+    const listingsChannel = supabase.channel('parking-listings-admin').on('postgres_changes', {
+      event: '*',
+      schema: 'public',
+      table: 'parking_listings'
+    }, payload => {
+      console.log('Real-time parking listings change detected:', payload);
+      // Refresh spaces data when changes occur
+      fetchSpaces();
+    }).subscribe();
     return () => {
       supabase.removeChannel(spacesChannel);
       supabase.removeChannel(listingsChannel);
     };
   }, []);
-
   useEffect(() => {
     filterSpaces();
   }, [spaces, searchTerm, statusFilter, zoneFilter, overrideFilter]);
-
   const fetchSpaces = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase.rpc('get_parking_spaces_overview');
-      
+      const {
+        data,
+        error
+      } = await supabase.rpc('get_parking_spaces_overview');
       if (error) throw error;
-      
       console.log('Raw spaces data:', data);
-      
+
       // Deduplicate rows: prefer real space_id; fallback to per-listing unique when spaces are virtual
       const normalize = (v?: string) => (v || '').trim().toLowerCase().replace(/\s+/g, ' ');
       const byKey = new Map<string, ParkingSpace>();
@@ -135,10 +129,10 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
           if (next > prev) byKey.set(key, s);
         }
       });
-      
+
       // Additionally, if a listing ended up with multiple rows, keep just one (since each car park has one space)
       const onePerListing = new Map<string, ParkingSpace>();
-      Array.from(byKey.values()).forEach((s) => {
+      Array.from(byKey.values()).forEach(s => {
         const existing = onePerListing.get(s.listing_id);
         if (!existing) {
           onePerListing.set(s.listing_id, s);
@@ -148,35 +142,28 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
           if (next > prev) onePerListing.set(s.listing_id, s);
         }
       });
-
       const finalSpaces = Array.from(onePerListing.values());
       console.log('Final processed spaces:', finalSpaces);
       console.log('Spaces with valid IDs:', finalSpaces.filter(s => s.space_id && s.space_id !== 'null'));
       console.log('Spaces without valid IDs:', finalSpaces.filter(s => !s.space_id || s.space_id === 'null'));
-
       setSpaces(finalSpaces);
     } catch (error) {
       console.error('Error fetching spaces:', error);
       toast({
         title: "Error",
         description: "Failed to fetch parking spaces",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setLoading(false);
     }
   };
-
   const filterSpaces = () => {
     let filtered = spaces;
 
     // Search filter
     if (searchTerm) {
-      filtered = filtered.filter(space => 
-        space.listing_title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        space.listing_address.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        space.space_number.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+      filtered = filtered.filter(space => space.listing_title.toLowerCase().includes(searchTerm.toLowerCase()) || space.listing_address.toLowerCase().includes(searchTerm.toLowerCase()) || space.space_number.toLowerCase().includes(searchTerm.toLowerCase()));
     }
 
     // Status filter
@@ -202,47 +189,43 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
     if (listingFilter !== 'all') {
       filtered = filtered.filter(space => space.listing_id === listingFilter);
     }
-
     setFilteredSpaces(filtered);
   };
-
   const updateSpaceStatus = async (spaceId: string, newStatus: string, isOverride: boolean = true, reason?: string) => {
     // Validate that we have a real space ID
     if (!spaceId || spaceId === 'null' || spaceId === 'undefined') {
       toast({
         title: "No Parking Spaces Found",
         description: "Please click 'Initialize Test Spaces' first to create parking space records.",
-        variant: "destructive",
+        variant: "destructive"
       });
       return;
     }
-
     const space = spaces.find(s => s.space_id === spaceId);
     if (!space) {
       toast({
         title: "Error",
         description: "Space not found",
-        variant: "destructive",
+        variant: "destructive"
       });
       return;
     }
-
     try {
       // Add to loading state
       setLoadingSpaces(prev => new Set(prev.add(spaceId)));
-      
-      const { data, error } = await supabase.rpc('update_parking_space_status', {
+      const {
+        data,
+        error
+      } = await supabase.rpc('update_parking_space_status', {
         space_id: spaceId,
         new_status: newStatus,
         is_override: isOverride,
         override_reason: reason || null
       });
-
       if (error) {
         console.error('Database error:', error);
         throw new Error(error.message || 'Failed to update space status');
       }
-
       if (data && typeof data === 'object' && 'success' in data && (data as any).success) {
         const statusLabels = {
           available: 'Available to Rent',
@@ -250,24 +233,20 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
           maintenance: 'Under Maintenance',
           reserved: 'Reserved'
         };
-
         toast({
           title: "Status Updated Successfully",
-          description: `${space.listing_title} - ${space.space_number} is now ${statusLabels[newStatus as keyof typeof statusLabels]}`,
+          description: `${space.listing_title} - ${space.space_number} is now ${statusLabels[newStatus as keyof typeof statusLabels]}`
         });
 
         // Refresh the data to show live updates
         await fetchSpaces();
         onRefresh?.();
       } else {
-        const errorMsg = (data && typeof data === 'object' && 'message' in data) 
-          ? (data as any).message 
-          : 'Update failed';
+        const errorMsg = data && typeof data === 'object' && 'message' in data ? (data as any).message : 'Update failed';
         throw new Error(errorMsg);
       }
     } catch (error: any) {
       console.error('Error updating space:', error);
-      
       let errorMessage = "Failed to update space status";
       if (error?.message?.includes('Parking space not found')) {
         errorMessage = "Parking space not found. Please initialize parking spaces first using the 'Initialize Test Spaces' button.";
@@ -276,11 +255,10 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
       } else if (error?.message) {
         errorMessage = error.message;
       }
-      
       toast({
         title: "Update Failed",
         description: errorMessage,
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       // Remove from loading state
@@ -303,7 +281,10 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
       });
 
       // Fetch latest overview and return the new space id
-      const { data, error } = await supabase.rpc('get_parking_spaces_overview');
+      const {
+        data,
+        error
+      } = await supabase.rpc('get_parking_spaces_overview');
       if (error) throw error;
       const row = (data || []).find((s: any) => s.listing_id === listingId && s.space_id && s.space_id !== 'null');
       return row?.space_id || null;
@@ -314,11 +295,7 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
   };
 
   // Admin-triggered manual status setter; creates a space on-demand if missing
-  const setStatusManually = async (
-    space: ParkingSpace,
-    newStatus: 'available' | 'booked' | 'maintenance' | 'reserved',
-    reason?: string
-  ) => {
+  const setStatusManually = async (space: ParkingSpace, newStatus: 'available' | 'booked' | 'maintenance' | 'reserved', reason?: string) => {
     const loadingKey = space.space_id || space.listing_id;
     setLoadingSpaces(prev => new Set(prev.add(loadingKey)));
     try {
@@ -330,7 +307,7 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
         toast({
           title: 'Space not ready',
           description: 'Could not create or find a parking space for this listing.',
-          variant: 'destructive',
+          variant: 'destructive'
         });
         return;
       }
@@ -348,47 +325,43 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
   const deleteCarPark = async (listingId: string, listingTitle: string) => {
     try {
       setLoadingSpaces(prev => new Set(prev.add(listingId)));
-      
-      const { data, error } = await supabase.rpc('admin_delete_parking_listing_complete', {
+      const {
+        data,
+        error
+      } = await supabase.rpc('admin_delete_parking_listing_complete', {
         listing_id: listingId
       });
-
       if (error) {
         console.error('Database error:', error);
         throw new Error(error.message || 'Failed to delete car park');
       }
-
       if (data && typeof data === 'object' && 'success' in data && (data as any).success) {
         toast({
           title: "Car Park Deleted Successfully",
-          description: `${listingTitle} has been permanently removed from both admin panel and website`,
+          description: `${listingTitle} has been permanently removed from both admin panel and website`
         });
 
         // Refresh the data immediately to show live updates
         await fetchSpaces();
-        
+
         // Also trigger refresh callback for any parent components
         onRefresh?.();
       } else {
-        const errorMsg = (data && typeof data === 'object' && 'message' in data) 
-          ? (data as any).message 
-          : 'Delete failed';
+        const errorMsg = data && typeof data === 'object' && 'message' in data ? (data as any).message : 'Delete failed';
         throw new Error(errorMsg);
       }
     } catch (error: any) {
       console.error('Error deleting car park:', error);
-      
       let errorMessage = "Failed to delete car park";
       if (error?.message?.includes('Access denied')) {
         errorMessage = "Access denied: Admin privileges required";
       } else if (error?.message) {
         errorMessage = error.message;
       }
-      
       toast({
         title: "Delete Failed",
         description: errorMessage,
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setLoadingSpaces(prev => {
@@ -398,65 +371,59 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
       });
     }
   };
-
   const deleteSpace = async (spaceId: string, spaceNumber: string, listingTitle: string) => {
     if (!spaceId || spaceId === 'null' || spaceId === 'undefined') {
       toast({
         title: "Error",
         description: "Invalid space ID. Cannot delete this space.",
-        variant: "destructive",
+        variant: "destructive"
       });
       return;
     }
-
     try {
       setLoadingSpaces(prev => new Set(prev.add(spaceId)));
-      
-      const { data, error } = await supabase.rpc('delete_parking_space', {
+      const {
+        data,
+        error
+      } = await supabase.rpc('delete_parking_space', {
         space_id: spaceId
       });
-
       if (error) {
         console.error('Database error:', error);
         throw new Error(error.message || 'Failed to delete space');
       }
-
       if (data && typeof data === 'object' && 'success' in data && (data as any).success) {
         toast({
           title: "Car Park Deleted Successfully",
-          description: `${listingTitle} has been permanently removed from both admin panel and website`,
+          description: `${listingTitle} has been permanently removed from both admin panel and website`
         });
 
         // Refresh the data immediately to show live updates
         await fetchSpaces();
-        
+
         // Also trigger refresh callback for any parent components
         onRefresh?.();
-        
+
         // Force a browser refresh to ensure website updates immediately
         setTimeout(() => {
           window.location.reload();
         }, 1000);
       } else {
-        const errorMsg = (data && typeof data === 'object' && 'message' in data) 
-          ? (data as any).message 
-          : 'Delete failed';
+        const errorMsg = data && typeof data === 'object' && 'message' in data ? (data as any).message : 'Delete failed';
         throw new Error(errorMsg);
       }
     } catch (error: any) {
       console.error('Error deleting space:', error);
-      
       let errorMessage = "Failed to delete car park";
       if (error?.message?.includes('Access denied')) {
         errorMessage = "Access denied: Admin privileges required";
       } else if (error?.message) {
         errorMessage = error.message;
       }
-      
       toast({
         title: "Delete Failed",
         description: errorMessage,
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setLoadingSpaces(prev => {
@@ -466,33 +433,36 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
       });
     }
   };
-
   const createSpacesForListing = async () => {
     try {
-      const { data, error } = await supabase.rpc('create_parking_spaces_for_listing', {
+      const {
+        data,
+        error
+      } = await supabase.rpc('create_parking_spaces_for_listing', {
         p_listing_id: createForm.listingId,
-        space_count: 1, // Always create only 1 space per car park
+        space_count: 1,
+        // Always create only 1 space per car park
         space_prefix: 'Main'
       });
-
       if (error) throw error;
-
       const result = data as unknown as CreateSpacesResponse;
-
       if (result.success) {
         toast({
           title: "Success",
-          description: `Car park space created successfully`,
+          description: `Car park space created successfully`
         });
-
         setShowCreateModal(false);
-        setCreateForm({ listingId: '', spaceCount: 1, spacePrefix: 'Main' });
+        setCreateForm({
+          listingId: '',
+          spaceCount: 1,
+          spacePrefix: 'Main'
+        });
         fetchSpaces();
       } else {
         toast({
           title: "Info",
           description: result.message || "Space already exists for this car park",
-          variant: "default",
+          variant: "default"
         });
       }
     } catch (error) {
@@ -500,39 +470,37 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
       toast({
         title: "Error",
         description: "Failed to create car park space",
-        variant: "destructive",
+        variant: "destructive"
       });
     }
   };
-
   const bulkUpdateSpaces = async () => {
     try {
       for (const spaceId of selectedSpaces) {
         await updateSpaceStatus(spaceId, bulkAction.status, true, bulkAction.reason);
       }
-
       toast({
         title: "Success",
-        description: `Updated ${selectedSpaces.length} spaces successfully`,
+        description: `Updated ${selectedSpaces.length} spaces successfully`
       });
-
       setShowBulkModal(false);
       setSelectedSpaces([]);
-      setBulkAction({ status: 'available', reason: '' });
+      setBulkAction({
+        status: 'available',
+        reason: ''
+      });
     } catch (error) {
       console.error('Error bulk updating spaces:', error);
       toast({
         title: "Error",
         description: "Failed to update spaces",
-        variant: "destructive",
+        variant: "destructive"
       });
     }
   };
-
   const getStatusBadge = (status: string, isOverride: boolean) => {
     const baseClasses = "text-xs font-medium";
     const overrideClasses = isOverride ? "ring-2 ring-orange-300" : "";
-    
     switch (status) {
       case 'available':
         return <Badge variant="outline" className={`${baseClasses} ${overrideClasses} bg-green-50 text-green-700 border-green-200`}>Available</Badge>;
@@ -546,16 +514,20 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
         return <Badge variant="outline" className={baseClasses}>{status}</Badge>;
     }
   };
-
   const getUniqueZones = () => {
     return Array.from(new Set(spaces.map(space => space.listing_zone))).filter(Boolean);
   };
-
   const getUniqueListings = () => {
-    const byId = new Map<string, { id: string; title: string }>();
+    const byId = new Map<string, {
+      id: string;
+      title: string;
+    }>();
     spaces.forEach(space => {
       if (space.listing_id && !byId.has(space.listing_id)) {
-        byId.set(space.listing_id, { id: space.listing_id, title: space.listing_title });
+        byId.set(space.listing_id, {
+          id: space.listing_id,
+          title: space.listing_title
+        });
       }
     });
     return Array.from(byId.values());
@@ -575,53 +547,45 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
     overridesManual: number;
     last_updated: string | null;
   };
-
-  const listingSummaries: ListingSummary[] = Object.values(
-    filteredSpaces.reduce((acc, s) => {
-      const id = s.listing_id;
-      if (!acc[id]) {
-        acc[id] = {
-          listing_id: id,
-          listing_title: s.listing_title,
-          listing_address: s.listing_address,
-          listing_zone: s.listing_zone,
-          total: 0,
-          available: 0,
-          booked: 0,
-          maintenance: 0,
-          reserved: 0,
-          overridesManual: 0,
-          last_updated: null
-        } as ListingSummary;
-      }
-      acc[id].total += 1;
-      if (s.space_status === 'available') acc[id].available += 1;
-      if (s.space_status === 'booked') acc[id].booked += 1;
-      if (s.space_status === 'maintenance') acc[id].maintenance += 1;
-      if (s.space_status === 'reserved') acc[id].reserved += 1;
-      if (s.override_status) acc[id].overridesManual += 1;
-      const current = acc[id].last_updated ? new Date(acc[id].last_updated) : null;
-      const next = s.last_updated ? new Date(s.last_updated) : null;
-      if (next && (!current || next > current)) acc[id].last_updated = s.last_updated;
-      return acc;
-    }, {} as Record<string, ListingSummary>)
-  );
+  const listingSummaries: ListingSummary[] = Object.values(filteredSpaces.reduce((acc, s) => {
+    const id = s.listing_id;
+    if (!acc[id]) {
+      acc[id] = {
+        listing_id: id,
+        listing_title: s.listing_title,
+        listing_address: s.listing_address,
+        listing_zone: s.listing_zone,
+        total: 0,
+        available: 0,
+        booked: 0,
+        maintenance: 0,
+        reserved: 0,
+        overridesManual: 0,
+        last_updated: null
+      } as ListingSummary;
+    }
+    acc[id].total += 1;
+    if (s.space_status === 'available') acc[id].available += 1;
+    if (s.space_status === 'booked') acc[id].booked += 1;
+    if (s.space_status === 'maintenance') acc[id].maintenance += 1;
+    if (s.space_status === 'reserved') acc[id].reserved += 1;
+    if (s.override_status) acc[id].overridesManual += 1;
+    const current = acc[id].last_updated ? new Date(acc[id].last_updated) : null;
+    const next = s.last_updated ? new Date(s.last_updated) : null;
+    if (next && (!current || next > current)) acc[id].last_updated = s.last_updated;
+    return acc;
+  }, {} as Record<string, ListingSummary>));
 
   // Check if we have actual parking spaces or just listings
   const hasActualSpaces = spaces.some(space => space.space_id && space.space_id !== 'null');
   const hasListingsButNoSpaces = spaces.length > 0 && !hasActualSpaces;
-
   if (loading) {
-    return (
-      <div className="flex items-center justify-center py-8">
+    return <div className="flex items-center justify-center py-8">
         <RefreshCw className="h-6 w-6 animate-spin mr-2" />
         Loading spaces...
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="space-y-6">
+  return <div className="space-y-6">
       {/* Availability Overview */}
       <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
         <h3 className="text-lg font-semibold text-blue-800 mb-2">Parking Availability Overview</h3>
@@ -635,30 +599,13 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
         <h2 className="text-2xl font-semibold">Space Management</h2>
         <div className="flex gap-2 items-center">
           <div className="flex rounded-md border">
-            <Button 
-              variant={viewMode === 'listings' ? 'default' : 'outline'}
-              onClick={() => setViewMode('listings')}
-              className="rounded-r-none"
-            >
-              Listings
-            </Button>
-            <Button 
-              variant={viewMode === 'spaces' ? 'default' : 'outline'}
-              onClick={() => setViewMode('spaces')}
-              className="rounded-l-none border-l"
-            >
-              Spaces
-            </Button>
+            
+            
           </div>
-          <Button 
-            onClick={() => {
-              initializeSpacesForListings();
-              setTimeout(fetchSpaces, 1000);
-            }} 
-            variant={hasListingsButNoSpaces ? "default" : "secondary"}
-            disabled={isInitializing}
-            className={`flex items-center gap-2 ${hasListingsButNoSpaces ? 'bg-blue-600 hover:bg-blue-700 text-white animate-pulse' : ''}`}
-          >
+          <Button onClick={() => {
+          initializeSpacesForListings();
+          setTimeout(fetchSpaces, 1000);
+        }} variant={hasListingsButNoSpaces ? "default" : "secondary"} disabled={isInitializing} className={`flex items-center gap-2 ${hasListingsButNoSpaces ? 'bg-blue-600 hover:bg-blue-700 text-white animate-pulse' : ''}`}>
             <Zap className="h-4 w-4" />
             {isInitializing ? 'Initializing...' : 'Initialize Test Spaces'}
           </Button>
@@ -674,8 +621,7 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
       </div>
 
       {/* Warning Notice */}
-      {hasListingsButNoSpaces && (
-        <Card className="border-orange-200 bg-orange-50">
+      {hasListingsButNoSpaces && <Card className="border-orange-200 bg-orange-50">
           <CardContent className="pt-6">
             <div className="flex items-start gap-4">
               <div className="flex-shrink-0">
@@ -692,14 +638,10 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
                   The action buttons (Available, Booked, Maintenance) won't work until you create parking spaces.
                 </p>
                 <div className="mt-4">
-                  <Button 
-                    onClick={() => {
-                      initializeSpacesForListings();
-                      setTimeout(fetchSpaces, 1000);
-                    }} 
-                    disabled={isInitializing}
-                    className="bg-orange-600 hover:bg-orange-700 text-white"
-                  >
+                  <Button onClick={() => {
+                initializeSpacesForListings();
+                setTimeout(fetchSpaces, 1000);
+              }} disabled={isInitializing} className="bg-orange-600 hover:bg-orange-700 text-white">
                     <Zap className="h-4 w-4 mr-2" />
                     {isInitializing ? 'Creating Spaces...' : 'Initialize Spaces Now'}
                   </Button>
@@ -707,11 +649,9 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
               </div>
             </div>
           </CardContent>
-        </Card>
-      )}
+        </Card>}
 
-      {spaces.length === 0 && (
-        <Card className="border-gray-200 bg-gray-50">
+      {spaces.length === 0 && <Card className="border-gray-200 bg-gray-50">
           <CardContent className="pt-6">
             <div className="text-center py-8">
               <div className="flex justify-center mb-4">
@@ -725,8 +665,7 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
               </p>
             </div>
           </CardContent>
-        </Card>
-      )}
+        </Card>}
 
       {/* Filters */}
       <Card>
@@ -742,12 +681,7 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
               <Label>Search</Label>
               <div className="relative">
                 <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search spaces..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-8"
-                />
+                <Input placeholder="Search spaces..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-8" />
               </div>
             </div>
             
@@ -775,9 +709,7 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Zones</SelectItem>
-                  {getUniqueZones().map(zone => (
-                    <SelectItem key={zone} value={zone}>{zone}</SelectItem>
-                  ))}
+                  {getUniqueZones().map(zone => <SelectItem key={zone} value={zone}>{zone}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
@@ -797,25 +729,18 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
             </div>
 
             <div className="flex items-end">
-              {selectedSpaces.length > 0 && (
-                <Button 
-                  onClick={() => setShowBulkModal(true)} 
-                  className="w-full flex items-center gap-2"
-                >
+              {selectedSpaces.length > 0 && <Button onClick={() => setShowBulkModal(true)} className="w-full flex items-center gap-2">
                   <Settings className="h-4 w-4" />
                   Bulk Update ({selectedSpaces.length})
-                </Button>
-              )}
+                </Button>}
             </div>
           </div>
-          {listingFilter !== 'all' && (
-            <div className="mt-4 flex items-center gap-2">
+          {listingFilter !== 'all' && <div className="mt-4 flex items-center gap-2">
               <Badge variant="outline">
                 Filtering by listing: {spaces.find(s => s.listing_id === listingFilter)?.listing_title || listingFilter}
               </Badge>
               <Button variant="ghost" size="sm" onClick={() => setListingFilter('all')}>Clear</Button>
-            </div>
-          )}
+            </div>}
         </CardContent>
       </Card>
 
@@ -828,14 +753,15 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
           <div className="space-y-4">
             <div>
               <Label>Select Listing</Label>
-              <Select value={createForm.listingId} onValueChange={(value) => setCreateForm({...createForm, listingId: value})}>
+              <Select value={createForm.listingId} onValueChange={value => setCreateForm({
+              ...createForm,
+              listingId: value
+            })}>
                 <SelectTrigger>
                   <SelectValue placeholder="Choose a listing" />
                 </SelectTrigger>
                 <SelectContent>
-                  {getUniqueListings().map(listing => (
-                    <SelectItem key={listing.id} value={listing.id}>{listing.title}</SelectItem>
-                  ))}
+                  {getUniqueListings().map(listing => <SelectItem key={listing.id} value={listing.id}>{listing.title}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
@@ -851,15 +777,14 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
       </Dialog>
 
       {/* Listings Overview Table (deduplicated by listing) */}
-      {viewMode === 'listings' && (
-        <Card>
+      {viewMode === 'listings' && <Card>
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
               <span>Listings Overview ({listingSummaries.length})</span>
               <div className="text-sm text-muted-foreground">
-                Available: {listingSummaries.reduce((a,l)=>a+l.available,0)} | 
-                Booked: {listingSummaries.reduce((a,l)=>a+l.booked,0)} | 
-                Maintenance: {listingSummaries.reduce((a,l)=>a+l.maintenance,0)}
+                Available: {listingSummaries.reduce((a, l) => a + l.available, 0)} | 
+                Booked: {listingSummaries.reduce((a, l) => a + l.booked, 0)} | 
+                Maintenance: {listingSummaries.reduce((a, l) => a + l.maintenance, 0)}
               </div>
             </CardTitle>
           </CardHeader>
@@ -878,8 +803,7 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {listingSummaries.map((l) => (
-                  <TableRow key={l.listing_id}>
+                {listingSummaries.map(l => <TableRow key={l.listing_id}>
                     <TableCell>
                       <div>
                         <div className="font-medium">{l.listing_title}</div>
@@ -901,21 +825,21 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Button size="sm" variant="outline" onClick={() => { setViewMode('spaces'); setListingFilter(l.listing_id); }}>
+                      <Button size="sm" variant="outline" onClick={() => {
+                  setViewMode('spaces');
+                  setListingFilter(l.listing_id);
+                }}>
                         Manage spaces
                       </Button>
                     </TableCell>
-                  </TableRow>
-                ))}
+                  </TableRow>)}
               </TableBody>
             </Table>
           </CardContent>
-        </Card>
-      )}
+        </Card>}
 
       {/* Parking Spaces Table */}
-      {viewMode === 'spaces' && (
-        <Card>
+      {viewMode === 'spaces' && <Card>
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
               <span>Parking Spaces ({filteredSpaces.length})</span>
@@ -939,8 +863,7 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredSpaces.map((space) => (
-                  <TableRow key={space.space_id || `${space.listing_id}-fallback`}>
+                {filteredSpaces.map(space => <TableRow key={space.space_id || `${space.listing_id}-fallback`}>
                     <TableCell>
                       <div>
                         <div className="font-medium">{space.listing_title}</div>
@@ -955,13 +878,11 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-col gap-1">
-                        {space.override_status ? (
-                          <div>
+                        {space.override_status ? <div>
                             <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200">
                               Manual
                             </Badge>
-                            {space.override_reason && (
-                              <TooltipProvider>
+                            {space.override_reason && <TooltipProvider>
                                 <Tooltip>
                                   <TooltipTrigger>
                                     <div className="text-xs text-muted-foreground mt-1 truncate max-w-[100px]">
@@ -972,14 +893,10 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
                                     <p>{space.override_reason}</p>
                                   </TooltipContent>
                                 </Tooltip>
-                              </TooltipProvider>
-                            )}
-                          </div>
-                        ) : (
-                          <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-200">
+                              </TooltipProvider>}
+                          </div> : <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-200">
                             Manual
-                          </Badge>
-                        )}
+                          </Badge>}
                       </div>
                     </TableCell>
                     <TableCell>
@@ -992,18 +909,8 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
                         <TooltipProvider>
                           <Tooltip>
                           <TooltipTrigger asChild>
-                            <Button
-                              size="sm"
-                              variant={space.space_status === 'available' ? "default" : "outline"}
-                              onClick={() => setStatusManually(space, 'available')}
-                              disabled={loadingSpaces.has(space.space_id || space.listing_id)}
-                              className="h-8 w-8 p-0"
-                            >
-                              {loadingSpaces.has(space.space_id || space.listing_id) ? (
-                                <Loader2 className="h-3 w-3 animate-spin" />
-                              ) : (
-                                <CheckCircle className="h-3 w-3" />
-                              )}
+                            <Button size="sm" variant={space.space_status === 'available' ? "default" : "outline"} onClick={() => setStatusManually(space, 'available')} disabled={loadingSpaces.has(space.space_id || space.listing_id)} className="h-8 w-8 p-0">
+                              {loadingSpaces.has(space.space_id || space.listing_id) ? <Loader2 className="h-3 w-3 animate-spin" /> : <CheckCircle className="h-3 w-3" />}
                             </Button>
                           </TooltipTrigger>
                             <TooltipContent>
@@ -1015,18 +922,8 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
                         <TooltipProvider>
                           <Tooltip>
                           <TooltipTrigger asChild>
-                            <Button
-                              size="sm"
-                              variant={space.space_status === 'booked' ? "default" : "outline"}
-                              onClick={() => setStatusManually(space, 'booked')}
-                              disabled={loadingSpaces.has(space.space_id || space.listing_id)}
-                              className="h-8 w-8 p-0"
-                            >
-                              {loadingSpaces.has(space.space_id || space.listing_id) ? (
-                                <Loader2 className="h-3 w-3 animate-spin" />
-                              ) : (
-                                <XCircle className="h-3 w-3" />
-                              )}
+                            <Button size="sm" variant={space.space_status === 'booked' ? "default" : "outline"} onClick={() => setStatusManually(space, 'booked')} disabled={loadingSpaces.has(space.space_id || space.listing_id)} className="h-8 w-8 p-0">
+                              {loadingSpaces.has(space.space_id || space.listing_id) ? <Loader2 className="h-3 w-3 animate-spin" /> : <XCircle className="h-3 w-3" />}
                             </Button>
                           </TooltipTrigger>
                             <TooltipContent>
@@ -1037,17 +934,8 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
 
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
-                            <Button
-                              size="sm"
-                              variant={space.space_status === 'maintenance' ? "default" : "outline"}
-                              disabled={loadingSpaces.has(space.space_id || space.listing_id)}
-                              className="h-8 w-8 p-0"
-                            >
-                              {loadingSpaces.has(space.space_id || space.listing_id) ? (
-                                <Loader2 className="h-3 w-3 animate-spin" />
-                              ) : (
-                                <Wrench className="h-3 w-3" />
-                              )}
+                            <Button size="sm" variant={space.space_status === 'maintenance' ? "default" : "outline"} disabled={loadingSpaces.has(space.space_id || space.listing_id)} className="h-8 w-8 p-0">
+                              {loadingSpaces.has(space.space_id || space.listing_id) ? <Loader2 className="h-3 w-3 animate-spin" /> : <Wrench className="h-3 w-3" />}
                             </Button>
                           </AlertDialogTrigger>
                           <AlertDialogContent>
@@ -1056,22 +944,16 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
                               <AlertDialogDescription>
                                 <div className="space-y-2">
                                   <p>This will mark the space as under maintenance.</p>
-                                  <Textarea
-                                    placeholder="Reason for maintenance (optional)"
-                                    value={maintenanceReason}
-                                    onChange={(e) => setMaintenanceReason(e.target.value)}
-                                  />
+                                  <Textarea placeholder="Reason for maintenance (optional)" value={maintenanceReason} onChange={e => setMaintenanceReason(e.target.value)} />
                                 </div>
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
                               <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() => {
-                                  setStatusManually(space, 'maintenance', maintenanceReason);
-                                  setMaintenanceReason('');
-                                }}
-                              >
+                              <AlertDialogAction onClick={() => {
+                          setStatusManually(space, 'maintenance', maintenanceReason);
+                          setMaintenanceReason('');
+                        }}>
                                 Set Maintenance
                               </AlertDialogAction>
                             </AlertDialogFooter>
@@ -1081,18 +963,8 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <Button
-                                size="sm"
-                                variant={space.space_status === 'reserved' ? "default" : "outline"}
-                                onClick={() => updateSpaceStatus(space.space_id, 'reserved')}
-                                disabled={!space.space_id || loadingSpaces.has(space.space_id)}
-                                className="h-8 w-8 p-0"
-                              >
-                                {loadingSpaces.has(space.space_id) ? (
-                                  <Loader2 className="h-3 w-3 animate-spin" />
-                                ) : (
-                                  <Clock className="h-3 w-3" />
-                                )}
+                              <Button size="sm" variant={space.space_status === 'reserved' ? "default" : "outline"} onClick={() => updateSpaceStatus(space.space_id, 'reserved')} disabled={!space.space_id || loadingSpaces.has(space.space_id)} className="h-8 w-8 p-0">
+                                {loadingSpaces.has(space.space_id) ? <Loader2 className="h-3 w-3 animate-spin" /> : <Clock className="h-3 w-3" />}
                               </Button>
                             </TooltipTrigger>
                             <TooltipContent>
@@ -1103,17 +975,8 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
 
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              disabled={loadingSpaces.has(space.space_id || space.listing_id)}
-                              className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
-                            >
-                              {loadingSpaces.has(space.space_id || space.listing_id) ? (
-                                <Loader2 className="h-3 w-3 animate-spin" />
-                              ) : (
-                                <Trash2 className="h-3 w-3" />
-                              )}
+                            <Button size="sm" variant="outline" disabled={loadingSpaces.has(space.space_id || space.listing_id)} className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50">
+                              {loadingSpaces.has(space.space_id || space.listing_id) ? <Loader2 className="h-3 w-3 animate-spin" /> : <Trash2 className="h-3 w-3" />}
                             </Button>
                           </AlertDialogTrigger>
                           <AlertDialogContent>
@@ -1124,10 +987,7 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
                               <AlertDialogDescription>
                                 <div className="space-y-2">
                                   <p>
-                                    {space.space_id 
-                                      ? "Are you sure you want to permanently delete this parking space?"
-                                      : "Are you sure you want to permanently delete this entire car park?"
-                                    }
+                                    {space.space_id ? "Are you sure you want to permanently delete this parking space?" : "Are you sure you want to permanently delete this entire car park?"}
                                   </p>
                                   <div className="bg-yellow-50 p-3 rounded border border-yellow-200">
                                     <p className="text-sm font-medium text-yellow-800">
@@ -1147,16 +1007,13 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
                             </AlertDialogHeader>
                             <AlertDialogFooter>
                               <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() => {
-                                  if (space.space_id) {
-                                    deleteSpace(space.space_id, space.space_number, space.listing_title);
-                                  } else {
-                                    deleteCarPark(space.listing_id, space.listing_title);
-                                  }
-                                }}
-                                className="bg-red-600 hover:bg-red-700 text-white"
-                              >
+                              <AlertDialogAction onClick={() => {
+                          if (space.space_id) {
+                            deleteSpace(space.space_id, space.space_number, space.listing_title);
+                          } else {
+                            deleteCarPark(space.listing_id, space.listing_title);
+                          }
+                        }} className="bg-red-600 hover:bg-red-700 text-white">
                                 {space.space_id ? "Delete Space" : "Delete Car Park"}
                               </AlertDialogAction>
                             </AlertDialogFooter>
@@ -1164,13 +1021,11 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
                         </AlertDialog>
                       </div>
                     </TableCell>
-                  </TableRow>
-                ))}
+                  </TableRow>)}
               </TableBody>
             </Table>
           </CardContent>
-        </Card>
-      )}
+        </Card>}
 
       {/* Bulk Update Modal */}
       <Dialog open={showBulkModal} onOpenChange={setShowBulkModal}>
@@ -1181,7 +1036,10 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
           <div className="space-y-4">
             <div>
               <Label>New Status</Label>
-              <Select value={bulkAction.status} onValueChange={(value: any) => setBulkAction({...bulkAction, status: value})}>
+              <Select value={bulkAction.status} onValueChange={(value: any) => setBulkAction({
+              ...bulkAction,
+              status: value
+            })}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -1195,11 +1053,10 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
             </div>
             <div>
               <Label>Reason (Optional)</Label>
-              <Input
-                value={bulkAction.reason}
-                onChange={(e) => setBulkAction({...bulkAction, reason: e.target.value})}
-                placeholder="Reason for status change"
-              />
+              <Input value={bulkAction.reason} onChange={e => setBulkAction({
+              ...bulkAction,
+              reason: e.target.value
+            })} placeholder="Reason for status change" />
             </div>
             <div className="flex gap-2 pt-4">
               <Button onClick={bulkUpdateSpaces} className="flex-1">Update Spaces</Button>
@@ -1208,8 +1065,6 @@ const SpaceManagement = ({ onRefresh }: SpaceManagementProps) => {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
-  );
+    </div>;
 };
-
 export default SpaceManagement;
