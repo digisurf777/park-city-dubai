@@ -86,20 +86,26 @@ export const ParkingBookingModal = ({
       if (!parkingSpot || !isOpen) return;
       
       try {
+        // Query using ILIKE for flexible matching
         const { data: bookings, error } = await supabase
           .from('parking_bookings')
-          .select('start_time, end_time')
-          .eq('location', parkingSpot.name)
+          .select('start_time, end_time, location')
+          .ilike('location', `%${parkingSpot.name}%`)
           .in('status', ['approved', 'confirmed']);
 
         if (error) throw error;
 
-        if (bookings) {
+        console.log('Fetched bookings for', parkingSpot.name, ':', bookings);
+
+        if (bookings && bookings.length > 0) {
           const ranges = bookings.map(booking => ({
             start: new Date(booking.start_time),
             end: new Date(booking.end_time)
           }));
+          console.log('Booked date ranges:', ranges);
           setBookedDateRanges(ranges);
+        } else {
+          setBookedDateRanges([]);
         }
       } catch (error) {
         console.error('Error fetching booked dates:', error);
