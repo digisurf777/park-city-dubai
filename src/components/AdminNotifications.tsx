@@ -580,10 +580,65 @@ const AdminNotifications = ({
                       </Button>
                     </div>}
 
-                  {(notification.parking_bookings.status === 'confirmed' || notification.parking_bookings.status === 'cancelled') && <div className="flex gap-2">
+                  {notification.parking_bookings.status === 'confirmed' && (
+                    <>
+                      {/* Booking Period Information */}
+                      <div className="bg-green-50 rounded-lg p-4 mb-4 border border-green-200">
+                        <h4 className="font-semibold mb-3 flex items-center gap-2 text-green-900">
+                          <Calendar className="h-4 w-4" />
+                          Booking Period
+                        </h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                          <div>
+                            <span className="text-gray-600 block mb-1">Location:</span>
+                            <div className="flex items-center gap-2">
+                              <MapPin className="h-4 w-4 text-gray-500" />
+                              <span className="font-medium">{notification.parking_bookings.location}</span>
+                            </div>
+                          </div>
+                          <div>
+                            <span className="text-gray-600 block mb-1">Zone:</span>
+                            <span className="font-medium">{notification.parking_bookings.zone}</span>
+                          </div>
+                          <div>
+                            <span className="text-gray-600 block mb-1">Start:</span>
+                            <span className="font-medium">{format(new Date(notification.parking_bookings.start_time), 'PPP p')}</span>
+                          </div>
+                          <div>
+                            <span className="text-gray-600 block mb-1">End:</span>
+                            <span className="font-medium">{format(new Date(notification.parking_bookings.end_time), 'PPP p')}</span>
+                          </div>
+                          <div>
+                            <span className="text-gray-600 block mb-1">Duration:</span>
+                            <span className="font-medium">{notification.parking_bookings.duration_hours} hours</span>
+                          </div>
+                          <div>
+                            <span className="text-gray-600 block mb-1">Total Cost:</span>
+                            <span className="font-semibold text-green-700">{notification.parking_bookings.cost_aed} AED</span>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="flex gap-2">
+                        <div className="flex-1 flex items-center justify-center py-2">
+                          <Badge variant="default" className="text-sm bg-green-600">
+                            Approved
+                          </Badge>
+                        </div>
+                        
+                        <Button onClick={() => deleteBooking(notification)} disabled={actionLoading !== null} variant="destructive" className="bg-red-600 hover:bg-red-700">
+                          {actionLoading === `delete-${notification.id}` ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Trash2 className="h-4 w-4 mr-2" />}
+                          Delete
+                        </Button>
+                      </div>
+                    </>
+                  )}
+
+                  {notification.parking_bookings.status === 'cancelled' && (
+                    <div className="flex gap-2">
                       <div className="flex-1 flex items-center justify-center py-2">
-                        <Badge variant={notification.parking_bookings.status === 'confirmed' ? 'default' : 'destructive'} className="text-sm">
-                          {notification.parking_bookings.status === 'confirmed' ? 'Approved' : 'Rejected'}
+                        <Badge variant="destructive" className="text-sm">
+                          Rejected
                         </Badge>
                       </div>
                       
@@ -591,7 +646,8 @@ const AdminNotifications = ({
                         {actionLoading === `delete-${notification.id}` ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Trash2 className="h-4 w-4 mr-2" />}
                         Delete
                       </Button>
-                    </div>}
+                    </div>
+                  )}
                 </CardContent>}
             </Card>)}
         </div>}
