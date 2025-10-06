@@ -121,3 +121,6 @@ verify_jwt = true
 
 [functions.send-deposit-payment-confirmation]
 verify_jwt = true
+
+[functions.check-expiring-bookings]
+verify_jwt = false
