@@ -542,23 +542,37 @@ const AdminNotifications = ({
                     </h4>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                      <div className="flex items-center gap-2">
-                        <MapPin className="h-4 w-4 text-gray-500" />
-                        <span>{notification.parking_bookings.location}</span>
+                      <div>
+                        <span className="text-gray-600 block mb-1">Location:</span>
+                        <div className="flex items-center gap-2">
+                          <MapPin className="h-4 w-4 text-gray-500" />
+                          <span className="font-medium">{notification.parking_bookings.location}</span>
+                        </div>
                       </div>
-                      
-                      <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-gray-500" />
-                        <span>
-                          {format(new Date(notification.parking_bookings.start_time), 'PPP')}
+                      <div>
+                        <span className="text-gray-600 block mb-1">Zone:</span>
+                        <span className="font-medium">{notification.parking_bookings.zone}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-600 block mb-1">Start:</span>
+                        <span className="font-medium">{format(new Date(notification.parking_bookings.start_time), 'PPP p')}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-600 block mb-1">End:</span>
+                        <span className="font-medium">{format(new Date(notification.parking_bookings.end_time), 'PPP p')}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-600 block mb-1">Duration:</span>
+                        <span className="font-medium">
+                          {notification.parking_bookings.duration_hours >= 720 
+                            ? `${Math.round(notification.parking_bookings.duration_hours / 720)} month${Math.round(notification.parking_bookings.duration_hours / 720) !== 1 ? 's' : ''}`
+                            : `${notification.parking_bookings.duration_hours} hours`
+                          }
                         </span>
                       </div>
-                      
-                      <div className="flex items-center gap-2">
-                        <DollarSign className="h-4 w-4 text-gray-500" />
-                        <span className="font-semibold text-green-600">
-                          {notification.parking_bookings.cost_aed} AED
-                        </span>
+                      <div>
+                        <span className="text-gray-600 block mb-1">Total Cost:</span>
+                        <span className="font-semibold text-green-600">{notification.parking_bookings.cost_aed} AED</span>
                       </div>
                     </div>
                   </div>
