@@ -84,10 +84,11 @@ const LiveBookingControl = ({ onRefresh }: LiveBookingControlProps) => {
     try {
       setLoading(true);
       
-      // First get bookings
+      // First get only confirmed/approved bookings
       const { data: bookingsData, error: bookingsError } = await supabase
         .from('parking_bookings')
         .select('*')
+        .eq('status', 'confirmed')
         .order('created_at', { ascending: false });
 
       if (bookingsError) throw bookingsError;
@@ -336,8 +337,8 @@ const LiveBookingControl = ({ onRefresh }: LiveBookingControlProps) => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-semibold">Live Booking Control</h2>
-          <p className="text-muted-foreground">Instantly control booking availability status</p>
+          <h2 className="text-2xl font-semibold">Approved Bookings</h2>
+          <p className="text-muted-foreground">View and manage all approved parking bookings</p>
         </div>
         <Button onClick={fetchBookings} variant="outline" className="flex items-center gap-2">
           <RefreshCw className="h-4 w-4" />
