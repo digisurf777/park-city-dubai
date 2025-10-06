@@ -40,7 +40,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     if (isApproved) {
       subject = "ID Verification Approved";
-      inboxMessage = "Congratulations! Your ID has been successfully verified. You can now list your parking space on the platform.";
+      inboxMessage = "Congratulations! Your ID has been successfully verified. You can now list and book a car park space on the platform.";
       
       htmlContent = `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f8f9fa;">
@@ -53,7 +53,7 @@ const handler = async (req: Request): Promise<Response> => {
               <div style="background: #d4edda; color: #155724; padding: 20px; border-radius: 8px; border: 1px solid #c3e6cb; margin-bottom: 20px;">
                 <h2 style="margin: 0 0 10px 0; color: #155724;">Dear ${userName},</h2>
                 <p style="margin: 0; font-size: 16px; line-height: 1.6;">
-                  Congratulations! Your ID has been successfully verified. You can now list your parking space on the platform.
+                  Congratulations! Your ID has been successfully verified. You can now list and book a car park space on the platform.
                 </p>
               </div>
             </div>
