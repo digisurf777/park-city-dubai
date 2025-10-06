@@ -1526,7 +1526,10 @@ export type Database = {
           pre_authorization_amount: number
           pre_authorization_expires_at: string
           security_deposit_amount: number
+          user_email: string
           user_full_name: string
+          user_phone: string
+          verification_status: string
           zone: string
         }[]
       }

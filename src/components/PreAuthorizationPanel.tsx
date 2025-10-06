@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { AlertTriangle, Calendar, DollarSign, Clock, CreditCard, CheckCircle, Trash2 } from "lucide-react";
+import { AlertTriangle, Calendar, DollarSign, Clock, CreditCard, CheckCircle, Trash2, User, Mail, Phone } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -22,6 +22,9 @@ import {
 interface PreAuthorization {
   booking_id: string;
   user_full_name: string;
+  user_email: string;
+  user_phone: string;
+  verification_status: string;
   location: string;
   zone: string;
   pre_authorization_amount: number;
@@ -299,8 +302,37 @@ export const PreAuthorizationPanel = () => {
                   </CardTitle>
                   {getStatusBadge(auth.payment_status, auth.days_until_expiry)}
                 </div>
-                <div className="text-sm text-muted-foreground">
-                  Customer: <span className="font-medium">{auth.user_full_name}</span> • Zone: <span className="font-medium">{auth.zone}</span>
+                <div className="text-sm text-muted-foreground flex flex-wrap items-center gap-3">
+                  <div className="flex items-center gap-2">
+                    <User className="h-4 w-4" />
+                    <span className="font-medium">{auth.user_full_name}</span>
+                    {auth.verification_status === 'verified' && (
+                      <Badge className="bg-green-100 text-green-800 border-green-200 text-xs">Verified</Badge>
+                    )}
+                    {auth.verification_status === 'pending' && (
+                      <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200 text-xs">Pending</Badge>
+                    )}
+                    {auth.verification_status === 'rejected' && (
+                      <Badge className="bg-red-100 text-red-800 border-red-200 text-xs">Rejected</Badge>
+                    )}
+                    {auth.verification_status === 'not_verified' && (
+                      <Badge className="bg-gray-100 text-gray-800 border-gray-200 text-xs">Not Verified</Badge>
+                    )}
+                  </div>
+                  {auth.user_email && (
+                    <div className="flex items-center gap-1">
+                      <Mail className="h-3 w-3" />
+                      <span>{auth.user_email}</span>
+                    </div>
+                  )}
+                  {auth.user_phone && (
+                    <div className="flex items-center gap-1">
+                      <Phone className="h-3 w-3" />
+                      <span>{auth.user_phone}</span>
+                    </div>
+                  )}
+                  <span>•</span>
+                  <span>Zone: <span className="font-medium">{auth.zone}</span></span>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
