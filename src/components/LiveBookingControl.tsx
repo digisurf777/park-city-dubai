@@ -93,18 +93,20 @@ const LiveBookingControl = ({ onRefresh }: LiveBookingControlProps) => {
 
       if (bookingsError) throw bookingsError;
 
-      // Then get user profiles for each booking
+      // Then get user display info for each booking (includes name from auth.users if profile missing)
       const bookingsWithProfiles = await Promise.all(
         (bookingsData || []).map(async (booking) => {
-          const { data: profileData } = await supabase
-            .from('profiles')
-            .select('full_name, phone')
-            .eq('user_id', booking.user_id)
-            .single();
-
+          const { data: userInfo, error: userError } = await supabase
+            .rpc('get_user_display_info', { user_uuid: booking.user_id });
+          
+          console.log('User info fetched for:', booking.user_id, userInfo);
+          
           return {
             ...booking,
-            profiles: profileData || null
+            profiles: userInfo?.[0] ? {
+              full_name: userInfo[0].full_name,
+              phone: userInfo[0].phone
+            } : null
           };
         })
       );
@@ -558,7 +560,12 @@ const LiveBookingControl = ({ onRefresh }: LiveBookingControlProps) => {
                         </div>
                       </TableCell>
                       <TableCell className="text-center">
-                        <Badge variant="outline">{booking.duration_hours}h</Badge>
+                        <Badge variant="outline">
+                          {booking.duration_hours >= 720 
+                            ? `${Math.round(booking.duration_hours / 720)} month${Math.round(booking.duration_hours / 720) !== 1 ? 's' : ''}`
+                            : `${booking.duration_hours}h`
+                          }
+                        </Badge>
                       </TableCell>
                       <TableCell className="font-semibold text-green-600">
                         {booking.cost_aed} AED
