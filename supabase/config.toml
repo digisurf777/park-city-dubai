@@ -44,6 +44,9 @@ verify_jwt = true
 [functions.send-booking-rejected]
 verify_jwt = true
 
+[functions.send-booking-approved]
+verify_jwt = true
+
 [functions.send-customer-confirmation]
 verify_jwt = true
 
