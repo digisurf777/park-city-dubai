@@ -79,6 +79,36 @@ export const ParkingBookingModal = ({
   const [paymentIntentData, setPaymentIntentData] = useState<any>(null);
   const [stripe, setStripe] = useState<any>(null);
   const [agreeToTerms, setAgreeToTerms] = useState(false);
+  const [bookedDateRanges, setBookedDateRanges] = useState<Array<{ start: Date; end: Date }>>([]);
+  // Fetch booked dates for this parking spot
+  useEffect(() => {
+    const fetchBookedDates = async () => {
+      if (!parkingSpot || !isOpen) return;
+      
+      try {
+        const { data: bookings, error } = await supabase
+          .from('parking_bookings')
+          .select('start_time, end_time')
+          .eq('location', parkingSpot.name)
+          .in('status', ['approved', 'confirmed']);
+
+        if (error) throw error;
+
+        if (bookings) {
+          const ranges = bookings.map(booking => ({
+            start: new Date(booking.start_time),
+            end: new Date(booking.end_time)
+          }));
+          setBookedDateRanges(ranges);
+        }
+      } catch (error) {
+        console.error('Error fetching booked dates:', error);
+      }
+    };
+
+    fetchBookedDates();
+  }, [parkingSpot, isOpen]);
+
   useEffect(() => {
     if (!isOpen) {
       setStartDate(undefined);
@@ -90,9 +120,43 @@ export const ParkingBookingModal = ({
       setPaymentStep('booking');
       setPaymentIntentData(null);
       setAgreeToTerms(false);
+      setBookedDateRanges([]);
     }
   }, [isOpen]);
   if (!parkingSpot) return null;
+
+  // Helper function to check if a date is booked
+  const isDateBooked = (date: Date) => {
+    const checkDate = new Date(date);
+    checkDate.setHours(0, 0, 0, 0);
+    
+    return bookedDateRanges.some(range => {
+      const rangeStart = new Date(range.start);
+      const rangeEnd = new Date(range.end);
+      rangeStart.setHours(0, 0, 0, 0);
+      rangeEnd.setHours(0, 0, 0, 0);
+      
+      return checkDate >= rangeStart && checkDate <= rangeEnd;
+    });
+  };
+
+  // Get all booked dates for modifiers
+  const getAllBookedDates = () => {
+    const dates: Date[] = [];
+    bookedDateRanges.forEach(range => {
+      const current = new Date(range.start);
+      const end = new Date(range.end);
+      
+      while (current <= end) {
+        const newDate = new Date(current);
+        newDate.setHours(0, 0, 0, 0);
+        dates.push(newDate);
+        current.setDate(current.getDate() + 1);
+      }
+    });
+    return dates;
+  };
+
   const calculateTotal = () => {
     // Use the correct formula: ((Listing Price – 100) × multiplier) × Number of Months + (100 × Number of Months)
     let finalPrice: number;
@@ -356,15 +420,46 @@ export const ParkingBookingModal = ({
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar mode="single" selected={startDate} onSelect={date => {
-                  setStartDate(date);
-                  setIsCalendarOpen(false);
-                }} disabled={date => {
-                  const today = new Date();
-                  const minDate = new Date();
-                  minDate.setDate(today.getDate() + 2);
-                  return date < minDate;
-                }} initialFocus className="pointer-events-auto" />
+                  <Calendar 
+                    mode="single" 
+                    selected={startDate} 
+                    onSelect={date => {
+                      setStartDate(date);
+                      setIsCalendarOpen(false);
+                    }} 
+                    disabled={date => {
+                      const today = new Date();
+                      const minDate = new Date();
+                      minDate.setDate(today.getDate() + 2);
+                      if (date < minDate) return true;
+                      
+                      // Also disable booked dates
+                      return isDateBooked(date);
+                    }} 
+                    modifiers={{
+                      booked: getAllBookedDates()
+                    }}
+                    modifiersClassNames={{
+                      booked: 'bg-red-100 text-red-900 line-through opacity-60 hover:bg-red-100'
+                    }}
+                    initialFocus 
+                    className="pointer-events-auto" 
+                  />
+                  {/* Calendar Legend */}
+                  <div className="border-t p-3 space-y-1.5 text-xs">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded bg-red-100 border border-red-200"></div>
+                      <span className="text-muted-foreground">Already booked</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded bg-muted"></div>
+                      <span className="text-muted-foreground">Available</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded bg-muted opacity-50"></div>
+                      <span className="text-muted-foreground">Too soon (2-day minimum)</span>
+                    </div>
+                  </div>
                 </PopoverContent>
               </Popover>
             </div>
