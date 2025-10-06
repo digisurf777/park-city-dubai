@@ -2,12 +2,22 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { AlertTriangle, Calendar, DollarSign, Clock, CreditCard, CheckCircle } from "lucide-react";
+import { AlertTriangle, Calendar, DollarSign, Clock, CreditCard, CheckCircle, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface PreAuthorization {
   booking_id: string;
@@ -29,6 +39,9 @@ export const PreAuthorizationPanel = () => {
   const [loading, setLoading] = useState(true);
   const [capturing, setCapturing] = useState<string | null>(null);
   const [extending, setExtending] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState<string | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [bookingToDelete, setBookingToDelete] = useState<string | null>(null);
   const [captureAmounts, setCaptureAmounts] = useState<Record<string, number>>({});
   const { toast } = useToast();
 
@@ -111,6 +124,43 @@ export const PreAuthorizationPanel = () => {
       });
     } finally {
       setExtending(null);
+    }
+  };
+
+  const handleDeleteClick = (bookingId: string) => {
+    setBookingToDelete(bookingId);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!bookingToDelete) return;
+    
+    setDeleting(bookingToDelete);
+    try {
+      const { data, error } = await supabase.rpc('admin_delete_booking_complete', {
+        booking_id: bookingToDelete
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Pre-authorization deleted successfully",
+      });
+
+      // Remove from local state
+      setPreAuthorizations(prev => prev.filter(auth => auth.booking_id !== bookingToDelete));
+      setDeleteDialogOpen(false);
+      setBookingToDelete(null);
+    } catch (error: any) {
+      console.error('Error deleting pre-authorization:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete pre-authorization",
+        variant: "destructive"
+      });
+    } finally {
+      setDeleting(null);
     }
   };
 
@@ -337,6 +387,16 @@ export const PreAuthorizationPanel = () => {
                       >
                         {extending === auth.booking_id ? 'Extending...' : '🕐 Extend 7 Days'}
                       </Button>
+                      <Button
+                        onClick={() => handleDeleteClick(auth.booking_id)}
+                        disabled={deleting === auth.booking_id}
+                        variant="destructive"
+                        size="sm"
+                        className="font-medium"
+                      >
+                        <Trash2 className="h-4 w-4 mr-1" />
+                        {deleting === auth.booking_id ? 'Deleting...' : 'Delete'}
+                      </Button>
                     </div>
                     {auth.authorization_extended_count >= 3 && (
                       <div className="text-xs text-red-600 bg-red-50 p-2 rounded border border-red-200">
@@ -350,6 +410,26 @@ export const PreAuthorizationPanel = () => {
           ))}
         </div>
       )}
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Pre-Authorization</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this pre-authorization? This action cannot be undone and will remove the booking completely.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
