@@ -83,8 +83,8 @@ export const PreAuthorizationPanel = () => {
 
       if (!bookingRow?.stripe_payment_intent_id) {
         toast({
-          title: 'Cannot capture payment',
-          description: 'No payment intent found. Customer must complete payment authorization first.',
+          title: '⚠️ Payment Authorization Incomplete',
+          description: 'Customer needs to complete payment authorization first. Send them the payment link.',
           variant: 'destructive'
         });
         return;

@@ -45,6 +45,11 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error("Booking not found");
     }
 
+    // Handle case where payment intent doesn't exist yet but we have a payment link
+    if (!booking.stripe_payment_intent_id && booking.payment_link_url) {
+      throw new Error("Customer hasn't completed payment authorization yet. Please ask them to complete payment first.");
+    }
+    
     if (!booking.stripe_payment_intent_id) {
       throw new Error("No payment intent found for this booking");
     }
