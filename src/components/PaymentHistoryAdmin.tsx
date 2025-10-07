@@ -226,6 +226,15 @@ export const PaymentHistoryAdmin = () => {
   };
 
   const handleDownloadDocument = async (paymentId: string, documentType: 'invoice' | 'remittance') => {
+    const fetchAndValidate = async (signedUrl: string) => {
+      const resp = await fetch(signedUrl);
+      if (!resp.ok) return null;
+      const buf = await resp.arrayBuffer();
+      const bytes = new Uint8Array(buf).slice(0, 4);
+      const isPDF = bytes[0] === 0x25 && bytes[1] === 0x50 && bytes[2] === 0x44 && bytes[3] === 0x46; // %PDF
+      return isPDF ? buf : null;
+    };
+
     try {
       setDownloadingDoc({ paymentId, type: documentType });
 
@@ -233,46 +242,33 @@ export const PaymentHistoryAdmin = () => {
         body: { paymentId, documentType }
       });
 
-      if (error) {
-        // If document doesn't exist, generate it first
-        if (error.message?.includes('not available')) {
-          toast.info('Generating document, please wait...');
-          const { error: genError } = await supabase.functions.invoke('generate-payment-pdf', {
-            body: { paymentId }
-          });
-          if (genError) throw genError;
-          
-          // Retry fetching URL after generation
-          const { data: retryData, error: retryError } = await supabase.functions.invoke('generate-payment-document-url', {
-            body: { paymentId, documentType }
-          });
-          if (retryError) throw retryError;
-          
-          if (retryData?.url) {
-            const response = await fetch(retryData.url);
-            const blob = await response.blob();
-            const url = window.URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `${documentType}_${paymentId}.pdf`;
-            link.click();
-            window.URL.revokeObjectURL(url);
-            toast.success(`${documentType === 'invoice' ? 'Invoice' : 'Remittance advice'} downloaded`);
-          }
-        } else {
-          throw error;
-        }
-      } else if (data?.url) {
-        const response = await fetch(data.url);
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `${documentType}_${paymentId}.pdf`;
-        link.click();
-        window.URL.revokeObjectURL(url);
-        toast.success(`${documentType === 'invoice' ? 'Invoice' : 'Remittance advice'} downloaded`);
+      if (error) throw error;
+
+      let buffer: ArrayBuffer | null = null;
+      if (data?.url) {
+        buffer = await fetchAndValidate(data.url);
       }
+
+      if (!buffer) {
+        toast.message('Fixing document…', { description: 'Regenerating PDF and retrying' });
+        const { error: genError } = await supabase.functions.invoke('generate-payment-pdf', { body: { paymentId } });
+        if (genError) throw genError;
+        const { data: retryData, error: retryError } = await supabase.functions.invoke('generate-payment-document-url', {
+          body: { paymentId, documentType }
+        });
+        if (retryError || !retryData?.url) throw retryError || new Error('No URL after regenerate');
+        buffer = await fetchAndValidate(retryData.url);
+        if (!buffer) throw new Error('Document still invalid after regenerate');
+      }
+
+      const blob = new Blob([buffer], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${documentType}_${paymentId}.pdf`;
+      link.click();
+      window.URL.revokeObjectURL(url);
+      toast.success(`${documentType === 'invoice' ? 'Invoice' : 'Remittance advice'} downloaded`);
     } catch (error: any) {
       console.error('Error downloading document:', error);
       toast.error('Failed to download document');
