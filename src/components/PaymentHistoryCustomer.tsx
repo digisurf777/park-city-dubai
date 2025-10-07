@@ -37,7 +37,7 @@ export default function PaymentHistoryCustomer() {
         .from("parking_bookings")
         .select("id, location, zone, start_time, end_time, duration_hours, cost_aed, status, payment_status, payment_type, created_at, invoice_url")
         .in("status", ["confirmed", "completed"])
-        .in("payment_status", ["paid", "completed"])
+        .in("payment_status", ["pre_authorized", "confirmed", "paid", "completed"])
         .order("created_at", { ascending: false });
 
       if (error) throw error;
