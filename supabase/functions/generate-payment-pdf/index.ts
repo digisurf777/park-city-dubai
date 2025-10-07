@@ -426,7 +426,8 @@ serve(async (req) => {
       .from('owner-payment-documents')
       .upload(invoicePath, invoiceBlob, {
         contentType: 'application/pdf',
-        upsert: true
+        upsert: true,
+        cacheControl: '0'
       });
 
     if (invoiceUploadError) {
@@ -439,7 +440,8 @@ serve(async (req) => {
       .from('owner-payment-documents')
       .upload(remittancePath, remittanceBlob, {
         contentType: 'application/pdf',
-        upsert: true
+        upsert: true,
+        cacheControl: '0'
       });
 
     if (remittanceUploadError) {
