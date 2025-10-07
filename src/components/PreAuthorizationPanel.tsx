@@ -72,8 +72,28 @@ export const PreAuthorizationPanel = () => {
   const handleCapture = async (bookingId: string, fullAmount: boolean = true) => {
     setCapturing(bookingId);
     try {
+      // Safety check: ensure a Payment Intent exists before attempting capture
+      const { data: bookingRow, error: bookingErr } = await supabase
+        .from('parking_bookings')
+        .select('stripe_payment_intent_id, payment_link_url')
+        .eq('id', bookingId)
+        .maybeSingle();
+
+      if (bookingErr) throw bookingErr;
+
+      if (!bookingRow?.stripe_payment_intent_id) {
+        toast({
+          title: 'Authorization incomplete',
+          description: 'No payment intent found for this booking. Open the payment link to complete the pre-authorization.',
+          variant: 'destructive'
+        });
+        if (bookingRow?.payment_link_url) {
+          window.open(bookingRow.payment_link_url, '_blank');
+        }
+        return;
+      }
+
       const captureData: any = { bookingId };
-      
       if (!fullAmount && captureAmounts[bookingId]) {
         captureData.captureAmount = captureAmounts[bookingId];
       }
@@ -85,7 +105,7 @@ export const PreAuthorizationPanel = () => {
       if (error) throw error;
 
       toast({
-        title: "Success",
+        title: 'Success',
         description: `Payment ${fullAmount ? 'fully' : 'partially'} captured successfully`,
       });
 
@@ -93,9 +113,9 @@ export const PreAuthorizationPanel = () => {
     } catch (error: any) {
       console.error('Error capturing payment:', error);
       toast({
-        title: "Error",
-        description: error.message || "Failed to capture payment",
-        variant: "destructive"
+        title: 'Error',
+        description: error.message || 'Failed to capture payment',
+        variant: 'destructive'
       });
     } finally {
       setCapturing(null);
