@@ -32,7 +32,6 @@ const RentOutYourSpace = () => {
   const [monthlyPrice, setMonthlyPrice] = useState<number>(300);
   const [uploadedImages, setUploadedImages] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -190,7 +189,6 @@ const RentOutYourSpace = () => {
       // Upload images to storage
       const imageUrls = await uploadImagesToStorage(uploadedImages);
 
-
       // Create listing in database
       const listingData = {
         owner_id: user.id,
@@ -274,7 +272,6 @@ const RentOutYourSpace = () => {
         agreeToTerms: false
       });
       setUploadedImages([]);
-      
       setMonthlyPrice(300);
       setIsSubmitting(false);
 
@@ -387,27 +384,13 @@ const RentOutYourSpace = () => {
                     <Label htmlFor="fullName" className="text-base font-medium">
                       Full Name *
                     </Label>
-                    <Input 
-                      id="fullName" 
-                      type="text" 
-                      required 
-                      value={formData.fullName} 
-                      onChange={(e) => handleInputChange('fullName', e.target.value)} 
-                      className="mt-2 h-12" 
-                    />
+                    <Input id="fullName" type="text" required value={formData.fullName} onChange={e => handleInputChange('fullName', e.target.value)} className="mt-2 h-12" />
                   </div>
                   <div>
                     <Label htmlFor="email" className="text-base font-medium">
                       Email *
                     </Label>
-                    <Input 
-                      id="email" 
-                      type="email" 
-                      required 
-                      value={formData.email} 
-                      onChange={(e) => handleInputChange('email', e.target.value)} 
-                      className="mt-2 h-12" 
-                    />
+                    <Input id="email" type="email" required value={formData.email} onChange={e => handleInputChange('email', e.target.value)} className="mt-2 h-12" />
                   </div>
                 </div>
 
@@ -416,27 +399,13 @@ const RentOutYourSpace = () => {
                     <Label htmlFor="phone" className="text-base font-medium">
                       Phone *
                     </Label>
-                    <Input 
-                      id="phone" 
-                      type="tel" 
-                      required 
-                      value={formData.phone} 
-                      onChange={(e) => handleInputChange('phone', e.target.value)} 
-                      className="mt-2 h-12" 
-                    />
+                    <Input id="phone" type="tel" required value={formData.phone} onChange={e => handleInputChange('phone', e.target.value)} className="mt-2 h-12" />
                   </div>
                   <div>
                     <Label htmlFor="buildingName" className="text-base font-medium">
                       Building / Tower Name *
                     </Label>
-                    <Input 
-                      id="buildingName" 
-                      type="text" 
-                      required 
-                      value={formData.buildingName} 
-                      onChange={(e) => handleInputChange('buildingName', e.target.value)} 
-                      className="mt-2 h-12" 
-                    />
+                    <Input id="buildingName" type="text" required value={formData.buildingName} onChange={e => handleInputChange('buildingName', e.target.value)} className="mt-2 h-12" />
                   </div>
                 </div>
 
@@ -445,7 +414,7 @@ const RentOutYourSpace = () => {
                     <Label htmlFor="district" className="text-base font-medium">
                       District *
                     </Label>
-                    <Select value={formData.district} onValueChange={(value) => handleInputChange('district', value)}>
+                    <Select value={formData.district} onValueChange={value => handleInputChange('district', value)}>
                       <SelectTrigger className="mt-2 h-12">
                         <SelectValue placeholder="Select district" />
                       </SelectTrigger>
@@ -459,20 +428,7 @@ const RentOutYourSpace = () => {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div>
-                    <Label htmlFor="bayType" className="text-base font-medium">
-                      Bay Type *
-                    </Label>
-                    <Select value={formData.bayType} onValueChange={(value) => handleInputChange('bayType', value)}>
-                      <SelectTrigger className="mt-2 h-12">
-                        <SelectValue placeholder="Select bay type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="covered">Covered</SelectItem>
-                        <SelectItem value="uncovered">Uncovered</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+                  
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -480,19 +436,19 @@ const RentOutYourSpace = () => {
                     <Label htmlFor="monthlyPrice" className="text-base font-medium">
                       Monthly Price (AED) *
                     </Label>
-                    <Select value={monthlyPrice.toString()} onValueChange={(value) => setMonthlyPrice(Number(value))}>
+                    <Select value={monthlyPrice.toString()} onValueChange={value => setMonthlyPrice(Number(value))}>
                       <SelectTrigger className="mt-2 h-12">
                         <SelectValue placeholder="Select monthly price" />
                       </SelectTrigger>
                       <SelectContent>
-                        {Array.from({ length: 15 }, (_, i) => {
-                          const price = 300 + i * 50;
-                          return price <= 1000 ? (
-                            <SelectItem key={price} value={price.toString()}>
+                        {Array.from({
+                      length: 15
+                    }, (_, i) => {
+                      const price = 300 + i * 50;
+                      return price <= 1000 ? <SelectItem key={price} value={price.toString()}>
                               {price} AED
-                            </SelectItem>
-                          ) : null;
-                        })}
+                            </SelectItem> : null;
+                    })}
                       </SelectContent>
                     </Select>
                   </div>
@@ -501,11 +457,7 @@ const RentOutYourSpace = () => {
                       Access Device Deposit (AED 500)
                     </Label>
                     <div className="flex items-center space-x-3 mt-2">
-                      <Switch 
-                        id="accessDeviceDeposit" 
-                        checked={formData.accessDeviceDeposit as boolean} 
-                        onCheckedChange={(checked) => handleInputChange('accessDeviceDeposit', checked)} 
-                      />
+                      <Switch id="accessDeviceDeposit" checked={formData.accessDeviceDeposit as boolean} onCheckedChange={checked => handleInputChange('accessDeviceDeposit', checked)} />
                       <Label htmlFor="accessDeviceDeposit" className="text-sm">
                         {formData.accessDeviceDeposit ? 'Yes' : 'No'}
                       </Label>
@@ -526,37 +478,17 @@ const RentOutYourSpace = () => {
                       <p className="text-sm text-gray-500 mt-2">
                         JPEG or PNG, max 3MB each
                       </p>
-                      <input 
-                        type="file" 
-                        multiple 
-                        accept="image/jpeg,image/png,image/jpg" 
-                        onChange={handleImageUpload} 
-                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
-                      />
+                      <input type="file" multiple accept="image/jpeg,image/png,image/jpg" onChange={handleImageUpload} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
                     </div>
                     
-                    {uploadedImages.length > 0 && (
-                      <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">
-                        {uploadedImages.map((file, index) => (
-                          <div key={index} className="relative">
-                            <img 
-                              src={URL.createObjectURL(file)} 
-                              alt={`Upload ${index + 1}`} 
-                              className="w-full h-24 object-cover rounded-lg" 
-                            />
-                            <Button 
-                              type="button" 
-                              variant="destructive" 
-                              size="sm" 
-                              className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0" 
-                              onClick={() => removeImage(index)}
-                            >
+                    {uploadedImages.length > 0 && <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">
+                        {uploadedImages.map((file, index) => <div key={index} className="relative">
+                            <img src={URL.createObjectURL(file)} alt={`Upload ${index + 1}`} className="w-full h-24 object-cover rounded-lg" />
+                            <Button type="button" variant="destructive" size="sm" className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0" onClick={() => removeImage(index)}>
                               <X className="h-3 w-3" />
                             </Button>
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                          </div>)}
+                      </div>}
                   </div>
                 </div>
 
@@ -565,34 +497,15 @@ const RentOutYourSpace = () => {
                   <Label htmlFor="notes" className="text-base font-medium">
                     Notes to Admin
                   </Label>
-                  <Textarea 
-                    id="notes" 
-                    value={formData.notes} 
-                    onChange={(e) => handleInputChange('notes', e.target.value)} 
-                    className="mt-2" 
-                    rows={4} 
-                    placeholder="Any additional information about your parking space..." 
-                  />
+                  <Textarea id="notes" value={formData.notes} onChange={e => handleInputChange('notes', e.target.value)} className="mt-2" rows={4} placeholder="Any additional information about your parking space..." />
                 </div>
 
                 <div className="flex items-start space-x-3">
-                  <Checkbox
-                    id="listing-terms"
-                    checked={formData.agreeToTerms}
-                    onCheckedChange={(checked) => handleInputChange('agreeToTerms', !!checked)}
-                    required
-                  />
+                  <Checkbox id="listing-terms" checked={formData.agreeToTerms} onCheckedChange={checked => handleInputChange('agreeToTerms', !!checked)} required />
                   <div className="grid gap-1.5 leading-none">
-                    <Label
-                      htmlFor="listing-terms"
-                      className="text-sm font-normal leading-5 cursor-pointer"
-                    >
+                    <Label htmlFor="listing-terms" className="text-sm font-normal leading-5 cursor-pointer">
                       I agree to the{" "}
-                      <Link 
-                        to="/terms-and-conditions" 
-                        target="_blank"
-                        className="text-primary hover:underline font-medium"
-                      >
+                      <Link to="/terms-and-conditions" target="_blank" className="text-primary hover:underline font-medium">
                         Terms & Conditions
                       </Link>
                       .
@@ -600,11 +513,7 @@ const RentOutYourSpace = () => {
                   </div>
                 </div>
 
-                <Button 
-                  type="submit" 
-                  disabled={isSubmitting} 
-                  className="w-full bg-primary hover:bg-primary/90 text-white py-4 text-lg font-semibold disabled:opacity-50"
-                >
+                <Button type="submit" disabled={isSubmitting} className="w-full bg-primary hover:bg-primary/90 text-white py-4 text-lg font-semibold disabled:opacity-50">
                   {isSubmitting ? "Submitting..." : "Submit Listing"}
                 </Button>
               </form>
