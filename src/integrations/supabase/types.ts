@@ -1353,6 +1353,13 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
+      get_booked_date_ranges: {
+        Args: { p_address: string; p_title: string; p_zone: string }
+        Returns: {
+          end_date: string
+          start_date: string
+        }[]
+      }
       get_booking_contact_info: {
         Args: { listing_id: string }
         Returns: {

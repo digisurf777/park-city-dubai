@@ -91,53 +91,35 @@ export const ParkingBookingModal = ({
           address: parkingSpot.address
         });
 
-        // Fetch all approved/confirmed bookings
-        const { data: allBookings, error } = await supabase
-          .from('parking_bookings')
-          .select('start_time, end_time, location, zone')
-          .in('status', ['approved', 'confirmed']);
+        // Use secure RPC function to get booked date ranges
+        const { data: dateRanges, error } = await supabase.rpc('get_booked_date_ranges', {
+          p_title: parkingSpot.name,
+          p_address: parkingSpot.address || null,
+          p_zone: parkingSpot.address ? 'Find Parking Page' : null
+        });
 
-        if (error) throw error;
+        if (error) {
+          console.error('❌ RPC error:', error);
+          throw error;
+        }
 
-        console.log('📅 Total confirmed/approved bookings:', allBookings?.length);
+        console.log('📅 Received date ranges from DB:', dateRanges);
 
-        // Filter bookings that match this parking spot (flexible matching)
-        const matchingBookings = allBookings?.filter(booking => {
-          const bookingLoc = booking.location.toLowerCase();
-          const spotName = parkingSpot.name.toLowerCase();
-          const spotAddress = parkingSpot.address?.toLowerCase() || '';
-          
-          // Check multiple matching criteria
-          const nameMatch = bookingLoc.includes(spotName) || spotName.includes(bookingLoc);
-          const addressMatch = spotAddress && (bookingLoc.includes(spotAddress) || spotAddress.includes(bookingLoc));
-          
-          const matches = nameMatch || addressMatch;
-          
-          if (matches) {
-            console.log('✅ Matched booking:', {
-              location: booking.location,
-              zone: booking.zone,
-              period: `${new Date(booking.start_time).toLocaleDateString()} - ${new Date(booking.end_time).toLocaleDateString()}`
-            });
-          }
-          
-          return matches;
-        }) || [];
-
-        if (matchingBookings.length > 0) {
-          const ranges = matchingBookings.map(booking => {
-            const start = new Date(booking.start_time);
-            const end = new Date(booking.end_time);
+        if (dateRanges && dateRanges.length > 0) {
+          const ranges = dateRanges.map((range: { start_date: string; end_date: string }) => {
+            const start = new Date(range.start_date + 'T00:00:00');
+            const end = new Date(range.end_date + 'T23:59:59');
+            console.log(`📅 Booked: ${start.toLocaleDateString()} to ${end.toLocaleDateString()}`);
             return { start, end };
           });
-          console.log(`📅 Setting ${ranges.length} booked date range(s)`);
           setBookedDateRanges(ranges);
         } else {
-          console.log('📅 No matching bookings found for this spot');
+          console.log('📅 No booked dates for this spot');
           setBookedDateRanges([]);
         }
       } catch (error) {
         console.error('❌ Error fetching booked dates:', error);
+        setBookedDateRanges([]);
       }
     };
 
@@ -466,19 +448,25 @@ export const ParkingBookingModal = ({
                       const today = new Date();
                       const minDate = new Date();
                       minDate.setDate(today.getDate() + 2);
-                      if (date < minDate) return true;
+                      minDate.setHours(0, 0, 0, 0);
                       
-                      // Also disable booked dates
+                      const checkDate = new Date(date);
+                      checkDate.setHours(0, 0, 0, 0);
+                      
+                      // Disable dates before minimum
+                      if (checkDate < minDate) return true;
+                      
+                      // Disable booked dates
                       return isDateBooked(date);
                     }} 
                     modifiers={{
                       booked: getAllBookedDates()
                     }}
                     modifiersClassNames={{
-                      booked: 'bg-red-100 text-red-900 line-through opacity-60 hover:bg-red-100'
+                      booked: 'bg-red-200 text-red-900 line-through opacity-80 hover:bg-red-200 cursor-not-allowed'
                     }}
                     initialFocus 
-                    className="pointer-events-auto" 
+                    className="p-3 pointer-events-auto" 
                   />
                   {/* Calendar Legend */}
                   <div className="border-t p-3 space-y-1.5 text-xs">
