@@ -96,7 +96,7 @@ verify_jwt = true
 verify_jwt = true
 
 [functions.send-admin-booking-notification]
-verify_jwt = true
+verify_jwt = false
 
 [functions.send-admin-listing-notification]
 verify_jwt = true
