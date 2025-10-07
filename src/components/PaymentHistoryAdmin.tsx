@@ -74,14 +74,14 @@ export const PaymentHistoryAdmin = () => {
 
   const fetchOwners = async () => {
     try {
-      // Get unique owners from parking listings
+      // Get unique owners from parking listings (approved or published)
       const { data, error } = await supabase
         .from('parking_listings')
         .select(`
           owner_id,
           profiles!inner(full_name, email)
         `)
-        .eq('status', 'approved');
+        .in('status', ['approved', 'published']);
 
       if (error) throw error;
 
@@ -99,8 +99,10 @@ export const PaymentHistoryAdmin = () => {
       );
 
       setOwners(uniqueOwners);
+      console.log('Loaded owners:', uniqueOwners);
     } catch (error) {
       console.error('Error fetching owners:', error);
+      toast.error('Failed to load owners');
     }
   };
 
