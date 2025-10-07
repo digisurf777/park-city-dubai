@@ -244,37 +244,51 @@ const AdminNotifications = ({
     if (!notification.booking_id || !notification.parking_bookings) return;
     setActionLoading(`approve-${notification.id}`);
     try {
-      // Get user profile data
-      const {
-        data: userProfile
-      } = await supabase.from('profiles').select('full_name, phone, email').eq('user_id', notification.parking_bookings.user_id).single();
+      // Resolve customer email/name from enriched notification or RPC fallback
+      const booking = notification.parking_bookings;
+      let userEmail = notification.customerProfile?.email || '';
+      let userName = notification.customerProfile?.full_name || 'Customer';
+      if (!userEmail) {
+        const { data: userInfo } = await supabase
+          .rpc('get_user_display_info', { user_uuid: booking.user_id });
+        if (userInfo && userInfo[0]) {
+          userEmail = userInfo[0].email || '';
+          userName = userInfo[0].full_name || userName;
+        }
+      }
 
       // Update booking status - use 'confirmed' instead of 'approved'
-      const {
-        error: updateError
-      } = await supabase.from('parking_bookings').update({
+      const { error: updateError } = await supabase.from('parking_bookings').update({
         status: 'confirmed'
       }).eq('id', notification.booking_id);
       if (updateError) throw updateError;
 
-      // Send approval email
-      const booking = notification.parking_bookings;
-      try {
-        await supabase.functions.invoke('send-booking-approved', {
-          body: {
-            userEmail: userProfile?.email || '',
-            userName: userProfile?.full_name || 'Customer',
-            bookingDetails: {
-              location: booking.location,
-              startDate: format(new Date(booking.start_time), 'PPP'),
-              endDate: format(new Date(booking.end_time), 'PPP'),
-              amount: `${booking.cost_aed} AED`
+      // Send approval email only if we have a valid email
+      if (userEmail) {
+        try {
+          const { data, error } = await supabase.functions.invoke('send-booking-approved', {
+            body: {
+              userEmail,
+              userName,
+              bookingDetails: {
+                location: booking.location,
+                startDate: format(new Date(booking.start_time), 'PPP'),
+                endDate: format(new Date(booking.end_time), 'PPP'),
+                amount: `${booking.cost_aed} AED`
+              }
             }
+          });
+          if (error) {
+            console.error('send-booking-approved returned error:', error);
+          } else {
+            console.log('send-booking-approved response:', data);
           }
-        });
-      } catch (emailError) {
-        console.error('Failed to send approval email:', emailError);
-        // Don't fail the approval if email fails
+        } catch (emailError) {
+          console.error('Failed to send approval email:', emailError);
+          // Don't fail the approval if email fails
+        }
+      } else {
+        console.warn('No customer email found; skipping email send');
       }
 
       // Send support chat notification

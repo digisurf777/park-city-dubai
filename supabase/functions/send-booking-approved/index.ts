@@ -30,6 +30,19 @@ const handler = async (req: Request): Promise<Response> => {
   try {
     const { userEmail, userName, bookingDetails, paymentLink }: BookingApprovedRequest = await req.json();
 
+    // Basic recipient validation to avoid silent failures
+    const isValidEmail = (email: string) => /[^@\s]+@[^@\s]+\.[^@\s]+/.test(email);
+    if (!userEmail || !isValidEmail(userEmail)) {
+      console.warn('Invalid or missing userEmail:', userEmail);
+      return new Response(
+        JSON.stringify({ success: false, error: 'Invalid or missing recipient email' }),
+        {
+          status: 400,
+          headers: { 'Content-Type': 'application/json', ...corsHeaders },
+        }
+      );
+    }
+
     const emailResponse = await resend.emails.send({
       from: "ShazamParking <noreply@shazamparking.ae>",
       to: [userEmail],
@@ -111,6 +124,14 @@ const handler = async (req: Request): Promise<Response> => {
         </div>
       `,
     });
+
+    if (emailResponse?.error) {
+      console.error('Resend send error:', emailResponse.error);
+      return new Response(
+        JSON.stringify({ success: false, error: emailResponse.error }),
+        { status: 422, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+      );
+    }
 
     console.log("Booking approved email sent successfully:", emailResponse);
 
