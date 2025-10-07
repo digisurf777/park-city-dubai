@@ -204,7 +204,7 @@ export const ActiveBookingChats = () => {
                         <div className="flex items-center gap-2 mb-2">
                           <h4 className="font-medium">{booking.location}</h4>
                           {booking.unread_messages > 0 && (
-                            <Badge variant="destructive" className="text-xs">
+                            <Badge variant="destructive" className="text-xs animate-blink-red">
                               {booking.unread_messages} new
                             </Badge>
                           )}
@@ -309,6 +309,7 @@ export const ActiveBookingChats = () => {
                         size="sm"
                         onClick={() => openChat(booking.id)}
                         disabled={(booking.status === 'pending' && ['pending', 'failed', 'cancelled'].includes(booking.payment_status)) || !booking.chat_available}
+                        className={booking.unread_messages > 0 ? "ring-2 ring-red-500 ring-offset-2" : ""}
                       >
                         {(booking.status === 'pending' && ['pending', 'failed', 'cancelled'].includes(booking.payment_status))
                           ? "Payment Required" 

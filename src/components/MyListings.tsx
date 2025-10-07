@@ -224,7 +224,7 @@ export const MyListings: React.FC<MyListingsProps> = ({ chatOnly = false }) => {
                             {booking.status === 'confirmed' ? 'Active' : 'Approved'}
                           </Badge>
                           {booking.unread_messages > 0 && (
-                            <Badge variant="destructive">
+                            <Badge variant="destructive" className="animate-blink-red">
                               {booking.unread_messages} unread
                             </Badge>
                           )}
@@ -267,6 +267,7 @@ export const MyListings: React.FC<MyListingsProps> = ({ chatOnly = false }) => {
                           size="sm"
                           onClick={() => setSelectedChatBooking(booking.id)}
                           disabled={!booking.chat_available}
+                          className={booking.unread_messages > 0 ? "ring-2 ring-red-500 ring-offset-2" : ""}
                         >
                           <MessageCircle className="h-4 w-4 mr-1" />
                           {booking.unread_messages > 0 ? `Chat (${booking.unread_messages})` : 'Chat'}
