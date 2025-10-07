@@ -235,7 +235,8 @@ export const PaymentHistoryAdmin = () => {
       if (error) throw error;
 
       if (data?.url) {
-        window.open(data.url, '_blank');
+        // Navigate directly to avoid popup blockers that can block window.open after async
+        window.location.href = data.url as string;
         toast.success(`${documentType === 'invoice' ? 'Invoice' : 'Remittance advice'} opened`);
       }
     } catch (error: any) {
