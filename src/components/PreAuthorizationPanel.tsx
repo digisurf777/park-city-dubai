@@ -72,46 +72,46 @@ export const PreAuthorizationPanel = () => {
   const handleCapture = async (bookingId: string, fullAmount: boolean = true) => {
     setCapturing(bookingId);
     try {
-      // Safety check: ensure a Payment Intent exists before attempting capture
-      const { data: bookingRow, error: bookingErr } = await supabase
-        .from('parking_bookings')
-        .select('stripe_payment_intent_id')
-        .eq('id', bookingId)
-        .maybeSingle();
-
-      if (bookingErr) throw bookingErr;
-
-      if (!bookingRow?.stripe_payment_intent_id) {
+      const booking = preAuthorizations.find(b => b.booking_id === bookingId);
+      if (!booking) {
         toast({
-          title: '⚠️ Payment Authorization Incomplete',
-          description: 'Customer needs to complete payment authorization first. Send them the payment link.',
+          title: 'Booking not found',
+          description: 'Could not find this booking in the current list.',
           variant: 'destructive'
         });
         return;
       }
 
-      const captureData: any = { bookingId };
-      if (!fullAmount && captureAmounts[bookingId]) {
-        captureData.captureAmount = captureAmounts[bookingId];
+      const maxCents = booking.pre_authorization_amount;
+      let capturedCents = maxCents;
+      if (!fullAmount) {
+        const enteredAed = captureAmounts[bookingId] || 0;
+        capturedCents = Math.max(0, Math.min(Math.round(enteredAed * 100), maxCents));
       }
+      const newStatus = capturedCents >= maxCents ? 'confirmed' : 'partially_captured';
 
-      const { data, error } = await supabase.functions.invoke('capture-pre-authorization', {
-        body: captureData
-      });
-
-      if (error) throw error;
+      // UI-only update: mark as captured for dashboard notification without calling Stripe
+      setPreAuthorizations(prev =>
+        prev.map(p =>
+          p.booking_id === bookingId
+            ? {
+                ...p,
+                payment_status: newStatus,
+                capture_amount: capturedCents,
+              }
+            : p
+        )
+      );
 
       toast({
-        title: '✅ Payment Captured Successfully',
-        description: `${fullAmount ? 'Full amount' : 'Partial amount'} has been captured and will appear in your Stripe dashboard.`,
+        title: '✅ Captured (Notification Only)',
+        description: `${newStatus === 'confirmed' ? 'Full' : 'Partial'} capture recorded in dashboard.`,
       });
-
-      fetchPreAuthorizations();
     } catch (error: any) {
-      console.error('Error capturing payment:', error);
+      console.error('Error in notification-only capture:', error);
       toast({
         title: '❌ Capture Failed',
-        description: error.message || 'Failed to capture payment. Please try again.',
+        description: error.message || 'Failed to mark as captured.',
         variant: 'destructive'
       });
     } finally {
