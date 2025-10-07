@@ -192,7 +192,10 @@ export const PreAuthorizationPanel = () => {
       return <Badge className="bg-green-100 text-green-800"><CheckCircle className="w-3 h-3 mr-1" />Captured</Badge>;
     }
     if (status === 'partially_captured') {
-      return <Badge className="bg-blue-100 text-blue-800"><CreditCard className="w-3 h-3 mr-1" />Partial</Badge>;
+      return <Badge className="bg-blue-100 text-blue-800"><CreditCard className="w-3 h-3 mr-1" />Partially Captured</Badge>;
+    }
+    if (status === 'paid') {
+      return <Badge className="bg-green-100 text-green-800"><CheckCircle className="w-3 h-3 mr-1" />Captured</Badge>;
     }
     if (daysUntilExpiry <= 1) {
       return <Badge className="bg-red-100 text-red-800"><AlertTriangle className="w-3 h-3 mr-1" />Expiring Soon</Badge>;
@@ -214,11 +217,11 @@ export const PreAuthorizationPanel = () => {
   }
 
   const summaryStats = {
-    totalActive: preAuthorizations.length,
-    expiringSoon: preAuthorizations.filter(auth => auth.days_until_expiry <= 2).length,
+    totalActive: preAuthorizations.filter(auth => auth.payment_status !== 'confirmed' && auth.payment_status !== 'partially_captured' && auth.payment_status !== 'paid').length,
+    expiringSoon: preAuthorizations.filter(auth => auth.days_until_expiry <= 2 && auth.payment_status === 'pre_authorized').length,
     totalAuthorized: preAuthorizations.reduce((sum, auth) => sum + auth.pre_authorization_amount, 0),
     readyToCapture: preAuthorizations.filter(auth => auth.payment_status === 'pre_authorized').length,
-    recentlyCaptured: preAuthorizations.filter(auth => auth.payment_status === 'confirmed').length
+    recentlyCaptured: preAuthorizations.filter(auth => auth.payment_status === 'confirmed' || auth.payment_status === 'partially_captured' || auth.payment_status === 'paid').length
   };
 
   return (
@@ -390,7 +393,7 @@ export const PreAuthorizationPanel = () => {
                   </Alert>
                 )}
 
-                {auth.payment_status === 'pre_authorized' && (
+                {(auth.payment_status === 'pre_authorized' || auth.payment_status === 'pending') && (
                   <div className="space-y-3 p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg border">
                     <h4 className="font-semibold flex items-center gap-2">
                       <Clock className="h-4 w-4" />
