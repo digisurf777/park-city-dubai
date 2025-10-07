@@ -70,6 +70,22 @@ serve(async (req) => {
     const pdfBlob = await pdfResponse.blob();
     const pdfBuffer = await pdfBlob.arrayBuffer();
 
+    // Verify PDF magic bytes (%PDF-)
+    const pdfHeader = new Uint8Array(pdfBuffer.slice(0, 5));
+    const pdfSignature = String.fromCharCode(...pdfHeader);
+    
+    if (!pdfSignature.startsWith('%PDF-')) {
+      console.error('Invalid PDF signature:', pdfSignature);
+      throw new Error('Invalid PDF file - content verification failed');
+    }
+    
+    // Verify Content-Type from response
+    const contentType = pdfResponse.headers.get('content-type');
+    if (contentType && !contentType.includes('application/pdf') && !contentType.includes('octet-stream')) {
+      console.error('Unexpected content type:', contentType);
+      throw new Error('Invalid content type - expected PDF');
+    }
+
     // Extract filename from invoice_url
     const filename = booking.invoice_url.split('/').pop() || 'invoice.pdf';
 
