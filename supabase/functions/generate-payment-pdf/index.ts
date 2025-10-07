@@ -92,7 +92,24 @@ const generateInvoicePDF = (payment: any, ownerInfo: any, logoData?: string): Ar
   doc.setTextColor(0, 0, 0);
   doc.text(payment.payment_method || 'Bank Transfer', 70, yPos);
   
-  if (payment.notes) {
+  // Optional: Property / Listing details
+  if (payment.listing_title || payment.listing_address || payment.location) {
+    yPos += 7;
+    doc.setTextColor(100, 100, 100);
+    doc.text('Property:', 20, yPos);
+    doc.setTextColor(0, 0, 0);
+    const property = payment.listing_title || payment.location || '—';
+    doc.text(property, 70, yPos);
+
+    if (payment.listing_address || payment.zone) {
+      yPos += 7;
+      doc.setTextColor(100, 100, 100);
+      doc.text('Address/Zone:', 20, yPos);
+      doc.setTextColor(0, 0, 0);
+      const addr = payment.listing_address ? `${payment.listing_address}` : `${payment.location || ''} (${payment.zone || ''})`;
+      doc.text(addr, 70, yPos);
+    }
+  }
     yPos += 7;
     doc.setTextColor(100, 100, 100);
     doc.text('Notes:', 20, yPos);
@@ -318,33 +335,70 @@ serve(async (req) => {
       throw new Error('Payment not found');
     }
 
-    // Get owner info
-    const { data: ownerInfo } = await supabaseClient.rpc('get_user_basic_info', {
-      user_ids: [payment.owner_id]
-    });
-
-    const owner = ownerInfo?.[0] || { full_name: 'Unknown', email: 'N/A' };
-
-    // Fetch logo
+    // Load logo from function assets (local file for reliability)
     let logoData: string | undefined;
     try {
-      const logoUrl = `${Deno.env.get('SUPABASE_URL')}/storage/v1/object/public/lovable-uploads/logo.png`;
-      const logoResponse = await fetch(logoUrl);
-      if (logoResponse.ok) {
-        const logoBlob = await logoResponse.arrayBuffer();
-        const base64Logo = btoa(String.fromCharCode(...new Uint8Array(logoBlob)));
-        logoData = `data:image/png;base64,${base64Logo}`;
+      const logoBytes = await Deno.readFile(new URL('./logo.png', import.meta.url));
+      let binary = '';
+      for (const b of logoBytes) binary += String.fromCharCode(b);
+      logoData = `data:image/png;base64,${btoa(binary)}`;
+    } catch (e) {
+      console.log('Logo not found locally, continuing without it:', e);
+    }
+
+    // Resolve owner info with robust fallbacks
+    let owner: { full_name: string; email: string } = { full_name: 'Owner', email: '' };
+    try {
+      const { data: ownerInfo } = await supabaseClient.rpc('get_user_basic_info', { user_ids: [payment.owner_id] });
+      if (ownerInfo && ownerInfo[0]) {
+        owner = { full_name: ownerInfo[0].full_name || 'Owner', email: ownerInfo[0].email || '' };
+      } else {
+        const { data: prof } = await supabaseClient.from('profiles').select('full_name,email').eq('user_id', payment.owner_id).maybeSingle();
+        if (prof) owner = { full_name: prof.full_name || 'Owner', email: prof.email || '' };
+        else {
+          const { data: adminUser } = await supabaseClient.auth.admin.getUserById(payment.owner_id);
+          if (adminUser?.user) owner = { full_name: adminUser.user.user_metadata?.full_name || 'Owner', email: adminUser.user.email || '' };
+        }
       }
     } catch (e) {
-      console.log('Could not fetch logo, continuing without it:', e);
+      console.log('Owner info fallback error:', e);
+    }
+
+    // Enrich payment with listing/booking info for the document
+    let augmentedPayment: any = { ...payment };
+    try {
+      if (payment.listing_id) {
+        const { data: listing } = await supabaseClient
+          .from('parking_listings')
+          .select('title,address,zone')
+          .eq('id', payment.listing_id)
+          .maybeSingle();
+        if (listing) {
+          augmentedPayment.listing_title = listing.title;
+          augmentedPayment.listing_address = listing.address;
+          augmentedPayment.zone = listing.zone || augmentedPayment.zone;
+        }
+      } else if (payment.booking_id) {
+        const { data: booking } = await supabaseClient
+          .from('parking_bookings')
+          .select('location,zone')
+          .eq('id', payment.booking_id)
+          .maybeSingle();
+        if (booking) {
+          augmentedPayment.location = booking.location;
+          augmentedPayment.zone = booking.zone;
+        }
+      }
+    } catch (e) {
+      console.log('Meta enrichment error:', e);
     }
 
     console.log('Generating invoice PDF...');
-    const invoiceArrayBuffer = generateInvoicePDF(payment, owner, logoData);
+    const invoiceArrayBuffer = generateInvoicePDF(augmentedPayment, owner, logoData);
     const invoiceBlob = new Blob([invoiceArrayBuffer], { type: 'application/pdf' });
 
     console.log('Generating remittance PDF...');
-    const remittanceArrayBuffer = generateRemittancePDF(payment, owner, logoData);
+    const remittanceArrayBuffer = generateRemittancePDF(augmentedPayment, owner, logoData);
     const remittanceBlob = new Blob([remittanceArrayBuffer], { type: 'application/pdf' });
 
     // Upload to storage
