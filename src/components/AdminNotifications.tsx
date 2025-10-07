@@ -294,12 +294,15 @@ const AdminNotifications = ({
       // Send support chat notification
       await sendSupportChatNotification(
         booking.user_id,
-        'Booking Approved ✅',
-        `Great news! Your parking booking has been approved and confirmed!\n\n` +
-        `📍 Location: ${booking.location}\n` +
-        `📅 Start: ${format(new Date(booking.start_time), 'PPP')}\n` +
-        `📅 End: ${format(new Date(booking.end_time), 'PPP')}\n\n` +
-        `Your parking space is ready. Please check your email for complete booking details.`
+        'Booking Approved! 🎉',
+        `Excellent news! Your parking booking request has been approved! 🎯\n\n` +
+        `📍 Booking Details:\n\n` +
+        `Location: ${booking.location}\n` +
+        `Start Date: ${format(new Date(booking.start_time), 'PPP')}\n` +
+        `End Date: ${format(new Date(booking.end_time), 'PPP')}\n` +
+        `Amount: ${booking.cost_aed} AED\n\n` +
+        `💬 Connect directly with the parking space owner through the in-platform chat to discuss access arrangements and any other details.\n\n` +
+        `Should you have any questions or require assistance, please contact us at support@shazamparking.ae or use the internal chat function available in your dashboard.`
       );
 
       // Mark notification as read
