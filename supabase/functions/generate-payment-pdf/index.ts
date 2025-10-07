@@ -345,22 +345,39 @@ serve(async (req) => {
       console.log('Logo not found locally, continuing without it:', e);
     }
 
-    // Resolve owner info with robust fallbacks
-    let owner: { full_name: string; email: string } = { full_name: 'Owner', email: '' };
+    // Resolve owner info with robust fallbacks (avoid RPC that depends on auth.uid())
+    let owner: { full_name: string; email: string } = { full_name: 'Property Owner', email: '' };
     try {
-      const { data: ownerInfo } = await supabaseClient.rpc('get_user_basic_info', { user_ids: [payment.owner_id] });
-      if (ownerInfo && ownerInfo[0]) {
-        owner = { full_name: ownerInfo[0].full_name || 'Owner', email: ownerInfo[0].email || '' };
-      } else {
-        const { data: prof } = await supabaseClient.from('profiles').select('full_name,email').eq('user_id', payment.owner_id).maybeSingle();
-        if (prof) owner = { full_name: prof.full_name || 'Owner', email: prof.email || '' };
-        else {
-          const { data: adminUser } = await supabaseClient.auth.admin.getUserById(payment.owner_id);
-          if (adminUser?.user) owner = { full_name: adminUser.user.user_metadata?.full_name || 'Owner', email: adminUser.user.email || '' };
+      // 1) Try Auth admin API
+      const { data: adminRes } = await supabaseClient.auth.admin.getUserById(payment.owner_id);
+      const user = adminRes?.user;
+      let resolvedName = '';
+      if (user) {
+        const m: Record<string, any> = user.user_metadata || {};
+        resolvedName = m.full_name || m.fullName || m.name || [
+          m.firstName || m.first_name || m.given_name,
+          m.lastName || m.last_name || m.family_name
+        ].filter(Boolean).join(' ');
+        owner.email = user.email || '';
+      }
+
+      // 2) Fallback to profiles
+      if (!resolvedName || /^unknown/i.test(String(resolvedName))) {
+        const { data: prof } = await supabaseClient
+          .from('profiles')
+          .select('full_name,email')
+          .eq('user_id', payment.owner_id)
+          .maybeSingle();
+        if (prof) {
+          resolvedName = prof.full_name || resolvedName;
+          owner.email = owner.email || prof.email || '';
         }
       }
+
+      // Finalize
+      owner.full_name = (resolvedName && !/^unknown/.test(resolvedName)) ? resolvedName : 'Property Owner';
     } catch (e) {
-      console.log('Owner info fallback error:', e);
+      console.log('Owner info resolution error:', e);
     }
 
     // Enrich payment with listing/booking info for the document
