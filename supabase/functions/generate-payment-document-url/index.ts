@@ -67,7 +67,7 @@ serve(async (req) => {
     // Generate signed URL (15 minutes expiry)
     const { data: urlData, error: urlError } = await supabaseClient.storage
       .from("owner-payment-documents")
-      .createSignedUrl(filePath, 900); // 15 minutes
+      .createSignedUrl(filePath, 900, { download: `${documentType}_${paymentId}.pdf` }); // 15 minutes, force download filename
 
     if (urlError) {
       console.error("URL generation error:", urlError);
