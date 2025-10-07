@@ -33,15 +33,18 @@ export default function PaymentHistoryCustomer() {
 
   const fetchPayments = async () => {
     try {
-      const { data, error } = await supabase
-        .from("parking_bookings")
-        .select("id, location, zone, start_time, end_time, duration_hours, cost_aed, status, payment_status, payment_type, created_at, invoice_url")
-        .in("status", ["confirmed", "completed"])
-        .in("payment_status", ["pre_authorized", "confirmed", "paid", "completed"])
-        .order("created_at", { ascending: false });
+      // SECURITY: Use RPC function instead of direct table access to prevent exposure of Stripe payment IDs
+      const { data, error } = await supabase.rpc("get_my_bookings");
 
       if (error) throw error;
-      setPayments(data || []);
+      
+      // Filter to only show completed/confirmed bookings with payment
+      const filteredData = (data || []).filter((booking: BookingPayment) => 
+        ["confirmed", "completed"].includes(booking.status) &&
+        ["pre_authorized", "confirmed", "paid", "completed"].includes(booking.payment_status || "")
+      );
+      
+      setPayments(filteredData);
     } catch (error: any) {
       console.error("Error fetching payments:", error);
       toast({
