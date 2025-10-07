@@ -1,0 +1,184 @@
+import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Label } from '@/components/ui/label';
+import { Download, FileText, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
+import { format } from 'date-fns';
+
+interface Payment {
+  id: string;
+  listing_title?: string;
+  payment_date: string;
+  amount_aed: number;
+  payment_period_start: string;
+  payment_period_end: string;
+  payment_method: string;
+  reference_number?: string;
+  invoice_url?: string;
+  remittance_advice_url?: string;
+  status: string;
+}
+
+export const PaymentHistoryOwner = () => {
+  const [payments, setPayments] = useState<Payment[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [downloadingDoc, setDownloadingDoc] = useState<{ paymentId: string; type: string } | null>(null);
+
+  useEffect(() => {
+    fetchPayments();
+  }, []);
+
+  const fetchPayments = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase.rpc('get_my_payment_history');
+      if (error) throw error;
+      setPayments(data || []);
+    } catch (error: any) {
+      console.error('Error fetching payments:', error);
+      toast.error('Failed to load payment history');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDownloadDocument = async (paymentId: string, documentType: 'invoice' | 'remittance') => {
+    try {
+      setDownloadingDoc({ paymentId, type: documentType });
+
+      const { data, error } = await supabase.functions.invoke('generate-payment-document-url', {
+        body: { paymentId, documentType }
+      });
+
+      if (error) throw error;
+
+      // Open the signed URL in a new tab
+      window.open(data.url, '_blank');
+      toast.success(`${documentType === 'invoice' ? 'Invoice' : 'Remittance advice'} download started`);
+    } catch (error: any) {
+      console.error('Error downloading document:', error);
+      toast.error(error.message || 'Failed to download document');
+    } finally {
+      setDownloadingDoc(null);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center p-8">
+        <Loader2 className="h-6 w-6 animate-spin" />
+      </div>
+    );
+  }
+
+  if (payments.length === 0) {
+    return (
+      <Card>
+        <CardContent className="p-8 text-center text-muted-foreground">
+          No payment history available yet.
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center gap-2 mb-4">
+        <FileText className="h-5 w-5" />
+        <h3 className="text-lg font-semibold">Payment History</h3>
+      </div>
+
+      {payments.map((payment) => (
+        <Card key={payment.id}>
+          <CardHeader>
+            <div className="flex justify-between items-start">
+              <div>
+                <CardTitle className="text-base">
+                  {payment.listing_title || 'Payment Received'}
+                </CardTitle>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {format(new Date(payment.payment_date), 'PPP')}
+                </p>
+              </div>
+              <Badge variant={payment.status === 'completed' ? 'default' : 'secondary'}>
+                {payment.status}
+              </Badge>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <Label className="text-muted-foreground">Amount</Label>
+                <p className="font-semibold text-lg">AED {payment.amount_aed.toFixed(2)}</p>
+              </div>
+              <div>
+                <Label className="text-muted-foreground">Payment Period</Label>
+                <p>
+                  {format(new Date(payment.payment_period_start), 'PP')} -{' '}
+                  {format(new Date(payment.payment_period_end), 'PP')}
+                </p>
+              </div>
+              <div>
+                <Label className="text-muted-foreground">Method</Label>
+                <p>{payment.payment_method}</p>
+              </div>
+              {payment.reference_number && (
+                <div>
+                  <Label className="text-muted-foreground">Reference</Label>
+                  <p className="font-mono text-xs">{payment.reference_number}</p>
+                </div>
+              )}
+            </div>
+
+            <div className="flex gap-2 pt-2 border-t">
+              {payment.invoice_url ? (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handleDownloadDocument(payment.id, 'invoice')}
+                  disabled={downloadingDoc?.paymentId === payment.id && downloadingDoc.type === 'invoice'}
+                  className="flex-1"
+                >
+                  {downloadingDoc?.paymentId === payment.id && downloadingDoc.type === 'invoice' ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <Download className="h-4 w-4 mr-2" />
+                  )}
+                  Download Invoice
+                </Button>
+              ) : (
+                <Button size="sm" variant="outline" disabled className="flex-1">
+                  Invoice Not Available
+                </Button>
+              )}
+
+              {payment.remittance_advice_url ? (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handleDownloadDocument(payment.id, 'remittance')}
+                  disabled={downloadingDoc?.paymentId === payment.id && downloadingDoc.type === 'remittance'}
+                  className="flex-1"
+                >
+                  {downloadingDoc?.paymentId === payment.id && downloadingDoc.type === 'remittance' ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <Download className="h-4 w-4 mr-2" />
+                  )}
+                  Download Remittance
+                </Button>
+              ) : (
+                <Button size="sm" variant="outline" disabled className="flex-1">
+                  Remittance Not Available
+                </Button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
+};

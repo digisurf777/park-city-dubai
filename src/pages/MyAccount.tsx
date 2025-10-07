@@ -17,6 +17,7 @@ import { ActiveBookingChats } from '@/components/ActiveBookingChats';
 import { MyListings } from '@/components/MyListings';
 import { useVerificationStatus } from '@/hooks/useVerificationStatus';
 import { EmailVerificationStatus } from '@/components/EmailVerificationStatus';
+import { PaymentHistoryOwner } from '@/components/PaymentHistoryOwner';
 interface Profile {
   id: string;
   full_name: string;
@@ -713,43 +714,50 @@ const MyAccount = () => {
              </Card>
            </TabsContent>
            
-           <TabsContent value="history">
-             <Card>
-               <CardHeader>
-                 <CardTitle>Parking History</CardTitle>
-                 <CardDescription>
-                   View your parking bookings and listings
-                 </CardDescription>
-               </CardHeader>
-               <CardContent>
-                 {parkingHistory.length === 0 ? <p className="text-muted-foreground text-center py-8">
-                     No parking activity yet. Start by booking a space or listing your parking!
-                   </p> : <div className="space-y-4">
-                     {parkingHistory.map(item => <div key={`${item.type}-${item.id}`} className="border rounded-lg p-3 lg:p-4">
-                         <div className="flex flex-col space-y-2 lg:flex-row lg:justify-between lg:items-start lg:space-y-0 mb-2">
-                           <div className="flex-1">
-                             <div className="flex items-center gap-2 mb-1">
-                               {item.type === 'booking' ? <Car className="h-4 w-4 text-blue-600" /> : <ParkingCircle className="h-4 w-4 text-green-600" />}
-                               <h3 className="font-semibold text-sm lg:text-base">{item.title}</h3>
-                             </div>
-                             <p className="text-xs lg:text-sm text-muted-foreground">{item.zone}</p>
-                           </div>
-                            <Badge className={getStatusColor(item.status)}>
-                              {getStatusText(item.status)}
-                            </Badge>
-                         </div>
-                         
-                         <div className="lg:hidden">
-                           {renderHistoryItemDetails(item)}
-                         </div>
-                         <div className="hidden lg:block">
-                           {renderHistoryItemDetails(item)}
-                         </div>
-                       </div>)}
-                   </div>}
-              </CardContent>
-            </Card>
-          </TabsContent>
+            <TabsContent value="history">
+              <div className="space-y-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Parking History</CardTitle>
+                    <CardDescription>
+                      View your parking bookings and listings
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {parkingHistory.length === 0 ? <p className="text-muted-foreground text-center py-8">
+                        No parking activity yet. Start by booking a space or listing your parking!
+                      </p> : <div className="space-y-4">
+                        {parkingHistory.map(item => <div key={`${item.type}-${item.id}`} className="border rounded-lg p-3 lg:p-4">
+                            <div className="flex flex-col space-y-2 lg:flex-row lg:justify-between lg:items-start lg:space-y-0 mb-2">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-1">
+                                  {item.type === 'booking' ? <Car className="h-4 w-4 text-blue-600" /> : <ParkingCircle className="h-4 w-4 text-green-600" />}
+                                  <h3 className="font-semibold text-sm lg:text-base">{item.title}</h3>
+                                </div>
+                                <p className="text-xs lg:text-sm text-muted-foreground">{item.zone}</p>
+                              </div>
+                               <Badge className={getStatusColor(item.status)}>
+                                 {getStatusText(item.status)}
+                               </Badge>
+                            </div>
+                            
+                            <div className="lg:hidden">
+                              {renderHistoryItemDetails(item)}
+                            </div>
+                            <div className="hidden lg:block">
+                              {renderHistoryItemDetails(item)}
+                            </div>
+                          </div>)}
+                      </div>}
+                 </CardContent>
+               </Card>
+
+               {/* Payment History for Parking Owners */}
+               {isParkingOwner && (
+                 <PaymentHistoryOwner />
+               )}
+              </div>
+            </TabsContent>
         </Tabs>
       </div>
     </div>;

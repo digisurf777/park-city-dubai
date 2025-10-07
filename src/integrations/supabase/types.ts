@@ -435,6 +435,78 @@ export type Database = {
           },
         ]
       }
+      owner_payments: {
+        Row: {
+          amount_aed: number
+          booking_id: string | null
+          created_at: string
+          id: string
+          invoice_url: string | null
+          listing_id: string | null
+          notes: string | null
+          owner_id: string
+          payment_date: string
+          payment_method: string | null
+          payment_period_end: string
+          payment_period_start: string
+          reference_number: string | null
+          remittance_advice_url: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount_aed: number
+          booking_id?: string | null
+          created_at?: string
+          id?: string
+          invoice_url?: string | null
+          listing_id?: string | null
+          notes?: string | null
+          owner_id: string
+          payment_date?: string
+          payment_method?: string | null
+          payment_period_end: string
+          payment_period_start: string
+          reference_number?: string | null
+          remittance_advice_url?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount_aed?: number
+          booking_id?: string | null
+          created_at?: string
+          id?: string
+          invoice_url?: string | null
+          listing_id?: string | null
+          notes?: string | null
+          owner_id?: string
+          payment_date?: string
+          payment_method?: string | null
+          payment_period_end?: string
+          payment_period_start?: string
+          reference_number?: string | null
+          remittance_advice_url?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "owner_payments_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "parking_bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "owner_payments_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "parking_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       parking_bookings: {
         Row: {
           admin_email_sent: boolean | null
@@ -1489,6 +1561,22 @@ export type Database = {
           zone: string
         }[]
       }
+      get_my_payment_history: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          amount_aed: number
+          id: string
+          invoice_url: string
+          listing_title: string
+          payment_date: string
+          payment_method: string
+          payment_period_end: string
+          payment_period_start: string
+          reference_number: string
+          remittance_advice_url: string
+          status: string
+        }[]
+      }
       get_my_verification_status: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -1512,6 +1600,29 @@ export type Database = {
           status: string
           unread_messages: number
           zone: string
+        }[]
+      }
+      get_owner_payment_history: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          amount_aed: number
+          booking_id: string
+          created_at: string
+          id: string
+          invoice_url: string
+          listing_id: string
+          listing_title: string
+          notes: string
+          owner_email: string
+          owner_id: string
+          owner_name: string
+          payment_date: string
+          payment_method: string
+          payment_period_end: string
+          payment_period_start: string
+          reference_number: string
+          remittance_advice_url: string
+          status: string
         }[]
       }
       get_parking_listings_with_availability: {

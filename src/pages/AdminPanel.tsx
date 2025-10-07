@@ -29,6 +29,7 @@ import AdminNotifications from '@/components/AdminNotifications';
 import LiveBookingControl from '@/components/LiveBookingControl';
 import { PreAuthorizationPanel } from '@/components/PreAuthorizationPanel';
 import { BookingChatsMonitor } from '@/components/BookingChatsMonitor';
+import { PaymentHistoryAdmin } from '@/components/PaymentHistoryAdmin';
 
 // Import all interfaces and state from original AdminPanel
 interface NewsPost {
@@ -1542,6 +1543,15 @@ const AdminPanelOrganized = () => {
               <span className="font-semibold">Booking Chats</span>
               <span className="text-xs opacity-70 mt-1">Driver ↔ Owner</span>
             </TabsTrigger>
+
+            <TabsTrigger 
+              value="payment-history" 
+              className="flex flex-col items-center p-3 h-auto text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg"
+            >
+              <DollarSign className="h-5 w-5 mb-1" />
+              <span className="font-semibold">Payments</span>
+              <span className="text-xs opacity-70 mt-1">Owner Payments</span>
+            </TabsTrigger>
           </TabsList>
 
           {/* Content Management Tab */}
@@ -2458,6 +2468,11 @@ const AdminPanelOrganized = () => {
           {/* Booking Chats Monitoring Tab */}
           <TabsContent value="booking-chats" className="space-y-6 mt-6">
             <BookingChatsMonitor />
+          </TabsContent>
+
+          {/* Payment History Tab */}
+          <TabsContent value="payment-history" className="space-y-6 mt-6">
+            <PaymentHistoryAdmin />
           </TabsContent>
 
           {/* Global Edit Parking Listing Dialog - available across all tabs */}
