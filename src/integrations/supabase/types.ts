@@ -524,6 +524,7 @@ export type Database = {
           duration_hours: number
           end_time: string
           id: string
+          invoice_url: string | null
           location: string
           payment_amount_cents: number | null
           payment_link_url: string | null
@@ -557,6 +558,7 @@ export type Database = {
           duration_hours: number
           end_time: string
           id?: string
+          invoice_url?: string | null
           location: string
           payment_amount_cents?: number | null
           payment_link_url?: string | null
@@ -590,6 +592,7 @@ export type Database = {
           duration_hours?: number
           end_time?: string
           id?: string
+          invoice_url?: string | null
           location?: string
           payment_amount_cents?: number | null
           payment_link_url?: string | null
@@ -1529,6 +1532,23 @@ export type Database = {
       get_email_confirmation_expiry: {
         Args: Record<PropertyKey, never>
         Returns: number
+      }
+      get_my_booking_payments: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          cost_aed: number
+          created_at: string
+          duration_hours: number
+          end_time: string
+          id: string
+          invoice_url: string
+          location: string
+          payment_status: string
+          payment_type: string
+          start_time: string
+          status: string
+          zone: string
+        }[]
       }
       get_my_booking_status: {
         Args: { booking_id: string }

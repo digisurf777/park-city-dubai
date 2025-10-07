@@ -18,6 +18,7 @@ import { MyListings } from '@/components/MyListings';
 import { useVerificationStatus } from '@/hooks/useVerificationStatus';
 import { EmailVerificationStatus } from '@/components/EmailVerificationStatus';
 import { PaymentHistoryOwner } from '@/components/PaymentHistoryOwner';
+import PaymentHistoryCustomer from '@/components/PaymentHistoryCustomer';
 interface Profile {
   id: string;
   full_name: string;
@@ -517,12 +518,10 @@ const MyAccount = () => {
                 <Home className="h-4 w-4" />
                 Listings
               </Button>
-              {isParkingOwner && (
-                <Button variant={activeTab === 'payments' ? 'default' : 'outline'} onClick={() => setActiveTab('payments')} className="flex items-center gap-2 h-12">
-                  <FileText className="h-4 w-4" />
-                  Payments
-                </Button>
-              )}
+              <Button variant={activeTab === 'payments' ? 'default' : 'outline'} onClick={() => setActiveTab('payments')} className="flex items-center gap-2 h-12">
+                <FileText className="h-4 w-4" />
+                Payments
+              </Button>
             </div>
             <div className="grid grid-cols-3 gap-2">
               <Button variant={activeTab === 'chats' ? 'default' : 'outline'} onClick={() => setActiveTab('chats')} className="flex items-center gap-2 h-12 relative">
@@ -571,12 +570,10 @@ const MyAccount = () => {
                 </Badge>
               )}
             </TabsTrigger>
-            {isParkingOwner && (
-              <TabsTrigger value="payments" className="flex items-center gap-2 py-2">
-                <FileText className="h-4 w-4" />
-                Payments
-              </TabsTrigger>
-            )}
+            <TabsTrigger value="payments" className="flex items-center gap-2 py-2">
+              <FileText className="h-4 w-4" />
+              Payments
+            </TabsTrigger>
             <TabsTrigger value="contact" className="flex items-center gap-2 py-2">
               <MessageSquare className="h-4 w-4" />
               Contact
@@ -766,22 +763,38 @@ const MyAccount = () => {
               </div>
             </TabsContent>
 
-            {/* Payments Tab for Owners */}
-            {isParkingOwner && (
-              <TabsContent value="payments" className="mt-6">
+            {/* Payments Tab - For All Users */}
+            <TabsContent value="payments" className="mt-6">
+              <div className="space-y-6">
+                {/* Owner Payments Section */}
+                {isParkingOwner && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Owner Payment History</CardTitle>
+                      <CardDescription>
+                        View and download your owner payment documents
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <PaymentHistoryOwner />
+                    </CardContent>
+                  </Card>
+                )}
+                
+                {/* Customer Booking Payments Section */}
                 <Card>
                   <CardHeader>
-                    <CardTitle>Payment History</CardTitle>
+                    <CardTitle>{isParkingOwner ? 'My Booking Payments' : 'Payment History'}</CardTitle>
                     <CardDescription>
-                      View and download your payment documents
+                      View your booking payments and download invoices
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <PaymentHistoryOwner />
+                    <PaymentHistoryCustomer />
                   </CardContent>
                 </Card>
-              </TabsContent>
-            )}
+              </div>
+            </TabsContent>
         </Tabs>
       </div>
     </div>;
