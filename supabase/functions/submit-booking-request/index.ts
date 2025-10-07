@@ -251,9 +251,9 @@ const handler = async (req: Request): Promise<Response> => {
                   <td align="center">
                     <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; margin-top: 30px; border-radius: 10px; overflow: hidden;">
                       <tr>
-                        <td style="padding: 20px; text-align: center; background-color: #0099cc;">
-                          <img src="cid:shazam_logo" alt="Shazam Parking Logo" width="120" style="margin-bottom: 10px;" />
-                          <h1 style="color: white; margin: 0; font-size: 24px;">Booking Confirmation</h1>
+                        <td style="padding: 20px; text-align: center; background: linear-gradient(135deg, #10b981, #059669); border-radius: 12px;">
+                          <h1 style="color: white; margin: 0; font-size: 24px; font-weight: bold;">Booking Confirmation</h1>
+                          <p style="color: rgba(255,255,255,0.9); font-size: 14px; margin: 10px 0 0 0;">ShazamParking</p>
                         </td>
                       </tr>
                       <tr>
