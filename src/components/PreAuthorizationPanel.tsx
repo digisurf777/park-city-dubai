@@ -52,7 +52,51 @@ export const PreAuthorizationPanel = () => {
     try {
       const { data, error } = await supabase.rpc('get_pre_authorization_overview');
       if (error) throw error;
-      setPreAuthorizations(data || []);
+      
+      // Fetch proper zones for each booking
+      const authsWithProperZones = await Promise.all(
+        (data || []).map(async (auth) => {
+          let properZone = auth.zone;
+          
+          if (auth.location) {
+            const location = String(auth.location).trim();
+            
+            // Try to match with parking_listings
+            const { data: listingData } = await supabase
+              .from('parking_listings')
+              .select('zone')
+              .or(
+                `address.eq.${location},title.eq.${location},address.ilike.%${location}%,title.ilike.%${location}%`
+              )
+              .in('status', ['approved', 'published'])
+              .limit(1)
+              .maybeSingle();
+            
+            if (listingData?.zone) {
+              properZone = listingData.zone;
+            } else {
+              // Fallback to public listings
+              const { data: publicListing } = await supabase
+                .from('parking_listings_public')
+                .select('zone')
+                .or(
+                  `address.eq.${location},title.eq.${location},address.ilike.%${location}%,title.ilike.%${location}%`
+                )
+                .eq('status', 'published')
+                .limit(1)
+                .maybeSingle();
+              
+              if (publicListing?.zone) {
+                properZone = publicListing.zone;
+              }
+            }
+          }
+          
+          return { ...auth, zone: properZone };
+        })
+      );
+      
+      setPreAuthorizations(authsWithProperZones);
     } catch (error) {
       console.error('Error fetching pre-authorizations:', error);
       toast({
