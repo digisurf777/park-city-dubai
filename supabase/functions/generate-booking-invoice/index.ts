@@ -169,16 +169,16 @@ serve(async (req) => {
 </html>
     `;
 
-    // Convert HTML to PDF using a simple approach
+    // Convert HTML to bytes for storage
     const encoder = new TextEncoder();
-    const pdfData = encoder.encode(htmlContent);
+    const htmlData = encoder.encode(htmlContent);
 
-    // Upload to storage
-    const fileName = `${user.id}/${booking.id}_invoice.pdf`;
+    // Upload to storage as HTML
+    const fileName = `${user.id}/${booking.id}_invoice.html`;
     const { error: uploadError } = await supabase.storage
       .from('booking-invoices')
-      .upload(fileName, pdfData, {
-        contentType: 'application/pdf',
+      .upload(fileName, htmlData, {
+        contentType: 'text/html',
         upsert: true
       });
 

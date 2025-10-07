@@ -64,7 +64,7 @@ export default function PaymentHistoryCustomer() {
   const handleDownloadInvoice = async (bookingId: string) => {
     setDownloadingId(bookingId);
     try {
-      // First, ensure invoice PDF exists
+      // First, ensure invoice exists
       const { data: generateData, error: generateError } = await supabase.functions.invoke(
         "generate-booking-invoice",
         {
@@ -84,23 +84,18 @@ export default function PaymentHistoryCustomer() {
 
       if (urlError) throw urlError;
 
-      // Download the file
-      const link = document.createElement("a");
-      link.href = urlData.signed_url;
-      link.download = `ShazamParking_Invoice_${bookingId.slice(0, 8)}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      // Open invoice in new tab for viewing/printing/saving as PDF
+      window.open(urlData.signed_url, '_blank');
 
       toast({
         title: "Success",
-        description: "Invoice downloaded successfully",
+        description: "Invoice opened in new tab",
       });
     } catch (error: any) {
-      console.error("Error downloading invoice:", error);
+      console.error("Error opening invoice:", error);
       toast({
         title: "Error",
-        description: error.message || "Failed to download invoice",
+        description: error.message || "Failed to open invoice",
         variant: "destructive",
       });
     } finally {
