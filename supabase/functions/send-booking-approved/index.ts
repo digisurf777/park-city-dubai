@@ -88,22 +88,16 @@ const handler = async (req: Request): Promise<Response> => {
             ${paymentLink ? `
             <div style="text-align: center; margin: 30px 0;">
               <a href="${paymentLink}" style="display: inline-block; background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);">
-                💳 Complete Payment Now
+                💳 View Booking Details
               </a>
               <p style="color: #6b7280; font-size: 14px; margin: 10px 0 0 0;">
-                Click the button above to secure your parking space
+                Click the button above to view your booking
               </p>
             </div>
             ` : ''}
             
-            <div style="background: #fef3c7; padding: 15px; border-radius: 6px; margin: 20px 0; border-left: 3px solid #f59e0b;">
-              <p style="color: #92400e; font-size: 14px; margin: 0; font-weight: 500;">
-                ⚡ <strong>Next Steps:</strong> Please complete your payment to secure your parking space. Your reservation is held for 24 hours.
-              </p>
-            </div>
-            
             <p style="color: #4b5563; line-height: 1.6; margin: 20px 0 0 0; font-size: 16px;">
-              If you have any questions, feel free to contact us anytime. We're excited to serve you!
+              Your parking space is confirmed! If you have any questions, feel free to contact us anytime. We're excited to serve you!
             </p>
           </div>
           

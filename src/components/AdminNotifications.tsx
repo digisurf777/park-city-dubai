@@ -295,12 +295,12 @@ const AdminNotifications = ({
       await sendSupportChatNotification(
         booking.user_id,
         'Booking Approved ✅',
-        `Great news! Your parking booking has been approved.\n\n` +
+        `Great news! Your parking booking has been approved and confirmed!\n\n` +
         `📍 Location: ${booking.location}\n` +
         `📅 Start: ${format(new Date(booking.start_time), 'PPP')}\n` +
         `📅 End: ${format(new Date(booking.end_time), 'PPP')}\n` +
         `💰 Amount: ${booking.cost_aed} AED\n\n` +
-        `Please check your email for payment details and further instructions.`
+        `Your parking space is ready. Please check your email for complete booking details.`
       );
 
       // Mark notification as read
