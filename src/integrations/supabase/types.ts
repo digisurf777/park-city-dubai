@@ -1353,11 +1353,45 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
+      get_all_driver_owner_chats: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          booking_id: string
+          booking_status: string
+          chat_expired: boolean
+          driver_id: string
+          driver_name: string
+          end_time: string
+          flagged_messages: number
+          last_message_at: string
+          location: string
+          owner_id: string
+          owner_name: string
+          start_time: string
+          total_messages: number
+          unread_from_driver: number
+          unread_from_owner: number
+          zone: string
+        }[]
+      }
       get_booked_date_ranges: {
         Args: { p_address: string; p_title: string; p_zone: string }
         Returns: {
           end_date: string
           start_date: string
+        }[]
+      }
+      get_booking_chat_messages: {
+        Args: { p_booking_id: string }
+        Returns: {
+          admin_flagged: boolean
+          contains_violation: boolean
+          created_at: string
+          from_driver: boolean
+          id: string
+          message: string
+          read_status: boolean
+          sender_name: string
         }[]
       }
       get_booking_contact_info: {
