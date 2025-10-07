@@ -8,7 +8,7 @@ const corsHeaders = {
 };
 
 // Generate Invoice PDF
-const generateInvoicePDF = (payment: any, ownerInfo: any): Uint8Array => {
+const generateInvoicePDF = (payment: any, ownerInfo: any, logoData?: string): Uint8Array => {
   const doc = new jsPDF();
   const formatDate = (date: string) => new Date(date).toLocaleDateString('en-GB', {
     day: '2-digit',
@@ -16,10 +16,19 @@ const generateInvoicePDF = (payment: any, ownerInfo: any): Uint8Array => {
     year: 'numeric'
   });
 
-  // Add Shazam logo text (styled)
-  doc.setFontSize(28);
-  doc.setTextColor(37, 99, 235); // Blue color
-  doc.text('ShazamParking', 105, 20, { align: 'center' });
+  // Add logo if available
+  if (logoData) {
+    try {
+      doc.addImage(logoData, 'PNG', 20, 10, 40, 15);
+    } catch (e) {
+      console.error('Error adding logo to invoice:', e);
+    }
+  }
+
+  // Company header
+  doc.setFontSize(24);
+  doc.setTextColor(37, 99, 235);
+  doc.text('ShazamParking', logoData ? 70 : 105, 20, { align: logoData ? 'left' : 'center' });
   
   // Invoice title
   doc.setFontSize(18);
@@ -123,7 +132,7 @@ const generateInvoicePDF = (payment: any, ownerInfo: any): Uint8Array => {
 };
 
 // Generate Remittance PDF
-const generateRemittancePDF = (payment: any, ownerInfo: any): Uint8Array => {
+const generateRemittancePDF = (payment: any, ownerInfo: any, logoData?: string): Uint8Array => {
   const doc = new jsPDF();
   const formatDate = (date: string) => new Date(date).toLocaleDateString('en-GB', {
     day: '2-digit',
@@ -131,10 +140,19 @@ const generateRemittancePDF = (payment: any, ownerInfo: any): Uint8Array => {
     year: 'numeric'
   });
 
-  // Add Shazam logo text (styled)
-  doc.setFontSize(28);
-  doc.setTextColor(22, 163, 74); // Green color
-  doc.text('ShazamParking', 105, 20, { align: 'center' });
+  // Add logo if available
+  if (logoData) {
+    try {
+      doc.addImage(logoData, 'PNG', 20, 10, 40, 15);
+    } catch (e) {
+      console.error('Error adding logo to remittance:', e);
+    }
+  }
+
+  // Company header
+  doc.setFontSize(24);
+  doc.setTextColor(22, 163, 74);
+  doc.text('ShazamParking', logoData ? 70 : 105, 20, { align: logoData ? 'left' : 'center' });
   
   // Document title
   doc.setFontSize(18);
@@ -307,11 +325,25 @@ serve(async (req) => {
 
     const owner = ownerInfo?.[0] || { full_name: 'Unknown', email: 'N/A' };
 
+    // Fetch logo
+    let logoData: string | undefined;
+    try {
+      const logoUrl = `${Deno.env.get('SUPABASE_URL')}/storage/v1/object/public/lovable-uploads/logo.png`;
+      const logoResponse = await fetch(logoUrl);
+      if (logoResponse.ok) {
+        const logoBlob = await logoResponse.arrayBuffer();
+        const base64Logo = btoa(String.fromCharCode(...new Uint8Array(logoBlob)));
+        logoData = `data:image/png;base64,${base64Logo}`;
+      }
+    } catch (e) {
+      console.log('Could not fetch logo, continuing without it:', e);
+    }
+
     console.log('Generating invoice PDF...');
-    const invoicePDF = generateInvoicePDF(payment, owner);
+    const invoicePDF = generateInvoicePDF(payment, owner, logoData);
 
     console.log('Generating remittance PDF...');
-    const remittancePDF = generateRemittancePDF(payment, owner);
+    const remittancePDF = generateRemittancePDF(payment, owner, logoData);
 
     // Upload to storage
     const invoicePath = `${payment.owner_id}/invoice_${paymentId}.pdf`;

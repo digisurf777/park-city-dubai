@@ -55,9 +55,19 @@ export const PaymentHistoryOwner = () => {
 
       if (error) throw error;
 
-      // Open the signed URL in a new tab
-      window.open(data.url, '_blank');
-      toast.success(`${documentType === 'invoice' ? 'Invoice' : 'Remittance advice'} download started`);
+      if (data?.url) {
+        const response = await fetch(data.url);
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${documentType}_${paymentId}.pdf`;
+        link.click();
+        window.URL.revokeObjectURL(url);
+        toast.success(`${documentType === 'invoice' ? 'Invoice' : 'Remittance advice'} downloaded`);
+      } else {
+        throw new Error('No URL returned');
+      }
     } catch (error: any) {
       console.error('Error downloading document:', error);
       toast.error(error.message || 'Failed to download document');

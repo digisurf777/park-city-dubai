@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
-import { Loader2, User, History, LogOut, Shield, Mail, Home, MessageSquare, Send, Car, ParkingCircle, MessageCircle, CheckCircle } from 'lucide-react';
+import { Loader2, User, History, LogOut, Shield, Mail, Home, MessageSquare, Send, Car, ParkingCircle, MessageCircle, CheckCircle, FileText } from 'lucide-react';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import VerificationPanel from '@/components/VerificationPanel';
 import UserInbox from '@/components/UserInbox';
@@ -517,6 +517,12 @@ const MyAccount = () => {
                 <Home className="h-4 w-4" />
                 Listings
               </Button>
+              {isParkingOwner && (
+                <Button variant={activeTab === 'payments' ? 'default' : 'outline'} onClick={() => setActiveTab('payments')} className="flex items-center gap-2 h-12">
+                  <FileText className="h-4 w-4" />
+                  Payments
+                </Button>
+              )}
             </div>
             <div className="grid grid-cols-3 gap-2">
               <Button variant={activeTab === 'chats' ? 'default' : 'outline'} onClick={() => setActiveTab('chats')} className="flex items-center gap-2 h-12 relative">
@@ -540,7 +546,7 @@ const MyAccount = () => {
           </div>
 
           {/* Desktop Tab Navigation */}
-          <TabsList className="hidden lg:grid w-full grid-cols-5 gap-1 h-auto p-1">
+          <TabsList className="hidden lg:grid w-full grid-cols-6 gap-1 h-auto p-1">
             <TabsTrigger value="profile" className="flex items-center gap-2 py-2">
               <User className="h-4 w-4" />
               Profile
@@ -565,6 +571,12 @@ const MyAccount = () => {
                 </Badge>
               )}
             </TabsTrigger>
+            {isParkingOwner && (
+              <TabsTrigger value="payments" className="flex items-center gap-2 py-2">
+                <FileText className="h-4 w-4" />
+                Payments
+              </TabsTrigger>
+            )}
             <TabsTrigger value="contact" className="flex items-center gap-2 py-2">
               <MessageSquare className="h-4 w-4" />
               Contact
@@ -742,7 +754,7 @@ const MyAccount = () => {
                             </div>
                             
                             <div className="lg:hidden">
-                              {renderHistoryItemDetails(item)}
+                               {renderHistoryItemDetails(item)}
                             </div>
                             <div className="hidden lg:block">
                               {renderHistoryItemDetails(item)}
@@ -751,13 +763,25 @@ const MyAccount = () => {
                       </div>}
                  </CardContent>
                </Card>
-
-               {/* Payment History for Parking Owners */}
-               {isParkingOwner && (
-                 <PaymentHistoryOwner />
-               )}
               </div>
             </TabsContent>
+
+            {/* Payments Tab for Owners */}
+            {isParkingOwner && (
+              <TabsContent value="payments" className="mt-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Payment History</CardTitle>
+                    <CardDescription>
+                      View and download your payment documents
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <PaymentHistoryOwner />
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            )}
         </Tabs>
       </div>
     </div>;
