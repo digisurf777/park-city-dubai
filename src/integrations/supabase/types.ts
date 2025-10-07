@@ -1783,6 +1783,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      update_expired_booking_spaces: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       update_my_booking_safe: {
         Args: { booking_id: string; new_status?: string }
         Returns: boolean
