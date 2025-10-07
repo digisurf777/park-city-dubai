@@ -17,16 +17,17 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // Authenticate user
-    const authHeader = req.headers.get('Authorization')!;
-    const token = authHeader.replace('Bearer ', '');
+    // Authenticate user (support Authorization header or token query param for mobile downloads)
+    const url = new URL(req.url);
+    const tokenParam = url.searchParams.get('token');
+    const authHeader = req.headers.get('Authorization');
+    const token = tokenParam || (authHeader ? authHeader.replace('Bearer ', '') : '');
     const { data: { user }, error: authError } = await supabase.auth.getUser(token);
 
     if (authError || !user) {
       throw new Error('Unauthorized');
     }
 
-    const url = new URL(req.url);
     const bookingId = url.searchParams.get('booking_id');
 
     if (!bookingId) {
