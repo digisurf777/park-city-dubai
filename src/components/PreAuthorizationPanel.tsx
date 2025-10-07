@@ -403,7 +403,7 @@ export const PreAuthorizationPanel = () => {
                       <span>{auth.user_email}</span>
                     </div>
                   )}
-                  {auth.user_phone && (
+                  {auth.user_phone && auth.user_phone !== 'No phone' && (
                     <div className="flex items-center gap-1">
                       <Phone className="h-3 w-3" />
                       <span>{auth.user_phone}</span>
