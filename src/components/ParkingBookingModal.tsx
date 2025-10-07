@@ -86,29 +86,58 @@ export const ParkingBookingModal = ({
       if (!parkingSpot || !isOpen) return;
       
       try {
-        // Query using ILIKE for flexible matching
-        const { data: bookings, error } = await supabase
+        console.log('📅 Fetching booked dates for spot:', {
+          name: parkingSpot.name,
+          address: parkingSpot.address
+        });
+
+        // Fetch all approved/confirmed bookings
+        const { data: allBookings, error } = await supabase
           .from('parking_bookings')
-          .select('start_time, end_time, location')
-          .ilike('location', `%${parkingSpot.name}%`)
+          .select('start_time, end_time, location, zone')
           .in('status', ['approved', 'confirmed']);
 
         if (error) throw error;
 
-        console.log('Fetched bookings for', parkingSpot.name, ':', bookings);
+        console.log('📅 Total confirmed/approved bookings:', allBookings?.length);
 
-        if (bookings && bookings.length > 0) {
-          const ranges = bookings.map(booking => ({
-            start: new Date(booking.start_time),
-            end: new Date(booking.end_time)
-          }));
-          console.log('Booked date ranges:', ranges);
+        // Filter bookings that match this parking spot (flexible matching)
+        const matchingBookings = allBookings?.filter(booking => {
+          const bookingLoc = booking.location.toLowerCase();
+          const spotName = parkingSpot.name.toLowerCase();
+          const spotAddress = parkingSpot.address?.toLowerCase() || '';
+          
+          // Check multiple matching criteria
+          const nameMatch = bookingLoc.includes(spotName) || spotName.includes(bookingLoc);
+          const addressMatch = spotAddress && (bookingLoc.includes(spotAddress) || spotAddress.includes(bookingLoc));
+          
+          const matches = nameMatch || addressMatch;
+          
+          if (matches) {
+            console.log('✅ Matched booking:', {
+              location: booking.location,
+              zone: booking.zone,
+              period: `${new Date(booking.start_time).toLocaleDateString()} - ${new Date(booking.end_time).toLocaleDateString()}`
+            });
+          }
+          
+          return matches;
+        }) || [];
+
+        if (matchingBookings.length > 0) {
+          const ranges = matchingBookings.map(booking => {
+            const start = new Date(booking.start_time);
+            const end = new Date(booking.end_time);
+            return { start, end };
+          });
+          console.log(`📅 Setting ${ranges.length} booked date range(s)`);
           setBookedDateRanges(ranges);
         } else {
+          console.log('📅 No matching bookings found for this spot');
           setBookedDateRanges([]);
         }
       } catch (error) {
-        console.error('Error fetching booked dates:', error);
+        console.error('❌ Error fetching booked dates:', error);
       }
     };
 
