@@ -79,6 +79,8 @@ serve(async (req) => {
     });
     const startDate = new Date(booking.start_time).toLocaleString('en-AE');
     const endDate = new Date(booking.end_time).toLocaleString('en-AE');
+    const durationMonths = Math.max(1, Math.ceil((new Date(booking.end_time).getTime() - new Date(booking.start_time).getTime()) / (1000 * 60 * 60 * 24 * 30)));
+    const zoneHtml = booking.zone === 'Find Parking Page' ? '' : `<strong>Zone:</strong> ${booking.zone}<br>`;
 
     const htmlContent = `
 <!DOCTYPE html>
@@ -88,7 +90,7 @@ serve(async (req) => {
   <style>
     body { font-family: Arial, sans-serif; margin: 0; padding: 40px; color: #333; }
     .header { text-align: center; margin-bottom: 40px; border-bottom: 3px solid #0EA5E9; padding-bottom: 20px; }
-    .logo { font-size: 28px; font-weight: bold; color: #0EA5E9; margin-bottom: 10px; }
+    .logo { font-size: 28px; font-weight: bold; color: #0EA5E9; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; justify-content: center; }
     .invoice-title { font-size: 22px; color: #666; margin-top: 10px; }
     .info-section { margin: 30px 0; }
     .info-row { display: flex; justify-content: space-between; margin-bottom: 10px; }
@@ -105,7 +107,14 @@ serve(async (req) => {
 </head>
 <body>
   <div class="header">
-    <div class="logo">🅿️ ShazamParking</div>
+    <div class="logo">
+      <svg width="36" height="36" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-label="ShazamParking logo">
+        <circle cx="12" cy="12" r="10" fill="#0EA5E9"/>
+        <path d="M8 12h5a3 3 0 100-6H9" stroke="#fff" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        <path d="M16 12h-5a3 3 0 100 6h4" stroke="#fff" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      </svg>
+      <span>ShazamParking</span>
+    </div>
     <div class="invoice-title">PARKING INVOICE</div>
   </div>
 
@@ -134,8 +143,8 @@ serve(async (req) => {
         <td><strong>Parking Booking</strong></td>
         <td>
           <strong>Location:</strong> ${booking.location}<br>
-          <strong>Zone:</strong> ${booking.zone}<br>
-          <strong>Duration:</strong> ${booking.duration_hours} hours<br>
+          ${zoneHtml}
+          <strong>Duration:</strong> ${durationMonths} month${durationMonths > 1 ? 's' : ''}<br>
           <strong>Start:</strong> ${startDate}<br>
           <strong>End:</strong> ${endDate}
         </td>
@@ -151,7 +160,7 @@ serve(async (req) => {
   </div>
 
   <div class="footer">
-    <p><strong>Payment Method:</strong> ${booking.payment_type || 'Card Payment'}</p>
+    
     <p><strong>Payment Status:</strong> PAID</p>
     <p>Thank you for using ShazamParking!</p>
     <p>For support, contact us at support@shazamparking.com</p>

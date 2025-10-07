@@ -54,6 +54,13 @@ export default function PaymentHistoryCustomer() {
     }
   };
 
+  const getMonths = (p: BookingPayment) => {
+    const start = new Date(p.start_time).getTime();
+    const end = new Date(p.end_time).getTime();
+    const months = Math.max(1, Math.ceil((end - start) / (1000 * 60 * 60 * 24 * 30)));
+    return `${months} month${months > 1 ? 's' : ''}`;
+  };
+
   const handleDownloadInvoice = async (bookingId: string) => {
     setDownloadingId(bookingId);
     try {
@@ -141,13 +148,15 @@ export default function PaymentHistoryCustomer() {
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <p className="text-muted-foreground">Zone</p>
-                  <p className="font-medium">{payment.zone}</p>
-                </div>
+                {payment.zone && payment.zone !== 'Find Parking Page' && (
+                  <div>
+                    <p className="text-muted-foreground">Zone</p>
+                    <p className="font-medium">{payment.zone}</p>
+                  </div>
+                )}
                 <div>
                   <p className="text-muted-foreground">Duration</p>
-                  <p className="font-medium">{payment.duration_hours} hours</p>
+                  <p className="font-medium">{getMonths(payment)}</p>
                 </div>
                 <div>
                   <p className="text-muted-foreground">Start Date</p>
@@ -156,10 +165,6 @@ export default function PaymentHistoryCustomer() {
                 <div>
                   <p className="text-muted-foreground">End Date</p>
                   <p className="font-medium">{format(new Date(payment.end_time), "MMM dd, yyyy")}</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground">Payment Method</p>
-                  <p className="font-medium">{payment.payment_type || "Card Payment"}</p>
                 </div>
                 <div>
                   <p className="text-muted-foreground">Payment Date</p>
