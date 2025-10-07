@@ -75,6 +75,7 @@ const MyAccount = () => {
   const [parkingHistory, setParkingHistory] = useState<ParkingHistoryItem[]>([]);
   const [isParkingOwner, setIsParkingOwner] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'profile');
+  const [unreadChatCount, setUnreadChatCount] = useState<number>(0);
 
   // Redirect if not logged in
   if (!user) {
@@ -85,6 +86,8 @@ const MyAccount = () => {
     fetchProfile();
     fetchBookings();
     fetchListings();
+    fetchUnreadChatCount();
+    setupChatRealtimeSubscription();
   }, [user]);
   useEffect(() => {
     // Combine bookings and listings into unified history
@@ -168,6 +171,94 @@ const MyAccount = () => {
     } catch (error) {
       console.error('Error fetching listings:', error);
     }
+  };
+
+  const fetchUnreadChatCount = async () => {
+    if (!user) return;
+
+    try {
+      // Get all bookings where user is driver OR owner
+      const { data: userBookings, error: bookingsError } = await supabase
+        .from('parking_bookings')
+        .select('id, user_id')
+        .or(`user_id.eq.${user.id}`);
+
+      if (bookingsError) {
+        console.error('Error fetching bookings:', bookingsError);
+        return;
+      }
+
+      // Also get bookings from owner's listings
+      const { data: ownerBookings, error: ownerError } = await supabase
+        .rpc('get_owner_active_bookings');
+
+      if (ownerError) {
+        console.error('Error fetching owner bookings:', ownerError);
+      }
+
+      const allBookingIds = [
+        ...(userBookings || []).map(b => b.id),
+        ...(ownerBookings || []).map(b => b.id)
+      ];
+
+      if (allBookingIds.length === 0) {
+        setUnreadChatCount(0);
+        return;
+      }
+
+      // Count unread messages across all bookings
+      const { data: messages, error: messagesError } = await supabase
+        .from('driver_owner_messages')
+        .select('read_status, from_driver, booking_id')
+        .in('booking_id', allBookingIds);
+
+      if (messagesError) {
+        console.error('Error fetching messages:', messagesError);
+        return;
+      }
+
+      // Count messages that are unread and not sent by current user
+      const unreadCount = (messages || []).filter(msg => {
+        if (msg.read_status) return false;
+        
+        // For driver: count unread owner messages
+        const isDriver = (userBookings || []).some(b => b.id === msg.booking_id && b.user_id === user.id);
+        if (isDriver && !msg.from_driver) return true;
+        
+        // For owner: count unread driver messages
+        const isOwner = (ownerBookings || []).some(b => b.id === msg.booking_id);
+        if (isOwner && msg.from_driver) return true;
+        
+        return false;
+      }).length;
+
+      setUnreadChatCount(unreadCount);
+    } catch (error) {
+      console.error('Error fetching unread chat count:', error);
+    }
+  };
+
+  const setupChatRealtimeSubscription = () => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel('my-account-chat-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'driver_owner_messages'
+        },
+        () => {
+          fetchUnreadChatCount();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   };
   const updateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -427,9 +518,14 @@ const MyAccount = () => {
               </Button>
             </div>
             <div className="grid grid-cols-3 gap-2">
-              <Button variant={activeTab === 'chats' ? 'default' : 'outline'} onClick={() => setActiveTab('chats')} className="flex items-center gap-2 h-12">
-                <MessageCircle className="h-4 w-4" />
+              <Button variant={activeTab === 'chats' ? 'default' : 'outline'} onClick={() => setActiveTab('chats')} className="flex items-center gap-2 h-12 relative">
+                <MessageCircle className={`h-4 w-4 ${unreadChatCount > 0 ? 'animate-blink-red' : ''}`} />
                 Chats
+                {unreadChatCount > 0 && (
+                  <Badge variant="destructive" className="ml-1 animate-blink-red">
+                    {unreadChatCount}
+                  </Badge>
+                )}
               </Button>
               <Button variant={activeTab === 'contact' ? 'default' : 'outline'} onClick={() => setActiveTab('contact')} className="flex items-center gap-2 h-12">
                 <MessageSquare className="h-4 w-4" />
@@ -459,9 +555,14 @@ const MyAccount = () => {
               <Home className="h-4 w-4" />
               My Listings
             </TabsTrigger>
-            <TabsTrigger value="chats" className="flex items-center gap-2 py-2">
-              <MessageCircle className="h-4 w-4" />
+            <TabsTrigger value="chats" className="flex items-center gap-2 py-2 relative">
+              <MessageCircle className={`h-4 w-4 ${unreadChatCount > 0 ? 'animate-blink-red' : ''}`} />
               Chats
+              {unreadChatCount > 0 && (
+                <Badge variant="destructive" className="ml-2 animate-blink-red">
+                  {unreadChatCount}
+                </Badge>
+              )}
             </TabsTrigger>
             <TabsTrigger value="contact" className="flex items-center gap-2 py-2">
               <MessageSquare className="h-4 w-4" />
