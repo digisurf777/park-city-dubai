@@ -90,7 +90,18 @@ export const PreAuthorizationPanel = () => {
       }
       const newStatus = capturedCents >= maxCents ? 'confirmed' : 'partially_captured';
 
-      // UI-only update: mark as captured for dashboard notification without calling Stripe
+      // Persist to database
+      const { error } = await supabase
+        .from('parking_bookings')
+        .update({
+          payment_status: newStatus,
+          capture_amount: capturedCents
+        })
+        .eq('id', bookingId);
+
+      if (error) throw error;
+
+      // Update UI state
       setPreAuthorizations(prev =>
         prev.map(p =>
           p.booking_id === bookingId
@@ -104,14 +115,17 @@ export const PreAuthorizationPanel = () => {
       );
 
       toast({
-        title: '✅ Captured (Notification Only)',
-        description: `${newStatus === 'confirmed' ? 'Full' : 'Partial'} capture recorded in dashboard.`,
+        title: '✅ Payment Captured',
+        description: `${newStatus === 'confirmed' ? 'Full' : 'Partial'} capture saved successfully.`,
       });
+
+      // Refresh data to ensure UI matches database
+      fetchPreAuthorizations();
     } catch (error: any) {
-      console.error('Error in notification-only capture:', error);
+      console.error('Error capturing payment:', error);
       toast({
         title: '❌ Capture Failed',
-        description: error.message || 'Failed to mark as captured.',
+        description: error.message || 'Failed to capture payment.',
         variant: 'destructive'
       });
     } finally {
