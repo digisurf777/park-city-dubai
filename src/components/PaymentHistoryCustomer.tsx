@@ -74,28 +74,48 @@ export default function PaymentHistoryCustomer() {
 
       if (generateError) throw generateError;
 
-      // Then get the signed URL
-      const { data: urlData, error: urlError } = await supabase.functions.invoke(
-        "generate-booking-invoice-url",
-        {
-          body: { booking_id: bookingId },
-        }
-      );
+      // Get auth token for the download request
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error('Not authenticated');
 
-      if (urlError) throw urlError;
+      // Use custom domain download endpoint
+      const downloadUrl = `https://shazamparking.ae/functions/v1/download-invoice?booking_id=${bookingId}`;
+      
+      // Create a temporary link to trigger download
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.setAttribute('download', `invoice_${bookingId.slice(0, 8)}.pdf`);
+      link.style.display = 'none';
+      
+      // Add authorization header by fetching and creating blob URL
+      const response = await fetch(downloadUrl, {
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+      });
 
-      // Open invoice in new tab for viewing/printing/saving as PDF
-      window.open(urlData.signed_url, '_blank');
+      if (!response.ok) throw new Error('Failed to download invoice');
+
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      link.href = blobUrl;
+      
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Clean up blob URL
+      setTimeout(() => window.URL.revokeObjectURL(blobUrl), 100);
 
       toast({
         title: "Success",
-        description: "Invoice opened in new tab",
+        description: "Invoice downloaded successfully",
       });
     } catch (error: any) {
-      console.error("Error opening invoice:", error);
+      console.error("Error downloading invoice:", error);
       toast({
         title: "Error",
-        description: error.message || "Failed to open invoice",
+        description: error.message || "Failed to download invoice",
         variant: "destructive",
       });
     } finally {

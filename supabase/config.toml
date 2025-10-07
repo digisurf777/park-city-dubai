@@ -142,3 +142,6 @@ verify_jwt = true
 
 [functions.generate-booking-invoice-url]
 verify_jwt = true
+
+[functions.download-invoice]
+verify_jwt = true
