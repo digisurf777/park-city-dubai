@@ -1358,14 +1358,20 @@ export type Database = {
         Returns: {
           booking_id: string
           booking_status: string
+          chat_expired: boolean
           driver_id: string
           driver_name: string
-          is_expired: boolean
-          last_message: string
-          last_message_time: string
+          end_time: string
+          flagged_messages: number
+          last_message_at: string
+          location: string
           owner_id: string
           owner_name: string
-          unread_count: number
+          start_time: string
+          total_messages: number
+          unread_from_driver: number
+          unread_from_owner: number
+          zone: string
         }[]
       }
       get_booked_date_ranges: {
@@ -1379,17 +1385,13 @@ export type Database = {
         Args: { p_booking_id: string }
         Returns: {
           admin_flagged: boolean
-          booking_id: string
           contains_violation: boolean
           created_at: string
-          driver_id: string
-          driver_name: string
           from_driver: boolean
           id: string
           message: string
-          owner_id: string
-          owner_name: string
           read_status: boolean
+          sender_name: string
         }[]
       }
       get_booking_contact_info: {
