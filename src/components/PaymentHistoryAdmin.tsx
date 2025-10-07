@@ -234,8 +234,8 @@ export const PaymentHistoryAdmin = () => {
 
       if (error) throw error;
 
-      if (data?.signedUrl) {
-        window.open(data.signedUrl, '_blank');
+      if (data?.url) {
+        window.open(data.url, '_blank');
         toast.success(`${documentType === 'invoice' ? 'Invoice' : 'Remittance advice'} opened`);
       }
     } catch (error: any) {
