@@ -96,8 +96,12 @@ const handler = async (req: Request): Promise<Response> => {
             </div>
             ` : ''}
             
+            <p style="color: #4b5563; line-height: 1.6; margin: 20px 0; font-size: 16px;">
+              Connect directly with the parking space owner through the in-platform chat to discuss access arrangements and any other details.
+            </p>
+
             <p style="color: #4b5563; line-height: 1.6; margin: 20px 0 0 0; font-size: 16px;">
-              Your parking space is confirmed! If you have any questions, feel free to contact us anytime. We're excited to serve you!
+              Should you have any questions or require assistance, please contact us at <a href="mailto:support@shazamparking.ae" style="color: #10b981; text-decoration: none; font-weight: 600;">support@shazamparking.ae</a> or use the internal chat function available in your dashboard.
             </p>
           </div>
           
