@@ -157,22 +157,48 @@ const AdminNotifications = ({
       
       if (error) throw error;
 
-      // Fetch user info using the new function with fallback to auth.users
+      // Fetch user info and proper zone from parking listings
       if (data) {
         const enrichedData = await Promise.all(
           data.map(async (notification) => {
-            if (notification.parking_bookings?.user_id) {
-              const { data: userInfo, error: userError } = await supabase
-                .rpc('get_user_display_info', { user_uuid: notification.parking_bookings.user_id });
+            let properZone = notification.parking_bookings?.zone;
+            
+            // Try to get the proper zone from parking_listings
+            if (notification.parking_bookings?.location) {
+              const { data: listingData } = await supabase
+                .from('parking_listings')
+                .select('zone')
+                .eq('address', notification.parking_bookings.location)
+                .in('status', ['approved', 'published'])
+                .limit(1)
+                .maybeSingle();
               
-              console.log('User info fetched for:', notification.parking_bookings.user_id, userInfo);
+              if (listingData?.zone) {
+                properZone = listingData.zone;
+              }
+            }
+            
+            if (notification.parking_bookings?.user_id) {
+              const { data: userInfo } = await supabase
+                .rpc('get_user_display_info', { user_uuid: notification.parking_bookings.user_id });
               
               return {
                 ...notification,
+                parking_bookings: {
+                  ...notification.parking_bookings,
+                  zone: properZone
+                },
                 customerProfile: userInfo?.[0] || undefined
               };
             }
-            return notification;
+            
+            return {
+              ...notification,
+              parking_bookings: {
+                ...notification.parking_bookings,
+                zone: properZone
+              }
+            };
           })
         );
         
