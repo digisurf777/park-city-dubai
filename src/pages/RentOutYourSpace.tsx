@@ -440,8 +440,6 @@ const RentOutYourSpace = () => {
                       <SelectContent>
                         <SelectItem value="Covered">Covered</SelectItem>
                         <SelectItem value="Open">Open</SelectItem>
-                        <SelectItem value="Underground">Underground</SelectItem>
-                        <SelectItem value="Valet">Valet</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
