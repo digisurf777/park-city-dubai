@@ -298,8 +298,7 @@ const AdminNotifications = ({
         `Great news! Your parking booking has been approved and confirmed!\n\n` +
         `📍 Location: ${booking.location}\n` +
         `📅 Start: ${format(new Date(booking.start_time), 'PPP')}\n` +
-        `📅 End: ${format(new Date(booking.end_time), 'PPP')}\n` +
-        `💰 Amount: ${booking.cost_aed} AED\n\n` +
+        `📅 End: ${format(new Date(booking.end_time), 'PPP')}\n\n` +
         `Your parking space is ready. Please check your email for complete booking details.`
       );
 
