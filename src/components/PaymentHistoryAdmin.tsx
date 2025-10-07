@@ -238,6 +238,9 @@ export const PaymentHistoryAdmin = () => {
     try {
       setDownloadingDoc({ paymentId, type: documentType });
 
+      // Always regenerate to ensure latest name/email/logo before signing URL
+      await supabase.functions.invoke('generate-payment-pdf', { body: { paymentId } });
+
       const { data, error } = await supabase.functions.invoke('generate-payment-document-url', {
         body: { paymentId, documentType }
       });

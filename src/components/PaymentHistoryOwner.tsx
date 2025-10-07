@@ -49,6 +49,9 @@ export const PaymentHistoryOwner = () => {
     try {
       setDownloadingDoc({ paymentId, type: documentType });
 
+      // Always regenerate to ensure the latest details/logo
+      await supabase.functions.invoke('generate-payment-pdf', { body: { paymentId } });
+
       const { data, error } = await supabase.functions.invoke('generate-payment-document-url', {
         body: { paymentId, documentType }
       });
