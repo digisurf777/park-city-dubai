@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
+import { jsPDF } from "https://esm.sh/jspdf@2.5.2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -51,14 +52,14 @@ serve(async (req) => {
       .eq('user_id', user.id)
       .single();
 
-    // Check if invoice already exists
-    if (booking.invoice_url) {
+    // Check if a final PDF invoice already exists; if it's an older HTML invoice, regenerate as PDF
+    if (booking.invoice_url && String(booking.invoice_url).toLowerCase().endsWith('.pdf')) {
       const { data: existingFile } = await supabase.storage
         .from('booking-invoices')
         .list('', { search: booking.invoice_url });
 
       if (existingFile && existingFile.length > 0) {
-        console.log('Invoice already exists:', booking.invoice_url);
+        console.log('Invoice PDF already exists:', booking.invoice_url);
         return new Response(
           JSON.stringify({ 
             success: true, 
@@ -70,7 +71,7 @@ serve(async (req) => {
       }
     }
 
-    // Generate PDF content
+    // Build data for PDF
     const invoiceNumber = `INV-${booking.id.slice(0, 8).toUpperCase()}`;
     const invoiceDate = new Date(booking.created_at).toLocaleDateString('en-AE', {
       year: 'numeric',
@@ -80,105 +81,78 @@ serve(async (req) => {
     const startDate = new Date(booking.start_time).toLocaleString('en-AE');
     const endDate = new Date(booking.end_time).toLocaleString('en-AE');
     const durationMonths = Math.max(1, Math.ceil((new Date(booking.end_time).getTime() - new Date(booking.start_time).getTime()) / (1000 * 60 * 60 * 24 * 30)));
-    const zoneHtml = booking.zone === 'Find Parking Page' ? '' : `<strong>Zone:</strong> ${booking.zone}<br>`;
+    const showZone = booking.zone && booking.zone !== 'Find Parking Page';
 
-    const htmlContent = `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <style>
-    body { font-family: Arial, sans-serif; margin: 0; padding: 40px; color: #333; }
-    .header { text-align: center; margin-bottom: 40px; border-bottom: 3px solid #0EA5E9; padding-bottom: 20px; }
-    .logo { font-size: 28px; font-weight: bold; color: #0EA5E9; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; justify-content: center; }
-    .invoice-title { font-size: 22px; color: #666; margin-top: 10px; }
-    .info-section { margin: 30px 0; }
-    .info-row { display: flex; justify-content: space-between; margin-bottom: 10px; }
-    .label { font-weight: bold; color: #666; }
-    .value { color: #333; }
-    .details-table { width: 100%; border-collapse: collapse; margin: 30px 0; }
-    .details-table th { background: #0EA5E9; color: white; padding: 12px; text-align: left; }
-    .details-table td { padding: 12px; border-bottom: 1px solid #ddd; }
-    .total-section { margin-top: 30px; text-align: right; }
-    .total-row { font-size: 18px; margin: 10px 0; }
-    .total-amount { font-size: 24px; font-weight: bold; color: #0EA5E9; }
-    .footer { margin-top: 50px; text-align: center; font-size: 12px; color: #666; border-top: 1px solid #ddd; padding-top: 20px; }
-  </style>
-</head>
-<body>
-  <div class="header">
-    <div class="logo">
-      <svg width="36" height="36" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-label="ShazamParking logo">
-        <circle cx="12" cy="12" r="10" fill="#0EA5E9"/>
-        <path d="M8 12h5a3 3 0 100-6H9" stroke="#fff" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-        <path d="M16 12h-5a3 3 0 100 6h4" stroke="#fff" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-      </svg>
-      <span>ShazamParking</span>
-    </div>
-    <div class="invoice-title">PARKING INVOICE</div>
-  </div>
+    // Load logo from local file if available
+    let logoData: string | undefined;
+    try {
+      const logoBytes = await Deno.readFile(new URL('./logo.png', import.meta.url));
+      let binary = '';
+      for (const b of logoBytes) binary += String.fromCharCode(b);
+      logoData = `data:image/png;base64,${btoa(binary)}`;
+    } catch (_) {
+      console.log('Invoice logo not found locally, continuing without it');
+    }
 
-  <div class="info-section">
-    <div class="info-row">
-      <div><span class="label">Invoice Number:</span> ${invoiceNumber}</div>
-      <div><span class="label">Invoice Date:</span> ${invoiceDate}</div>
-    </div>
-    <div class="info-row">
-      <div><span class="label">Customer Name:</span> ${profile?.full_name || 'N/A'}</div>
-      <div><span class="label">Email:</span> ${profile?.email || user.email}</div>
-    </div>
-    ${profile?.phone ? `<div class="info-row"><div><span class="label">Phone:</span> ${profile.phone}</div></div>` : ''}
-  </div>
+    // Create PDF
+    const doc = new jsPDF();
 
-  <table class="details-table">
-    <thead>
-      <tr>
-        <th>Description</th>
-        <th>Details</th>
-        <th>Amount (AED)</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><strong>Parking Booking</strong></td>
-        <td>
-          <strong>Location:</strong> ${booking.location}<br>
-          ${zoneHtml}
-          <strong>Duration:</strong> ${durationMonths} month${durationMonths > 1 ? 's' : ''}<br>
-          <strong>Start:</strong> ${startDate}<br>
-          <strong>End:</strong> ${endDate}
-        </td>
-        <td><strong>${booking.cost_aed.toFixed(2)}</strong></td>
-      </tr>
-    </tbody>
-  </table>
+    // Header with logo
+    if (logoData) {
+      try { doc.addImage(logoData, 'PNG', 20, 10, 40, 15); } catch (_) { /* ignore */ }
+    }
+    doc.setFontSize(24);
+    doc.setTextColor(14, 165, 233);
+    doc.text('ShazamParking', logoData ? 70 : 105, 20, { align: logoData ? 'left' : 'center' });
 
-  <div class="total-section">
-    <div class="total-row">Subtotal: <strong>${booking.cost_aed.toFixed(2)} AED</strong></div>
-    <div class="total-row">Tax (0%): <strong>0.00 AED</strong></div>
-    <div class="total-row total-amount">Total Amount Paid: ${booking.cost_aed.toFixed(2)} AED</div>
-  </div>
+    doc.setFontSize(18);
+    doc.setTextColor(0, 0, 0);
+    doc.text('PARKING INVOICE', 105, 35, { align: 'center' });
 
-  <div class="footer">
-    
-    <p><strong>Payment Status:</strong> PAID</p>
-    <p>Thank you for using ShazamParking!</p>
-    <p>For support, contact us at support@shazamparking.com</p>
-  </div>
-</body>
-</html>
-    `;
+    // Divider
+    doc.setDrawColor(14, 165, 233);
+    doc.setLineWidth(1);
+    doc.line(20, 40, 190, 40);
 
-    // Convert HTML to bytes for storage
-    const encoder = new TextEncoder();
-    const htmlData = encoder.encode(htmlContent);
+    // Invoice meta
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    let y = 55;
+    doc.text('Invoice Number:', 20, y); doc.setTextColor(0,0,0); doc.text(invoiceNumber, 60, y);
+    doc.setTextColor(100,100,100); doc.text('Invoice Date:', 120, y); doc.setTextColor(0,0,0); doc.text(invoiceDate, 155, y);
 
-    // Upload to storage as HTML
-    const fileName = `${user.id}/${booking.id}_invoice.html`;
+    y += 8; doc.setTextColor(100,100,100); doc.text('Customer Name:', 20, y); doc.setTextColor(0,0,0); doc.text(profile?.full_name || 'N/A', 60, y);
+    y += 8; doc.setTextColor(100,100,100); doc.text('Email:', 20, y); doc.setTextColor(0,0,0); doc.text((profile?.email || user.email) ?? 'N/A', 60, y);
+    if (profile?.phone) { y += 8; doc.setTextColor(100,100,100); doc.text('Phone:', 20, y); doc.setTextColor(0,0,0); doc.text(profile.phone, 60, y); }
+
+    // Booking details
+    y += 16; doc.setFontSize(12); doc.setTextColor(0,0,0); doc.text('Booking Details', 20, y);
+    y += 8; doc.setFontSize(10); doc.setTextColor(100,100,100); doc.text('Location:', 20, y); doc.setTextColor(0,0,0); doc.text(booking.location, 60, y);
+    if (showZone) { y += 7; doc.setTextColor(100,100,100); doc.text('Zone:', 20, y); doc.setTextColor(0,0,0); doc.text(String(booking.zone), 60, y); }
+    y += 7; doc.setTextColor(100,100,100); doc.text('Duration:', 20, y); doc.setTextColor(0,0,0); doc.text(`${durationMonths} month${durationMonths>1?'s':''}`, 60, y);
+    y += 7; doc.setTextColor(100,100,100); doc.text('Start:', 20, y); doc.setTextColor(0,0,0); doc.text(startDate, 60, y);
+    y += 7; doc.setTextColor(100,100,100); doc.text('End:', 20, y); doc.setTextColor(0,0,0); doc.text(endDate, 60, y);
+
+    // Amount section box
+    y += 18;
+    doc.setFillColor(239, 246, 255); // light blue
+    doc.rect(20, y-6, 170, 22, 'F');
+    doc.setFontSize(11); doc.setTextColor(100,100,100); doc.text('Total Amount Paid:', 30, y+4);
+    doc.setFontSize(18); doc.setTextColor(14,165,233); doc.text(`${Number(booking.cost_aed).toFixed(2)} AED`, 155, y+4, { align: 'right' });
+
+    // Footer
+    y = 270; doc.setDrawColor(229,231,235); doc.setLineWidth(0.5); doc.line(20, y, 190, y);
+    y += 10; doc.setFontSize(10); doc.setTextColor(100,100,100); doc.text('Payment Status: PAID', 20, y);
+    doc.text('Thank you for using ShazamParking!', 105, y, { align: 'center' });
+
+    const pdfBytes = doc.output('arraybuffer');
+
+    // Upload PDF
+    const fileName = `${user.id}/${booking.id}_invoice.pdf`;
     const { error: uploadError } = await supabase.storage
       .from('booking-invoices')
-      .upload(fileName, htmlData, {
-        contentType: 'text/html',
+      .upload(fileName, pdfBytes, {
+        contentType: 'application/pdf',
         upsert: true
       });
 
@@ -197,13 +171,13 @@ serve(async (req) => {
       console.error('Update error:', updateError);
     }
 
-    console.log('Invoice generated successfully:', fileName);
+    console.log('Invoice PDF generated successfully:', fileName);
 
     return new Response(
       JSON.stringify({ 
         success: true, 
         invoice_url: fileName,
-        message: 'Invoice generated successfully'
+        message: 'Invoice PDF generated successfully'
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
