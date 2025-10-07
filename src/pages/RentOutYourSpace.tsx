@@ -198,6 +198,7 @@ const RentOutYourSpace = () => {
         zone: formData.district,
         price_per_hour: Number((monthlyPrice / 720).toFixed(2)),
         price_per_month: monthlyPrice,
+        bay_type: formData.bayType,
         features: [formData.bayType],
         images: imageUrls,
         contact_phone: formData.phone,
@@ -428,7 +429,22 @@ const RentOutYourSpace = () => {
                       </SelectContent>
                     </Select>
                   </div>
-                  
+                  <div>
+                    <Label htmlFor="bayType" className="text-base font-medium">
+                      Bay Type *
+                    </Label>
+                    <Select value={formData.bayType} onValueChange={value => handleInputChange('bayType', value)}>
+                      <SelectTrigger className="mt-2 h-12">
+                        <SelectValue placeholder="Select bay type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Covered">Covered</SelectItem>
+                        <SelectItem value="Open">Open</SelectItem>
+                        <SelectItem value="Underground">Underground</SelectItem>
+                        <SelectItem value="Valet">Valet</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
