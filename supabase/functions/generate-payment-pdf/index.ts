@@ -117,8 +117,7 @@ const generateInvoicePDF = (payment: any, ownerInfo: any, logoData?: string): Ar
     const notes = doc.splitTextToSize(payment.notes, 120);
     doc.text(notes, 70, yPos);
     yPos += (notes.length - 1) * 7;
-  }
-  
+
   // Amount box
   yPos += 20;
   doc.setFillColor(243, 244, 246); // Light gray
