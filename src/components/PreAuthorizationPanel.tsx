@@ -75,7 +75,7 @@ export const PreAuthorizationPanel = () => {
       // Safety check: ensure a Payment Intent exists before attempting capture
       const { data: bookingRow, error: bookingErr } = await supabase
         .from('parking_bookings')
-        .select('stripe_payment_intent_id, payment_link_url')
+        .select('stripe_payment_intent_id')
         .eq('id', bookingId)
         .maybeSingle();
 
@@ -83,13 +83,10 @@ export const PreAuthorizationPanel = () => {
 
       if (!bookingRow?.stripe_payment_intent_id) {
         toast({
-          title: 'Authorization incomplete',
-          description: 'No payment intent found for this booking. Open the payment link to complete the pre-authorization.',
+          title: 'Cannot capture payment',
+          description: 'No payment intent found. Customer must complete payment authorization first.',
           variant: 'destructive'
         });
-        if (bookingRow?.payment_link_url) {
-          window.open(bookingRow.payment_link_url, '_blank');
-        }
         return;
       }
 
@@ -105,16 +102,16 @@ export const PreAuthorizationPanel = () => {
       if (error) throw error;
 
       toast({
-        title: 'Success',
-        description: `Payment ${fullAmount ? 'fully' : 'partially'} captured successfully`,
+        title: '✅ Payment Captured Successfully',
+        description: `${fullAmount ? 'Full amount' : 'Partial amount'} has been captured and will appear in your Stripe dashboard.`,
       });
 
       fetchPreAuthorizations();
     } catch (error: any) {
       console.error('Error capturing payment:', error);
       toast({
-        title: 'Error',
-        description: error.message || 'Failed to capture payment',
+        title: '❌ Capture Failed',
+        description: error.message || 'Failed to capture payment. Please try again.',
         variant: 'destructive'
       });
     } finally {
