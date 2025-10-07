@@ -74,35 +74,48 @@ export const PaymentHistoryAdmin = () => {
 
   const fetchOwners = async () => {
     try {
-      // Get unique owners from parking listings (approved or published)
-      const { data, error } = await supabase
+      // Step 1: Get unique owner_ids from listings that are visible to admins
+      const { data: listings, error: listingsError } = await supabase
         .from('parking_listings')
-        .select(`
-          owner_id,
-          profiles!inner(full_name, email)
-        `)
-        .in('status', ['approved', 'published']);
+        .select('owner_id')
+        .in('status', ['approved', 'published'])
+        .not('owner_id', 'is', null);
 
-      if (error) throw error;
+      if (listingsError) throw listingsError;
 
-      const uniqueOwners = Array.from(
-        new Map(
-          (data || []).map(item => [
-            item.owner_id,
-            {
-              id: item.owner_id,
-              full_name: (item.profiles as any)?.full_name || 'Unknown',
-              email: (item.profiles as any)?.email || ''
-            }
-          ])
-        ).values()
+      const ownerIds = Array.from(
+        new Set((listings || []).map((l: any) => l.owner_id).filter(Boolean))
       );
 
-      setOwners(uniqueOwners);
-      console.log('Loaded owners:', uniqueOwners);
+      if (ownerIds.length === 0) {
+        setOwners([]);
+        console.log('No owners found from listings');
+        return;
+      }
+
+      // Step 2: Fetch basic info for those owners via secure RPC (admin only)
+      const { data: ownersInfo, error: infoError } = await supabase.rpc(
+        'get_user_basic_info',
+        { user_ids: ownerIds }
+      );
+
+      if (infoError) throw infoError;
+
+      const formattedOwners: Owner[] = (ownersInfo || []).map((u: any) => ({
+        id: u.user_id,
+        full_name: u.display_name || u.full_name || 'Unknown',
+        email: u.email || ''
+      }));
+
+      // Sort by name for better UX
+      formattedOwners.sort((a, b) => a.full_name.localeCompare(b.full_name));
+
+      setOwners(formattedOwners);
+      console.log('Loaded owners:', formattedOwners);
     } catch (error) {
       console.error('Error fetching owners:', error);
       toast.error('Failed to load owners');
+      setOwners([]);
     }
   };
 
@@ -334,11 +347,15 @@ export const PaymentHistoryAdmin = () => {
                   <SelectValue placeholder="Select owner" />
                 </SelectTrigger>
                 <SelectContent>
-                  {owners.map((owner) => (
-                    <SelectItem key={owner.id} value={owner.id}>
-                      {owner.full_name} ({owner.email})
-                    </SelectItem>
-                  ))}
+                  {owners.length === 0 ? (
+                    <div className="p-2 text-sm text-muted-foreground">No owners found</div>
+                  ) : (
+                    owners.map((owner) => (
+                      <SelectItem key={owner.id} value={owner.id}>
+                        {owner.full_name} ({owner.email})
+                      </SelectItem>
+                    ))
+                  )}
                 </SelectContent>
               </Select>
             </div>
