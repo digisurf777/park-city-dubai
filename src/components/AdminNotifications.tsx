@@ -163,18 +163,40 @@ const AdminNotifications = ({
           data.map(async (notification) => {
             let properZone = notification.parking_bookings?.zone;
             
-            // Try to get the proper zone from parking_listings
+            // Try to get the proper zone from parking_listings with flexible matching
             if (notification.parking_bookings?.location) {
+              const location = String(notification.parking_bookings.location).trim();
+              let listingZone: string | null = null;
+
+              // 1) Flexible match in private listings (admin has access)
               const { data: listingData } = await supabase
                 .from('parking_listings')
                 .select('zone')
-                .eq('address', notification.parking_bookings.location)
+                .or(
+                  `address.eq.${location},title.eq.${location},address.ilike.%${location}%,title.ilike.%${location}%`
+                )
                 .in('status', ['approved', 'published'])
                 .limit(1)
                 .maybeSingle();
-              
+
               if (listingData?.zone) {
-                properZone = listingData.zone;
+                listingZone = listingData.zone as string;
+              } else {
+                // 2) Fallback to public listings
+                const { data: publicListing } = await supabase
+                  .from('parking_listings_public')
+                  .select('zone')
+                  .or(
+                    `address.eq.${location},title.eq.${location},address.ilike.%${location}%,title.ilike.%${location}%`
+                  )
+                  .eq('status', 'published')
+                  .limit(1)
+                  .maybeSingle();
+                if (publicListing?.zone) listingZone = publicListing.zone as string;
+              }
+
+              if (listingZone) {
+                properZone = listingZone;
               }
             }
             
@@ -592,7 +614,7 @@ const AdminNotifications = ({
                       </div>
                       <div>
                         <span className="text-gray-600 block mb-1">Zone:</span>
-                        <span className="font-medium">{notification.parking_bookings.zone}</span>
+                        <span className="font-medium">{notification.parking_bookings.zone || 'Unknown'}</span>
                       </div>
                       <div>
                         <span className="text-gray-600 block mb-1">Start:</span>
