@@ -487,6 +487,61 @@ const AdminNotifications = ({
       setActionLoading(null);
     }
   };
+
+  const revertToPending = async (notification: AdminNotification) => {
+    if (!notification.booking_id || !notification.parking_bookings) return;
+    
+    const confirmed = window.confirm(
+      `Are you sure you want to revert this booking back to pending status?\n\n` +
+      `Location: ${notification.parking_bookings?.location}\n` +
+      `Cost: ${notification.parking_bookings?.cost_aed} AED\n\n` +
+      `This will change the status from approved to pending.`
+    );
+    
+    if (!confirmed) return;
+    
+    setActionLoading(`revert-${notification.id}`);
+    try {
+      const booking = notification.parking_bookings;
+
+      // Update booking status back to pending
+      const { error: updateError } = await supabase
+        .from('parking_bookings')
+        .update({ status: 'pending' })
+        .eq('id', notification.booking_id);
+      
+      if (updateError) throw updateError;
+
+      // Send support chat notification
+      await sendSupportChatNotification(
+        booking.user_id,
+        'Booking Status Updated 🔄',
+        `Your booking status has been reverted to pending for review.\n\n` +
+        `📍 Location: ${booking.location}\n` +
+        `📅 Dates: ${format(new Date(booking.start_time), 'PPP')} - ${format(new Date(booking.end_time), 'PPP')}\n\n` +
+        `We will review your booking again and get back to you shortly.`
+      );
+
+      // Mark notification as read
+      await markAsRead(notification.id);
+      
+      toast({
+        title: "Success",
+        description: "Booking reverted to pending status"
+      });
+      
+      fetchNotifications();
+    } catch (error) {
+      console.error('Error reverting booking:', error);
+      toast({
+        title: "Error",
+        description: "Failed to revert booking status",
+        variant: "destructive"
+      });
+    } finally {
+      setActionLoading(null);
+    }
+  };
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case 'high':
@@ -666,6 +721,20 @@ const AdminNotifications = ({
                           Approved
                         </Badge>
                       </div>
+                      
+                      <Button 
+                        onClick={() => revertToPending(notification)} 
+                        disabled={actionLoading !== null} 
+                        variant="outline"
+                        className="border-orange-500 text-orange-600 hover:bg-orange-50"
+                      >
+                        {actionLoading === `revert-${notification.id}` ? (
+                          <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                        ) : (
+                          <Clock className="h-4 w-4 mr-2" />
+                        )}
+                        Revert to Pending
+                      </Button>
                       
                       <Button onClick={() => deleteBooking(notification)} disabled={actionLoading !== null} variant="destructive" className="bg-red-600 hover:bg-red-700">
                         {actionLoading === `delete-${notification.id}` ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Trash2 className="h-4 w-4 mr-2" />}
