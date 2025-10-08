@@ -504,6 +504,19 @@ const AdminNotifications = ({
     try {
       const booking = notification.parking_bookings;
 
+      // Resolve customer email/name
+      let userEmail = notification.customerProfile?.email || '';
+      let userName = notification.customerProfile?.full_name || 'Customer';
+      
+      if (!userEmail) {
+        const { data: userInfo } = await supabase
+          .rpc('get_user_display_info', { user_uuid: booking.user_id });
+        if (userInfo && userInfo[0]) {
+          userEmail = userInfo[0].email || '';
+          userName = userInfo[0].full_name || userName;
+        }
+      }
+
       // Update booking status back to pending
       const { error: updateError } = await supabase
         .from('parking_bookings')
@@ -512,14 +525,35 @@ const AdminNotifications = ({
       
       if (updateError) throw updateError;
 
+      // Send email notification
+      if (userEmail) {
+        try {
+          await supabase.functions.invoke('send-booking-pending-payment', {
+            body: {
+              userEmail,
+              userName,
+              bookingDetails: {
+                location: booking.location,
+                startDate: format(new Date(booking.start_time), 'PPP'),
+                endDate: format(new Date(booking.end_time), 'PPP'),
+                amount: `${booking.cost_aed} AED`
+              }
+            }
+          });
+        } catch (emailError) {
+          console.error('Failed to send pending payment email:', emailError);
+        }
+      }
+
       // Send support chat notification
       await sendSupportChatNotification(
         booking.user_id,
         'Booking Status Updated 🔄',
-        `Your booking status has been reverted to pending for review.\n\n` +
+        `Your booking status has been reverted to pending.\n\n` +
         `📍 Location: ${booking.location}\n` +
-        `📅 Dates: ${format(new Date(booking.start_time), 'PPP')} - ${format(new Date(booking.end_time), 'PPP')}\n\n` +
-        `We will review your booking again and get back to you shortly.`
+        `📅 Dates: ${format(new Date(booking.start_time), 'PPP')} - ${format(new Date(booking.end_time), 'PPP')}\n` +
+        `💰 Amount: ${booking.cost_aed} AED\n\n` +
+        `Your booking will be approved once payment is issued. Please check your email for payment instructions.`
       );
 
       // Mark notification as read
@@ -527,7 +561,7 @@ const AdminNotifications = ({
       
       toast({
         title: "Success",
-        description: "Booking reverted to pending status"
+        description: "Booking reverted to pending status and notification sent"
       });
       
       fetchNotifications();
