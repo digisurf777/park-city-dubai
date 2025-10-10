@@ -183,9 +183,10 @@ export const DriverOwnerChat = ({ bookingId, isOpen, onClose }: DriverOwnerChatP
   };
 
   const validateMessage = (message: string): { isValid: boolean; warning?: string } => {
-    // Strict phone number regex - requires 7+ consecutive digits or phone number patterns
-    // This won't match registration numbers like "ABC-123" or "XYZ 456"
-    const phoneRegex = /(?:\+\d{1,4}[\s-]?\(?\d{2,4}\)?[\s-]?\d{3,4}[\s-]?\d{3,4}|\b\d{7,}\b)/g;
+    // Very strict phone number patterns - only catch actual phone numbers
+    // Requires either international format (+xxx) or 9+ consecutive digits
+    // This allows registration numbers like "j104344" or "ABC-123"
+    const phoneRegex = /(?:\+\d{1,4}[\s-]?\(?\d{2,4}\)?[\s-]?\d{3,4}[\s-]?\d{3,4}|\b\d{9,}\b)/g;
     const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
     const whatsappRegex = /(whatsapp|whatapp|watsapp|wa\.me)/gi;
     const externalPlatforms = /(telegram|signal|viber|facebook|instagram|snapchat|tiktok)/gi;
