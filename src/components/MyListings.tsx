@@ -255,7 +255,7 @@ export const MyListings: React.FC<MyListingsProps> = ({ chatOnly = false }) => {
                         ) : (
                           <div className="bg-orange-50 border border-orange-200 rounded p-2 mt-2">
                             <p className="text-xs text-orange-800">
-                              ⏳ Chat will be available 48 hours before booking start
+                              ⏳ Chat becomes available once the booking is approved and stays open until it ends
                             </p>
                           </div>
                         )}
