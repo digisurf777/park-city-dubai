@@ -1116,6 +1116,33 @@ export type Database = {
         }
         Relationships: []
       }
+      user_mfa_requirements: {
+        Row: {
+          created_at: string
+          id: string
+          mfa_enabled_at: string | null
+          mfa_required: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          mfa_enabled_at?: string | null
+          mfa_required?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          mfa_enabled_at?: string | null
+          mfa_required?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_notifications: {
         Row: {
           booking_id: string | null

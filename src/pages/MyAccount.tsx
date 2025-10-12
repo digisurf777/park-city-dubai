@@ -19,6 +19,7 @@ import { useVerificationStatus } from '@/hooks/useVerificationStatus';
 import { EmailVerificationStatus } from '@/components/EmailVerificationStatus';
 import { PaymentHistoryOwner } from '@/components/PaymentHistoryOwner';
 import PaymentHistoryCustomer from '@/components/PaymentHistoryCustomer';
+import { MFASetup } from '@/components/MFASetup';
 interface Profile {
   id: string;
   full_name: string;
@@ -65,7 +66,7 @@ interface ParkingHistoryItem {
   details: ParkingBooking | ParkingListing;
 }
 const MyAccount = () => {
-  const { user, signOut } = useAuth();
+  const { user, signOut, mfaRequired } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { status: verificationStatus, loading: verificationLoading } = useVerificationStatus();
@@ -512,6 +513,12 @@ const MyAccount = () => {
                   {(verificationStatus === 'pending' || verificationStatus === null) && <div className="absolute -top-1 -right-1 h-3 w-3 bg-destructive rounded-full"></div>}
                 </Button>
               )}
+              {mfaRequired && (
+                <Button variant={activeTab === 'security' ? 'default' : 'outline'} onClick={() => setActiveTab('security')} className="flex items-center gap-2 h-12">
+                  <Shield className="h-4 w-4" />
+                  Security
+                </Button>
+              )}
             </div>
             <div className="grid grid-cols-1 gap-2 mb-4">
               <Button variant={activeTab === 'listings' ? 'default' : 'outline'} onClick={() => setActiveTab('listings')} className="flex items-center gap-2 h-12">
@@ -545,7 +552,7 @@ const MyAccount = () => {
           </div>
 
           {/* Desktop Tab Navigation */}
-          <TabsList className="hidden lg:grid w-full grid-cols-6 gap-1 h-auto p-1">
+          <TabsList className="hidden lg:grid w-full grid-cols-7 gap-1 h-auto p-1">
             <TabsTrigger value="profile" className="flex items-center gap-2 py-2">
               <User className="h-4 w-4" />
               Profile
@@ -555,6 +562,12 @@ const MyAccount = () => {
                 <Shield className="h-4 w-4" />
                 Verification
                 {(verificationStatus === 'pending' || verificationStatus === null) && <Badge variant="destructive" className="ml-2 h-5 w-5 p-0 text-xs">!</Badge>}
+              </TabsTrigger>
+            )}
+            {mfaRequired && (
+              <TabsTrigger value="security" className="flex items-center gap-2 py-2">
+                <Shield className="h-4 w-4" />
+                Security
               </TabsTrigger>
             )}
             <TabsTrigger value="listings" className="flex items-center gap-2 py-2">
@@ -668,6 +681,25 @@ const MyAccount = () => {
           {verificationStatus !== 'approved' && verificationStatus !== 'verified' && (
             <TabsContent value="verification">
               <VerificationPanel />
+            </TabsContent>
+          )}
+          
+          {mfaRequired && (
+            <TabsContent value="security">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Shield className="h-5 w-5" />
+                    Security Settings
+                  </CardTitle>
+                  <CardDescription>
+                    Manage your account security and two-factor authentication
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <MFASetup />
+                </CardContent>
+              </Card>
             </TabsContent>
           )}
           

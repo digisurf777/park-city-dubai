@@ -7,6 +7,7 @@ import { HelmetProvider } from "react-helmet-async";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import { MFARequiredGuard } from "@/components/MFARequiredGuard";
 import TawkToChat from '@/components/TawkToChat';
 import ChatWidget from '@/components/ChatWidget';
 import { MobileOptimizations } from "@/components/MobileOptimizations";
@@ -105,8 +106,8 @@ const App = () => {
                 <Route path="/contact-admin" element={<ProtectedRoute><ContactAdmin /></ProtectedRoute>} />
                 <Route path="/feedback" element={<ProtectedRoute><Feedback /></ProtectedRoute>} />
                 <Route path="/insert-blog-posts" element={<InsertBlogPosts />} />
-                 <Route path="/admin" element={<ProtectedRoute><AdminPanel /></ProtectedRoute>} />
-                 <Route path="/admin-setup" element={<AdminSetup />} />
+                 <Route path="/admin" element={<ProtectedRoute><MFARequiredGuard><AdminPanel /></MFARequiredGuard></ProtectedRoute>} />
+                 <Route path="/admin-setup" element={<MFARequiredGuard><AdminSetup /></MFARequiredGuard>} />
             {/* Zone Pages */}
             <Route path="/zones/dubai-marina" element={<DubaiMarina />} />
             <Route path="/zones/downtown" element={<Downtown />} />

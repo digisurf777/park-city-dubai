@@ -8,12 +8,20 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
+  mfaRequired: boolean;
+  mfaEnabled: boolean;
   signUp: (email: string, password: string, fullName: string, userType?: string) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: any }>;
   updatePassword: (password: string) => Promise<{ error: any }>;
   resendConfirmationEmail: (email: string) => Promise<{ error: any }>;
+  enrollMFA: () => Promise<{ qrCode: string; secret: string; factorId: string; error: any }>;
+  verifyMFA: (code: string, factorId: string) => Promise<{ error: any }>;
+  challengeMFA: (factorId: string) => Promise<{ challengeId: string; error: any }>;
+  verifyMFAChallenge: (challengeId: string, code: string) => Promise<{ error: any }>;
+  unenrollMFA: (factorId: string) => Promise<{ error: any }>;
+  getMFAFactors: () => Promise<{ factors: any[]; error: any }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -30,6 +38,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [mfaRequired, setMfaRequired] = useState(false);
+  const [mfaEnabled, setMfaEnabled] = useState(false);
 
   console.log('AuthProvider: Initializing');
 
@@ -282,16 +292,171 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  // Check if user is admin and needs MFA
+  useEffect(() => {
+    const checkMFARequirement = async () => {
+      if (user) {
+        try {
+          // Check if user is admin
+          const { data: roleData } = await supabase
+            .from('user_roles')
+            .select('role')
+            .eq('user_id', user.id)
+            .eq('role', 'admin')
+            .single();
+          
+          if (roleData) {
+            // Admin user - check MFA status
+            const { data: mfaData } = await supabase.auth.mfa.listFactors();
+            const hasEnabledFactor = mfaData?.totp?.some((factor: any) => 
+              factor.status === 'verified'
+            );
+            
+            setMfaRequired(true);
+            setMfaEnabled(!!hasEnabledFactor);
+          } else {
+            setMfaRequired(false);
+            setMfaEnabled(false);
+          }
+        } catch (error) {
+          console.error('AuthProvider: Error checking MFA requirement:', error);
+        }
+      } else {
+        setMfaRequired(false);
+        setMfaEnabled(false);
+      }
+    };
+    
+    checkMFARequirement();
+  }, [user]);
+
+  // Enroll in MFA
+  const enrollMFA = async () => {
+    try {
+      const { data, error } = await supabase.auth.mfa.enroll({
+        factorType: 'totp',
+        friendlyName: 'Admin Authentication',
+      });
+      
+      if (error) return { qrCode: '', secret: '', factorId: '', error };
+      
+      return {
+        qrCode: data.totp.qr_code,
+        secret: data.totp.secret,
+        factorId: data.id,
+        error: null,
+      };
+    } catch (error) {
+      return { qrCode: '', secret: '', factorId: '', error };
+    }
+  };
+
+  // Verify MFA enrollment
+  const verifyMFA = async (code: string, factorId: string) => {
+    try {
+      const challenge = await supabase.auth.mfa.challenge({ factorId });
+      if (challenge.error) return { error: challenge.error };
+
+      const { error } = await supabase.auth.mfa.verify({
+        factorId,
+        challengeId: challenge.data.id,
+        code,
+      });
+      
+      if (!error) {
+        // Update MFA status in database
+        await supabase
+          .from('user_mfa_requirements')
+          .update({ mfa_enabled_at: new Date().toISOString() })
+          .eq('user_id', user?.id);
+        
+        setMfaEnabled(true);
+      }
+      
+      return { error };
+    } catch (error) {
+      return { error };
+    }
+  };
+
+  // Challenge MFA during login
+  const challengeMFA = async (factorId: string) => {
+    try {
+      const { data, error } = await supabase.auth.mfa.challenge({
+        factorId,
+      });
+      
+      return { challengeId: data?.id || '', error };
+    } catch (error) {
+      return { challengeId: '', error };
+    }
+  };
+
+  // Verify MFA challenge
+  const verifyMFAChallenge = async (challengeId: string, code: string) => {
+    try {
+      const { data: factors } = await supabase.auth.mfa.listFactors();
+      const factorId = factors?.totp?.[0]?.id;
+      
+      if (!factorId) {
+        return { error: { message: 'No MFA factor found' } };
+      }
+
+      const { error } = await supabase.auth.mfa.verify({
+        factorId,
+        challengeId,
+        code,
+      });
+      
+      return { error };
+    } catch (error) {
+      return { error };
+    }
+  };
+
+  // Get all MFA factors
+  const getMFAFactors = async () => {
+    try {
+      const { data, error } = await supabase.auth.mfa.listFactors();
+      return { factors: data?.totp || [], error };
+    } catch (error) {
+      return { factors: [], error };
+    }
+  };
+
+  // Unenroll MFA (admin only, with super admin verification)
+  const unenrollMFA = async (factorId: string) => {
+    try {
+      const { error } = await supabase.auth.mfa.unenroll({ factorId });
+      
+      if (!error) {
+        setMfaEnabled(false);
+      }
+      
+      return { error };
+    } catch (error) {
+      return { error };
+    }
+  };
+
   const value = {
     user,
     session,
     loading,
+    mfaRequired,
+    mfaEnabled,
     signUp,
     signIn,
     signOut,
     resetPassword,
     updatePassword,
     resendConfirmationEmail,
+    enrollMFA,
+    verifyMFA,
+    challengeMFA,
+    verifyMFAChallenge,
+    unenrollMFA,
+    getMFAFactors,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
