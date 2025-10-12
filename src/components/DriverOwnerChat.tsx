@@ -180,21 +180,59 @@ export const DriverOwnerChat = ({ bookingId, isOpen, onClose }: DriverOwnerChatP
   };
 
   const validateMessage = (message: string): { isValid: boolean; warning?: string } => {
-    // Very strict phone number patterns - only catch actual phone numbers
-    // Requires either international format (+xxx) or 9+ consecutive digits
-    // This allows registration numbers like "j104344" or "ABC-123"
-    const phoneRegex = /(?:\+\d{1,4}[\s-]?\(?\d{2,4}\)?[\s-]?\d{3,4}[\s-]?\d{3,4}|\b\d{9,}\b)/g;
-    const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
-    const whatsappRegex = /(whatsapp|whatapp|watsapp|wa\.me)/gi;
-    const externalPlatforms = /(telegram|signal|viber|facebook|instagram|snapchat|tiktok)/gi;
-
-    if (phoneRegex.test(message)) {
-      return { isValid: false, warning: "Phone numbers are not allowed. Use platform chat only." };
+    const lowerMessage = message.toLowerCase();
+    
+    // Contact-related keywords (English and Arabic)
+    const contactKeywords = [
+      'call', 'phone', 'whatsapp', 'wa', 'contact', 'number', 'tel', 'mob', 'mobile',
+      'اتصل', 'رقم', 'واتساب', 'هاتف', 'موبايل', 'جوال'
+    ];
+    
+    const hasContactKeyword = contactKeywords.some(keyword => 
+      lowerMessage.includes(keyword)
+    );
+    
+    // Only enforce strict checks if message contains contact-related keywords
+    if (hasContactKeyword) {
+      // Remove all spaces, hyphens, and dots for number detection
+      const cleanedMessage = message.replace(/[\s\-\.]/g, '');
+      
+      // UAE phone number patterns (after cleaning)
+      const uaePatterns = [
+        /050\d+/,           // 050...
+        /^50\d+/,           // 50... at start
+        /\+971\d+/,         // +971...
+        /00971\d+/,         // 00971...
+        /971\d{9}/,         // 971xxxxxxxxx (9 digits after 971)
+      ];
+      
+      // Check for UAE number patterns
+      for (const pattern of uaePatterns) {
+        if (pattern.test(cleanedMessage)) {
+          return { isValid: false, warning: "Phone numbers are not allowed. Use platform chat only." };
+        }
+      }
+      
+      // Count total digits in the message
+      const digitCount = (cleanedMessage.match(/\d/g) || []).length;
+      if (digitCount > 7) {
+        return { isValid: false, warning: "Sharing contact numbers is not allowed. Use platform chat only." };
+      }
     }
     
-    if (emailRegex.test(message)) {
+    // Email detection (always check)
+    const emailKeywords = ['gmail', 'outlook', 'hotmail', 'live.com', 'yahoo', 'icloud', 'proton'];
+    const hasEmailKeyword = emailKeywords.some(keyword => lowerMessage.includes(keyword));
+    const hasAtSymbol = message.includes('@');
+    const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
+    
+    if (hasAtSymbol || hasEmailKeyword || emailRegex.test(message)) {
       return { isValid: false, warning: "Email addresses are not allowed. Use platform chat only." };
     }
+    
+    // WhatsApp and external platform references (always check)
+    const whatsappRegex = /(whatsapp|whatapp|watsapp|wa\.me)/gi;
+    const externalPlatforms = /(telegram|signal|viber|facebook|instagram|snapchat|tiktok)/gi;
     
     if (whatsappRegex.test(message)) {
       return { isValid: false, warning: "WhatsApp references are not allowed. Use platform chat only." };
