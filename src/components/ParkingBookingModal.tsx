@@ -406,12 +406,44 @@ export const ParkingBookingModal = ({
           {/* Left Column - Parking Details */}
           <div className="space-y-4">
             <div className="relative">
-              {parkingSpot.images && parkingSpot.images.length > 0 ? <div className="space-y-2">
-                  <img src={parkingSpot.images[0]} alt={parkingSpot.name} className="w-full h-48 object-cover rounded-lg" />
-                  {parkingSpot.images.length > 1 && <div className="grid grid-cols-2 gap-2">
-                      {parkingSpot.images.slice(1).map((image, index) => <img key={index + 1} src={image} alt={`${parkingSpot.name} - Image ${index + 2}`} className="w-full h-24 object-cover rounded-lg" />)}
-                    </div>}
-                </div> : <img src={parkingSpot.image} alt={parkingSpot.name} className="w-full h-48 object-cover rounded-lg" />}
+              {parkingSpot.images && parkingSpot.images.length > 0 ? (
+                <div className="space-y-2">
+                  <div className="relative w-full aspect-[4/3] overflow-hidden rounded-lg bg-muted">
+                    <img
+                      src={parkingSpot.images[0]}
+                      alt={parkingSpot.name}
+                      className="absolute inset-0 w-full h-full object-cover blur-md scale-110 opacity-60"
+                      aria-hidden="true"
+                    />
+                    <img src={parkingSpot.images[0]} alt={parkingSpot.name} className="relative z-10 w-full h-full object-contain" />
+                  </div>
+                  {parkingSpot.images.length > 1 && (
+                    <div className="grid grid-cols-2 gap-2">
+                      {parkingSpot.images.slice(1).map((image, index) => (
+                        <div key={index + 1} className="relative w-full aspect-[4/3] overflow-hidden rounded-md bg-muted">
+                          <img
+                            src={image}
+                            alt={`${parkingSpot.name} - Image ${index + 2}`}
+                            className="absolute inset-0 w-full h-full object-cover blur-md scale-110 opacity-60"
+                            aria-hidden="true"
+                          />
+                          <img src={image} alt={`${parkingSpot.name} - Image ${index + 2}`} className="relative z-10 w-full h-full object-contain" />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="relative w-full aspect-[4/3] overflow-hidden rounded-lg bg-muted">
+                  <img
+                    src={parkingSpot.image}
+                    alt={parkingSpot.name}
+                    className="absolute inset-0 w-full h-full object-cover blur-md scale-110 opacity-60"
+                    aria-hidden="true"
+                  />
+                  <img src={parkingSpot.image} alt={parkingSpot.name} className="relative z-10 w-full h-full object-contain" />
+                </div>
+              )}
             </div>
             
             <div>
