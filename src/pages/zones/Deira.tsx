@@ -121,16 +121,24 @@ const Deira = () => {
             {filteredSpots.map(spot => (
               <Card key={spot.id} className="overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
                 <div className="relative w-full aspect-[4/3] overflow-hidden group bg-muted">
+                  <img
+                    src={(spot.images && spot.images.length > 0 ? spot.images[currentImageIndexes[spot.id] || 0] : spot.image)}
+                    alt=""
+                    aria-hidden="true"
+                    className="absolute inset-0 w-full h-full object-cover blur-md scale-110 opacity-60 pointer-events-none z-0"
+                  />
                   {spot.images && spot.images.length > 0 ? (
                     <>
-                      <LazyImage 
-                        src={spot.images[currentImageIndexes[spot.id] || 0]} 
-                        alt={`${spot.name} - Image ${(currentImageIndexes[spot.id] || 0) + 1}`} 
-                        className="w-full h-full object-contain cursor-pointer" 
-                        loading="lazy"
-                        fetchPriority="low"
-                        onClick={() => handleImageClick(spot, currentImageIndexes[spot.id] || 0)}
-                      />
+                      <div className="relative z-10 h-full w-full flex items-center justify-center">
+                        <LazyImage 
+                          src={spot.images[currentImageIndexes[spot.id] || 0]} 
+                          alt={`${spot.name} - Image ${(currentImageIndexes[spot.id] || 0) + 1}`} 
+                          className="w-full h-full object-contain cursor-pointer" 
+                          loading="lazy"
+                          fetchPriority="low"
+                          onClick={() => handleImageClick(spot, currentImageIndexes[spot.id] || 0)}
+                        />
+                      </div>
                       {spot.images.length > 1 && (
                         <>
                           {/* Navigation buttons */}

@@ -108,6 +108,12 @@ const PalmJumeirah = () => {
               <Card key={spot.id} className="overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
                 {/* Image carousel */}
                 <div className="relative w-full aspect-[4/3] overflow-hidden group bg-muted">
+                  <img
+                    src={(spot.images && spot.images.length > 0 ? spot.images[currentImageIndexes[spot.id] || 0] : spot.image)}
+                    alt=""
+                    aria-hidden="true"
+                    className="absolute inset-0 w-full h-full object-cover blur-md scale-110 opacity-60 pointer-events-none z-0"
+                  />
                   {spot.images && spot.images.length > 0 ? (
                     <>
                       <LazyImage 
@@ -171,13 +177,15 @@ const PalmJumeirah = () => {
                     </>
                   ) : (
                     <>
-                      <LazyImage 
-                        src={spot.image} 
-                        alt={spot.name} 
-                        className="w-full h-full object-contain cursor-pointer" 
-                        loading="lazy"
-                        fetchPriority="low"
-                      />
+                      <div className="relative z-10 h-full w-full flex items-center justify-center">
+                        <LazyImage 
+                          src={spot.image} 
+                          alt={spot.name} 
+                          className="w-full h-full object-contain cursor-pointer" 
+                          loading="lazy"
+                          fetchPriority="low"
+                        />
+                      </div>
                       <div 
                         className="absolute inset-0 cursor-pointer"
                         onClick={() => handleImageClick(spot, 0)}
