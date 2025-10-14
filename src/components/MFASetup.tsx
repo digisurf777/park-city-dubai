@@ -38,9 +38,22 @@ export const MFASetup = () => {
         await new Promise((r) => setTimeout(r, 800));
       }
 
-      // 2) Enroll a fresh TOTP factor
-      const { qrCode, secret, factorId, error } = await enrollMFA();
-      if (error) throw error;
+      // 2) Enroll a fresh TOTP factor with fallback on name conflict
+      const enrollWithFallback = async () => {
+        const first = await enrollMFA();
+        const msg = String(first.error?.message || first.error || '');
+        if (first.error && (msg.includes('already exists') || msg.includes('mfa_factor_name_conflict'))) {
+          // Retry with a unique friendly name to bypass conflict
+          const altName = `Admin Authentication ${Date.now()}`;
+          const retry = await enrollMFA(altName);
+          if (retry.error) throw retry.error;
+          return retry;
+        }
+        if (first.error) throw first.error;
+        return first;
+      };
+
+      const { qrCode, secret, factorId } = await enrollWithFallback();
 
       // 3) Validate QR data to avoid QR render crashes
       if (!isValidQR(qrCode)) {

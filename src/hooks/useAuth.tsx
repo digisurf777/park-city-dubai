@@ -16,7 +16,7 @@ interface AuthContextType {
   resetPassword: (email: string) => Promise<{ error: any }>;
   updatePassword: (password: string) => Promise<{ error: any }>;
   resendConfirmationEmail: (email: string) => Promise<{ error: any }>;
-  enrollMFA: () => Promise<{ qrCode: string; secret: string; factorId: string; error: any }>;
+  enrollMFA: (friendlyName?: string) => Promise<{ qrCode: string; secret: string; factorId: string; error: any }>;
   verifyMFA: (code: string, factorId: string) => Promise<{ error: any }>;
   challengeMFA: (factorId: string) => Promise<{ challengeId: string; error: any }>;
   verifyMFAChallenge: (challengeId: string, code: string) => Promise<{ error: any }>;
@@ -331,11 +331,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, [user]);
 
   // Enroll in MFA
-  const enrollMFA = async () => {
+  const enrollMFA = async (friendlyName: string = 'Admin Authentication') => {
     try {
       const { data, error } = await supabase.auth.mfa.enroll({
         factorType: 'totp',
-        friendlyName: 'Admin Authentication',
+        friendlyName,
       });
       
       if (error) return { qrCode: '', secret: '', factorId: '', error };
