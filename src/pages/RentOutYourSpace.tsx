@@ -198,7 +198,6 @@ const RentOutYourSpace = () => {
         zone: formData.district,
         price_per_hour: Number((monthlyPrice / 720).toFixed(2)),
         price_per_month: monthlyPrice,
-        bay_type: formData.bayType,
         features: [formData.bayType],
         images: imageUrls,
         contact_phone: formData.phone,
