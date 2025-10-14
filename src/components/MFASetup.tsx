@@ -19,55 +19,45 @@ export const MFASetup = () => {
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Check for existing unverified factors on mount
-  useEffect(() => {
-    const checkExistingFactors = async () => {
-      const { factors } = await getMFAFactors();
-      const unverifiedFactors = factors.filter((f: any) => f.status !== 'verified');
-      
-      // Clean up any unverified factors
-      for (const factor of unverifiedFactors) {
-        await unenrollMFA(factor.id);
-      }
-    };
-    
-    if (!mfaEnabled) {
-      checkExistingFactors();
-    }
-  }, [mfaEnabled]);
+  // Cleanup now happens inside handleEnroll to avoid race conditions
+
+  const isValidQR = (data: string) => data && data.startsWith('otpauth://') && data.length <= 1024;
 
   const handleEnroll = async () => {
+    if (loading) return;
     setLoading(true);
-    
-    // First, check and clean up any existing unverified factors
+
     try {
+      // 1) Clean up any existing factors to prevent duplicates
       const { factors } = await getMFAFactors();
-      const existingFactors = factors.filter((f: any) => 
-        f.friendly_name === 'Admin Authentication' || f.status !== 'verified'
-      );
-      
-      // Unenroll existing unverified or conflicting factors
-      for (const factor of existingFactors) {
-        await unenrollMFA(factor.id);
+      if (Array.isArray(factors) && factors.length) {
+        for (const factor of factors) {
+          try { await unenrollMFA(factor.id); } catch (e) { console.warn('Unenroll failed', e); }
+        }
+        // Give Supabase a brief moment to finalize deletions
+        await new Promise((r) => setTimeout(r, 800));
       }
-    } catch (error) {
-      console.error('Error cleaning up existing factors:', error);
-    }
-    
-    // Now enroll a new factor
-    const { qrCode, secret, factorId, error } = await enrollMFA();
-    
-    if (error) {
-      toast.error('Failed to setup 2FA: ' + error.message);
+
+      // 2) Enroll a fresh TOTP factor
+      const { qrCode, secret, factorId, error } = await enrollMFA();
+      if (error) throw error;
+
+      // 3) Validate QR data to avoid QR render crashes
+      if (!isValidQR(qrCode)) {
+        console.warn('Received invalid QR data, falling back to manual entry.');
+      }
+
+      setQrCode(qrCode);
+      setSecret(secret);
+      setFactorId(factorId);
+      setStep('verify');
+      toast.success('2FA setup ready. Scan the QR or enter the code manually.');
+    } catch (err: any) {
+      console.error('MFA enrollment error:', err);
+      toast.error(err?.message || 'Failed to setup 2FA. Please try again.');
+    } finally {
       setLoading(false);
-      return;
     }
-    
-    setQrCode(qrCode);
-    setSecret(secret);
-    setFactorId(factorId);
-    setStep('verify');
-    setLoading(false);
   };
 
   const handleVerify = async () => {
@@ -136,9 +126,22 @@ export const MFASetup = () => {
         {step === 'verify' && (
           <div className="space-y-4">
             <div className="flex flex-col items-center gap-4">
-              <div className="bg-white p-4 rounded-lg">
-                <QRCodeSVG value={qrCode} size={200} />
-              </div>
+              {qrCode && qrCode.startsWith('otpauth://') && qrCode.length <= 1024 ? (
+                <div className="bg-card p-4 rounded-lg border">
+                  <QRCodeSVG value={qrCode} size={200} />
+                </div>
+              ) : (
+                <div className="w-full text-center">
+                  <p className="text-sm text-muted-foreground mb-2">
+                    QR unavailable. Use the manual code or open the setup link below:
+                  </p>
+                  {qrCode?.startsWith('otpauth://') && (
+                    <a href={qrCode} className="underline" target="_blank" rel="noreferrer">
+                      Open authenticator setup link
+                    </a>
+                  )}
+                </div>
+              )}
               
               <div className="text-center">
                 <p className="text-sm text-muted-foreground mb-2">
@@ -152,6 +155,7 @@ export const MFASetup = () => {
                     variant="ghost"
                     size="sm"
                     onClick={copySecret}
+                    disabled={!secret}
                   >
                     {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                   </Button>
