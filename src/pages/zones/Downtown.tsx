@@ -145,10 +145,12 @@ const Downtown = () => {
                           {(currentImageIndexes[spot.id] || 0) + 1} / {spot.images.length}
                         </div>
                       </>}
-                  </> : <img 
+                  </> : <LazyImage 
                     src={spot.image} 
                     alt={spot.name} 
-                    className="w-full h-full object-cover cursor-pointer" 
+                    className="w-full h-full object-contain cursor-pointer" 
+                    loading="lazy"
+                    fetchPriority="low"
                     onClick={() => handleImageClick(spot, 0)}
                   />}
               </div>
