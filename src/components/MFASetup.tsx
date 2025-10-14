@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -10,7 +10,7 @@ import { Shield, Copy, Check } from 'lucide-react';
 import { toast } from 'sonner';
 
 export const MFASetup = () => {
-  const { enrollMFA, verifyMFA, mfaEnabled } = useAuth();
+  const { enrollMFA, verifyMFA, mfaEnabled, getMFAFactors, unenrollMFA } = useAuth();
   const [step, setStep] = useState<'enroll' | 'verify'>('enroll');
   const [qrCode, setQrCode] = useState('');
   const [secret, setSecret] = useState('');
@@ -19,8 +19,42 @@ export const MFASetup = () => {
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  // Check for existing unverified factors on mount
+  useEffect(() => {
+    const checkExistingFactors = async () => {
+      const { factors } = await getMFAFactors();
+      const unverifiedFactors = factors.filter((f: any) => f.status !== 'verified');
+      
+      // Clean up any unverified factors
+      for (const factor of unverifiedFactors) {
+        await unenrollMFA(factor.id);
+      }
+    };
+    
+    if (!mfaEnabled) {
+      checkExistingFactors();
+    }
+  }, [mfaEnabled]);
+
   const handleEnroll = async () => {
     setLoading(true);
+    
+    // First, check and clean up any existing unverified factors
+    try {
+      const { factors } = await getMFAFactors();
+      const existingFactors = factors.filter((f: any) => 
+        f.friendly_name === 'Admin Authentication' || f.status !== 'verified'
+      );
+      
+      // Unenroll existing unverified or conflicting factors
+      for (const factor of existingFactors) {
+        await unenrollMFA(factor.id);
+      }
+    } catch (error) {
+      console.error('Error cleaning up existing factors:', error);
+    }
+    
+    // Now enroll a new factor
     const { qrCode, secret, factorId, error } = await enrollMFA();
     
     if (error) {
