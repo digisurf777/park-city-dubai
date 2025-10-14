@@ -79,11 +79,28 @@ export const MFASetup = () => {
     setLoading(false);
   };
 
-  const copySecret = () => {
-    navigator.clipboard.writeText(secret);
-    setCopied(true);
-    toast.success('Secret copied to clipboard');
-    setTimeout(() => setCopied(false), 2000);
+  const copySecret = async () => {
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(secret);
+      } else {
+        // Fallback for older browsers or non-HTTPS contexts
+        const textArea = document.createElement('textarea');
+        textArea.value = secret;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+      }
+      setCopied(true);
+      toast.success('Secret copied to clipboard');
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Copy failed:', err);
+      toast.error('Failed to copy. Please manually select and copy the code.');
+    }
   };
 
   if (mfaEnabled) {
@@ -148,16 +165,28 @@ export const MFASetup = () => {
                   Can't scan? Enter this code manually:
                 </p>
                 <div className="flex items-center gap-2 justify-center">
-                  <code className="bg-muted px-3 py-1 rounded text-sm font-mono">
+                  <code className="bg-muted px-3 py-1 rounded text-sm font-mono select-all">
                     {secret}
                   </code>
                   <Button
-                    variant="ghost"
+                    type="button"
+                    variant="outline"
                     size="sm"
                     onClick={copySecret}
                     disabled={!secret}
+                    className="shrink-0"
                   >
-                    {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                    {copied ? (
+                      <>
+                        <Check className="h-4 w-4 mr-1" />
+                        Copied
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="h-4 w-4 mr-1" />
+                        Copy
+                      </>
+                    )}
                   </Button>
                 </div>
               </div>
