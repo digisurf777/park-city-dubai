@@ -8,6 +8,7 @@ import Footer from "@/components/Footer";
 import { ParkingBookingModal } from "@/components/ParkingBookingModal";
 import ImageZoomModal from "@/components/ImageZoomModal";
 import { useParkingAvailability } from "@/hooks/useParkingAvailability";
+import { formatDescription } from "@/utils/formatDescription";
 
 
 const PalmJumeirah = () => {
@@ -174,9 +175,13 @@ const PalmJumeirah = () => {
 
                 <div className="p-4 sm:p-6">
                   <h3 className="text-lg sm:text-xl font-bold text-foreground mb-2">{spot.name}</h3>
-                  <p className="text-sm text-muted-foreground mb-4 leading-relaxed line-clamp-3">
-                    {spot.description || "Secure underground parking space. 24/7 access, covered area."}
-                  </p>
+                  <div className="mb-4">
+                    {formatDescription(spot.description) || (
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        Secure underground parking space. 24/7 access, covered area.
+                      </p>
+                    )}
+                  </div>
 
                   <div className="mb-4">
                     <span className="text-xl sm:text-2xl font-bold text-primary">From AED {spot.price}/month</span>

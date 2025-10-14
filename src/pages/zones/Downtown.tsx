@@ -14,6 +14,7 @@ import ImageZoomModal from "@/components/ImageZoomModal";
 import { useParkingAvailability } from "@/hooks/useParkingAvailability";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import downtownHero from "/lovable-uploads/f676da2a-39c9-4211-8561-5b884e0ceed8.png";
+import { formatDescription } from "@/utils/formatDescription";
 
 const Downtown = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -154,10 +155,14 @@ const Downtown = () => {
                 {/* Title */}
                 <h3 className="text-lg sm:text-xl font-bold text-foreground mb-2">{spot.name}</h3>
                 
-                {/* Short description */}
-                <p className="text-sm text-muted-foreground mb-4 leading-relaxed line-clamp-3">
-                  {spot.description || "Secure underground parking space. 24/7 access, covered area."}
-                </p>
+                {/* Description */}
+                <div className="mb-4">
+                  {formatDescription(spot.description) || (
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      Secure underground parking space. 24/7 access, covered area.
+                    </p>
+                  )}
+                </div>
 
                 {/* Price prominently displayed */}
                 <div className="mb-4">

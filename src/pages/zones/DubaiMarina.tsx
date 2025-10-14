@@ -13,6 +13,7 @@ import { ParkingBookingModal } from "@/components/ParkingBookingModal";
 import ImageZoomModal from "@/components/ImageZoomModal";
 import { useParkingAvailability } from "@/hooks/useParkingAvailability";
 import dubaiMarinaHero from "@/assets/zones/dubai-marina-real.jpg";
+import { formatDescription } from "@/utils/formatDescription";
 
 const DubaiMarina = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -153,10 +154,14 @@ const DubaiMarina = () => {
                 {/* Title */}
                 <h3 className="text-lg sm:text-xl font-bold text-foreground mb-2">{spot.name}</h3>
                 
-                {/* Short description */}
-                <p className="text-sm text-muted-foreground mb-4 leading-relaxed line-clamp-3">
-                  {spot.description || "Secure underground parking space. 24/7 access, covered area."}
-                </p>
+                {/* Description */}
+                <div className="mb-4">
+                  {formatDescription(spot.description) || (
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      Secure underground parking space. 24/7 access, covered area.
+                    </p>
+                  )}
+                </div>
 
                 {/* Price prominently displayed */}
                 <div className="mb-4">

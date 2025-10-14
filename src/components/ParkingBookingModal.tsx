@@ -15,6 +15,8 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { loadStripe } from "@stripe/stripe-js";
 import { Link } from "react-router-dom";
+import { formatDescription } from "@/utils/formatDescription";
+
 interface ParkingSpot {
   id: string | number;
   name: string;
@@ -418,7 +420,11 @@ export const ParkingBookingModal = ({
                   <MapPin className="h-4 w-4" />
                   <span className="text-sm">{parkingSpot.address}</span>
                 </div>}
-              {parkingSpot.description && <p className="text-sm text-muted-foreground mb-4">{parkingSpot.description}</p>}
+              {parkingSpot.description && (
+                <div className="mb-4">
+                  {formatDescription(parkingSpot.description)}
+                </div>
+              )}
               
 
             </div>
