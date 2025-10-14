@@ -16,6 +16,7 @@ import { useParkingAvailability } from "@/hooks/useParkingAvailability";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import businessBayHero from "@/assets/zones/business-bay-real.jpg";
 import { formatDescription } from "@/utils/formatDescription";
+import LazyImage from "@/components/LazyImage";
 
 
 const BusinessBay = () => {
@@ -110,13 +111,15 @@ const BusinessBay = () => {
             {filteredSpots.map(spot => (
               <Card key={spot.id} className="overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
                 {/* Image carousel */}
-                <div className="relative w-full h-48 sm:h-56 md:h-64 overflow-hidden group">
+                <div className="relative w-full aspect-[4/3] overflow-hidden group bg-muted">
                   {spot.images && spot.images.length > 0 ? (
                     <>
-                      <img 
+                      <LazyImage 
                         src={spot.images[currentImageIndexes[spot.id] || 0]} 
                         alt={`${spot.name} - Image ${(currentImageIndexes[spot.id] || 0) + 1}`} 
-                        className="w-full h-full object-cover cursor-pointer" 
+                        className="w-full h-full object-contain cursor-pointer" 
+                        loading="lazy"
+                        fetchPriority="low"
                         onClick={() => handleImageClick(spot, currentImageIndexes[spot.id] || 0)}
                       />
                       {spot.images.length > 1 && (
@@ -168,10 +171,12 @@ const BusinessBay = () => {
                       )}
                     </>
                   ) : (
-                    <img 
+                    <LazyImage 
                       src={spot.image} 
                       alt={spot.name} 
-                      className="w-full h-full object-cover cursor-pointer" 
+                      className="w-full h-full object-contain cursor-pointer" 
+                      loading="lazy"
+                      fetchPriority="low"
                       onClick={() => handleImageClick(spot, 0)}
                     />
                   )}

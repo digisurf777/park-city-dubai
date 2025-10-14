@@ -15,6 +15,7 @@ import { useParkingAvailability } from "@/hooks/useParkingAvailability";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import downtownHero from "/lovable-uploads/f676da2a-39c9-4211-8561-5b884e0ceed8.png";
 import { formatDescription } from "@/utils/formatDescription";
+import LazyImage from "@/components/LazyImage";
 
 const Downtown = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -103,14 +104,16 @@ const Downtown = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {filteredSpots.map(spot => <Card key={spot.id} className="overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
               {/* Image carousel */}
-              <div className="relative w-full h-48 sm:h-56 md:h-64 overflow-hidden group">
+              <div className="relative w-full aspect-[4/3] overflow-hidden group bg-muted">
                 {spot.images && spot.images.length > 0 ? <>
-                    <img 
-                      src={spot.images[currentImageIndexes[spot.id] || 0]} 
-                      alt={`${spot.name} - Image ${(currentImageIndexes[spot.id] || 0) + 1}`} 
-                      className="w-full h-full object-cover cursor-pointer" 
-                      onClick={() => handleImageClick(spot, currentImageIndexes[spot.id] || 0)}
-                    />
+                <LazyImage 
+                  src={spot.images[currentImageIndexes[spot.id] || 0]} 
+                  alt={`${spot.name} - Image ${(currentImageIndexes[spot.id] || 0) + 1}`} 
+                  className="w-full h-full object-contain cursor-pointer" 
+                  loading="lazy"
+                  fetchPriority="low"
+                  onClick={() => handleImageClick(spot, currentImageIndexes[spot.id] || 0)}
+                />
                     {spot.images.length > 1 && <>
                         {/* Navigation buttons */}
                         <button onClick={e => {

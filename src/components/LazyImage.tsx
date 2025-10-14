@@ -8,6 +8,7 @@ interface LazyImageProps {
   height?: number;
   loading?: 'lazy' | 'eager';
   fetchPriority?: 'high' | 'low' | 'auto';
+  onClick?: () => void;
 }
 
 const LazyImage = ({ 
@@ -17,7 +18,8 @@ const LazyImage = ({
   width, 
   height, 
   loading = 'lazy',
-  fetchPriority = 'auto'
+  fetchPriority = 'auto',
+  onClick
 }: LazyImageProps) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
@@ -59,6 +61,7 @@ const LazyImage = ({
         {...(fetchPriority !== 'auto' && { fetchpriority: fetchPriority })}
         onLoad={handleLoad}
         onError={handleError}
+        onClick={onClick}
         decoding="async"
         style={{ contentVisibility: 'auto' }}
       />
