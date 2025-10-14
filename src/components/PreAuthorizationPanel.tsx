@@ -439,7 +439,7 @@ export const PreAuthorizationPanel = () => {
                   </div>
                 </div>
 
-                {auth.days_until_expiry <= 1 && (
+                {auth.days_until_expiry <= 1 && auth.payment_status !== 'confirmed' && auth.payment_status !== 'paid' && (
                   <Alert className="border-red-200 bg-red-50 animate-pulse">
                     <AlertTriangle className="w-4 h-4 text-red-600" />
                     <AlertDescription className="text-red-700 font-medium">
