@@ -106,8 +106,8 @@ const App = () => {
                 <Route path="/contact-admin" element={<ProtectedRoute><ContactAdmin /></ProtectedRoute>} />
                 <Route path="/feedback" element={<ProtectedRoute><Feedback /></ProtectedRoute>} />
                 <Route path="/insert-blog-posts" element={<InsertBlogPosts />} />
-                 <Route path="/admin" element={<ProtectedRoute><MFARequiredGuard><AdminPanel /></MFARequiredGuard></ProtectedRoute>} />
-                 <Route path="/admin-setup" element={<MFARequiredGuard><AdminSetup /></MFARequiredGuard>} />
+                 <Route path="/admin" element={<ProtectedRoute><AdminPanel /></ProtectedRoute>} />
+                 <Route path="/admin-setup" element={<ProtectedRoute><AdminSetup /></ProtectedRoute>} />
             {/* Zone Pages */}
             <Route path="/zones/dubai-marina" element={<DubaiMarina />} />
             <Route path="/zones/downtown" element={<Downtown />} />
