@@ -113,7 +113,7 @@ const PalmJumeirah = () => {
                       <LazyImage 
                         src={spot.images[currentImageIndexes[spot.id] || 0]} 
                         alt={`${spot.name} - Image ${(currentImageIndexes[spot.id] || 0) + 1}`} 
-                        className="w-full h-full object-cover cursor-pointer transition-transform duration-300 group-hover:scale-105" 
+                        className="w-full h-full object-contain cursor-pointer transition-transform duration-300 group-hover:scale-105" 
                         loading="lazy"
                         fetchPriority="low"
                       />
@@ -174,7 +174,7 @@ const PalmJumeirah = () => {
                       <LazyImage 
                         src={spot.image} 
                         alt={spot.name} 
-                        className="w-full h-full object-cover cursor-pointer transition-transform duration-300 group-hover:scale-105" 
+                        className="w-full h-full object-contain cursor-pointer transition-transform duration-300 group-hover:scale-105" 
                         loading="lazy"
                         fetchPriority="low"
                       />
