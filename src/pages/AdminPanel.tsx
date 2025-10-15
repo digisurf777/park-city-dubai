@@ -2618,14 +2618,40 @@ const AdminPanelOrganized = () => {
                     {listingImages && listingImages.length > 0 && (
                       <div className="space-y-2">
                         <h4 className="font-medium">Current Images ({listingImages.length})</h4>
+                        <p className="text-sm text-muted-foreground">Drag images to reorder them</p>
                         <div className="grid grid-cols-3 gap-4">
                           {listingImages.map((imageUrl, index) => (
-                            <div key={index} className="relative group">
+                            <div
+                              key={index}
+                              draggable
+                              onDragStart={(e) => {
+                                e.dataTransfer.effectAllowed = 'move';
+                                e.dataTransfer.setData('text/html', index.toString());
+                              }}
+                              onDragOver={(e) => {
+                                e.preventDefault();
+                                e.dataTransfer.dropEffect = 'move';
+                              }}
+                              onDrop={(e) => {
+                                e.preventDefault();
+                                const draggedIndex = parseInt(e.dataTransfer.getData('text/html'));
+                                if (draggedIndex !== index) {
+                                  const newImages = [...listingImages];
+                                  const [draggedItem] = newImages.splice(draggedIndex, 1);
+                                  newImages.splice(index, 0, draggedItem);
+                                  setListingImages(newImages);
+                                }
+                              }}
+                              className="relative group cursor-move"
+                            >
                               <img
                                 src={imageUrl}
                                 alt={`Listing image ${index + 1}`}
-                                className="w-full h-32 object-cover rounded-lg border"
+                                className="w-full h-32 object-cover rounded-lg border pointer-events-none"
                               />
+                              <div className="absolute top-2 left-2 bg-black/70 text-white px-2 py-1 rounded text-xs font-medium">
+                                #{index + 1}
+                              </div>
                               <Button
                                 size="sm"
                                 variant="destructive"
