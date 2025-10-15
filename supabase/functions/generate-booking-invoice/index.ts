@@ -78,9 +78,19 @@ serve(async (req) => {
       month: 'long',
       day: 'numeric'
     });
-    const startDate = new Date(booking.start_time).toLocaleString('en-AE');
-    const endDate = new Date(booking.end_time).toLocaleString('en-AE');
-    const durationMonths = Math.max(1, Math.ceil((new Date(booking.end_time).getTime() - new Date(booking.start_time).getTime()) / (1000 * 60 * 60 * 24 * 30)));
+    const startDate = new Date(booking.start_time).toLocaleDateString('en-AE', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+    const endDate = new Date(booking.end_time).toLocaleDateString('en-AE', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+    
+    // Calculate duration in months from actual booked hours
+    const durationMonths = Math.max(1, Math.round(booking.duration_hours / (24 * 30)));
     const showZone = booking.zone && booking.zone !== 'Find Parking Page';
 
     // Load logo from local file if available
