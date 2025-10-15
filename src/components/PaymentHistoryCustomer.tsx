@@ -81,18 +81,39 @@ export default function PaymentHistoryCustomer() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error('Not authenticated');
 
-      // Use custom domain download endpoint with token query (avoids iOS Safari blob download issues)
-      const downloadUrl = `https://shazamparking.ae/functions/v1/download-invoice?booking_id=${bookingId}&token=${encodeURIComponent(session.access_token)}`;
+      // Get Supabase URL from environment
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const downloadUrl = `${supabaseUrl}/functions/v1/download-invoice?booking_id=${bookingId}`;
       
-      // Trigger download via hidden iframe so server headers set the correct filename (.pdf)
-      const iframe = document.createElement('iframe');
-      iframe.style.display = 'none';
-      iframe.src = downloadUrl;
-      document.body.appendChild(iframe);
-      // Cleanup the iframe after some time
-      setTimeout(() => {
-        try { document.body.removeChild(iframe); } catch {}
-      }, 60000);
+      // Fetch the PDF as blob
+      const response = await fetch(downloadUrl, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || 'Failed to download invoice');
+      }
+
+      // Get the PDF blob
+      const blob = await response.blob();
+      
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `invoice_${bookingId.slice(0, 8)}.pdf`;
+      
+      // Trigger download
+      document.body.appendChild(link);
+      link.click();
+      
+      // Cleanup
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
 
       toast({
         title: "Success",
