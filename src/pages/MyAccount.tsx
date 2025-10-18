@@ -180,18 +180,18 @@ const MyAccount = () => {
     if (!user) return;
 
     try {
-      // Get all bookings where user is driver OR owner
+      // Get all bookings where user is driver
       const { data: userBookings, error: bookingsError } = await supabase
         .from('parking_bookings')
         .select('id, user_id')
-        .or(`user_id.eq.${user.id}`);
+        .eq('user_id', user.id);
 
       if (bookingsError) {
         console.error('Error fetching bookings:', bookingsError);
         return;
       }
 
-      // Also get bookings from owner's listings
+      // Get bookings from owner's listings
       const { data: ownerBookings, error: ownerError } = await supabase
         .rpc('get_owner_active_bookings');
 
@@ -199,42 +199,55 @@ const MyAccount = () => {
         console.error('Error fetching owner bookings:', ownerError);
       }
 
-      const allBookingIds = [
-        ...(userBookings || []).map(b => b.id),
-        ...(ownerBookings || []).map(b => b.id)
-      ];
+      const driverBookingIds = (userBookings || []).map(b => b.id);
+      const ownerBookingIds = (ownerBookings || []).map(b => b.id);
+      const allBookingIds = [...new Set([...driverBookingIds, ...ownerBookingIds])];
+
+      console.log('📊 Unread count check:', { driverBookingIds, ownerBookingIds, allBookingIds });
 
       if (allBookingIds.length === 0) {
+        console.log('No bookings found, setting count to 0');
         setUnreadChatCount(0);
         return;
       }
 
-      // Count unread messages across all bookings
+      // Get all messages for these bookings
       const { data: messages, error: messagesError } = await supabase
         .from('driver_owner_messages')
-        .select('read_status, from_driver, booking_id')
-        .in('booking_id', allBookingIds);
+        .select('id, read_status, from_driver, booking_id')
+        .in('booking_id', allBookingIds)
+        .eq('read_status', false);
 
       if (messagesError) {
         console.error('Error fetching messages:', messagesError);
         return;
       }
 
-      // Count messages that are unread and not sent by current user
+      console.log('📧 All unread messages:', messages);
+
+      // Count unread messages where current user is the recipient
       const unreadCount = (messages || []).filter(msg => {
-        if (msg.read_status) return false;
+        // If user is the driver for this booking
+        const isDriver = driverBookingIds.includes(msg.booking_id);
+        // If user is the owner for this booking
+        const isOwner = ownerBookingIds.includes(msg.booking_id);
         
-        // For driver: count unread owner messages
-        const isDriver = (userBookings || []).some(b => b.id === msg.booking_id && b.user_id === user.id);
-        if (isDriver && !msg.from_driver) return true;
+        // Driver should see unread owner messages (from_driver = false)
+        if (isDriver && !msg.from_driver) {
+          console.log('✅ Unread message for driver:', msg.id);
+          return true;
+        }
         
-        // For owner: count unread driver messages
-        const isOwner = (ownerBookings || []).some(b => b.id === msg.booking_id);
-        if (isOwner && msg.from_driver) return true;
+        // Owner should see unread driver messages (from_driver = true)
+        if (isOwner && msg.from_driver) {
+          console.log('✅ Unread message for owner:', msg.id);
+          return true;
+        }
         
         return false;
       }).length;
 
+      console.log('📊 Final unread count:', unreadCount);
       setUnreadChatCount(unreadCount);
     } catch (error) {
       console.error('Error fetching unread chat count:', error);
@@ -534,12 +547,12 @@ const MyAccount = () => {
               <Button 
                 variant={activeTab === 'chats' ? 'default' : 'outline'} 
                 onClick={() => setActiveTab('chats')} 
-                className={`flex items-center gap-2 h-12 relative ${unreadChatCount > 0 ? 'border-red-500 bg-red-50 text-red-700 hover:bg-red-100 dark:bg-red-950/30 dark:text-red-400 dark:hover:bg-red-950/50' : ''}`}
+                className={`flex items-center gap-2 h-12 relative ${unreadChatCount > 0 ? '!border-2 !border-red-500 !bg-red-50 !text-red-700 hover:!bg-red-100 dark:!bg-red-950/50 dark:!text-red-400 dark:hover:!bg-red-950/70' : ''}`}
               >
-                <MessageCircle className={`h-4 w-4 ${unreadChatCount > 0 ? 'animate-blink-red' : ''}`} />
+                <MessageCircle className="h-4 w-4" />
                 Chats
                 {unreadChatCount > 0 && (
-                  <Badge variant="destructive" className="ml-1 animate-blink-red">
+                  <Badge variant="destructive" className="ml-1">
                     {unreadChatCount}
                   </Badge>
                 )}
@@ -580,12 +593,12 @@ const MyAccount = () => {
             </TabsTrigger>
             <TabsTrigger 
               value="chats" 
-              className={`flex items-center gap-2 py-2 relative ${unreadChatCount > 0 ? 'border-2 border-red-500 bg-red-50 text-red-700 hover:bg-red-100 dark:bg-red-950/30 dark:text-red-400 dark:hover:bg-red-950/50 data-[state=active]:bg-red-100 data-[state=active]:text-red-700' : ''}`}
+              className={`flex items-center gap-2 py-2 relative ${unreadChatCount > 0 ? '!border-2 !border-red-500 !bg-red-50 !text-red-700 hover:!bg-red-100 dark:!bg-red-950/50 dark:!text-red-400 dark:hover:!bg-red-950/70 data-[state=active]:!bg-red-100 data-[state=active]:!text-red-700 dark:data-[state=active]:!bg-red-950/70 dark:data-[state=active]:!text-red-400' : ''}`}
             >
-              <MessageCircle className={`h-4 w-4 ${unreadChatCount > 0 ? 'animate-blink-red' : ''}`} />
+              <MessageCircle className="h-4 w-4" />
               Chats
               {unreadChatCount > 0 && (
-                <Badge variant="destructive" className="ml-2 animate-blink-red">
+                <Badge variant="destructive" className="ml-2">
                   {unreadChatCount}
                 </Badge>
               )}
