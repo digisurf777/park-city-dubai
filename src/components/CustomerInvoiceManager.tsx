@@ -60,14 +60,19 @@ export const CustomerInvoiceManager = () => {
       // Fetch customer names/emails using a secure RPC that falls back to auth.users
       if (data && data.length > 0) {
         const userIds = [...new Set(data.map(b => b.user_id))];
-        const { data: userInfos, error: rpcError } = await supabase
-          .rpc('get_user_basic_info', { user_ids: userIds as any });
+        const {
+          data: userInfos,
+          error: rpcError
+        } = await supabase.rpc('get_user_basic_info', {
+          user_ids: userIds as any
+        });
         if (rpcError) {
           console.error('get_user_basic_info RPC error:', rpcError);
         }
-        const infoMap = new Map(
-          (userInfos || []).map((u: any) => [u.user_id, { full_name: u.full_name, email: u.email }])
-        );
+        const infoMap = new Map((userInfos || []).map((u: any) => [u.user_id, {
+          full_name: u.full_name,
+          email: u.email
+        }]));
         const bookingsWithProfiles = data.map(booking => ({
           ...booking,
           profiles: infoMap.get(booking.user_id) || undefined
@@ -267,10 +272,7 @@ export const CustomerInvoiceManager = () => {
 
                 {booking.invoice_url}
 
-                <Button variant="ghost" size="sm" onClick={() => navigator.clipboard.writeText(booking.id)}>
-                  <FileText className="h-4 w-4 mr-2" />
-                  Copy ID
-                </Button>
+                
               </div>
             </CardContent>
           </Card>)}
