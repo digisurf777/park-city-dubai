@@ -148,3 +148,9 @@ verify_jwt = true
 
 [functions.download-invoice]
 verify_jwt = true
+
+[functions.check-chat-notifications]
+verify_jwt = false
+
+[functions.send-chat-message-notification]
+verify_jwt = false
