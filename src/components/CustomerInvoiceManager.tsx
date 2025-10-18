@@ -220,9 +220,9 @@ export const CustomerInvoiceManager = () => {
                     {booking.profiles?.email}
                   </p>
                 </div>
-                <Badge variant={booking.invoice_url ? 'default' : 'secondary'}>
-                  {booking.invoice_url ? 'Invoice Available' : 'No Invoice'}
-                </Badge>
+                {booking.invoice_url && (
+                  <Badge variant="default">Invoice Available</Badge>
+                )}
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -267,7 +267,7 @@ export const CustomerInvoiceManager = () => {
               input.click();
             }} disabled={uploadingId === booking.id}>
                   <Upload className="h-4 w-4 mr-2" />
-                  {uploadingId === booking.id ? 'Uploading...' : booking.invoice_url ? 'Replace Invoice' : 'Upload Invoice'}
+                  {uploadingId === booking.id ? 'Uploading...' : 'Upload Invoice'}
                 </Button>
 
                 {booking.invoice_url}
