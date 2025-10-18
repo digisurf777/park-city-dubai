@@ -1880,6 +1880,10 @@ export type Database = {
           signed_url: string
         }[]
       }
+      get_unread_chat_count: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
       get_user_basic_info: {
         Args: { user_ids: string[] }
         Returns: {

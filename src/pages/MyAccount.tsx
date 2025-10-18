@@ -178,79 +178,20 @@ const MyAccount = () => {
 
   const fetchUnreadChatCount = async () => {
     if (!user) return;
-
+    
     try {
-      // Get all bookings where user is driver
-      const { data: userBookings, error: bookingsError } = await supabase
-        .from('parking_bookings')
-        .select('id, user_id')
-        .eq('user_id', user.id);
-
-      if (bookingsError) {
-        console.error('Error fetching bookings:', bookingsError);
-        return;
-      }
-
-      // Get bookings from owner's listings
-      const { data: ownerBookings, error: ownerError } = await supabase
-        .rpc('get_owner_active_bookings');
-
-      if (ownerError) {
-        console.error('Error fetching owner bookings:', ownerError);
-      }
-
-      const driverBookingIds = (userBookings || []).map(b => b.id);
-      const ownerBookingIds = (ownerBookings || []).map(b => b.id);
-      const allBookingIds = [...new Set([...driverBookingIds, ...ownerBookingIds])];
-
-      console.log('📊 Unread count check:', { driverBookingIds, ownerBookingIds, allBookingIds });
-
-      if (allBookingIds.length === 0) {
-        console.log('No bookings found, setting count to 0');
-        setUnreadChatCount(0);
-        return;
-      }
-
-      // Get all messages for these bookings
-      const { data: messages, error: messagesError } = await supabase
-        .from('driver_owner_messages')
-        .select('id, read_status, from_driver, booking_id')
-        .in('booking_id', allBookingIds)
-        .eq('read_status', false);
-
-      if (messagesError) {
-        console.error('Error fetching messages:', messagesError);
-        return;
-      }
-
-      console.log('📧 All unread messages:', messages);
-
-      // Count unread messages where current user is the recipient
-      const unreadCount = (messages || []).filter(msg => {
-        // If user is the driver for this booking
-        const isDriver = driverBookingIds.includes(msg.booking_id);
-        // If user is the owner for this booking
-        const isOwner = ownerBookingIds.includes(msg.booking_id);
-        
-        // Driver should see unread owner messages (from_driver = false)
-        if (isDriver && !msg.from_driver) {
-          console.log('✅ Unread message for driver:', msg.id);
-          return true;
-        }
-        
-        // Owner should see unread driver messages (from_driver = true)
-        if (isOwner && msg.from_driver) {
-          console.log('✅ Unread message for owner:', msg.id);
-          return true;
-        }
-        
-        return false;
-      }).length;
-
-      console.log('📊 Final unread count:', unreadCount);
-      setUnreadChatCount(unreadCount);
+      console.log('📊 Fetching unread chat count for user:', user.id);
+      
+      const { data, error } = await supabase.rpc('get_unread_chat_count');
+      
+      if (error) throw error;
+      
+      const count = data || 0;
+      console.log('📊 Unread chat count:', count);
+      setUnreadChatCount(count);
     } catch (error) {
       console.error('Error fetching unread chat count:', error);
+      setUnreadChatCount(0);
     }
   };
 
