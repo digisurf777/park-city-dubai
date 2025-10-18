@@ -60,10 +60,12 @@ const handler = async (req: Request): Promise<Response> => {
     // Process each chat that needs notification
     for (const chat of chatsNeedingNotification as NotificationData[]) {
       console.log(`📧 Processing notification for booking ${chat.booking_id}`);
+      console.log(`   First unread at: ${chat.first_unread_message_at}`);
+      console.log(`   Recipient is ${chat.recipient_is_driver ? 'driver' : 'owner'}`);
       
       // Determine recipient based on who sent the last message
-      const recipientEmail = chat.recipient_is_driver ? chat.owner_email : chat.driver_email;
-      const recipientRole = chat.recipient_is_driver ? "Owner" : "Driver";
+      const recipientEmail = chat.recipient_is_driver ? chat.driver_email : chat.owner_email;
+      const recipientRole = chat.recipient_is_driver ? "Driver" : "Owner";
 
       if (!recipientEmail) {
         console.error(`❌ No email found for ${recipientRole} in booking ${chat.booking_id}`);

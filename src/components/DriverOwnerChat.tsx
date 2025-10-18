@@ -129,27 +129,16 @@ export const DriverOwnerChat = ({ bookingId, isOpen, onClose }: DriverOwnerChatP
     if (!user || !bookingId) return;
 
     try {
-      // Mark messages as read
-      const { error } = await supabase.rpc('mark_booking_messages_read', {
+      // Mark messages as read - the RPC will handle notification state updates
+      const { data: updatedCount, error } = await supabase.rpc('mark_booking_messages_read', {
         p_booking_id: bookingId
       });
 
       if (error) throw error;
 
-      // Cancel notification timer and update last_read_at
-      const { error: notificationError } = await supabase
-        .from('chat_notification_state')
-        .update({
-          last_read_at: new Date().toISOString(),
-          notification_timer_active: false,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('booking_id', bookingId);
-
-      if (notificationError) {
-        console.error('Error updating notification state:', notificationError);
-      } else {
-        console.log('✅ Notification timer cancelled for booking', bookingId);
+      // Log only if messages were actually marked as read
+      if (updatedCount && updatedCount > 0) {
+        console.log(`✅ Marked ${updatedCount} messages as read and cancelled notification timer for booking ${bookingId}`);
       }
     } catch (error) {
       console.error('Error marking messages as read:', error);
