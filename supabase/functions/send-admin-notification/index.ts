@@ -10,7 +10,7 @@ const corsHeaders = {
 };
 
 interface AdminNotificationRequest {
-  type: 'parking_listing' | 'id_verification';
+  type: 'parking_listing' | 'id_verification' | 'verification_status_update';
   userEmail: string;
   userName: string;
   details: {
@@ -99,6 +99,40 @@ const handler = async (req: Request): Promise<Response> => {
                style="background-color: #28a745; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">
               Go to Admin Panel
             </a>
+          </div>
+          
+          <hr style="margin: 30px 0;" />
+          <p style="color: #666; font-size: 12px; text-align: center;">
+            This is an automated email from the ShazamParking admin notification system.
+          </p>
+        </div>
+      `;
+    } else if (type === 'verification_status_update') {
+      const statusColor = details.verificationStatus === 'approved' ? '#28a745' : '#dc3545';
+      const statusText = details.verificationStatus === 'approved' ? 'Approved' : 'Rejected';
+      subject = `✅ ID Verification ${statusText} - ${userName}`;
+      htmlContent = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h1 style="color: #333; border-bottom: 2px solid ${statusColor}; padding-bottom: 10px;">
+            ID Verification ${statusText}
+          </h1>
+          
+          <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h2 style="color: ${statusColor}; margin-top: 0;">Status Update:</h2>
+            <p><strong>User Name:</strong> ${userName}</p>
+            <p><strong>Email:</strong> ${userEmail}</p>
+            <p><strong>Status:</strong> <span style="color: ${statusColor}; font-weight: bold;">${statusText}</span></p>
+            <p><strong>Document Type:</strong> ${details.documentType}</p>
+            ${details.nationality ? `<p><strong>Nationality:</strong> ${details.nationality}</p>` : ''}
+            <p><strong>Submitted At:</strong> ${new Date(details.submittedAt).toLocaleString()}</p>
+          </div>
+
+          <div style="background: ${details.verificationStatus === 'approved' ? '#d4edda' : '#f8d7da'}; padding: 15px; border-radius: 8px; margin: 20px 0;">
+            <p style="margin: 0; color: ${details.verificationStatus === 'approved' ? '#155724' : '#721c24'};">
+              ${details.verificationStatus === 'approved' 
+                ? '✓ User has been notified via email and can now list and book parking spaces.'
+                : '✗ User has been notified to resubmit their verification documents.'}
+            </p>
           </div>
           
           <hr style="margin: 30px 0;" />
