@@ -1655,6 +1655,7 @@ export type Database = {
           duration_hours: number
           end_time: string
           id: string
+          invoice_url: string
           location: string
           payment_status: string
           payment_type: string

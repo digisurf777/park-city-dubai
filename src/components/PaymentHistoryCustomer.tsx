@@ -38,10 +38,11 @@ export default function PaymentHistoryCustomer() {
 
       if (error) throw error;
       
-      // Filter to only show completed/confirmed bookings with payment
-      const filteredData = (data || []).filter((booking: BookingPayment) => 
-        ["confirmed", "completed"].includes(booking.status) &&
-        ["pre_authorized", "confirmed", "paid", "completed"].includes(booking.payment_status || "")
+      // Show paid/confirmed bookings, or any booking that already has an invoice (admin-uploaded)
+      const filteredData = (data || []).filter((booking: BookingPayment) =>
+        (["confirmed", "completed"].includes(booking.status) &&
+         ["pre_authorized", "confirmed", "paid", "completed"].includes(booking.payment_status || "")) ||
+        !!booking.invoice_url
       );
       
       setPayments(filteredData);
@@ -64,25 +65,26 @@ export default function PaymentHistoryCustomer() {
     return `${months} month${months > 1 ? 's' : ''}`;
   };
 
-  const handleDownloadInvoice = async (bookingId: string) => {
-    setDownloadingId(bookingId);
+  const handleDownloadInvoice = async (payment: BookingPayment) => {
+    setDownloadingId(payment.id);
     try {
-      // First, ensure invoice exists
-      const { data: generateData, error: generateError } = await supabase.functions.invoke(
-        "generate-booking-invoice",
-        {
-          body: { booking_id: bookingId },
-        }
-      );
-
-      if (generateError) throw generateError;
+      // Only generate if no invoice exists yet (preserve admin-uploaded invoices)
+      if (!payment.invoice_url) {
+        const { data: generateData, error: generateError } = await supabase.functions.invoke(
+          "generate-booking-invoice",
+          {
+            body: { booking_id: payment.id },
+          }
+        );
+        if (generateError) throw generateError;
+      }
 
       // Get auth token for the download request
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error('Not authenticated');
 
       // Use direct Supabase URL
-      const downloadUrl = `https://eoknluyunximjlsnyceb.supabase.co/functions/v1/download-invoice?booking_id=${bookingId}`;
+      const downloadUrl = `https://eoknluyunximjlsnyceb.supabase.co/functions/v1/download-invoice?booking_id=${payment.id}`;
       
       // Fetch the PDF as blob
       const response = await fetch(downloadUrl, {
@@ -104,7 +106,7 @@ export default function PaymentHistoryCustomer() {
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `invoice_${bookingId.slice(0, 8)}.pdf`;
+      link.download = `invoice_${payment.id.slice(0, 8)}.pdf`;
       
       // Trigger download
       document.body.appendChild(link);
@@ -206,7 +208,7 @@ export default function PaymentHistoryCustomer() {
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => handleDownloadInvoice(payment.id)}
+                  onClick={() => handleDownloadInvoice(payment)}
                   disabled={downloadingId === payment.id}
                 >
                   {downloadingId === payment.id ? (
