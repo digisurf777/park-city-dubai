@@ -7,7 +7,6 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { Upload, Download, Search, FileText, User, Calendar, DollarSign } from 'lucide-react';
 import { format } from 'date-fns';
-
 interface CustomerBooking {
   id: string;
   user_id: string;
@@ -24,25 +23,25 @@ interface CustomerBooking {
     email: string;
   };
 }
-
 export const CustomerInvoiceManager = () => {
   const [bookings, setBookings] = useState<CustomerBooking[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [uploadingId, setUploadingId] = useState<string | null>(null);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
-  const { toast } = useToast();
-
+  const {
+    toast
+  } = useToast();
   useEffect(() => {
     fetchBookings();
   }, []);
-
   const fetchBookings = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('parking_bookings')
-        .select(`
+      const {
+        data,
+        error
+      } = await supabase.from('parking_bookings').select(`
           id,
           user_id,
           location,
@@ -53,25 +52,21 @@ export const CustomerInvoiceManager = () => {
           status,
           invoice_url,
           created_at
-        `)
-        .in('status', ['confirmed', 'completed', 'approved'])
-        .order('created_at', { ascending: false });
-
+        `).in('status', ['confirmed', 'completed', 'approved']).order('created_at', {
+        ascending: false
+      });
       if (error) throw error;
 
       // Fetch profiles separately for each booking
       if (data && data.length > 0) {
         const userIds = [...new Set(data.map(b => b.user_id))];
-        const { data: profiles } = await supabase
-          .from('profiles')
-          .select('user_id, full_name, email')
-          .in('user_id', userIds);
-
+        const {
+          data: profiles
+        } = await supabase.from('profiles').select('user_id, full_name, email').in('user_id', userIds);
         const bookingsWithProfiles = data.map(booking => ({
           ...booking,
           profiles: profiles?.find(p => p.user_id === booking.user_id) || undefined
         }));
-
         setBookings(bookingsWithProfiles as CustomerBooking[]);
       } else {
         setBookings([]);
@@ -81,32 +76,29 @@ export const CustomerInvoiceManager = () => {
       toast({
         title: "Error",
         description: "Failed to fetch customer bookings",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setLoading(false);
     }
   };
-
   const handleFileUpload = async (bookingId: string, customerUserId: string, file: File) => {
     if (!file.type.includes('pdf')) {
       toast({
         title: "Invalid File",
         description: "Please upload a PDF file",
-        variant: "destructive",
+        variant: "destructive"
       });
       return;
     }
-
     if (file.size > 5 * 1024 * 1024) {
       toast({
         title: "File Too Large",
         description: "Please upload a file smaller than 5MB",
-        variant: "destructive",
+        variant: "destructive"
       });
       return;
     }
-
     setUploadingId(bookingId);
     try {
       // Convert file to base64
@@ -114,8 +106,7 @@ export const CustomerInvoiceManager = () => {
       const base64Promise = new Promise<string>((resolve, reject) => {
         reader.onload = () => {
           const base64 = reader.result?.toString().split(',')[1];
-          if (base64) resolve(base64);
-          else reject(new Error('Failed to read file'));
+          if (base64) resolve(base64);else reject(new Error('Failed to read file'));
         };
         reader.onerror = reject;
       });
@@ -123,7 +114,10 @@ export const CustomerInvoiceManager = () => {
       const fileData = await base64Promise;
 
       // Upload via edge function
-      const { data, error } = await supabase.functions.invoke('admin-upload-customer-invoice', {
+      const {
+        data,
+        error
+      } = await supabase.functions.invoke('admin-upload-customer-invoice', {
         body: {
           bookingId,
           customerUserId,
@@ -131,12 +125,10 @@ export const CustomerInvoiceManager = () => {
           fileData
         }
       });
-
       if (error) throw error;
-
       toast({
         title: "Success",
-        description: "Invoice uploaded successfully",
+        description: "Invoice uploaded successfully"
       });
 
       // Refresh bookings
@@ -146,30 +138,25 @@ export const CustomerInvoiceManager = () => {
       toast({
         title: "Error",
         description: error.message || "Failed to upload invoice",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setUploadingId(null);
     }
   };
-
   const handleDownloadInvoice = async (bookingId: string) => {
     setDownloadingId(bookingId);
     try {
-      const { data: session } = await supabase.auth.getSession();
+      const {
+        data: session
+      } = await supabase.auth.getSession();
       if (!session.session) throw new Error('Not authenticated');
-
-      const response = await fetch(
-        `https://eoknluyunximjlsnyceb.supabase.co/functions/v1/download-invoice?booking_id=${bookingId}`,
-        {
-          headers: {
-            'Authorization': `Bearer ${session.session.access_token}`
-          }
+      const response = await fetch(`https://eoknluyunximjlsnyceb.supabase.co/functions/v1/download-invoice?booking_id=${bookingId}`, {
+        headers: {
+          'Authorization': `Bearer ${session.session.access_token}`
         }
-      );
-
+      });
       if (!response.ok) throw new Error('Failed to download invoice');
-
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -179,55 +166,39 @@ export const CustomerInvoiceManager = () => {
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
-
       toast({
         title: "Success",
-        description: "Invoice downloaded successfully",
+        description: "Invoice downloaded successfully"
       });
     } catch (error: any) {
       console.error('Error downloading invoice:', error);
       toast({
         title: "Error",
         description: error.message || "Failed to download invoice",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setDownloadingId(null);
     }
   };
-
   const filteredBookings = bookings.filter(booking => {
     const searchLower = searchTerm.toLowerCase();
-    return (
-      booking.profiles?.full_name?.toLowerCase().includes(searchLower) ||
-      booking.profiles?.email?.toLowerCase().includes(searchLower) ||
-      booking.location.toLowerCase().includes(searchLower) ||
-      booking.id.toLowerCase().includes(searchLower)
-    );
+    return booking.profiles?.full_name?.toLowerCase().includes(searchLower) || booking.profiles?.email?.toLowerCase().includes(searchLower) || booking.location.toLowerCase().includes(searchLower) || booking.id.toLowerCase().includes(searchLower);
   });
-
   if (loading) {
     return <div className="flex justify-center p-8">Loading...</div>;
   }
-
-  return (
-    <div className="space-y-6">
+  return <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">Customer Invoices</h2>
         <div className="relative w-64">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search by customer, email, location..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-          />
+          <Input placeholder="Search by customer, email, location..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-10" />
         </div>
       </div>
 
       <div className="grid gap-4">
-        {filteredBookings.map((booking) => (
-          <Card key={booking.id}>
+        {filteredBookings.map(booking => <Card key={booking.id}>
             <CardHeader>
               <div className="flex items-start justify-between">
                 <div className="space-y-1">
@@ -275,61 +246,38 @@ export const CustomerInvoiceManager = () => {
               </div>
 
               <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    const input = document.createElement('input');
-                    input.type = 'file';
-                    input.accept = 'application/pdf';
-                    input.onchange = (e) => {
-                      const file = (e.target as HTMLInputElement).files?.[0];
-                      if (file) handleFileUpload(booking.id, booking.user_id, file);
-                    };
-                    input.click();
-                  }}
-                  disabled={uploadingId === booking.id}
-                >
+                <Button variant="outline" size="sm" onClick={() => {
+              const input = document.createElement('input');
+              input.type = 'file';
+              input.accept = 'application/pdf';
+              input.onchange = e => {
+                const file = (e.target as HTMLInputElement).files?.[0];
+                if (file) handleFileUpload(booking.id, booking.user_id, file);
+              };
+              input.click();
+            }} disabled={uploadingId === booking.id}>
                   <Upload className="h-4 w-4 mr-2" />
                   {uploadingId === booking.id ? 'Uploading...' : booking.invoice_url ? 'Replace Invoice' : 'Upload Invoice'}
                 </Button>
 
-                {booking.invoice_url && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleDownloadInvoice(booking.id)}
-                    disabled={downloadingId === booking.id}
-                  >
-                    <Download className="h-4 w-4 mr-2" />
-                    {downloadingId === booking.id ? 'Downloading...' : 'Download'}
-                  </Button>
-                )}
+                {booking.invoice_url}
 
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => navigator.clipboard.writeText(booking.id)}
-                >
+                <Button variant="ghost" size="sm" onClick={() => navigator.clipboard.writeText(booking.id)}>
                   <FileText className="h-4 w-4 mr-2" />
                   Copy ID
                 </Button>
               </div>
             </CardContent>
-          </Card>
-        ))}
+          </Card>)}
 
-        {filteredBookings.length === 0 && (
-          <Card>
+        {filteredBookings.length === 0 && <Card>
             <CardContent className="py-12 text-center">
               <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
               <p className="text-muted-foreground">
                 {searchTerm ? 'No bookings found matching your search' : 'No customer bookings available'}
               </p>
             </CardContent>
-          </Card>
-        )}
+          </Card>}
       </div>
-    </div>
-  );
+    </div>;
 };
