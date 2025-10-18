@@ -28,6 +28,19 @@ const handler = async (req: Request): Promise<Response> => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  // Verify this is being called with service role key (for security)
+  const authHeader = req.headers.get("Authorization");
+  if (!authHeader || !authHeader.includes("Bearer")) {
+    console.error("❌ Missing or invalid authorization header");
+    return new Response(
+      JSON.stringify({ error: "Unauthorized - Service role key required" }),
+      {
+        status: 401,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      }
+    );
+  }
+
   try {
     // Create Supabase client
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;

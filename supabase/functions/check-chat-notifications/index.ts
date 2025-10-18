@@ -21,16 +21,16 @@ const handler = async (req: Request): Promise<Response> => {
 
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
-    // Call the send-chat-message-notification function
+    // Call the send-chat-message-notification function with service role key
     const response = await fetch(
       `${supabaseUrl}/functions/v1/send-chat-message-notification`,
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${supabaseAnonKey}`,
+          "Authorization": `Bearer ${supabaseServiceKey}`,
         },
       }
     );
