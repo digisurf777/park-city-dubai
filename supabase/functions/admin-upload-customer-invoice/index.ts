@@ -69,8 +69,9 @@ serve(async (req) => {
     }
 
     // Upload to storage with timestamp to avoid conflicts
+    // Use customerUserId as folder name to match RLS policy
     const timestamp = Date.now();
-    const filePath = `${bookingId}/admin_invoice_${timestamp}.pdf`;
+    const filePath = `${customerUserId}/booking_${bookingId}_${timestamp}.pdf`;
     
     const { data: uploadData, error: uploadError } = await supabaseClient.storage
       .from("booking-invoices")
