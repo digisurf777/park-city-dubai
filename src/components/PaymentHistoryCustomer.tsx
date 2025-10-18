@@ -201,6 +201,11 @@ export default function PaymentHistoryCustomer() {
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                     Paid
                   </span>
+                  {payment.invoice_url?.includes('/booking_') && (
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      Custom Invoice
+                    </span>
+                  )}
                   <span className="text-xs text-muted-foreground">
                     ID: {payment.id.slice(0, 8)}
                   </span>

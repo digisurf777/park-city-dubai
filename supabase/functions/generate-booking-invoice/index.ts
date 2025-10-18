@@ -52,14 +52,31 @@ serve(async (req) => {
       .eq('user_id', user.id)
       .single();
 
-    // Check if a final PDF invoice already exists; if it's an older HTML invoice, regenerate as PDF
+    // CRITICAL: Check if invoice already exists - NEVER overwrite admin-uploaded invoices
     if (booking.invoice_url && String(booking.invoice_url).toLowerCase().endsWith('.pdf')) {
+      // Admin-uploaded invoices have pattern: {userId}/booking_{bookingId}_{timestamp}.pdf
+      // Auto-generated invoices have pattern: {userId}/{bookingId}_invoice.pdf
+      const isAdminUploaded = booking.invoice_url.includes('/booking_');
+      
+      if (isAdminUploaded) {
+        console.log('Admin-uploaded invoice exists - will not regenerate:', booking.invoice_url);
+        return new Response(
+          JSON.stringify({ 
+            success: true, 
+            invoice_url: booking.invoice_url,
+            message: 'Admin-uploaded invoice exists - preserved'
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      // For auto-generated invoices, check if file still exists
       const { data: existingFile } = await supabase.storage
         .from('booking-invoices')
         .list('', { search: booking.invoice_url });
 
       if (existingFile && existingFile.length > 0) {
-        console.log('Invoice PDF already exists:', booking.invoice_url);
+        console.log('Auto-generated invoice already exists:', booking.invoice_url);
         return new Response(
           JSON.stringify({ 
             success: true, 
