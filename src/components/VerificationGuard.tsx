@@ -26,7 +26,7 @@ export const VerificationGuard = ({ children, feature }: VerificationGuardProps)
                 onClick={() => navigate('/my-account')}
                 variant="outline"
                 size="sm"
-                className="border-amber-300 text-amber-700 hover:bg-amber-100"
+                className="bg-white text-black border-2 border-gray-300 hover:bg-gray-50 font-semibold"
               >
                 <Shield className="h-4 w-4 mr-2" />
                 Complete Verification
