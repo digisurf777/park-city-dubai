@@ -57,15 +57,20 @@ export const CustomerInvoiceManager = () => {
       });
       if (error) throw error;
 
-      // Fetch profiles separately for each booking
+      // Fetch customer names/emails using a secure RPC that falls back to auth.users
       if (data && data.length > 0) {
         const userIds = [...new Set(data.map(b => b.user_id))];
-        const {
-          data: profiles
-        } = await supabase.from('profiles').select('user_id, full_name, email').in('user_id', userIds);
+        const { data: userInfos, error: rpcError } = await supabase
+          .rpc('get_user_basic_info', { user_ids: userIds as any });
+        if (rpcError) {
+          console.error('get_user_basic_info RPC error:', rpcError);
+        }
+        const infoMap = new Map(
+          (userInfos || []).map((u: any) => [u.user_id, { full_name: u.full_name, email: u.email }])
+        );
         const bookingsWithProfiles = data.map(booking => ({
           ...booking,
-          profiles: profiles?.find(p => p.user_id === booking.user_id) || undefined
+          profiles: infoMap.get(booking.user_id) || undefined
         }));
         setBookings(bookingsWithProfiles as CustomerBooking[]);
       } else {
@@ -204,7 +209,7 @@ export const CustomerInvoiceManager = () => {
                 <div className="space-y-1">
                   <CardTitle className="text-lg flex items-center gap-2">
                     <User className="h-4 w-4" />
-                    {booking.profiles?.full_name || 'Unknown Customer'}
+                    {booking.profiles?.full_name || booking.profiles?.email || 'Unknown Customer'}
                   </CardTitle>
                   <p className="text-sm text-muted-foreground">
                     {booking.profiles?.email}
