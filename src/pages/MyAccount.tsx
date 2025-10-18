@@ -531,7 +531,11 @@ const MyAccount = () => {
               </Button>
             </div>
             <div className="grid grid-cols-3 gap-2">
-              <Button variant={activeTab === 'chats' ? 'default' : 'outline'} onClick={() => setActiveTab('chats')} className="flex items-center gap-2 h-12 relative">
+              <Button 
+                variant={activeTab === 'chats' ? 'default' : 'outline'} 
+                onClick={() => setActiveTab('chats')} 
+                className={`flex items-center gap-2 h-12 relative ${unreadChatCount > 0 ? 'border-red-500 bg-red-50 text-red-700 hover:bg-red-100 dark:bg-red-950/30 dark:text-red-400 dark:hover:bg-red-950/50' : ''}`}
+              >
                 <MessageCircle className={`h-4 w-4 ${unreadChatCount > 0 ? 'animate-blink-red' : ''}`} />
                 Chats
                 {unreadChatCount > 0 && (
@@ -574,7 +578,10 @@ const MyAccount = () => {
               <Home className="h-4 w-4" />
               My Listings
             </TabsTrigger>
-            <TabsTrigger value="chats" className="flex items-center gap-2 py-2 relative">
+            <TabsTrigger 
+              value="chats" 
+              className={`flex items-center gap-2 py-2 relative ${unreadChatCount > 0 ? 'border-2 border-red-500 bg-red-50 text-red-700 hover:bg-red-100 dark:bg-red-950/30 dark:text-red-400 dark:hover:bg-red-950/50 data-[state=active]:bg-red-100 data-[state=active]:text-red-700' : ''}`}
+            >
               <MessageCircle className={`h-4 w-4 ${unreadChatCount > 0 ? 'animate-blink-red' : ''}`} />
               Chats
               {unreadChatCount > 0 && (
