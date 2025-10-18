@@ -81,9 +81,8 @@ export default function PaymentHistoryCustomer() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error('Not authenticated');
 
-      // Get Supabase URL from environment
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      const downloadUrl = `${supabaseUrl}/functions/v1/download-invoice?booking_id=${bookingId}`;
+      // Use direct Supabase URL
+      const downloadUrl = `https://eoknluyunximjlsnyceb.supabase.co/functions/v1/download-invoice?booking_id=${bookingId}`;
       
       // Fetch the PDF as blob
       const response = await fetch(downloadUrl, {
