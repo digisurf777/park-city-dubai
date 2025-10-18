@@ -6,7 +6,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Upload, CheckCircle, Wallet, Quote, X, Shield } from "lucide-react";
+import { Upload, CheckCircle, Wallet, Quote, X, Shield, AlertTriangle } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ParkingCalculator from "@/components/ParkingCalculator";
@@ -16,6 +16,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
+import { useVerificationStatus } from "@/hooks/useVerificationStatus";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import luxuryCar from "@/assets/luxury-car-dubai.png";
 import phoneLogo from "@/assets/phone-logo.png";
 const RentOutYourSpace = () => {
@@ -29,6 +31,7 @@ const RentOutYourSpace = () => {
     toast
   } = useToast();
   const navigate = useNavigate();
+  const { status: verificationStatus, loading: verificationLoading } = useVerificationStatus();
   const [monthlyPrice, setMonthlyPrice] = useState<number>(300);
   const [uploadedImages, setUploadedImages] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -109,6 +112,45 @@ const RentOutYourSpace = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log('Form submission started');
+
+    // Check verification status first
+    if (!verificationStatus || verificationStatus === 'pending') {
+      toast({
+        title: "Verification Required",
+        description: verificationStatus === 'pending' 
+          ? "Your verification is under review. You'll be able to list your space once approved."
+          : "Please complete ID verification before listing your property.",
+        variant: "destructive",
+        action: (
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => navigate('/my-account?tab=verification')}
+          >
+            Verify Now
+          </Button>
+        ),
+      });
+      return;
+    }
+
+    if (verificationStatus === 'rejected') {
+      toast({
+        title: "Verification Rejected",
+        description: "Your verification was rejected. Please resubmit your documents.",
+        variant: "destructive",
+        action: (
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => navigate('/my-account?tab=verification')}
+          >
+            Resubmit
+          </Button>
+        ),
+      });
+      return;
+    }
 
     // Validate required fields
     if (!formData.fullName.trim()) {
@@ -378,6 +420,42 @@ const RentOutYourSpace = () => {
           </div>
 
           <Card className="bg-white shadow-2xl p-8">
+              {!verificationLoading && (!verificationStatus || verificationStatus === 'pending' || verificationStatus === 'rejected') && (
+                <Alert className="mb-6 border-amber-200 bg-amber-50">
+                  <AlertTriangle className="h-4 w-4 text-amber-500" />
+                  <AlertDescription className="text-amber-700">
+                    {!verificationStatus && (
+                      <>
+                        <strong>Verification Required:</strong> You must complete ID verification before listing your property.{' '}
+                        <Button 
+                          variant="link" 
+                          className="p-0 h-auto text-amber-700 underline"
+                          onClick={() => navigate('/my-account?tab=verification')}
+                        >
+                          Verify Now
+                        </Button>
+                      </>
+                    )}
+                    {verificationStatus === 'pending' && (
+                      <>
+                        <strong>Under Review:</strong> Your verification is being reviewed. You'll be able to list once approved.
+                      </>
+                    )}
+                    {verificationStatus === 'rejected' && (
+                      <>
+                        <strong>Verification Rejected:</strong> Please resubmit your documents.{' '}
+                        <Button 
+                          variant="link" 
+                          className="p-0 h-auto text-amber-700 underline"
+                          onClick={() => navigate('/my-account?tab=verification')}
+                        >
+                          Resubmit Now
+                        </Button>
+                      </>
+                    )}
+                  </AlertDescription>
+                </Alert>
+              )}
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>

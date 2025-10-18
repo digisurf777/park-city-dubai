@@ -5,7 +5,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { CalendarIcon, Car, Clock, CreditCard, MapPin, Check, Loader2 } from "lucide-react";
+import { CalendarIcon, Car, Clock, CreditCard, MapPin, Check, Loader2, AlertTriangle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -14,8 +14,10 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { loadStripe } from "@stripe/stripe-js";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { formatDescription } from "@/utils/formatDescription";
+import { useVerificationStatus } from "@/hooks/useVerificationStatus";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface ParkingSpot {
   id: string | number;
@@ -60,6 +62,8 @@ export const ParkingBookingModal = ({
 }: ParkingBookingModalProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const { status: verificationStatus, loading: verificationLoading } = useVerificationStatus();
 
   // Initialize Stripe
   useEffect(() => {
@@ -219,6 +223,51 @@ export const ParkingBookingModal = ({
             </div>
           </div>,
         variant: "destructive"
+      });
+      return;
+    }
+
+    // Check verification status
+    if (!verificationStatus || verificationStatus === 'pending') {
+      toast({
+        title: "Verification Required",
+        description: verificationStatus === 'pending' 
+          ? "Your verification is under review. You'll be able to book once approved."
+          : "Please complete ID verification before booking parking spaces.",
+        variant: "destructive",
+        action: (
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => {
+              onClose();
+              navigate('/my-account?tab=verification');
+            }}
+          >
+            Verify Now
+          </Button>
+        ),
+      });
+      return;
+    }
+
+    if (verificationStatus === 'rejected') {
+      toast({
+        title: "Verification Rejected",
+        description: "Your verification was rejected. Please resubmit your documents.",
+        variant: "destructive",
+        action: (
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => {
+              onClose();
+              navigate('/my-account?tab=verification');
+            }}
+          >
+            Resubmit
+          </Button>
+        ),
       });
       return;
     }
@@ -400,6 +449,49 @@ export const ParkingBookingModal = ({
       <DialogContent className="max-w-4xl max-h-[95vh] overflow-y-auto mx-4 sm:mx-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold">Reserve Parking Space</DialogTitle>
+          
+          {!verificationLoading && (!verificationStatus || verificationStatus === 'pending' || verificationStatus === 'rejected') && (
+            <Alert className="mt-4 border-amber-200 bg-amber-50">
+              <AlertTriangle className="h-4 w-4 text-amber-500" />
+              <AlertDescription className="text-amber-700">
+                {!verificationStatus && (
+                  <>
+                    <strong>Verification Required:</strong> You must complete ID verification before booking.{' '}
+                    <Button 
+                      variant="link" 
+                      className="p-0 h-auto text-amber-700 underline"
+                      onClick={() => {
+                        onClose();
+                        navigate('/my-account?tab=verification');
+                      }}
+                    >
+                      Verify Now
+                    </Button>
+                  </>
+                )}
+                {verificationStatus === 'pending' && (
+                  <>
+                    <strong>Under Review:</strong> Your verification is being reviewed. You'll be able to book once approved.
+                  </>
+                )}
+                {verificationStatus === 'rejected' && (
+                  <>
+                    <strong>Verification Rejected:</strong> Please resubmit your documents.{' '}
+                    <Button 
+                      variant="link" 
+                      className="p-0 h-auto text-amber-700 underline"
+                      onClick={() => {
+                        onClose();
+                        navigate('/my-account?tab=verification');
+                      }}
+                    >
+                      Resubmit Now
+                    </Button>
+                  </>
+                )}
+              </AlertDescription>
+            </Alert>
+          )}
         </DialogHeader>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
