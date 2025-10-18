@@ -112,6 +112,50 @@ export type Database = {
         }
         Relationships: []
       }
+      chat_notification_state: {
+        Row: {
+          booking_id: string
+          created_at: string
+          first_unread_message_at: string | null
+          id: string
+          last_notification_sent_at: string | null
+          last_read_at: string | null
+          notification_cooldown_until: string | null
+          notification_timer_active: boolean | null
+          updated_at: string
+        }
+        Insert: {
+          booking_id: string
+          created_at?: string
+          first_unread_message_at?: string | null
+          id?: string
+          last_notification_sent_at?: string | null
+          last_read_at?: string | null
+          notification_cooldown_until?: string | null
+          notification_timer_active?: boolean | null
+          updated_at?: string
+        }
+        Update: {
+          booking_id?: string
+          created_at?: string
+          first_unread_message_at?: string | null
+          id?: string
+          last_notification_sent_at?: string | null
+          last_read_at?: string | null
+          notification_cooldown_until?: string | null
+          notification_timer_active?: boolean | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_notification_state_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: true
+            referencedRelation: "parking_bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       deposit_payments: {
         Row: {
           amount_aed: number
@@ -1554,6 +1598,18 @@ export type Database = {
           display_name: string
           unread_count: number
           user_id: string
+        }[]
+      }
+      get_chats_needing_notification: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          booking_id: string
+          driver_email: string
+          driver_id: string
+          first_unread_message_at: string
+          owner_email: string
+          owner_id: string
+          recipient_is_driver: boolean
         }[]
       }
       get_email_confirmation_expiry: {

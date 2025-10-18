@@ -129,11 +129,28 @@ export const DriverOwnerChat = ({ bookingId, isOpen, onClose }: DriverOwnerChatP
     if (!user || !bookingId) return;
 
     try {
+      // Mark messages as read
       const { error } = await supabase.rpc('mark_booking_messages_read', {
         p_booking_id: bookingId
       });
 
       if (error) throw error;
+
+      // Cancel notification timer and update last_read_at
+      const { error: notificationError } = await supabase
+        .from('chat_notification_state')
+        .update({
+          last_read_at: new Date().toISOString(),
+          notification_timer_active: false,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('booking_id', bookingId);
+
+      if (notificationError) {
+        console.error('Error updating notification state:', notificationError);
+      } else {
+        console.log('✅ Notification timer cancelled for booking', bookingId);
+      }
     } catch (error) {
       console.error('Error marking messages as read:', error);
     }
