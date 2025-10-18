@@ -28,7 +28,7 @@ export const VerificationGuard = ({ children, feature }: VerificationGuardProps)
                 size="sm"
                 className="bg-white text-black border-2 border-gray-300 hover:bg-gray-50 font-semibold"
               >
-                <Shield className="h-4 w-4 mr-2" />
+                <Shield className="h-4 w-4 mr-2 text-black" />
                 Complete Verification
               </Button>
             </div>
