@@ -30,6 +30,7 @@ import LiveBookingControl from '@/components/LiveBookingControl';
 import { PreAuthorizationPanel } from '@/components/PreAuthorizationPanel';
 import { BookingChatsMonitor } from '@/components/BookingChatsMonitor';
 import { PaymentHistoryAdmin } from '@/components/PaymentHistoryAdmin';
+import { CustomerInvoiceManager } from '@/components/CustomerInvoiceManager';
 
 // Import all interfaces and state from original AdminPanel
 interface NewsPost {
@@ -1484,7 +1485,7 @@ const AdminPanelOrganized = () => {
 
         {/* Main Tabs */}
         <Tabs defaultValue="content" className="w-full">
-          <TabsList className="grid w-full grid-cols-6 gap-2 h-auto p-2 bg-gradient-to-r from-background to-muted/20 rounded-xl border shadow-sm">
+          <TabsList className="grid w-full grid-cols-7 gap-2 h-auto p-2 bg-gradient-to-r from-background to-muted/20 rounded-xl border shadow-sm">
             <TabsTrigger 
               value="content" 
               className="flex flex-col items-center p-3 h-auto text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg"
@@ -1551,6 +1552,15 @@ const AdminPanelOrganized = () => {
               <DollarSign className="h-5 w-5 mb-1" />
               <span className="font-semibold">Payments</span>
               <span className="text-xs opacity-70 mt-1">Owner Payments</span>
+            </TabsTrigger>
+
+            <TabsTrigger 
+              value="customer-invoices" 
+              className="flex flex-col items-center p-3 h-auto text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg"
+            >
+              <FileText className="h-5 w-5 mb-1" />
+              <span className="font-semibold">Invoices</span>
+              <span className="text-xs opacity-70 mt-1">Customer Invoices</span>
             </TabsTrigger>
           </TabsList>
 
@@ -2473,6 +2483,11 @@ const AdminPanelOrganized = () => {
           {/* Payment History Tab */}
           <TabsContent value="payment-history" className="space-y-6 mt-6">
             <PaymentHistoryAdmin />
+          </TabsContent>
+
+          {/* Customer Invoices Tab */}
+          <TabsContent value="customer-invoices" className="space-y-6 mt-6">
+            <CustomerInvoiceManager />
           </TabsContent>
 
           {/* Global Edit Parking Listing Dialog - available across all tabs */}
