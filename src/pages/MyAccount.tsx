@@ -493,9 +493,12 @@ const MyAccount = () => {
                 <MessageCircle className="h-4 w-4" />
                 Chats
                 {unreadChatCount > 0 && (
-                  <Badge variant="destructive" className="ml-1">
-                    {unreadChatCount}
-                  </Badge>
+                  <>
+                    <Badge variant="destructive" className="ml-1 h-5 w-5 p-0 text-xs">!</Badge>
+                    <Badge variant="destructive" className="ml-1">
+                      {unreadChatCount}
+                    </Badge>
+                  </>
                 )}
               </Button>
               <Button variant={activeTab === 'contact' ? 'default' : 'outline'} onClick={() => setActiveTab('contact')} className="flex items-center gap-2 h-12">
@@ -539,9 +542,12 @@ const MyAccount = () => {
               <MessageCircle className="h-4 w-4" />
               Chats
               {unreadChatCount > 0 && (
-                <Badge variant="destructive" className="ml-2">
-                  {unreadChatCount}
-                </Badge>
+                <>
+                  <Badge variant="destructive" className="ml-2 h-5 w-5 p-0 text-xs">!</Badge>
+                  <Badge variant="destructive" className="ml-1">
+                    {unreadChatCount}
+                  </Badge>
+                </>
               )}
             </TabsTrigger>
             <TabsTrigger value="payments" className="flex items-center gap-2 py-2">
