@@ -1674,9 +1674,13 @@ export type Database = {
           booking_location: string
           booking_start_time: string
           booking_zone: string
+          created_at: string
           id: string
           invoice_url: string
+          listing_id: string
           listing_title: string
+          notes: string
+          owner_id: string
           payment_date: string
           payment_method: string
           payment_period_end: string
@@ -1684,6 +1688,7 @@ export type Database = {
           reference_number: string
           remittance_advice_url: string
           status: string
+          updated_at: string
         }[]
       }
       get_my_verification_status: {
