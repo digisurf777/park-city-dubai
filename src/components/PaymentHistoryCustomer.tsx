@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Download, FileText, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { format } from "date-fns";
+import { format, differenceInDays } from "date-fns";
 
 interface BookingPayment {
   id: string;
@@ -59,10 +59,15 @@ export default function PaymentHistoryCustomer() {
   };
 
   const getMonths = (p: BookingPayment) => {
-    const start = new Date(p.start_time).getTime();
-    const end = new Date(p.end_time).getTime();
-    const months = Math.max(1, Math.ceil((end - start) / (1000 * 60 * 60 * 24 * 30)));
-    return `${months} month${months > 1 ? 's' : ''}`;
+    const start = new Date(p.start_time);
+    const end = new Date(p.end_time);
+    const days = differenceInDays(end, start);
+    const months = Math.round(days / 30);
+    
+    if (months >= 1) {
+      return `${months} month${months > 1 ? 's' : ''}`;
+    }
+    return `${days} day${days !== 1 ? 's' : ''}`;
   };
 
   const handleDownloadInvoice = async (payment: BookingPayment) => {
