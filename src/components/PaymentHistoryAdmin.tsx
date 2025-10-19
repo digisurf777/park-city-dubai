@@ -68,7 +68,7 @@ export const PaymentHistoryAdmin = () => {
 
   // Form state
   const [selectedOwnerId, setSelectedOwnerId] = useState('');
-  const [selectedBookingId, setSelectedBookingId] = useState('');
+  const [selectedBookingId, setSelectedBookingId] = useState('none');
   const [amount, setAmount] = useState('');
   const [periodStart, setPeriodStart] = useState('');
   const [periodEnd, setPeriodEnd] = useState('');
@@ -171,7 +171,7 @@ export const PaymentHistoryAdmin = () => {
         .from('owner_payments')
         .insert({
           owner_id: selectedOwnerId,
-          booking_id: selectedBookingId || null,
+          booking_id: selectedBookingId === 'none' ? null : selectedBookingId,
           amount_aed: parseFloat(amount),
           payment_period_start: periodStart,
           payment_period_end: periodEnd,
@@ -339,7 +339,7 @@ export const PaymentHistoryAdmin = () => {
 
   const resetForm = () => {
     setSelectedOwnerId('');
-    setSelectedBookingId('');
+    setSelectedBookingId('none');
     setAmount('');
     setPeriodStart('');
     setPeriodEnd('');
@@ -355,7 +355,7 @@ export const PaymentHistoryAdmin = () => {
       fetchOwnerBookings(selectedOwnerId);
     } else {
       setOwnerBookings([]);
-      setSelectedBookingId('');
+      setSelectedBookingId('none');
     }
   }, [selectedOwnerId, createDialogOpen]);
 
@@ -590,7 +590,7 @@ export const PaymentHistoryAdmin = () => {
                   } />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">No booking (manual payment)</SelectItem>
+                  <SelectItem value="none">No booking (manual payment)</SelectItem>
                   {ownerBookings.map((booking) => (
                     <SelectItem key={booking.booking_id} value={booking.booking_id}>
                       {booking.listing_title || booking.location} - {format(new Date(booking.start_time), 'PP')} to {format(new Date(booking.end_time), 'PP')} (AED {booking.cost_aed})
@@ -598,7 +598,7 @@ export const PaymentHistoryAdmin = () => {
                   ))}
                 </SelectContent>
               </Select>
-              {selectedBookingId && ownerBookings.length > 0 && (
+              {selectedBookingId !== 'none' && ownerBookings.length > 0 && (
                 <p className="text-xs text-muted-foreground mt-1">
                   Invoice will include booking details for this rental
                 </p>
