@@ -202,7 +202,7 @@ export const PaymentHistoryOwner = () => {
                   variant="outline"
                   onClick={() => handleDownloadDocument(payment.id, 'invoice')}
                   disabled={downloadingDoc?.paymentId === payment.id && downloadingDoc.type === 'invoice'}
-                  className="flex-1"
+                  className="w-full"
                 >
                   {downloadingDoc?.paymentId === payment.id && downloadingDoc.type === 'invoice' ? (
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -212,29 +212,8 @@ export const PaymentHistoryOwner = () => {
                   Download Invoice
                 </Button>
               ) : (
-                <Button size="sm" variant="outline" disabled className="flex-1">
+                <Button size="sm" variant="outline" disabled className="w-full">
                   Invoice Not Available
-                </Button>
-              )}
-
-              {payment.remittance_advice_url ? (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => handleDownloadDocument(payment.id, 'remittance')}
-                  disabled={downloadingDoc?.paymentId === payment.id && downloadingDoc.type === 'remittance'}
-                  className="flex-1"
-                >
-                  {downloadingDoc?.paymentId === payment.id && downloadingDoc.type === 'remittance' ? (
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  ) : (
-                    <Download className="h-4 w-4 mr-2" />
-                  )}
-                  Download Remittance
-                </Button>
-              ) : (
-                <Button size="sm" variant="outline" disabled className="flex-1">
-                  Remittance Not Available
                 </Button>
               )}
             </div>
