@@ -461,31 +461,32 @@ export const PaymentHistoryAdmin = () => {
                 </div>
               )}
 
-              <div className="flex gap-2 pt-2">
-                <div className="flex-1">
+              <div className="flex gap-2 pt-2 border-t">
+                <div className="flex-1 space-y-2">
                   <Label className="text-sm">Invoice</Label>
-                  {payment.invoice_url ? (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="w-full"
-                      onClick={() => handleDownloadDocument(payment.id, 'invoice')}
-                      disabled={downloadingDoc?.paymentId === payment.id && downloadingDoc.type === 'invoice'}
-                    >
-                      {downloadingDoc?.paymentId === payment.id && downloadingDoc.type === 'invoice' ? (
-                        <>
-                          <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-                          Loading...
-                        </>
-                      ) : (
-                        <>
-                          <Download className="h-3 w-3 mr-1" />
-                          Download
-                        </>
-                      )}
-                    </Button>
-                  ) : (
-                    <div className="relative">
+                  <div className="flex gap-2">
+                    {payment.invoice_url && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex-1"
+                        onClick={() => handleDownloadDocument(payment.id, 'invoice')}
+                        disabled={downloadingDoc?.paymentId === payment.id && downloadingDoc.type === 'invoice'}
+                      >
+                        {downloadingDoc?.paymentId === payment.id && downloadingDoc.type === 'invoice' ? (
+                          <>
+                            <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                            Loading...
+                          </>
+                        ) : (
+                          <>
+                            <Download className="h-3 w-3 mr-1" />
+                            Download
+                          </>
+                        )}
+                      </Button>
+                    )}
+                    <div className="relative flex-1">
                       <Input
                         type="file"
                         accept="application/pdf"
@@ -494,38 +495,39 @@ export const PaymentHistoryAdmin = () => {
                           if (file) handleUploadDocument(payment.id, 'invoice', file);
                         }}
                         disabled={uploadingDoc?.paymentId === payment.id && uploadingDoc.type === 'invoice'}
-                        className="cursor-pointer"
+                        className="cursor-pointer text-xs h-9"
                       />
                       {uploadingDoc?.paymentId === payment.id && uploadingDoc.type === 'invoice' && (
-                        <span className="text-xs text-muted-foreground">Uploading...</span>
+                        <span className="text-xs text-muted-foreground absolute -bottom-5 left-0">Uploading...</span>
                       )}
                     </div>
-                  )}
+                  </div>
                 </div>
-                <div className="flex-1">
+                <div className="flex-1 space-y-2">
                   <Label className="text-sm">Remittance Advice</Label>
-                  {payment.remittance_advice_url ? (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="w-full"
-                      onClick={() => handleDownloadDocument(payment.id, 'remittance')}
-                      disabled={downloadingDoc?.paymentId === payment.id && downloadingDoc.type === 'remittance'}
-                    >
-                      {downloadingDoc?.paymentId === payment.id && downloadingDoc.type === 'remittance' ? (
-                        <>
-                          <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-                          Loading...
-                        </>
-                      ) : (
-                        <>
-                          <Download className="h-3 w-3 mr-1" />
-                          Download
-                        </>
-                      )}
-                    </Button>
-                  ) : (
-                    <div className="relative">
+                  <div className="flex gap-2">
+                    {payment.remittance_advice_url && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex-1"
+                        onClick={() => handleDownloadDocument(payment.id, 'remittance')}
+                        disabled={downloadingDoc?.paymentId === payment.id && downloadingDoc.type === 'remittance'}
+                      >
+                        {downloadingDoc?.paymentId === payment.id && downloadingDoc.type === 'remittance' ? (
+                          <>
+                            <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                            Loading...
+                          </>
+                        ) : (
+                          <>
+                            <Download className="h-3 w-3 mr-1" />
+                            Download
+                          </>
+                        )}
+                      </Button>
+                    )}
+                    <div className="relative flex-1">
                       <Input
                         type="file"
                         accept="application/pdf"
@@ -534,13 +536,13 @@ export const PaymentHistoryAdmin = () => {
                           if (file) handleUploadDocument(payment.id, 'remittance', file);
                         }}
                         disabled={uploadingDoc?.paymentId === payment.id && uploadingDoc.type === 'remittance'}
-                        className="cursor-pointer"
+                        className="cursor-pointer text-xs h-9"
                       />
                       {uploadingDoc?.paymentId === payment.id && uploadingDoc.type === 'remittance' && (
-                        <span className="text-xs text-muted-foreground">Uploading...</span>
+                        <span className="text-xs text-muted-foreground absolute -bottom-5 left-0">Uploading...</span>
                       )}
                     </div>
-                  )}
+                  </div>
                 </div>
               </div>
             </CardContent>
