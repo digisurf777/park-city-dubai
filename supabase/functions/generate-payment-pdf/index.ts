@@ -110,6 +110,39 @@ const generateInvoicePDF = (payment: any, ownerInfo: any, logoData?: string): Ar
       doc.text(addr, 70, yPos);
     }
   }
+
+  // Booking details if linked
+  if (payment.booking_id && payment.booking_location) {
+    yPos += 15;
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0);
+    doc.text('Booking Details:', 20, yPos);
+    
+    yPos += 8;
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.text('Location:', 20, yPos);
+    doc.setTextColor(0, 0, 0);
+    doc.text(payment.booking_location, 70, yPos);
+    
+    if (payment.booking_zone) {
+      yPos += 7;
+      doc.setTextColor(100, 100, 100);
+      doc.text('Zone:', 20, yPos);
+      doc.setTextColor(0, 0, 0);
+      doc.text(payment.booking_zone, 70, yPos);
+    }
+    
+    if (payment.booking_start_time && payment.booking_end_time) {
+      yPos += 7;
+      doc.setTextColor(100, 100, 100);
+      doc.text('Rental Period:', 20, yPos);
+      doc.setTextColor(0, 0, 0);
+      doc.text(`${formatDate(payment.booking_start_time)} - ${formatDate(payment.booking_end_time)}`, 70, yPos);
+    }
+  }
+
+  if (payment.notes) {
     yPos += 7;
     doc.setTextColor(100, 100, 100);
     doc.text('Notes:', 20, yPos);
@@ -394,15 +427,19 @@ serve(async (req) => {
           augmentedPayment.listing_address = listing.address;
           augmentedPayment.zone = listing.zone || augmentedPayment.zone;
         }
-      } else if (payment.booking_id) {
+      }
+      
+      if (payment.booking_id) {
         const { data: booking } = await supabaseClient
           .from('parking_bookings')
-          .select('location,zone')
+          .select('location,zone,start_time,end_time')
           .eq('id', payment.booking_id)
           .maybeSingle();
         if (booking) {
-          augmentedPayment.location = booking.location;
-          augmentedPayment.zone = booking.zone;
+          augmentedPayment.booking_location = booking.location;
+          augmentedPayment.booking_zone = booking.zone;
+          augmentedPayment.booking_start_time = booking.start_time;
+          augmentedPayment.booking_end_time = booking.end_time;
         }
       }
     } catch (e) {

@@ -1669,6 +1669,11 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: {
           amount_aed: number
+          booking_end_time: string
+          booking_id: string
+          booking_location: string
+          booking_start_time: string
+          booking_zone: string
           id: string
           invoice_url: string
           listing_title: string
@@ -1706,12 +1711,28 @@ export type Database = {
           zone: string
         }[]
       }
+      get_owner_bookings_for_payment: {
+        Args: { p_owner_id: string }
+        Returns: {
+          booking_id: string
+          cost_aed: number
+          end_time: string
+          listing_title: string
+          location: string
+          start_time: string
+          status: string
+          zone: string
+        }[]
+      }
       get_owner_payment_history: {
         Args: Record<PropertyKey, never>
         Returns: {
           amount_aed: number
+          booking_end_time: string
           booking_id: string
-          created_at: string
+          booking_location: string
+          booking_start_time: string
+          booking_zone: string
           id: string
           invoice_url: string
           listing_id: string
