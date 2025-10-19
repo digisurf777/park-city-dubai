@@ -605,6 +605,18 @@ export const PaymentHistoryAdmin = () => {
               )}
             </div>
 
+            <div>
+              <Label>Amount (AED) *</Label>
+              <Input
+                type="number"
+                step="0.01"
+                min="0"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                placeholder="Enter amount in AED"
+              />
+            </div>
+
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label>Period Start *</Label>
