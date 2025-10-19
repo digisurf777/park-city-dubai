@@ -170,6 +170,11 @@ const MyAccount = () => {
         console.error('Error fetching listings:', error);
       } else {
         setListings((data || []) as ParkingListing[]);
+        // Consider user an owner if they have any listings approved/published or any listing at all
+        const hasAnyListing = (data || []).length > 0;
+        if (hasAnyListing) {
+          setIsParkingOwner((prev) => prev || true);
+        }
       }
     } catch (error) {
       console.error('Error fetching listings:', error);
