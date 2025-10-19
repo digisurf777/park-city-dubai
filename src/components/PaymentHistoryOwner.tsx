@@ -54,58 +54,25 @@ export const PaymentHistoryOwner = () => {
     try {
       setDownloadingDoc({ paymentId, type: documentType });
 
-      // Always regenerate to ensure the latest details/logo
-      await supabase.functions.invoke('generate-payment-pdf', { body: { paymentId } });
-
       const { data, error } = await supabase.functions.invoke('generate-payment-document-url', {
         body: { paymentId, documentType }
       });
 
       if (error) throw error;
-
       if (!data?.url) throw new Error('No URL returned');
 
-      // Fetch bytes and validate PDF signature
-      const res = await fetch(data.url);
-      if (!res.ok) throw new Error('Document URL not accessible');
-      const buffer = await res.arrayBuffer();
-      const bytes = new Uint8Array(buffer).slice(0, 4);
-      const isPDF = bytes[0] === 0x25 && bytes[1] === 0x50 && bytes[2] === 0x44 && bytes[3] === 0x46; // %PDF
+      // Download the uploaded invoice directly
+      const link = document.createElement('a');
+      link.href = data.url;
+      link.download = `invoice_${paymentId}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
 
-      if (!isPDF) {
-        // Regenerate and retry once
-        const { error: genErr } = await supabase.functions.invoke('generate-payment-pdf', { body: { paymentId } });
-        if (genErr) throw genErr;
-        const retry = await supabase.functions.invoke('generate-payment-document-url', { body: { paymentId, documentType } });
-        if (retry.error || !retry.data?.url) throw retry.error || new Error('No URL after regenerate');
-        const res2 = await fetch(retry.data.url);
-        if (!res2.ok) throw new Error('Regenerated document URL failed');
-        const buf2 = await res2.arrayBuffer();
-        const bytes2 = new Uint8Array(buf2).slice(0, 4);
-        const ok = bytes2[0] === 0x25 && bytes2[1] === 0x50 && bytes2[2] === 0x44 && bytes2[3] === 0x46;
-        if (!ok) throw new Error('Document still invalid');
-        const blob2 = new Blob([buf2], { type: 'application/pdf' });
-        const url2 = window.URL.createObjectURL(blob2);
-        const a2 = document.createElement('a');
-        a2.href = url2;
-        a2.download = `${documentType}_${paymentId}.pdf`;
-        a2.click();
-        window.URL.revokeObjectURL(url2);
-        toast.success(`${documentType === 'invoice' ? 'Invoice' : 'Remittance advice'} downloaded`);
-        return;
-      }
-
-      const blob = new Blob([buffer], { type: 'application/pdf' });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${documentType}_${paymentId}.pdf`;
-      a.click();
-      window.URL.revokeObjectURL(url);
-      toast.success(`${documentType === 'invoice' ? 'Invoice' : 'Remittance advice'} downloaded`);
+      toast.success('Invoice downloaded');
     } catch (error: any) {
-      console.error('Error downloading document:', error);
-      toast.error(error.message || 'Failed to download document');
+      console.error('Error downloading invoice:', error);
+      toast.error(error.message || 'Failed to download invoice');
     } finally {
       setDownloadingDoc(null);
     }
