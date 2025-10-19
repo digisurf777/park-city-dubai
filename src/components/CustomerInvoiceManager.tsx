@@ -270,9 +270,17 @@ export const CustomerInvoiceManager = () => {
                   {uploadingId === booking.id ? 'Uploading...' : 'Upload Invoice'}
                 </Button>
 
-                {booking.invoice_url}
-
-                
+                {booking.invoice_url && (
+                  <Button 
+                    variant="default" 
+                    size="sm" 
+                    onClick={() => handleDownloadInvoice(booking.id)}
+                    disabled={downloadingId === booking.id}
+                  >
+                    <Download className="h-4 w-4 mr-2" />
+                    {downloadingId === booking.id ? 'Downloading...' : 'Download Invoice'}
+                  </Button>
+                )}
               </div>
             </CardContent>
           </Card>)}
