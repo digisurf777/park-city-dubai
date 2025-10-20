@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, Upload, Download, FileText, User, DollarSign, Calendar, CheckCircle, Trash2 } from 'lucide-react';
+import { Search, Upload, Download, FileText, User, DollarSign, Calendar, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 
@@ -60,7 +60,6 @@ export const PaymentHistoryUnified = () => {
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [uploadingDoc, setUploadingDoc] = useState<{ id: string; type: string } | null>(null);
   const [downloadingDoc, setDownloadingDoc] = useState<{ id: string; type: string } | null>(null);
-  const [deletingDoc, setDeletingDoc] = useState<{ id: string; type: string } | null>(null);
 
   useEffect(() => {
     fetchCustomers();
@@ -252,7 +251,7 @@ export const PaymentHistoryUnified = () => {
         }
 
         console.log('✅ Upload success:', data);
-        toast.success(`✅ ${documentType === 'invoice' ? 'Invoice' : 'Remittance advice'} uploaded! ${file.name} is now available`, {
+        toast.success(`✅ ${documentType === 'invoice' ? 'Invoice' : 'Remittance advice'} uploaded successfully! Customer will receive this exact file.`, {
           duration: 5000,
         });
         if (selectedCustomerId) fetchCustomerDetails(selectedCustomerId);
@@ -264,36 +263,6 @@ export const PaymentHistoryUnified = () => {
       });
     } finally {
       setUploadingDoc(null);
-    }
-  };
-
-  const handleOwnerPaymentDelete = async (paymentId: string, documentType: 'invoice' | 'remittance') => {
-    if (!confirm(`Are you sure you want to delete this ${documentType === 'invoice' ? 'invoice' : 'remittance advice'}?`)) {
-      return;
-    }
-
-    try {
-      setDeletingDoc({ id: paymentId, type: documentType });
-
-      console.log('🗑️ Deleting owner payment document:', { paymentId, documentType });
-
-      const { data, error } = await supabase.functions.invoke('delete-payment-document', {
-        body: { paymentId, documentType }
-      });
-
-      if (error) {
-        console.error('❌ Delete error:', error);
-        throw error;
-      }
-
-      console.log('✅ Delete success:', data);
-      toast.success(`✅ ${documentType === 'invoice' ? 'Invoice' : 'Remittance advice'} deleted successfully`);
-      if (selectedCustomerId) fetchCustomerDetails(selectedCustomerId);
-    } catch (error: any) {
-      console.error('❌ Error deleting document:', error);
-      toast.error(`Delete failed: ${error.message || 'Unknown error'}`);
-    } finally {
-      setDeletingDoc(null);
     }
   };
 
@@ -560,7 +529,7 @@ export const PaymentHistoryUnified = () => {
                             <div className="flex items-center justify-between pt-2 border-t">
                               <span className="font-semibold">AED {payment.amount_aed}</span>
                               <div className="flex flex-wrap gap-2">
-                                {/* Invoice Actions */}
+                                {/* Upload Invoice */}
                                 <Button
                                   size="sm"
                                   variant="default"
@@ -583,29 +552,15 @@ export const PaymentHistoryUnified = () => {
                                   ) : (
                                     <>
                                       <Upload className="h-4 w-4 mr-1" />
-                                      Invoice
+                                      {payment.invoice_url ? 'Replace Invoice' : 'Upload Invoice'}
                                     </>
                                   )}
                                 </Button>
-                                {payment.invoice_url && (
-                                  <Button
-                                    size="sm"
-                                    variant="destructive"
-                                    disabled={deletingDoc?.id === payment.id && deletingDoc?.type === 'invoice'}
-                                    onClick={() => handleOwnerPaymentDelete(payment.id, 'invoice')}
-                                  >
-                                    {deletingDoc?.id === payment.id && deletingDoc?.type === 'invoice' ? (
-                                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-foreground" />
-                                    ) : (
-                                      <Trash2 className="h-4 w-4" />
-                                    )}
-                                  </Button>
-                                )}
                                 
-                                {/* Remittance Actions */}
+                                {/* Upload Remittance */}
                                 <Button
                                   size="sm"
-                                  variant="default"
+                                  variant="outline"
                                   disabled={uploadingDoc?.id === payment.id && uploadingDoc?.type === 'remittance'}
                                   onClick={() => {
                                     const input = document.createElement('input');
@@ -621,28 +576,14 @@ export const PaymentHistoryUnified = () => {
                                   }}
                                 >
                                   {uploadingDoc?.id === payment.id && uploadingDoc?.type === 'remittance' ? (
-                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-foreground" />
+                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary" />
                                   ) : (
                                     <>
                                       <Upload className="h-4 w-4 mr-1" />
-                                      Remittance
+                                      {payment.remittance_advice_url ? 'Replace Remittance' : 'Upload Remittance'}
                                     </>
                                   )}
                                 </Button>
-                                {payment.remittance_advice_url && (
-                                  <Button
-                                    size="sm"
-                                    variant="destructive"
-                                    disabled={deletingDoc?.id === payment.id && deletingDoc?.type === 'remittance'}
-                                    onClick={() => handleOwnerPaymentDelete(payment.id, 'remittance')}
-                                  >
-                                    {deletingDoc?.id === payment.id && deletingDoc?.type === 'remittance' ? (
-                                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-foreground" />
-                                    ) : (
-                                      <Trash2 className="h-4 w-4" />
-                                    )}
-                                  </Button>
-                                )}
                               </div>
                             </div>
                           </div>
