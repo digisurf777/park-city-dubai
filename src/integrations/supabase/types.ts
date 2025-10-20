@@ -1921,6 +1921,19 @@ export type Database = {
           verification_status: string
         }[]
       }
+      get_unified_customers: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          email: string
+          full_name: string
+          total_booking_amount: number
+          total_bookings: number
+          total_payment_amount: number
+          total_payments: number
+          user_id: string
+          user_type: string
+        }[]
+      }
       get_unread_chat_count: {
         Args: Record<PropertyKey, never>
         Returns: number
