@@ -276,6 +276,14 @@ export const PaymentHistoryUnified = () => {
           <h2 className="text-2xl font-bold">Invoice Management</h2>
           <p className="text-muted-foreground">Manage all customer invoices in one place</p>
         </div>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={fetchCustomers}>
+            Refresh
+          </Button>
+          <span className="text-sm text-muted-foreground hidden md:inline">
+            {customers.length} customers
+          </span>
+        </div>
       </div>
 
       {/* Filters */}
