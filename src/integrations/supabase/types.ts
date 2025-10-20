@@ -1907,6 +1907,20 @@ export type Database = {
           signed_url: string
         }[]
       }
+      get_unified_customer_payment_history: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          driver_bookings_count: number
+          email: string
+          full_name: string
+          owner_payments_count: number
+          total_driver_spent: number
+          total_owner_received: number
+          user_id: string
+          user_type: string
+          verification_status: string
+        }[]
+      }
       get_unread_chat_count: {
         Args: Record<PropertyKey, never>
         Returns: number

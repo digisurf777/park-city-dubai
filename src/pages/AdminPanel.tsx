@@ -29,8 +29,7 @@ import AdminNotifications from '@/components/AdminNotifications';
 import LiveBookingControl from '@/components/LiveBookingControl';
 import { PreAuthorizationPanel } from '@/components/PreAuthorizationPanel';
 import { BookingChatsMonitor } from '@/components/BookingChatsMonitor';
-import { PaymentHistoryAdmin } from '@/components/PaymentHistoryAdmin';
-import { CustomerInvoiceManager } from '@/components/CustomerInvoiceManager';
+import { PaymentHistoryUnified } from '@/components/PaymentHistoryUnified';
 
 // Import all interfaces and state from original AdminPanel
 interface NewsPost {
@@ -1546,21 +1545,12 @@ const AdminPanelOrganized = () => {
             </TabsTrigger>
 
             <TabsTrigger 
-              value="payment-history" 
-              className="flex flex-col items-center p-3 h-auto text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg"
-            >
-              <DollarSign className="h-5 w-5 mb-1" />
-              <span className="font-semibold">Payments</span>
-              <span className="text-xs opacity-70 mt-1">Owner Payments</span>
-            </TabsTrigger>
-
-            <TabsTrigger 
-              value="customer-invoices" 
+              value="invoices" 
               className="flex flex-col items-center p-3 h-auto text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg"
             >
               <FileText className="h-5 w-5 mb-1" />
               <span className="font-semibold">Invoices</span>
-              <span className="text-xs opacity-70 mt-1">Customer Invoices</span>
+              <span className="text-xs opacity-70 mt-1">All Customer Invoices</span>
             </TabsTrigger>
           </TabsList>
 
@@ -2480,14 +2470,9 @@ const AdminPanelOrganized = () => {
             <BookingChatsMonitor />
           </TabsContent>
 
-          {/* Payment History Tab */}
-          <TabsContent value="payment-history" className="space-y-6 mt-6">
-            <PaymentHistoryAdmin />
-          </TabsContent>
-
-          {/* Customer Invoices Tab */}
-          <TabsContent value="customer-invoices" className="space-y-6 mt-6">
-            <CustomerInvoiceManager />
+          {/* Unified Invoices Tab */}
+          <TabsContent value="invoices" className="space-y-6 mt-6">
+            <PaymentHistoryUnified />
           </TabsContent>
 
           {/* Global Edit Parking Listing Dialog - available across all tabs */}
