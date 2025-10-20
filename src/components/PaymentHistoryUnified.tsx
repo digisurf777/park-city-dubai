@@ -155,12 +155,19 @@ export const PaymentHistoryUnified = () => {
     try {
       setDownloadingDoc({ id: bookingId, type: 'booking' });
 
+      console.log('📥 Downloading invoice for booking:', bookingId);
+
       const { data, error } = await supabase.functions.invoke('generate-booking-invoice-url', {
         body: { booking_id: bookingId }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Download error:', error);
+        throw error;
+      }
       if (!data?.signed_url) throw new Error('No URL returned');
+
+      console.log('✅ Download URL generated');
 
       const link = document.createElement('a');
       link.href = data.signed_url;
@@ -169,10 +176,10 @@ export const PaymentHistoryUnified = () => {
       link.click();
       document.body.removeChild(link);
 
-      toast.success('Invoice downloaded');
+      toast.success('✅ Invoice downloaded successfully');
     } catch (error: any) {
-      console.error('Error downloading invoice:', error);
-      toast.error('Failed to download invoice');
+      console.error('❌ Error downloading invoice:', error);
+      toast.error(`Download failed: ${error.message || 'Unknown error'}`);
     } finally {
       setDownloadingDoc(null);
     }
@@ -182,12 +189,19 @@ export const PaymentHistoryUnified = () => {
     try {
       setDownloadingDoc({ id: paymentId, type: documentType });
 
+      console.log('📥 Downloading owner payment document:', { paymentId, documentType });
+
       const { data, error } = await supabase.functions.invoke('generate-payment-document-url', {
         body: { paymentId, documentType }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Download error:', error);
+        throw error;
+      }
       if (!data?.url) throw new Error('No URL returned');
+
+      console.log('✅ Download URL generated for owner payment');
 
       const link = document.createElement('a');
       link.href = data.url;
@@ -196,10 +210,10 @@ export const PaymentHistoryUnified = () => {
       link.click();
       document.body.removeChild(link);
 
-      toast.success(`${documentType === 'invoice' ? 'Invoice' : 'Remittance advice'} downloaded`);
+      toast.success(`✅ ${documentType === 'invoice' ? 'Invoice' : 'Remittance advice'} downloaded`);
     } catch (error: any) {
-      console.error('Error downloading document:', error);
-      toast.error('Failed to download document');
+      console.error('❌ Error downloading document:', error);
+      toast.error(`Download failed: ${error.message || 'Unknown error'}`);
     } finally {
       setDownloadingDoc(null);
     }
@@ -220,7 +234,9 @@ export const PaymentHistoryUnified = () => {
         const base64 = reader.result?.toString().split(',')[1];
         if (!base64) throw new Error('Failed to read file');
 
-        const { error } = await supabase.functions.invoke('upload-payment-document', {
+        console.log('📤 Uploading owner payment document:', { paymentId, documentType, fileName: file.name });
+
+        const { data, error } = await supabase.functions.invoke('upload-payment-document', {
           body: {
             paymentId,
             documentType,
@@ -229,13 +245,22 @@ export const PaymentHistoryUnified = () => {
           }
         });
 
-        if (error) throw error;
-        toast.success(`${documentType === 'invoice' ? 'Invoice' : 'Remittance advice'} uploaded`);
+        if (error) {
+          console.error('❌ Upload error:', error);
+          throw error;
+        }
+
+        console.log('✅ Upload success:', data);
+        toast.success(`✅ ${documentType === 'invoice' ? 'Invoice' : 'Remittance advice'} uploaded! ${file.name} is now available`, {
+          duration: 5000,
+        });
         if (selectedCustomerId) fetchCustomerDetails(selectedCustomerId);
       };
     } catch (error: any) {
-      console.error('Error uploading document:', error);
-      toast.error('Failed to upload document');
+      console.error('❌ Error uploading document:', error);
+      toast.error(`Upload failed: ${error.message || 'Unknown error'}`, {
+        duration: 5000,
+      });
     } finally {
       setUploadingDoc(null);
     }

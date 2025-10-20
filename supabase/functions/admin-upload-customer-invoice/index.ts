@@ -46,6 +46,8 @@ serve(async (req) => {
 
     const { bookingId, customerUserId, fileName, fileData }: UploadRequest = await req.json();
 
+    console.log('📤 Admin uploading customer invoice:', { bookingId, customerUserId, fileName });
+
     // Verify the booking exists (admin can upload for any customer)
     const { data: booking, error: bookingError } = await supabaseClient
       .from("parking_bookings")
@@ -108,7 +110,7 @@ serve(async (req) => {
       throw new Error(`Failed to update booking: ${updateError.message}`);
     }
 
-    console.log(`Admin ${user.email} uploaded custom invoice for booking ${bookingId}`);
+    console.log(`✅ Admin ${user.email} uploaded custom invoice for booking ${bookingId}`);
 
     return new Response(
       JSON.stringify({ 

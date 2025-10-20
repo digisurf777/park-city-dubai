@@ -54,24 +54,31 @@ export const PaymentHistoryOwner = () => {
     try {
       setDownloadingDoc({ paymentId, type: documentType });
 
+      console.log('📥 Customer downloading owner payment:', { paymentId, documentType });
+
       const { data, error } = await supabase.functions.invoke('generate-payment-document-url', {
         body: { paymentId, documentType }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Download error:', error);
+        throw error;
+      }
       if (!data?.url) throw new Error('No URL returned');
+
+      console.log('✅ Download URL generated');
 
       // Download the uploaded invoice directly
       const link = document.createElement('a');
       link.href = data.url;
-      link.download = `invoice_${paymentId}.pdf`;
+      link.download = `${documentType}_${paymentId}.pdf`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
 
-      toast.success('Invoice downloaded');
+      toast.success('✅ Invoice downloaded successfully');
     } catch (error: any) {
-      console.error('Error downloading invoice:', error);
+      console.error('❌ Error downloading invoice:', error);
       toast.error(error.message || 'Failed to download invoice');
     } finally {
       setDownloadingDoc(null);

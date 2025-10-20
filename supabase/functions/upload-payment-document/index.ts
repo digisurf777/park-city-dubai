@@ -46,6 +46,8 @@ serve(async (req) => {
 
     const { paymentId, documentType, fileName, fileData }: UploadRequest = await req.json();
 
+    console.log('📤 Admin uploading payment document:', { paymentId, documentType, fileName });
+
     // Decode base64 file data
     const fileBuffer = Uint8Array.from(atob(fileData), c => c.charCodeAt(0));
 
@@ -77,6 +79,8 @@ serve(async (req) => {
       console.error("Update error:", updateError);
       throw new Error(`Failed to update payment record: ${updateError.message}`);
     }
+
+    console.log(`✅ ${documentType === 'invoice' ? 'Invoice' : 'Remittance'} uploaded successfully for payment ${paymentId}`);
 
     return new Response(
       JSON.stringify({ 
