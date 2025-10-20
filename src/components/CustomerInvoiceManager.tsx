@@ -136,19 +136,23 @@ export const CustomerInvoiceManager = () => {
         }
       });
       if (error) throw error;
+
+      // Show success message
       toast({
-        title: "Success",
-        description: "Invoice uploaded successfully"
+        title: "✅ Invoice Uploaded Successfully!",
+        description: `${file.name} has been uploaded and is now available for download`,
+        duration: 5000,
       });
 
-      // Refresh bookings
-      fetchBookings();
+      // Refresh bookings to show the new invoice
+      await fetchBookings();
     } catch (error: any) {
       console.error('Error uploading invoice:', error);
       toast({
-        title: "Error",
-        description: error.message || "Failed to upload invoice",
-        variant: "destructive"
+        title: "❌ Upload Failed",
+        description: error.message || "Failed to upload invoice. Please try again.",
+        variant: "destructive",
+        duration: 5000,
       });
     } finally {
       setUploadingId(null);
@@ -256,18 +260,24 @@ export const CustomerInvoiceManager = () => {
               </div>
 
               <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={() => {
-              const input = document.createElement('input');
-              input.type = 'file';
-              input.accept = 'application/pdf';
-              input.onchange = e => {
-                const file = (e.target as HTMLInputElement).files?.[0];
-                if (file) handleFileUpload(booking.id, booking.user_id, file);
-              };
-              input.click();
-            }} disabled={uploadingId === booking.id}>
-                  <Upload className="h-4 w-4 mr-2" />
-                  {uploadingId === booking.id ? 'Uploading...' : 'Upload Invoice'}
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => {
+                    const input = document.createElement('input');
+                    input.type = 'file';
+                    input.accept = 'application/pdf';
+                    input.onchange = e => {
+                      const file = (e.target as HTMLInputElement).files?.[0];
+                      if (file) handleFileUpload(booking.id, booking.user_id, file);
+                    };
+                    input.click();
+                  }} 
+                  disabled={uploadingId === booking.id}
+                  className={uploadingId === booking.id ? "opacity-50" : ""}
+                >
+                  <Upload className={`h-4 w-4 mr-2 ${uploadingId === booking.id ? 'animate-pulse' : ''}`} />
+                  {uploadingId === booking.id ? 'Uploading...' : booking.invoice_url ? 'Replace Invoice' : 'Upload Invoice'}
                 </Button>
 
                 {booking.invoice_url && (
