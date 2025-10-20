@@ -552,7 +552,7 @@ export const PaymentHistoryUnified = () => {
                                   ) : (
                                     <>
                                       <Upload className="h-4 w-4 mr-1" />
-                                      {payment.invoice_url ? 'Replace Invoice' : 'Upload Invoice'}
+                                      UPLOAD INVOICE
                                     </>
                                   )}
                                 </Button>
