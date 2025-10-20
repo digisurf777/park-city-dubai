@@ -133,7 +133,7 @@ export const PaymentHistoryUnified = () => {
         const { error } = await supabase.functions.invoke('admin-upload-customer-invoice', {
           body: {
             bookingId,
-            userId,
+            customerUserId: userId,
             fileName: file.name,
             fileData: base64
           }
@@ -156,14 +156,14 @@ export const PaymentHistoryUnified = () => {
       setDownloadingDoc({ id: bookingId, type: 'booking' });
 
       const { data, error } = await supabase.functions.invoke('generate-booking-invoice-url', {
-        body: { bookingId }
+        body: { booking_id: bookingId }
       });
 
       if (error) throw error;
-      if (!data?.url) throw new Error('No URL returned');
+      if (!data?.signed_url) throw new Error('No URL returned');
 
       const link = document.createElement('a');
-      link.href = data.url;
+      link.href = data.signed_url;
       link.download = `invoice_${bookingId}.pdf`;
       document.body.appendChild(link);
       link.click();
