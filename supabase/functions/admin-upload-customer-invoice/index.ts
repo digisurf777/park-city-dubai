@@ -46,16 +46,25 @@ serve(async (req) => {
 
     const { bookingId, customerUserId, fileName, fileData }: UploadRequest = await req.json();
 
-    // Verify booking exists and belongs to the customer
+    // Verify the booking exists (admin can upload for any customer)
     const { data: booking, error: bookingError } = await supabaseClient
       .from("parking_bookings")
       .select("id, user_id, location, zone")
       .eq("id", bookingId)
-      .eq("user_id", customerUserId)
       .single();
 
     if (bookingError || !booking) {
-      throw new Error("Booking not found or does not belong to this customer");
+      console.error("Booking lookup error:", bookingError);
+      throw new Error("Booking not found");
+    }
+
+    // Verify the customerUserId matches the booking's user_id for data consistency
+    if (booking.user_id !== customerUserId) {
+      console.error("User ID mismatch:", { 
+        booking_user_id: booking.user_id, 
+        provided_user_id: customerUserId 
+      });
+      throw new Error("Customer user ID does not match booking");
     }
 
     // Decode base64 file data
