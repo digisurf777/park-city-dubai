@@ -147,7 +147,7 @@ export const PaymentHistoryUnified = () => {
           return {
             user_id: id,
             full_name: fullName as string,
-            email: (p?.email || 'no-email@example.com') as string,
+            email: (p?.email || '') as string,
             user_type: (p?.user_type || 'seeker') as string,
             driver_bookings_count: driverMap.get(id)?.count || 0,
             owner_payments_count: ownerMap.get(id)?.count || 0,
