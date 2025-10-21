@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, Upload, Download, FileText, User, DollarSign, Calendar, CheckCircle, Trash2 } from 'lucide-react';
+import { Search, Upload, Download, FileText, User, DollarSign, Calendar, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 
@@ -60,7 +60,6 @@ export const PaymentHistoryUnified = () => {
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [uploadingDoc, setUploadingDoc] = useState<{ id: string; type: string } | null>(null);
   const [downloadingDoc, setDownloadingDoc] = useState<{ id: string; type: string } | null>(null);
-  const [deletingDoc, setDeletingDoc] = useState<{ id: string; type: string } | null>(null);
 
   useEffect(() => {
     fetchCustomers();
@@ -156,19 +155,12 @@ export const PaymentHistoryUnified = () => {
     try {
       setDownloadingDoc({ id: bookingId, type: 'booking' });
 
-      console.log('📥 Downloading invoice for booking:', bookingId);
-
       const { data, error } = await supabase.functions.invoke('generate-booking-invoice-url', {
         body: { booking_id: bookingId }
       });
 
-      if (error) {
-        console.error('❌ Download error:', error);
-        throw error;
-      }
+      if (error) throw error;
       if (!data?.signed_url) throw new Error('No URL returned');
-
-      console.log('✅ Download URL generated');
 
       const link = document.createElement('a');
       link.href = data.signed_url;
@@ -177,10 +169,10 @@ export const PaymentHistoryUnified = () => {
       link.click();
       document.body.removeChild(link);
 
-      toast.success('✅ Invoice downloaded successfully');
+      toast.success('Invoice downloaded');
     } catch (error: any) {
-      console.error('❌ Error downloading invoice:', error);
-      toast.error(`Download failed: ${error.message || 'Unknown error'}`);
+      console.error('Error downloading invoice:', error);
+      toast.error('Failed to download invoice');
     } finally {
       setDownloadingDoc(null);
     }
@@ -190,19 +182,12 @@ export const PaymentHistoryUnified = () => {
     try {
       setDownloadingDoc({ id: paymentId, type: documentType });
 
-      console.log('📥 Downloading owner payment document:', { paymentId, documentType });
-
       const { data, error } = await supabase.functions.invoke('generate-payment-document-url', {
         body: { paymentId, documentType }
       });
 
-      if (error) {
-        console.error('❌ Download error:', error);
-        throw error;
-      }
+      if (error) throw error;
       if (!data?.url) throw new Error('No URL returned');
-
-      console.log('✅ Download URL generated for owner payment');
 
       const link = document.createElement('a');
       link.href = data.url;
@@ -211,10 +196,10 @@ export const PaymentHistoryUnified = () => {
       link.click();
       document.body.removeChild(link);
 
-      toast.success(`✅ ${documentType === 'invoice' ? 'Invoice' : 'Remittance advice'} downloaded`);
+      toast.success(`${documentType === 'invoice' ? 'Invoice' : 'Remittance advice'} downloaded`);
     } catch (error: any) {
-      console.error('❌ Error downloading document:', error);
-      toast.error(`Download failed: ${error.message || 'Unknown error'}`);
+      console.error('Error downloading document:', error);
+      toast.error('Failed to download document');
     } finally {
       setDownloadingDoc(null);
     }
@@ -235,9 +220,7 @@ export const PaymentHistoryUnified = () => {
         const base64 = reader.result?.toString().split(',')[1];
         if (!base64) throw new Error('Failed to read file');
 
-        console.log('📤 Uploading owner payment document:', { paymentId, documentType, fileName: file.name });
-
-        const { data, error } = await supabase.functions.invoke('upload-payment-document', {
+        const { error } = await supabase.functions.invoke('upload-payment-document', {
           body: {
             paymentId,
             documentType,
@@ -246,54 +229,15 @@ export const PaymentHistoryUnified = () => {
           }
         });
 
-        if (error) {
-          console.error('❌ Upload error:', error);
-          throw error;
-        }
-
-        console.log('✅ Upload success:', data);
-        toast.success(`✅ ${documentType === 'invoice' ? 'Invoice' : 'Remittance advice'} uploaded! ${file.name} is now available`, {
-          duration: 5000,
-        });
+        if (error) throw error;
+        toast.success(`${documentType === 'invoice' ? 'Invoice' : 'Remittance advice'} uploaded`);
         if (selectedCustomerId) fetchCustomerDetails(selectedCustomerId);
       };
     } catch (error: any) {
-      console.error('❌ Error uploading document:', error);
-      toast.error(`Upload failed: ${error.message || 'Unknown error'}`, {
-        duration: 5000,
-      });
+      console.error('Error uploading document:', error);
+      toast.error('Failed to upload document');
     } finally {
       setUploadingDoc(null);
-    }
-  };
-
-  const handleOwnerPaymentDelete = async (paymentId: string, documentType: 'invoice' | 'remittance') => {
-    if (!confirm(`Are you sure you want to delete this ${documentType === 'invoice' ? 'invoice' : 'remittance advice'}?`)) {
-      return;
-    }
-
-    try {
-      setDeletingDoc({ id: paymentId, type: documentType });
-
-      console.log('🗑️ Deleting owner payment document:', { paymentId, documentType });
-
-      const { data, error } = await supabase.functions.invoke('delete-payment-document', {
-        body: { paymentId, documentType }
-      });
-
-      if (error) {
-        console.error('❌ Delete error:', error);
-        throw error;
-      }
-
-      console.log('✅ Delete success:', data);
-      toast.success(`✅ ${documentType === 'invoice' ? 'Invoice' : 'Remittance advice'} deleted successfully`);
-      if (selectedCustomerId) fetchCustomerDetails(selectedCustomerId);
-    } catch (error: any) {
-      console.error('❌ Error deleting document:', error);
-      toast.error(`Delete failed: ${error.message || 'Unknown error'}`);
-    } finally {
-      setDeletingDoc(null);
     }
   };
 
@@ -559,54 +503,45 @@ export const PaymentHistoryUnified = () => {
                             )}
                             <div className="flex items-center justify-between pt-2 border-t">
                               <span className="font-semibold">AED {payment.amount_aed}</span>
-                              <div className="flex flex-wrap gap-2">
-                                {/* Invoice Actions */}
-                                <Button
-                                  size="sm"
-                                  variant="default"
-                                  disabled={uploadingDoc?.id === payment.id && uploadingDoc?.type === 'invoice'}
-                                  onClick={() => {
-                                    const input = document.createElement('input');
-                                    input.type = 'file';
-                                    input.accept = 'application/pdf';
-                                    input.onchange = (e: any) => {
-                                      const file = e.target?.files?.[0];
-                                      if (file) {
-                                        handleOwnerPaymentUpload(payment.id, 'invoice', file);
-                                      }
-                                    };
-                                    input.click();
-                                  }}
-                                >
-                                  {uploadingDoc?.id === payment.id && uploadingDoc?.type === 'invoice' ? (
-                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-foreground" />
-                                  ) : (
-                                    <>
-                                      <Upload className="h-4 w-4 mr-1" />
-                                      Invoice
-                                    </>
-                                  )}
-                                </Button>
+                              <div className="flex gap-2">
                                 {payment.invoice_url && (
                                   <Button
                                     size="sm"
-                                    variant="destructive"
-                                    disabled={deletingDoc?.id === payment.id && deletingDoc?.type === 'invoice'}
-                                    onClick={() => handleOwnerPaymentDelete(payment.id, 'invoice')}
+                                    variant="outline"
+                                    onClick={() => handleOwnerPaymentDownload(payment.id, 'invoice')}
+                                    disabled={downloadingDoc?.id === payment.id && downloadingDoc?.type === 'invoice'}
                                   >
-                                    {deletingDoc?.id === payment.id && deletingDoc?.type === 'invoice' ? (
-                                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-foreground" />
+                                    {downloadingDoc?.id === payment.id && downloadingDoc?.type === 'invoice' ? (
+                                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary" />
                                     ) : (
-                                      <Trash2 className="h-4 w-4" />
+                                      <>
+                                        <Download className="h-4 w-4 mr-1" />
+                                        Invoice
+                                      </>
                                     )}
                                   </Button>
                                 )}
-                                
-                                {/* Remittance Actions */}
+                                {payment.remittance_advice_url && (
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => handleOwnerPaymentDownload(payment.id, 'remittance')}
+                                    disabled={downloadingDoc?.id === payment.id && downloadingDoc?.type === 'remittance'}
+                                  >
+                                    {downloadingDoc?.id === payment.id && downloadingDoc?.type === 'remittance' ? (
+                                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary" />
+                                    ) : (
+                                      <>
+                                        <Download className="h-4 w-4 mr-1" />
+                                        Remittance
+                                      </>
+                                    )}
+                                  </Button>
+                                )}
                                 <Button
                                   size="sm"
                                   variant="default"
-                                  disabled={uploadingDoc?.id === payment.id && uploadingDoc?.type === 'remittance'}
+                                  disabled={uploadingDoc?.id === payment.id}
                                   onClick={() => {
                                     const input = document.createElement('input');
                                     input.type = 'file';
@@ -614,35 +549,22 @@ export const PaymentHistoryUnified = () => {
                                     input.onchange = (e: any) => {
                                       const file = e.target?.files?.[0];
                                       if (file) {
-                                        handleOwnerPaymentUpload(payment.id, 'remittance', file);
+                                        const docType = payment.invoice_url ? 'remittance' : 'invoice';
+                                        handleOwnerPaymentUpload(payment.id, docType as any, file);
                                       }
                                     };
                                     input.click();
                                   }}
                                 >
-                                  {uploadingDoc?.id === payment.id && uploadingDoc?.type === 'remittance' ? (
+                                  {uploadingDoc?.id === payment.id ? (
                                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-foreground" />
                                   ) : (
                                     <>
                                       <Upload className="h-4 w-4 mr-1" />
-                                      Remittance
+                                      Upload
                                     </>
                                   )}
                                 </Button>
-                                {payment.remittance_advice_url && (
-                                  <Button
-                                    size="sm"
-                                    variant="destructive"
-                                    disabled={deletingDoc?.id === payment.id && deletingDoc?.type === 'remittance'}
-                                    onClick={() => handleOwnerPaymentDelete(payment.id, 'remittance')}
-                                  >
-                                    {deletingDoc?.id === payment.id && deletingDoc?.type === 'remittance' ? (
-                                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-foreground" />
-                                    ) : (
-                                      <Trash2 className="h-4 w-4" />
-                                    )}
-                                  </Button>
-                                )}
                               </div>
                             </div>
                           </div>

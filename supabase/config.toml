@@ -137,9 +137,6 @@ verify_jwt = false
 [functions.upload-payment-document]
 verify_jwt = true
 
-[functions.delete-payment-document]
-verify_jwt = true
-
 [functions.generate-payment-document-url]
 verify_jwt = true
 
