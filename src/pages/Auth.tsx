@@ -138,12 +138,38 @@ const Auth = () => {
     handleAuthTokens();
   }, [searchParams, navigate]);
 
-  // Redirect if already logged in (unless it's password recovery)
+  // Redirect logic: only redirect when either not admin or session is AAL2
   const isRecoveryMode = searchParams.get('type') === 'recovery' || showPasswordUpdate;
-  if (user && !isRecoveryMode) {
-    navigate('/');
-    return null;
-  }
+  useEffect(() => {
+    const maybeRedirect = async () => {
+      if (!user || isRecoveryMode || showMFAChallenge) return;
+
+      try {
+        const { data: sessionData } = await supabase.auth.getSession();
+        const currentAAL = (sessionData.session as any)?.aal;
+        const userId = sessionData.session?.user?.id;
+        if (!userId) return;
+
+        // Check if user is admin
+        const { data: roleData } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', userId)
+          .eq('role', 'admin')
+          .maybeSingle();
+        
+        // If not admin OR already AAL2, redirect home; otherwise stay here for MFA
+        if (!roleData || currentAAL === 'aal2') {
+          navigate('/');
+        }
+      } catch (e) {
+        // Fallback to safe redirect for non-error cases
+        navigate('/');
+      }
+    };
+
+    maybeRedirect();
+  }, [user, isRecoveryMode, showMFAChallenge, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
