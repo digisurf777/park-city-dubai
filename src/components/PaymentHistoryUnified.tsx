@@ -74,56 +74,9 @@ export const PaymentHistoryUnified = () => {
   const fetchCustomers = async () => {
     try {
       setLoading(true);
-
-      // Try primary RPC first
-      const primary = await supabase.rpc('get_unified_customer_payment_history');
-      if (primary.error) {
-        console.warn('Primary RPC failed, falling back to get_unified_customers:', primary.error.message || primary.error);
-      }
-
-      if (!primary.data || primary.data.length === 0) {
-        // Fallback 1: broader function that includes all owners/drivers
-        const fallback = await supabase.rpc('get_unified_customers');
-        if (!fallback.error && fallback.data && fallback.data.length > 0) {
-          const mapped = (fallback.data || []).map((row: any) => ({
-            user_id: row.user_id,
-            full_name: row.full_name,
-            email: row.email,
-            user_type: row.user_type || 'seeker',
-            driver_bookings_count: Number(row.total_bookings || 0),
-            owner_payments_count: Number(row.total_payments || 0),
-            total_driver_spent: Number(row.total_booking_amount || 0),
-            total_owner_received: Number(row.total_payment_amount || 0),
-            verification_status: 'not_verified',
-          }));
-          setCustomers(mapped);
-        } else {
-          // Fallback 2 (safe): load from profiles to always show customers, even if RPCs fail
-          console.warn('Fallback RPC failed or returned empty; loading from profiles instead');
-          const { data: profiles, error: profilesError } = await supabase
-            .from('profiles')
-            .select('user_id, full_name, email, user_type')
-            .order('created_at', { ascending: false });
-
-          if (profilesError) throw profilesError;
-
-          const mappedProfiles: UnifiedCustomer[] = (profiles || []).map((p: any) => ({
-            user_id: p.user_id,
-            full_name: p.full_name || p.email || 'User',
-            email: p.email || '',
-            user_type: p.user_type || 'seeker',
-            driver_bookings_count: 0,
-            owner_payments_count: 0,
-            total_driver_spent: 0,
-            total_owner_received: 0,
-            verification_status: 'not_verified',
-          }));
-
-          setCustomers(mappedProfiles);
-        }
-      } else {
-        setCustomers(primary.data || []);
-      }
+      const { data, error } = await supabase.rpc('get_unified_customer_payment_history');
+      if (error) throw error;
+      setCustomers(data || []);
     } catch (error: any) {
       console.error('Error fetching customers:', error);
       toast.error('Failed to load customers');
