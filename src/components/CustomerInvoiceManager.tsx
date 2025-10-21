@@ -144,6 +144,8 @@ export const CustomerInvoiceManager = () => {
         duration: 5000,
       });
 
+      console.log('✅ Customer invoice uploaded successfully:', { bookingId, fileName: file.name });
+
       // Refresh bookings to show the new invoice
       await fetchBookings();
     } catch (error: any) {
