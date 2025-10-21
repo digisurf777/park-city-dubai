@@ -313,13 +313,20 @@ const Auth = () => {
         setMfaCode('');
         setLoading(false);
       } else {
-        // Re-fetch session to ensure AAL is upgraded
-        const { data: sessionData } = await supabase.auth.getSession();
-        const currentAAL = (sessionData.session as any)?.aal;
-        if (currentAAL !== 'aal2') {
-          toast.error('MFA verification did not complete. Please try again.');
-          setLoading(false);
-          return;
+        // Wait for AAL2 token upgrade (avoid race with server validation)
+        const waitForAAL2 = async (maxMs: number = 6000) => {
+          const start = Date.now();
+          while (Date.now() - start < maxMs) {
+            const { data: s } = await supabase.auth.getSession();
+            const aal = (s.session as any)?.aal;
+            if (aal === 'aal2') return true;
+            await new Promise((r) => setTimeout(r, 300));
+          }
+          return false;
+        };
+        const upgraded = await waitForAAL2();
+        if (!upgraded) {
+          console.warn('Auth: AAL2 not yet reflected; proceeding to /admin where server will recheck.');
         }
         toast.success('MFA verified! Redirecting to admin...');
         setShowMFAChallenge(false);

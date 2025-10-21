@@ -249,8 +249,30 @@ const AdminPanelOrganized = () => {
       }
 
       try {
-        const { data: sessionData } = await supabase.auth.getSession();
-        const accessToken = sessionData.session?.access_token;
+        // Wait for AAL2 after MFA verification to avoid race conditions on first load
+        const waitForAAL2 = async (maxMs: number = 6000) => {
+          const start = Date.now();
+          while (Date.now() - start < maxMs) {
+            const { data: s } = await supabase.auth.getSession();
+            const aal = (s.session as any)?.aal;
+            if (aal === 'aal2') {
+              return s.session?.access_token ?? null;
+            }
+            await new Promise((r) => setTimeout(r, 400));
+          }
+          const { data: s } = await supabase.auth.getSession();
+          return s.session?.access_token ?? null;
+        };
+
+        // Get current session and AAL
+        let { data: sessionData } = await supabase.auth.getSession();
+        let accessToken = sessionData.session?.access_token;
+        const currentAAL = (sessionData.session as any)?.aal;
+
+        if (currentAAL !== 'aal2') {
+          console.warn('AdminPanel: Waiting for AAL2, current:', currentAAL);
+          accessToken = await waitForAAL2();
+        }
         
         if (!accessToken) {
           console.error('No access token found');
@@ -263,43 +285,55 @@ const AdminPanelOrganized = () => {
           return;
         }
 
-        // Call server-side validation function
-        const response = await fetch(
-          'https://eoknluyunximjlsnyceb.supabase.co/functions/v1/validate-admin-access',
-          {
-            headers: {
-              'Authorization': `Bearer ${accessToken}`,
-              'Content-Type': 'application/json'
-            },
-          }
-        );
+        const validateOnce = async (token: string) =>
+          fetch(
+            'https://eoknluyunximjlsnyceb.supabase.co/functions/v1/validate-admin-access',
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+              },
+            }
+          );
 
-        const data = await response.json();
+        // First attempt
+        let response = await validateOnce(accessToken);
+        let data: any = await response.json().catch(() => ({}));
+
+        // Retry once after brief delay and token refresh if needed
+        if ((!response.ok && (response.status === 401 || response.status === 403)) || data?.requires_mfa) {
+          console.warn('AdminPanel: First validation failed, retrying after refresh...', { status: response.status, body: data });
+          await new Promise((r) => setTimeout(r, 600));
+          const { data: refreshed } = await supabase.auth.getSession();
+          accessToken = refreshed.session?.access_token ?? accessToken;
+          response = await validateOnce(accessToken);
+          data = await response.json().catch(() => ({}));
+        }
 
         if (!response.ok || data.requires_mfa) {
           console.error('Admin access validation failed:', data);
-          
+
           if (data.requires_mfa) {
             toast({
               title: 'MFA Required',
               description: 'Admin access requires two-factor authentication. Please complete MFA.',
               variant: 'destructive',
-              duration: 6000
+              duration: 6000,
             });
           } else if (data.error === 'Not an admin') {
             toast({
               title: 'Access Denied',
               description: 'You do not have admin privileges',
-              variant: 'destructive'
+              variant: 'destructive',
             });
           } else {
             toast({
               title: 'Access Denied',
               description: data.message || 'Unable to verify admin access',
-              variant: 'destructive'
+              variant: 'destructive',
             });
           }
-          
+
           // Do NOT sign out here to avoid loops; keep session so /auth can show MFA challenge
           navigate('/auth');
           return;
@@ -313,7 +347,7 @@ const AdminPanelOrganized = () => {
         toast({
           title: 'Validation Error',
           description: 'Failed to validate admin access',
-          variant: 'destructive'
+          variant: 'destructive',
         });
         navigate('/auth');
       }
