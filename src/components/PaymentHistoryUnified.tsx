@@ -74,9 +74,33 @@ export const PaymentHistoryUnified = () => {
   const fetchCustomers = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase.rpc('get_unified_customer_payment_history');
-      if (error) throw error;
-      setCustomers(data || []);
+
+      // Try primary RPC first
+      const primary = await supabase.rpc('get_unified_customer_payment_history');
+      if (primary.error) {
+        console.warn('Primary RPC failed, falling back to get_unified_customers:', primary.error.message || primary.error);
+      }
+
+      if (!primary.data || primary.data.length === 0) {
+        // Fallback to broader function that includes all owners/drivers
+        const fallback = await supabase.rpc('get_unified_customers');
+        if (fallback.error) throw fallback.error;
+
+        const mapped = (fallback.data || []).map((row: any) => ({
+          user_id: row.user_id,
+          full_name: row.full_name,
+          email: row.email,
+          user_type: row.user_type || 'seeker',
+          driver_bookings_count: Number(row.total_bookings || 0),
+          owner_payments_count: Number(row.total_payments || 0),
+          total_driver_spent: Number(row.total_booking_amount || 0),
+          total_owner_received: Number(row.total_payment_amount || 0),
+          verification_status: 'not_verified',
+        }));
+        setCustomers(mapped);
+      } else {
+        setCustomers(primary.data || []);
+      }
     } catch (error: any) {
       console.error('Error fetching customers:', error);
       toast.error('Failed to load customers');
