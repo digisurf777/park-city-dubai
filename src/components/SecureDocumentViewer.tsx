@@ -78,30 +78,76 @@ const SecureDocumentViewer: React.FC<SecureDocumentViewerProps> = ({
   const generateAccessToken = async () => {
     setIsLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('generate-secure-document-token', {
-        body: {
-          verification_id: verificationId,
-          access_duration_minutes: isAdmin ? 30 : 15, // Admins get longer access
-          access_method: isAdmin ? 'admin_view' : 'user_view'
+      // For admins, use direct admin-get-document function
+      if (isAdmin) {
+        const { data, error } = await supabase.functions.invoke('admin-get-document', {
+          body: {
+            verification_id: verificationId
+          }
+        });
+
+        if (error) throw error;
+
+        if (data.success && data.signed_url) {
+          // Set up mock token data for UI consistency
+          const expiresAt = new Date();
+          expiresAt.setMinutes(expiresAt.getMinutes() + 15);
+          
+          setAccessToken({
+            access_token: 'admin-access',
+            expires_at: expiresAt.toISOString(),
+            verification_id: verificationId,
+            access_duration_minutes: 15,
+            security_level: 'admin'
+          });
+
+          setDocumentData({
+            access_granted: true,
+            document_type: data.document_type || documentType,
+            full_name: data.full_name || fullName,
+            verification_status: data.verification_status || verificationStatus,
+            security_level: 'admin',
+            expires_at: expiresAt.toISOString(),
+            verification_id: verificationId
+          });
+
+          setDocumentUrl(data.signed_url);
+          setIsDialogOpen(true);
+          toast.success('Document loaded successfully');
+          
+          if (onAccessGranted) {
+            onAccessGranted();
+          }
+        } else {
+          throw new Error('Failed to load document');
         }
-      });
+      } else {
+        // For users, use the secure token system
+        const { data, error } = await supabase.functions.invoke('generate-secure-document-token', {
+          body: {
+            verification_id: verificationId,
+            access_duration_minutes: 15,
+            access_method: 'user_view'
+          }
+        });
 
-      if (error) throw error;
+        if (error) throw error;
 
-      const tokenData = data as AccessTokenData;
-      setAccessToken(tokenData);
-      
-      toast.success(`Secure access granted for ${tokenData.access_duration_minutes} minutes`);
-      
-      // Automatically fetch document data
-      await fetchDocumentWithToken(tokenData.access_token);
-      
-      if (onAccessGranted) {
-        onAccessGranted();
+        const tokenData = data as AccessTokenData;
+        setAccessToken(tokenData);
+        
+        toast.success(`Secure access granted for ${tokenData.access_duration_minutes} minutes`);
+        
+        // Automatically fetch document data
+        await fetchDocumentWithToken(tokenData.access_token);
+        
+        if (onAccessGranted) {
+          onAccessGranted();
+        }
       }
     } catch (error: any) {
       console.error('Failed to generate access token:', error);
-      toast.error(`Access denied: ${error.message || 'Unable to generate secure access token'}`);
+      toast.error(`Access denied: ${error.message || 'Unable to load document'}`);
     } finally {
       setIsLoading(false);
     }
