@@ -494,14 +494,10 @@ export const PaymentHistoryUnified = () => {
                   ) : (
                     <>
                       {customer.driver_bookings_count > 0 && (
-                        <Badge variant="secondary">
-                          Driver ({customer.driver_bookings_count})
-                        </Badge>
+                        <Badge variant="secondary">Driver</Badge>
                       )}
                       {customer.owner_payments_count > 0 && (
-                        <Badge variant="outline">
-                          Owner ({customer.owner_payments_count})
-                        </Badge>
+                        <Badge variant="outline">Owner</Badge>
                       )}
                     </>
                   )}
