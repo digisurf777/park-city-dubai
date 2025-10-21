@@ -162,7 +162,7 @@ const Auth = () => {
           // Admin user
           if (currentAAL === 'aal2') {
             // Already MFA verified, safe to redirect
-            navigate('/');
+            navigate('/admin');
             return;
           }
           // AAL1: ensure MFA challenge is shown (fallback in case login handler didn't run)
@@ -273,7 +273,7 @@ const Auth = () => {
         } else if (currentAAL === 'aal2') {
           // Already verified MFA in this session
           toast.success('Logged in successfully with MFA!');
-          navigate('/');
+          navigate('/admin');
           setLoading(false);
           return;
         }
@@ -305,8 +305,17 @@ const Auth = () => {
         setMfaCode('');
         setLoading(false);
       } else {
-        toast.success('Login successful with MFA!');
-        navigate('/');
+        // Re-fetch session to ensure AAL is upgraded
+        const { data: sessionData } = await supabase.auth.getSession();
+        const currentAAL = (sessionData.session as any)?.aal;
+        if (currentAAL !== 'aal2') {
+          toast.error('MFA verification did not complete. Please try again.');
+          setLoading(false);
+          return;
+        }
+        toast.success('MFA verified! Redirecting to admin...');
+        setShowMFAChallenge(false);
+        navigate('/admin');
       }
     } catch (err) {
       toast.error('An error occurred during verification');
