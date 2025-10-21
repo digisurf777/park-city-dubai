@@ -68,11 +68,17 @@ export const MFARequiredGuard = ({ children }: { children: React.ReactNode }) =>
         const { data: sessionData } = await supabase.auth.getSession();
         const clientAAL = (sessionData.session as any)?.aal;
 
+        // Proactively refresh to propagate AAL2 into the access token
+        try {
+          await supabase.auth.refreshSession();
+        } catch (e) {
+          console.warn('MFARequiredGuard: refreshSession failed (continuing)', e);
+        }
+
         const invokeValidate = async () => {
           const { data, error } = await supabase.functions.invoke('validate-admin-access');
           return { data, error } as { data: any; error: any };
         };
-
         let res = await invokeValidate();
         if (res.error || res.data?.requires_mfa) {
           await new Promise((r) => setTimeout(r, 600));

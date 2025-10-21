@@ -313,7 +313,12 @@ const Auth = () => {
         setMfaCode('');
         setLoading(false);
       } else {
-        // Wait for AAL2 token upgrade (avoid race with server validation)
+        // Refresh session so the token upgrades to AAL2 immediately, then wait for it
+        try {
+          await supabase.auth.refreshSession();
+        } catch (e) {
+          console.warn('Auth: refreshSession after MFA verify failed (continuing)', e);
+        }
         const waitForAAL2 = async (maxMs: number = 6000) => {
           const start = Date.now();
           while (Date.now() - start < maxMs) {

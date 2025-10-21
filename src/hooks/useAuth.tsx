@@ -364,7 +364,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       });
       
       if (!error) {
-        // Update MFA status in database
+        // Force-refresh session so the access token reflects AAL2 immediately
+        try {
+          await supabase.auth.refreshSession();
+          // Small wait loop to ensure the SDK exposes aal2 on the session
+          const start = Date.now();
+          while (Date.now() - start < 6000) {
+            const { data: s } = await supabase.auth.getSession();
+            const aal = (s.session as any)?.aal;
+            if (aal === 'aal2') break;
+            await new Promise((r) => setTimeout(r, 250));
+          }
+        } catch (e) {
+          console.warn('verifyMFA: refreshSession failed (continuing)', e);
+        }
+
+        // Update MFA status in database (best-effort)
         await supabase
           .from('user_mfa_requirements')
           .update({ mfa_enabled_at: new Date().toISOString() })
@@ -407,6 +422,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         challengeId,
         code,
       });
+
+      if (!error) {
+        // Ensure the client has an upgraded AAL2 token immediately
+        try {
+          await supabase.auth.refreshSession();
+          const start = Date.now();
+          while (Date.now() - start < 6000) {
+            const { data: s } = await supabase.auth.getSession();
+            const aal = (s.session as any)?.aal;
+            if (aal === 'aal2') break;
+            await new Promise((r) => setTimeout(r, 250));
+          }
+        } catch (e) {
+          console.warn('verifyMFAChallenge: refreshSession failed (continuing)', e);
+        }
+      }
       
       return { error };
     } catch (error) {
