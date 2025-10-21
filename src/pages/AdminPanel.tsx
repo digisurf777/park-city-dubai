@@ -391,7 +391,7 @@ const AdminPanelOrganized = () => {
       // Find verification to get user details
       const verification = verifications.find(v => v.id === verificationId);
       if (verification) {
-        // Send notification email
+        // Send notification email to customer
         const { error: emailError } = await supabase.functions.invoke('send-verification-approval', {
           body: {
             userId: verification.user_id,
@@ -402,13 +402,33 @@ const AdminPanelOrganized = () => {
         });
 
         if (emailError) {
-          console.error('Email notification error:', emailError);
+          console.error('Customer email notification error:', emailError);
+        }
+
+        // Send notification to admin
+        const { error: adminNotifError } = await supabase.functions.invoke('send-admin-notification', {
+          body: {
+            type: 'verification_status_update',
+            userEmail: verification.profiles?.email,
+            userName: verification.profiles?.full_name || verification.full_name,
+            details: {
+              verificationId: verification.id,
+              documentType: verification.document_type,
+              nationality: verification.nationality,
+              status: newStatus,
+              updatedAt: new Date().toISOString()
+            }
+          }
+        });
+
+        if (adminNotifError) {
+          console.error('Admin notification error:', adminNotifError);
         }
       }
 
       toast({
         title: "Success",
-        description: `Verification ${newStatus} successfully`,
+        description: `Verification ${newStatus} successfully. Notifications sent to customer and admin.`,
       });
 
       // Refresh verifications list
