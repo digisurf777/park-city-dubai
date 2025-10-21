@@ -41,6 +41,19 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error('Unauthorized: Invalid token');
     }
 
+    // Create a client that forwards the end-user JWT so auth.uid() works in Postgres RLS / RPC
+    const supabaseAsUser = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      },
+      global: {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    });
+
     const { verification_id }: AdminDocumentRequest = await req.json();
 
     console.log('Admin document access request:', {
@@ -49,7 +62,7 @@ const handler = async (req: Request): Promise<Response> => {
     });
 
     // Call the database function to get document info and verify admin access
-    const { data, error } = await supabase.rpc('admin_get_document_url', {
+    const { data, error } = await supabaseAsUser.rpc('admin_get_document_url', {
       verification_id
     });
 
