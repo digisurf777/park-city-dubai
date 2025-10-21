@@ -58,20 +58,38 @@ Deno.serve(async (req) => {
       );
     }
 
-    // **CRITICAL**: Check Authentication Assurance Level (AAL)
-    const { data: sessionData } = await supabase.auth.getSession();
-    const currentAAL = sessionData.session?.aal;
+    // Check Authentication Assurance Level (AAL) from JWT claims to avoid session race conditions
+    const bearer = authHeader?.startsWith('Bearer ') ? authHeader.slice(7).trim() : null;
+    const decodeJwt = (t: string) => {
+      try {
+        const payload = t.split('.')[1];
+        const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+        const padded = base64.padEnd(Math.ceil(base64.length / 4) * 4, '=');
+        const json = atob(padded);
+        return JSON.parse(json);
+      } catch (e) {
+        console.warn('JWT decode failed', e);
+        return null;
+      }
+    };
+    const claims: any = bearer ? decodeJwt(bearer) : null;
+    // AMR can be strings or objects like { method: 'totp', timestamp: ... }
+    const rawAmr = Array.isArray(claims?.amr) ? claims.amr : [];
+    const amr = rawAmr.map((v: any) => (typeof v === 'string' ? v : v?.method)).filter(Boolean);
+    const tokenAAL = claims?.aal as string | undefined;
+    const mfaSatisfied = tokenAAL === 'aal2' || amr.includes('mfa') || amr.includes('otp') || amr.includes('totp') || amr.includes('sms') || amr.includes('webauthn');
 
-    console.log('Admin access check - User:', user.id, 'AAL:', currentAAL);
+    console.log('Admin access check - User:', user.id, 'AAL (token):', tokenAAL, 'AMR:', amr);
 
-    if (currentAAL !== 'aal2') {
-      console.warn('Admin attempted access without MFA (AAL2). Current AAL:', currentAAL);
+    if (!mfaSatisfied) {
+      console.warn('Admin attempted access without MFA (AAL2). Token AAL:', tokenAAL, 'AMR:', amr);
       return new Response(
         JSON.stringify({ 
           error: 'MFA required',
           message: 'Admin access requires two-factor authentication',
           requires_mfa: true,
-          current_aal: currentAAL
+          current_aal: tokenAAL,
+          amr
         }),
         { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
@@ -83,7 +101,7 @@ Deno.serve(async (req) => {
       JSON.stringify({ 
         success: true,
         user_id: user.id,
-        aal: currentAAL,
+        aal: tokenAAL ?? 'aal2',
         message: 'Access granted'
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

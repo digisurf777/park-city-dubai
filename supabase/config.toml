@@ -160,3 +160,6 @@ verify_jwt = false
 
 [functions.send-chat-message-notification]
 verify_jwt = false
+
+[functions.validate-admin-access]
+verify_jwt = true
