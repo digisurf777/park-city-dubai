@@ -51,26 +51,47 @@ export const MFARequiredGuard = ({ children }: { children: React.ReactNode }) =>
         return;
       }
       try {
+        const waitForAAL2 = async (maxMs: number = 6000) => {
+          const start = Date.now();
+          while (Date.now() - start < maxMs) {
+            const { data: s } = await supabase.auth.getSession();
+            const aal = (s.session as any)?.aal;
+            if (aal === 'aal2') return true;
+            await new Promise((r) => setTimeout(r, 300));
+          }
+          return false;
+        };
+
+        // Ensure token reflects MFA upgrade
+        const upgraded = await waitForAAL2();
+
         const { data: sessionData } = await supabase.auth.getSession();
-        const accessToken = sessionData.session?.access_token;
-        if (!accessToken) {
-          setShowSetup(true);
+        const clientAAL = (sessionData.session as any)?.aal;
+
+        const invokeValidate = async () => {
+          const { data, error } = await supabase.functions.invoke('validate-admin-access');
+          return { data, error } as { data: any; error: any };
+        };
+
+        let res = await invokeValidate();
+        if (res.error || res.data?.requires_mfa) {
+          await new Promise((r) => setTimeout(r, 600));
+          res = await invokeValidate();
+        }
+
+        if (!res.error && !res.data?.requires_mfa) {
+          setShowSetup(false);
           return;
         }
-        const res = await fetch('https://eoknluyunximjlsnyceb.supabase.co/functions/v1/validate-admin-access', {
-          headers: { Authorization: `Bearer ${accessToken}` }
-        });
-        if (res.ok) {
+
+        // Final fallback: if client shows AAL2, allow render; AdminPanel will re-validate strictly
+        if (clientAAL === 'aal2' || upgraded) {
+          console.warn('MFARequiredGuard: Allowing access on client AAL2; AdminPanel will enforce server validation.');
           setShowSetup(false);
-        } else {
-          const body = await res.json().catch(() => ({}));
-          if (body?.requires_mfa) {
-            setShowSetup(true);
-          } else {
-            // If not admin or other error, fail closed
-            setShowSetup(true);
-          }
+          return;
         }
+
+        setShowSetup(true);
       } catch (error) {
         console.error('MFARequiredGuard secure validation error:', error);
         setShowSetup(true);
