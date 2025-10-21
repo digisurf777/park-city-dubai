@@ -138,10 +138,10 @@ const Auth = () => {
     handleAuthTokens();
   }, [searchParams, navigate]);
 
-  // Redirect logic: only redirect when either not admin or session is AAL2
+  // Redirect logic: only redirect when either not admin or session is AAL2; if admin+AAL1, trigger MFA challenge here
   const isRecoveryMode = searchParams.get('type') === 'recovery' || showPasswordUpdate;
   useEffect(() => {
-    const maybeRedirect = async () => {
+    const maybeRedirectOrChallenge = async () => {
       if (!user || isRecoveryMode || showMFAChallenge) return;
 
       try {
@@ -158,18 +158,45 @@ const Auth = () => {
           .eq('role', 'admin')
           .maybeSingle();
         
-        // If not admin OR already AAL2, redirect home; otherwise stay here for MFA
-        if (!roleData || currentAAL === 'aal2') {
-          navigate('/');
+        if (roleData) {
+          // Admin user
+          if (currentAAL === 'aal2') {
+            // Already MFA verified, safe to redirect
+            navigate('/');
+            return;
+          }
+          // AAL1: ensure MFA challenge is shown (fallback in case login handler didn't run)
+          try {
+            const { factors } = await getMFAFactors();
+            const totpFactor = factors?.find((f: any) => f.status === 'verified');
+            if (!totpFactor) {
+              toast.error('MFA setup required for admin access');
+              navigate('/admin-setup');
+              return;
+            }
+            const { challengeId, error: challengeError } = await challengeMFA(totpFactor.id);
+            if (!challengeError && challengeId) {
+              setMfaFactorId(totpFactor.id);
+              setMfaChallengeId(challengeId);
+              setShowMFAChallenge(true);
+              toast.info('Enter your 6-digit authentication code');
+            }
+          } catch (e) {
+            console.error('Failed to initiate MFA challenge in redirect effect:', e);
+          }
+          return;
         }
-      } catch (e) {
-        // Fallback to safe redirect for non-error cases
+        
+        // Not admin: redirect home
         navigate('/');
+      } catch (e) {
+        // Do not redirect on error to avoid loops; stay on auth
+        console.warn('Auth redirect check error:', e);
       }
     };
 
-    maybeRedirect();
-  }, [user, isRecoveryMode, showMFAChallenge, navigate]);
+    maybeRedirectOrChallenge();
+  }, [user, isRecoveryMode, showMFAChallenge, navigate, getMFAFactors, challengeMFA]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
