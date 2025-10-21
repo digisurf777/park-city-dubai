@@ -82,22 +82,27 @@ export const PaymentHistoryUnified = () => {
       }
 
       if (!primary.data || primary.error) {
-        // Active-only fallback: include ONLY users who actually booked or received payments
-        const [bookingsRes, paymentsRes] = await Promise.all([
+        // Active-only fallback: include users who booked, received payments, or participated in chat
+        const [bookingsRes, paymentsRes, chatRes] = await Promise.all([
           supabase
             .from('parking_bookings')
             .select('user_id, cost_aed, status')
-            .in('status', ['confirmed', 'completed', 'approved']),
+            .in('status', ['approved', 'confirmed', 'completed']),
           supabase
             .from('owner_payments')
-            .select('owner_id, amount_aed, status')
+            .select('owner_id, amount_aed, status'),
+          supabase
+            .from('driver_owner_messages')
+            .select('driver_id, owner_id')
         ]);
 
         if (bookingsRes.error) console.warn('Bookings fallback error:', bookingsRes.error);
         if (paymentsRes.error) console.warn('Owner payments fallback error:', paymentsRes.error);
+        if (chatRes.error) console.warn('Chat fallback error:', chatRes.error);
 
         const driverRows = bookingsRes.data || [];
         const ownerRows = paymentsRes.data || [];
+        const chatRows = chatRes.data || [];
 
         const driverMap = new Map<string, { count: number; total: number }>();
         for (const row of driverRows as any[]) {
@@ -113,7 +118,14 @@ export const PaymentHistoryUnified = () => {
           ownerMap.set(row.owner_id, { count: prev.count + 1, total: prev.total + Number(row.amount_aed || 0) });
         }
 
-        const userIds = Array.from(new Set<string>([...driverMap.keys(), ...ownerMap.keys()]));
+        // Include chat participants
+        const chatUserIds = new Set<string>();
+        for (const row of chatRows as any[]) {
+          if (row.driver_id) chatUserIds.add(row.driver_id);
+          if (row.owner_id) chatUserIds.add(row.owner_id);
+        }
+
+        const userIds = Array.from(new Set<string>([...driverMap.keys(), ...ownerMap.keys(), ...chatUserIds]));
         if (userIds.length === 0) {
           setCustomers([]);
           return;
@@ -131,10 +143,11 @@ export const PaymentHistoryUnified = () => {
 
         const mapped: UnifiedCustomer[] = userIds.map((id) => {
           const p = profileMap.get(id);
+          const fullName = p?.full_name?.trim() || p?.email?.split('@')[0] || 'User';
           return {
             user_id: id,
-            full_name: (p?.full_name || p?.email || 'User') as string,
-            email: (p?.email || '') as string,
+            full_name: fullName as string,
+            email: (p?.email || 'no-email@example.com') as string,
             user_type: (p?.user_type || 'seeker') as string,
             driver_bookings_count: driverMap.get(id)?.count || 0,
             owner_payments_count: ownerMap.get(id)?.count || 0,
