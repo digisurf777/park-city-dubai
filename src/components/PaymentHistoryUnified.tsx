@@ -131,24 +131,24 @@ export const PaymentHistoryUnified = () => {
           return;
         }
 
-        const { data: profiles, error: profilesError } = await supabase
-          .from('profiles')
-          .select('user_id, full_name, email, user_type')
-          .in('user_id', userIds);
+        // Use the helper function to get proper names and emails
+        const { data: identities, error: identitiesError } = await supabase.rpc('get_user_identities', { user_ids: userIds });
+        
+        if (identitiesError) {
+          console.error('Failed to fetch user identities:', identitiesError);
+          throw identitiesError;
+        }
 
-        if (profilesError) throw profilesError;
-
-        const profileMap = new Map<string, any>();
-        (profiles || []).forEach((p: any) => profileMap.set(p.user_id, p));
+        const identityMap = new Map<string, { full_name: string; email: string }>();
+        (identities || []).forEach((i: any) => identityMap.set(i.user_id, { full_name: i.full_name, email: i.email }));
 
         const mapped: UnifiedCustomer[] = userIds.map((id) => {
-          const p = profileMap.get(id);
-          const fullName = p?.full_name?.trim() || p?.email?.split('@')[0] || 'User';
+          const identity = identityMap.get(id);
           return {
             user_id: id,
-            full_name: fullName as string,
-            email: (p?.email || '') as string,
-            user_type: (p?.user_type || 'seeker') as string,
+            full_name: (identity?.full_name || 'Customer') as string,
+            email: (identity?.email || '') as string,
+            user_type: 'seeker' as string,
             driver_bookings_count: driverMap.get(id)?.count || 0,
             owner_payments_count: ownerMap.get(id)?.count || 0,
             total_driver_spent: driverMap.get(id)?.total || 0,

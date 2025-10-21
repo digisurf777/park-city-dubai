@@ -1981,6 +1981,14 @@ export type Database = {
           full_name: string
         }[]
       }
+      get_user_identities: {
+        Args: { user_ids: string[] }
+        Returns: {
+          email: string
+          full_name: string
+          user_id: string
+        }[]
+      }
       get_verifications_with_profiles: {
         Args: Record<PropertyKey, never>
         Returns: {
