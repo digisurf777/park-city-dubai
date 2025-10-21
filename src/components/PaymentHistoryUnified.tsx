@@ -780,6 +780,97 @@ export const PaymentHistoryUnified = () => {
           </CardContent>
         </Card>
       </div>
+
+      <Dialog open={newPaymentOpen} onOpenChange={setNewPaymentOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>New Owner Payment</DialogTitle>
+          </DialogHeader>
+
+          <div className="grid gap-4 py-2">
+            <div className="grid gap-2">
+              <Label htmlFor="amount">Amount (AED)</Label>
+              <Input
+                id="amount"
+                type="number"
+                min="0"
+                step="0.01"
+                value={newPayment.amount_aed}
+                onChange={(e) => setNewPayment((p) => ({ ...p, amount_aed: e.target.value }))}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="start">Period Start</Label>
+                <Input
+                  id="start"
+                  type="date"
+                  value={newPayment.payment_period_start}
+                  onChange={(e) => setNewPayment((p) => ({ ...p, payment_period_start: e.target.value }))}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="end">Period End</Label>
+                <Input
+                  id="end"
+                  type="date"
+                  value={newPayment.payment_period_end}
+                  onChange={(e) => setNewPayment((p) => ({ ...p, payment_period_end: e.target.value }))}
+                />
+              </div>
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="method">Payment Method</Label>
+              <select
+                id="method"
+                className="h-9 rounded-md border bg-background px-3 text-sm"
+                value={newPayment.payment_method}
+                onChange={(e) => setNewPayment((p) => ({ ...p, payment_method: e.target.value }))}
+              >
+                <option>Bank Transfer</option>
+                <option>Cash</option>
+                <option>Card</option>
+              </select>
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="reference_number">Reference Number (optional)</Label>
+              <Input
+                id="reference_number"
+                value={newPayment.reference_number}
+                onChange={(e) => setNewPayment((p) => ({ ...p, reference_number: e.target.value }))}
+              />
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="notes">Notes (optional)</Label>
+              <Input
+                id="notes"
+                value={newPayment.notes}
+                onChange={(e) => setNewPayment((p) => ({ ...p, notes: e.target.value }))}
+              />
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="invoice_file">Invoice PDF (optional)</Label>
+              <Input
+                id="invoice_file"
+                type="file"
+                accept="application/pdf"
+                onChange={(e) => setNewPaymentFile(e.target.files?.[0] || null)}
+              />
+              <p className="text-xs text-muted-foreground">Only PDF files are accepted.</p>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setNewPaymentOpen(false)}>Cancel</Button>
+            <Button onClick={createOwnerPayment}>Create Payment</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
