@@ -798,9 +798,40 @@ const AdminPanelOrganized = () => {
     }
   };
   
-  const fetchParkingBookings = async () => {};
-  const fetchAllUsers = async () => {};
-  const fetchDetailedUsers = async () => {};
+  const fetchDetailedUsers = async () => {
+    setDetailedUsersLoading(true);
+    try {
+      const { data: profiles, error } = await supabase
+        .from('profiles')
+        .select('user_id, full_name, email, phone, user_type, created_at')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      setDetailedUsers(profiles || []);
+      
+      // Update user stats
+      const totalUsers = profiles?.length || 0;
+      const parkingOwners = profiles?.filter(p => p.user_type === 'owner').length || 0;
+      const parkingSeekers = profiles?.filter(p => p.user_type === 'seeker').length || 0;
+      
+      setUserStats({
+        totalUsers,
+        onlineUsers: 0, // This would need real-time presence tracking
+        parkingOwners,
+        parkingSeekers
+      });
+    } catch (error) {
+      console.error('Error fetching detailed users:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch users",
+        variant: "destructive",
+      });
+    } finally {
+      setDetailedUsersLoading(false);
+    }
+  };
   
   const fetchChatMessages = async () => {
     setChatLoading(true);
@@ -1368,6 +1399,7 @@ const AdminPanelOrganized = () => {
       fetchParkingListings();
       fetchChatMessages();
       fetchChatUsers();
+      fetchDetailedUsers();
     }
   }, [isAdmin]);
 
@@ -2338,10 +2370,124 @@ const AdminPanelOrganized = () => {
               <TabsContent value="messages" className="space-y-6">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Send Messages</CardTitle>
+                    <CardTitle>Send Messages to Customers</CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <p className="text-center text-muted-foreground">Message sending interface will be here</p>
+                  <CardContent className="space-y-6">
+                    {/* Select User */}
+                    <div className="space-y-2">
+                      <Label htmlFor="selectUser">Select Customer</Label>
+                      <Select value={selectedUserId} onValueChange={setSelectedUserId}>
+                        <SelectTrigger id="selectUser">
+                          <SelectValue placeholder="Choose a customer to send a message" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {detailedUsersLoading ? (
+                            <SelectItem value="loading" disabled>Loading customers...</SelectItem>
+                          ) : detailedUsers.length > 0 ? (
+                            detailedUsers.map((user) => (
+                              <SelectItem key={user.user_id} value={user.user_id}>
+                                {user.full_name || 'No Name'} ({user.email || 'No Email'}) - {user.user_type}
+                              </SelectItem>
+                            ))
+                          ) : (
+                            <SelectItem value="none" disabled>No customers found</SelectItem>
+                          )}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Message Subject */}
+                    <div className="space-y-2">
+                      <Label htmlFor="messageSubject">Subject</Label>
+                      <Input
+                        id="messageSubject"
+                        value={messageSubject}
+                        onChange={(e) => setMessageSubject(e.target.value)}
+                        placeholder="Enter message subject"
+                      />
+                    </div>
+
+                    {/* Message Content */}
+                    <div className="space-y-2">
+                      <Label htmlFor="messageContent">Message</Label>
+                      <Textarea
+                        id="messageContent"
+                        value={messageContent}
+                        onChange={(e) => setMessageContent(e.target.value)}
+                        placeholder="Enter your message here..."
+                        rows={8}
+                      />
+                    </div>
+
+                    {/* Send Button */}
+                    <Button
+                      onClick={async () => {
+                        if (!selectedUserId || !messageSubject.trim() || !messageContent.trim()) {
+                          toast({
+                            title: "Error",
+                            description: "Please select a customer and fill in all fields",
+                            variant: "destructive",
+                          });
+                          return;
+                        }
+
+                        setMessageSending(true);
+                        try {
+                          // Insert message into user_messages
+                          const { error } = await supabase
+                            .from('user_messages')
+                            .insert([{
+                              user_id: selectedUserId,
+                              subject: messageSubject.trim(),
+                              message: messageContent.trim(),
+                              from_admin: true,
+                              read_status: false
+                            }]);
+
+                          if (error) throw error;
+
+                          toast({
+                            title: "Success",
+                            description: "Message sent successfully to customer",
+                          });
+
+                          // Reset form
+                          setMessageSubject('');
+                          setMessageContent('');
+                          setSelectedUserId('');
+                        } catch (error) {
+                          console.error('Error sending message:', error);
+                          toast({
+                            title: "Error",
+                            description: "Failed to send message",
+                            variant: "destructive",
+                          });
+                        } finally {
+                          setMessageSending(false);
+                        }
+                      }}
+                      disabled={messageSending || !selectedUserId || !messageSubject.trim() || !messageContent.trim()}
+                      className="w-full"
+                    >
+                      {messageSending ? (
+                        <>
+                          <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                          Sending...
+                        </>
+                      ) : (
+                        <>
+                          <Send className="h-4 w-4 mr-2" />
+                          Send Message
+                        </>
+                      )}
+                    </Button>
+
+                    {/* Display count of available customers */}
+                    {!detailedUsersLoading && (
+                      <p className="text-sm text-muted-foreground text-center">
+                        {detailedUsers.length} customer{detailedUsers.length !== 1 ? 's' : ''} available
+                      </p>
+                    )}
                   </CardContent>
                 </Card>
               </TabsContent>
