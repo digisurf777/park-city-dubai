@@ -282,7 +282,7 @@ const AdminPanelOrganized = () => {
           if (data.requires_mfa) {
             toast({
               title: 'MFA Required',
-              description: 'Admin access requires two-factor authentication. Please log in again.',
+              description: 'Admin access requires two-factor authentication. Please complete MFA.',
               variant: 'destructive',
               duration: 6000
             });
@@ -300,7 +300,7 @@ const AdminPanelOrganized = () => {
             });
           }
           
-          await signOut();
+          // Do NOT sign out here to avoid loops; keep session so /auth can show MFA challenge
           navigate('/auth');
           return;
         }
