@@ -291,16 +291,24 @@ const Auth = () => {
   };
 
   const handleMFAVerification = async () => {
-    if (mfaCode.length !== 6) {
+    const sanitized = mfaCode.replace(/\s/g, '');
+    if (sanitized.length !== 6) {
       toast.error('Please enter a 6-digit code');
       return;
     }
     
     setLoading(true);
     try {
-      const { error } = await verifyMFAChallenge(mfaChallengeId, mfaCode);
+      const { error } = await verifyMFAChallenge(mfaChallengeId, sanitized);
       
       if (error) {
+        // Recreate challenge once to guard against expired/invalid challenge
+        const { factors } = await getMFAFactors();
+        const totp = factors?.find((f: any) => f.status === 'verified');
+        if (totp) {
+          const { challengeId } = await challengeMFA(totp.id);
+          if (challengeId) setMfaChallengeId(challengeId);
+        }
         toast.error('Invalid code. Please try again.');
         setMfaCode('');
         setLoading(false);
@@ -323,25 +331,37 @@ const Auth = () => {
       setLoading(false);
     }
   };
-
-  // Cleanup effect: sign out if MFA challenge is abandoned
+  // When MFA screen opens, always (re)create a fresh challenge to avoid expired/absent challenges
   useEffect(() => {
-    let timeoutId: NodeJS.Timeout;
-    
-    if (showMFAChallenge) {
-      // 5-minute timeout for MFA verification
-      timeoutId = setTimeout(async () => {
-        toast.error('MFA verification timed out. Please log in again.');
-        await signOut();
-        setShowMFAChallenge(false);
-        setMfaCode('');
-      }, 5 * 60 * 1000);
-    }
-    
-    return () => {
-      if (timeoutId) clearTimeout(timeoutId);
+    const refreshChallenge = async () => {
+      try {
+        if (!showMFAChallenge) return;
+        // Ensure we have a factorId
+        let factorId = mfaFactorId;
+        if (!factorId) {
+          const { factors } = await getMFAFactors();
+          const totp = factors?.find((f: any) => f.status === 'verified');
+          if (!totp) {
+            toast.error('MFA setup required for admin access');
+            navigate('/admin-setup');
+            return;
+          }
+          factorId = totp.id;
+          setMfaFactorId(factorId);
+        }
+        const { challengeId, error } = await challengeMFA(factorId);
+        if (error || !challengeId) {
+          console.error('Failed to create MFA challenge:', error);
+          toast.error('Could not start verification. Please try again.');
+          return;
+        }
+        setMfaChallengeId(challengeId);
+      } catch (e) {
+        console.error('Error refreshing MFA challenge:', e);
+      }
     };
-  }, [showMFAChallenge, signOut]);
+    refreshChallenge();
+  }, [showMFAChallenge, mfaFactorId, challengeMFA, getMFAFactors, navigate, toast]);
 
   const validatePassword = (password: string) => {
     const hasLowercase = /[a-z]/.test(password);
