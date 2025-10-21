@@ -83,26 +83,36 @@ export const PaymentHistoryUnified = () => {
 
       if (!primary.data || primary.error) {
         // Active-only fallback: include users who booked, received payments, or participated in chat
-        const [bookingsRes, paymentsRes, chatRes] = await Promise.all([
-          supabase
-            .from('parking_bookings')
-            .select('user_id, cost_aed, status')
-            .in('status', ['pending', 'approved', 'confirmed', 'completed']),
-          supabase
-            .from('owner_payments')
-            .select('owner_id, amount_aed, status'),
-          supabase
-            .from('driver_owner_messages')
-            .select('driver_id, owner_id')
-        ]);
+          const [bookingsRes, paymentsRes, chatRes, listingsRes, depositsRes] = await Promise.all([
+            supabase
+              .from('parking_bookings')
+              .select('user_id, cost_aed, status')
+              .in('status', ['pending', 'approved', 'confirmed', 'completed']),
+            supabase
+              .from('owner_payments')
+              .select('owner_id, amount_aed, status'),
+            supabase
+              .from('driver_owner_messages')
+              .select('driver_id, owner_id'),
+            supabase
+              .from('parking_listings')
+              .select('owner_id, status'),
+            supabase
+              .from('deposit_payments')
+              .select('owner_id')
+          ]);
 
         if (bookingsRes.error) console.warn('Bookings fallback error:', bookingsRes.error);
         if (paymentsRes.error) console.warn('Owner payments fallback error:', paymentsRes.error);
         if (chatRes.error) console.warn('Chat fallback error:', chatRes.error);
+        if (listingsRes.error) console.warn('Listings fallback error:', listingsRes.error);
+        if (depositsRes.error) console.warn('Deposits fallback error:', depositsRes.error);
 
         const driverRows = bookingsRes.data || [];
         const ownerRows = paymentsRes.data || [];
         const chatRows = chatRes.data || [];
+        const listingRows = listingsRes.data || [];
+        const depositRows = depositsRes.data || [];
 
         const driverMap = new Map<string, { count: number; total: number }>();
         for (const row of driverRows as any[]) {
@@ -116,6 +126,23 @@ export const PaymentHistoryUnified = () => {
           if (!row.owner_id) continue;
           const prev = ownerMap.get(row.owner_id) || { count: 0, total: 0 };
           ownerMap.set(row.owner_id, { count: prev.count + 1, total: prev.total + Number(row.amount_aed || 0) });
+        }
+
+        // Count listings (approved/published) as owner signal
+        for (const row of listingRows as any[]) {
+          if (!row.owner_id) continue;
+          const status = (row.status || '').toLowerCase();
+          if (status === 'approved' || status === 'published') {
+            const prev = ownerMap.get(row.owner_id) || { count: 0, total: 0 };
+            ownerMap.set(row.owner_id, { count: prev.count + 1, total: prev.total });
+          }
+        }
+
+        // Count deposit payments as owner signal
+        for (const row of depositRows as any[]) {
+          if (!row.owner_id) continue;
+          const prev = ownerMap.get(row.owner_id) || { count: 0, total: 0 };
+          ownerMap.set(row.owner_id, { count: prev.count + 1, total: prev.total });
         }
 
         // Include chat participants
