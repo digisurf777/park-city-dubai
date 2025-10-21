@@ -81,46 +81,70 @@ export const PaymentHistoryUnified = () => {
         console.warn('Primary RPC failed, falling back to get_unified_customers:', primary.error.message || primary.error);
       }
 
-      if (!primary.data || primary.data.length === 0) {
-        // Fallback 1: broader function that includes all owners/drivers
-        const fallback = await supabase.rpc('get_unified_customers');
-        if (!fallback.error && fallback.data && fallback.data.length > 0) {
-          const mapped = (fallback.data || []).map((row: any) => ({
-            user_id: row.user_id,
-            full_name: row.full_name,
-            email: row.email,
-            user_type: row.user_type || 'seeker',
-            driver_bookings_count: Number(row.total_bookings || 0),
-            owner_payments_count: Number(row.total_payments || 0),
-            total_driver_spent: Number(row.total_booking_amount || 0),
-            total_owner_received: Number(row.total_payment_amount || 0),
-            verification_status: 'not_verified',
-          }));
-          setCustomers(mapped);
-        } else {
-          // Fallback 2 (safe): load from profiles to always show customers, even if RPCs fail
-          console.warn('Fallback RPC failed or returned empty; loading from profiles instead');
-          const { data: profiles, error: profilesError } = await supabase
-            .from('profiles')
-            .select('user_id, full_name, email, user_type')
-            .order('created_at', { ascending: false });
+      if (!primary.data || primary.error) {
+        // Active-only fallback: include ONLY users who actually booked or received payments
+        const [bookingsRes, paymentsRes] = await Promise.all([
+          supabase
+            .from('parking_bookings')
+            .select('user_id, cost_aed, status')
+            .in('status', ['confirmed', 'completed', 'approved']),
+          supabase
+            .from('owner_payments')
+            .select('owner_id, amount_aed, status')
+        ]);
 
-          if (profilesError) throw profilesError;
+        if (bookingsRes.error) console.warn('Bookings fallback error:', bookingsRes.error);
+        if (paymentsRes.error) console.warn('Owner payments fallback error:', paymentsRes.error);
 
-          const mappedProfiles: UnifiedCustomer[] = (profiles || []).map((p: any) => ({
-            user_id: p.user_id,
-            full_name: p.full_name || p.email || 'User',
-            email: p.email || '',
-            user_type: p.user_type || 'seeker',
-            driver_bookings_count: 0,
-            owner_payments_count: 0,
-            total_driver_spent: 0,
-            total_owner_received: 0,
-            verification_status: 'not_verified',
-          }));
+        const driverRows = bookingsRes.data || [];
+        const ownerRows = paymentsRes.data || [];
 
-          setCustomers(mappedProfiles);
+        const driverMap = new Map<string, { count: number; total: number }>();
+        for (const row of driverRows as any[]) {
+          if (!row.user_id) continue;
+          const prev = driverMap.get(row.user_id) || { count: 0, total: 0 };
+          driverMap.set(row.user_id, { count: prev.count + 1, total: prev.total + Number(row.cost_aed || 0) });
         }
+
+        const ownerMap = new Map<string, { count: number; total: number }>();
+        for (const row of ownerRows as any[]) {
+          if (!row.owner_id) continue;
+          const prev = ownerMap.get(row.owner_id) || { count: 0, total: 0 };
+          ownerMap.set(row.owner_id, { count: prev.count + 1, total: prev.total + Number(row.amount_aed || 0) });
+        }
+
+        const userIds = Array.from(new Set<string>([...driverMap.keys(), ...ownerMap.keys()]));
+        if (userIds.length === 0) {
+          setCustomers([]);
+          return;
+        }
+
+        const { data: profiles, error: profilesError } = await supabase
+          .from('profiles')
+          .select('user_id, full_name, email, user_type')
+          .in('user_id', userIds);
+
+        if (profilesError) throw profilesError;
+
+        const profileMap = new Map<string, any>();
+        (profiles || []).forEach((p: any) => profileMap.set(p.user_id, p));
+
+        const mapped: UnifiedCustomer[] = userIds.map((id) => {
+          const p = profileMap.get(id);
+          return {
+            user_id: id,
+            full_name: (p?.full_name || p?.email || 'User') as string,
+            email: (p?.email || '') as string,
+            user_type: (p?.user_type || 'seeker') as string,
+            driver_bookings_count: driverMap.get(id)?.count || 0,
+            owner_payments_count: ownerMap.get(id)?.count || 0,
+            total_driver_spent: driverMap.get(id)?.total || 0,
+            total_owner_received: ownerMap.get(id)?.total || 0,
+            verification_status: 'not_verified',
+          };
+        });
+
+        setCustomers(mapped);
       } else {
         setCustomers(primary.data || []);
       }
