@@ -43,34 +43,40 @@ export const MFARequiredGuard = ({ children }: { children: React.ReactNode }) =>
     checkAdminRole();
   }, [user]);
 
-  // Check AAL level for admins
+  // Server-side validation for admins using edge function (avoids relying on client AAL)
   useEffect(() => {
-    const checkAALLevel = async () => {
+    const validateSecureAccess = async () => {
       if (!user || !isAdmin || loading || checkingRole) {
         setShowSetup(false);
         return;
       }
-      
       try {
         const { data: sessionData } = await supabase.auth.getSession();
-        const currentAAL = (sessionData.session as any)?.aal;
-        
-        console.log('MFARequiredGuard - AAL check:', currentAAL, 'for user:', user.id);
-        
-        // Admin must have AAL2 (MFA verified)
-        if (currentAAL !== 'aal2') {
-          console.warn('Admin access blocked: AAL2 required, current:', currentAAL);
+        const accessToken = sessionData.session?.access_token;
+        if (!accessToken) {
           setShowSetup(true);
-        } else {
+          return;
+        }
+        const res = await fetch('https://eoknluyunximjlsnyceb.supabase.co/functions/v1/validate-admin-access', {
+          headers: { Authorization: `Bearer ${accessToken}` }
+        });
+        if (res.ok) {
           setShowSetup(false);
+        } else {
+          const body = await res.json().catch(() => ({}));
+          if (body?.requires_mfa) {
+            setShowSetup(true);
+          } else {
+            // If not admin or other error, fail closed
+            setShowSetup(true);
+          }
         }
       } catch (error) {
-        console.error('Error checking AAL level:', error);
+        console.error('MFARequiredGuard secure validation error:', error);
         setShowSetup(true);
       }
     };
-    
-    checkAALLevel();
+    validateSecureAccess();
   }, [user, loading, isAdmin, checkingRole]);
 
   if (loading || checkingRole) {
