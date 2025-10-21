@@ -166,6 +166,25 @@ export const PaymentHistoryUnified = () => {
           throw identitiesError;
         }
 
+        // For users with missing profile data, fetch from auth.users
+        const usersWithNullData = (identities || []).filter((u: any) => !u.full_name || !u.email);
+        if (usersWithNullData.length > 0) {
+          const nullUserIds = usersWithNullData.map((u: any) => u.user_id);
+          const { data: authUsers } = await supabase
+            .from('profiles')
+            .select('user_id, full_name, email')
+            .in('user_id', nullUserIds);
+          
+          // Merge auth.users data into identities
+          authUsers?.forEach(authUser => {
+            const identity = identities?.find((i: any) => i.user_id === authUser.user_id);
+            if (identity) {
+              identity.full_name = identity.full_name || authUser.full_name || 'Unknown User';
+              identity.email = identity.email || authUser.email || 'no-email@example.com';
+            }
+          });
+        }
+
         const identityMap = new Map<string, { full_name: string; email: string }>();
         (identities || []).forEach((i: any) => identityMap.set(i.user_id, { full_name: i.full_name, email: i.email }));
 
@@ -209,16 +228,26 @@ export const PaymentHistoryUnified = () => {
     try {
       setLoadingDetails(true);
 
-      // Fetch driver bookings
+      // Fetch driver bookings - include bookings with active chats
       const { data: bookings, error: bookingsError } = await supabase
         .from('parking_bookings')
         .select('id, location, zone, start_time, end_time, cost_aed, status, invoice_url, created_at')
         .eq('user_id', userId)
-        .in('status', ['confirmed', 'completed', 'approved'])
         .order('created_at', { ascending: false });
 
+      // Filter bookings to show those with chat activity or confirmed status
+      const { data: chatBookings } = await supabase
+        .from('driver_owner_messages')
+        .select('booking_id')
+        .or(`driver_id.eq.${userId},owner_id.eq.${userId}`);
+
+      const chatBookingIds = new Set(chatBookings?.map(c => c.booking_id) || []);
+      const filteredBookings = (bookings || []).filter(b => 
+        ['confirmed', 'completed', 'approved'].includes(b.status) || chatBookingIds.has(b.id)
+      );
+
       if (bookingsError) throw bookingsError;
-      setCustomerBookings(bookings || []);
+      setCustomerBookings(filteredBookings);
 
       // Fetch owner payments
       const { data: paymentsData, error: paymentsError } = await supabase.rpc('get_owner_payment_history');
