@@ -8,7 +8,7 @@ import { MFASetup } from './MFASetup';
 import { supabase } from '@/integrations/supabase/client';
 
 export const MFARequiredGuard = ({ children }: { children: React.ReactNode }) => {
-  const { mfaRequired, mfaEnabled, user, loading } = useAuth();
+  const { mfaRequired, mfaEnabled, user, loading, signOut } = useAuth();
   const navigate = useNavigate();
   const [showSetup, setShowSetup] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -43,14 +43,35 @@ export const MFARequiredGuard = ({ children }: { children: React.ReactNode }) =>
     checkAdminRole();
   }, [user]);
 
-  // Only show MFA setup if user is admin and doesn't have MFA enabled
+  // Check AAL level for admins
   useEffect(() => {
-    if (!loading && !checkingRole && user && isAdmin && mfaRequired && !mfaEnabled) {
-      setShowSetup(true);
-    } else {
-      setShowSetup(false);
-    }
-  }, [mfaRequired, mfaEnabled, user, loading, isAdmin, checkingRole]);
+    const checkAALLevel = async () => {
+      if (!user || !isAdmin || loading || checkingRole) {
+        setShowSetup(false);
+        return;
+      }
+      
+      try {
+        const { data: sessionData } = await supabase.auth.getSession();
+        const currentAAL = (sessionData.session as any)?.aal;
+        
+        console.log('MFARequiredGuard - AAL check:', currentAAL, 'for user:', user.id);
+        
+        // Admin must have AAL2 (MFA verified)
+        if (currentAAL !== 'aal2') {
+          console.warn('Admin access blocked: AAL2 required, current:', currentAAL);
+          setShowSetup(true);
+        } else {
+          setShowSetup(false);
+        }
+      } catch (error) {
+        console.error('Error checking AAL level:', error);
+        setShowSetup(true);
+      }
+    };
+    
+    checkAALLevel();
+  }, [user, loading, isAdmin, checkingRole]);
 
   if (loading || checkingRole) {
     return (
@@ -71,14 +92,33 @@ export const MFARequiredGuard = ({ children }: { children: React.ReactNode }) =>
         <div className="max-w-2xl w-full space-y-6">
           <Alert variant="destructive">
             <AlertTriangle className="h-4 w-4" />
-            <AlertTitle>Two-Factor Authentication Required</AlertTitle>
+            <AlertTitle>Multi-Factor Authentication Required</AlertTitle>
             <AlertDescription>
-              As an administrator, you must enable two-factor authentication before accessing admin features.
-              This is a security requirement to protect sensitive data.
+              {mfaEnabled 
+                ? 'Your session requires MFA verification. Please log out and log back in with your authenticator code.'
+                : 'As an administrator, you must enable two-factor authentication before accessing admin features. This is a security requirement to protect sensitive data.'
+              }
             </AlertDescription>
           </Alert>
           
-          <MFASetup />
+          {mfaEnabled ? (
+            <div className="flex flex-col gap-4 items-center">
+              <p className="text-sm text-muted-foreground text-center">
+                You have MFA enabled but your current session is not verified. Please log out and log in again.
+              </p>
+              <Button 
+                onClick={async () => {
+                  await signOut();
+                  navigate('/auth');
+                }}
+              >
+                <Shield className="mr-2 h-4 w-4" />
+                Log Out and Re-authenticate
+              </Button>
+            </div>
+          ) : (
+            <MFASetup />
+          )}
           
           <div className="flex justify-center">
             <Button 

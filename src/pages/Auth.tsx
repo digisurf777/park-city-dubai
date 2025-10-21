@@ -28,7 +28,7 @@ const Auth = () => {
   const [mfaCode, setMfaCode] = useState('');
   const [mfaFactorId, setMfaFactorId] = useState('');
   const [mfaChallengeId, setMfaChallengeId] = useState('');
-  const { signIn, signUp, resetPassword, updatePassword, user, challengeMFA, verifyMFAChallenge, getMFAFactors } = useAuth();
+  const { signIn, signUp, resetPassword, updatePassword, user, challengeMFA, verifyMFAChallenge, getMFAFactors, signOut } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -167,53 +167,72 @@ const Auth = () => {
           toast.error(error.message || 'Login failed');
         }
         setLoading(false);
-      } else {
-        // Check if user is admin and has MFA enabled
-        const { data: session } = await supabase.auth.getSession();
-        if (session?.session?.user) {
-          const userId = session.session.user.id;
-          
-          // Check if user is admin
-          const { data: roleData } = await supabase
-            .from('user_roles')
-            .select('role')
-            .eq('user_id', userId)
-            .eq('role', 'admin')
-            .maybeSingle();
-          
-          if (roleData) {
-            // User is admin - check for verified MFA factor
-            const { factors } = await getMFAFactors();
-            const totpFactor = factors?.find(f => f.status === 'verified');
-            
-            if (totpFactor) {
-              // Admin has MFA enabled - challenge for code
-              const { challengeId, error: challengeError } = await challengeMFA(totpFactor.id);
-              
-              if (!challengeError && challengeId) {
-                setMfaFactorId(totpFactor.id);
-                setMfaChallengeId(challengeId);
-                setShowMFAChallenge(true);
-                toast.info('Enter the 6-digit code from your authenticator app');
-                setLoading(false);
-                return; // Don't navigate yet - wait for MFA verification
-              }
-            }
-          }
-        }
-        
-        // Non-admin or no MFA setup - proceed with normal login
-        toast.success('Logged in successfully! Redirecting...', {
-          duration: 2000
-        });
-        setTimeout(() => {
-          navigate('/');
-        }, 1500);
-        setLoading(false);
+        return;
       }
-    } catch (error) {
+
+      // Get current session and check AAL level
+      const { data: sessionData } = await supabase.auth.getSession();
+      const currentAAL = (sessionData.session as any)?.aal;
+      const userId = sessionData.session?.user?.id;
+
+      if (!userId) {
+        toast.error('Session error. Please try again.');
+        setLoading(false);
+        return;
+      }
+
+      // Check if user is admin
+      const { data: roleData } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId)
+        .eq('role', 'admin')
+        .maybeSingle();
+
+      if (roleData) {
+        // User is admin - check AAL level
+        console.log('Admin login detected. Current AAL:', currentAAL);
+        
+        if (currentAAL === 'aal1') {
+          // Admin logged in with only password (AAL1) - need MFA (AAL2)
+          const { factors } = await getMFAFactors();
+          const totpFactor = factors?.find(f => f.status === 'verified');
+          
+          if (!totpFactor) {
+            // No MFA enrolled - force enrollment
+            toast.error('MFA setup required for admin access');
+            navigate('/admin-setup');
+            setLoading(false);
+            return;
+          }
+          
+          // Has MFA enrolled - challenge for code
+          const { challengeId, error: challengeError } = await challengeMFA(totpFactor.id);
+          
+          if (!challengeError && challengeId) {
+            setMfaFactorId(totpFactor.id);
+            setMfaChallengeId(challengeId);
+            setShowMFAChallenge(true);
+            toast.info('Enter your 6-digit authentication code');
+            setLoading(false);
+            return;
+          }
+        } else if (currentAAL === 'aal2') {
+          // Already verified MFA in this session
+          toast.success('Logged in successfully with MFA!');
+          navigate('/');
+          setLoading(false);
+          return;
+        }
+      }
+
+      // Non-admin user
+      toast.success('Logged in successfully!');
+      navigate('/');
+      setLoading(false);
+    } catch (error: any) {
       console.error('Login exception:', error);
-      toast.error('An error occurred during login');
+      toast.error(error.message || 'An error occurred during login');
       setLoading(false);
     }
   };
@@ -233,7 +252,7 @@ const Auth = () => {
         setMfaCode('');
         setLoading(false);
       } else {
-        toast.success('Login successful!');
+        toast.success('Login successful with MFA!');
         navigate('/');
       }
     } catch (err) {
@@ -242,6 +261,25 @@ const Auth = () => {
       setLoading(false);
     }
   };
+
+  // Cleanup effect: sign out if MFA challenge is abandoned
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+    
+    if (showMFAChallenge) {
+      // 5-minute timeout for MFA verification
+      timeoutId = setTimeout(async () => {
+        toast.error('MFA verification timed out. Please log in again.');
+        await signOut();
+        setShowMFAChallenge(false);
+        setMfaCode('');
+      }, 5 * 60 * 1000);
+    }
+    
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, [showMFAChallenge, signOut]);
 
   const validatePassword = (password: string) => {
     const hasLowercase = /[a-z]/.test(password);

@@ -15,7 +15,7 @@ import {
   Pencil, Trash2, Plus, CheckCircle, XCircle, FileText, Mail, Upload, X, 
   Eye, Edit, Lightbulb, Camera, Settings, RefreshCw, MessageCircle, Send, 
   LogOut, Home, Grid, Bell, Users, Car, Copy, ExternalLink, Image, CreditCard,
-  Calendar, Clock, DollarSign, AlertTriangle, RotateCcw
+  Calendar, Clock, DollarSign, AlertTriangle, RotateCcw, Shield
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
@@ -140,6 +140,8 @@ const AdminPanelOrganized = () => {
   const { user, signOut } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [isValidated, setIsValidated] = useState(false);
+  const [validating, setValidating] = useState(true);
   
   // All state variables from original AdminPanel
   const [posts, setPosts] = useState<NewsPost[]>([]);
@@ -234,6 +236,96 @@ const AdminPanelOrganized = () => {
   const [documentViewDialog, setDocumentViewDialog] = useState(false);
   const [documentImageUrl, setDocumentImageUrl] = useState<string>('');
   const [documentLoading, setDocumentLoading] = useState(false);
+
+  // **CRITICAL SECURITY**: Validate admin access with AAL2 on mount and periodically
+  useEffect(() => {
+    const validateAdminAccess = async () => {
+      if (!user) {
+        console.log('No user - redirecting to auth');
+        setIsValidated(false);
+        setValidating(false);
+        navigate('/auth');
+        return;
+      }
+
+      try {
+        const { data: sessionData } = await supabase.auth.getSession();
+        const accessToken = sessionData.session?.access_token;
+        
+        if (!accessToken) {
+          console.error('No access token found');
+          toast({
+            title: 'Authentication Required',
+            description: 'Please log in to access admin panel',
+            variant: 'destructive'
+          });
+          navigate('/auth');
+          return;
+        }
+
+        // Call server-side validation function
+        const response = await fetch(
+          'https://eoknluyunximjlsnyceb.supabase.co/functions/v1/validate-admin-access',
+          {
+            headers: {
+              'Authorization': `Bearer ${accessToken}`,
+              'Content-Type': 'application/json'
+            },
+          }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok || data.requires_mfa) {
+          console.error('Admin access validation failed:', data);
+          
+          if (data.requires_mfa) {
+            toast({
+              title: 'MFA Required',
+              description: 'Admin access requires two-factor authentication. Please log in again.',
+              variant: 'destructive',
+              duration: 6000
+            });
+          } else if (data.error === 'Not an admin') {
+            toast({
+              title: 'Access Denied',
+              description: 'You do not have admin privileges',
+              variant: 'destructive'
+            });
+          } else {
+            toast({
+              title: 'Access Denied',
+              description: data.message || 'Unable to verify admin access',
+              variant: 'destructive'
+            });
+          }
+          
+          await signOut();
+          navigate('/auth');
+          return;
+        }
+
+        console.log('Admin access validated with AAL2:', data);
+        setIsValidated(true);
+        setValidating(false);
+      } catch (error) {
+        console.error('Access validation error:', error);
+        toast({
+          title: 'Validation Error',
+          description: 'Failed to validate admin access',
+          variant: 'destructive'
+        });
+        navigate('/auth');
+      }
+    };
+
+    validateAdminAccess();
+
+    // Re-validate every 5 minutes
+    const intervalId = setInterval(validateAdminAccess, 5 * 60 * 1000);
+    
+    return () => clearInterval(intervalId);
+  }, [user, navigate, toast, signOut]);
 
   // Fetch functions implementation
   const fetchPosts = async () => {
@@ -1464,6 +1556,25 @@ const AdminPanelOrganized = () => {
       supabase.removeChannel(channel);
     };
   }, [isAdmin, selectedChatUser]);
+
+  if (validating) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Card className="w-96">
+          <CardContent className="pt-6 text-center space-y-4">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+            <Shield className="h-12 w-12 mx-auto text-primary" />
+            <h2 className="text-xl font-semibold">Validating Secure Access</h2>
+            <p className="text-muted-foreground">Verifying two-factor authentication...</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (!isValidated) {
+    return null;
+  }
 
   if (checkingAdmin) {
     return (
