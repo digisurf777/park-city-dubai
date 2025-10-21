@@ -9,8 +9,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
-import { Loader2, Mail, Lock } from 'lucide-react';
+import { Loader2, Mail, Lock, Shield } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { InputOTP, InputOTPGroup, InputOTPSlot, InputOTPSeparator } from '@/components/ui/input-otp';
 
 const Auth = () => {
   const [loading, setLoading] = useState(false);
@@ -23,7 +24,11 @@ const Auth = () => {
   const [loginForm, setLoginForm] = useState({ email: '', password: '' });
   const [signupForm, setSignupForm] = useState({ email: '', password: '', confirmPassword: '', fullName: '', agreeToTerms: false });
   const [rateLimited, setRateLimited] = useState(false);
-  const { signIn, signUp, resetPassword, updatePassword, user } = useAuth();
+  const [showMFAChallenge, setShowMFAChallenge] = useState(false);
+  const [mfaCode, setMfaCode] = useState('');
+  const [mfaFactorId, setMfaFactorId] = useState('');
+  const [mfaChallengeId, setMfaChallengeId] = useState('');
+  const { signIn, signUp, resetPassword, updatePassword, user, challengeMFA, verifyMFAChallenge, getMFAFactors } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -161,19 +166,79 @@ const Auth = () => {
         } else {
           toast.error(error.message || 'Login failed');
         }
+        setLoading(false);
       } else {
+        // Check if user is admin and has MFA enabled
+        const { data: session } = await supabase.auth.getSession();
+        if (session?.session?.user) {
+          const userId = session.session.user.id;
+          
+          // Check if user is admin
+          const { data: roleData } = await supabase
+            .from('user_roles')
+            .select('role')
+            .eq('user_id', userId)
+            .eq('role', 'admin')
+            .maybeSingle();
+          
+          if (roleData) {
+            // User is admin - check for verified MFA factor
+            const { factors } = await getMFAFactors();
+            const totpFactor = factors?.find(f => f.status === 'verified');
+            
+            if (totpFactor) {
+              // Admin has MFA enabled - challenge for code
+              const { challengeId, error: challengeError } = await challengeMFA(totpFactor.id);
+              
+              if (!challengeError && challengeId) {
+                setMfaFactorId(totpFactor.id);
+                setMfaChallengeId(challengeId);
+                setShowMFAChallenge(true);
+                toast.info('Enter the 6-digit code from your authenticator app');
+                setLoading(false);
+                return; // Don't navigate yet - wait for MFA verification
+              }
+            }
+          }
+        }
+        
+        // Non-admin or no MFA setup - proceed with normal login
         toast.success('Logged in successfully! Redirecting...', {
           duration: 2000
         });
-        // Navigate after a short delay to show the success message
         setTimeout(() => {
           navigate('/');
         }, 1500);
+        setLoading(false);
       }
     } catch (error) {
       console.error('Login exception:', error);
       toast.error('An error occurred during login');
-    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleMFAVerification = async () => {
+    if (mfaCode.length !== 6) {
+      toast.error('Please enter a 6-digit code');
+      return;
+    }
+    
+    setLoading(true);
+    try {
+      const { error } = await verifyMFAChallenge(mfaChallengeId, mfaCode);
+      
+      if (error) {
+        toast.error('Invalid code. Please try again.');
+        setMfaCode('');
+        setLoading(false);
+      } else {
+        toast.success('Login successful!');
+        navigate('/');
+      }
+    } catch (err) {
+      toast.error('An error occurred during verification');
+      setMfaCode('');
       setLoading(false);
     }
   };
@@ -441,6 +506,68 @@ const Auth = () => {
       setLoading(false);
     }
   };
+
+  // Show MFA challenge screen if admin needs to enter code
+  if (showMFAChallenge) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center px-4 animate-zoom-slow">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle className="text-center flex items-center justify-center gap-2">
+              <Shield className="h-5 w-5" />
+              Two-Factor Authentication
+            </CardTitle>
+            <CardDescription className="text-center">
+              Enter the 6-digit code from your authenticator app
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex justify-center">
+                <InputOTP
+                  maxLength={6}
+                  value={mfaCode}
+                  onChange={setMfaCode}
+                >
+                  <InputOTPGroup>
+                    <InputOTPSlot index={0} />
+                    <InputOTPSlot index={1} />
+                    <InputOTPSlot index={2} />
+                  </InputOTPGroup>
+                  <InputOTPSeparator />
+                  <InputOTPGroup>
+                    <InputOTPSlot index={3} />
+                    <InputOTPSlot index={4} />
+                    <InputOTPSlot index={5} />
+                  </InputOTPGroup>
+                </InputOTP>
+              </div>
+              <Button 
+                onClick={handleMFAVerification} 
+                disabled={loading || mfaCode.length !== 6}
+                className="w-full"
+              >
+                {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                Verify Code
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  setShowMFAChallenge(false);
+                  setMfaCode('');
+                  setMfaFactorId('');
+                  setMfaChallengeId('');
+                }}
+                className="w-full"
+              >
+                Cancel
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   // Show password update form if coming from reset link
   if (showPasswordUpdate) {
