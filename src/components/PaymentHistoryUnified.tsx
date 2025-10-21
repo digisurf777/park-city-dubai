@@ -93,7 +93,8 @@ export const PaymentHistoryUnified = () => {
               .select('owner_id, amount_aed, status'),
             supabase
               .from('driver_owner_messages')
-              .select('driver_id, owner_id'),
+              .select('driver_id, owner_id, is_expired')
+              .eq('is_expired', false),
             supabase
               .from('parking_listings')
               .select('owner_id, status'),
@@ -114,35 +115,18 @@ export const PaymentHistoryUnified = () => {
         const listingRows = listingsRes.data || [];
         const depositRows = depositsRes.data || [];
 
+        // Build role counts strictly from active chat threads
         const driverMap = new Map<string, { count: number; total: number }>();
-        for (const row of driverRows as any[]) {
-          if (!row.user_id) continue;
-          const prev = driverMap.get(row.user_id) || { count: 0, total: 0 };
-          driverMap.set(row.user_id, { count: prev.count + 1, total: prev.total + Number(row.cost_aed || 0) });
-        }
-
         const ownerMap = new Map<string, { count: number; total: number }>();
-        for (const row of ownerRows as any[]) {
-          if (!row.owner_id) continue;
-          const prev = ownerMap.get(row.owner_id) || { count: 0, total: 0 };
-          ownerMap.set(row.owner_id, { count: prev.count + 1, total: prev.total + Number(row.amount_aed || 0) });
-        }
-
-        // Count listings (approved/published) as owner signal
-        for (const row of listingRows as any[]) {
-          if (!row.owner_id) continue;
-          const status = (row.status || '').toLowerCase();
-          if (status === 'approved' || status === 'published') {
+        for (const row of chatRows as any[]) {
+          if (row.driver_id) {
+            const prev = driverMap.get(row.driver_id) || { count: 0, total: 0 };
+            driverMap.set(row.driver_id, { count: prev.count + 1, total: prev.total });
+          }
+          if (row.owner_id) {
             const prev = ownerMap.get(row.owner_id) || { count: 0, total: 0 };
             ownerMap.set(row.owner_id, { count: prev.count + 1, total: prev.total });
           }
-        }
-
-        // Count deposit payments as owner signal
-        for (const row of depositRows as any[]) {
-          if (!row.owner_id) continue;
-          const prev = ownerMap.get(row.owner_id) || { count: 0, total: 0 };
-          ownerMap.set(row.owner_id, { count: prev.count + 1, total: prev.total });
         }
 
         // Include chat participants
@@ -158,35 +142,16 @@ export const PaymentHistoryUnified = () => {
           return;
         }
 
-        // Use the helper function to get proper names and emails
-        const { data: identities, error: identitiesError } = await supabase.rpc('get_user_identities', { user_ids: userIds });
+        // Fetch identity data (name/email) for admin with robust fallbacks
+        const { data: identities, error: identitiesError } = await supabase.rpc('get_user_basic_info', { user_ids: userIds });
         
         if (identitiesError) {
           console.error('Failed to fetch user identities:', identitiesError);
           throw identitiesError;
         }
 
-        // For users with missing profile data, fetch from auth.users
-        const usersWithNullData = (identities || []).filter((u: any) => !u.full_name || !u.email);
-        if (usersWithNullData.length > 0) {
-          const nullUserIds = usersWithNullData.map((u: any) => u.user_id);
-          const { data: authUsers } = await supabase
-            .from('profiles')
-            .select('user_id, full_name, email')
-            .in('user_id', nullUserIds);
-          
-          // Merge auth.users data into identities
-          authUsers?.forEach(authUser => {
-            const identity = identities?.find((i: any) => i.user_id === authUser.user_id);
-            if (identity) {
-              identity.full_name = identity.full_name || authUser.full_name || 'Unknown User';
-              identity.email = identity.email || authUser.email || 'no-email@example.com';
-            }
-          });
-        }
-
         const identityMap = new Map<string, { full_name: string; email: string }>();
-        (identities || []).forEach((i: any) => identityMap.set(i.user_id, { full_name: i.full_name, email: i.email }));
+        (identities || []).forEach((i: any) => identityMap.set(i.user_id, { full_name: i.full_name || 'Customer', email: i.email || '' }));
 
         const mapped: UnifiedCustomer[] = userIds.map((id) => {
           const identity = identityMap.get(id);
@@ -214,7 +179,18 @@ export const PaymentHistoryUnified = () => {
 
         setCustomers(mapped);
       } else {
-        setCustomers(primary.data || []);
+        // Restrict to active chat participants only
+        const { data: chatOnly } = await supabase
+          .from('driver_owner_messages')
+          .select('driver_id, owner_id, is_expired')
+          .eq('is_expired', false);
+        const chatIds = new Set<string>();
+        (chatOnly || []).forEach((r: any) => {
+          if (r.driver_id) chatIds.add(r.driver_id);
+          if (r.owner_id) chatIds.add(r.owner_id);
+        });
+        const filtered = (primary.data || []).filter((u: any) => chatIds.has(u.user_id));
+        setCustomers(filtered);
       }
     } catch (error: any) {
       console.error('Error fetching customers:', error);
