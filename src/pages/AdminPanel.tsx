@@ -2436,15 +2436,55 @@ const AdminPanelOrganized = () => {
                           // Insert message into user_messages
                           const { error } = await supabase
                             .from('user_messages')
-                            .insert([{
-                              user_id: selectedUserId,
-                              subject: messageSubject.trim(),
-                              message: messageContent.trim(),
-                              from_admin: true,
-                              read_status: false
-                            }]);
+                            .insert([
+                              {
+                                user_id: selectedUserId,
+                                subject: messageSubject.trim(),
+                                message: messageContent.trim(),
+                                from_admin: true,
+                                read_status: false,
+                              },
+                            ]);
 
                           if (error) throw error;
+
+                          // Create an in-app notification for the user (optional UX enhancement)
+                          try {
+                            await supabase.from('user_notifications').insert([
+                              {
+                                user_id: selectedUserId,
+                                notification_type: 'message',
+                                title: messageSubject.trim(),
+                                message: messageContent.trim(),
+                                is_read: false,
+                              },
+                            ]);
+                          } catch (notifErr) {
+                            console.warn('User notification insert failed (non-blocking):', notifErr);
+                          }
+
+                          // Find email/name for the selected user
+                          const target = detailedUsers.find((u: any) => u.user_id === selectedUserId);
+                          const userEmail = target?.email;
+                          const userName = target?.full_name || '';
+
+                          // Fire email notification to the customer (non-blocking)
+                          if (userEmail) {
+                            const { error: emailError } = await supabase.functions.invoke(
+                              'send-user-reply-notification',
+                              {
+                                body: {
+                                  userEmail,
+                                  userName,
+                                  subject: messageSubject.trim(),
+                                  adminMessage: messageContent.trim(),
+                                },
+                              }
+                            );
+                            if (emailError) {
+                              console.error('Email notification failed:', emailError);
+                            }
+                          }
 
                           toast({
                             title: "Success",
