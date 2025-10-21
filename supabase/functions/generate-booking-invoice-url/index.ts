@@ -48,27 +48,10 @@ serve(async (req) => {
       throw new Error('Invoice not yet generated');
     }
 
-    // Generate signed URL (15 minutes expiry) - try owner-payment-documents first, fallback to booking-invoices
-    let signedUrlData;
-    let signedUrlError;
-    
-    // Try owner-payment-documents bucket first (for admin-uploaded invoices)
-    const ownerDocsResult = await supabase.storage
-      .from('owner-payment-documents')
+    // Generate signed URL (15 minutes expiry)
+    const { data: signedUrlData, error: signedUrlError } = await supabase.storage
+      .from('booking-invoices')
       .createSignedUrl(booking.invoice_url, 900);
-    
-    if (ownerDocsResult.error) {
-      // Fallback to booking-invoices bucket
-      const bookingInvoicesResult = await supabase.storage
-        .from('booking-invoices')
-        .createSignedUrl(booking.invoice_url, 900);
-      
-      signedUrlData = bookingInvoicesResult.data;
-      signedUrlError = bookingInvoicesResult.error;
-    } else {
-      signedUrlData = ownerDocsResult.data;
-      signedUrlError = ownerDocsResult.error;
-    }
 
     if (signedUrlError) {
       console.error('Signed URL error:', signedUrlError);

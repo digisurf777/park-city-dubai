@@ -67,37 +67,17 @@ serve(async (req) => {
 
     // Update payment record
     const updateField = documentType === 'invoice' ? 'invoice_url' : 'remittance_advice_url';
-    const { data: ownerPayment, error: updateError } = await supabaseClient
+    const { error: updateError } = await supabaseClient
       .from("owner_payments")
       .update({ 
         [updateField]: filePath,
         updated_at: new Date().toISOString()
       })
-      .eq("id", paymentId)
-      .select('booking_id')
-      .single();
+      .eq("id", paymentId);
 
     if (updateError) {
       console.error("Update error:", updateError);
       throw new Error(`Failed to update payment record: ${updateError.message}`);
-    }
-
-    // If invoice uploaded, also update the customer's booking so they can download it
-    if (documentType === 'invoice' && ownerPayment?.booking_id) {
-      const { error: bookingUpdateError } = await supabaseClient
-        .from("parking_bookings")
-        .update({ 
-          invoice_url: filePath,
-          updated_at: new Date().toISOString()
-        })
-        .eq("id", ownerPayment.booking_id);
-
-      if (bookingUpdateError) {
-        console.error("Booking update error:", bookingUpdateError);
-        // Don't fail the whole operation, just log it
-      } else {
-        console.log(`✅ Invoice also linked to booking ${ownerPayment.booking_id} for customer access`);
-      }
     }
 
     console.log(`✅ ${documentType === 'invoice' ? 'Invoice' : 'Remittance'} uploaded successfully for payment ${paymentId}`);
