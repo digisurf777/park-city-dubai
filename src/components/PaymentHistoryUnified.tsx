@@ -87,7 +87,7 @@ export const PaymentHistoryUnified = () => {
           supabase
             .from('parking_bookings')
             .select('user_id, cost_aed, status')
-            .in('status', ['approved', 'confirmed', 'completed']),
+            .in('status', ['pending', 'approved', 'confirmed', 'completed']),
           supabase
             .from('owner_payments')
             .select('owner_id, amount_aed, status'),
@@ -144,13 +144,22 @@ export const PaymentHistoryUnified = () => {
 
         const mapped: UnifiedCustomer[] = userIds.map((id) => {
           const identity = identityMap.get(id);
+          const driverCount = driverMap.get(id)?.count || 0;
+          const ownerCount = ownerMap.get(id)?.count || 0;
+          const userType = ownerCount > 0 && driverCount > 0
+            ? 'both'
+            : ownerCount > 0
+            ? 'owner'
+            : driverCount > 0
+            ? 'driver'
+            : 'seeker';
           return {
             user_id: id,
             full_name: (identity?.full_name || 'Customer') as string,
             email: (identity?.email || '') as string,
-            user_type: 'seeker' as string,
-            driver_bookings_count: driverMap.get(id)?.count || 0,
-            owner_payments_count: ownerMap.get(id)?.count || 0,
+            user_type: userType,
+            driver_bookings_count: driverCount,
+            owner_payments_count: ownerCount,
             total_driver_spent: driverMap.get(id)?.total || 0,
             total_owner_received: ownerMap.get(id)?.total || 0,
             verification_status: 'not_verified',
@@ -448,15 +457,21 @@ export const PaymentHistoryUnified = () => {
                 </div>
                 <p className="text-sm text-muted-foreground mb-2">{customer.email}</p>
                 <div className="flex gap-2">
-                  {customer.driver_bookings_count > 0 && (
-                    <Badge variant="secondary">
-                      Driver ({customer.driver_bookings_count})
-                    </Badge>
-                  )}
-                  {customer.owner_payments_count > 0 && (
-                    <Badge variant="outline">
-                      Owner ({customer.owner_payments_count})
-                    </Badge>
+                  {customer.driver_bookings_count > 0 && customer.owner_payments_count > 0 ? (
+                    <Badge variant="default">Both</Badge>
+                  ) : (
+                    <>
+                      {customer.driver_bookings_count > 0 && (
+                        <Badge variant="secondary">
+                          Driver ({customer.driver_bookings_count})
+                        </Badge>
+                      )}
+                      {customer.owner_payments_count > 0 && (
+                        <Badge variant="outline">
+                          Owner ({customer.owner_payments_count})
+                        </Badge>
+                      )}
+                    </>
                   )}
                 </div>
               </div>
