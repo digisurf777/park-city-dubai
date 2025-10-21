@@ -8,7 +8,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Search, Upload, Download, FileText, User, DollarSign, Calendar, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
-
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
 interface UnifiedCustomer {
   user_id: string;
   full_name: string;
@@ -60,6 +61,16 @@ export const PaymentHistoryUnified = () => {
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [uploadingDoc, setUploadingDoc] = useState<{ id: string; type: string } | null>(null);
   const [downloadingDoc, setDownloadingDoc] = useState<{ id: string; type: string } | null>(null);
+  const [newPaymentOpen, setNewPaymentOpen] = useState(false);
+  const [newPayment, setNewPayment] = useState({
+    amount_aed: '',
+    payment_period_start: '',
+    payment_period_end: '',
+    payment_method: 'Bank Transfer',
+    reference_number: '',
+    notes: ''
+  });
+  const [newPaymentFile, setNewPaymentFile] = useState<File | null>(null);
 
   useEffect(() => {
     fetchCustomers();
@@ -391,6 +402,46 @@ export const PaymentHistoryUnified = () => {
     }
   };
 
+  const createOwnerPayment = async () => {
+    if (!selectedCustomerId) return;
+    if (!newPayment.amount_aed || !newPayment.payment_period_start || !newPayment.payment_period_end) {
+      toast.error('Amount and period are required');
+      return;
+    }
+    try {
+      const { data, error } = await supabase
+        .from('owner_payments')
+        .insert({
+          owner_id: selectedCustomerId,
+          amount_aed: Number(newPayment.amount_aed),
+          payment_period_start: newPayment.payment_period_start,
+          payment_period_end: newPayment.payment_period_end,
+          payment_method: newPayment.payment_method,
+          reference_number: newPayment.reference_number || null,
+          notes: newPayment.notes || null,
+          status: 'completed'
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      toast.success('Owner payment created');
+
+      if (newPaymentFile) {
+        await handleOwnerPaymentUpload(data.id, 'invoice', newPaymentFile);
+      }
+
+      // Reset and refresh
+      setNewPaymentOpen(false);
+      setNewPayment({ amount_aed: '', payment_period_start: '', payment_period_end: '', payment_method: 'Bank Transfer', reference_number: '', notes: '' });
+      setNewPaymentFile(null);
+      await fetchCustomerDetails(selectedCustomerId);
+    } catch (e: any) {
+      console.error('Create payment error:', e);
+      toast.error(e.message || 'Failed to create payment');
+    }
+  };
   const filteredCustomers = customers.filter(customer => {
     const matchesSearch = 
       customer.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -530,10 +581,10 @@ export const PaymentHistoryUnified = () => {
               <Tabs defaultValue="bookings" className="w-full">
                 <TabsList className="w-full">
                   <TabsTrigger value="bookings" className="flex-1">
-                    Driver Bookings ({customerBookings.length})
+                    Driver Bookings
                   </TabsTrigger>
                   <TabsTrigger value="payments" className="flex-1">
-                    Owner Payments ({ownerPayments.length})
+                    Owner Payments
                   </TabsTrigger>
                 </TabsList>
 
@@ -618,6 +669,11 @@ export const PaymentHistoryUnified = () => {
                 </TabsContent>
 
                 <TabsContent value="payments" className="space-y-4 mt-4">
+                  {selectedCustomer && (selectedCustomer.user_type === 'owner' || selectedCustomer.user_type === 'both') && (
+                    <div className="flex justify-end">
+                      <Button size="sm" onClick={() => setNewPaymentOpen(true)}>New Owner Payment</Button>
+                    </div>
+                  )}
                   {ownerPayments.length === 0 ? (
                     <p className="text-center text-muted-foreground py-8">No payments found</p>
                   ) : (
