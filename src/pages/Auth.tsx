@@ -325,11 +325,26 @@ const Auth = () => {
             const { data: s } = await supabase.auth.getSession();
             const aal = (s.session as any)?.aal;
             if (aal === 'aal2') return true;
-            await new Promise((r) => setTimeout(r, 300));
+            await new Promise((r) => setTimeout(r, 250));
           }
           return false;
         };
         const upgraded = await waitForAAL2();
+        // Double-check with server to avoid bouncing back
+        const validateOnce = async () => {
+          const { data, error } = await supabase.functions.invoke('validate-admin-access');
+          return { data, error } as { data: any; error: any };
+        };
+        let ok = false;
+        for (let i = 0; i < 3 && !ok; i++) {
+          const res = await validateOnce();
+          if (!res.error && !res.data?.requires_mfa) {
+            ok = true;
+            break;
+          }
+          await new Promise((r) => setTimeout(r, 400));
+          try { await supabase.auth.refreshSession(); } catch {}
+        }
         if (!upgraded) {
           console.warn('Auth: AAL2 not yet reflected; proceeding to /admin where server will recheck.');
         }
