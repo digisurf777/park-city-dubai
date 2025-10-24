@@ -160,12 +160,14 @@ const ChatWidget = () => {
         <div className="fixed bottom-6 right-6 z-50">
           <Button
             onClick={handleOpen}
-            className="relative bg-primary hover:bg-primary/90 text-white rounded-full p-4 shadow-lg"
+            className={`relative bg-primary hover:bg-primary/90 text-white rounded-full p-4 shadow-lg ${
+              unreadCount > 0 ? 'animate-pulse ring-4 ring-red-500 ring-opacity-50 shadow-[0_0_20px_rgba(239,68,68,0.6)]' : ''
+            }`}
             size="icon"
           >
             <MessageCircle className="h-6 w-6" />
             {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center animate-bounce">
                 {unreadCount}
               </span>
             )}
