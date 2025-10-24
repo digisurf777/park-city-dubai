@@ -273,13 +273,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const resendConfirmationEmail = async (email: string) => {
     try {
-      const redirectUrl = `${window.location.origin}/email-confirmed?redirect_to=/`;
-      
-      const { error } = await supabase.auth.resend({
-        type: 'signup',
-        email: email,
-        options: {
-          emailRedirectTo: redirectUrl,
+      // Use custom edge function instead of Supabase's built-in resend
+      const { data, error } = await supabase.functions.invoke('resend-confirmation-email', {
+        body: { 
+          email,
+          language: 'en'
         },
       });
 
