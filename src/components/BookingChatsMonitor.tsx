@@ -13,8 +13,10 @@ import {
   Calendar,
   MapPin,
   User,
-  Clock
+  Clock,
+  Trash2
 } from 'lucide-react';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 
@@ -55,6 +57,8 @@ export const BookingChatsMonitor = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'flagged'>('all');
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<{ type: 'message' | 'chat', id: string } | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -154,6 +158,74 @@ export const BookingChatsMonitor = () => {
         variant: "destructive",
       });
     }
+  };
+
+  const handleDeleteMessage = async (messageId: string) => {
+    try {
+      const { error } = await supabase
+        .from('driver_owner_messages')
+        .delete()
+        .eq('id', messageId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Message deleted successfully",
+      });
+
+      if (selectedBooking) {
+        fetchMessages(selectedBooking.booking_id);
+      }
+      fetchBookingChats();
+    } catch (error) {
+      console.error('Error deleting message:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete message",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeleteChat = async (bookingId: string) => {
+    try {
+      const { error } = await supabase
+        .from('driver_owner_messages')
+        .delete()
+        .eq('booking_id', bookingId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "All messages for this booking deleted successfully",
+      });
+
+      setSelectedBooking(null);
+      setMessages([]);
+      fetchBookingChats();
+    } catch (error) {
+      console.error('Error deleting chat:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete chat",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const confirmDelete = () => {
+    if (!deleteTarget) return;
+
+    if (deleteTarget.type === 'message') {
+      handleDeleteMessage(deleteTarget.id);
+    } else {
+      handleDeleteChat(deleteTarget.id);
+    }
+
+    setDeleteDialogOpen(false);
+    setDeleteTarget(null);
   };
 
   const filteredChats = bookingChats.filter(chat => {
@@ -320,9 +392,22 @@ export const BookingChatsMonitor = () => {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-lg font-bold">Conversation Details</span>
-                  <Badge variant="outline" className="text-xs">
-                    Read-Only Monitoring
-                  </Badge>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => {
+                        setDeleteTarget({ type: 'chat', id: selectedBooking.booking_id });
+                        setDeleteDialogOpen(true);
+                      }}
+                    >
+                      <Trash2 className="h-4 w-4 mr-1" />
+                      Delete Chat
+                    </Button>
+                    <Badge variant="outline" className="text-xs">
+                      Admin Monitoring
+                    </Badge>
+                  </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4 text-sm font-normal">
                   <div className="space-y-1">
@@ -411,14 +496,27 @@ export const BookingChatsMonitor = () => {
                             )}
                           </div>
                           
-                          <Button
-                            size="sm"
-                            variant={msg.admin_flagged ? 'outline' : 'ghost'}
-                            onClick={() => toggleFlagMessage(msg.id, msg.admin_flagged)}
-                            className="h-6 text-xs"
-                          >
-                            {msg.admin_flagged ? 'Unflag' : 'Flag'}
-                          </Button>
+                          <div className="flex gap-1">
+                            <Button
+                              size="sm"
+                              variant={msg.admin_flagged ? 'outline' : 'ghost'}
+                              onClick={() => toggleFlagMessage(msg.id, msg.admin_flagged)}
+                              className="h-6 text-xs"
+                            >
+                              {msg.admin_flagged ? 'Unflag' : 'Flag'}
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => {
+                                setDeleteTarget({ type: 'message', id: msg.id });
+                                setDeleteDialogOpen(true);
+                              }}
+                              className="h-6 text-xs text-destructive hover:text-destructive"
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -436,6 +534,32 @@ export const BookingChatsMonitor = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {deleteTarget?.type === 'message' ? 'Delete Message?' : 'Delete Entire Chat?'}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {deleteTarget?.type === 'message' 
+                ? 'This will permanently delete this message. This action cannot be undone.'
+                : 'This will permanently delete ALL messages in this conversation between the driver and owner. This action cannot be undone.'
+              }
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setDeleteTarget(null)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
