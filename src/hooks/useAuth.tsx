@@ -235,8 +235,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       // Also call the edge function for custom email
       try {
+        const resetUrl = `${window.location.origin}/reset-password`;
         await supabase.functions.invoke('send-password-reset', {
-          body: { email },
+          body: { 
+            email,
+            resetUrl 
+          },
         });
       } catch (functionError) {
         console.error('AuthProvider: Custom reset email failed:', functionError);
