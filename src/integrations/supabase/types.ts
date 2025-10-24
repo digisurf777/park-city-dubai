@@ -874,7 +874,7 @@ export type Database = {
           accessed_by: string
           booking_id: string
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           payment_fields_accessed: string[] | null
           user_agent: string | null
         }
@@ -884,7 +884,7 @@ export type Database = {
           accessed_by: string
           booking_id: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           payment_fields_accessed?: string[] | null
           user_agent?: string | null
         }
@@ -894,7 +894,7 @@ export type Database = {
           accessed_by?: string
           booking_id?: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           payment_fields_accessed?: string[] | null
           user_agent?: string | null
         }
@@ -941,7 +941,7 @@ export type Database = {
           accessed_by: string
           fields_accessed: string[] | null
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           profile_user_id: string
           session_id: string | null
           user_agent: string | null
@@ -953,7 +953,7 @@ export type Database = {
           accessed_by: string
           fields_accessed?: string[] | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           profile_user_id: string
           session_id?: string | null
           user_agent?: string | null
@@ -965,7 +965,7 @@ export type Database = {
           accessed_by?: string
           fields_accessed?: string[] | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           profile_user_id?: string
           session_id?: string | null
           user_agent?: string | null
@@ -1020,7 +1020,7 @@ export type Database = {
           denial_reason: string | null
           expires_token_used: boolean | null
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           session_id: string | null
           user_agent: string | null
           verification_id: string
@@ -1033,7 +1033,7 @@ export type Database = {
           denial_reason?: string | null
           expires_token_used?: boolean | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           session_id?: string | null
           user_agent?: string | null
           verification_id: string
@@ -1046,7 +1046,7 @@ export type Database = {
           denial_reason?: string | null
           expires_token_used?: boolean | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           session_id?: string | null
           user_agent?: string | null
           verification_id?: string
@@ -1422,17 +1422,14 @@ export type Database = {
         }[]
       }
       audit_public_table_security: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           details: string
           issue_type: string
           severity: string
         }[]
       }
-      auto_expire_old_documents: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      auto_expire_old_documents: { Args: never; Returns: undefined }
       can_access_verification_document: {
         Args: { requesting_user_id?: string; verification_id: string }
         Returns: boolean
@@ -1459,26 +1456,14 @@ export type Database = {
         Args: { p_full_name?: string; p_user_id: string; p_user_type?: string }
         Returns: undefined
       }
-      delete_parking_space: {
-        Args: { space_id: string }
-        Returns: Json
-      }
+      delete_parking_space: { Args: { space_id: string }; Returns: Json }
       encrypt_document_reference: {
         Args: { verification_id: string }
         Returns: boolean
       }
-      ensure_profile_email: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
-      expire_booking_chats: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
-      expire_unconfirmed_bookings: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      ensure_profile_email: { Args: never; Returns: undefined }
+      expire_booking_chats: { Args: never; Returns: undefined }
+      expire_unconfirmed_bookings: { Args: never; Returns: undefined }
       extend_authorization_period: {
         Args: { additional_days?: number; booking_id: string }
         Returns: Json
@@ -1495,12 +1480,9 @@ export type Database = {
         Args: { access_duration_minutes?: number; verification_id: string }
         Returns: Json
       }
-      get_admin_booking_stats: {
-        Args: Record<PropertyKey, never>
-        Returns: Json
-      }
+      get_admin_booking_stats: { Args: never; Returns: Json }
       get_all_driver_owner_chats: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           booking_id: string
           booking_status: string
@@ -1577,11 +1559,14 @@ export type Database = {
           read_status: boolean
           updated_at: string
         }[]
+        SetofOptions: {
+          from: "*"
+          to: "driver_owner_messages"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
-      get_booking_owner_id: {
-        Args: { p_booking_id: string }
-        Returns: string
-      }
+      get_booking_owner_id: { Args: { p_booking_id: string }; Returns: string }
       get_booking_payment_details: {
         Args: { booking_id: string }
         Returns: {
@@ -1593,7 +1578,7 @@ export type Database = {
         }[]
       }
       get_chat_users_overview: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           display_name: string
           unread_count: number
@@ -1601,7 +1586,7 @@ export type Database = {
         }[]
       }
       get_chats_needing_notification: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           booking_id: string
           driver_email: string
@@ -1612,12 +1597,9 @@ export type Database = {
           recipient_is_driver: boolean
         }[]
       }
-      get_email_confirmation_expiry: {
-        Args: Record<PropertyKey, never>
-        Returns: number
-      }
+      get_email_confirmation_expiry: { Args: never; Returns: number }
       get_my_booking_payments: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           cost_aed: number
           created_at: string
@@ -1647,7 +1629,7 @@ export type Database = {
         }[]
       }
       get_my_bookings: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           confirmation_deadline: string
           cost_aed: number
@@ -1666,7 +1648,7 @@ export type Database = {
         }[]
       }
       get_my_payment_history: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           amount_aed: number
           booking_end_time: string
@@ -1692,7 +1674,7 @@ export type Database = {
         }[]
       }
       get_my_verification_status: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           created_at: string
           document_type: string
@@ -1703,7 +1685,7 @@ export type Database = {
         }[]
       }
       get_owner_active_bookings: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           chat_available: boolean
           driver_name: string
@@ -1730,7 +1712,7 @@ export type Database = {
         }[]
       }
       get_owner_payment_history: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           amount_aed: number
           booking_end_time: string
@@ -1756,7 +1738,7 @@ export type Database = {
         }[]
       }
       get_parking_listings_with_availability: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           address: string
           availability_schedule: Json
@@ -1780,7 +1762,7 @@ export type Database = {
         }[]
       }
       get_parking_spaces_overview: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           last_updated: string
           listing_address: string
@@ -1796,7 +1778,7 @@ export type Database = {
         }[]
       }
       get_pre_authorization_overview: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           authorization_extended_count: number
           booking_id: string
@@ -1826,7 +1808,7 @@ export type Database = {
         }[]
       }
       get_public_parking_listings: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           address: string
           availability_schedule: Json
@@ -1846,7 +1828,7 @@ export type Database = {
         }[]
       }
       get_public_parking_listings_with_availability: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           address: string
           availability_schedule: Json
@@ -1870,7 +1852,7 @@ export type Database = {
         }[]
       }
       get_safe_public_listings: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           address: string
           availability_schedule: Json
@@ -1908,7 +1890,7 @@ export type Database = {
         }[]
       }
       get_unified_customer_payment_history: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           driver_bookings_count: number
           email: string
@@ -1922,7 +1904,7 @@ export type Database = {
         }[]
       }
       get_unified_customers: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           email: string
           full_name: string
@@ -1934,10 +1916,7 @@ export type Database = {
           user_type: string
         }[]
       }
-      get_unread_chat_count: {
-        Args: Record<PropertyKey, never>
-        Returns: number
-      }
+      get_unread_chat_count: { Args: never; Returns: number }
       get_user_basic_info: {
         Args: { user_ids: string[] }
         Returns: {
@@ -1990,7 +1969,7 @@ export type Database = {
         }[]
       }
       get_verifications_with_profiles: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           auth_email: string
           created_at: string
@@ -2015,14 +1994,8 @@ export type Database = {
         }
         Returns: boolean
       }
-      has_verified_documents: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
-      is_admin: {
-        Args: { _user_id: string }
-        Returns: boolean
-      }
+      has_verified_documents: { Args: never; Returns: boolean }
+      is_admin: { Args: { _user_id: string }; Returns: boolean }
       log_payment_data_access: {
         Args: {
           access_type: string
@@ -2048,14 +2021,8 @@ export type Database = {
         Args: { p_booking_id: string }
         Returns: number
       }
-      refresh_parking_listings_public: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
-      repair_missing_profiles: {
-        Args: Record<PropertyKey, never>
-        Returns: Json
-      }
+      refresh_parking_listings_public: { Args: never; Returns: undefined }
+      repair_missing_profiles: { Args: never; Returns: Json }
       revoke_document_access: {
         Args: { verification_id: string }
         Returns: Json
@@ -2091,23 +2058,20 @@ export type Database = {
           read_status: boolean
           updated_at: string
         }
+        SetofOptions: {
+          from: "*"
+          to: "driver_owner_messages"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       send_welcome_email_async: {
         Args: { user_email: string; user_full_name: string }
         Returns: Json
       }
-      setup_admin_for_current_user: {
-        Args: Record<PropertyKey, never>
-        Returns: Json
-      }
-      setup_admin_user: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
-      update_expired_booking_spaces: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      setup_admin_for_current_user: { Args: never; Returns: Json }
+      setup_admin_user: { Args: never; Returns: undefined }
+      update_expired_booking_spaces: { Args: never; Returns: undefined }
       update_my_booking_safe: {
         Args: { booking_id: string; new_status?: string }
         Returns: boolean
