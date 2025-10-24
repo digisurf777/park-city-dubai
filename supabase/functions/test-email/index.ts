@@ -19,7 +19,7 @@ const handler = async (req: Request): Promise<Response> => {
     console.log(`Testing email send to: ${email}`);
 
     const emailResponse = await resend.emails.send({
-      from: "ShazamParking <noreply@shazamparking.ae>",
+      from: "ShazamParking <onboarding@resend.dev>",
       to: [email],
       subject: "Test Email - ShazamParking Email System",
       html: `

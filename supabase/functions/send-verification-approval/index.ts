@@ -145,7 +145,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Send email notification
     const emailResponse = await resend.emails.send({
-      from: "ShazamParking <noreply@shazamparking.ae>",
+      from: "ShazamParking <onboarding@resend.dev>",
       to: [userEmail],
       subject: subject,
       html: htmlContent,

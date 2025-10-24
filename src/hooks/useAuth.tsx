@@ -235,12 +235,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       // Also call the edge function for custom email
       try {
-        const resetUrl = `${window.location.origin}/reset-password`;
         await supabase.functions.invoke('send-password-reset', {
-          body: { 
-            email,
-            resetUrl 
-          },
+          body: { email },
         });
       } catch (functionError) {
         console.error('AuthProvider: Custom reset email failed:', functionError);
@@ -273,11 +269,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const resendConfirmationEmail = async (email: string) => {
     try {
-      // Use custom edge function instead of Supabase's built-in resend
-      const { data, error } = await supabase.functions.invoke('resend-confirmation-email', {
-        body: { 
-          email,
-          language: 'en'
+      const redirectUrl = `${window.location.origin}/email-confirmed?redirect_to=/`;
+      
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: email,
+        options: {
+          emailRedirectTo: redirectUrl,
         },
       });
 
