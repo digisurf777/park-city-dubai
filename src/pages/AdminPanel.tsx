@@ -586,18 +586,36 @@ const AdminPanelOrganized = () => {
       // Find verification to get user details
       const verification = verifications.find(v => v.id === verificationId);
       if (verification) {
-        // Send notification email to customer
-        const { error: emailError } = await supabase.functions.invoke('send-verification-approval', {
-          body: {
-            userId: verification.user_id,
-            userEmail: verification.profiles?.email,
-            userName: verification.profiles?.full_name || verification.full_name,
-            isApproved: newStatus === 'verified'
-          }
-        });
+        // Get user email from auth.users as primary source
+        const { data: userData } = await supabase.auth.admin.getUserById(verification.user_id);
+        const userEmail = userData?.user?.email || verification.profiles?.email;
 
-        if (emailError) {
-          console.error('Customer email notification error:', emailError);
+        if (!userEmail) {
+          console.error('No email found for user:', verification.user_id);
+          toast({
+            title: "Warning",
+            description: "Verification updated but email notification could not be sent (no email found)",
+            variant: "destructive",
+          });
+        } else {
+          // Send notification email to customer
+          const { error: emailError } = await supabase.functions.invoke('send-verification-approval', {
+            body: {
+              userId: verification.user_id,
+              userEmail: userEmail,
+              userName: verification.profiles?.full_name || verification.full_name,
+              isApproved: newStatus === 'verified'
+            }
+          });
+
+          if (emailError) {
+            console.error('Customer email notification error:', emailError);
+            toast({
+              title: "Email Error",
+              description: "Verification updated but email notification failed to send",
+              variant: "destructive",
+            });
+          }
         }
 
         // Send notification to admin

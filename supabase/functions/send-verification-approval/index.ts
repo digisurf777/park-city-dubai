@@ -26,6 +26,12 @@ const handler = async (req: Request): Promise<Response> => {
   try {
     const { userId, userEmail, userName, isApproved }: VerificationApprovalRequest = await req.json();
     
+    // Validate email
+    if (!userEmail || typeof userEmail !== 'string' || !userEmail.includes('@')) {
+      console.error('Invalid email provided:', userEmail);
+      throw new Error('Valid email address is required to send verification notification');
+    }
+    
     console.log(`Processing verification ${isApproved ? 'approval' : 'rejection'} for user ${userName} (${userEmail})`);
 
     // Initialize Supabase client with service role key for admin operations
