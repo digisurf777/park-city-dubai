@@ -221,12 +221,6 @@ const AdminPanelOrganized = () => {
   // Notifications state
   const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(0);
   
-  // Delete chat message state
-  const [deleteMessageDialogOpen, setDeleteMessageDialogOpen] = useState(false);
-  const [messageToDelete, setMessageToDelete] = useState<string | null>(null);
-  const [deleteConversationDialogOpen, setDeleteConversationDialogOpen] = useState(false);
-  const [conversationToDelete, setConversationToDelete] = useState<string | null>(null);
-  
   // Debug state for troubleshooting
   const [debugInfo, setDebugInfo] = useState({
     userLoaded: false,
@@ -2808,52 +2802,35 @@ const AdminPanelOrganized = () => {
                        chatUsers.map((user) => (
                          <div
                            key={user.user_id}
-                           className={`p-3 border rounded-lg transition-colors group ${
+                           className={`p-3 border rounded-lg cursor-pointer transition-colors ${
                              selectedChatUser === user.user_id 
                                ? 'bg-primary/10 border-primary' 
                                : 'hover:bg-muted/50'
                            }`}
+                           onClick={() => {
+                             setSelectedChatUser(user.user_id);
+                             markThreadAsRead(user.user_id);
+                           }}
                          >
-                           <div className="flex items-center justify-between gap-2">
-                             <div 
-                               className="flex-1 min-w-0 cursor-pointer"
-                               onClick={() => {
-                                 setSelectedChatUser(user.user_id);
-                                 markThreadAsRead(user.user_id);
-                               }}
-                             >
-                               <div className="flex items-center justify-between">
-                                 <div className="flex flex-col min-w-0 flex-1">
-                                   <span className="font-medium truncate">{user.full_name}</span>
-                                   {user.last_message_at && (
-                                     <span className="text-xs text-muted-foreground">
-                                       {new Date(user.last_message_at).toLocaleString()}
-                                     </span>
-                                   )}
-                                   {user.last_message_preview && (
-                                     <span className="text-xs text-muted-foreground mt-1 truncate">
-                                       {user.last_message_preview}
-                                     </span>
-                                   )}
-                                 </div>
-                                 {user.unread_count > 0 && (
-                                   <Badge variant="destructive" className="ml-2">
-                                     {user.unread_count}
-                                   </Badge>
-                                 )}
-                               </div>
+                           <div className="flex items-center justify-between">
+                             <div className="flex flex-col min-w-0 flex-1">
+                               <span className="font-medium truncate">{user.full_name}</span>
+                               {user.last_message_at && (
+                                 <span className="text-xs text-muted-foreground">
+                                   {new Date(user.last_message_at).toLocaleString()}
+                                 </span>
+                               )}
+                               {user.last_message_preview && (
+                                 <span className="text-xs text-muted-foreground mt-1 truncate">
+                                   {user.last_message_preview}
+                                 </span>
+                               )}
                              </div>
-                             <Button
-                               size="sm"
-                               variant="ghost"
-                               className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/10"
-                               onClick={() => {
-                                 setConversationToDelete(user.user_id);
-                                 setDeleteConversationDialogOpen(true);
-                               }}
-                             >
-                               <Trash2 className="h-4 w-4 text-destructive" />
-                             </Button>
+                             {user.unread_count > 0 && (
+                               <Badge variant="destructive" className="ml-2">
+                                 {user.unread_count}
+                               </Badge>
+                             )}
                            </div>
                          </div>
                        ))
@@ -2868,41 +2845,28 @@ const AdminPanelOrganized = () => {
                           {chatMessages
                             .filter(msg => msg.user_id === selectedChatUser)
                             .map((msg) => (
-                               <div
-                                 key={msg.id}
-                                 className={`flex ${msg.from_admin ? 'justify-end' : 'justify-start'} group`}
-                               >
-                                 <div
-                                   className={`max-w-[80%] p-3 rounded-lg relative ${
-                                     msg.from_admin
-                                       ? 'bg-primary text-primary-foreground'
-                                       : 'bg-muted'
-                                   }`}
-                                 >
-                                   <div className="flex items-center justify-between gap-2 mb-1">
-                                     <span className="text-sm font-medium">
-                                       {msg.from_admin ? 'Admin' : msg.profiles?.full_name || 'User'}
-                                     </span>
-                                     <Button
-                                       size="sm"
-                                       variant="ghost"
-                                       className={`h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity ${
-                                         msg.from_admin ? 'hover:bg-primary-foreground/20' : 'hover:bg-destructive/10'
-                                       }`}
-                                       onClick={() => {
-                                         setMessageToDelete(msg.id);
-                                         setDeleteMessageDialogOpen(true);
-                                       }}
-                                     >
-                                       <Trash2 className={`h-3 w-3 ${msg.from_admin ? '' : 'text-destructive'}`} />
-                                     </Button>
-                                   </div>
-                                   <p className="text-sm">{msg.message}</p>
-                                   <p className="text-xs opacity-70 mt-1">
-                                     {new Date(msg.created_at).toLocaleString()}
-                                   </p>
-                                 </div>
-                               </div>
+                              <div
+                                key={msg.id}
+                                className={`flex ${msg.from_admin ? 'justify-end' : 'justify-start'}`}
+                              >
+                                <div
+                                  className={`max-w-[80%] p-3 rounded-lg ${
+                                    msg.from_admin
+                                      ? 'bg-primary text-primary-foreground'
+                                      : 'bg-muted'
+                                  }`}
+                                >
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <span className="text-sm font-medium">
+                                      {msg.from_admin ? 'Admin' : msg.profiles?.full_name || 'User'}
+                                    </span>
+                                  </div>
+                                  <p className="text-sm">{msg.message}</p>
+                                  <p className="text-xs opacity-70 mt-1">
+                                    {new Date(msg.created_at).toLocaleString()}
+                                  </p>
+                                </div>
+                              </div>
                             ))}
                           <div ref={chatMessagesEndRef} />
                         </div>
@@ -2948,125 +2912,6 @@ const AdminPanelOrganized = () => {
           <TabsContent value="invoices" className="space-y-6 mt-6">
             <PaymentHistoryUnified />
           </TabsContent>
-
-          {/* Delete Message Confirmation Dialog */}
-          <Dialog open={deleteMessageDialogOpen} onOpenChange={setDeleteMessageDialogOpen}>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Delete Message?</DialogTitle>
-              </DialogHeader>
-              <p className="text-sm text-muted-foreground">
-                This will permanently delete this message from the conversation. This action cannot be undone.
-              </p>
-              <div className="flex justify-end gap-2 mt-4">
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setDeleteMessageDialogOpen(false);
-                    setMessageToDelete(null);
-                  }}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  variant="destructive"
-                  onClick={async () => {
-                    if (!messageToDelete) return;
-
-                    try {
-                      const { error } = await supabase
-                        .from('user_messages')
-                        .delete()
-                        .eq('id', messageToDelete);
-
-                      if (error) throw error;
-
-                      toast({
-                        title: "Success",
-                        description: "Message deleted successfully",
-                      });
-
-                      // Refresh chat messages
-                      fetchChatMessages();
-                    } catch (error) {
-                      console.error('Error deleting message:', error);
-                      toast({
-                        title: "Error",
-                        description: "Failed to delete message",
-                        variant: "destructive",
-                      });
-                    } finally {
-                      setDeleteMessageDialogOpen(false);
-                      setMessageToDelete(null);
-                    }
-                  }}
-                >
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Delete
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
-
-          {/* Delete Entire Conversation Dialog */}
-          <Dialog open={deleteConversationDialogOpen} onOpenChange={setDeleteConversationDialogOpen}>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Delete Entire Conversation?</DialogTitle>
-              </DialogHeader>
-              <p className="text-sm text-muted-foreground">
-                This will permanently delete ALL messages in this conversation with the customer. This action cannot be undone.
-              </p>
-              <div className="flex justify-end gap-2 mt-4">
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setDeleteConversationDialogOpen(false);
-                    setConversationToDelete(null);
-                  }}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  variant="destructive"
-                  onClick={async () => {
-                    if (!conversationToDelete) return;
-
-                    try {
-                      const { error } = await supabase
-                        .from('user_messages')
-                        .delete()
-                        .eq('user_id', conversationToDelete);
-
-                      if (error) throw error;
-
-                      toast({
-                        title: "Success",
-                        description: "Conversation deleted successfully",
-                      });
-
-                      // Clear selection and refresh
-                      setSelectedChatUser(null);
-                      fetchChatMessages();
-                    } catch (error) {
-                      console.error('Error deleting conversation:', error);
-                      toast({
-                        title: "Error",
-                        description: "Failed to delete conversation",
-                        variant: "destructive",
-                      });
-                    } finally {
-                      setDeleteConversationDialogOpen(false);
-                      setConversationToDelete(null);
-                    }
-                  }}
-                >
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Delete All
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
 
           {/* Global Edit Parking Listing Dialog - available across all tabs */}
           {editingListing && (
