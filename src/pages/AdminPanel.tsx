@@ -142,6 +142,7 @@ const AdminPanelOrganized = () => {
   const navigate = useNavigate();
   const [isValidated, setIsValidated] = useState(false);
   const [validating, setValidating] = useState(true);
+  const [lastActivityTime, setLastActivityTime] = useState(Date.now());
   
   // All state variables from original AdminPanel
   const [posts, setPosts] = useState<NewsPost[]>([]);
@@ -353,13 +354,81 @@ const AdminPanelOrganized = () => {
       }
     };
 
+    // Only validate on initial mount
     validateAdminAccess();
+  }, [user, navigate, toast]);
 
-    // Re-validate every 5 minutes
-    const intervalId = setInterval(validateAdminAccess, 5 * 60 * 1000);
+  // Track user activity for inactivity-based logout
+  useEffect(() => {
+    let debounceTimeout: NodeJS.Timeout;
+    
+    const updateActivity = () => {
+      clearTimeout(debounceTimeout);
+      // Debounce to update max once per 30 seconds
+      debounceTimeout = setTimeout(() => {
+        setLastActivityTime(Date.now());
+      }, 30000);
+    };
+    
+    const events = ['mousemove', 'mousedown', 'keydown', 'scroll', 'touchstart'];
+    events.forEach(event => window.addEventListener(event, updateActivity, { passive: true }));
+    
+    return () => {
+      events.forEach(event => window.removeEventListener(event, updateActivity));
+      clearTimeout(debounceTimeout);
+    };
+  }, []);
+
+  // Check for inactivity and logout after 5 minutes
+  useEffect(() => {
+    if (!isValidated) return;
+
+    const checkInactivity = async () => {
+      const inactiveMs = Date.now() - lastActivityTime;
+      const fiveMinutes = 5 * 60 * 1000;
+      const fourMinutes = 4 * 60 * 1000;
+      
+      // Warning at 4 minutes of inactivity
+      if (inactiveMs >= fourMinutes && inactiveMs < fiveMinutes) {
+        toast({
+          title: 'Inactivity Warning',
+          description: 'You will be logged out in 1 minute due to inactivity',
+          action: (
+            <Button 
+              size="sm" 
+              onClick={() => {
+                setLastActivityTime(Date.now());
+                toast({
+                  title: 'Session Extended',
+                  description: 'Your session has been extended',
+                });
+              }}
+            >
+              Stay Logged In
+            </Button>
+          ),
+          duration: 60000, // Show for 1 minute
+        });
+      }
+      
+      // Logout after 5 minutes of inactivity
+      if (inactiveMs >= fiveMinutes) {
+        console.log('Logging out due to 5 minutes of inactivity');
+        toast({
+          title: 'Session Expired',
+          description: 'You have been logged out due to inactivity',
+          variant: 'destructive',
+        });
+        await signOut();
+        navigate('/auth');
+      }
+    };
+    
+    // Check every 30 seconds
+    const intervalId = setInterval(checkInactivity, 30000);
     
     return () => clearInterval(intervalId);
-  }, [user, navigate, toast, signOut]);
+  }, [isValidated, lastActivityTime, toast, signOut, navigate]);
 
   // Fetch functions implementation
   const fetchPosts = async () => {
