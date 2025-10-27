@@ -1589,12 +1589,17 @@ export type Database = {
         Args: never
         Returns: {
           booking_id: string
+          booking_location: string
+          booking_zone: string
           driver_email: string
           driver_id: string
           first_unread_message_at: string
+          latest_message_preview: string
           owner_email: string
           owner_id: string
           recipient_is_driver: boolean
+          recipient_name: string
+          sender_name: string
         }[]
       }
       get_email_confirmation_expiry: { Args: never; Returns: number }
@@ -2020,6 +2025,10 @@ export type Database = {
       mark_booking_messages_read: {
         Args: { p_booking_id: string }
         Returns: number
+      }
+      mark_chat_messages_read: {
+        Args: { p_booking_id: string }
+        Returns: undefined
       }
       refresh_parking_listings_public: { Args: never; Returns: undefined }
       repair_missing_profiles: { Args: never; Returns: Json }

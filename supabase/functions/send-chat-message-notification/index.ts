@@ -18,6 +18,11 @@ interface NotificationData {
   owner_email: string;
   first_unread_message_at: string;
   recipient_is_driver: boolean;
+  sender_name: string;
+  latest_message_preview: string;
+  booking_location: string;
+  booking_zone: string;
+  recipient_name: string;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -78,24 +83,76 @@ const handler = async (req: Request): Promise<Response> => {
       }
 
       try {
+        // Construct direct chat link
+        const chatLink = `https://shazamparking.ae/my-account?openChat=${chat.booking_id}`;
+        
+        // Truncate message preview if needed
+        const messagePreview = chat.latest_message_preview.length > 100 
+          ? chat.latest_message_preview.substring(0, 97) + '...'
+          : chat.latest_message_preview;
+
         // Send email notification
         console.log(`📤 Sending email to ${recipientEmail}`);
+        console.log(`   From: ${chat.sender_name}`);
+        console.log(`   Preview: ${messagePreview}`);
+        
         await resend.emails.send({
           from: "Shazam Parking <support@shazamparking.ae>",
           to: [recipientEmail],
-          subject: "You have a new message",
+          subject: `New message from ${chat.sender_name} - Shazam Parking`,
           html: `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-              <h2 style="color: #333;">New Message Notification</h2>
-              <p>You have received a new message in your parking booking chat.</p>
-              <p>Please log in to your account to view and respond to the message.</p>
-              <a href="https://shazamparking.ae/my-account" 
-                 style="display: inline-block; padding: 12px 24px; background-color: #10b981; color: white; text-decoration: none; border-radius: 6px; margin-top: 16px;">
-                View Message
-              </a>
-              <p style="margin-top: 24px; color: #666; font-size: 14px;">
-                This is an automated notification. Please do not reply to this email.
-              </p>
+            <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9fafb;">
+              <div style="background-color: white; border-radius: 12px; padding: 32px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                <!-- Header -->
+                <div style="border-bottom: 2px solid #10b981; padding-bottom: 16px; margin-bottom: 24px;">
+                  <h1 style="color: #111827; margin: 0; font-size: 24px; font-weight: 600;">New Message</h1>
+                </div>
+
+                <!-- Greeting -->
+                <p style="color: #374151; font-size: 16px; margin-bottom: 20px;">
+                  Hi ${chat.recipient_name},
+                </p>
+
+                <!-- Message Info -->
+                <div style="background-color: #f3f4f6; border-left: 4px solid #10b981; padding: 16px; border-radius: 6px; margin-bottom: 24px;">
+                  <p style="color: #111827; margin: 0 0 8px 0; font-weight: 600;">
+                    From: ${chat.sender_name}
+                  </p>
+                  <p style="color: #6b7280; margin: 0 0 12px 0; font-size: 14px;">
+                    Regarding: ${chat.booking_location}${chat.booking_zone ? `, ${chat.booking_zone}` : ''}
+                  </p>
+                  <p style="color: #4b5563; margin: 0; font-size: 14px; font-style: italic; line-height: 1.5;">
+                    "${messagePreview}"
+                  </p>
+                </div>
+
+                <!-- CTA Button -->
+                <div style="text-align: center; margin: 32px 0;">
+                  <a href="${chatLink}" 
+                     style="display: inline-block; padding: 14px 32px; background-color: #10b981; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);">
+                    View and Reply
+                  </a>
+                </div>
+
+                <!-- Additional Info -->
+                <p style="color: #6b7280; font-size: 14px; margin: 20px 0 0 0; line-height: 1.6;">
+                  Click the button above to open your chat and respond to this message. You can view all your active booking conversations in your account dashboard.
+                </p>
+
+                <!-- Footer -->
+                <div style="margin-top: 32px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+                  <p style="color: #9ca3af; font-size: 12px; margin: 0; line-height: 1.5;">
+                    This is an automated notification from Shazam Parking. Please do not reply to this email directly. If you have any questions, please contact us through your account dashboard.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Brand Footer -->
+              <div style="text-align: center; margin-top: 20px;">
+                <p style="color: #9ca3af; font-size: 12px; margin: 0;">
+                  © 2025 Shazam Parking. All rights reserved.
+                </p>
+              </div>
             </div>
           `,
         });
