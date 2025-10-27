@@ -41,6 +41,9 @@ verify_jwt = true
 [functions.send-booking-confirmed]
 verify_jwt = true
 
+[functions.send-owner-booking-confirmed]
+verify_jwt = true
+
 [functions.send-booking-received]
 verify_jwt = true
 
