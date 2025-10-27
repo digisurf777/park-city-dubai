@@ -52,10 +52,8 @@ export const useInactivityLogout = (onLogout: () => void): UseInactivityLogoutRe
   // Track user activity
   useEffect(() => {
     const handleActivity = () => {
-      // Only reset if not currently showing warning or if user explicitly interacts
-      if (!showWarning) {
-        resetTimer();
-      }
+      // Always reset timer on activity, even if warning is showing
+      resetTimer();
     };
 
     const events = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
@@ -64,14 +62,14 @@ export const useInactivityLogout = (onLogout: () => void): UseInactivityLogoutRe
     let debounceTimeout: NodeJS.Timeout;
     const debouncedActivity = () => {
       clearTimeout(debounceTimeout);
-      debounceTimeout = setTimeout(handleActivity, 1000);
+      debounceTimeout = setTimeout(handleActivity, 500);
     };
 
     events.forEach(event => 
       window.addEventListener(event, debouncedActivity, { passive: true })
     );
 
-    // Initialize timers
+    // Initialize timers on mount
     resetTimer();
 
     return () => {
@@ -81,7 +79,7 @@ export const useInactivityLogout = (onLogout: () => void): UseInactivityLogoutRe
       if (logoutTimerRef.current) clearTimeout(logoutTimerRef.current);
       if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
     };
-  }, [resetTimer, showWarning]);
+  }, [resetTimer]);
 
   return {
     showWarning,
