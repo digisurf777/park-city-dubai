@@ -311,10 +311,42 @@ const AdminNotifications = ({
       }).eq('id', notification.booking_id);
       if (updateError) throw updateError;
 
-      // Send approval email only if we have a valid email
+      // Get owner information from driver_owner_messages
+      const { data: ownerMessages, error: ownerError } = await supabase
+        .from("driver_owner_messages")
+        .select("owner_id")
+        .eq("booking_id", notification.booking_id)
+        .limit(1);
+
+      let ownerEmail = null;
+      let ownerName = null;
+
+      if (!ownerError && ownerMessages && ownerMessages.length > 0) {
+        const ownerId = ownerMessages[0].owner_id;
+        console.log("Found owner ID:", ownerId);
+
+        // Get owner profile
+        const { data: ownerProfile, error: ownerProfileError } = await supabase
+          .from("profiles")
+          .select("email, full_name")
+          .eq("user_id", ownerId)
+          .single();
+
+        if (!ownerProfileError && ownerProfile) {
+          ownerEmail = ownerProfile.email;
+          ownerName = ownerProfile.full_name;
+          console.log("Owner email found:", ownerEmail);
+        } else {
+          console.warn("Could not fetch owner profile:", ownerProfileError);
+        }
+      } else {
+        console.warn("No owner found in driver_owner_messages for booking:", notification.booking_id);
+      }
+
+      // Send confirmation email to driver
       if (userEmail) {
         try {
-          const { data, error } = await supabase.functions.invoke('send-booking-approved', {
+          const { data, error } = await supabase.functions.invoke('send-booking-confirmed', {
             body: {
               userEmail,
               userName,
@@ -327,23 +359,49 @@ const AdminNotifications = ({
             }
           });
           if (error) {
-            console.error('send-booking-approved returned error:', error);
+            console.error('send-booking-confirmed returned error:', error);
           } else {
-            console.log('send-booking-approved response:', data);
+            console.log('Driver confirmation email sent successfully:', data);
           }
         } catch (emailError) {
-          console.error('Failed to send approval email:', emailError);
-          // Don't fail the approval if email fails
+          console.error('Failed to send driver confirmation email:', emailError);
         }
       } else {
-        console.warn('No customer email found; skipping email send');
+        console.warn('No customer email found; skipping driver email');
+      }
+
+      // Send confirmation email to owner if found
+      if (ownerEmail) {
+        try {
+          const { data, error } = await supabase.functions.invoke('send-owner-booking-confirmed', {
+            body: {
+              ownerEmail: ownerEmail,
+              ownerName: ownerName,
+              bookingDetails: {
+                location: booking.location,
+                driverName: userName,
+                startDate: format(new Date(booking.start_time), 'PPP'),
+                endDate: format(new Date(booking.end_time), 'PPP'),
+              }
+            }
+          });
+          if (error) {
+            console.error('send-owner-booking-confirmed returned error:', error);
+          } else {
+            console.log('Owner confirmation email sent successfully:', data);
+          }
+        } catch (emailError) {
+          console.error('Failed to send owner confirmation email:', emailError);
+        }
+      } else {
+        console.warn('No owner email found; skipping owner email');
       }
 
       // Send support chat notification
       await sendSupportChatNotification(
         booking.user_id,
-        'Booking Approved! 🎉',
-        `Excellent news! Your parking booking request has been approved! 🎯\n\n` +
+        'Booking Confirmed! 🎉',
+        `Your booking has been successfully confirmed! 🎯\n\n` +
         `📍 Booking Details:\n\n` +
         `Location: ${booking.location}\n` +
         `Start Date: ${format(new Date(booking.start_time), 'PPP')}\n` +
@@ -357,7 +415,7 @@ const AdminNotifications = ({
       await markAsRead(notification.id);
       toast({
         title: "Success",
-        description: "Booking approved successfully"
+        description: "Booking confirmed and both parties notified"
       });
       fetchNotifications();
     } catch (error) {
