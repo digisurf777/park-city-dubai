@@ -11,6 +11,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Check, ChevronsUpDown } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { 
   Pencil, Trash2, Plus, CheckCircle, XCircle, FileText, Mail, Upload, X, 
   Eye, Edit, Lightbulb, Camera, Settings, RefreshCw, MessageCircle, Send, 
@@ -216,6 +220,7 @@ const AdminPanelOrganized = () => {
   const [messageSubject, setMessageSubject] = useState('');
   const [messageContent, setMessageContent] = useState('');
   const [selectedUserId, setSelectedUserId] = useState('');
+  const [customerSearchOpen, setCustomerSearchOpen] = useState(false);
 
   // Parking listing edit form state
   const [listingTitle, setListingTitle] = useState('');
@@ -2551,24 +2556,56 @@ const AdminPanelOrganized = () => {
                     {/* Select User */}
                     <div className="space-y-2">
                       <Label htmlFor="selectUser">Select Customer</Label>
-                      <Select value={selectedUserId} onValueChange={setSelectedUserId}>
-                        <SelectTrigger id="selectUser">
-                          <SelectValue placeholder="Choose a customer to send a message" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {detailedUsersLoading ? (
-                            <SelectItem value="loading" disabled>Loading customers...</SelectItem>
-                          ) : detailedUsers.length > 0 ? (
-                            detailedUsers.map((user) => (
-                              <SelectItem key={user.user_id} value={user.user_id}>
-                                {user.full_name || 'No Name'} ({user.email || 'No Email'}) - {user.user_type}
-                              </SelectItem>
-                            ))
-                          ) : (
-                            <SelectItem value="none" disabled>No customers found</SelectItem>
-                          )}
-                        </SelectContent>
-                      </Select>
+                      <Popover open={customerSearchOpen} onOpenChange={setCustomerSearchOpen}>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            aria-expanded={customerSearchOpen}
+                            className="w-full justify-between"
+                          >
+                            {selectedUserId
+                              ? detailedUsers.find((user) => user.user_id === selectedUserId)
+                                  ? `${detailedUsers.find((user) => user.user_id === selectedUserId)?.full_name || 'No Name'} (${detailedUsers.find((user) => user.user_id === selectedUserId)?.email || 'No Email'})`
+                                  : "Choose a customer to send a message"
+                              : "Choose a customer to send a message"}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-full p-0" align="start">
+                          <Command>
+                            <CommandInput placeholder="Search by name or email..." />
+                            <CommandList>
+                              <CommandEmpty>
+                                {detailedUsersLoading ? "Loading customers..." : "No customer found."}
+                              </CommandEmpty>
+                              <CommandGroup>
+                                {detailedUsers.map((user) => (
+                                  <CommandItem
+                                    key={user.user_id}
+                                    value={`${user.full_name || 'No Name'} ${user.email || 'No Email'}`}
+                                    onSelect={() => {
+                                      setSelectedUserId(user.user_id);
+                                      setCustomerSearchOpen(false);
+                                    }}
+                                  >
+                                    <Check
+                                      className={cn(
+                                        "mr-2 h-4 w-4",
+                                        selectedUserId === user.user_id ? "opacity-100" : "opacity-0"
+                                      )}
+                                    />
+                                    <div className="flex flex-col">
+                                      <span className="font-medium">{user.full_name || 'No Name'}</span>
+                                      <span className="text-xs text-muted-foreground">{user.email || 'No Email'} • {user.user_type}</span>
+                                    </div>
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
                     </div>
 
                     {/* Message Subject */}
