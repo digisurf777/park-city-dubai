@@ -61,6 +61,80 @@ export type Database = {
           },
         ]
       }
+      banking_details: {
+        Row: {
+          account_holder_name: string
+          account_number: string
+          bank_name: string
+          created_at: string
+          iban: string
+          id: string
+          swift_code: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account_holder_name: string
+          account_number: string
+          bank_name: string
+          created_at?: string
+          iban: string
+          id?: string
+          swift_code: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account_holder_name?: string
+          account_number?: string
+          bank_name?: string
+          created_at?: string
+          iban?: string
+          id?: string
+          swift_code?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      banking_details_access_audit: {
+        Row: {
+          access_type: string
+          accessed_at: string
+          accessed_by: string
+          banking_detail_id: string
+          id: string
+          ip_address: unknown
+          user_agent: string | null
+        }
+        Insert: {
+          access_type: string
+          accessed_at?: string
+          accessed_by: string
+          banking_detail_id: string
+          id?: string
+          ip_address?: unknown
+          user_agent?: string | null
+        }
+        Update: {
+          access_type?: string
+          accessed_at?: string
+          accessed_by?: string
+          banking_detail_id?: string
+          id?: string
+          ip_address?: unknown
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "banking_details_access_audit_banking_detail_id_fkey"
+            columns: ["banking_detail_id"]
+            isOneToOne: false
+            referencedRelation: "banking_details"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       blog_posts: {
         Row: {
           author: string | null
