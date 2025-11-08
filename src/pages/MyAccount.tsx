@@ -20,6 +20,7 @@ import { EmailVerificationStatus } from '@/components/EmailVerificationStatus';
 import { PaymentHistoryOwner } from '@/components/PaymentHistoryOwner';
 import PaymentHistoryCustomer from '@/components/PaymentHistoryCustomer';
 import { MFASetup } from '@/components/MFASetup';
+import { BankingDetailsPanel } from '@/components/BankingDetailsPanel';
 interface Profile {
   id: string;
   full_name: string;
@@ -770,6 +771,11 @@ const MyAccount = () => {
             {/* Payments Tab - For All Users */}
             <TabsContent value="payments" className="mt-6">
               <div className="space-y-6">
+                {/* Banking Details Section - Owner Only */}
+                {isParkingOwner && (verificationStatus === 'approved' || verificationStatus === 'verified') && (
+                  <BankingDetailsPanel />
+                )}
+                
                 {/* Owner Payments Section */}
                 {isParkingOwner && (
                   <Card>
