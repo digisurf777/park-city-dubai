@@ -31,11 +31,11 @@ const handler = async (req: Request): Promise<Response> => {
       from: "ShazamParking <noreply@shazamparking.ae>",
       to: [userEmail],
       bcc: ["support@shazamparking.ae"],
-      subject: "New Reply from ShazamParking Support",
+      subject: "New Message from ShazamParking Support",
       html: `
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #ffffff;">
           <div style="text-align: center; margin-bottom: 30px; padding: 20px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 12px;">
-            <h1 style="color: white; font-size: 24px; margin: 0; font-weight: bold;">💬 New Reply from Support</h1>
+            <h1 style="color: white; font-size: 24px; margin: 0; font-weight: bold;">💬 New Message from Support</h1>
             <p style="color: rgba(255,255,255,0.9); font-size: 14px; margin: 10px 0 0 0;">ShazamParking</p>
           </div>
           
@@ -44,12 +44,8 @@ const handler = async (req: Request): Promise<Response> => {
               Hello ${userName || 'Customer'},
             </h2>
             
-            <p style="color: #4b5563; line-height: 1.6; margin-bottom: 20px; font-size: 16px;">
-              Our support team has replied to your message. Here's what they said:
-            </p>
-            
             <div style="background: #f0f9ff; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #0ea5e9;">
-              <h3 style="color: #0c4a6e; margin: 0 0 10px 0; font-size: 16px;">📧 Reply Details:</h3>
+              <h3 style="color: #0c4a6e; margin: 0 0 10px 0; font-size: 16px;">📧 Message Details:</h3>
               <p style="color: #0c4a6e; margin: 5px 0;"><strong>Subject:</strong> ${subject}</p>
               <div style="background: white; padding: 15px; border-radius: 6px; margin: 15px 0;">
                 <p style="color: #374151; margin: 0; line-height: 1.6;">${adminMessage.replace(/\n/g, '<br>')}</p>
