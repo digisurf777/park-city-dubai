@@ -147,7 +147,15 @@ export const PaymentHistoryUnified = () => {
           if (row.owner_id) chatUserIds.add(row.owner_id);
         }
 
-        const userIds = Array.from(new Set<string>([...driverMap.keys(), ...ownerMap.keys(), ...chatUserIds]));
+        // Include all users with approved/confirmed/completed bookings
+        const bookingUserIds = new Set<string>();
+        for (const row of driverRows as any[]) {
+          if (row.user_id && ['approved', 'confirmed', 'completed'].includes(row.status)) {
+            bookingUserIds.add(row.user_id);
+          }
+        }
+
+        const userIds = Array.from(new Set<string>([...driverMap.keys(), ...ownerMap.keys(), ...chatUserIds, ...bookingUserIds]));
         if (userIds.length === 0) {
           setCustomers([]);
           return;
