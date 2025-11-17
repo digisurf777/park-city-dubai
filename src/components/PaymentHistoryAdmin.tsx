@@ -81,6 +81,7 @@ export const PaymentHistoryAdmin = () => {
   const [loadingBanking, setLoadingBanking] = useState(false);
   const [showFullBanking, setShowFullBanking] = useState(false);
   const [paymentBankingDetails, setPaymentBankingDetails] = useState<Record<string, BankingDetails>>({});
+  const [showFullByOwner, setShowFullByOwner] = useState<Record<string, boolean>>({});
 
   // Form state
   const [selectedOwnerId, setSelectedOwnerId] = useState('');
@@ -503,7 +504,29 @@ export const PaymentHistoryAdmin = () => {
 
               {paymentBankingDetails[payment.owner_id] && (
                 <div className="pt-2 border-t">
-                  <Label className="text-muted-foreground text-sm">Owner Banking Details</Label>
+                  <div className="flex items-center justify-between">
+                    <Label className="text-muted-foreground text-sm">Owner Banking Details</Label>
+                    <Button
+                      variant={showFullByOwner[payment.owner_id] ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setShowFullByOwner(prev => ({...prev, [payment.owner_id]: !prev[payment.owner_id]}))}
+                    >
+                      {showFullByOwner[payment.owner_id] ? (
+                        <>
+                          <EyeOff className="h-3 w-3 mr-1" /> Hide Full
+                        </>
+                      ) : (
+                        <>
+                          <Eye className="h-3 w-3 mr-1" /> Show Full
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                  {!showFullByOwner[payment.owner_id] && (
+                    <div className="mt-2 p-2 bg-yellow-100 dark:bg-yellow-900/30 border border-yellow-300 dark:border-yellow-700 rounded text-xs">
+                      Click "Show Full" to reveal complete account details for payment
+                    </div>
+                  )}
                   <div className="mt-2 p-3 bg-green-50 dark:bg-green-950/30 rounded-md space-y-1 border border-green-200 dark:border-green-800">
                     <div className="grid grid-cols-2 gap-2 text-xs">
                       <div>
@@ -512,11 +535,11 @@ export const PaymentHistoryAdmin = () => {
                       </div>
                       <div>
                         <span className="text-muted-foreground">Account:</span>
-                        <p className="font-medium">{maskAccountNumber(paymentBankingDetails[payment.owner_id].account_number)}</p>
+                        <p className="font-medium">{showFullByOwner[payment.owner_id] ? paymentBankingDetails[payment.owner_id].account_number : maskAccountNumber(paymentBankingDetails[payment.owner_id].account_number)}</p>
                       </div>
                       <div>
                         <span className="text-muted-foreground">IBAN:</span>
-                        <p className="font-medium">{maskIban(paymentBankingDetails[payment.owner_id].iban)}</p>
+                        <p className="font-medium">{showFullByOwner[payment.owner_id] ? paymentBankingDetails[payment.owner_id].iban : maskIban(paymentBankingDetails[payment.owner_id].iban)}</p>
                       </div>
                       <div>
                         <span className="text-muted-foreground">SWIFT:</span>
