@@ -674,18 +674,32 @@ export const PaymentHistoryAdmin = () => {
             </div>
 
             {selectedOwnerId && (
-              <div className="p-4 border rounded-lg bg-muted/30">
-                <div className="flex items-center justify-between mb-2">
-                  <Label className="text-sm font-semibold">Owner Banking Details</Label>
+              <div className="p-4 border-2 rounded-lg bg-green-50 dark:bg-green-950/20 border-green-300 dark:border-green-800">
+                <div className="flex items-center justify-between mb-3">
+                  <Label className="text-sm font-semibold flex items-center gap-2">
+                    Owner Banking Details
+                    {bankingDetails && (
+                      <Badge variant="secondary" className="text-xs">On File</Badge>
+                    )}
+                  </Label>
                   {bankingDetails && (
                     <Button
-                      variant="ghost"
+                      variant={showFullBanking ? "default" : "outline"}
                       size="sm"
                       onClick={() => setShowFullBanking(!showFullBanking)}
-                      className="h-7 text-xs"
+                      className="h-8"
                     >
-                      {showFullBanking ? <EyeOff className="h-3 w-3 mr-1" /> : <Eye className="h-3 w-3 mr-1" />}
-                      {showFullBanking ? 'Hide' : 'Show Full'}
+                      {showFullBanking ? (
+                        <>
+                          <EyeOff className="h-4 w-4 mr-2" />
+                          Hide Full Details
+                        </>
+                      ) : (
+                        <>
+                          <Eye className="h-4 w-4 mr-2" />
+                          Show Full Details
+                        </>
+                      )}
                     </Button>
                   )}
                 </div>
@@ -696,31 +710,38 @@ export const PaymentHistoryAdmin = () => {
                     Loading banking details...
                   </div>
                 ) : bankingDetails ? (
-                  <div className="grid grid-cols-2 gap-3 text-sm">
-                    <div>
-                      <span className="text-muted-foreground text-xs">Account Holder:</span>
-                      <p className="font-medium">{bankingDetails.account_holder_name}</p>
+                  <>
+                    {!showFullBanking && (
+                      <div className="mb-3 p-2 bg-yellow-100 dark:bg-yellow-900/30 border border-yellow-300 dark:border-yellow-700 rounded text-xs">
+                        ⚠️ Click "Show Full Details" above to reveal complete account information for payment
+                      </div>
+                    )}
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      <div>
+                        <span className="text-muted-foreground text-xs">Account Holder:</span>
+                        <p className="font-semibold">{bankingDetails.account_holder_name}</p>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground text-xs">Bank:</span>
+                        <p className="font-semibold">{bankingDetails.bank_name}</p>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground text-xs">Account Number:</span>
+                        <p className="font-semibold">{showFullBanking ? bankingDetails.account_number : maskAccountNumber(bankingDetails.account_number)}</p>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground text-xs">IBAN:</span>
+                        <p className="font-semibold">{showFullBanking ? bankingDetails.iban : maskIban(bankingDetails.iban)}</p>
+                      </div>
+                      <div className="col-span-2">
+                        <span className="text-muted-foreground text-xs">SWIFT Code:</span>
+                        <p className="font-semibold">{bankingDetails.swift_code}</p>
+                      </div>
                     </div>
-                    <div>
-                      <span className="text-muted-foreground text-xs">Bank:</span>
-                      <p className="font-medium">{bankingDetails.bank_name}</p>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground text-xs">Account Number:</span>
-                      <p className="font-medium">{showFullBanking ? bankingDetails.account_number : maskAccountNumber(bankingDetails.account_number)}</p>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground text-xs">IBAN:</span>
-                      <p className="font-medium">{showFullBanking ? bankingDetails.iban : maskIban(bankingDetails.iban)}</p>
-                    </div>
-                    <div className="col-span-2">
-                      <span className="text-muted-foreground text-xs">SWIFT Code:</span>
-                      <p className="font-medium">{bankingDetails.swift_code}</p>
-                    </div>
-                  </div>
+                  </>
                 ) : (
                   <div className="text-sm text-muted-foreground">
-                    <p>No banking details on file for this owner.</p>
+                    <p>❌ No banking details on file for this owner.</p>
                     <p className="text-xs mt-1">The owner can add banking details in their account settings.</p>
                   </div>
                 )}
