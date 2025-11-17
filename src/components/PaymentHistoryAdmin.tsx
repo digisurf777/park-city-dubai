@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { DollarSign, Upload, Download, FileText, Search, Plus, Calendar, Loader2, Trash2 } from 'lucide-react';
+import { DollarSign, Upload, Download, FileText, Search, Plus, Calendar, Loader2, Trash2, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 
@@ -52,6 +52,18 @@ interface Owner {
   email: string;
 }
 
+interface BankingDetails {
+  id: string;
+  user_id: string;
+  account_holder_name: string;
+  bank_name: string;
+  account_number: string;
+  iban: string;
+  swift_code: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export const PaymentHistoryAdmin = () => {
   const [payments, setPayments] = useState<OwnerPayment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -65,6 +77,10 @@ export const PaymentHistoryAdmin = () => {
   const [isGeneratingPdfs, setIsGeneratingPdfs] = useState(false);
   const [downloadingDoc, setDownloadingDoc] = useState<{ paymentId: string; type: 'invoice' | 'remittance' } | null>(null);
   const [deletingPaymentId, setDeletingPaymentId] = useState<string | null>(null);
+  const [bankingDetails, setBankingDetails] = useState<BankingDetails | null>(null);
+  const [loadingBanking, setLoadingBanking] = useState(false);
+  const [showFullBanking, setShowFullBanking] = useState(false);
+  const [paymentBankingDetails, setPaymentBankingDetails] = useState<Record<string, BankingDetails>>({});
 
   // Form state
   const [selectedOwnerId, setSelectedOwnerId] = useState('');
@@ -79,6 +95,7 @@ export const PaymentHistoryAdmin = () => {
   useEffect(() => {
     fetchPayments();
     fetchOwners();
+    fetchAllPaymentBankingDetails();
   }, []);
 
   const fetchPayments = async () => {
@@ -158,6 +175,54 @@ export const PaymentHistoryAdmin = () => {
     } finally {
       setLoadingBookings(false);
     }
+  };
+
+  const fetchBankingDetails = async (userId: string) => {
+    try {
+      setLoadingBanking(true);
+      const { data, error } = await supabase
+        .from('banking_details')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
+
+      if (error && error.code !== 'PGRST116') throw error;
+      setBankingDetails(data || null);
+    } catch (error: any) {
+      console.error('Error fetching banking details:', error);
+      setBankingDetails(null);
+    } finally {
+      setLoadingBanking(false);
+    }
+  };
+
+  const fetchAllPaymentBankingDetails = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('banking_details')
+        .select('*');
+
+      if (error) throw error;
+      
+      const bankingMap: Record<string, BankingDetails> = {};
+      (data || []).forEach((bd: BankingDetails) => {
+        bankingMap[bd.user_id] = bd;
+      });
+      
+      setPaymentBankingDetails(bankingMap);
+    } catch (error: any) {
+      console.error('Error fetching all banking details:', error);
+    }
+  };
+
+  const maskAccountNumber = (accountNumber: string) => {
+    if (!accountNumber || accountNumber.length < 4) return '****';
+    return `****${accountNumber.slice(-4)}`;
+  };
+
+  const maskIban = (iban: string) => {
+    if (!iban || iban.length < 8) return '****';
+    return `${iban.slice(0, 4)}****${iban.slice(-4)}`;
   };
 
   const handleCreatePayment = async () => {
@@ -321,13 +386,16 @@ export const PaymentHistoryAdmin = () => {
     setOwnerBookings([]);
   };
 
-  // Watch for owner selection to load their bookings
+  // Watch for owner selection to load their bookings and banking details
   useEffect(() => {
     if (selectedOwnerId && createDialogOpen) {
       fetchOwnerBookings(selectedOwnerId);
+      fetchBankingDetails(selectedOwnerId);
     } else {
       setOwnerBookings([]);
       setSelectedBookingId('none');
+      setBankingDetails(null);
+      setShowFullBanking(false);
     }
   }, [selectedOwnerId, createDialogOpen]);
 
@@ -429,6 +497,32 @@ export const PaymentHistoryAdmin = () => {
                         Rental: {format(new Date(payment.booking_start_time), 'PP')} - {format(new Date(payment.booking_end_time), 'PP')}
                       </p>
                     )}
+                  </div>
+                </div>
+              )}
+
+              {paymentBankingDetails[payment.owner_id] && (
+                <div className="pt-2 border-t">
+                  <Label className="text-muted-foreground text-sm">Owner Banking Details</Label>
+                  <div className="mt-2 p-3 bg-green-50 dark:bg-green-950/30 rounded-md space-y-1 border border-green-200 dark:border-green-800">
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div>
+                        <span className="text-muted-foreground">Bank:</span>
+                        <p className="font-medium">{paymentBankingDetails[payment.owner_id].bank_name}</p>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Account:</span>
+                        <p className="font-medium">{maskAccountNumber(paymentBankingDetails[payment.owner_id].account_number)}</p>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">IBAN:</span>
+                        <p className="font-medium">{maskIban(paymentBankingDetails[payment.owner_id].iban)}</p>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">SWIFT:</span>
+                        <p className="font-medium">{paymentBankingDetails[payment.owner_id].swift_code}</p>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
@@ -578,6 +672,60 @@ export const PaymentHistoryAdmin = () => {
                 </p>
               )}
             </div>
+
+            {selectedOwnerId && (
+              <div className="p-4 border rounded-lg bg-muted/30">
+                <div className="flex items-center justify-between mb-2">
+                  <Label className="text-sm font-semibold">Owner Banking Details</Label>
+                  {bankingDetails && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowFullBanking(!showFullBanking)}
+                      className="h-7 text-xs"
+                    >
+                      {showFullBanking ? <EyeOff className="h-3 w-3 mr-1" /> : <Eye className="h-3 w-3 mr-1" />}
+                      {showFullBanking ? 'Hide' : 'Show Full'}
+                    </Button>
+                  )}
+                </div>
+                
+                {loadingBanking ? (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Loading banking details...
+                  </div>
+                ) : bankingDetails ? (
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div>
+                      <span className="text-muted-foreground text-xs">Account Holder:</span>
+                      <p className="font-medium">{bankingDetails.account_holder_name}</p>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground text-xs">Bank:</span>
+                      <p className="font-medium">{bankingDetails.bank_name}</p>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground text-xs">Account Number:</span>
+                      <p className="font-medium">{showFullBanking ? bankingDetails.account_number : maskAccountNumber(bankingDetails.account_number)}</p>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground text-xs">IBAN:</span>
+                      <p className="font-medium">{showFullBanking ? bankingDetails.iban : maskIban(bankingDetails.iban)}</p>
+                    </div>
+                    <div className="col-span-2">
+                      <span className="text-muted-foreground text-xs">SWIFT Code:</span>
+                      <p className="font-medium">{bankingDetails.swift_code}</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-sm text-muted-foreground">
+                    <p>No banking details on file for this owner.</p>
+                    <p className="text-xs mt-1">The owner can add banking details in their account settings.</p>
+                  </div>
+                )}
+              </div>
+            )}
 
             <div>
               <Label>Amount (AED) *</Label>
