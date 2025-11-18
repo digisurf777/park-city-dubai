@@ -369,37 +369,52 @@ export const PaymentHistoryUnified = () => {
       return;
     }
 
+    // Limit file size to 10MB
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error('File size must be less than 10MB');
+      return;
+    }
+
     try {
       setUploadingDoc({ id: paymentId, type: documentType });
 
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = async () => {
-        const base64 = reader.result?.toString().split(',')[1];
-        if (!base64) throw new Error('Failed to read file');
+      console.log('📤 Uploading owner payment document directly to storage:', { paymentId, documentType, fileName: file.name, size: file.size });
 
-        console.log('📤 Uploading owner payment document:', { paymentId, documentType, fileName: file.name });
-
-        const { data, error } = await supabase.functions.invoke('upload-payment-document', {
-          body: {
-            paymentId,
-            documentType,
-            fileName: file.name,
-            fileData: base64
-          }
+      // Upload directly to storage (avoids edge function memory limits)
+      const filePath = `${paymentId}/${documentType}_${Date.now()}.pdf`;
+      const { error: uploadError } = await supabase.storage
+        .from('owner-payment-documents')
+        .upload(filePath, file, {
+          contentType: 'application/pdf',
+          upsert: false
         });
 
-        if (error) {
-          console.error('❌ Upload error:', error);
-          throw error;
+      if (uploadError) {
+        console.error('❌ Storage upload error:', uploadError);
+        throw uploadError;
+      }
+
+      console.log('✅ File uploaded to storage:', filePath);
+
+      // Now update the database records via edge function
+      const { data, error } = await supabase.functions.invoke('update-payment-document-path', {
+        body: {
+          paymentId,
+          documentType,
+          filePath
         }
+      });
 
-        console.log('✅ Upload success:', data);
-        toast.success(`✅ ${documentType === 'invoice' ? 'Invoice' : 'Remittance advice'} uploaded successfully! Customer will receive this exact file.`, {
-          duration: 5000,
-        });
-        if (selectedCustomerId) fetchCustomerDetails(selectedCustomerId);
-      };
+      if (error) {
+        console.error('❌ Database update error:', error);
+        throw error;
+      }
+
+      console.log('✅ Database updated:', data);
+      toast.success(`✅ ${documentType === 'invoice' ? 'Invoice' : 'Remittance advice'} uploaded successfully! Customer will receive this exact file.`, {
+        duration: 5000,
+      });
+      if (selectedCustomerId) fetchCustomerDetails(selectedCustomerId);
     } catch (error: any) {
       console.error('❌ Error uploading document:', error);
       toast.error(`Upload failed: ${error.message || 'Unknown error'}`, {
