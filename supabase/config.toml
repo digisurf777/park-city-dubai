@@ -166,3 +166,6 @@ verify_jwt = false
 
 [functions.validate-admin-access]
 verify_jwt = true
+
+[functions.update-payment-document-path]
+verify_jwt = true
