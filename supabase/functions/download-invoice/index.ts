@@ -50,15 +50,37 @@ serve(async (req) => {
       throw new Error('Invoice not yet generated');
     }
 
-    // Get signed URL
-    const { data: signedUrlData, error: signedUrlError } = await supabase.storage
+    // Try to get signed URL from booking-invoices bucket first (auto-generated invoices)
+    let signedUrlData = null;
+    let signedUrlError = null;
+    let bucketUsed = 'booking-invoices';
+
+    const result = await supabase.storage
       .from('booking-invoices')
       .createSignedUrl(booking.invoice_url, 60); // 1 minute to download
 
+    signedUrlData = result.data;
+    signedUrlError = result.error;
+
+    // If not found in booking-invoices, try owner-payment-documents bucket (admin-uploaded invoices)
     if (signedUrlError) {
-      console.error('Signed URL error:', signedUrlError);
-      throw signedUrlError;
+      console.log('Invoice not found in booking-invoices bucket, trying owner-payment-documents...');
+      bucketUsed = 'owner-payment-documents';
+      
+      const altResult = await supabase.storage
+        .from('owner-payment-documents')
+        .createSignedUrl(booking.invoice_url, 60);
+      
+      signedUrlData = altResult.data;
+      signedUrlError = altResult.error;
     }
+
+    if (signedUrlError || !signedUrlData) {
+      console.error('Signed URL error from both buckets:', signedUrlError);
+      throw new Error('Invoice file not found in storage. Please contact support.');
+    }
+
+    console.log(`Invoice found in ${bucketUsed} bucket, generating download...`);
 
     // Fetch the PDF from storage
     const pdfResponse = await fetch(signedUrlData.signedUrl);
