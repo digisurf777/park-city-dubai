@@ -180,6 +180,55 @@ export const ParkingBookingModal = ({
     return dates;
   };
 
+  // Check if a booking range is available (no overlaps with booked dates)
+  const isBookingRangeAvailable = (startDate: Date, months: number): { available: boolean; firstConflictDate?: Date } => {
+    const endDate = new Date(startDate);
+    endDate.setMonth(endDate.getMonth() + months);
+    
+    const currentDate = new Date(startDate);
+    currentDate.setHours(0, 0, 0, 0);
+    
+    while (currentDate < endDate) {
+      if (isDateBooked(currentDate)) {
+        return { available: false, firstConflictDate: new Date(currentDate) };
+      }
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+    
+    return { available: true };
+  };
+
+  // Check if a specific duration is available from a start date
+  const isDurationAvailable = (startDate: Date | undefined, months: number): boolean => {
+    if (!startDate) return true; // Don't disable if no start date selected
+    return isBookingRangeAvailable(startDate, months).available;
+  };
+
+  // Find the next available start date that can fit the duration
+  const findNextAvailableStartDate = (afterDate: Date, durationMonths: number): Date | null => {
+    const maxSearchDays = 90; // Search up to 3 months ahead
+    const searchDate = new Date(afterDate);
+    searchDate.setDate(searchDate.getDate() + 1);
+    searchDate.setHours(0, 0, 0, 0);
+    
+    for (let i = 0; i < maxSearchDays; i++) {
+      if (isBookingRangeAvailable(searchDate, durationMonths).available) {
+        return new Date(searchDate);
+      }
+      searchDate.setDate(searchDate.getDate() + 1);
+    }
+    
+    return null;
+  };
+
+  // Get the calculated end date based on selected duration
+  const getEndDate = (start: Date | undefined, months: number): Date | undefined => {
+    if (!start) return undefined;
+    const end = new Date(start);
+    end.setMonth(end.getMonth() + months);
+    return end;
+  };
+
   const calculateTotal = () => {
     // Use the correct formula: ((Listing Price – 100) × multiplier) × Number of Months + (100 × Number of Months)
     let finalPrice: number;
@@ -289,6 +338,35 @@ export const ParkingBookingModal = ({
       });
       return;
     }
+
+    // Validate booking range for conflicts
+    const rangeValidation = isBookingRangeAvailable(startDate, selectedDuration.months);
+    if (!rangeValidation.available && rangeValidation.firstConflictDate) {
+      const conflictDateStr = format(rangeValidation.firstConflictDate, "PPP");
+      const nextAvailable = findNextAvailableStartDate(rangeValidation.firstConflictDate, selectedDuration.months);
+      
+      toast({
+        title: "Booking Conflict Detected",
+        description: (
+          <div className="space-y-2">
+            <p>The selected {selectedDuration.months}-month period overlaps with already booked dates starting from {conflictDateStr}.</p>
+            {nextAvailable ? (
+              <p className="text-sm">
+                <strong>Suggestion:</strong> Next available start date for this duration is {format(nextAvailable, "PPP")}.
+              </p>
+            ) : (
+              <p className="text-sm">
+                <strong>Suggestion:</strong> Try selecting a different start date or shorter duration.
+              </p>
+            )}
+          </div>
+        ),
+        variant: "destructive",
+        duration: 6000,
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     setPaymentStep('booking');
     
@@ -590,10 +668,22 @@ export const ParkingBookingModal = ({
                       return isDateBooked(date);
                     }}
                     modifiers={{
-                      booked: getAllBookedDates()
+                      booked: getAllBookedDates(),
+                      selectedRange: startDate ? (() => {
+                        const endDate = getEndDate(startDate, selectedDuration.months);
+                        if (!endDate) return [];
+                        const dates: Date[] = [];
+                        const current = new Date(startDate);
+                        while (current < endDate) {
+                          dates.push(new Date(current));
+                          current.setDate(current.getDate() + 1);
+                        }
+                        return dates;
+                      })() : []
                     }}
                     modifiersClassNames={{
-                      booked: 'bg-red-200 text-red-900 line-through opacity-80 hover:bg-red-200 cursor-not-allowed'
+                      booked: 'bg-red-200 text-red-900 line-through opacity-80 hover:bg-red-200 cursor-not-allowed',
+                      selectedRange: 'bg-primary/10 text-primary font-medium'
                     }}
                     initialFocus 
                     className="p-3 pointer-events-auto" 
@@ -604,13 +694,19 @@ export const ParkingBookingModal = ({
                       <div className="w-3 h-3 rounded bg-red-100 border border-red-200"></div>
                       <span className="text-muted-foreground">Already booked</span>
                     </div>
+                    {startDate && (
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded bg-primary/10 border border-primary/20"></div>
+                        <span className="text-muted-foreground">Selected booking period</span>
+                      </div>
+                    )}
                     <div className="flex items-center gap-2">
                       <div className="w-3 h-3 rounded bg-muted"></div>
                       <span className="text-muted-foreground">Available</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="w-3 h-3 rounded bg-muted opacity-50"></div>
-                      <span className="text-muted-foreground">Too soon (2-day minimum)</span>
+                      <span className="text-muted-foreground">Too soon (3-day minimum)</span>
                     </div>
                   </div>
                 </PopoverContent>
@@ -621,12 +717,37 @@ export const ParkingBookingModal = ({
             <div>
               <label className="block text-sm font-medium mb-2">Rental Duration</label>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {DURATION_OPTIONS.map(option => <Button key={option.months} variant={selectedDuration.months === option.months ? "default" : "outline"} className="flex flex-col h-auto py-4 px-4 text-center" onClick={() => setSelectedDuration(option)}>
-                    <span className="font-semibold">{option.label}</span>
-                    {option.months > 1 && <span className="text-xs text-green-600 font-medium">
-                        {option.description}
-                      </span>}
-                  </Button>)}
+                {DURATION_OPTIONS.map(option => {
+                  const isAvailable = isDurationAvailable(startDate, option.months);
+                  return (
+                    <Button 
+                      key={option.months} 
+                      variant={selectedDuration.months === option.months ? "default" : "outline"} 
+                      className={cn(
+                        "flex flex-col h-auto py-4 px-4 text-center",
+                        !isAvailable && "opacity-50 cursor-not-allowed"
+                      )}
+                      disabled={!isAvailable}
+                      onClick={() => setSelectedDuration(option)}
+                      title={!isAvailable ? `This duration is not available from the selected start date due to booking conflicts` : undefined}
+                    >
+                      <span className="font-semibold">{option.label}</span>
+                      {option.months > 1 && (
+                        <span className={cn(
+                          "text-xs font-medium",
+                          isAvailable ? "text-green-600" : "text-muted-foreground"
+                        )}>
+                          {option.description}
+                        </span>
+                      )}
+                      {!isAvailable && startDate && (
+                        <span className="text-xs text-destructive mt-1">
+                          Conflicts with booked dates
+                        </span>
+                      )}
+                    </Button>
+                  );
+                })}
               </div>
               <p className="text-xs text-muted-foreground mt-2">
                 Or choose Monthly Rolling (subject to availability)
