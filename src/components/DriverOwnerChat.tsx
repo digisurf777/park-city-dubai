@@ -321,8 +321,8 @@ export const DriverOwnerChat = ({ bookingId, isOpen, onClose }: DriverOwnerChatP
             <Alert className="mb-4">
               <AlertTriangle className="h-4 w-4" />
               <AlertDescription>
-                Chat is available for approved bookings until the booking ends.
-                Booking period: {booking && format(new Date(booking.start_time), 'MMM d, HH:mm')} - {booking && format(new Date(booking.end_time), 'MMM d, HH:mm')}
+                Chat is available once your booking is approved and remains active until the booking ends.
+                {booking && ` (Booking ends: ${format(new Date(booking.end_time), 'MMM d, HH:mm')})`}
               </AlertDescription>
             </Alert>
           ) : (

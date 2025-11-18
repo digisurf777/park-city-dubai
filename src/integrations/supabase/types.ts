@@ -2140,12 +2140,12 @@ export type Database = {
           owner_id: string
           read_status: boolean
           updated_at: string
-        }
+        }[]
         SetofOptions: {
           from: "*"
           to: "driver_owner_messages"
-          isOneToOne: true
-          isSetofReturn: false
+          isOneToOne: false
+          isSetofReturn: true
         }
       }
       send_welcome_email_async: {
