@@ -813,6 +813,14 @@ export const ParkingBookingModal = ({
               </div>
             </div>
 
+            {/* Non-Refundable Policy Notice */}
+            <Alert className="border-amber-200 bg-amber-50">
+              <AlertTriangle className="h-4 w-4 text-amber-500" />
+              <AlertDescription className="text-amber-700 text-sm">
+                <strong>Important:</strong> Once the reservation is confirmed and the payment is processed accordingly, all bookings are final and non-refundable.
+              </AlertDescription>
+            </Alert>
+
             {/* Reserve Button */}
             <Button 
               onClick={handleReserve} 
