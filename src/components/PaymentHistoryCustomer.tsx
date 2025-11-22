@@ -40,8 +40,18 @@ interface OwnerPayment {
   reference_number?: string;
   notes?: string;
   invoice_url?: string;
+  remittance_advice_url?: string;
   created_at: string;
   payment_date?: string;
+}
+
+interface PaymentDocument {
+  id: string;
+  payment_id: string;
+  document_type: 'invoice' | 'remittance';
+  file_path: string;
+  file_name: string;
+  uploaded_at: string;
 }
 
 interface UnifiedPayment {
@@ -54,8 +64,9 @@ interface UnifiedPayment {
   created_at: string;
   invoice_url?: string;
   details: BookingPayment | OwnerPayment;
-  isCustomerInvoice?: boolean; // Flag for admin-uploaded invoices linked to customer bookings
+  isCustomerInvoice?: boolean;
   remittance_url?: string;
+  documents?: PaymentDocument[];
 }
 
 export default function PaymentHistoryCustomer() {
@@ -115,6 +126,22 @@ export default function PaymentHistoryCustomer() {
 
       if (customerInvoicesError) console.error("Error fetching customer invoices:", customerInvoicesError);
 
+      // Fetch documents for customer invoices
+      const customerInvoiceIds = (customerInvoices || []).map(inv => inv.id);
+      let customerInvoiceDocs: PaymentDocument[] = [];
+      if (customerInvoiceIds.length > 0) {
+        const { data: docsData } = await supabase
+          .from('owner_payment_documents')
+          .select('*')
+          .in('payment_id', customerInvoiceIds)
+          .order('uploaded_at', { ascending: false });
+        
+        customerInvoiceDocs = (docsData || []).map(d => ({
+          ...d,
+          document_type: d.document_type as 'invoice' | 'remittance'
+        }));
+      }
+
       // Combine all types into unified format
       const unifiedPayments: UnifiedPayment[] = [
         ...bookingsWithInvoices.map((b: BookingPayment) => ({
@@ -150,7 +177,8 @@ export default function PaymentHistoryCustomer() {
           invoice_url: p.invoice_url,
           remittance_url: p.remittance_advice_url,
           details: p,
-          isCustomerInvoice: true, // Mark as customer-facing invoice
+          isCustomerInvoice: true,
+          documents: customerInvoiceDocs.filter(d => d.payment_id === p.id),
         })),
       ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
       
@@ -429,27 +457,67 @@ export default function PaymentHistoryCustomer() {
 
                   {!isBooking && payment.invoice_url && (
                     <div className="space-y-2">
-                      <div className="flex items-center gap-2 pb-1">
-                        <FileText className="h-4 w-4 text-muted-foreground" />
-                        <p className="text-sm font-semibold">Invoice</p>
-                      </div>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleDownloadInvoice(payment)}
-                        disabled={downloadingId === payment.id}
-                        className="w-full"
-                      >
-                        <div className="flex items-center gap-2 flex-1">
-                          <FileCheck className="h-4 w-4" />
-                          <span>Download Invoice</span>
-                        </div>
-                        {downloadingId === payment.id ? (
-                          <Loader2 className="h-4 w-4 animate-spin ml-2" />
-                        ) : (
-                          <Download className="h-4 w-4 ml-2" />
-                        )}
-                      </Button>
+                      {payment.documents && payment.documents.length > 0 ? (
+                        <>
+                          <div className="flex items-center gap-2 pb-1">
+                            <FileText className="h-4 w-4 text-muted-foreground" />
+                            <p className="text-sm font-semibold">Document History</p>
+                          </div>
+                          <div className="space-y-2 pl-6 border-l-2 border-muted">
+                            {payment.documents.map((doc: PaymentDocument, idx: number) => (
+                              <div key={doc.id} className="relative">
+                                <div className="absolute -left-[25px] top-2 h-2 w-2 rounded-full bg-primary" />
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleDownloadInvoice(payment)}
+                                  disabled={downloadingId === payment.id}
+                                  className="w-full justify-between"
+                                >
+                                  <div className="flex flex-col items-start gap-1 flex-1">
+                                    <span className="flex items-center gap-2 font-medium">
+                                      <FileCheck className="h-4 w-4" />
+                                      {doc.document_type === 'invoice' ? 'Invoice' : 'Remittance'} #{idx + 1}
+                                    </span>
+                                    <span className="text-xs text-muted-foreground">
+                                      Uploaded {format(new Date(doc.uploaded_at), "MMM dd, yyyy")}
+                                    </span>
+                                  </div>
+                                  {downloadingId === payment.id ? (
+                                    <Loader2 className="h-4 w-4 animate-spin ml-2" />
+                                  ) : (
+                                    <Download className="h-4 w-4 ml-2" />
+                                  )}
+                                </Button>
+                              </div>
+                            ))}
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div className="flex items-center gap-2 pb-1">
+                            <FileText className="h-4 w-4 text-muted-foreground" />
+                            <p className="text-sm font-semibold">Invoice</p>
+                          </div>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleDownloadInvoice(payment)}
+                            disabled={downloadingId === payment.id}
+                            className="w-full justify-between"
+                          >
+                            <span className="flex items-center gap-2 font-medium">
+                              <FileCheck className="h-4 w-4" />
+                              {payment.isCustomerInvoice ? 'Download Invoice' : 'Download Owner Payment Invoice'}
+                            </span>
+                            {downloadingId === payment.id ? (
+                              <Loader2 className="h-4 w-4 animate-spin ml-2" />
+                            ) : (
+                              <Download className="h-4 w-4 ml-2" />
+                            )}
+                          </Button>
+                        </>
+                      )}
                     </div>
                   )}
                 </div>

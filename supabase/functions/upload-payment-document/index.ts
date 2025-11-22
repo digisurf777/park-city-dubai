@@ -65,17 +65,44 @@ serve(async (req) => {
       throw new Error(`Failed to upload document: ${uploadError.message}`);
     }
 
-    // Update payment record
+    // Get payment info to determine file size
+    const { data: ownerPayment, error: paymentError } = await supabaseClient
+      .from("owner_payments")
+      .select('booking_id, owner_id')
+      .eq("id", paymentId)
+      .single();
+
+    if (paymentError) {
+      console.error("Payment fetch error:", paymentError);
+      throw new Error(`Failed to fetch payment: ${paymentError.message}`);
+    }
+
+    // Insert into owner_payment_documents table (document history)
+    const { error: docInsertError } = await supabaseClient
+      .from("owner_payment_documents")
+      .insert({
+        payment_id: paymentId,
+        document_type: documentType,
+        file_path: filePath,
+        file_name: fileName,
+        file_size_bytes: fileBuffer.length,
+        uploaded_by: user.id
+      });
+
+    if (docInsertError) {
+      console.error("Document insert error:", docInsertError);
+      // Continue even if this fails - backward compatibility
+    }
+
+    // Update payment record (backward compatibility)
     const updateField = documentType === 'invoice' ? 'invoice_url' : 'remittance_advice_url';
-    const { data: ownerPayment, error: updateError } = await supabaseClient
+    const { error: updateError } = await supabaseClient
       .from("owner_payments")
       .update({ 
         [updateField]: filePath,
         updated_at: new Date().toISOString()
       })
-      .eq("id", paymentId)
-      .select('booking_id')
-      .single();
+      .eq("id", paymentId);
 
     if (updateError) {
       console.error("Update error:", updateError);
