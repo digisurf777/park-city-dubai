@@ -114,12 +114,15 @@ export const ParkingBookingModal = ({
 
         if (dateRanges && dateRanges.length > 0) {
           const ranges = dateRanges.map((range: { start_date: string; end_date: string }) => {
-            const start = new Date(range.start_date + 'T00:00:00');
-            const end = new Date(range.end_date + 'T23:59:59');
+            // Parse the timestamp directly (it's already in ISO format from Postgres)
+            const start = new Date(range.start_date);
+            const end = new Date(range.end_date);
             console.log(`📅 Booked: ${start.toLocaleDateString()} to ${end.toLocaleDateString()}`);
+            console.log(`   Raw dates: ${range.start_date} → ${range.end_date}`);
             return { start, end };
           });
           setBookedDateRanges(ranges);
+          console.log(`✅ Set ${ranges.length} booked date range(s) in state`);
         } else {
           console.log('📅 No booked dates for this spot');
           setBookedDateRanges([]);
@@ -154,14 +157,20 @@ export const ParkingBookingModal = ({
     const checkDate = new Date(date);
     checkDate.setHours(0, 0, 0, 0);
     
-    return bookedDateRanges.some(range => {
+    const isBooked = bookedDateRanges.some(range => {
       const rangeStart = new Date(range.start);
       const rangeEnd = new Date(range.end);
       rangeStart.setHours(0, 0, 0, 0);
       rangeEnd.setHours(0, 0, 0, 0);
       
-      return checkDate >= rangeStart && checkDate <= rangeEnd;
+      const result = checkDate >= rangeStart && checkDate <= rangeEnd;
+      if (result) {
+        console.log(`🔴 Date ${checkDate.toLocaleDateString()} is BOOKED (in range ${rangeStart.toLocaleDateString()} - ${rangeEnd.toLocaleDateString()})`);
+      }
+      return result;
     });
+    
+    return isBooked;
   };
 
   // Get all booked dates for modifiers
@@ -651,6 +660,8 @@ export const ParkingBookingModal = ({
                     mode="single" 
                     selected={startDate} 
                     onSelect={date => {
+                      console.log('📅 User selected date:', date?.toLocaleDateString());
+                      console.log('📊 Current booked ranges count:', bookedDateRanges.length);
                       setStartDate(date);
                       setIsCalendarOpen(false);
                     }} 
