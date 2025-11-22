@@ -27,21 +27,28 @@ serve(async (req) => {
     const { data: { user }, error: authError } = await supabaseClient.auth.getUser(token);
 
     if (authError || !user) {
+      console.error("Auth error:", authError);
       throw new Error("Unauthorized");
     }
 
-    const { paymentId, documentType }: DocumentRequest = await req.json();
+    console.log(`📥 Document request from user ${user.id}`);
 
-    // Get payment record
+    const { paymentId, documentType }: DocumentRequest = await req.json();
+    console.log(`📄 Requesting ${documentType} for payment ${paymentId}`);
+
+    // Get payment record with booking info
     const { data: payment, error: paymentError } = await supabaseClient
       .from("owner_payments")
-      .select("*")
+      .select("*, booking_id")
       .eq("id", paymentId)
       .single();
 
     if (paymentError || !payment) {
+      console.error("Payment not found:", paymentError);
       throw new Error("Payment record not found");
     }
+
+    console.log(`💰 Payment found - Owner: ${payment.owner_id}, Booking: ${payment.booking_id}`);
 
     // Check if user is owner or admin
     const isOwner = payment.owner_id === user.id;
@@ -54,25 +61,46 @@ serve(async (req) => {
     
     const isAdmin = !!roleData;
 
-    if (!isOwner && !isAdmin) {
+    // Check if user is a customer with a booking linked to this payment
+    let isCustomer = false;
+    if (payment.booking_id) {
+      const { data: booking } = await supabaseClient
+        .from("parking_bookings")
+        .select("user_id")
+        .eq("id", payment.booking_id)
+        .single();
+      
+      isCustomer = booking?.user_id === user.id;
+      console.log(`🎫 Booking check - User is customer: ${isCustomer}`);
+    }
+
+    if (!isOwner && !isAdmin && !isCustomer) {
+      console.error("Access denied - Not owner, admin, or customer");
       throw new Error("Access denied");
     }
+
+    console.log(`✅ Access granted - Owner: ${isOwner}, Admin: ${isAdmin}, Customer: ${isCustomer}`);
 
     const filePath = documentType === 'invoice' ? payment.invoice_url : payment.remittance_advice_url;
 
     if (!filePath) {
+      console.error(`Document not available - ${documentType} URL is null`);
       throw new Error(`${documentType === 'invoice' ? 'Invoice' : 'Remittance advice'} not available`);
     }
 
-    // Generate signed URL (15 minutes expiry)
+    console.log(`📁 File path: ${filePath}`);
+
+    // Generate signed URL (15 minutes expiry) using service role to bypass RLS
     const { data: urlData, error: urlError } = await supabaseClient.storage
       .from("owner-payment-documents")
-      .createSignedUrl(filePath, 900, { download: `${documentType}_${paymentId}.pdf` }); // 15 minutes, force download filename
+      .createSignedUrl(filePath, 900, { download: `${documentType}_${paymentId}.pdf` });
 
-    if (urlError) {
+    if (urlError || !urlData) {
       console.error("URL generation error:", urlError);
-      throw new Error(`Failed to generate download URL: ${urlError.message}`);
+      throw new Error(`Failed to generate download URL: ${urlError?.message || 'Unknown error'}`);
     }
+
+    console.log(`✅ Signed URL generated successfully`);
 
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
 

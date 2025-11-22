@@ -54,6 +54,8 @@ interface UnifiedPayment {
   created_at: string;
   invoice_url?: string;
   details: BookingPayment | OwnerPayment;
+  isCustomerInvoice?: boolean; // Flag for admin-uploaded invoices linked to customer bookings
+  remittance_url?: string;
 }
 
 export default function PaymentHistoryCustomer() {
@@ -93,7 +95,7 @@ export default function PaymentHistoryCustomer() {
         invoices: (invoicesData || []).filter((inv: BookingInvoice) => inv.booking_id === booking.id)
       }));
 
-      // Fetch owner payments for current user
+      // Fetch owner payments for current user (where they are the owner)
       const { data: { user } } = await supabase.auth.getUser();
       const { data: ownerPayments, error: ownerError } = await supabase
         .from('owner_payments')
@@ -103,7 +105,17 @@ export default function PaymentHistoryCustomer() {
 
       if (ownerError) console.error("Error fetching owner payments:", ownerError);
 
-      // Combine both types into unified format
+      // Fetch owner payment invoices linked to customer's bookings (admin-uploaded)
+      const { data: customerInvoices, error: customerInvoicesError } = await supabase
+        .from('owner_payments')
+        .select('*')
+        .in('booking_id', bookingIds)
+        .not('invoice_url', 'is', null)
+        .order('created_at', { ascending: false });
+
+      if (customerInvoicesError) console.error("Error fetching customer invoices:", customerInvoicesError);
+
+      // Combine all types into unified format
       const unifiedPayments: UnifiedPayment[] = [
         ...bookingsWithInvoices.map((b: BookingPayment) => ({
           id: b.id,
@@ -126,6 +138,19 @@ export default function PaymentHistoryCustomer() {
           created_at: p.created_at,
           invoice_url: p.invoice_url,
           details: p,
+        })),
+        ...(customerInvoices || []).map((p: any) => ({
+          id: p.id,
+          type: 'owner' as const,
+          amount: p.amount_aed,
+          period_start: p.payment_period_start,
+          period_end: p.payment_period_end,
+          status: 'paid',
+          created_at: p.created_at,
+          invoice_url: p.invoice_url,
+          remittance_url: p.remittance_advice_url,
+          details: p,
+          isCustomerInvoice: true, // Mark as customer-facing invoice
         })),
       ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
       
@@ -282,13 +307,15 @@ export default function PaymentHistoryCustomer() {
               <CardHeader>
                 <CardTitle className="text-base flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    {isBooking ? (
+                      {isBooking ? (
                       <span>{bookingDetails?.location}</span>
+                    ) : payment.isCustomerInvoice ? (
+                      <span>Booking Invoice</span>
                     ) : (
                       <span>Owner Payment</span>
                     )}
                     <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
-                      {isBooking ? 'Booking' : 'Owner'}
+                      {isBooking ? 'Booking' : payment.isCustomerInvoice ? 'Invoice' : 'Owner'}
                     </span>
                   </div>
                   <span className="text-primary font-bold">{payment.amount} AED</span>
@@ -326,10 +353,17 @@ export default function PaymentHistoryCustomer() {
                   </div>
                 </div>
 
-                {!isBooking && ownerDetails?.notes && (
+                 {!isBooking && ownerDetails?.notes && (
                   <div className="text-sm">
                     <p className="text-muted-foreground">Notes</p>
                     <p className="font-medium">{ownerDetails.notes}</p>
+                  </div>
+                )}
+
+                {payment.isCustomerInvoice && (
+                  <div className="text-xs bg-muted p-2 rounded border-l-4 border-primary">
+                    <p className="font-medium">📄 Invoice from Admin</p>
+                    <p className="text-muted-foreground">This invoice was uploaded by an administrator for your booking</p>
                   </div>
                 )}
 
