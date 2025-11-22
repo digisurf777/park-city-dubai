@@ -163,27 +163,22 @@ export default function PaymentHistoryCustomer() {
       if (payment.type === 'booking') {
         // Download specific booking invoice from booking_invoices table
         if (invoiceFilePath) {
-          // Generate signed URL directly from the booking-invoices bucket
-          const { data: signedUrlData, error: signedUrlError } = await supabase.storage
-            .from('booking-invoices')
-            .createSignedUrl(invoiceFilePath, 900); // 15 minutes
+          const { data, error } = await supabase.functions.invoke('generate-booking-invoice-url', {
+            body: { 
+              bookingId: payment.id, 
+              invoiceFilePath, 
+              invoiceNumber 
+            }
+          });
 
-          if (signedUrlError || !signedUrlData) {
-            throw new Error('Failed to generate download URL');
-          }
+          if (error) throw error;
 
-          const response = await fetch(signedUrlData.signedUrl);
-          if (!response.ok) throw new Error('Failed to download invoice');
-          
-          const blob = await response.blob();
-          const url = window.URL.createObjectURL(blob);
           const link = document.createElement('a');
-          link.href = url;
+          link.href = data.url;
           link.download = `invoice_${invoiceNumber}_${payment.id.slice(0, 8)}.pdf`;
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
-          window.URL.revokeObjectURL(url);
         } else {
           // Fallback to old system if no specific invoice file path
           const downloadUrl = `https://eoknluyunximjlsnyceb.supabase.co/functions/v1/download-invoice?booking_id=${payment.id}`;
