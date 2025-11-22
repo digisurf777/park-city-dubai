@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Download, FileText, Loader2 } from "lucide-react";
+import { Download, FileText, Loader2, FileCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { format, differenceInDays } from "date-fns";
@@ -346,48 +346,66 @@ export default function PaymentHistoryCustomer() {
 
                   {isBooking && bookingDetails?.invoices && bookingDetails.invoices.length > 0 && (
                     <div className="space-y-2">
-                      <p className="text-sm font-medium">Available Invoices:</p>
-                      {bookingDetails.invoices.map((invoice: BookingInvoice) => (
-                        <Button
-                          key={invoice.id}
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleDownloadInvoice(payment)}
-                          disabled={downloadingId === payment.id}
-                          className="w-full justify-between"
-                        >
-                          <span className="flex items-center gap-2">
-                            <FileText className="h-4 w-4" />
-                            Invoice #{invoice.invoice_number}
-                          </span>
-                          <span className="text-xs text-muted-foreground">
-                            {format(new Date(invoice.uploaded_at), "MMM dd, yyyy")}
-                          </span>
-                          {downloadingId === payment.id ? (
-                            <Loader2 className="h-4 w-4 animate-spin ml-2" />
-                          ) : (
-                            <Download className="h-4 w-4 ml-2" />
-                          )}
-                        </Button>
-                      ))}
+                      <div className="flex items-center gap-2 pb-1">
+                        <FileText className="h-4 w-4 text-muted-foreground" />
+                        <p className="text-sm font-semibold">Invoice History</p>
+                      </div>
+                      <div className="space-y-2 pl-6 border-l-2 border-muted">
+                        {bookingDetails.invoices.map((invoice: BookingInvoice) => (
+                          <div key={invoice.id} className="relative">
+                            <div className="absolute -left-[25px] top-2 h-2 w-2 rounded-full bg-primary" />
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleDownloadInvoice(payment)}
+                              disabled={downloadingId === payment.id}
+                              className="w-full justify-between"
+                            >
+                              <div className="flex flex-col items-start gap-1 flex-1">
+                                <span className="flex items-center gap-2 font-medium">
+                                  <FileCheck className="h-4 w-4" />
+                                  Invoice #{invoice.invoice_number}
+                                </span>
+                                <span className="text-xs text-muted-foreground">
+                                  Uploaded {format(new Date(invoice.uploaded_at), "MMM dd, yyyy")}
+                                </span>
+                              </div>
+                              {downloadingId === payment.id ? (
+                                <Loader2 className="h-4 w-4 animate-spin ml-2" />
+                              ) : (
+                                <Download className="h-4 w-4 ml-2" />
+                              )}
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   )}
 
                   {!isBooking && payment.invoice_url && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleDownloadInvoice(payment)}
-                      disabled={downloadingId === payment.id}
-                      className="w-full"
-                    >
-                      {downloadingId === payment.id ? (
-                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                      ) : (
-                        <Download className="h-4 w-4 mr-2" />
-                      )}
-                      Download Invoice
-                    </Button>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 pb-1">
+                        <FileText className="h-4 w-4 text-muted-foreground" />
+                        <p className="text-sm font-semibold">Invoice</p>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleDownloadInvoice(payment)}
+                        disabled={downloadingId === payment.id}
+                        className="w-full"
+                      >
+                        <div className="flex items-center gap-2 flex-1">
+                          <FileCheck className="h-4 w-4" />
+                          <span>Download Invoice</span>
+                        </div>
+                        {downloadingId === payment.id ? (
+                          <Loader2 className="h-4 w-4 animate-spin ml-2" />
+                        ) : (
+                          <Download className="h-4 w-4 ml-2" />
+                        )}
+                      </Button>
+                    </div>
                   )}
                 </div>
               </CardContent>
