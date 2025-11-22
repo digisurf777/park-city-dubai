@@ -20,11 +20,7 @@ interface Payment {
   invoice_url?: string;
   remittance_advice_url?: string;
   status: string;
-  booking_id?: string;
-  booking_location?: string;
-  booking_zone?: string;
-  booking_start_time?: string;
-  booking_end_time?: string;
+  parking_listings?: { title: string };
 }
 
 export const PaymentHistoryOwner = () => {
@@ -39,9 +35,29 @@ export const PaymentHistoryOwner = () => {
   const fetchPayments = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase.rpc('get_my_payment_history');
+      
+      // Fetch only owner payments where current user is the owner receiving money
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      const { data, error } = await supabase
+        .from('owner_payments')
+        .select(`
+          *,
+          parking_listings!inner(title)
+        `)
+        .eq('owner_id', user.id)
+        .order('created_at', { ascending: false });
+
       if (error) throw error;
-      setPayments(data || []);
+
+      // Map the data to include listing title
+      const formattedPayments = (data || []).map(payment => ({
+        ...payment,
+        listing_title: payment.parking_listings?.title
+      }));
+
+      setPayments(formattedPayments);
     } catch (error: any) {
       console.error('Error fetching payments:', error);
       toast.error('Failed to load payment history');
@@ -151,23 +167,6 @@ export const PaymentHistoryOwner = () => {
                 </div>
               )}
             </div>
-
-            {payment.booking_id && (
-              <div className="pt-2 border-t">
-                <Label className="text-muted-foreground text-sm">Linked Booking</Label>
-                <div className="mt-2 p-3 bg-muted/50 rounded-md space-y-1">
-                  <p className="text-sm font-medium">{payment.booking_location}</p>
-                  {payment.booking_zone && (
-                    <p className="text-xs text-muted-foreground">Zone: {payment.booking_zone}</p>
-                  )}
-                  {payment.booking_start_time && payment.booking_end_time && (
-                    <p className="text-xs text-muted-foreground">
-                      Rental: {format(new Date(payment.booking_start_time), 'PP')} - {format(new Date(payment.booking_end_time), 'PP')}
-                    </p>
-                  )}
-                </div>
-              </div>
-            )}
 
             <div className="flex gap-2 pt-2 border-t">
               {payment.invoice_url ? (
