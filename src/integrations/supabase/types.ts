@@ -643,6 +643,7 @@ export type Database = {
           end_time: string
           id: string
           invoice_url: string | null
+          listing_id: string | null
           location: string
           payment_amount_cents: number | null
           payment_link_url: string | null
@@ -677,6 +678,7 @@ export type Database = {
           end_time: string
           id?: string
           invoice_url?: string | null
+          listing_id?: string | null
           location: string
           payment_amount_cents?: number | null
           payment_link_url?: string | null
@@ -711,6 +713,7 @@ export type Database = {
           end_time?: string
           id?: string
           invoice_url?: string | null
+          listing_id?: string | null
           location?: string
           payment_amount_cents?: number | null
           payment_link_url?: string | null
@@ -728,7 +731,15 @@ export type Database = {
           user_id?: string
           zone?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "parking_bookings_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "parking_listings"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       parking_listings: {
         Row: {
@@ -1577,7 +1588,12 @@ export type Database = {
         }[]
       }
       get_booked_date_ranges: {
-        Args: { p_address: string; p_title: string; p_zone: string }
+        Args: {
+          p_address?: string
+          p_listing_id?: string
+          p_title?: string
+          p_zone?: string
+        }
         Returns: {
           end_date: string
           start_date: string
