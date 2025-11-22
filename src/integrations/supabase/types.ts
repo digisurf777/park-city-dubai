@@ -186,6 +186,53 @@ export type Database = {
         }
         Relationships: []
       }
+      booking_invoices: {
+        Row: {
+          booking_id: string
+          created_at: string | null
+          file_name: string
+          file_path: string
+          file_size_bytes: number | null
+          id: string
+          invoice_number: number
+          notes: string | null
+          uploaded_at: string | null
+          uploaded_by: string
+        }
+        Insert: {
+          booking_id: string
+          created_at?: string | null
+          file_name: string
+          file_path: string
+          file_size_bytes?: number | null
+          id?: string
+          invoice_number: number
+          notes?: string | null
+          uploaded_at?: string | null
+          uploaded_by: string
+        }
+        Update: {
+          booking_id?: string
+          created_at?: string | null
+          file_name?: string
+          file_path?: string
+          file_size_bytes?: number | null
+          id?: string
+          invoice_number?: number
+          notes?: string | null
+          uploaded_at?: string | null
+          uploaded_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "booking_invoices_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "parking_bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chat_notification_state: {
         Row: {
           booking_id: string

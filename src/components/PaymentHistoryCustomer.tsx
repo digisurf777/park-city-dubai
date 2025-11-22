@@ -19,6 +19,16 @@ interface BookingPayment {
   payment_type: string;
   created_at: string;
   invoice_url?: string;
+  invoices?: BookingInvoice[];
+}
+
+interface BookingInvoice {
+  id: string;
+  booking_id: string;
+  invoice_number: number;
+  file_path: string;
+  file_name: string;
+  uploaded_at: string;
 }
 
 interface OwnerPayment {
@@ -69,6 +79,20 @@ export default function PaymentHistoryCustomer() {
         !!booking.invoice_url
       );
 
+      // Fetch all invoices for these bookings
+      const bookingIds = filteredBookings.map((b: BookingPayment) => b.id);
+      const { data: invoicesData } = await supabase
+        .from('booking_invoices')
+        .select('*')
+        .in('booking_id', bookingIds)
+        .order('invoice_number', { ascending: true });
+
+      // Attach invoices to bookings
+      const bookingsWithInvoices = filteredBookings.map((booking: BookingPayment) => ({
+        ...booking,
+        invoices: (invoicesData || []).filter((inv: BookingInvoice) => inv.booking_id === booking.id)
+      }));
+
       // Fetch owner payments for current user
       const { data: { user } } = await supabase.auth.getUser();
       const { data: ownerPayments, error: ownerError } = await supabase
@@ -81,7 +105,7 @@ export default function PaymentHistoryCustomer() {
 
       // Combine both types into unified format
       const unifiedPayments: UnifiedPayment[] = [
-        ...filteredBookings.map((b: BookingPayment) => ({
+        ...bookingsWithInvoices.map((b: BookingPayment) => ({
           id: b.id,
           type: 'booking' as const,
           amount: b.cost_aed,
@@ -298,26 +322,64 @@ export default function PaymentHistoryCustomer() {
                   </div>
                 )}
 
-                <div className="flex items-center justify-between pt-3 border-t">
-                  <div className="flex items-center gap-2">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                      Paid
-                    </span>
-                    {payment.invoice_url && (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                        Invoice Available
+                <div className="space-y-3 pt-3 border-t">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        Paid
                       </span>
-                    )}
-                    <span className="text-xs text-muted-foreground">
-                      ID: {payment.id.slice(0, 8)}
-                    </span>
+                      {isBooking && bookingDetails?.invoices && bookingDetails.invoices.length > 0 && (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                          {bookingDetails.invoices.length} Invoice{bookingDetails.invoices.length > 1 ? 's' : ''}
+                        </span>
+                      )}
+                      {!isBooking && payment.invoice_url && (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                          Invoice Available
+                        </span>
+                      )}
+                      <span className="text-xs text-muted-foreground">
+                        ID: {payment.id.slice(0, 8)}
+                      </span>
+                    </div>
                   </div>
-                  {payment.invoice_url && (
+
+                  {isBooking && bookingDetails?.invoices && bookingDetails.invoices.length > 0 && (
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium">Available Invoices:</p>
+                      {bookingDetails.invoices.map((invoice: BookingInvoice) => (
+                        <Button
+                          key={invoice.id}
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleDownloadInvoice(payment)}
+                          disabled={downloadingId === payment.id}
+                          className="w-full justify-between"
+                        >
+                          <span className="flex items-center gap-2">
+                            <FileText className="h-4 w-4" />
+                            Invoice #{invoice.invoice_number}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            {format(new Date(invoice.uploaded_at), "MMM dd, yyyy")}
+                          </span>
+                          {downloadingId === payment.id ? (
+                            <Loader2 className="h-4 w-4 animate-spin ml-2" />
+                          ) : (
+                            <Download className="h-4 w-4 ml-2" />
+                          )}
+                        </Button>
+                      ))}
+                    </div>
+                  )}
+
+                  {!isBooking && payment.invoice_url && (
                     <Button
                       size="sm"
                       variant="outline"
                       onClick={() => handleDownloadInvoice(payment)}
                       disabled={downloadingId === payment.id}
+                      className="w-full"
                     >
                       {downloadingId === payment.id ? (
                         <Loader2 className="h-4 w-4 animate-spin mr-2" />
