@@ -97,8 +97,9 @@ export const ParkingBookingModal = ({
           address: parkingSpot.address
         });
 
-        // Use secure RPC function to get booked date ranges
+        // Use listing_id for exact matching (preferred method)
         const { data: dateRanges, error } = await supabase.rpc('get_booked_date_ranges', {
+          p_listing_id: typeof parkingSpot.id === 'string' ? parkingSpot.id : null,
           p_title: parkingSpot.name,
           p_address: parkingSpot.address || null,
           p_zone: parkingSpot.address ? 'Find Parking Page' : null
@@ -384,7 +385,8 @@ export const ParkingBookingModal = ({
         location: parkingSpot.name,
         zone: "Find Parking Page",
         costAed: finalPrice,
-        parkingSpotName: parkingSpot.name
+        parkingSpotName: parkingSpot.name,
+        listingId: typeof parkingSpot.id === 'string' ? parkingSpot.id : null
       };
 
       // Submit booking request (this creates the pre-authorization PaymentIntent)
