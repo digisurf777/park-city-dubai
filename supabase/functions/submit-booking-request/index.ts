@@ -11,6 +11,7 @@ interface BookingRequest {
   location: string;
   costAed: number;
   parkingSpotName: string;
+  listingId?: string | null;
 }
 
 const corsHeaders = {
@@ -63,6 +64,7 @@ const handler = async (req: Request): Promise<Response> => {
       location,
       costAed,
       parkingSpotName,
+      listingId,
     }: BookingRequest = await req.json();
 
     console.log("Booking data received:", { startDate, duration, zone, location, costAed });
@@ -97,6 +99,7 @@ const handler = async (req: Request): Promise<Response> => {
           location,
           cost_aed: costAed,
           status: "pending",
+          listing_id: listingId || null,
         },
       ])
       .select()
