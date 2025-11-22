@@ -328,7 +328,7 @@ export const PaymentHistoryUnified = () => {
     try {
       setDownloadingDoc({ id: bookingId, type: 'booking' });
 
-      console.log('📥 Downloading invoice:', { invoiceFilePath, invoiceNumber });
+      console.log('📥 Admin downloading invoice:', { invoiceFilePath, invoiceNumber, bookingId });
 
       // Generate signed URL directly from the booking-invoices bucket
       const { data: signedUrlData, error: signedUrlError } = await supabase.storage
@@ -340,7 +340,7 @@ export const PaymentHistoryUnified = () => {
         throw new Error('Failed to generate download URL');
       }
 
-      console.log('✅ Download URL generated');
+      console.log('✅ Admin download URL generated');
 
       const link = document.createElement('a');
       link.href = signedUrlData.signedUrl;
@@ -351,7 +351,7 @@ export const PaymentHistoryUnified = () => {
 
       toast.success('✅ Invoice downloaded successfully');
     } catch (error: any) {
-      console.error('❌ Error downloading invoice:', error);
+      console.error('❌ Admin error downloading invoice:', error);
       toast.error(`Download failed: ${error.message || 'Unknown error'}`);
     } finally {
       setDownloadingDoc(null);
