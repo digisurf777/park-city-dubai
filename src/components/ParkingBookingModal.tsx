@@ -668,13 +668,13 @@ export const ParkingBookingModal = ({
                     disabled={date => {
                       const today = new Date();
                       const minDate = new Date();
-                      minDate.setDate(today.getDate() + 3);
+                      minDate.setDate(today.getDate() + 4);
                       minDate.setHours(0, 0, 0, 0);
                       
                       const checkDate = new Date(date);
                       checkDate.setHours(0, 0, 0, 0);
                       
-                      // Disable dates before minimum (3 days from today)
+                      // Disable dates before minimum (4 days from today)
                       if (checkDate < minDate) return true;
                       
                       // Disable booked dates
