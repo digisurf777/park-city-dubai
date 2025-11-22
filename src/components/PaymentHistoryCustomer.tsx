@@ -106,16 +106,6 @@ export default function PaymentHistoryCustomer() {
         invoices: (invoicesData || []).filter((inv: BookingInvoice) => inv.booking_id === booking.id)
       }));
 
-      // Fetch owner payments for current user (where they are the owner)
-      const { data: { user } } = await supabase.auth.getUser();
-      const { data: ownerPayments, error: ownerError } = await supabase
-        .from('owner_payments')
-        .select('*')
-        .eq('owner_id', user?.id)
-        .order('created_at', { ascending: false });
-
-      if (ownerError) console.error("Error fetching owner payments:", ownerError);
-
       // Fetch owner payment invoices linked to customer's bookings (admin-uploaded)
       const { data: customerInvoices, error: customerInvoicesError } = await supabase
         .from('owner_payments')
@@ -154,17 +144,6 @@ export default function PaymentHistoryCustomer() {
           created_at: b.created_at,
           invoice_url: b.invoice_url,
           details: b,
-        })),
-        ...(ownerPayments || []).map((p: OwnerPayment) => ({
-          id: p.id,
-          type: 'owner' as const,
-          amount: p.amount_aed,
-          period_start: p.payment_period_start,
-          period_end: p.payment_period_end,
-          status: 'paid',
-          created_at: p.created_at,
-          invoice_url: p.invoice_url,
-          details: p,
         })),
         ...(customerInvoices || []).map((p: any) => ({
           id: p.id,
