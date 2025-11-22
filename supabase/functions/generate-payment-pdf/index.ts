@@ -502,6 +502,52 @@ serve(async (req) => {
       throw updateError;
     }
 
+    // Insert into owner_payment_documents table for document history
+    const documentsToInsert = [
+      {
+        payment_id: paymentId,
+        document_type: 'invoice',
+        file_path: invoicePath,
+        file_name: `invoice_${paymentId}.pdf`,
+        file_size_bytes: invoiceBlob.size,
+        uploaded_by: user.id
+      },
+      {
+        payment_id: paymentId,
+        document_type: 'remittance',
+        file_path: remittancePath,
+        file_name: `remittance_${paymentId}.pdf`,
+        file_size_bytes: remittanceBlob.size,
+        uploaded_by: user.id
+      }
+    ];
+
+    const { error: docsInsertError } = await supabaseClient
+      .from('owner_payment_documents')
+      .insert(documentsToInsert);
+
+    if (docsInsertError) {
+      console.error('Document history insert error:', docsInsertError);
+      // Continue even if this fails - backward compatibility
+    }
+
+    // If payment is linked to a booking, update the booking's invoice_url for customer access
+    if (payment.booking_id) {
+      const { error: bookingUpdateError } = await supabaseClient
+        .from('parking_bookings')
+        .update({ 
+          invoice_url: invoicePath,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', payment.booking_id);
+
+      if (bookingUpdateError) {
+        console.error('Booking update error:', bookingUpdateError);
+      } else {
+        console.log(`✅ Invoice also linked to booking ${payment.booking_id} for customer access`);
+      }
+    }
+
     console.log('PDFs generated successfully for payment:', paymentId);
 
     return new Response(
