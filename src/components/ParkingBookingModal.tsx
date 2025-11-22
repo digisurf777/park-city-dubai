@@ -385,8 +385,8 @@ export const ParkingBookingModal = ({
       endDate.setMonth(endDate.getMonth() + selectedDuration.months);
       
       const bookingData = {
-        startDate: startDate.toISOString(),
-        endDate: endDate.toISOString(),
+        startDate: format(startDate, 'yyyy-MM-dd'),
+        endDate: format(endDate, 'yyyy-MM-dd'),
         duration: selectedDuration.months,
         email: user.email,
         fullName: user.user_metadata?.full_name || "",

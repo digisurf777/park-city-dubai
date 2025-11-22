@@ -18,6 +18,7 @@ interface AdminBookingNotificationRequest {
   zone: string;
   location: string;
   startDate: string;
+  endDate: string;
   duration: number;
   totalCost: number;
   paymentType: string;
@@ -40,6 +41,7 @@ const handler = async (req: Request): Promise<Response> => {
       zone,
       location,
       startDate,
+      endDate,
       duration,
       totalCost,
       paymentType,
@@ -66,11 +68,12 @@ const handler = async (req: Request): Promise<Response> => {
           <h2 style="color: #007bff; margin-top: 0;">📍 Booking Details:</h2>
           <p><strong>Reference:</strong> ${bookingId}</p>
           <p><strong>Parking Spot:</strong> ${parkingSpotName}</p>
-          <p><strong>Zone:</strong> ${zone}</p>
-          <p><strong>Location:</strong> ${location}</p>
-          <p><strong>Start Date:</strong> ${new Date(startDate).toLocaleDateString()}</p>
-          <p><strong>Duration:</strong> ${duration} month(s)</p>
-          <p><strong>Total Cost:</strong> ${totalCost} AED</p>
+            <p><strong>Zone:</strong> ${zone}</p>
+            <p><strong>Location:</strong> ${location}</p>
+            <p><strong>Start Date:</strong> ${new Date(startDate + 'T00:00:00').toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+            <p><strong>End Date:</strong> ${new Date(endDate + 'T00:00:00').toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+            <p><strong>Duration:</strong> ${duration} month(s)</p>
+            <p><strong>Total Cost:</strong> ${totalCost} AED</p>
           <p><strong>Payment Type:</strong> ${paymentType === 'one_time' ? 'One-time Payment' : 'Monthly Recurring'}</p>
           ${notes ? `<p><strong>Notes:</strong> ${notes}</p>` : ''}
         </div>

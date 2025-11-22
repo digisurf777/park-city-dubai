@@ -82,9 +82,11 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("User profile data:", userProfile);
 
-    // Calculate end date
-    const endDate = new Date(startDate);
-    endDate.setMonth(endDate.getMonth() + duration);
+    // Calculate end date (parse as local date without timezone conversion)
+    const startDateObj = new Date(startDate + 'T00:00:00');
+    const endDateObj = new Date(startDate + 'T00:00:00');
+    endDateObj.setMonth(endDateObj.getMonth() + duration);
+    const endDateStr = endDateObj.toISOString().split('T')[0];
 
     // Insert booking into database using service role to bypass RLS
     const { data: booking, error: insertError } = await supabaseServiceClient
@@ -93,7 +95,7 @@ const handler = async (req: Request): Promise<Response> => {
         {
           user_id: user.id,
           start_time: startDate,
-          end_time: endDate.toISOString(),
+          end_time: endDateStr,
           duration_hours: duration * 24 * 30, // Convert months to hours (approximate)
           zone,
           location,
@@ -171,6 +173,7 @@ const handler = async (req: Request): Promise<Response> => {
           zone: zone,
           location: location,
           startDate: startDate,
+          endDate: endDateStr,
           duration: duration,
           totalCost: costAed,
           paymentType: 'pre_authorization',
@@ -285,7 +288,8 @@ const handler = async (req: Request): Promise<Response> => {
                               <tr><td><strong>Parking Spot:</strong></td><td>${parkingSpotName}</td></tr>
                               <tr><td><strong>Zone:</strong></td><td>${zone}</td></tr>
                               <tr><td><strong>Location:</strong></td><td>${location}</td></tr>
-                              <tr><td><strong>Start Date:</strong></td><td>${new Date(startDate).toLocaleDateString()}</td></tr>
+                              <tr><td><strong>Start Date:</strong></td><td>${startDateObj.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</td></tr>
+                              <tr><td><strong>End Date:</strong></td><td>${endDateObj.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</td></tr>
                               <tr><td><strong>Duration:</strong></td><td>${duration} month(s)</td></tr>
                               <tr><td><strong>Total Cost:</strong></td><td>${costAed} AED</td></tr>
                               <tr><td><strong>Payment Type:</strong></td><td>Pre-Authorization</td></tr>
