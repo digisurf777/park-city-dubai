@@ -370,28 +370,28 @@ export default function PaymentHistoryCustomer() {
                         {bookingDetails.invoices.map((invoice: BookingInvoice) => (
                           <div key={invoice.id} className="relative">
                             <div className="absolute -left-[25px] top-2 h-2 w-2 rounded-full bg-primary" />
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleDownloadInvoice(payment, invoice.file_path, invoice.invoice_number)}
-                              disabled={downloadingId === payment.id}
-                              className="w-full justify-between"
-                            >
-                              <div className="flex flex-col items-start gap-1 flex-1">
-                                <span className="flex items-center gap-2 font-medium">
-                                  <FileCheck className="h-4 w-4" />
-                                  Invoice #{invoice.invoice_number}
-                                </span>
-                                <span className="text-xs text-muted-foreground">
-                                  Uploaded {format(new Date(invoice.uploaded_at), "MMM dd, yyyy")}
-                                </span>
-                              </div>
-                              {downloadingId === payment.id ? (
-                                <Loader2 className="h-4 w-4 animate-spin ml-2" />
-                              ) : (
-                                <Download className="h-4 w-4 ml-2" />
-                              )}
-                            </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleDownloadInvoice(payment, invoice.file_path, invoice.invoice_number)}
+                            disabled={downloadingId === payment.id}
+                            className="w-full justify-between"
+                          >
+                            <div className="flex flex-col items-start gap-1 flex-1">
+                              <span className="flex items-center gap-2 font-medium">
+                                <FileCheck className="h-4 w-4" />
+                                Invoice #{invoice.invoice_number}
+                              </span>
+                              <span className="text-xs text-muted-foreground">
+                                Uploaded {format(new Date(invoice.uploaded_at), "MMM dd, yyyy")}
+                              </span>
+                            </div>
+                            {downloadingId === payment.id ? (
+                              <Loader2 className="h-4 w-4 animate-spin ml-2" />
+                            ) : (
+                              <Download className="h-4 w-4 ml-2" />
+                            )}
+                          </Button>
                           </div>
                         ))}
                       </div>
