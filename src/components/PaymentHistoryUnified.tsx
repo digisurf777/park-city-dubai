@@ -328,22 +328,17 @@ export const PaymentHistoryUnified = () => {
     try {
       setDownloadingDoc({ id: bookingId, type: 'booking' });
 
-      console.log('📥 Admin downloading invoice:', { invoiceFilePath, invoiceNumber, bookingId });
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error('Not authenticated');
 
-      // Generate signed URL directly from the booking-invoices bucket
-      const { data: signedUrlData, error: signedUrlError } = await supabase.storage
-        .from('booking-invoices')
-        .createSignedUrl(invoiceFilePath, 900); // 15 minutes
+      const { data, error } = await supabase.functions.invoke('generate-booking-invoice-url', {
+        body: { bookingId, invoiceFilePath, invoiceNumber }
+      });
 
-      if (signedUrlError || !signedUrlData) {
-        console.error('❌ Signed URL error:', signedUrlError);
-        throw new Error('Failed to generate download URL');
-      }
-
-      console.log('✅ Admin download URL generated');
+      if (error) throw error;
 
       const link = document.createElement('a');
-      link.href = signedUrlData.signedUrl;
+      link.href = data.url;
       link.download = `invoice_${invoiceNumber}_${bookingId.slice(0, 8)}.pdf`;
       document.body.appendChild(link);
       link.click();
