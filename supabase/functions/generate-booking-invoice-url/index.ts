@@ -61,16 +61,36 @@ serve(async (req) => {
       throw new Error("Access denied");
     }
 
-    // Generate signed URL using service role (bypasses RLS)
-    const { data: urlData, error: urlError } = await supabaseClient.storage
+    // Try multiple buckets - new invoices are in booking-invoices, old ones might be in owner-payment-documents
+    let urlData;
+    let urlError;
+    
+    // Try booking-invoices bucket first (new system)
+    const bookingInvoicesResult = await supabaseClient.storage
       .from("booking-invoices")
       .createSignedUrl(invoiceFilePath, 900, { 
         download: `invoice_${invoiceNumber}_${bookingId.slice(0, 8)}.pdf`
       });
+    
+    if (bookingInvoicesResult.error) {
+      console.log('Not in booking-invoices, trying owner-payment-documents bucket');
+      // Fallback to owner-payment-documents bucket (old system)
+      const ownerDocsResult = await supabaseClient.storage
+        .from("owner-payment-documents")
+        .createSignedUrl(invoiceFilePath, 900, { 
+          download: `invoice_${invoiceNumber}_${bookingId.slice(0, 8)}.pdf`
+        });
+      
+      urlData = ownerDocsResult.data;
+      urlError = ownerDocsResult.error;
+    } else {
+      urlData = bookingInvoicesResult.data;
+      urlError = bookingInvoicesResult.error;
+    }
 
-    if (urlError) {
+    if (urlError || !urlData) {
       console.error("URL generation error:", urlError);
-      throw new Error(`Failed to generate download URL: ${urlError.message}`);
+      throw new Error(`Failed to generate download URL: ${urlError?.message || 'File not found in any bucket'}`);
     }
 
     console.log('✅ Download URL generated successfully');
