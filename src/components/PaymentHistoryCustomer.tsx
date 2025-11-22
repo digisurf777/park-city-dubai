@@ -31,42 +31,16 @@ interface BookingInvoice {
   uploaded_at: string;
 }
 
-interface OwnerPayment {
-  id: string;
-  amount_aed: number;
-  payment_period_start: string;
-  payment_period_end: string;
-  payment_method: string;
-  reference_number?: string;
-  notes?: string;
-  invoice_url?: string;
-  remittance_advice_url?: string;
-  created_at: string;
-  payment_date?: string;
-}
-
-interface PaymentDocument {
-  id: string;
-  payment_id: string;
-  document_type: 'invoice' | 'remittance';
-  file_path: string;
-  file_name: string;
-  uploaded_at: string;
-}
-
 interface UnifiedPayment {
   id: string;
-  type: 'booking' | 'owner';
+  type: 'booking';
   amount: number;
   period_start: string;
   period_end: string;
   status: string;
   created_at: string;
   invoice_url?: string;
-  details: BookingPayment | OwnerPayment;
-  isCustomerInvoice?: boolean;
-  remittance_url?: string;
-  documents?: PaymentDocument[];
+  details: BookingPayment;
 }
 
 export default function PaymentHistoryCustomer() {
@@ -106,32 +80,6 @@ export default function PaymentHistoryCustomer() {
         invoices: (invoicesData || []).filter((inv: BookingInvoice) => inv.booking_id === booking.id)
       }));
 
-      // Fetch owner payment invoices linked to customer's bookings (admin-uploaded)
-      const { data: customerInvoices, error: customerInvoicesError } = await supabase
-        .from('owner_payments')
-        .select('*')
-        .in('booking_id', bookingIds)
-        .not('invoice_url', 'is', null)
-        .order('created_at', { ascending: false });
-
-      if (customerInvoicesError) console.error("Error fetching customer invoices:", customerInvoicesError);
-
-      // Fetch documents for customer invoices
-      const customerInvoiceIds = (customerInvoices || []).map(inv => inv.id);
-      let customerInvoiceDocs: PaymentDocument[] = [];
-      if (customerInvoiceIds.length > 0) {
-        const { data: docsData } = await supabase
-          .from('owner_payment_documents')
-          .select('*')
-          .in('payment_id', customerInvoiceIds)
-          .order('uploaded_at', { ascending: false });
-        
-        customerInvoiceDocs = (docsData || []).map(d => ({
-          ...d,
-          document_type: d.document_type as 'invoice' | 'remittance'
-        }));
-      }
-
       // Combine all types into unified format
       const unifiedPayments: UnifiedPayment[] = [
         ...bookingsWithInvoices.map((b: BookingPayment) => ({
@@ -144,20 +92,6 @@ export default function PaymentHistoryCustomer() {
           created_at: b.created_at,
           invoice_url: b.invoice_url,
           details: b,
-        })),
-        ...(customerInvoices || []).map((p: any) => ({
-          id: p.id,
-          type: 'owner' as const,
-          amount: p.amount_aed,
-          period_start: p.payment_period_start,
-          period_end: p.payment_period_end,
-          status: 'paid',
-          created_at: p.created_at,
-          invoice_url: p.invoice_url,
-          remittance_url: p.remittance_advice_url,
-          details: p,
-          isCustomerInvoice: true,
-          documents: customerInvoiceDocs.filter(d => d.payment_id === p.id),
         })),
       ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
       
@@ -192,66 +126,39 @@ export default function PaymentHistoryCustomer() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error('Not authenticated');
 
-      if (payment.type === 'booking') {
-        // Download specific booking invoice from booking_invoices table
-        if (invoiceFilePath) {
-          const { data, error } = await supabase.functions.invoke('generate-booking-invoice-url', {
-            body: { 
-              bookingId: payment.id, 
-              invoiceFilePath, 
-              invoiceNumber 
-            }
-          });
-
-          if (error) throw error;
-
-          const link = document.createElement('a');
-          link.href = data.url;
-          link.download = `invoice_${invoiceNumber}_${payment.id.slice(0, 8)}.pdf`;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-        } else {
-          // Fallback to old system if no specific invoice file path
-          const downloadUrl = `https://eoknluyunximjlsnyceb.supabase.co/functions/v1/download-invoice?booking_id=${payment.id}`;
-          const response = await fetch(downloadUrl, {
-            method: 'GET',
-            headers: { 'Authorization': `Bearer ${session.access_token}` },
-          });
-
-          if (!response.ok) throw new Error('Failed to download invoice');
-          
-          const blob = await response.blob();
-          const url = window.URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.href = url;
-          link.download = `invoice_booking_${payment.id.slice(0, 8)}.pdf`;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          window.URL.revokeObjectURL(url);
-        }
-      } else {
-        // Download owner payment invoice
-        if (!payment.invoice_url) {
-          throw new Error('No invoice available for this payment');
-        }
-
-        const { data, error } = await supabase.functions.invoke('generate-payment-document-url', {
-          body: { paymentId: payment.id, documentType: 'invoice' }
+      // Download specific booking invoice from booking_invoices table
+      if (invoiceFilePath) {
+        const { data, error } = await supabase.functions.invoke('generate-booking-invoice-url', {
+          body: { 
+            bookingId: payment.id, 
+            invoiceFilePath, 
+            invoiceNumber 
+          }
         });
 
         if (error) throw error;
 
-        // Download using the signed URL
-        const response = await fetch(data.url);
+        const link = document.createElement('a');
+        link.href = data.url;
+        link.download = `invoice_${invoiceNumber}_${payment.id.slice(0, 8)}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } else {
+        // Fallback to old system if no specific invoice file path
+        const downloadUrl = `https://eoknluyunximjlsnyceb.supabase.co/functions/v1/download-invoice?booking_id=${payment.id}`;
+        const response = await fetch(downloadUrl, {
+          method: 'GET',
+          headers: { 'Authorization': `Bearer ${session.access_token}` },
+        });
+
         if (!response.ok) throw new Error('Failed to download invoice');
         
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = `invoice_owner_${payment.id.slice(0, 8)}.pdf`;
+        link.download = `invoice_booking_${payment.id.slice(0, 8)}.pdf`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -305,24 +212,16 @@ export default function PaymentHistoryCustomer() {
 
       <div className="grid gap-4">
         {payments.map((payment) => {
-          const isBooking = payment.type === 'booking';
-          const bookingDetails = isBooking ? payment.details as BookingPayment : null;
-          const ownerDetails = !isBooking ? payment.details as OwnerPayment : null;
+          const bookingDetails = payment.details as BookingPayment;
 
           return (
             <Card key={payment.id}>
               <CardHeader>
                 <CardTitle className="text-base flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                      {isBooking ? (
-                      <span>{bookingDetails?.location}</span>
-                    ) : payment.isCustomerInvoice ? (
-                      <span>Booking Invoice</span>
-                    ) : (
-                      <span>Owner Payment</span>
-                    )}
+                    <span>{bookingDetails?.location}</span>
                     <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
-                      {isBooking ? 'Booking' : payment.isCustomerInvoice ? 'Invoice' : 'Owner'}
+                      Booking
                     </span>
                   </div>
                   <span className="text-primary font-bold">{payment.amount} AED</span>
@@ -330,7 +229,7 @@ export default function PaymentHistoryCustomer() {
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="grid grid-cols-2 gap-4 text-sm">
-                  {isBooking && bookingDetails?.zone && bookingDetails.zone !== 'Find Parking Page' && (
+                  {bookingDetails?.zone && bookingDetails.zone !== 'Find Parking Page' && (
                     <div>
                       <p className="text-muted-foreground">Zone</p>
                       <p className="font-medium">{bookingDetails.zone}</p>
@@ -348,31 +247,11 @@ export default function PaymentHistoryCustomer() {
                     <p className="text-muted-foreground">End Date</p>
                     <p className="font-medium">{format(new Date(payment.period_end), "MMM dd, yyyy")}</p>
                   </div>
-                  {!isBooking && ownerDetails?.payment_method && (
-                    <div>
-                      <p className="text-muted-foreground">Payment Method</p>
-                      <p className="font-medium">{ownerDetails.payment_method}</p>
-                    </div>
-                  )}
                   <div>
                     <p className="text-muted-foreground">Payment Date</p>
                     <p className="font-medium">{format(new Date(payment.created_at), "MMM dd, yyyy")}</p>
                   </div>
                 </div>
-
-                 {!isBooking && ownerDetails?.notes && (
-                  <div className="text-sm">
-                    <p className="text-muted-foreground">Notes</p>
-                    <p className="font-medium">{ownerDetails.notes}</p>
-                  </div>
-                )}
-
-                {payment.isCustomerInvoice && (
-                  <div className="text-xs bg-muted p-2 rounded border-l-4 border-primary">
-                    <p className="font-medium">📄 Invoice from Admin</p>
-                    <p className="text-muted-foreground">This invoice was uploaded by an administrator for your booking</p>
-                  </div>
-                )}
 
                 <div className="space-y-3 pt-3 border-t">
                   <div className="flex items-center justify-between">
@@ -380,14 +259,9 @@ export default function PaymentHistoryCustomer() {
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                         Paid
                       </span>
-                      {isBooking && bookingDetails?.invoices && bookingDetails.invoices.length > 0 && (
+                      {bookingDetails?.invoices && bookingDetails.invoices.length > 0 && (
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                           {bookingDetails.invoices.length} Invoice{bookingDetails.invoices.length > 1 ? 's' : ''}
-                        </span>
-                      )}
-                      {!isBooking && payment.invoice_url && (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                          Invoice Available
                         </span>
                       )}
                       <span className="text-xs text-muted-foreground">
@@ -396,7 +270,7 @@ export default function PaymentHistoryCustomer() {
                     </div>
                   </div>
 
-                  {isBooking && bookingDetails?.invoices && bookingDetails.invoices.length > 0 && (
+                  {bookingDetails?.invoices && bookingDetails.invoices.length > 0 && (
                     <div className="space-y-2">
                       <div className="flex items-center gap-2 pb-1">
                         <FileText className="h-4 w-4 text-muted-foreground" />
@@ -431,72 +305,6 @@ export default function PaymentHistoryCustomer() {
                           </div>
                         ))}
                       </div>
-                    </div>
-                  )}
-
-                  {!isBooking && payment.invoice_url && (
-                    <div className="space-y-2">
-                      {payment.documents && payment.documents.length > 0 ? (
-                        <>
-                          <div className="flex items-center gap-2 pb-1">
-                            <FileText className="h-4 w-4 text-muted-foreground" />
-                            <p className="text-sm font-semibold">Document History</p>
-                          </div>
-                          <div className="space-y-2 pl-6 border-l-2 border-muted">
-                            {payment.documents.map((doc: PaymentDocument, idx: number) => (
-                              <div key={doc.id} className="relative">
-                                <div className="absolute -left-[25px] top-2 h-2 w-2 rounded-full bg-primary" />
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => handleDownloadInvoice(payment)}
-                                  disabled={downloadingId === payment.id}
-                                  className="w-full justify-between"
-                                >
-                                  <div className="flex flex-col items-start gap-1 flex-1">
-                                    <span className="flex items-center gap-2 font-medium">
-                                      <FileCheck className="h-4 w-4" />
-                                      {doc.document_type === 'invoice' ? 'Invoice' : 'Remittance'} #{idx + 1}
-                                    </span>
-                                    <span className="text-xs text-muted-foreground">
-                                      Uploaded {format(new Date(doc.uploaded_at), "MMM dd, yyyy")}
-                                    </span>
-                                  </div>
-                                  {downloadingId === payment.id ? (
-                                    <Loader2 className="h-4 w-4 animate-spin ml-2" />
-                                  ) : (
-                                    <Download className="h-4 w-4 ml-2" />
-                                  )}
-                                </Button>
-                              </div>
-                            ))}
-                          </div>
-                        </>
-                      ) : (
-                        <>
-                          <div className="flex items-center gap-2 pb-1">
-                            <FileText className="h-4 w-4 text-muted-foreground" />
-                            <p className="text-sm font-semibold">Invoice</p>
-                          </div>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleDownloadInvoice(payment)}
-                            disabled={downloadingId === payment.id}
-                            className="w-full justify-between"
-                          >
-                            <span className="flex items-center gap-2 font-medium">
-                              <FileCheck className="h-4 w-4" />
-                              {payment.isCustomerInvoice ? 'Download Invoice' : 'Download Owner Payment Invoice'}
-                            </span>
-                            {downloadingId === payment.id ? (
-                              <Loader2 className="h-4 w-4 animate-spin ml-2" />
-                            ) : (
-                              <Download className="h-4 w-4 ml-2" />
-                            )}
-                          </Button>
-                        </>
-                      )}
                     </div>
                   )}
                 </div>
