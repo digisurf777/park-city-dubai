@@ -154,40 +154,56 @@ export default function PaymentHistoryCustomer() {
     return `${days} day${days !== 1 ? 's' : ''}`;
   };
 
-  const handleDownloadInvoice = async (payment: UnifiedPayment) => {
+  const handleDownloadInvoice = async (payment: UnifiedPayment, invoiceFilePath?: string, invoiceNumber?: number) => {
     setDownloadingId(payment.id);
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error('Not authenticated');
 
       if (payment.type === 'booking') {
-        // Only generate if no invoice exists yet (preserve admin-uploaded invoices)
-        if (!payment.invoice_url) {
-          const { error: generateError } = await supabase.functions.invoke(
-            "generate-booking-invoice",
-            { body: { booking_id: payment.id } }
-          );
-          if (generateError) throw generateError;
+        // Download specific booking invoice from booking_invoices table
+        if (invoiceFilePath) {
+          // Generate signed URL directly from the booking-invoices bucket
+          const { data: signedUrlData, error: signedUrlError } = await supabase.storage
+            .from('booking-invoices')
+            .createSignedUrl(invoiceFilePath, 900); // 15 minutes
+
+          if (signedUrlError || !signedUrlData) {
+            throw new Error('Failed to generate download URL');
+          }
+
+          const response = await fetch(signedUrlData.signedUrl);
+          if (!response.ok) throw new Error('Failed to download invoice');
+          
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `invoice_${invoiceNumber}_${payment.id.slice(0, 8)}.pdf`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          window.URL.revokeObjectURL(url);
+        } else {
+          // Fallback to old system if no specific invoice file path
+          const downloadUrl = `https://eoknluyunximjlsnyceb.supabase.co/functions/v1/download-invoice?booking_id=${payment.id}`;
+          const response = await fetch(downloadUrl, {
+            method: 'GET',
+            headers: { 'Authorization': `Bearer ${session.access_token}` },
+          });
+
+          if (!response.ok) throw new Error('Failed to download invoice');
+          
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `invoice_booking_${payment.id.slice(0, 8)}.pdf`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          window.URL.revokeObjectURL(url);
         }
-
-        // Download booking invoice
-        const downloadUrl = `https://eoknluyunximjlsnyceb.supabase.co/functions/v1/download-invoice?booking_id=${payment.id}`;
-        const response = await fetch(downloadUrl, {
-          method: 'GET',
-          headers: { 'Authorization': `Bearer ${session.access_token}` },
-        });
-
-        if (!response.ok) throw new Error('Failed to download invoice');
-        
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `invoice_booking_${payment.id.slice(0, 8)}.pdf`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
       } else {
         // Download owner payment invoice
         if (!payment.invoice_url) {
@@ -357,7 +373,7 @@ export default function PaymentHistoryCustomer() {
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => handleDownloadInvoice(payment)}
+                              onClick={() => handleDownloadInvoice(payment, invoice.file_path, invoice.invoice_number)}
                               disabled={downloadingId === payment.id}
                               className="w-full justify-between"
                             >
