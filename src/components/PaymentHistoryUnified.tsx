@@ -5,11 +5,12 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, Upload, Download, FileText, User, DollarSign, Calendar, CheckCircle, Plus, FileCheck, Loader2 } from 'lucide-react';
+import { Search, Upload, Download, FileText, User, DollarSign, Calendar, CheckCircle, Plus, FileCheck, Loader2, ChevronDown, ChevronUp } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 interface UnifiedCustomer {
   user_id: string;
   full_name: string;
@@ -82,6 +83,7 @@ export const PaymentHistoryUnified = () => {
     notes: ''
   });
   const [newPaymentFile, setNewPaymentFile] = useState<File | null>(null);
+  const [invoiceHistoryOpen, setInvoiceHistoryOpen] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     fetchCustomers();
@@ -695,34 +697,56 @@ export const PaymentHistoryUnified = () => {
                               </div>
 
                               {booking.invoices && booking.invoices.length > 0 && (
-                                <div className="space-y-2">
-                                  <p className="text-sm font-medium text-muted-foreground">Invoices:</p>
-                                  {booking.invoices.map(invoice => (
-                                    <div key={invoice.id} className="flex items-center justify-between p-2 bg-muted/50 rounded-md">
+                                <Collapsible
+                                  open={invoiceHistoryOpen[booking.id] || false}
+                                  onOpenChange={(open) => setInvoiceHistoryOpen(prev => ({ ...prev, [booking.id]: open }))}
+                                  className="w-full mt-3"
+                                >
+                                  <CollapsibleTrigger asChild>
+                                    <Button variant="ghost" size="sm" className="w-full justify-between">
                                       <div className="flex items-center gap-2">
-                                        <FileCheck className="h-4 w-4 text-primary" />
-                                        <div>
-                                          <p className="text-sm font-medium">Invoice #{invoice.invoice_number}</p>
-                                          <p className="text-xs text-muted-foreground">
-                                            {format(new Date(invoice.uploaded_at), 'MMM dd, yyyy')} • {invoice.file_name}
-                                          </p>
-                                        </div>
+                                        <FileCheck className="h-4 w-4" />
+                                        <span className="font-semibold">Invoice History ({booking.invoices.length})</span>
                                       </div>
-                                      <Button
-                                        size="sm"
-                                        variant="ghost"
-                                        onClick={() => handleBookingInvoiceDownload(booking.id)}
-                                        disabled={downloadingDoc?.id === booking.id && downloadingDoc?.type === 'booking'}
-                                      >
-                                        {downloadingDoc?.id === booking.id && downloadingDoc?.type === 'booking' ? (
-                                          <Loader2 className="h-4 w-4 animate-spin" />
-                                        ) : (
-                                          <Download className="h-4 w-4" />
-                                        )}
-                                      </Button>
+                                      {invoiceHistoryOpen[booking.id] ? (
+                                        <ChevronUp className="h-4 w-4" />
+                                      ) : (
+                                        <ChevronDown className="h-4 w-4" />
+                                      )}
+                                    </Button>
+                                  </CollapsibleTrigger>
+                                  <CollapsibleContent className="space-y-2 pt-2">
+                                    <div className="border rounded-lg bg-muted/20 p-3 space-y-2">
+                                      {booking.invoices.map(invoice => (
+                                        <div key={invoice.id} className="flex items-center justify-between p-2 bg-background rounded-md border">
+                                          <div className="flex items-center gap-2 flex-1">
+                                            <FileText className="h-4 w-4 text-primary" />
+                                            <div className="flex-1">
+                                              <p className="text-sm font-medium">Invoice #{invoice.invoice_number}</p>
+                                              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                                <span>{format(new Date(invoice.uploaded_at), 'MMM dd, yyyy')}</span>
+                                                <span>•</span>
+                                                <span>{invoice.file_name}</span>
+                                              </div>
+                                            </div>
+                                          </div>
+                                          <Button
+                                            size="sm"
+                                            variant="ghost"
+                                            onClick={() => handleBookingInvoiceDownload(booking.id)}
+                                            disabled={downloadingDoc?.id === booking.id && downloadingDoc?.type === 'booking'}
+                                          >
+                                            {downloadingDoc?.id === booking.id && downloadingDoc?.type === 'booking' ? (
+                                              <Loader2 className="h-4 w-4 animate-spin" />
+                                            ) : (
+                                              <Download className="h-4 w-4" />
+                                            )}
+                                          </Button>
+                                        </div>
+                                      ))}
                                     </div>
-                                  ))}
-                                </div>
+                                  </CollapsibleContent>
+                                </Collapsible>
                               )}
                             </div>
                           </div>
