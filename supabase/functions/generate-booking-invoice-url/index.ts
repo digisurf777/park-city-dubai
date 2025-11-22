@@ -32,13 +32,28 @@ serve(async (req) => {
 
     const { booking_id }: InvoiceUrlRequest = await req.json();
 
+    // Check if user is admin
+    const { data: adminRole } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user.id)
+      .eq('role', 'admin')
+      .single();
+
+    const isAdmin = !!adminRole;
+
     // Get booking with invoice URL
-    const { data: booking, error: bookingError } = await supabase
+    // Admins can access any booking, regular users can only access their own
+    let query = supabase
       .from('parking_bookings')
       .select('invoice_url, user_id')
-      .eq('id', booking_id)
-      .eq('user_id', user.id)
-      .single();
+      .eq('id', booking_id);
+
+    if (!isAdmin) {
+      query = query.eq('user_id', user.id);
+    }
+
+    const { data: booking, error: bookingError } = await query.single();
 
     if (bookingError || !booking) {
       throw new Error('Booking not found or access denied');

@@ -324,27 +324,27 @@ export const PaymentHistoryUnified = () => {
     }
   };
 
-  const handleBookingInvoiceDownload = async (bookingId: string) => {
+  const handleBookingInvoiceDownload = async (invoiceFilePath: string, invoiceNumber: number, bookingId: string) => {
     try {
       setDownloadingDoc({ id: bookingId, type: 'booking' });
 
-      console.log('📥 Downloading invoice for booking:', bookingId);
+      console.log('📥 Downloading invoice:', { invoiceFilePath, invoiceNumber });
 
-      const { data, error } = await supabase.functions.invoke('generate-booking-invoice-url', {
-        body: { booking_id: bookingId }
-      });
+      // Generate signed URL directly from the booking-invoices bucket
+      const { data: signedUrlData, error: signedUrlError } = await supabase.storage
+        .from('booking-invoices')
+        .createSignedUrl(invoiceFilePath, 900); // 15 minutes
 
-      if (error) {
-        console.error('❌ Download error:', error);
-        throw error;
+      if (signedUrlError || !signedUrlData) {
+        console.error('❌ Signed URL error:', signedUrlError);
+        throw new Error('Failed to generate download URL');
       }
-      if (!data?.signed_url) throw new Error('No URL returned');
 
       console.log('✅ Download URL generated');
 
       const link = document.createElement('a');
-      link.href = data.signed_url;
-      link.download = `invoice_${bookingId}.pdf`;
+      link.href = signedUrlData.signedUrl;
+      link.download = `invoice_${invoiceNumber}_${bookingId.slice(0, 8)}.pdf`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -733,7 +733,7 @@ export const PaymentHistoryUnified = () => {
                                           <Button
                                             size="sm"
                                             variant="ghost"
-                                            onClick={() => handleBookingInvoiceDownload(booking.id)}
+                                            onClick={() => handleBookingInvoiceDownload(invoice.file_path, invoice.invoice_number, booking.id)}
                                             disabled={downloadingDoc?.id === booking.id && downloadingDoc?.type === 'booking'}
                                           >
                                             {downloadingDoc?.id === booking.id && downloadingDoc?.type === 'booking' ? (
