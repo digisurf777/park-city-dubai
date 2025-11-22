@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, Upload, Download, FileText, User, DollarSign, Calendar, CheckCircle } from 'lucide-react';
+import { Search, Upload, Download, FileText, User, DollarSign, Calendar, CheckCircle, Plus, FileCheck, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
@@ -32,6 +32,17 @@ interface CustomerBooking {
   status: string;
   invoice_url: string | null;
   created_at: string;
+  invoices?: BookingInvoice[];
+}
+
+interface BookingInvoice {
+  id: string;
+  booking_id: string;
+  invoice_number: number;
+  file_path: string;
+  file_name: string;
+  uploaded_at: string;
+  file_size_bytes: number;
 }
 
 interface OwnerPayment {
@@ -241,8 +252,22 @@ export const PaymentHistoryUnified = () => {
         ['confirmed', 'completed', 'approved'].includes(b.status) || chatBookingIds.has(b.id)
       );
 
+      // Fetch all invoices for these bookings
+      const bookingIds = filteredBookings.map(b => b.id);
+      const { data: invoicesData } = await supabase
+        .from('booking_invoices')
+        .select('*')
+        .in('booking_id', bookingIds)
+        .order('invoice_number', { ascending: true });
+
+      // Attach invoices to bookings
+      const bookingsWithInvoices = filteredBookings.map(booking => ({
+        ...booking,
+        invoices: (invoicesData || []).filter(inv => inv.booking_id === booking.id)
+      }));
+
       if (bookingsError) throw bookingsError;
-      setCustomerBookings(filteredBookings);
+      setCustomerBookings(bookingsWithInvoices);
 
       // Fetch owner payments
       const { data: paymentsData, error: paymentsError } = await supabase.rpc('get_owner_payment_history');
@@ -284,7 +309,9 @@ export const PaymentHistoryUnified = () => {
         });
 
         if (error) throw error;
-        toast.success('Invoice uploaded successfully');
+        toast.success('Invoice uploaded successfully', {
+          description: 'Customer will see this invoice in their Payments tab'
+        });
         fetchCustomerDetails(userId);
       };
     } catch (error: any) {
@@ -636,53 +663,67 @@ export const PaymentHistoryUnified = () => {
                                 <p>{format(new Date(booking.end_time), 'MMM dd, yyyy HH:mm')}</p>
                               </div>
                             </div>
-                            <div className="flex items-center justify-between pt-2 border-t">
-                              <span className="font-semibold">AED {booking.cost_aed}</span>
-                              <div className="flex gap-2">
-                                {booking.invoice_url ? (
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => handleBookingInvoiceDownload(booking.id)}
-                                    disabled={downloadingDoc?.id === booking.id}
-                                  >
-                                    {downloadingDoc?.id === booking.id ? (
-                                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary" />
-                                    ) : (
-                                      <>
-                                        <Download className="h-4 w-4 mr-1" />
-                                        Download
-                                      </>
-                                    )}
-                                  </Button>
-                                ) : null}
+                            <div className="space-y-3 pt-2 border-t">
+                              <div className="flex items-center justify-between">
+                                <span className="font-semibold">AED {booking.cost_aed}</span>
                                 <Button
                                   size="sm"
-                                  variant="default"
-                                  disabled={uploadingDoc?.id === booking.id}
                                   onClick={() => {
                                     const input = document.createElement('input');
                                     input.type = 'file';
-                                    input.accept = 'application/pdf';
-                                    input.onchange = (e: any) => {
-                                      const file = e.target?.files?.[0];
-                                      if (file && selectedCustomer) {
-                                        handleBookingInvoiceUpload(booking.id, selectedCustomer.user_id, file);
-                                      }
+                                    input.accept = '.pdf';
+                                    input.onchange = (e) => {
+                                      const file = (e.target as HTMLInputElement).files?.[0];
+                                      if (file && selectedCustomer) handleBookingInvoiceUpload(booking.id, selectedCustomer.user_id, file);
                                     };
                                     input.click();
                                   }}
+                                  disabled={uploadingDoc?.id === booking.id && uploadingDoc?.type === 'booking'}
                                 >
-                                  {uploadingDoc?.id === booking.id ? (
-                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-foreground" />
+                                  {uploadingDoc?.id === booking.id && uploadingDoc?.type === 'booking' ? (
+                                    <>
+                                      <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                                      Uploading...
+                                    </>
                                   ) : (
                                     <>
-                                      <Upload className="h-4 w-4 mr-1" />
-                                      Upload
+                                      <Plus className="h-4 w-4 mr-1" />
+                                      Add Invoice
                                     </>
                                   )}
                                 </Button>
                               </div>
+
+                              {booking.invoices && booking.invoices.length > 0 && (
+                                <div className="space-y-2">
+                                  <p className="text-sm font-medium text-muted-foreground">Invoices:</p>
+                                  {booking.invoices.map(invoice => (
+                                    <div key={invoice.id} className="flex items-center justify-between p-2 bg-muted/50 rounded-md">
+                                      <div className="flex items-center gap-2">
+                                        <FileCheck className="h-4 w-4 text-primary" />
+                                        <div>
+                                          <p className="text-sm font-medium">Invoice #{invoice.invoice_number}</p>
+                                          <p className="text-xs text-muted-foreground">
+                                            {format(new Date(invoice.uploaded_at), 'MMM dd, yyyy')} • {invoice.file_name}
+                                          </p>
+                                        </div>
+                                      </div>
+                                      <Button
+                                        size="sm"
+                                        variant="ghost"
+                                        onClick={() => handleBookingInvoiceDownload(booking.id)}
+                                        disabled={downloadingDoc?.id === booking.id && downloadingDoc?.type === 'booking'}
+                                      >
+                                        {downloadingDoc?.id === booking.id && downloadingDoc?.type === 'booking' ? (
+                                          <Loader2 className="h-4 w-4 animate-spin" />
+                                        ) : (
+                                          <Download className="h-4 w-4" />
+                                        )}
+                                      </Button>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
                             </div>
                           </div>
                         </CardContent>

@@ -79,10 +79,23 @@ serve(async (req) => {
       throw new Error("Invalid PDF file");
     }
 
+    // Get current invoice count for this booking
+    const { count, error: countError } = await supabaseClient
+      .from("booking_invoices")
+      .select("*", { count: 'exact', head: true })
+      .eq("booking_id", bookingId);
+
+    if (countError) {
+      console.error("Count error:", countError);
+      throw new Error(`Failed to count invoices: ${countError.message}`);
+    }
+
+    const invoiceNumber = (count || 0) + 1;
+
     // Upload to storage with timestamp to avoid conflicts
     // Use customerUserId as folder name to match RLS policy
     const timestamp = Date.now();
-    const filePath = `${customerUserId}/booking_${bookingId}_${timestamp}.pdf`;
+    const filePath = `${customerUserId}/booking_${bookingId}_invoice_${invoiceNumber}_${timestamp}.pdf`;
     
     const { data: uploadData, error: uploadError } = await supabaseClient.storage
       .from("booking-invoices")
@@ -96,7 +109,24 @@ serve(async (req) => {
       throw new Error(`Failed to upload invoice: ${uploadError.message}`);
     }
 
-    // Update booking record with new invoice URL
+    // Insert into booking_invoices table
+    const { error: insertError } = await supabaseClient
+      .from("booking_invoices")
+      .insert({
+        booking_id: bookingId,
+        invoice_number: invoiceNumber,
+        file_path: filePath,
+        file_name: fileName,
+        uploaded_by: user.id,
+        file_size_bytes: fileBuffer.length
+      });
+
+    if (insertError) {
+      console.error("Insert error:", insertError);
+      throw new Error(`Failed to save invoice record: ${insertError.message}`);
+    }
+
+    // Also update parking_bookings.invoice_url for backward compatibility
     const { error: updateError } = await supabaseClient
       .from("parking_bookings")
       .update({ 
@@ -110,13 +140,14 @@ serve(async (req) => {
       throw new Error(`Failed to update booking: ${updateError.message}`);
     }
 
-    console.log(`✅ Admin ${user.email} uploaded custom invoice for booking ${bookingId}`);
+    console.log(`✅ Admin ${user.email} uploaded custom invoice #${invoiceNumber} for booking ${bookingId}`);
 
     return new Response(
       JSON.stringify({ 
         success: true, 
         filePath,
-        message: "Customer invoice uploaded successfully"
+        invoiceNumber,
+        message: `Invoice #${invoiceNumber} uploaded successfully`
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
