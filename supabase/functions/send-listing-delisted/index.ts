@@ -67,7 +67,6 @@ const handler = async (req: Request): Promise<Response> => {
 
             <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
               <p style="margin: 5px 0; font-size: 14px;"><strong>Support Email:</strong> support@shazamparking.ae</p>
-              <p style="margin: 5px 0; font-size: 14px;"><strong>Phone:</strong> +971 XX XXX XXXX</p>
             </div>
 
             <p style="font-size: 16px; margin-bottom: 20px;">
