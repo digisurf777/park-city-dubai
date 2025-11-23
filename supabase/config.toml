@@ -3,6 +3,9 @@ project_id = "eoknluyunximjlsnyceb"
 [functions.generate-payment-pdf]
 verify_jwt = true
 
+[functions.send-listing-delisted]
+verify_jwt = true
+
 [api]
 enabled = true
 port = 54321
