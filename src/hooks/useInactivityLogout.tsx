@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 
-const WARNING_TIME = 4 * 60 * 1000; // 4 minutes
-const LOGOUT_TIME = 5 * 60 * 1000; // 5 minutes
+const WARNING_TIME = 55 * 60 * 1000; // 55 minutes
+const LOGOUT_TIME = 60 * 60 * 1000; // 60 minutes
 
 interface UseInactivityLogoutReturn {
   showWarning: boolean;
