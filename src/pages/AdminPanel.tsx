@@ -2157,11 +2157,7 @@ const AdminPanelOrganized = () => {
                           </div>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
-                            <div>
-                              <div className="font-medium text-muted-foreground">Hourly Rate</div>
-                              <div>AED {listing.price_per_hour}/hour</div>
-                            </div>
+                          <div className="grid grid-cols-2 gap-4 text-sm">
                             <div>
                               <div className="font-medium text-muted-foreground">Daily Rate</div>
                               <div>AED {listing.price_per_day}/day</div>
@@ -2986,33 +2982,18 @@ const AdminPanelOrganized = () => {
                   </div>
 
                   {/* Pricing */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="pricePerHour">Price per Hour (AED)</Label>
-                      <Input
-                        id="pricePerHour"
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        value={listingPricePerHour}
-                        onChange={(e) => setListingPricePerHour(parseFloat(e.target.value) || 0)}
-                        placeholder="0.00"
-                        className="mt-1"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="pricePerMonth">Price per Month (AED)</Label>
-                      <Input
-                        id="pricePerMonth"
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        value={listingPricePerMonth}
-                        onChange={(e) => setListingPricePerMonth(parseFloat(e.target.value) || 0)}
-                        placeholder="0.00"
-                        className="mt-1"
-                      />
-                    </div>
+                  <div>
+                    <Label htmlFor="pricePerMonth">Price per Month (AED)</Label>
+                    <Input
+                      id="pricePerMonth"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={listingPricePerMonth}
+                      onChange={(e) => setListingPricePerMonth(parseFloat(e.target.value) || 0)}
+                      placeholder="0.00"
+                      className="mt-1"
+                    />
                   </div>
 
                   {/* Contact Information */}
