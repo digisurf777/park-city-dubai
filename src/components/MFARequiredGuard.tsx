@@ -3,14 +3,21 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Shield, AlertTriangle } from 'lucide-react';
 import { MFASetup } from './MFASetup';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 export const MFARequiredGuard = ({ children }: { children: React.ReactNode }) => {
-  const { mfaRequired, mfaEnabled, user, loading, signOut } = useAuth();
+  const { mfaRequired, mfaEnabled, user, loading, signOut, challengeMFA, verifyMFAChallenge, getMFAFactors } = useAuth();
   const navigate = useNavigate();
   const [showSetup, setShowSetup] = useState(false);
+  const [showMFAChallenge, setShowMFAChallenge] = useState(false);
+  const [mfaCode, setMfaCode] = useState('');
+  const [challengeId, setChallengeId] = useState('');
+  const [verifying, setVerifying] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [checkingRole, setCheckingRole] = useState(true);
 
@@ -94,13 +101,33 @@ export const MFARequiredGuard = ({ children }: { children: React.ReactNode }) =>
         if (clientAAL === 'aal2' || upgraded) {
           console.warn('MFARequiredGuard: Allowing access on client AAL2; AdminPanel will enforce server validation.');
           setShowSetup(false);
+          setShowMFAChallenge(false);
           return;
         }
 
+        // If MFA is enabled but session is AAL1, trigger MFA challenge instead of forcing logout
+        if (mfaEnabled && clientAAL === 'aal1') {
+          console.log('MFARequiredGuard: MFA enabled but session is AAL1, triggering challenge');
+          const { factors } = await getMFAFactors();
+          const totpFactor = factors.find((f: any) => f.factor_type === 'totp' && f.status === 'verified');
+          
+          if (totpFactor) {
+            const { challengeId: newChallengeId, error: challengeError } = await challengeMFA(totpFactor.id);
+            if (!challengeError && newChallengeId) {
+              setChallengeId(newChallengeId);
+              setShowMFAChallenge(true);
+              setShowSetup(false);
+              return;
+            }
+          }
+        }
+
         setShowSetup(true);
+        setShowMFAChallenge(false);
       } catch (error) {
         console.error('MFARequiredGuard secure validation error:', error);
         setShowSetup(true);
+        setShowMFAChallenge(false);
       }
     };
     validateSecureAccess();
@@ -117,6 +144,93 @@ export const MFARequiredGuard = ({ children }: { children: React.ReactNode }) =>
   // If not admin, allow access without MFA
   if (!isAdmin) {
     return <>{children}</>;
+  }
+
+  // Handle MFA verification for existing users
+  const handleMFAVerify = async () => {
+    if (!mfaCode.trim() || !challengeId) {
+      toast.error('Please enter your authentication code');
+      return;
+    }
+
+    setVerifying(true);
+    try {
+      const { error } = await verifyMFAChallenge(challengeId, mfaCode);
+      
+      if (error) {
+        toast.error('Invalid authentication code. Please try again.');
+        setMfaCode('');
+        return;
+      }
+
+      toast.success('Authentication successful');
+      setShowMFAChallenge(false);
+      setMfaCode('');
+      
+      // Force a re-validation after successful MFA
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
+    } catch (error) {
+      console.error('MFA verification error:', error);
+      toast.error('Failed to verify authentication code');
+    } finally {
+      setVerifying(false);
+    }
+  };
+
+  if (showMFAChallenge) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="max-w-md w-full space-y-6">
+          <Alert>
+            <Shield className="h-4 w-4" />
+            <AlertTitle>Two-Factor Authentication Required</AlertTitle>
+            <AlertDescription>
+              Please enter the 6-digit code from your authenticator app to continue.
+            </AlertDescription>
+          </Alert>
+          
+          <div className="space-y-4 bg-card p-6 rounded-lg border">
+            <div className="space-y-2">
+              <Label htmlFor="mfa-code">Authentication Code</Label>
+              <Input
+                id="mfa-code"
+                type="text"
+                placeholder="000000"
+                maxLength={6}
+                value={mfaCode}
+                onChange={(e) => setMfaCode(e.target.value.replace(/\D/g, ''))}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleMFAVerify();
+                  }
+                }}
+                autoFocus
+                disabled={verifying}
+              />
+            </div>
+            
+            <Button 
+              onClick={handleMFAVerify}
+              disabled={verifying || mfaCode.length !== 6}
+              className="w-full"
+            >
+              {verifying ? 'Verifying...' : 'Verify'}
+            </Button>
+          </div>
+
+          <div className="flex justify-center">
+            <Button 
+              variant="outline" 
+              onClick={() => navigate('/')}
+            >
+              Go to Homepage
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (showSetup) {
