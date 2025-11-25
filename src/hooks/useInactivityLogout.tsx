@@ -26,7 +26,7 @@ export const useInactivityLogout = (onLogout: () => void): UseInactivityLogoutRe
     if (logoutTimerRef.current) clearTimeout(logoutTimerRef.current);
     if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
     
-    // Set warning timer (4 minutes)
+    // Set warning timer (55 minutes)
     warningTimerRef.current = setTimeout(() => {
       setShowWarning(true);
       setTimeRemaining(60);
@@ -43,7 +43,7 @@ export const useInactivityLogout = (onLogout: () => void): UseInactivityLogoutRe
       }, 1000);
     }, WARNING_TIME);
     
-    // Set logout timer (5 minutes)
+    // Set logout timer (60 minutes)
     logoutTimerRef.current = setTimeout(() => {
       onLogout();
     }, LOGOUT_TIME);

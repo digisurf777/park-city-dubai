@@ -258,8 +258,11 @@ const AdminPanelOrganized = () => {
   const [documentImageUrl, setDocumentImageUrl] = useState<string>('');
   const [documentLoading, setDocumentLoading] = useState(false);
 
-  // **CRITICAL SECURITY**: Validate admin access with AAL2 on mount and periodically
+  // **CRITICAL SECURITY**: Validate admin access with AAL2 on mount with caching
   useEffect(() => {
+    const VALIDATION_CACHE_KEY = 'admin_validation_cache';
+    const CACHE_DURATION_MS = 15 * 60 * 1000; // 15 minutes grace period
+
     const validateAdminAccess = async () => {
       if (!user) {
         console.log('No user - redirecting to auth');
@@ -269,8 +272,30 @@ const AdminPanelOrganized = () => {
         return;
       }
 
+      // Check validation cache
       try {
-        // Wait for AAL2 after MFA verification to avoid race conditions on first load
+        const cached = sessionStorage.getItem(VALIDATION_CACHE_KEY);
+        if (cached) {
+          const { timestamp, userId } = JSON.parse(cached);
+          const age = Date.now() - timestamp;
+          
+          // If cache is valid and for same user, skip validation
+          if (age < CACHE_DURATION_MS && userId === user.id) {
+            console.log('Using cached validation, age:', Math.round(age / 1000), 'seconds');
+            setIsValidated(true);
+            setValidating(false);
+            return;
+          }
+        }
+      } catch (e) {
+        console.warn('Cache check failed:', e);
+      }
+
+      try {
+        // Force session refresh to ensure we have latest AAL status
+        await supabase.auth.refreshSession();
+        
+        // Wait for AAL2 after MFA verification to avoid race conditions
         const waitForAAL2 = async (maxMs: number = 6000) => {
           const start = Date.now();
           while (Date.now() - start < maxMs) {
@@ -325,7 +350,7 @@ const AdminPanelOrganized = () => {
         if ((!response.ok && (response.status === 401 || response.status === 403)) || data?.requires_mfa) {
           console.warn('AdminPanel: First validation failed, retrying after refresh...', { status: response.status, body: data });
           await new Promise((r) => setTimeout(r, 600));
-          const { data: refreshed } = await supabase.auth.getSession();
+          const { data: refreshed } = await supabase.auth.refreshSession();
           accessToken = refreshed.session?.access_token ?? accessToken;
           response = await validateOnce(accessToken);
           data = await response.json().catch(() => ({}));
@@ -355,26 +380,37 @@ const AdminPanelOrganized = () => {
             });
           }
 
-          // Do NOT sign out here to avoid loops; keep session so /auth can show MFA challenge
+          // Clear cache on validation failure
+          sessionStorage.removeItem(VALIDATION_CACHE_KEY);
           navigate('/auth');
           return;
         }
 
         console.log('Admin access validated with AAL2:', data);
+        
+        // Cache successful validation
+        sessionStorage.setItem(
+          VALIDATION_CACHE_KEY,
+          JSON.stringify({ timestamp: Date.now(), userId: user.id })
+        );
+        
         setIsValidated(true);
         setValidating(false);
       } catch (error) {
         console.error('Access validation error:', error);
+        
+        // Clear cache on error
+        sessionStorage.removeItem(VALIDATION_CACHE_KEY);
+        
         toast({
           title: 'Validation Error',
-          description: 'Failed to validate admin access',
+          description: 'Failed to validate admin access. Please try again.',
           variant: 'destructive',
         });
         navigate('/auth');
       }
     };
 
-    // Only validate on initial mount
     validateAdminAccess();
   }, [user, navigate, toast]);
 
