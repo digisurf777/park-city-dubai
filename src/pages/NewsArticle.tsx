@@ -9,6 +9,7 @@ import { ArrowLeft, Calendar, Clock } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
+import DOMPurify from "dompurify";
 import "../styles/quill.css";
 
 interface NewsPost {
@@ -162,7 +163,7 @@ const NewsArticle = () => {
 
         {/* Article Content with enhanced typography */}
         <article className="news-content max-w-none">
-          <div dangerouslySetInnerHTML={{ __html: article.content }} />
+          <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(article.content) }} />
         </article>
 
         {/* Comments Section */}
