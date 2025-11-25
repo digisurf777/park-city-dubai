@@ -55,57 +55,23 @@ export const MFARequiredGuard = ({ children }: { children: React.ReactNode }) =>
     const validateSecureAccess = async () => {
       if (!user || !isAdmin || loading || checkingRole) {
         setShowSetup(false);
+        setShowMFAChallenge(false);
         return;
       }
+      
       try {
-        const waitForAAL2 = async (maxMs: number = 6000) => {
-          const start = Date.now();
-          while (Date.now() - start < maxMs) {
-            const { data: s } = await supabase.auth.getSession();
-            const aal = (s.session as any)?.aal;
-            if (aal === 'aal2') return true;
-            await new Promise((r) => setTimeout(r, 300));
-          }
-          return false;
-        };
-
-        // Ensure token reflects MFA upgrade
-        const upgraded = await waitForAAL2();
-
+        // Quick check: if client session already shows AAL2, skip expensive validation
         const { data: sessionData } = await supabase.auth.getSession();
         const clientAAL = (sessionData.session as any)?.aal;
-
-        // Proactively refresh to propagate AAL2 into the access token
-        try {
-          await supabase.auth.refreshSession();
-        } catch (e) {
-          console.warn('MFARequiredGuard: refreshSession failed (continuing)', e);
-        }
-
-        const invokeValidate = async () => {
-          const { data, error } = await supabase.functions.invoke('validate-admin-access');
-          return { data, error } as { data: any; error: any };
-        };
-        let res = await invokeValidate();
-        if (res.error || res.data?.requires_mfa) {
-          await new Promise((r) => setTimeout(r, 600));
-          res = await invokeValidate();
-        }
-
-        if (!res.error && !res.data?.requires_mfa) {
-          setShowSetup(false);
-          return;
-        }
-
-        // Final fallback: if client shows AAL2, allow render; AdminPanel will re-validate strictly
-        if (clientAAL === 'aal2' || upgraded) {
-          console.warn('MFARequiredGuard: Allowing access on client AAL2; AdminPanel will enforce server validation.');
+        
+        if (clientAAL === 'aal2') {
+          console.log('MFARequiredGuard: Session already at AAL2, allowing access');
           setShowSetup(false);
           setShowMFAChallenge(false);
           return;
         }
 
-        // If MFA is enabled but session is AAL1, trigger MFA challenge instead of forcing logout
+        // If MFA is enabled but session is AAL1, trigger MFA challenge
         if (mfaEnabled && clientAAL === 'aal1') {
           console.log('MFARequiredGuard: MFA enabled but session is AAL1, triggering challenge');
           const { factors } = await getMFAFactors();
@@ -122,16 +88,22 @@ export const MFARequiredGuard = ({ children }: { children: React.ReactNode }) =>
           }
         }
 
-        setShowSetup(true);
-        setShowMFAChallenge(false);
+        // If MFA is not enabled, show setup
+        if (!mfaEnabled) {
+          setShowSetup(true);
+          setShowMFAChallenge(false);
+        }
       } catch (error) {
-        console.error('MFARequiredGuard secure validation error:', error);
-        setShowSetup(true);
+        console.error('MFARequiredGuard validation error:', error);
+        // On error, check if MFA needs to be set up
+        if (!mfaEnabled) {
+          setShowSetup(true);
+        }
         setShowMFAChallenge(false);
       }
     };
     validateSecureAccess();
-  }, [user, loading, isAdmin, checkingRole]);
+  }, [user, loading, isAdmin, checkingRole, mfaEnabled]);
 
   if (loading || checkingRole) {
     return (
