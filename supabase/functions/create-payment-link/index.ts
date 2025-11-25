@@ -23,6 +23,37 @@ const handler = async (req: Request): Promise<Response> => {
   try {
     console.log("Creating payment link...");
     
+    // Authenticate the user
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      console.error('No authorization header provided');
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized - No authorization header' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Create client with user's auth token
+    const supabaseClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+      {
+        global: {
+          headers: { Authorization: authHeader },
+        },
+      }
+    );
+
+    // Verify user is authenticated
+    const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+    if (userError || !user) {
+      console.error('User authentication failed:', userError);
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized - Invalid token' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
       apiVersion: "2023-10-16",
     });
@@ -34,6 +65,29 @@ const handler = async (req: Request): Promise<Response> => {
     );
 
     const { bookingId, amount: rawAmount, duration, parkingSpotName, userEmail }: PaymentLinkRequest = await req.json();
+    
+    // Verify the user owns this booking
+    const { data: booking, error: bookingError } = await supabaseServiceClient
+      .from('parking_bookings')
+      .select('user_id')
+      .eq('id', bookingId)
+      .single();
+
+    if (bookingError || !booking) {
+      console.error('Booking not found:', bookingError);
+      return new Response(
+        JSON.stringify({ error: 'Booking not found' }),
+        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (booking.user_id !== user.id) {
+      console.error('User does not own this booking:', { userId: user.id, bookingUserId: booking.user_id });
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized - You do not own this booking' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
     
     // Stripe minimum amount check for AED is 2.00
     const amount = rawAmount < 2 ? 2 : rawAmount;
