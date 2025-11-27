@@ -158,6 +158,8 @@ const NewsArticle = () => {
               alt={article.title}
               className="w-full h-full object-cover"
             />
+            {/* Dark gradient overlay to ensure text in images is readable */}
+            <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-transparent pointer-events-none" />
           </div>
         )}
 
