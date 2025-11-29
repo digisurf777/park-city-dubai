@@ -805,8 +805,8 @@ const AdminPanelOrganized = () => {
             // Send in-app notification
             await supabase.from('user_messages').insert({
               user_id: listing.owner_id,
-              subject: 'Parking Listing Unpublished',
-              message: `Your parking listing "${listing.title}" at ${listing.address} (${listing.zone}) has been unpublished and is no longer visible to customers. It has been moved back to approved status. If you have any questions, please contact support@shazamparking.ae.`,
+              subject: 'Parking Listing Update',
+              message: `Dear ${owner.full_name || 'Property Owner'},\n\nYour parking listing "${listing.title}" in ${listing.zone} has been removed from the ShazamParking platform and is no longer available to customers.\n\nIf you have any questions about the decision behind this update, please contact us at support@shazamparking.ae and we will be happy to assist.\n\nThank you for being part of ShazamParking.`,
               from_admin: true,
               read_status: false
             });
