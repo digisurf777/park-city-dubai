@@ -767,8 +767,9 @@ const AdminPanelOrganized = () => {
     try {
       // Get listing details before updating
       const listing = parkingListings.find(l => l.id === listingId);
+      const previousStatus = listing?.status;
       
-      console.log('Updating listing status:', { listingId, status, listing });
+      console.log('Updating listing status:', { listingId, status, previousStatus, listing });
       
       const { error } = await supabase
         .from('parking_listings')
@@ -777,8 +778,46 @@ const AdminPanelOrganized = () => {
 
       if (error) throw error;
 
-      // If approving, send notification email to owner
-      if (status === 'approved' && listing) {
+      // Handle unpublish notification (when going from published to approved)
+      if (previousStatus === 'published' && status === 'approved' && listing) {
+        try {
+          // Get owner details
+          const { data: ownerData, error: ownerError } = await supabase
+            .rpc('get_user_email_and_name', { user_uuid: listing.owner_id });
+
+          const owner = ownerData?.[0];
+
+          if (owner?.email) {
+            // Send email notification
+            await supabase.functions.invoke('send-listing-delisted', {
+              body: {
+                userEmail: owner.email,
+                userName: owner.full_name || 'Property Owner',
+                listingDetails: {
+                  title: listing.title,
+                  address: listing.address,
+                  zone: listing.zone,
+                  listingId: listing.id
+                }
+              }
+            });
+
+            // Send in-app notification
+            await supabase.from('user_messages').insert({
+              user_id: listing.owner_id,
+              subject: 'Parking Listing Unpublished',
+              message: `Your parking listing "${listing.title}" at ${listing.address} (${listing.zone}) has been unpublished and is no longer visible to customers. It has been moved back to approved status. If you have any questions, please contact support@shazamparking.ae.`,
+              from_admin: true,
+              read_status: false
+            });
+          }
+        } catch (notifError) {
+          console.error('Error sending unpublish notification:', notifError);
+        }
+      }
+
+      // If approving from pending, send approval notification
+      if (status === 'approved' && previousStatus === 'pending' && listing) {
         try {
           console.log('Fetching owner details for listing approval email...');
           
@@ -867,7 +906,7 @@ const AdminPanelOrganized = () => {
 
       toast({
         title: "Success",
-        description: `Listing ${status} successfully${status === 'approved' ? ' - Owner notified by email' : ''}`,
+        description: `Listing ${status} successfully${status === 'approved' && previousStatus === 'pending' ? ' - Owner notified by email' : ''}${previousStatus === 'published' && status === 'approved' ? ' - Owner notified of unpublishing' : ''}`,
       });
     } catch (error) {
       console.error('Error updating listing status:', error);
