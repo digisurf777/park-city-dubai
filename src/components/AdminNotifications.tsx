@@ -26,6 +26,7 @@ interface AdminNotification {
     duration_hours: number;
     status: string;
     user_id: string;
+    listing_id?: string;
   };
   customerProfile?: {
     full_name: string;
@@ -149,7 +150,8 @@ const AdminNotifications = ({
             cost_aed,
             duration_hours,
             status,
-            user_id
+            user_id,
+            listing_id
           )
         `).order('created_at', {
         ascending: false
@@ -311,21 +313,41 @@ const AdminNotifications = ({
       }).eq('id', notification.booking_id);
       if (updateError) throw updateError;
 
-      // Get owner information from driver_owner_messages
-      const { data: ownerMessages, error: ownerError } = await supabase
-        .from("driver_owner_messages")
-        .select("owner_id")
-        .eq("booking_id", notification.booking_id)
-        .limit(1);
-
+      // Get owner information from listing (primary) or driver_owner_messages (fallback)
       let ownerEmail = null;
       let ownerName = null;
+      let ownerId = null;
 
-      if (!ownerError && ownerMessages && ownerMessages.length > 0) {
-        const ownerId = ownerMessages[0].owner_id;
-        console.log("Found owner ID:", ownerId);
+      // Primary: Get owner from the listing
+      if (booking.listing_id) {
+        const { data: listing, error: listingError } = await supabase
+          .from("parking_listings")
+          .select("owner_id")
+          .eq("id", booking.listing_id)
+          .single();
 
-        // Get owner profile
+        if (!listingError && listing?.owner_id) {
+          ownerId = listing.owner_id;
+          console.log("Found owner ID from listing:", ownerId);
+        }
+      }
+
+      // Fallback: Try to get owner from driver_owner_messages if listing lookup failed
+      if (!ownerId) {
+        const { data: ownerMessages } = await supabase
+          .from("driver_owner_messages")
+          .select("owner_id")
+          .eq("booking_id", notification.booking_id)
+          .limit(1);
+
+        if (ownerMessages && ownerMessages.length > 0) {
+          ownerId = ownerMessages[0].owner_id;
+          console.log("Found owner ID from messages (fallback):", ownerId);
+        }
+      }
+
+      // Get owner profile if we have an owner ID
+      if (ownerId) {
         const { data: ownerProfile, error: ownerProfileError } = await supabase
           .from("profiles")
           .select("email, full_name")
@@ -340,7 +362,7 @@ const AdminNotifications = ({
           console.warn("Could not fetch owner profile:", ownerProfileError);
         }
       } else {
-        console.warn("No owner found in driver_owner_messages for booking:", notification.booking_id);
+        console.warn("No owner found for booking:", notification.booking_id);
       }
 
       // Send confirmation email to driver

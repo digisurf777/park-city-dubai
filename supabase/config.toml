@@ -172,3 +172,9 @@ verify_jwt = true
 
 [functions.update-payment-document-path]
 verify_jwt = true
+
+[functions.send-monthly-followup]
+verify_jwt = true
+
+[functions.check-monthly-followups]
+verify_jwt = false
