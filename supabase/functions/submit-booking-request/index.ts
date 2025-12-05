@@ -202,7 +202,7 @@ const handler = async (req: Request): Promise<Response> => {
           bookingDetails: {
             location: `${parkingSpotName}, ${location}`,
             startDate: new Date(startDate).toLocaleDateString(),
-            endDate: endDate.toLocaleDateString(),
+            endDate: endDateObj.toLocaleDateString(),
             amount: `${costAed} AED`
           }
         }
