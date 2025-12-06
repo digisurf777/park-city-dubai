@@ -739,6 +739,7 @@ export type Database = {
           invoice_url: string | null
           listing_id: string | null
           location: string
+          monthly_followup_sent: boolean | null
           payment_amount_cents: number | null
           payment_link_url: string | null
           payment_status: string | null
@@ -774,6 +775,7 @@ export type Database = {
           invoice_url?: string | null
           listing_id?: string | null
           location: string
+          monthly_followup_sent?: boolean | null
           payment_amount_cents?: number | null
           payment_link_url?: string | null
           payment_status?: string | null
@@ -809,6 +811,7 @@ export type Database = {
           invoice_url?: string | null
           listing_id?: string | null
           location?: string
+          monthly_followup_sent?: boolean | null
           payment_amount_cents?: number | null
           payment_link_url?: string | null
           payment_status?: string | null
