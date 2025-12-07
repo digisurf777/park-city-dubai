@@ -192,26 +192,35 @@ const handler = async (req: Request): Promise<Response> => {
       // Don't fail the booking if admin notification fails
     }
 
-    // Send "Booking Request Received" email to customer
+    // Send "Booking Request Received" email to customer using direct fetch
     try {
       console.log(`📧 Sending booking received email to ${user.email}...`);
-      const { error: bookingReceivedError } = await supabaseServiceClient.functions.invoke('send-booking-received', {
-        body: {
+      
+      const bookingReceivedResponse = await fetch(`${supabaseUrl}/functions/v1/send-booking-received`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': supabaseAnonKey,
+        },
+        body: JSON.stringify({
           userEmail: user.email,
           userName: customerName,
           bookingDetails: {
             location: `${parkingSpotName}, ${location}`,
-            startDate: new Date(startDate).toLocaleDateString(),
-            endDate: endDateObj.toLocaleDateString(),
+            startDate: startDateObj.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+            endDate: endDateObj.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
             amount: `${costAed} AED`
           }
-        }
+        })
       });
 
-      if (bookingReceivedError) {
-        console.error("❌ Booking received notification failed:", bookingReceivedError);
+      const bookingReceivedData = await bookingReceivedResponse.json();
+      
+      if (!bookingReceivedResponse.ok || !bookingReceivedData.success) {
+        console.error("❌ Booking received notification failed:", bookingReceivedData);
       } else {
         console.log("✅ Booking received notification sent successfully to", user.email);
+        console.log("📧 Booking received email ID:", bookingReceivedData.emailId);
         bookingReceivedEmailSent = true;
       }
     } catch (notificationError) {
