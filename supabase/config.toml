@@ -178,3 +178,6 @@ verify_jwt = false
 
 [functions.check-monthly-followups]
 verify_jwt = false
+
+[functions.send-booking-cancelled-delisting]
+verify_jwt = false
