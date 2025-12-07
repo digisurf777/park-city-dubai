@@ -30,7 +30,7 @@ const handler = async (req: Request): Promise<Response> => {
     console.log("Sending listing delisted notification to:", userEmail);
 
     const emailResponse = await resend.emails.send({
-      from: "ShazamParking <notifications@shazamparking.ae>",
+      from: "ShazamParking <support@shazamparking.ae>",
       to: [userEmail],
       bcc: ["support@shazamparking.ae"],
       subject: "Important: Your Parking Listing Has Been Removed",

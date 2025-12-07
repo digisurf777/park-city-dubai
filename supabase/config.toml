@@ -4,7 +4,7 @@ project_id = "eoknluyunximjlsnyceb"
 verify_jwt = true
 
 [functions.send-listing-delisted]
-verify_jwt = true
+verify_jwt = false
 
 [api]
 enabled = true
@@ -183,4 +183,4 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.send-admin-delisting-notification]
-verify_jwt = true
+verify_jwt = false
