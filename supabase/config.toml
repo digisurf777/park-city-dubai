@@ -181,3 +181,6 @@ verify_jwt = false
 
 [functions.send-booking-cancelled-delisting]
 verify_jwt = false
+
+[functions.send-admin-delisting-notification]
+verify_jwt = true
