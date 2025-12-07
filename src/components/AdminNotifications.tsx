@@ -366,8 +366,16 @@ const AdminNotifications = ({
       }
 
       // Send confirmation email to driver
+      console.log('📧 [Booking Approval] Starting email sending process...');
+      console.log('📧 [Booking Approval] Driver email:', userEmail);
+      console.log('📧 [Booking Approval] Driver name:', userName);
+      console.log('📧 [Booking Approval] Owner ID:', ownerId);
+      console.log('📧 [Booking Approval] Owner email:', ownerEmail);
+      console.log('📧 [Booking Approval] Owner name:', ownerName);
+      
       if (userEmail) {
         try {
+          console.log('📧 [Booking Approval] Invoking send-booking-confirmed for driver...');
           const { data, error } = await supabase.functions.invoke('send-booking-confirmed', {
             body: {
               userEmail,
@@ -381,20 +389,21 @@ const AdminNotifications = ({
             }
           });
           if (error) {
-            console.error('send-booking-confirmed returned error:', error);
+            console.error('❌ [Booking Approval] send-booking-confirmed returned error:', error);
           } else {
-            console.log('Driver confirmation email sent successfully:', data);
+            console.log('✅ [Booking Approval] Driver confirmation email sent successfully:', data);
           }
         } catch (emailError) {
-          console.error('Failed to send driver confirmation email:', emailError);
+          console.error('❌ [Booking Approval] Failed to send driver confirmation email:', emailError);
         }
       } else {
-        console.warn('No customer email found; skipping driver email');
+        console.warn('⚠️ [Booking Approval] No customer email found; skipping driver email');
       }
 
       // Send confirmation email to owner if found
       if (ownerEmail) {
         try {
+          console.log('📧 [Booking Approval] Invoking send-owner-booking-confirmed for owner...');
           const { data, error } = await supabase.functions.invoke('send-owner-booking-confirmed', {
             body: {
               ownerEmail: ownerEmail,
@@ -408,15 +417,15 @@ const AdminNotifications = ({
             }
           });
           if (error) {
-            console.error('send-owner-booking-confirmed returned error:', error);
+            console.error('❌ [Booking Approval] send-owner-booking-confirmed returned error:', error);
           } else {
-            console.log('Owner confirmation email sent successfully:', data);
+            console.log('✅ [Booking Approval] Owner confirmation email sent successfully:', data);
           }
         } catch (emailError) {
-          console.error('Failed to send owner confirmation email:', emailError);
+          console.error('❌ [Booking Approval] Failed to send owner confirmation email:', emailError);
         }
       } else {
-        console.warn('No owner email found; skipping owner email');
+        console.warn('⚠️ [Booking Approval] No owner email found; skipping owner email');
       }
 
       // Send support chat notification

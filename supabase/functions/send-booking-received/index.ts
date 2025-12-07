@@ -21,13 +21,25 @@ interface BookingReceivedRequest {
 }
 
 const handler = async (req: Request): Promise<Response> => {
+  console.log("📧 send-booking-received function invoked");
+  
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { userEmail, userName, bookingDetails }: BookingReceivedRequest = await req.json();
+    const body = await req.json();
+    console.log("📧 Received payload:", JSON.stringify(body));
+    
+    const { userEmail, userName, bookingDetails }: BookingReceivedRequest = body;
+    
+    if (!userEmail) {
+      console.error("❌ No userEmail provided");
+      throw new Error("userEmail is required");
+    }
+    
+    console.log(`📧 Sending booking received email to: ${userEmail}`);
 
     const emailResponse = await resend.emails.send({
       from: "ShazamParking <noreply@shazamparking.ae>",
@@ -86,7 +98,7 @@ const handler = async (req: Request): Promise<Response> => {
       `,
     });
 
-    console.log("Booking received email sent successfully:", emailResponse);
+    console.log("✅ Booking received email sent successfully to:", userEmail, "Email ID:", emailResponse.data?.id);
 
     return new Response(JSON.stringify({
       success: true,
