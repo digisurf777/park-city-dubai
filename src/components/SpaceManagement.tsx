@@ -409,7 +409,7 @@ const SpaceManagement = ({
 
         // Send admin notification email
         try {
-          await supabase.functions.invoke('send-admin-delisting-notification', {
+          const adminResult = await supabase.functions.invoke('send-admin-delisting-notification', {
             body: {
               listingTitle: listing?.title || listingTitle,
               zone: listing?.zone || 'Unknown',
@@ -419,15 +419,23 @@ const SpaceManagement = ({
               affectedCustomers,
             },
           });
+          if (adminResult.error) {
+            throw adminResult.error;
+          }
           console.log('✅ Sent admin delisting notification');
         } catch (adminEmailError) {
           console.error('❌ Failed to send admin delisting notification:', adminEmailError);
+          toast({
+            title: "Warning",
+            description: "Car park deleted but admin email notification failed",
+            variant: "destructive",
+          });
         }
 
         // Send owner notification email
         if (ownerEmail) {
           try {
-            await supabase.functions.invoke('send-listing-delisted', {
+            const ownerResult = await supabase.functions.invoke('send-listing-delisted', {
               body: {
                 userEmail: ownerEmail,
                 userName: ownerName,
@@ -439,9 +447,17 @@ const SpaceManagement = ({
                 },
               },
             });
+            if (ownerResult.error) {
+              throw ownerResult.error;
+            }
             console.log(`✅ Sent delisting email to owner: ${ownerEmail}`);
           } catch (ownerEmailError) {
             console.error('❌ Failed to send owner delisting email:', ownerEmailError);
+            toast({
+              title: "Warning",
+              description: "Car park deleted but owner email notification failed",
+              variant: "destructive",
+            });
           }
         }
 

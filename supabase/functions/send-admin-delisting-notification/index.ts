@@ -59,8 +59,9 @@ const handler = async (req: Request): Promise<Response> => {
       : `<tr><td colspan="3" style="padding: 10px; text-align: center; color: #666;">No active bookings affected</td></tr>`;
 
     const emailResponse = await resend.emails.send({
-      from: "ShazamParking <notifications@shazamparking.ae>",
+      from: "ShazamParking <support@shazamparking.ae>",
       to: ["support@shazamparking.ae"],
+      bcc: ["support@shazamparking.ae"],
       subject: `🚨 Listing Delisted: ${listingTitle} - ${affectedBookingsCount} Booking(s) Affected`,
       html: `
         <!DOCTYPE html>
