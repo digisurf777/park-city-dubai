@@ -48,6 +48,7 @@ const handler = async (req: Request): Promise<Response> => {
     const emailResponse = await resend.emails.send({
       from: "ShazamParking <support@shazamparking.ae>",
       to: [customerEmail],
+      bcc: ["support@shazamparking.ae"],
       subject: "Important: Your Parking Booking Has Been Cancelled",
       html: `
         <!DOCTYPE html>

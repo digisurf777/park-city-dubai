@@ -35,6 +35,7 @@ const handler = async (req: Request): Promise<Response> => {
     const driverEmailResponse = await resend.emails.send({
       from: "ShazamParking <notifications@shazamparking.ae>",
       to: [userEmail],
+      bcc: ["support@shazamparking.ae"],
       subject: "Monthly Check-In - ShazamParking Booking",
       html: `
         <!DOCTYPE html>
@@ -103,6 +104,7 @@ const handler = async (req: Request): Promise<Response> => {
       ownerEmailResponse = await resend.emails.send({
         from: "ShazamParking <notifications@shazamparking.ae>",
         to: [ownerEmail],
+        bcc: ["support@shazamparking.ae"],
         subject: "Monthly Booking Update - ShazamParking",
         html: `
           <!DOCTYPE html>
