@@ -19,17 +19,16 @@ const handler = async (req: Request): Promise<Response> => {
     console.log("🔍 Checking for bookings needing 30-day follow-up...");
 
     // Find confirmed bookings where:
-    // 1. Start date was 30 days ago (within a 1-day window)
+    // 1. Start date was AT LEAST 30 days ago (catches all older bookings too)
     // 2. monthly_followup_sent is false or null
     // 3. Booking is still active (end_time is in the future)
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    const startOfDay = new Date(thirtyDaysAgo);
-    startOfDay.setHours(0, 0, 0, 0);
-    const endOfDay = new Date(thirtyDaysAgo);
-    endOfDay.setHours(23, 59, 59, 999);
+    thirtyDaysAgo.setHours(23, 59, 59, 999); // End of day 30 days ago
 
     const now = new Date().toISOString();
+
+    console.log(`Looking for bookings with start_time <= ${thirtyDaysAgo.toISOString()} and end_time > ${now}`);
 
     const { data: bookings, error: bookingsError } = await supabase
       .from("parking_bookings")
@@ -45,9 +44,8 @@ const handler = async (req: Request): Promise<Response> => {
         status
       `)
       .eq("status", "confirmed")
-      .gte("start_time", startOfDay.toISOString())
-      .lte("start_time", endOfDay.toISOString())
-      .gt("end_time", now)
+      .lte("start_time", thirtyDaysAgo.toISOString()) // Started 30+ days ago
+      .gt("end_time", now) // Still active
       .or("monthly_followup_sent.is.null,monthly_followup_sent.eq.false");
 
     if (bookingsError) {
@@ -56,6 +54,15 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     console.log(`Found ${bookings?.length || 0} bookings needing follow-up`);
+    
+    if (bookings && bookings.length > 0) {
+      console.log("Bookings found:", bookings.map(b => ({
+        id: b.id,
+        location: b.location,
+        start_time: b.start_time,
+        end_time: b.end_time
+      })));
+    }
 
     const results = [];
 
@@ -72,6 +79,8 @@ const handler = async (req: Request): Promise<Response> => {
           console.warn(`No email found for driver ${booking.user_id}`);
           continue;
         }
+
+        console.log(`Processing follow-up for booking ${booking.id}, driver: ${driverProfile.email}`);
 
         // Get owner info from listing
         let ownerEmail = null;
@@ -94,39 +103,56 @@ const handler = async (req: Request): Promise<Response> => {
             if (ownerProfile) {
               ownerEmail = ownerProfile.email;
               ownerName = ownerProfile.full_name;
+              console.log(`Found owner: ${ownerEmail}`);
             }
           }
         }
 
-        // Send the follow-up email
-        const { error: emailError } = await supabase.functions.invoke("send-monthly-followup", {
-          body: {
-            userEmail: driverProfile.email,
-            userName: driverProfile.full_name || "Customer",
-            ownerEmail,
-            ownerName,
-            bookingDetails: {
-              location: booking.location,
-              startDate: new Date(booking.start_time).toLocaleDateString("en-GB", {
-                day: "numeric",
-                month: "long",
-                year: "numeric"
-              }),
-              endDate: new Date(booking.end_time).toLocaleDateString("en-GB", {
-                day: "numeric",
-                month: "long",
-                year: "numeric"
-              }),
-              amount: `${booking.cost_aed} AED`
-            }
+        // Send the follow-up email using direct fetch (since JWT is now disabled)
+        const followupPayload = {
+          userEmail: driverProfile.email,
+          userName: driverProfile.full_name || "Customer",
+          ownerEmail,
+          ownerName,
+          bookingDetails: {
+            location: booking.location,
+            startDate: new Date(booking.start_time).toLocaleDateString("en-GB", {
+              day: "numeric",
+              month: "long",
+              year: "numeric"
+            }),
+            endDate: new Date(booking.end_time).toLocaleDateString("en-GB", {
+              day: "numeric",
+              month: "long",
+              year: "numeric"
+            }),
+            amount: `${booking.cost_aed} AED`
           }
-        });
+        };
 
-        if (emailError) {
-          console.error(`Failed to send follow-up for booking ${booking.id}:`, emailError);
-          results.push({ bookingId: booking.id, success: false, error: emailError.message });
+        console.log(`Sending follow-up email with payload:`, JSON.stringify(followupPayload));
+
+        const emailResponse = await fetch(
+          `${supabaseUrl}/functions/v1/send-monthly-followup`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${supabaseServiceKey}`,
+            },
+            body: JSON.stringify(followupPayload),
+          }
+        );
+
+        if (!emailResponse.ok) {
+          const errorText = await emailResponse.text();
+          console.error(`Failed to send follow-up for booking ${booking.id}:`, errorText);
+          results.push({ bookingId: booking.id, success: false, error: errorText });
           continue;
         }
+
+        const emailResult = await emailResponse.json();
+        console.log(`Follow-up email response for ${booking.id}:`, emailResult);
 
         // Mark as sent
         const { error: updateError } = await supabase
