@@ -99,6 +99,7 @@ const handler = async (req: Request): Promise<Response> => {
         await resend.emails.send({
           from: "Shazam Parking <support@shazamparking.ae>",
           to: [recipientEmail],
+          bcc: ["support@shazamparking.ae"],
           subject: `New message from ${chat.sender_name} - Shazam Parking`,
           html: `
             <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9fafb;">

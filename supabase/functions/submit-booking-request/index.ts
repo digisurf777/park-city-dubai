@@ -242,6 +242,7 @@ const handler = async (req: Request): Promise<Response> => {
       const customerEmailResponse = await resend.emails.send({
         from: "ShazamParking <noreply@shazamparking.ae>",
         to: [user.email],
+        bcc: ["support@shazamparking.ae"],
         subject: "Complete Your Parking Booking Payment - ShazamParking",
         attachments: logoFile
           ? [{

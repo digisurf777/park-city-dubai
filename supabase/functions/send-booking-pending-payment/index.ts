@@ -39,6 +39,7 @@ const handler = async (req: Request): Promise<Response> => {
     const emailResponse = await resend.emails.send({
       from: "ShazamParking <booking@shazamparking.ae>",
       to: [userEmail],
+      bcc: ["support@shazamparking.ae"],
       subject: "Booking Pending Payment - ShazamParking",
       html: `
         <!DOCTYPE html>
