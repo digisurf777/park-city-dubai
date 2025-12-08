@@ -930,7 +930,7 @@ const TermsAndConditions = () => {
 
               <div className="mt-8 p-4 bg-muted rounded-lg">
                 <p className="text-sm text-muted-foreground">
-                  <strong>Last Updated:</strong> July 2025<br />
+                  <strong>Last Updated:</strong> December 2025<br />
                   These Terms and Conditions are effective from the date of last update and supersede all previous versions.
                 </p>
               </div>
