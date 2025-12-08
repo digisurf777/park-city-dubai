@@ -528,13 +528,14 @@ const TermsAndConditions = () => {
                 </div>
 
                 <p className="mb-4"><strong>4.2 Access Cards and Deposits</strong></p>
-                <p className="mb-4">In cases where access to the Parking Space requires a physical access card or device, a separate access card fee will be charged at the time of the Booking Request (the "<strong>Refundable Access Charge</strong>").</p>
-                <p className="mb-4">The Refundable Access Charge will be refunded to you within ten (10) working days after the end of the Booking Period, but only if the Owner confirms that:</p>
+                <p className="mb-4">In cases where access to the Parking Space requires a physical access card or device, a refundable access card/device fee (the "<strong>Refundable Access Charge</strong>") will ordinarily be collected from you at the time of the Booking Request. However, ShazamParking may, at its sole discretion, elect not to collect the Refundable Access Charge from you and may instead undertake responsibility for such amount on your behalf. In all cases, the non-refundable access card handling fee (the "<strong>Handling Fee</strong>") shall remain payable to ShazamParking for the administrative services associated with managing the access device deposit and/or collecting the same from you.</p>
+                <p className="mb-4">The Refundable Access Charge, if collected, will be refunded to you within ten (10) working days after the end of the Booking Period, but only if the Owner confirms that:</p>
                 <div className="ml-6 mb-4">
-                  <p className="mb-2">- the access card or device has been returned in good condition, and</p>
-                  <p className="mb-2">- no damage has occurred to the Parking Space.</p>
+                  <p className="mb-2">• the access card or device has been returned in good condition, and</p>
+                  <p className="mb-2">• no damage has occurred to the Parking Space.</p>
                 </div>
-                <p className="mb-4">If the Owner reports any issues or non-return of the access card/device, the Refundable Access Charge may be withheld in part or in full at our sole discretion.</p>
+                <p className="mb-4">Where ShazamParking has undertaken responsibility for the Refundable Access Charge instead of collecting it from you, you remain fully liable to ShazamParking for any loss of, or damage to, the access card/device and for any amounts that would otherwise have been deducted from the Refundable Access Charge had it been collected. ShazamParking may recover such amounts directly from you at any time, including after the end of the Booking Period.</p>
+                <p className="mb-4">If the Owner reports any issues or non-return of the access card/device, we may withhold the Refundable Access Charge (if collected) in part or in full, or recover such amounts directly from you where ShazamParking has undertaken responsibility in respect of the deposit.</p>
 
                 <h3 className="text-xl font-semibold mb-3 mt-6">5. The Licence for the Booking Period</h3>
                 <p className="mb-4">
