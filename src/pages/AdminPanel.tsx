@@ -1793,8 +1793,8 @@ const AdminPanelOrganized = () => {
 
   if (validating) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Card className="w-96">
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <Card className="w-full max-w-sm sm:w-96">
           <CardContent className="pt-6 text-center space-y-4">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
             <Shield className="h-12 w-12 mx-auto text-primary" />
@@ -1812,8 +1812,8 @@ const AdminPanelOrganized = () => {
 
   if (checkingAdmin) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Card className="w-96">
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <Card className="w-full max-w-sm sm:w-96">
           <CardContent className="pt-6 text-center space-y-4">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
             <h2 className="text-xl font-semibold">Verifying Admin Access</h2>
@@ -1826,8 +1826,8 @@ const AdminPanelOrganized = () => {
 
   if (!isAdmin) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Card className="w-96">
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <Card className="w-full max-w-sm sm:w-96">
           <CardContent className="pt-6 text-center space-y-4">
             <h2 className="text-xl font-semibold">Access Denied</h2>
             <p className="text-muted-foreground">
@@ -1843,21 +1843,21 @@ const AdminPanelOrganized = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background p-6">
+    <div className="min-h-screen bg-background p-3 sm:p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
             Admin Dashboard
           </h1>
-          <div className="flex gap-2">
-            <Button onClick={() => navigate('/')} variant="outline" size="sm">
+          <div className="flex gap-2 w-full sm:w-auto">
+            <Button onClick={() => navigate('/')} variant="outline" size="sm" className="flex-1 sm:flex-none">
               <Home className="mr-2 h-4 w-4" />
-              Home
+              <span className="hidden xs:inline">Home</span>
             </Button>
-            <Button onClick={handleLogout} variant="outline" size="sm">
+            <Button onClick={handleLogout} variant="outline" size="sm" className="flex-1 sm:flex-none">
               <LogOut className="mr-2 h-4 w-4" />
-              Logout
+              <span className="hidden xs:inline">Logout</span>
             </Button>
           </div>
         </div>
@@ -1881,84 +1881,86 @@ const AdminPanelOrganized = () => {
 
         {/* Main Tabs */}
         <Tabs defaultValue="content" className="w-full">
-          <TabsList className="grid w-full grid-cols-8 gap-2 h-auto p-2 bg-gradient-to-r from-background to-muted/20 rounded-xl border shadow-sm">
-            <TabsTrigger 
-              value="content" 
-              className="flex flex-col items-center p-3 h-auto text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg"
-            >
-              <FileText className="h-5 w-5 mb-1" />
-              <span className="font-semibold">Content</span>
-              <span className="text-xs opacity-70 mt-1">News & Updates</span>
-            </TabsTrigger>
-            
-            <TabsTrigger 
-              value="parking" 
-              className="flex flex-col items-center p-3 h-auto text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg"
-            >
-              <Car className="h-5 w-5 mb-1" />
-              <span className="font-semibold">Parking</span>
-              <span className="text-xs opacity-70 mt-1">Spaces & Bookings</span>
-            </TabsTrigger>
+          <div className="overflow-x-auto -mx-3 sm:mx-0 px-3 sm:px-0 pb-2">
+            <TabsList className="inline-flex sm:grid sm:grid-cols-8 gap-1 sm:gap-2 h-auto p-1 sm:p-2 bg-gradient-to-r from-background to-muted/20 rounded-xl border shadow-sm min-w-max sm:min-w-0 w-auto sm:w-full">
+              <TabsTrigger 
+                value="content" 
+                className="flex flex-col items-center p-2 sm:p-3 h-auto text-xs sm:text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg min-w-[70px] sm:min-w-0"
+              >
+                <FileText className="h-4 w-4 sm:h-5 sm:w-5 mb-1" />
+                <span className="font-semibold text-[10px] sm:text-sm">Content</span>
+                <span className="text-[8px] sm:text-xs opacity-70 mt-0.5 sm:mt-1 hidden sm:block">News & Updates</span>
+              </TabsTrigger>
+              
+              <TabsTrigger 
+                value="parking" 
+                className="flex flex-col items-center p-2 sm:p-3 h-auto text-xs sm:text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg min-w-[70px] sm:min-w-0"
+              >
+                <Car className="h-4 w-4 sm:h-5 sm:w-5 mb-1" />
+                <span className="font-semibold text-[10px] sm:text-sm">Parking</span>
+                <span className="text-[8px] sm:text-xs opacity-70 mt-0.5 sm:mt-1 hidden sm:block">Spaces & Bookings</span>
+              </TabsTrigger>
 
-            <TabsTrigger 
-              value="pre-auth" 
-              className="flex flex-col items-center p-3 h-auto text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg relative"
-            >
-              <CreditCard className="h-5 w-5 mb-1" />
-              <span className="font-semibold">Pre-Auth</span>
-              <span className="text-xs opacity-70 mt-1">Payment Holds</span>
-            </TabsTrigger>
+              <TabsTrigger 
+                value="pre-auth" 
+                className="flex flex-col items-center p-2 sm:p-3 h-auto text-xs sm:text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg relative min-w-[70px] sm:min-w-0"
+              >
+                <CreditCard className="h-4 w-4 sm:h-5 sm:w-5 mb-1" />
+                <span className="font-semibold text-[10px] sm:text-sm">Pre-Auth</span>
+                <span className="text-[8px] sm:text-xs opacity-70 mt-0.5 sm:mt-1 hidden sm:block">Payment Holds</span>
+              </TabsTrigger>
 
-            <TabsTrigger 
-              value="owner-payments" 
-              className="flex flex-col items-center p-3 h-auto text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg"
-            >
-              <DollarSign className="h-5 w-5 mb-1" />
-              <span className="font-semibold">Owner Payments</span>
-              <span className="text-xs opacity-70 mt-1">View Banking & Pay</span>
-            </TabsTrigger>
-            
-            <TabsTrigger 
-              value="users"
-              className="flex flex-col items-center p-3 h-auto text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg"
-            >
-              <Users className="h-5 w-5 mb-1" />
-              <span className="font-semibold">Users</span>
-              <span className="text-xs opacity-70 mt-1">Manage & Message</span>
-            </TabsTrigger>
-            
-            <TabsTrigger 
-              value="chat" 
-              className="flex flex-col items-center p-3 h-auto text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-red-500 data-[state=active]:text-white bg-gradient-to-br from-red-50 to-red-100 border-red-200 animate-pulse rounded-lg relative"
-            >
-              <MessageCircle className="h-5 w-5 mb-1" />
-              <span className="font-bold">🔥 Live Chat</span>
-              <span className="text-xs mt-1">Real-time Support</span>
-              {chatTotalUnread > 0 && (
-                <Badge variant="destructive" className="absolute -top-1 -right-1 min-w-[20px] h-5 text-xs px-1">
-                  {chatTotalUnread}
-                </Badge>
-              )}
-            </TabsTrigger>
-            
-            <TabsTrigger 
-              value="booking-chats" 
-              className="flex flex-col items-center p-3 h-auto text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg"
-            >
-              <MessageCircle className="h-5 w-5 mb-1" />
-              <span className="font-semibold">Booking Chats</span>
-              <span className="text-xs opacity-70 mt-1">Driver ↔ Owner</span>
-            </TabsTrigger>
+              <TabsTrigger 
+                value="owner-payments" 
+                className="flex flex-col items-center p-2 sm:p-3 h-auto text-xs sm:text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg min-w-[70px] sm:min-w-0"
+              >
+                <DollarSign className="h-4 w-4 sm:h-5 sm:w-5 mb-1" />
+                <span className="font-semibold text-[10px] sm:text-sm">Payments</span>
+                <span className="text-[8px] sm:text-xs opacity-70 mt-0.5 sm:mt-1 hidden sm:block">View Banking & Pay</span>
+              </TabsTrigger>
+              
+              <TabsTrigger 
+                value="users"
+                className="flex flex-col items-center p-2 sm:p-3 h-auto text-xs sm:text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg min-w-[70px] sm:min-w-0"
+              >
+                <Users className="h-4 w-4 sm:h-5 sm:w-5 mb-1" />
+                <span className="font-semibold text-[10px] sm:text-sm">Users</span>
+                <span className="text-[8px] sm:text-xs opacity-70 mt-0.5 sm:mt-1 hidden sm:block">Manage & Message</span>
+              </TabsTrigger>
+              
+              <TabsTrigger 
+                value="chat" 
+                className="flex flex-col items-center p-2 sm:p-3 h-auto text-xs sm:text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-red-500 data-[state=active]:text-white bg-gradient-to-br from-red-50 to-red-100 border-red-200 animate-pulse rounded-lg relative min-w-[70px] sm:min-w-0"
+              >
+                <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5 mb-1" />
+                <span className="font-bold text-[10px] sm:text-sm">🔥 Chat</span>
+                <span className="text-[8px] sm:text-xs mt-0.5 sm:mt-1 hidden sm:block">Real-time Support</span>
+                {chatTotalUnread > 0 && (
+                  <Badge variant="destructive" className="absolute -top-1 -right-1 min-w-[18px] sm:min-w-[20px] h-4 sm:h-5 text-[10px] sm:text-xs px-1">
+                    {chatTotalUnread}
+                  </Badge>
+                )}
+              </TabsTrigger>
+              
+              <TabsTrigger 
+                value="booking-chats" 
+                className="flex flex-col items-center p-2 sm:p-3 h-auto text-xs sm:text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg min-w-[70px] sm:min-w-0"
+              >
+                <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5 mb-1" />
+                <span className="font-semibold text-[10px] sm:text-sm">Bookings</span>
+                <span className="text-[8px] sm:text-xs opacity-70 mt-0.5 sm:mt-1 hidden sm:block">Driver ↔ Owner</span>
+              </TabsTrigger>
 
-            <TabsTrigger 
-              value="invoices" 
-              className="flex flex-col items-center p-3 h-auto text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg"
-            >
-              <FileText className="h-5 w-5 mb-1" />
-              <span className="font-semibold">Invoices</span>
-              <span className="text-xs opacity-70 mt-1">All Customer Invoices</span>
-            </TabsTrigger>
-          </TabsList>
+              <TabsTrigger 
+                value="invoices" 
+                className="flex flex-col items-center p-2 sm:p-3 h-auto text-xs sm:text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg min-w-[70px] sm:min-w-0"
+              >
+                <FileText className="h-4 w-4 sm:h-5 sm:w-5 mb-1" />
+                <span className="font-semibold text-[10px] sm:text-sm">Invoices</span>
+                <span className="text-[8px] sm:text-xs opacity-70 mt-0.5 sm:mt-1 hidden sm:block">All Customer Invoices</span>
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
           {/* Content Management Tab */}
           <TabsContent value="content" className="space-y-6 mt-6">
@@ -1986,16 +1988,16 @@ const AdminPanelOrganized = () => {
               </TabsContent>
 
               <TabsContent value="news" className="space-y-6">
-                <div className="flex justify-between items-center">
-                  <h2 className="text-2xl font-semibold">News Management</h2>
-                  <div className="flex gap-2">
-                    <Button onClick={setupAdminAccess} variant="outline" size="sm">
-                      <Settings className="h-4 w-4 mr-2" />
-                      Setup Admin Access
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                  <h2 className="text-xl sm:text-2xl font-semibold">News Management</h2>
+                  <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+                    <Button onClick={setupAdminAccess} variant="outline" size="sm" className="flex-1 sm:flex-none text-xs sm:text-sm">
+                      <Settings className="h-4 w-4 mr-1 sm:mr-2" />
+                      <span className="hidden xs:inline">Setup</span> Admin
                     </Button>
-                    <Button onClick={handleCreate} size="sm">
-                      <Plus className="h-4 w-4 mr-2" />
-                      Create New Post
+                    <Button onClick={handleCreate} size="sm" className="flex-1 sm:flex-none text-xs sm:text-sm">
+                      <Plus className="h-4 w-4 mr-1 sm:mr-2" />
+                      Create Post
                     </Button>
                   </div>
                 </div>
@@ -2005,7 +2007,7 @@ const AdminPanelOrganized = () => {
                     setIsCreating(false);
                     setEditingPost(null);
                   }}>
-                    <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                    <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto w-[95vw] sm:w-auto">
                       <DialogHeader>
                         <DialogTitle>
                           {editingPost ? 'Edit News Post' : 'Create New News Post'}
@@ -2205,29 +2207,30 @@ const AdminPanelOrganized = () => {
                     ) : posts.length > 0 ? (
                       <div className="space-y-4">
                         {posts.map((post) => (
-                          <div key={post.id} className="border rounded-lg p-4 flex justify-between items-start">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-2">
-                                <h3 className="font-semibold text-lg">{post.title}</h3>
+                          <div key={post.id} className="border rounded-lg p-3 sm:p-4 flex flex-col sm:flex-row justify-between items-start gap-3">
+                            <div className="flex-1 w-full">
+                              <div className="flex flex-wrap items-center gap-2 mb-2">
+                                <h3 className="font-semibold text-base sm:text-lg">{post.title}</h3>
                                 <Badge variant={post.status === 'published' ? 'default' : 'secondary'}>
                                   {post.status}
                                 </Badge>
                               </div>
-                              <p className="text-muted-foreground text-sm mb-2">
+                              <p className="text-muted-foreground text-xs sm:text-sm mb-2">
                                 Published: {format(new Date(post.publication_date), 'MMM dd, yyyy h:mm a')}
                               </p>
                               {post.image_url && (
                                 <img
                                   src={post.image_url}
                                   alt={post.title}
-                                  className="w-20 h-20 object-cover rounded mt-2"
+                                  className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded mt-2"
                                 />
                               )}
                             </div>
-                            <div className="flex gap-2 ml-4">
+                            <div className="flex gap-2 w-full sm:w-auto sm:ml-4">
                               <Button
                                 variant="outline"
                                 size="sm"
+                                className="flex-1 sm:flex-none"
                                 onClick={() => {
                                   setEditingPost(post);
                                   setTitle(post.title);
@@ -2240,14 +2243,17 @@ const AdminPanelOrganized = () => {
                                   setPublicationDate(post.publication_date.slice(0, 16));
                                 }}
                               >
-                                <Pencil className="h-4 w-4" />
+                                <Pencil className="h-4 w-4 sm:mr-0" />
+                                <span className="sm:hidden ml-2">Edit</span>
                               </Button>
                               <Button
                                 variant="outline"
                                 size="sm"
+                                className="flex-1 sm:flex-none"
                                 onClick={() => handleDelete(post.id)}
                               >
-                                <Trash2 className="h-4 w-4" />
+                                <Trash2 className="h-4 w-4 sm:mr-0" />
+                                <span className="sm:hidden ml-2">Delete</span>
                               </Button>
                             </div>
                           </div>
@@ -2288,8 +2294,8 @@ const AdminPanelOrganized = () => {
               </TabsList>
 
               <TabsContent value="listings" className="space-y-6">
-                <div className="flex justify-between items-center">
-                  <h2 className="text-2xl font-semibold">Parking Listings Management</h2>
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                  <h2 className="text-xl sm:text-2xl font-semibold">Parking Listings</h2>
                   <Button onClick={fetchParkingListings} variant="outline" size="sm">
                     <RotateCcw className="h-4 w-4 mr-2" />
                     Refresh
@@ -2306,22 +2312,22 @@ const AdminPanelOrganized = () => {
                   <div className="grid gap-4">
                     {parkingListings.map((listing) => (
                       <Card key={listing.id} className="overflow-hidden">
-                        <CardHeader className="pb-3">
-                          <div className="flex items-center justify-between">
-                            <CardTitle className="text-lg">{listing.title}</CardTitle>
+                        <CardHeader className="pb-3 p-3 sm:p-6">
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                            <CardTitle className="text-base sm:text-lg">{listing.title}</CardTitle>
                             <Badge
                               variant={listing.status === 'approved' ? 'default' : 'secondary'}
-                              className={listing.status === 'approved' ? 'bg-green-500' : ''}
+                              className={listing.status === 'approved' ? 'bg-green-500 w-fit' : 'w-fit'}
                             >
                               {listing.status}
                             </Badge>
                           </div>
-                          <div className="text-sm text-muted-foreground">
+                          <div className="text-xs sm:text-sm text-muted-foreground">
                             {listing.address} • {listing.zone}
                           </div>
                         </CardHeader>
-                        <CardContent className="space-y-4">
-                          <div className="grid grid-cols-2 gap-4 text-sm">
+                        <CardContent className="space-y-4 p-3 sm:p-6 pt-0 sm:pt-0">
+                          <div className="grid grid-cols-2 gap-2 sm:gap-4 text-xs sm:text-sm">
                             <div>
                               <div className="font-medium text-muted-foreground">Daily Rate</div>
                               <div>AED {listing.price_per_day}/day</div>
@@ -2477,17 +2483,17 @@ const AdminPanelOrganized = () => {
                   </CardHeader>
                   <CardContent>
                     {/* Search and Filter Controls */}
-                    <div className="flex gap-4 mb-6">
+                    <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6">
                       <div className="flex-1">
                         <Input
-                          placeholder="Search by Verification ID, Full Name, or User ID..."
+                          placeholder="Search by ID, Name, or User ID..."
                           value={verificationSearchTerm}
                           onChange={(e) => setVerificationSearchTerm(e.target.value)}
-                          className="max-w-md"
+                          className="w-full sm:max-w-md"
                         />
                       </div>
                       <Select value={verificationStatusFilter} onValueChange={setVerificationStatusFilter}>
-                        <SelectTrigger className="w-40">
+                        <SelectTrigger className="w-full sm:w-40">
                           <SelectValue placeholder="Filter by Status" />
                         </SelectTrigger>
                         <SelectContent>
@@ -2525,8 +2531,8 @@ const AdminPanelOrganized = () => {
                           })
                           .map((verification) => (
                           <Card key={verification.id} className="border">
-                            <CardContent className="p-6">
-                              <div className="flex flex-col lg:flex-row gap-6">
+                            <CardContent className="p-3 sm:p-6">
+                              <div className="flex flex-col lg:flex-row gap-4 sm:gap-6">
                                 {/* User Info */}
                                 <div className="flex-1 space-y-3">
                                   <div className="flex items-start justify-between">
@@ -2947,7 +2953,7 @@ const AdminPanelOrganized = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-6">
                   {/* User List */}
                   <div className="space-y-4">
                     <h3 className="font-semibold">Active Conversations</h3>
@@ -3071,7 +3077,7 @@ const AdminPanelOrganized = () => {
           {/* Global Edit Parking Listing Dialog - available across all tabs */}
           {editingListing && (
             <Dialog open={true} onOpenChange={() => setEditingListing(null)}>
-              <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+              <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto w-[95vw] sm:w-auto">
                 <DialogHeader>
                   <DialogTitle>Edit Parking Listing</DialogTitle>
                 </DialogHeader>
@@ -3091,7 +3097,7 @@ const AdminPanelOrganized = () => {
                   </div>
 
                   {/* Title and Zone */}
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="listingTitle">Title *</Label>
                       <Input
@@ -3161,7 +3167,7 @@ const AdminPanelOrganized = () => {
                   </div>
 
                   {/* Contact Information */}
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="contactEmail">Contact Email</Label>
                       <Input
@@ -3197,7 +3203,7 @@ const AdminPanelOrganized = () => {
                       <div className="space-y-2">
                         <h4 className="font-medium">Current Images ({listingImages.length})</h4>
                         <p className="text-sm text-muted-foreground">Drag images to reorder them</p>
-                        <div className="grid grid-cols-3 gap-4">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4">
                           {listingImages.map((imageUrl, index) => (
                             <div
                               key={index}
