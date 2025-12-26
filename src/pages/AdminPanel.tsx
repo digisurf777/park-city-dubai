@@ -2007,7 +2007,7 @@ const AdminPanelOrganized = () => {
                     setIsCreating(false);
                     setEditingPost(null);
                   }}>
-                    <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto w-[95vw] sm:w-auto">
+                    <DialogContent className="max-w-6xl max-h-[95vh] overflow-y-auto w-[95vw] sm:w-[90vw] lg:w-[80vw]">
                       <DialogHeader>
                         <DialogTitle>
                           {editingPost ? 'Edit News Post' : 'Create New News Post'}
@@ -2063,7 +2063,7 @@ const AdminPanelOrganized = () => {
                               value={content}
                               onChange={setContent}
                               placeholder="Enter post content..."
-                              style={{ height: '300px', marginBottom: '50px' }}
+                              style={{ height: '450px', marginBottom: '50px' }}
                               modules={{
                                 toolbar: '#toolbar'
                               }}
