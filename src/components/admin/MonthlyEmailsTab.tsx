@@ -154,11 +154,12 @@ export function MonthlyEmailsTab() {
   const fetchEmailRecords = async () => {
     setLoading(true);
     try {
-      // Fetch driver monthly check-in records
+      // Fetch driver monthly check-in records (only active bookings that haven't ended)
       const { data: bookings, error: bookingsError } = await supabase
         .from('parking_bookings')
         .select('id, user_id, location, zone, start_time, end_time, status, monthly_followup_sent, monthly_followup_sent_at')
-        .in('status', ['confirmed', 'approved', 'completed'])
+        .in('status', ['confirmed', 'approved'])
+        .gte('end_time', new Date().toISOString())
         .order('start_time', { ascending: false });
 
       if (bookingsError) throw bookingsError;
