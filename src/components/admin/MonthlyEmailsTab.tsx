@@ -10,6 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { RefreshCw, Mail, Calendar, Clock, Search, Car, DollarSign, CheckCircle, AlertCircle, CalendarDays } from 'lucide-react';
 import { format, getDaysInMonth, isAfter, isBefore, startOfDay } from 'date-fns';
 import { toast } from 'sonner';
+import { EmailTemplatePreview } from './EmailTemplatePreview';
 
 interface DriverEmailRecord {
   booking_id: string;
@@ -478,6 +479,9 @@ export function MonthlyEmailsTab() {
             Each booking receives emails on its start date anniversary (e.g., started on 15th → emails on 15th of each month).
           </span>
         </div>
+
+        {/* Email Template Previews */}
+        <EmailTemplatePreview />
 
         {/* Tabs for Driver and Owner */}
         <Tabs defaultValue="drivers" className="w-full">
