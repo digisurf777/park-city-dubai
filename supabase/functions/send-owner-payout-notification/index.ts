@@ -33,8 +33,8 @@ const getEmailTemplate = (ownerFirstName: string) => {
           
           <!-- Header with Logo -->
           <tr>
-            <td style="background-color: #dc2626; padding: 30px 40px; text-align: center;">
-              <img src="https://shazamparking.ae/shazam-logo.png" alt="ShazamParking" style="height: 50px; width: auto;" />
+            <td style="background-color: #10b981; padding: 30px 40px; text-align: center;">
+              <img src="https://shazamparking.ae/lovable-uploads/logo.png" alt="ShazamParking" style="height: 50px; width: auto;" />
             </td>
           </tr>
           
@@ -73,7 +73,7 @@ const getEmailTemplate = (ownerFirstName: string) => {
                 <tr>
                   <td style="text-align: center;">
                     <p style="color: #9ca3af; font-size: 14px; margin: 0 0 10px 0;">
-                      <a href="https://shazamparking.ae" style="color: #dc2626; text-decoration: none;">shazamparking.ae</a>
+                      <a href="https://shazamparking.ae" style="color: #10b981; text-decoration: none;">shazamparking.ae</a>
                     </p>
                     <p style="color: #9ca3af; font-size: 14px; margin: 0 0 10px 0;">
                       Email: <a href="mailto:support@shazamparking.ae" style="color: #9ca3af; text-decoration: none;">support@shazamparking.ae</a>
