@@ -533,10 +533,10 @@ const RentOutYourSpace = () => {
                       </SelectTrigger>
                       <SelectContent>
                         {Array.from({
-                      length: 15
+                      length: 21
                     }, (_, i) => {
                       const price = 300 + i * 50;
-                      return price <= 1000 ? <SelectItem key={price} value={price.toString()}>
+                      return price <= 1300 ? <SelectItem key={price} value={price.toString()}>
                               {price} AED
                             </SelectItem> : null;
                     })}
