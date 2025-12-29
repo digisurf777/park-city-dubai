@@ -35,6 +35,7 @@ import { PreAuthorizationPanel } from '@/components/PreAuthorizationPanel';
 import { BookingChatsMonitor } from '@/components/BookingChatsMonitor';
 import { PaymentHistoryUnified } from '@/components/PaymentHistoryUnified';
 import { PaymentHistoryAdmin } from '@/components/PaymentHistoryAdmin';
+import { MonthlyEmailsTab } from '@/components/admin/MonthlyEmailsTab';
 import { useInactivityLogout } from '@/hooks/useInactivityLogout';
 import { InactivityWarningDialog } from '@/components/InactivityWarningDialog';
 
@@ -2437,13 +2438,17 @@ const AdminPanelOrganized = () => {
           {/* User Management Tab */}
           <TabsContent value="users" className="space-y-6 mt-6">
             <Tabs defaultValue="verifications" className="w-full">
-              <TabsList className="grid w-full grid-cols-3 gap-2 bg-muted/30 p-1">
+              <TabsList className="grid w-full grid-cols-4 gap-2 bg-muted/30 p-1">
                 <TabsTrigger value="verifications" className="flex items-center gap-2">
                   <CheckCircle className="h-4 w-4" />
                   Verifications
                 </TabsTrigger>
-                <TabsTrigger value="messages" className="flex items-center gap-2">
+                <TabsTrigger value="monthly-emails" className="flex items-center gap-2">
                   <Mail className="h-4 w-4" />
+                  Monthly Emails
+                </TabsTrigger>
+                <TabsTrigger value="messages" className="flex items-center gap-2">
+                  <Send className="h-4 w-4" />
                   Send Messages
                 </TabsTrigger>
                 <TabsTrigger value="management" className="flex items-center gap-2">
@@ -2451,6 +2456,10 @@ const AdminPanelOrganized = () => {
                   User Management
                 </TabsTrigger>
               </TabsList>
+
+              <TabsContent value="monthly-emails" className="space-y-6">
+                <MonthlyEmailsTab />
+              </TabsContent>
 
               <TabsContent value="verifications" className="space-y-6">
                 <Card>
