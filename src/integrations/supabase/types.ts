@@ -661,6 +661,8 @@ export type Database = {
           payment_method: string | null
           payment_period_end: string
           payment_period_start: string
+          payout_email_sent: boolean | null
+          payout_email_sent_at: string | null
           reference_number: string | null
           remittance_advice_url: string | null
           status: string
@@ -679,6 +681,8 @@ export type Database = {
           payment_method?: string | null
           payment_period_end: string
           payment_period_start: string
+          payout_email_sent?: boolean | null
+          payout_email_sent_at?: string | null
           reference_number?: string | null
           remittance_advice_url?: string | null
           status?: string
@@ -697,6 +701,8 @@ export type Database = {
           payment_method?: string | null
           payment_period_end?: string
           payment_period_start?: string
+          payout_email_sent?: boolean | null
+          payout_email_sent_at?: string | null
           reference_number?: string | null
           remittance_advice_url?: string | null
           status?: string
@@ -740,6 +746,7 @@ export type Database = {
           listing_id: string | null
           location: string
           monthly_followup_sent: boolean | null
+          monthly_followup_sent_at: string | null
           payment_amount_cents: number | null
           payment_link_url: string | null
           payment_status: string | null
@@ -776,6 +783,7 @@ export type Database = {
           listing_id?: string | null
           location: string
           monthly_followup_sent?: boolean | null
+          monthly_followup_sent_at?: string | null
           payment_amount_cents?: number | null
           payment_link_url?: string | null
           payment_status?: string | null
@@ -812,6 +820,7 @@ export type Database = {
           listing_id?: string | null
           location?: string
           monthly_followup_sent?: boolean | null
+          monthly_followup_sent_at?: string | null
           payment_amount_cents?: number | null
           payment_link_url?: string | null
           payment_status?: string | null
