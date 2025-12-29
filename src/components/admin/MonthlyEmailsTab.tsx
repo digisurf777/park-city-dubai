@@ -7,8 +7,8 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { RefreshCw, Mail, Calendar, Clock, Search, Car, DollarSign, CheckCircle, AlertCircle } from 'lucide-react';
-import { format } from 'date-fns';
+import { RefreshCw, Mail, Calendar, Clock, Search, Car, DollarSign, CheckCircle, AlertCircle, CalendarDays } from 'lucide-react';
+import { format, getDaysInMonth, isAfter, isBefore, startOfDay } from 'date-fns';
 import { toast } from 'sonner';
 
 interface DriverEmailRecord {
@@ -23,6 +23,11 @@ interface DriverEmailRecord {
   status: string;
   monthly_followup_sent: boolean;
   monthly_followup_sent_at: string | null;
+  email_day: number;
+  next_email_date: Date | null;
+  emails_sent_count: number;
+  is_active: boolean;
+  first_month_passed: boolean;
 }
 
 interface OwnerEmailRecord {
@@ -38,6 +43,104 @@ interface OwnerEmailRecord {
   payout_email_sent: boolean;
   payout_email_sent_at: string | null;
 }
+
+// Helper to get the effective day of month (handles month-end edge cases)
+const getEffectiveDay = (startDay: number, month: number, year: number): number => {
+  const daysInMonth = getDaysInMonth(new Date(year, month));
+  return Math.min(startDay, daysInMonth);
+};
+
+// Check if at least one full month has passed
+const hasOneMonthPassed = (startDate: Date, currentDate: Date): boolean => {
+  const startYear = startDate.getFullYear();
+  const startMonth = startDate.getMonth();
+  const startDay = startDate.getDate();
+  
+  const currentYear = currentDate.getFullYear();
+  const currentMonth = currentDate.getMonth();
+  const currentDay = currentDate.getDate();
+  
+  const monthsDiff = (currentYear - startYear) * 12 + (currentMonth - startMonth);
+  
+  if (monthsDiff > 1) return true;
+  if (monthsDiff === 1) {
+    const effectiveDay = getEffectiveDay(startDay, currentMonth, currentYear);
+    return currentDay >= effectiveDay;
+  }
+  return false;
+};
+
+// Calculate next email date for anniversary-based system
+const getNextEmailDate = (startTime: string, endTime: string): { date: Date | null; status: 'scheduled' | 'ended' | 'first_pending' | 'today' } => {
+  const today = startOfDay(new Date());
+  const startDate = new Date(startTime);
+  const endDate = new Date(endTime);
+  const emailDay = startDate.getDate();
+  
+  // If booking has ended
+  if (isBefore(endDate, today)) {
+    return { date: null, status: 'ended' };
+  }
+  
+  // If first month hasn't passed yet
+  if (!hasOneMonthPassed(startDate, today)) {
+    // Calculate when first email will be sent
+    let firstEmailDate = new Date(startDate);
+    firstEmailDate.setMonth(firstEmailDate.getMonth() + 1);
+    
+    // Handle month-end edge cases
+    const effectiveDay = getEffectiveDay(emailDay, firstEmailDate.getMonth(), firstEmailDate.getFullYear());
+    firstEmailDate.setDate(effectiveDay);
+    
+    return { date: firstEmailDate, status: 'first_pending' };
+  }
+  
+  // Calculate next anniversary date
+  let nextDate = new Date(today.getFullYear(), today.getMonth(), emailDay);
+  
+  // Handle month-end edge cases
+  const effectiveDay = getEffectiveDay(emailDay, nextDate.getMonth(), nextDate.getFullYear());
+  nextDate.setDate(effectiveDay);
+  
+  // If today is past the email day this month, move to next month
+  if (nextDate <= today) {
+    nextDate = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+    const nextEffectiveDay = getEffectiveDay(emailDay, nextDate.getMonth(), nextDate.getFullYear());
+    nextDate.setDate(nextEffectiveDay);
+  }
+  
+  // Check if email is scheduled for today
+  if (nextDate.getTime() === today.getTime()) {
+    return { date: nextDate, status: 'today' };
+  }
+  
+  return { date: nextDate, status: 'scheduled' };
+};
+
+// Count emails sent based on monthly_followup_sent_at timestamps
+const countEmailsSent = (lastSentAt: string | null, startTime: string): number => {
+  if (!lastSentAt) return 0;
+  
+  const startDate = new Date(startTime);
+  const lastSent = new Date(lastSentAt);
+  
+  // Calculate approximate months between start and last sent
+  const monthsDiff = (lastSent.getFullYear() - startDate.getFullYear()) * 12 + 
+                     (lastSent.getMonth() - startDate.getMonth());
+  
+  return Math.max(1, monthsDiff);
+};
+
+// Get ordinal suffix for day numbers
+const getOrdinalSuffix = (day: number): string => {
+  if (day > 3 && day < 21) return 'th';
+  switch (day % 10) {
+    case 1: return 'st';
+    case 2: return 'nd';
+    case 3: return 'rd';
+    default: return 'th';
+  }
+};
 
 export function MonthlyEmailsTab() {
   const [driverRecords, setDriverRecords] = useState<DriverEmailRecord[]>([]);
@@ -56,7 +159,7 @@ export function MonthlyEmailsTab() {
         .from('parking_bookings')
         .select('id, user_id, location, zone, start_time, end_time, status, monthly_followup_sent, monthly_followup_sent_at')
         .in('status', ['confirmed', 'approved', 'completed'])
-        .order('monthly_followup_sent_at', { ascending: false, nullsFirst: false });
+        .order('start_time', { ascending: false });
 
       if (bookingsError) throw bookingsError;
 
@@ -83,10 +186,18 @@ export function MonthlyEmailsTab() {
       if (profilesError) throw profilesError;
 
       const profileMap = new Map(profiles?.map(p => [p.user_id, p]) || []);
+      const today = startOfDay(new Date());
 
-      // Map driver records
+      // Map driver records with anniversary calculations
       const mappedDriverRecords: DriverEmailRecord[] = (bookings || []).map(booking => {
         const profile = profileMap.get(booking.user_id);
+        const startDate = new Date(booking.start_time);
+        const endDate = new Date(booking.end_time);
+        const emailDay = startDate.getDate();
+        const { date: nextEmailDate, status: emailStatus } = getNextEmailDate(booking.start_time, booking.end_time);
+        const isActive = isAfter(endDate, today) && ['confirmed', 'approved'].includes(booking.status);
+        const firstMonthPassed = hasOneMonthPassed(startDate, today);
+        
         return {
           booking_id: booking.id,
           user_id: booking.user_id,
@@ -98,7 +209,12 @@ export function MonthlyEmailsTab() {
           end_time: booking.end_time,
           status: booking.status,
           monthly_followup_sent: booking.monthly_followup_sent || false,
-          monthly_followup_sent_at: booking.monthly_followup_sent_at
+          monthly_followup_sent_at: booking.monthly_followup_sent_at,
+          email_day: emailDay,
+          next_email_date: nextEmailDate,
+          emails_sent_count: countEmailsSent(booking.monthly_followup_sent_at, booking.start_time),
+          is_active: isActive,
+          first_month_passed: firstMonthPassed
         };
       });
 
@@ -141,9 +257,17 @@ export function MonthlyEmailsTab() {
       record.driver_email.toLowerCase().includes(driverSearch.toLowerCase()) ||
       record.location.toLowerCase().includes(driverSearch.toLowerCase());
     
-    const matchesStatus = driverStatusFilter === 'all' || 
-      (driverStatusFilter === 'sent' && record.monthly_followup_sent) ||
-      (driverStatusFilter === 'pending' && !record.monthly_followup_sent);
+    let matchesStatus = true;
+    if (driverStatusFilter === 'active') {
+      matchesStatus = record.is_active;
+    } else if (driverStatusFilter === 'ended') {
+      matchesStatus = !record.is_active;
+    } else if (driverStatusFilter === 'first_pending') {
+      matchesStatus = record.is_active && !record.first_month_passed;
+    } else if (driverStatusFilter === 'today') {
+      const { status } = getNextEmailDate(record.start_time, record.end_time);
+      matchesStatus = status === 'today';
+    }
     
     return matchesSearch && matchesStatus;
   });
@@ -162,16 +286,53 @@ export function MonthlyEmailsTab() {
   });
 
   // Stats
-  const driverSentCount = driverRecords.filter(r => r.monthly_followup_sent).length;
-  const driverPendingCount = driverRecords.filter(r => !r.monthly_followup_sent).length;
+  const activeBookings = driverRecords.filter(r => r.is_active).length;
+  const totalEmailsSent = driverRecords.reduce((sum, r) => sum + r.emails_sent_count, 0);
+  const emailsToday = driverRecords.filter(r => {
+    const { status } = getNextEmailDate(r.start_time, r.end_time);
+    return status === 'today';
+  }).length;
+  const firstPending = driverRecords.filter(r => r.is_active && !r.first_month_passed).length;
+  
   const ownerSentCount = ownerRecords.filter(r => r.payout_email_sent).length;
   const ownerPendingCount = ownerRecords.filter(r => !r.payout_email_sent).length;
 
-  // Next scheduled run (1st of each month at 9 AM UAE)
-  const getNextScheduledRun = () => {
-    const now = new Date();
-    const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1, 9, 0, 0);
-    return format(nextMonth, 'MMMM d, yyyy \'at\' h:mm a');
+  // Render email status badge for drivers
+  const renderDriverEmailStatus = (record: DriverEmailRecord) => {
+    const { status } = getNextEmailDate(record.start_time, record.end_time);
+    
+    if (status === 'ended') {
+      return (
+        <Badge variant="secondary" className="text-muted-foreground">
+          Booking Ended
+        </Badge>
+      );
+    }
+    
+    if (status === 'today') {
+      return (
+        <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+          <Mail className="h-3 w-3 mr-1" />
+          Email Today
+        </Badge>
+      );
+    }
+    
+    if (status === 'first_pending') {
+      return (
+        <Badge variant="outline" className="text-blue-600 border-blue-300">
+          <Clock className="h-3 w-3 mr-1" />
+          First Email Pending
+        </Badge>
+      );
+    }
+    
+    return (
+      <Badge variant="outline" className="text-green-600 border-green-300">
+        <CheckCircle className="h-3 w-3 mr-1" />
+        Active
+      </Badge>
+    );
   };
 
   return (
@@ -202,44 +363,47 @@ export function MonthlyEmailsTab() {
             <CardContent className="p-4">
               <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
                 <Car className="h-4 w-4" />
-                Driver Emails Sent
+                Active Bookings
               </div>
-              <p className="text-2xl font-bold text-green-600">{driverSentCount}</p>
+              <p className="text-2xl font-bold text-green-600">{activeBookings}</p>
             </CardContent>
           </Card>
           <Card className="bg-muted/30">
             <CardContent className="p-4">
               <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-                <Car className="h-4 w-4" />
-                Driver Emails Pending
+                <Mail className="h-4 w-4" />
+                Total Emails Sent
               </div>
-              <p className="text-2xl font-bold text-yellow-600">{driverPendingCount}</p>
+              <p className="text-2xl font-bold text-blue-600">{totalEmailsSent}</p>
             </CardContent>
           </Card>
           <Card className="bg-muted/30">
             <CardContent className="p-4">
               <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-                <DollarSign className="h-4 w-4" />
-                Owner Emails Sent
+                <CalendarDays className="h-4 w-4" />
+                Emails Today
               </div>
-              <p className="text-2xl font-bold text-green-600">{ownerSentCount}</p>
+              <p className="text-2xl font-bold text-emerald-600">{emailsToday}</p>
             </CardContent>
           </Card>
           <Card className="bg-muted/30">
             <CardContent className="p-4">
               <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-                <DollarSign className="h-4 w-4" />
-                Owner Emails Pending
+                <Clock className="h-4 w-4" />
+                First Email Pending
               </div>
-              <p className="text-2xl font-bold text-yellow-600">{ownerPendingCount}</p>
+              <p className="text-2xl font-bold text-yellow-600">{firstPending}</p>
             </CardContent>
           </Card>
         </div>
 
-        {/* Next Scheduled Run */}
+        {/* Schedule Info */}
         <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/30 p-3 rounded-lg">
           <Clock className="h-4 w-4" />
-          <span>Next scheduled run: <strong>{getNextScheduledRun()}</strong> (UAE Time)</span>
+          <span>
+            <strong>Anniversary-Based System:</strong> Cron runs daily at 9:00 AM UAE time. 
+            Each booking receives emails on its start date anniversary (e.g., started on 15th → emails on 15th of each month).
+          </span>
         </div>
 
         {/* Tabs for Driver and Owner */}
@@ -268,13 +432,15 @@ export function MonthlyEmailsTab() {
                 />
               </div>
               <Select value={driverStatusFilter} onValueChange={setDriverStatusFilter}>
-                <SelectTrigger className="w-full sm:w-40">
+                <SelectTrigger className="w-full sm:w-48">
                   <SelectValue placeholder="Filter Status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="sent">Sent</SelectItem>
-                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="all">All Bookings</SelectItem>
+                  <SelectItem value="active">Active Only</SelectItem>
+                  <SelectItem value="ended">Ended</SelectItem>
+                  <SelectItem value="first_pending">First Email Pending</SelectItem>
+                  <SelectItem value="today">Email Today</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -295,53 +461,61 @@ export function MonthlyEmailsTab() {
                   <TableHeader>
                     <TableRow>
                       <TableHead>Driver</TableHead>
-                      <TableHead>Email</TableHead>
                       <TableHead>Location</TableHead>
-                      <TableHead>Booking Period</TableHead>
-                      <TableHead>Booking Status</TableHead>
-                      <TableHead>Email Status</TableHead>
-                      <TableHead>Sent Date</TableHead>
+                      <TableHead>Email Day</TableHead>
+                      <TableHead>Next Email</TableHead>
+                      <TableHead>Emails Sent</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Last Sent</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {filteredDriverRecords.map((record) => (
                       <TableRow key={record.booking_id}>
-                        <TableCell className="font-medium">{record.driver_name}</TableCell>
-                        <TableCell className="text-muted-foreground text-sm">{record.driver_email}</TableCell>
+                        <TableCell>
+                          <div>
+                            <p className="font-medium">{record.driver_name}</p>
+                            <p className="text-muted-foreground text-sm">{record.driver_email}</p>
+                          </div>
+                        </TableCell>
                         <TableCell>
                           <div className="text-sm">
                             <p>{record.location}</p>
                             <p className="text-muted-foreground">{record.zone}</p>
                           </div>
                         </TableCell>
-                        <TableCell className="text-sm">
+                        <TableCell>
                           <div className="flex items-center gap-1">
-                            <Calendar className="h-3 w-3 text-muted-foreground" />
-                            {format(new Date(record.start_time), 'MMM d')} - {format(new Date(record.end_time), 'MMM d, yyyy')}
+                            <CalendarDays className="h-4 w-4 text-primary" />
+                            <span className="font-medium">
+                              {record.email_day}{getOrdinalSuffix(record.email_day)}
+                            </span>
                           </div>
                         </TableCell>
                         <TableCell>
-                          <Badge variant={record.status === 'confirmed' ? 'default' : 'secondary'}>
-                            {record.status}
+                          {record.next_email_date ? (
+                            <div className="text-sm">
+                              <p className="font-medium">{format(record.next_email_date, 'MMM d, yyyy')}</p>
+                              <p className="text-muted-foreground">
+                                {format(new Date(record.start_time), 'MMM d')} - {format(new Date(record.end_time), 'MMM d, yyyy')}
+                              </p>
+                            </div>
+                          ) : (
+                            <span className="text-muted-foreground">—</span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="secondary">
+                            {record.emails_sent_count} {record.emails_sent_count === 1 ? 'email' : 'emails'}
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          {record.monthly_followup_sent ? (
-                            <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
-                              <CheckCircle className="h-3 w-3 mr-1" />
-                              Sent
-                            </Badge>
-                          ) : (
-                            <Badge variant="outline" className="text-yellow-600 border-yellow-300">
-                              <AlertCircle className="h-3 w-3 mr-1" />
-                              Pending
-                            </Badge>
-                          )}
+                          {renderDriverEmailStatus(record)}
                         </TableCell>
                         <TableCell className="text-sm text-muted-foreground">
                           {record.monthly_followup_sent_at 
-                            ? format(new Date(record.monthly_followup_sent_at), 'MMM d, yyyy h:mm a')
-                            : '-'
+                            ? format(new Date(record.monthly_followup_sent_at), 'MMM d, yyyy')
+                            : '—'
                           }
                         </TableCell>
                       </TableRow>
@@ -354,6 +528,27 @@ export function MonthlyEmailsTab() {
 
           {/* Owner Payouts Tab */}
           <TabsContent value="owners" className="space-y-4">
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <Card className="bg-muted/30">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
+                    <DollarSign className="h-4 w-4" />
+                    Owner Emails Sent
+                  </div>
+                  <p className="text-2xl font-bold text-green-600">{ownerSentCount}</p>
+                </CardContent>
+              </Card>
+              <Card className="bg-muted/30">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
+                    <DollarSign className="h-4 w-4" />
+                    Owner Emails Pending
+                  </div>
+                  <p className="text-2xl font-bold text-yellow-600">{ownerPendingCount}</p>
+                </CardContent>
+              </Card>
+            </div>
+            
             <div className="flex flex-col sm:flex-row gap-3">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -433,7 +628,7 @@ export function MonthlyEmailsTab() {
                         <TableCell className="text-sm text-muted-foreground">
                           {record.payout_email_sent_at 
                             ? format(new Date(record.payout_email_sent_at), 'MMM d, yyyy h:mm a')
-                            : '-'
+                            : '—'
                           }
                         </TableCell>
                       </TableRow>
