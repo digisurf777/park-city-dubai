@@ -30,18 +30,22 @@ interface DriverEmailRecord {
   first_month_passed: boolean;
 }
 
+// Interface for owner email records (booking-based, matching driver structure)
 interface OwnerEmailRecord {
-  payment_id: string;
+  booking_id: string;
   owner_id: string;
   owner_name: string;
   owner_email: string;
-  amount_aed: number;
-  payment_date: string;
-  payment_period_start: string;
-  payment_period_end: string;
-  status: string;
+  listing_title: string;
+  zone: string;
+  start_time: string;
+  end_time: string;
   payout_email_sent: boolean;
   payout_email_sent_at: string | null;
+  email_day: number;
+  next_email_date: Date | null;
+  emails_sent_count: number;
+  first_month_passed: boolean;
 }
 
 // Helper to get the effective day of month (handles month-end edge cases)
@@ -164,18 +168,35 @@ export function MonthlyEmailsTab() {
 
       if (bookingsError) throw bookingsError;
 
-      // Fetch owner payout records
-      const { data: payments, error: paymentsError } = await supabase
-        .from('owner_payments')
-        .select('id, owner_id, amount_aed, payment_date, payment_period_start, payment_period_end, status, payout_email_sent, payout_email_sent_at')
-        .eq('status', 'completed')
-        .order('payout_email_sent_at', { ascending: false, nullsFirst: false });
+      // Fetch owner bookings (via listings) - only active bookings that haven't ended
+      const { data: ownerBookings, error: ownerBookingsError } = await supabase
+        .from('parking_bookings')
+        .select(`
+          id, user_id, location, zone, start_time, end_time, status, listing_id,
+          parking_listings!inner(id, title, owner_id)
+        `)
+        .in('status', ['confirmed', 'approved'])
+        .gte('end_time', new Date().toISOString())
+        .order('start_time', { ascending: false });
 
-      if (paymentsError) throw paymentsError;
+      if (ownerBookingsError) throw ownerBookingsError;
+
+      // Fetch payout email status for owner payments
+      const { data: ownerPayouts } = await supabase
+        .from('owner_payments')
+        .select('owner_id, booking_id, payout_email_sent, payout_email_sent_at')
+        .eq('status', 'completed');
+
+      // Create a map of booking_id -> payout status
+      const payoutStatusMap = new Map(
+        ownerPayouts?.map(p => [p.booking_id, { sent: p.payout_email_sent, sentAt: p.payout_email_sent_at }]) || []
+      );
 
       // Get unique user IDs for profile lookup
       const driverUserIds = [...new Set(bookings?.map(b => b.user_id) || [])];
-      const ownerUserIds = [...new Set(payments?.map(p => p.owner_id) || [])];
+      const ownerUserIds = [...new Set(
+        ownerBookings?.map(b => (b.parking_listings as any)?.owner_id).filter(Boolean) || []
+      )];
       const allUserIds = [...new Set([...driverUserIds, ...ownerUserIds])];
 
       // Fetch profiles for all users
@@ -219,21 +240,33 @@ export function MonthlyEmailsTab() {
         };
       });
 
-      // Map owner records
-      const mappedOwnerRecords: OwnerEmailRecord[] = (payments || []).map(payment => {
-        const profile = profileMap.get(payment.owner_id);
+      // Map owner records (based on active bookings, matching driver structure)
+      const mappedOwnerRecords: OwnerEmailRecord[] = (ownerBookings || []).map(booking => {
+        const listing = booking.parking_listings as any;
+        const ownerId = listing?.owner_id;
+        const profile = profileMap.get(ownerId);
+        const startDate = new Date(booking.start_time);
+        const endDate = new Date(booking.end_time);
+        const emailDay = startDate.getDate();
+        const { date: nextEmailDate } = getNextEmailDate(booking.start_time, booking.end_time);
+        const firstMonthPassed = hasOneMonthPassed(startDate, today);
+        const payoutStatus = payoutStatusMap.get(booking.id);
+        
         return {
-          payment_id: payment.id,
-          owner_id: payment.owner_id,
+          booking_id: booking.id,
+          owner_id: ownerId || '',
           owner_name: profile?.full_name || 'Unknown Owner',
           owner_email: profile?.email || 'No email',
-          amount_aed: payment.amount_aed,
-          payment_date: payment.payment_date,
-          payment_period_start: payment.payment_period_start,
-          payment_period_end: payment.payment_period_end,
-          status: payment.status,
-          payout_email_sent: payment.payout_email_sent || false,
-          payout_email_sent_at: payment.payout_email_sent_at
+          listing_title: listing?.title || booking.location,
+          zone: booking.zone,
+          start_time: booking.start_time,
+          end_time: booking.end_time,
+          payout_email_sent: payoutStatus?.sent || false,
+          payout_email_sent_at: payoutStatus?.sentAt || null,
+          email_day: emailDay,
+          next_email_date: nextEmailDate,
+          emails_sent_count: countEmailsSent(payoutStatus?.sentAt || null, booking.start_time),
+          first_month_passed: firstMonthPassed
         };
       });
 
@@ -273,15 +306,20 @@ export function MonthlyEmailsTab() {
     return matchesSearch && matchesStatus;
   });
 
-  // Filter owner records
+  // Filter owner records (matching driver filter logic)
   const filteredOwnerRecords = ownerRecords.filter(record => {
     const matchesSearch = !ownerSearch || 
       record.owner_name.toLowerCase().includes(ownerSearch.toLowerCase()) ||
-      record.owner_email.toLowerCase().includes(ownerSearch.toLowerCase());
+      record.owner_email.toLowerCase().includes(ownerSearch.toLowerCase()) ||
+      record.listing_title.toLowerCase().includes(ownerSearch.toLowerCase());
     
-    const matchesStatus = ownerStatusFilter === 'all' || 
-      (ownerStatusFilter === 'sent' && record.payout_email_sent) ||
-      (ownerStatusFilter === 'pending' && !record.payout_email_sent);
+    let matchesStatus = true;
+    if (ownerStatusFilter === 'first_pending') {
+      matchesStatus = !record.first_month_passed;
+    } else if (ownerStatusFilter === 'today') {
+      const { status } = getNextEmailDate(record.start_time, record.end_time);
+      matchesStatus = status === 'today';
+    }
     
     return matchesSearch && matchesStatus;
   });
@@ -295,8 +333,12 @@ export function MonthlyEmailsTab() {
   }).length;
   const firstPending = driverRecords.filter(r => r.is_active && !r.first_month_passed).length;
   
-  const ownerSentCount = ownerRecords.filter(r => r.payout_email_sent).length;
-  const ownerPendingCount = ownerRecords.filter(r => !r.payout_email_sent).length;
+  const ownerTotalEmailsSent = ownerRecords.reduce((sum, r) => sum + r.emails_sent_count, 0);
+  const ownerEmailsToday = ownerRecords.filter(r => {
+    const { status } = getNextEmailDate(r.start_time, r.end_time);
+    return status === 'today';
+  }).length;
+  const ownerFirstPending = ownerRecords.filter(r => !r.first_month_passed).length;
 
   // Render email status badge for drivers
   const renderDriverEmailStatus = (record: DriverEmailRecord) => {
@@ -309,6 +351,36 @@ export function MonthlyEmailsTab() {
         </Badge>
       );
     }
+    
+    if (status === 'today') {
+      return (
+        <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+          <Mail className="h-3 w-3 mr-1" />
+          Email Today
+        </Badge>
+      );
+    }
+    
+    if (status === 'first_pending') {
+      return (
+        <Badge variant="outline" className="text-blue-600 border-blue-300">
+          <Clock className="h-3 w-3 mr-1" />
+          First Email Pending
+        </Badge>
+      );
+    }
+    
+    return (
+      <Badge variant="outline" className="text-green-600 border-green-300">
+        <CheckCircle className="h-3 w-3 mr-1" />
+        Active
+      </Badge>
+    );
+  };
+
+  // Render email status badge for owners (matching driver format)
+  const renderOwnerEmailStatus = (record: OwnerEmailRecord) => {
+    const { status } = getNextEmailDate(record.start_time, record.end_time);
     
     if (status === 'today') {
       return (
@@ -529,23 +601,32 @@ export function MonthlyEmailsTab() {
 
           {/* Owner Payouts Tab */}
           <TabsContent value="owners" className="space-y-4">
-            <div className="grid grid-cols-2 gap-4 mb-4">
+            <div className="grid grid-cols-3 gap-4 mb-4">
               <Card className="bg-muted/30">
                 <CardContent className="p-4">
                   <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-                    <DollarSign className="h-4 w-4" />
-                    Owner Emails Sent
+                    <Mail className="h-4 w-4" />
+                    Total Emails Sent
                   </div>
-                  <p className="text-2xl font-bold text-green-600">{ownerSentCount}</p>
+                  <p className="text-2xl font-bold text-blue-600">{ownerTotalEmailsSent}</p>
                 </CardContent>
               </Card>
               <Card className="bg-muted/30">
                 <CardContent className="p-4">
                   <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-                    <DollarSign className="h-4 w-4" />
-                    Owner Emails Pending
+                    <CalendarDays className="h-4 w-4" />
+                    Emails Today
                   </div>
-                  <p className="text-2xl font-bold text-yellow-600">{ownerPendingCount}</p>
+                  <p className="text-2xl font-bold text-emerald-600">{ownerEmailsToday}</p>
+                </CardContent>
+              </Card>
+              <Card className="bg-muted/30">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
+                    <Clock className="h-4 w-4" />
+                    First Email Pending
+                  </div>
+                  <p className="text-2xl font-bold text-yellow-600">{ownerFirstPending}</p>
                 </CardContent>
               </Card>
             </div>
@@ -554,20 +635,20 @@ export function MonthlyEmailsTab() {
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Search by name or email..."
+                  placeholder="Search by name, email, or location..."
                   value={ownerSearch}
                   onChange={(e) => setOwnerSearch(e.target.value)}
                   className="pl-10"
                 />
               </div>
               <Select value={ownerStatusFilter} onValueChange={setOwnerStatusFilter}>
-                <SelectTrigger className="w-full sm:w-40">
+                <SelectTrigger className="w-full sm:w-48">
                   <SelectValue placeholder="Filter Status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="sent">Sent</SelectItem>
-                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="all">All Owners</SelectItem>
+                  <SelectItem value="first_pending">First Email Pending</SelectItem>
+                  <SelectItem value="today">Email Today</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -588,47 +669,62 @@ export function MonthlyEmailsTab() {
                   <TableHeader>
                     <TableRow>
                       <TableHead>Owner</TableHead>
-                      <TableHead>Email</TableHead>
-                      <TableHead>Payment Amount</TableHead>
-                      <TableHead>Payment Period</TableHead>
-                      <TableHead>Payment Status</TableHead>
-                      <TableHead>Email Status</TableHead>
-                      <TableHead>Sent Date</TableHead>
+                      <TableHead>Location</TableHead>
+                      <TableHead>Email Day</TableHead>
+                      <TableHead>Next Email</TableHead>
+                      <TableHead>Emails Sent</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Last Sent</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {filteredOwnerRecords.map((record) => (
-                      <TableRow key={record.payment_id}>
-                        <TableCell className="font-medium">{record.owner_name}</TableCell>
-                        <TableCell className="text-muted-foreground text-sm">{record.owner_email}</TableCell>
-                        <TableCell className="font-medium">AED {record.amount_aed.toLocaleString()}</TableCell>
-                        <TableCell className="text-sm">
-                          <div className="flex items-center gap-1">
-                            <Calendar className="h-3 w-3 text-muted-foreground" />
-                            {format(new Date(record.payment_period_start), 'MMM d')} - {format(new Date(record.payment_period_end), 'MMM d, yyyy')}
+                      <TableRow key={record.booking_id}>
+                        <TableCell>
+                          <div>
+                            <p className="font-medium">{record.owner_name}</p>
+                            <p className="text-sm text-muted-foreground">{record.owner_email}</p>
                           </div>
                         </TableCell>
                         <TableCell>
-                          <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
-                            {record.status}
+                          <div>
+                            <p className="font-medium">{record.listing_title}</p>
+                            <p className="text-sm text-muted-foreground">{record.zone}</p>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-1">
+                            <Calendar className="h-4 w-4 text-muted-foreground" />
+                            <span className="font-medium">
+                              {record.email_day}{getOrdinalSuffix(record.email_day)}
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          {record.next_email_date ? (
+                            <div>
+                              <p className="font-medium">
+                                {format(record.next_email_date, 'MMM d, yyyy')}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                {format(new Date(record.start_time), 'MMM d')} - {format(new Date(record.end_time), 'MMM d, yyyy')}
+                              </p>
+                            </div>
+                          ) : (
+                            <span className="text-muted-foreground">—</span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="secondary">
+                            {record.emails_sent_count}
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          {record.payout_email_sent ? (
-                            <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
-                              <CheckCircle className="h-3 w-3 mr-1" />
-                              Sent
-                            </Badge>
-                          ) : (
-                            <Badge variant="outline" className="text-yellow-600 border-yellow-300">
-                              <AlertCircle className="h-3 w-3 mr-1" />
-                              Pending
-                            </Badge>
-                          )}
+                          {renderOwnerEmailStatus(record)}
                         </TableCell>
                         <TableCell className="text-sm text-muted-foreground">
                           {record.payout_email_sent_at 
-                            ? format(new Date(record.payout_email_sent_at), 'MMM d, yyyy h:mm a')
+                            ? format(new Date(record.payout_email_sent_at), 'MMM d, yyyy')
                             : '—'
                           }
                         </TableCell>
