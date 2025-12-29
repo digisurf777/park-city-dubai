@@ -178,3 +178,12 @@ verify_jwt = false
 
 [functions.send-admin-delisting-notification]
 verify_jwt = false
+
+[functions.send-driver-monthly-checkin]
+verify_jwt = false
+
+[functions.send-owner-payout-notification]
+verify_jwt = false
+
+[functions.check-monthly-emails]
+verify_jwt = false
