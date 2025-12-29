@@ -2942,7 +2942,7 @@ const AdminPanelOrganized = () => {
           <TabsContent value="chat" className="space-y-6 mt-6">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="flex items-center gap-2 w-full">
                   <MessageCircle className="h-5 w-5 text-red-500" />
                   Live Chat Management
                   {chatTotalUnread > 0 && (
@@ -2950,6 +2950,18 @@ const AdminPanelOrganized = () => {
                       {chatTotalUnread}
                     </Badge>
                   )}
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => {
+                      fetchChatUsers();
+                      fetchChatMessages();
+                    }}
+                    className="ml-auto"
+                  >
+                    <RefreshCw className="h-4 w-4 mr-2" />
+                    Refresh
+                  </Button>
                 </CardTitle>
               </CardHeader>
               <CardContent>
