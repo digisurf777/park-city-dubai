@@ -34,7 +34,7 @@ const getEmailTemplate = (driverFirstName: string) => {
           <!-- Header with Logo -->
           <tr>
             <td style="background-color: #dc2626; padding: 30px 40px; text-align: center;">
-              <img src="https://eoknluyunximjlsnyceb.supabase.co/storage/v1/object/public/email-assets/logo.png" alt="ShazamParking" style="height: 50px; width: auto;" />
+              <img src="https://shazamparking.ae/shazam-logo.png" alt="ShazamParking" style="height: 50px; width: auto;" />
             </td>
           </tr>
           
