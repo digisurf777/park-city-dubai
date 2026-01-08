@@ -77,16 +77,18 @@ const handler = async (req: Request): Promise<Response> => {
     // ===== DRIVER MONTHLY CHECK-IN EMAILS (Anniversary Based) =====
     console.log("Checking for driver monthly check-in emails (anniversary-based)...");
     
-    // Get all active confirmed bookings
+    // Get all active confirmed bookings with listing info for owner
     const { data: activeBookings, error: bookingsError } = await supabase
       .from("parking_bookings")
       .select(`
         id,
         user_id,
+        listing_id,
         location,
         start_time,
         end_time,
-        monthly_followup_sent_at
+        monthly_followup_sent_at,
+        payout_email_sent_at
       `)
       .in("status", ["confirmed", "approved"])
       .gt("end_time", now.toISOString());
@@ -97,7 +99,7 @@ const handler = async (req: Request): Promise<Response> => {
     } else if (activeBookings && activeBookings.length > 0) {
       console.log(`Found ${activeBookings.length} active bookings to check`);
       
-      // Filter bookings that should receive an email today
+      // Filter bookings that should receive an email today (anniversary check)
       const bookingsToEmail = activeBookings.filter(booking => {
         const startDate = new Date(booking.start_time);
         const startDay = startDate.getDate();
@@ -116,9 +118,12 @@ const handler = async (req: Request): Promise<Response> => {
           return false;
         }
         
-        // Check if email was already sent this month
-        if (wasEmailSentThisMonth(booking.monthly_followup_sent_at, now)) {
-          console.log(`Booking ${booking.id}: Email already sent this month on ${booking.monthly_followup_sent_at}, skipping`);
+        // Check if BOTH driver and owner emails were already sent this month
+        const driverEmailSent = wasEmailSentThisMonth(booking.monthly_followup_sent_at, now);
+        const ownerEmailSent = wasEmailSentThisMonth(booking.payout_email_sent_at, now);
+        
+        if (driverEmailSent && ownerEmailSent) {
+          console.log(`Booking ${booking.id}: Both emails already sent this month, skipping`);
           return false;
         }
         
@@ -128,167 +133,129 @@ const handler = async (req: Request): Promise<Response> => {
       
       console.log(`${bookingsToEmail.length} bookings qualify for anniversary emails today`);
       
-      // Get unique user IDs from filtered bookings
-      const uniqueUserIds = [...new Set(bookingsToEmail.map(b => b.user_id))];
-      
-      for (const userId of uniqueUserIds) {
-        try {
-          // Get user info using the database function
-          const { data: userInfo, error: userError } = await supabase
-            .rpc("get_user_email_and_name", { user_uuid: userId });
+      // Process each qualifying booking
+      for (const booking of bookingsToEmail) {
+        const driverEmailAlreadySent = wasEmailSentThisMonth(booking.monthly_followup_sent_at, now);
+        const ownerEmailAlreadySent = wasEmailSentThisMonth(booking.payout_email_sent_at, now);
+        
+        // ===== SEND DRIVER EMAIL =====
+        if (!driverEmailAlreadySent) {
+          try {
+            const { data: userInfo, error: userError } = await supabase
+              .rpc("get_user_email_and_name", { user_uuid: booking.user_id });
 
-          if (userError || !userInfo || userInfo.length === 0) {
-            console.error(`Error getting user info for ${userId}:`, userError);
-            errors.push(`User info error for ${userId}: ${userError?.message || 'No data'}`);
-            continue;
-          }
+            if (userError || !userInfo || userInfo.length === 0) {
+              console.error(`Error getting user info for ${booking.user_id}:`, userError);
+              errors.push(`User info error for ${booking.user_id}: ${userError?.message || 'No data'}`);
+            } else {
+              const { email, full_name } = userInfo[0];
+              if (email) {
+                const firstName = full_name?.split(" ")[0] || "Valued Customer";
 
-          const { email, full_name } = userInfo[0];
-          if (!email) {
-            console.log(`No email found for user ${userId}, skipping`);
-            continue;
-          }
+                const emailResponse = await fetch(`${supabaseUrl}/functions/v1/send-driver-monthly-checkin`, {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${supabaseServiceKey}`,
+                  },
+                  body: JSON.stringify({
+                    driverEmail: email,
+                    driverFirstName: firstName,
+                  }),
+                });
 
-          // Extract first name
-          const firstName = full_name?.split(" ")[0] || "Valued Customer";
+                if (emailResponse.ok) {
+                  console.log(`Driver anniversary check-in email sent to ${email} for booking ${booking.id}`);
+                  driverEmailsSent++;
+                  
+                  const { error: updateError } = await supabase
+                    .from("parking_bookings")
+                    .update({ monthly_followup_sent_at: now.toISOString() })
+                    .eq("id", booking.id);
 
-          // Send driver check-in email
-          const emailResponse = await fetch(`${supabaseUrl}/functions/v1/send-driver-monthly-checkin`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": `Bearer ${supabaseServiceKey}`,
-            },
-            body: JSON.stringify({
-              driverEmail: email,
-              driverFirstName: firstName,
-            }),
-          });
-
-          if (emailResponse.ok) {
-            console.log(`Driver anniversary check-in email sent to ${email}`);
-            driverEmailsSent++;
-            
-            // Update all qualifying bookings for this user with the sent timestamp
-            const userBookingIds = bookingsToEmail
-              .filter(b => b.user_id === userId)
-              .map(b => b.id);
-            
-            const { error: updateError } = await supabase
-              .from("parking_bookings")
-              .update({ monthly_followup_sent_at: now.toISOString() })
-              .in("id", userBookingIds);
-
-            if (updateError) {
-              console.error(`Error updating followup timestamp:`, updateError);
-              errors.push(`Update error: ${updateError.message}`);
+                  if (updateError) {
+                    console.error(`Error updating driver followup timestamp:`, updateError);
+                    errors.push(`Driver update error: ${updateError.message}`);
+                  }
+                } else {
+                  const errorText = await emailResponse.text();
+                  console.error(`Failed to send driver email to ${email}:`, errorText);
+                  errors.push(`Driver email failed for ${email}: ${errorText}`);
+                }
+              }
             }
-          } else {
-            const errorText = await emailResponse.text();
-            console.error(`Failed to send driver email to ${email}:`, errorText);
-            errors.push(`Driver email failed for ${email}: ${errorText}`);
+          } catch (err: any) {
+            console.error(`Error processing driver for booking ${booking.id}:`, err);
+            errors.push(`Driver processing error: ${err.message}`);
           }
-        } catch (err: any) {
-          console.error(`Error processing driver ${userId}:`, err);
-          errors.push(`Driver processing error: ${err.message}`);
+        }
+        
+        // ===== SEND OWNER EMAIL =====
+        if (!ownerEmailAlreadySent && booking.listing_id) {
+          try {
+            // Get owner_id from the listing
+            const { data: listing, error: listingError } = await supabase
+              .from("parking_listings")
+              .select("owner_id")
+              .eq("id", booking.listing_id)
+              .single();
+
+            if (listingError || !listing?.owner_id) {
+              console.error(`Error getting listing/owner for booking ${booking.id}:`, listingError);
+              errors.push(`Listing error for booking ${booking.id}: ${listingError?.message || 'No owner'}`);
+            } else {
+              const { data: ownerInfo, error: ownerError } = await supabase
+                .rpc("get_user_email_and_name", { user_uuid: listing.owner_id });
+
+              if (ownerError || !ownerInfo || ownerInfo.length === 0) {
+                console.error(`Error getting owner info for ${listing.owner_id}:`, ownerError);
+                errors.push(`Owner info error for ${listing.owner_id}: ${ownerError?.message || 'No data'}`);
+              } else {
+                const { email, full_name } = ownerInfo[0];
+                if (email) {
+                  const firstName = full_name?.split(" ")[0] || "Valued Partner";
+
+                  const emailResponse = await fetch(`${supabaseUrl}/functions/v1/send-owner-payout-notification`, {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                      "Authorization": `Bearer ${supabaseServiceKey}`,
+                    },
+                    body: JSON.stringify({
+                      ownerEmail: email,
+                      ownerFirstName: firstName,
+                    }),
+                  });
+
+                  if (emailResponse.ok) {
+                    console.log(`Owner payout notification email sent to ${email} for booking ${booking.id}`);
+                    ownerEmailsSent++;
+                    
+                    const { error: updateError } = await supabase
+                      .from("parking_bookings")
+                      .update({ payout_email_sent_at: now.toISOString() })
+                      .eq("id", booking.id);
+
+                    if (updateError) {
+                      console.error(`Error updating owner payout email timestamp:`, updateError);
+                      errors.push(`Owner update error: ${updateError.message}`);
+                    }
+                  } else {
+                    const errorText = await emailResponse.text();
+                    console.error(`Failed to send owner email to ${email}:`, errorText);
+                    errors.push(`Owner email failed for ${email}: ${errorText}`);
+                  }
+                }
+              }
+            }
+          } catch (err: any) {
+            console.error(`Error processing owner for booking ${booking.id}:`, err);
+            errors.push(`Owner processing error: ${err.message}`);
+          }
         }
       }
     } else {
       console.log("No active bookings found");
-    }
-
-    // ===== OWNER PAYOUT NOTIFICATION EMAILS =====
-    // (This logic remains the same - sent when payout is completed, not anniversary-based)
-    console.log("Checking for owner payout notification emails...");
-    
-    // Get completed payments that haven't had payout email sent
-    const { data: pendingPayouts, error: payoutsError } = await supabase
-      .from("owner_payments")
-      .select(`
-        id,
-        owner_id,
-        amount,
-        payout_email_sent
-      `)
-      .eq("status", "completed")
-      .eq("payout_email_sent", false);
-
-    if (payoutsError) {
-      console.error("Error fetching pending payouts:", payoutsError);
-      errors.push(`Payout fetch error: ${payoutsError.message}`);
-    } else if (pendingPayouts && pendingPayouts.length > 0) {
-      console.log(`Found ${pendingPayouts.length} payouts needing owner notification emails`);
-      
-      // Get unique owner IDs
-      const uniqueOwnerIds = [...new Set(pendingPayouts.map(p => p.owner_id))];
-      
-      for (const ownerId of uniqueOwnerIds) {
-        try {
-          // Get owner info using the database function
-          const { data: ownerInfo, error: ownerError } = await supabase
-            .rpc("get_user_email_and_name", { user_uuid: ownerId });
-
-          if (ownerError || !ownerInfo || ownerInfo.length === 0) {
-            console.error(`Error getting owner info for ${ownerId}:`, ownerError);
-            errors.push(`Owner info error for ${ownerId}: ${ownerError?.message || 'No data'}`);
-            continue;
-          }
-
-          const { email, full_name } = ownerInfo[0];
-          if (!email) {
-            console.log(`No email found for owner ${ownerId}, skipping`);
-            continue;
-          }
-
-          // Extract first name
-          const firstName = full_name?.split(" ")[0] || "Valued Partner";
-
-          // Send owner payout notification email
-          const emailResponse = await fetch(`${supabaseUrl}/functions/v1/send-owner-payout-notification`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": `Bearer ${supabaseServiceKey}`,
-            },
-            body: JSON.stringify({
-              ownerEmail: email,
-              ownerFirstName: firstName,
-            }),
-          });
-
-          if (emailResponse.ok) {
-            console.log(`Owner payout notification email sent to ${email}`);
-            ownerEmailsSent++;
-            
-            // Update all payments for this owner with the sent timestamp
-            const ownerPaymentIds = pendingPayouts
-              .filter(p => p.owner_id === ownerId)
-              .map(p => p.id);
-            
-            const { error: updateError } = await supabase
-              .from("owner_payments")
-              .update({ 
-                payout_email_sent: true,
-                payout_email_sent_at: now.toISOString()
-              })
-              .in("id", ownerPaymentIds);
-
-            if (updateError) {
-              console.error(`Error updating payout email status:`, updateError);
-              errors.push(`Payout update error: ${updateError.message}`);
-            }
-          } else {
-            const errorText = await emailResponse.text();
-            console.error(`Failed to send owner email to ${email}:`, errorText);
-            errors.push(`Owner email failed for ${email}: ${errorText}`);
-          }
-        } catch (err: any) {
-          console.error(`Error processing owner ${ownerId}:`, err);
-          errors.push(`Owner processing error: ${err.message}`);
-        }
-      }
-    } else {
-      console.log("No pending payouts requiring owner notification emails");
     }
 
     // Summary
