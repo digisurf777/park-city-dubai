@@ -751,6 +751,7 @@ export type Database = {
           payment_link_url: string | null
           payment_status: string | null
           payment_type: string | null
+          payout_email_sent_at: string | null
           pre_authorization_amount: number | null
           pre_authorization_expires_at: string | null
           security_deposit_amount: number | null
@@ -788,6 +789,7 @@ export type Database = {
           payment_link_url?: string | null
           payment_status?: string | null
           payment_type?: string | null
+          payout_email_sent_at?: string | null
           pre_authorization_amount?: number | null
           pre_authorization_expires_at?: string | null
           security_deposit_amount?: number | null
@@ -825,6 +827,7 @@ export type Database = {
           payment_link_url?: string | null
           payment_status?: string | null
           payment_type?: string | null
+          payout_email_sent_at?: string | null
           pre_authorization_amount?: number | null
           pre_authorization_expires_at?: string | null
           security_deposit_amount?: number | null
