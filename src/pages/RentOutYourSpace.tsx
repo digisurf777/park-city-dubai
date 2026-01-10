@@ -44,7 +44,8 @@ const RentOutYourSpace = () => {
     bayType: "",
     accessDeviceDeposit: false,
     notes: "",
-    agreeToTerms: false
+    agreeToTerms: false,
+    confirmAuthorization: false
   });
   const serviceFee = Math.round(monthlyPrice * 0.03);
   const netPayout = monthlyPrice - serviceFee;
@@ -226,6 +227,14 @@ const RentOutYourSpace = () => {
       });
       return;
     }
+    if (!formData.confirmAuthorization) {
+      toast({
+        title: "Authorization confirmation required",
+        description: "Please confirm you are authorized to list this parking space",
+        variant: "destructive"
+      });
+      return;
+    }
     setIsSubmitting(true);
     try {
       // Upload images to storage
@@ -311,7 +320,8 @@ const RentOutYourSpace = () => {
         bayType: "",
         accessDeviceDeposit: false,
         notes: "",
-        agreeToTerms: false
+        agreeToTerms: false,
+        confirmAuthorization: false
       });
       setUploadedImages([]);
       setMonthlyPrice(300);
@@ -600,6 +610,15 @@ const RentOutYourSpace = () => {
                         Terms & Conditions
                       </Link>
                       .
+                    </Label>
+                  </div>
+                </div>
+
+                <div className="flex items-start space-x-3">
+                  <Checkbox id="confirm-authorization" checked={formData.confirmAuthorization} onCheckedChange={checked => handleInputChange('confirmAuthorization', !!checked)} required />
+                  <div className="grid gap-1.5 leading-none">
+                    <Label htmlFor="confirm-authorization" className="text-sm font-normal leading-5 cursor-pointer">
+                      I confirm that I am duly authorised to list and rent out the above parking space. I understand that I am responsible for ensuring compliance with all applicable building rules and regulations and that failure to adhere to the same may incur platform and/or third-party penalties.
                     </Label>
                   </div>
                 </div>
