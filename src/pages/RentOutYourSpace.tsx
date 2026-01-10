@@ -298,7 +298,8 @@ const RentOutYourSpace = () => {
             buildingName: formData.buildingName,
             district: formData.district,
             bayType: formData.bayType,
-            monthlyPrice: monthlyPrice
+            monthlyPrice: monthlyPrice,
+            accessDeviceDeposit: formData.accessDeviceDeposit ? 1 : 0
           }
         });
       } catch (confirmationError) {
