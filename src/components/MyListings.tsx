@@ -72,23 +72,23 @@ export const MyListings: React.FC<MyListingsProps> = ({ chatOnly = false }) => {
         return;
       }
 
-      // Debug: Check if any booking is "uncovered parking in ddd" (which should NOT be shown)
-      const suspiciousBooking = ownerBookings.find(b => b.location?.includes('uncovered parking in ddd'));
+      // Debug: Check if any booking is from unexpected listing (which should NOT be shown)
+      const suspiciousBooking = ownerBookings.find(b => b.listing_title?.includes('uncovered parking in ddd'));
       if (suspiciousBooking) {
         console.error('[MyListings] ERROR: Found booking that should not be accessible:', suspiciousBooking);
       }
 
-      // Transform RPC results to ActiveBooking format
+      // Transform RPC results to ActiveBooking format - updated to use new function return type
       const transformedBookings: ActiveBooking[] = ownerBookings.map(booking => ({
-        id: booking.id,
-        location: booking.location,
-        zone: booking.zone,
+        id: booking.booking_id,
+        location: booking.listing_title,
+        zone: '',  // Not returned by new function, set to empty
         start_time: booking.start_time,
         end_time: booking.end_time,
         status: booking.status,
         driver_name: booking.driver_name || 'Driver',
-        unread_messages: Number(booking.unread_messages),
-        chat_available: booking.chat_available
+        unread_messages: booking.has_unread_messages ? 1 : 0,
+        chat_available: true  // Chat is available for active bookings returned by this function
       }));
 
       setActiveBookings(transformedBookings);
