@@ -2125,7 +2125,9 @@ export type Database = {
           user_type: string
         }[]
       }
-      get_unread_chat_count: { Args: never; Returns: number }
+      get_unread_chat_count:
+        | { Args: never; Returns: number }
+        | { Args: { p_user_id: string }; Returns: number }
       get_user_basic_info: {
         Args: { user_ids: string[] }
         Returns: {
@@ -2254,30 +2256,39 @@ export type Database = {
           verification_status: string
         }[]
       }
-      send_booking_message: {
-        Args: { p_booking_id: string; p_message: string }
-        Returns: {
-          admin_flagged: boolean
-          booking_id: string
-          contains_violation: boolean
-          created_at: string
-          driver_id: string
-          from_driver: boolean
-          id: string
-          is_expired: boolean
-          listing_id: string | null
-          message: string
-          owner_id: string
-          read_status: boolean
-          updated_at: string
-        }[]
-        SetofOptions: {
-          from: "*"
-          to: "driver_owner_messages"
-          isOneToOne: false
-          isSetofReturn: true
-        }
-      }
+      send_booking_message:
+        | {
+            Args: {
+              p_booking_id: string
+              p_content: string
+              p_sender_type: string
+            }
+            Returns: string
+          }
+        | {
+            Args: { p_booking_id: string; p_message: string }
+            Returns: {
+              admin_flagged: boolean
+              booking_id: string
+              contains_violation: boolean
+              created_at: string
+              driver_id: string
+              from_driver: boolean
+              id: string
+              is_expired: boolean
+              listing_id: string | null
+              message: string
+              owner_id: string
+              read_status: boolean
+              updated_at: string
+            }[]
+            SetofOptions: {
+              from: "*"
+              to: "driver_owner_messages"
+              isOneToOne: false
+              isSetofReturn: true
+            }
+          }
       send_welcome_email_async: {
         Args: { user_email: string; user_full_name: string }
         Returns: Json
