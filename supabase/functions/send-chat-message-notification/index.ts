@@ -165,7 +165,7 @@ const handler = async (req: Request): Promise<Response> => {
           .from("chat_notification_state")
           .update({
             last_notification_sent_at: new Date().toISOString(),
-            notification_cooldown_until: new Date(Date.now() + 30 * 60 * 1000).toISOString(), // 30 minutes cooldown
+            notification_cooldown_until: new Date(Date.now() + 15 * 60 * 1000).toISOString(), // 15 minutes cooldown
             notification_timer_active: false,
             updated_at: new Date().toISOString(),
           })
