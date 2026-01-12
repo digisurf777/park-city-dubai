@@ -1732,13 +1732,18 @@ export type Database = {
       get_booking_details_for_chat: {
         Args: { p_booking_id: string }
         Returns: {
+          booking_id: string
+          driver_email: string
+          driver_id: string
+          driver_name: string
           end_time: string
-          id: string
-          location: string
+          is_driver: boolean
+          is_owner: boolean
+          listing_id: string
+          listing_title: string
+          owner_id: string
           start_time: string
           status: string
-          user_id: string
-          zone: string
         }[]
       }
       get_booking_messages: {
