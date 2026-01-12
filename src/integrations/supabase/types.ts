@@ -1896,15 +1896,16 @@ export type Database = {
       get_owner_active_bookings: {
         Args: never
         Returns: {
-          chat_available: boolean
+          booking_id: string
+          driver_email: string
+          driver_id: string
           driver_name: string
           end_time: string
-          id: string
-          location: string
+          has_unread_messages: boolean
+          listing_id: string
+          listing_title: string
           start_time: string
           status: string
-          unread_messages: number
-          zone: string
         }[]
       }
       get_owner_bookings_for_payment: {
@@ -2265,30 +2266,7 @@ export type Database = {
             }
             Returns: string
           }
-        | {
-            Args: { p_booking_id: string; p_message: string }
-            Returns: {
-              admin_flagged: boolean
-              booking_id: string
-              contains_violation: boolean
-              created_at: string
-              driver_id: string
-              from_driver: boolean
-              id: string
-              is_expired: boolean
-              listing_id: string | null
-              message: string
-              owner_id: string
-              read_status: boolean
-              updated_at: string
-            }[]
-            SetofOptions: {
-              from: "*"
-              to: "driver_owner_messages"
-              isOneToOne: false
-              isSetofReturn: true
-            }
-          }
+        | { Args: { p_booking_id: string; p_message: string }; Returns: Json }
       send_welcome_email_async: {
         Args: { user_email: string; user_full_name: string }
         Returns: Json

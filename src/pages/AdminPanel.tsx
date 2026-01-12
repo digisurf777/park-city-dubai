@@ -766,11 +766,23 @@ const AdminPanelOrganized = () => {
   
   const updateListingStatus = async (listingId: string, status: 'approved' | 'rejected' | 'published') => {
     try {
-      // Get listing details before updating
-      const listing = parkingListings.find(l => l.id === listingId);
-      const previousStatus = listing?.status;
+      // Get previous status from cached list first
+      const cachedListing = parkingListings.find(l => l.id === listingId);
+      const previousStatus = cachedListing?.status;
       
-      console.log('Updating listing status:', { listingId, status, previousStatus, listing });
+      // CRITICAL: Fetch fresh listing data from database to ensure accurate deposit info
+      const { data: listing, error: listingError } = await supabase
+        .from('parking_listings')
+        .select('*')
+        .eq('id', listingId)
+        .single();
+      
+      if (listingError) {
+        console.error('Error fetching fresh listing data:', listingError);
+        throw listingError;
+      }
+      
+      console.log('Updating listing status:', { listingId, status, previousStatus, listing, freshDeposit: listing?.access_device_deposit_required });
       
       const { error } = await supabase
         .from('parking_listings')
