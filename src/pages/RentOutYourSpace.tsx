@@ -253,7 +253,9 @@ const RentOutYourSpace = () => {
         images: imageUrls,
         contact_phone: formData.phone,
         contact_email: user.email,
-        status: 'pending'
+        status: 'pending',
+        access_device_deposit_required: formData.accessDeviceDeposit,
+        deposit_amount_aed: formData.accessDeviceDeposit ? 500 : 0
       };
       console.log('Inserting listing data:', listingData);
       const {
