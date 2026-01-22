@@ -482,9 +482,8 @@ const MyAccount = () => {
           </Card>
         )}
 
-        {/* Banking Details Reminder - Only show for verified owners without banking details */}
+        {/* Banking Details Reminder - Show for all owners without banking details */}
         {!verificationLoading && 
-         (verificationStatus === 'approved' || verificationStatus === 'verified') && 
          isParkingOwner && 
          hasBankingDetails === false && (
           <Card className="mb-6 border-blue-200 bg-blue-50">
@@ -827,9 +826,20 @@ const MyAccount = () => {
             {/* Payments Tab - For All Users */}
             <TabsContent value="payments" className="mt-6">
               <div className="space-y-6">
-                {/* Banking Details Section - Owner Only */}
-                {isParkingOwner && (verificationStatus === 'approved' || verificationStatus === 'verified') && (
-                  <BankingDetailsPanel />
+              {/* Banking Details Section - Owner Only */}
+                {isParkingOwner && (
+                  <>
+                    {verificationStatus !== 'approved' && verificationStatus !== 'verified' && (
+                      <Card className="mb-4 border-orange-200 bg-orange-50">
+                        <CardContent className="pt-4 pb-4">
+                          <p className="text-sm text-orange-700">
+                            <strong>Note:</strong> Complete your account verification in the "Verification" tab to receive payouts from bookings. You can still add your banking details now.
+                          </p>
+                        </CardContent>
+                      </Card>
+                    )}
+                    <BankingDetailsPanel />
+                  </>
                 )}
                 
                 {/* Owner Payments Section */}
