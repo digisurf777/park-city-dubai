@@ -4,7 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HelmetProvider } from "react-helmet-async";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { MFARequiredGuard } from "@/components/MFARequiredGuard";
@@ -92,6 +92,7 @@ const App = () => {
                  <Route path="/find-a-parking-space" element={<FindParking />} />
                  <Route path="/payment-success" element={<PaymentSuccess />} />
                  <Route path="/about-us" element={<AboutUs />} />
+                 <Route path="/about" element={<Navigate to="/about-us" replace />} />
                 <Route path="/faq" element={<FAQ />} />
                 <Route path="/news" element={<News />} />
                 <Route path="/news/:slug" element={<NewsArticle />} />

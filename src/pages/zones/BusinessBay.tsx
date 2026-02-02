@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -17,9 +16,15 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import businessBayHero from "@/assets/zones/business-bay-real.jpg";
 import { formatDescription } from "@/utils/formatDescription";
 import LazyImage from "@/components/LazyImage";
-
+import useSEO from "@/hooks/useSEO";
 
 const BusinessBay = () => {
+  const seoElement = useSEO({
+    title: "Monthly Parking in Business Bay - Secure Office Parking | Shazam Parking",
+    description: "Find monthly parking in Business Bay Dubai. Secure parking near Al A'amal Street and Marasi Drive. Perfect for professionals and commuters.",
+    keywords: "Business Bay parking, monthly parking Business Bay, office parking Dubai, long-term parking Business Bay, Al Aamal Street parking",
+    url: "/zones/business-bay"
+  });
   const [searchTerm, setSearchTerm] = useState("");
   const [priceRange, setPriceRange] = useState([0, 5000]);
   const [showAvailableOnly, setShowAvailableOnly] = useState(false);
@@ -78,6 +83,7 @@ const BusinessBay = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      {seoElement}
       <Navbar />
       
       <div className="relative h-[300px] sm:h-[400px]">

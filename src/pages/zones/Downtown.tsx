@@ -16,8 +16,15 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import downtownHero from "/lovable-uploads/f676da2a-39c9-4211-8561-5b884e0ceed8.png";
 import { formatDescription } from "@/utils/formatDescription";
 import LazyImage from "@/components/LazyImage";
+import useSEO from "@/hooks/useSEO";
 
 const Downtown = () => {
+  const seoElement = useSEO({
+    title: "Monthly Parking in Downtown Dubai - Near Burj Khalifa & Dubai Mall | Shazam Parking",
+    description: "Find monthly parking in Downtown Dubai. Secure covered parking near Burj Khalifa, Dubai Mall, and Emaar Square. Book your parking bay today.",
+    keywords: "Downtown Dubai parking, monthly parking Downtown, Burj Khalifa parking, Dubai Mall parking, long-term parking Downtown Dubai",
+    url: "/zones/downtown"
+  });
   const [searchTerm, setSearchTerm] = useState("");
   const [priceRange, setPriceRange] = useState([0, 20000]);
   const [showAvailableOnly, setShowAvailableOnly] = useState(false);
@@ -69,6 +76,7 @@ const Downtown = () => {
     }));
   };
   return <div className="min-h-screen bg-background">
+      {seoElement}
       <Navbar />
       
       {/* Hero Section */}

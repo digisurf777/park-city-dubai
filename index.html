@@ -63,21 +63,31 @@
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "Organization",
+      "@type": ["Organization", "LocalBusiness"],
       "name": "Shazam Parking",
       "description": "Dubai's trusted parking platform for finding and listing parking spaces",
       "url": "https://shazamparking.ae",
-      "logo": "/shazam-parking-og-image.jpg",
-      "contactPoint": {
-        "@type": "ContactPoint",
-        "telephone": "+971-XX-XXX-XXXX",
-        "contactType": "customer service",
-        "email": "support@shazam.ae"
-      },
+      "logo": "https://shazamparking.ae/shazam-parking-og-image.jpg",
+      "image": "https://shazamparking.ae/shazam-parking-og-image.jpg",
+      "priceRange": "AED 500 - AED 2000",
       "address": {
         "@type": "PostalAddress",
         "addressLocality": "Dubai",
-        "addressCountry": "UAE"
+        "addressCountry": "AE"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": "25.2048",
+        "longitude": "55.2708"
+      },
+      "areaServed": [
+        "Dubai Marina", "Downtown Dubai", "DIFC", 
+        "Business Bay", "Palm Jumeirah", "Deira"
+      ],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "email": "support@shazamparking.ae",
+        "contactType": "customer service"
       },
       "sameAs": [
         "https://www.instagram.com/shazamparking",
