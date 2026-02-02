@@ -18,9 +18,15 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import deiraHero from "@/assets/zones/deira-real.jpg";
 import { formatDescription } from "@/utils/formatDescription";
 import LazyImage from "@/components/LazyImage";
-
+import useSEO from "@/hooks/useSEO";
 
 const Deira = () => {
+  const seoElement = useSEO({
+    title: "Monthly Parking in Deira - Affordable City Centre Parking | Shazam Parking",
+    description: "Find affordable monthly parking in Deira Dubai. Secure parking in Dubai's commercial quarter. Perfect for traders and professionals.",
+    keywords: "Deira parking, monthly parking Deira, affordable parking Dubai, long-term parking Deira, city centre parking Dubai",
+    url: "/zones/deira"
+  });
   const { toast } = useToast();
   const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
@@ -81,6 +87,7 @@ const Deira = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      {seoElement}
       <Navbar />
       
       <div className="relative h-[300px] sm:h-[400px]">

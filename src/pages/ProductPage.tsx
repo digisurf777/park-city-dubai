@@ -8,6 +8,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { Helmet } from 'react-helmet-async';
 
 import ImageZoomModal from '@/components/ImageZoomModal';
 import Navbar from '@/components/Navbar';
@@ -253,9 +254,44 @@ const ProductPage: React.FC = () => {
     );
   }
 
+  // Generate Product Schema for rich snippets
+  const productSchema = parkingListing ? {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": parkingListing.title,
+    "description": parkingListing.description || `Secure parking space in ${parkingListing.zone}`,
+    "image": parkingListing.images?.[0] || '/shazam-parking-og-image.jpg',
+    "offers": {
+      "@type": "Offer",
+      "priceCurrency": "AED",
+      "price": parkingListing.price_per_month,
+      "availability": "https://schema.org/InStock",
+      "priceValidUntil": new Date(Date.now() + 30*24*60*60*1000).toISOString().split('T')[0]
+    },
+    "brand": {
+      "@type": "Organization",
+      "name": "Shazam Parking"
+    }
+  } : null;
+
   return (
     <TooltipProvider>
       <div className="min-h-screen bg-background">
+        {parkingListing && (
+          <Helmet>
+            <title>{parkingListing.title} - Parking in {parkingListing.zone} | Shazam Parking</title>
+            <meta name="description" content={`Book ${parkingListing.title} in ${parkingListing.zone}. Monthly parking from AED ${parkingListing.price_per_month}. Secure, covered parking with 24/7 access.`} />
+            <meta property="og:title" content={`${parkingListing.title} - Parking in ${parkingListing.zone}`} />
+            <meta property="og:description" content={`Monthly parking in ${parkingListing.zone} from AED ${parkingListing.price_per_month}/month`} />
+            <meta property="og:image" content={parkingListing.images?.[0] || '/shazam-parking-og-image.jpg'} />
+            <link rel="canonical" href={`https://shazamparking.ae/parking/${id}`} />
+            {productSchema && (
+              <script type="application/ld+json">
+                {JSON.stringify(productSchema)}
+              </script>
+            )}
+          </Helmet>
+        )}
         <Navbar />
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24">

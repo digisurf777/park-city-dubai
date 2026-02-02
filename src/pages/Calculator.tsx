@@ -2,13 +2,23 @@ import { useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ParkingCalculator from "@/components/ParkingCalculator";
+import useSEO from "@/hooks/useSEO";
 
 const Calculator = () => {
+  const seoElement = useSEO({
+    title: "Parking Earnings Calculator - See Your Monthly Income | Shazam Parking",
+    description: "Calculate how much you can earn from renting your parking space in Dubai. Get estimates for Dubai Marina, Downtown, DIFC and other prime areas.",
+    keywords: "parking income calculator Dubai, parking rental earnings, how much can I earn from parking, parking space value Dubai",
+    url: "/calculator"
+  });
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
   return (
     <div className="min-h-screen bg-white animate-zoom-slow">
+      {seoElement}
       <Navbar />
       
       {/* Hero Section */}

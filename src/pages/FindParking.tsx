@@ -11,6 +11,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useSearchParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import useSEO from "@/hooks/useSEO";
 
 import dubaiMarinaZone from "@/assets/zones/dubai-marina-real.jpg";
 import downtownZone from "/lovable-uploads/f676da2a-39c9-4211-8561-5b884e0ceed8.png";
@@ -19,7 +20,14 @@ import palmJumeirahZone from "/lovable-uploads/atlantis-hotel-hero.jpg";
 import businessBayZone from "@/assets/zones/business-bay-real.jpg";
 import difcZone from "/lovable-uploads/63d539ac-8cbb-46b2-aa39-3de0695ef8c9.png";
 import deiraZone from "@/assets/zones/deira-real.jpg";
+
 const FindParking = () => {
+  const seoElement = useSEO({
+    title: "Find Monthly Parking in Dubai - Secure Parking Spaces | Shazam Parking",
+    description: "Search and book secure monthly parking spaces across Dubai Marina, Downtown, DIFC, Business Bay, Palm Jumeirah and Deira. Affordable rates from AED 600/month.",
+    keywords: "monthly parking Dubai, secure parking Dubai, long-term parking Dubai, Dubai Marina parking, Downtown parking, DIFC parking, parking rental Dubai",
+    url: "/find-parking"
+  });
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -155,6 +163,7 @@ const FindParking = () => {
     return matchesSearch && matchesDistrict && matchesPrice && matchesAvailability;
   });
   return <div className="min-h-screen bg-background animate-zoom-slow">
+      {seoElement}
       <Navbar />
       
       {/* Hero Section - Mobile Optimized */}
