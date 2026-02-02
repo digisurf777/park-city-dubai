@@ -1,10 +1,11 @@
-
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { MapPin, Menu, X, ChevronDown, User } from "lucide-react";
+import { Menu, X, ChevronDown, User } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -22,6 +23,7 @@ const Navbar = () => {
     user = null;
     signOut = () => {};
   }
+  const { t } = useTranslation();
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-white/80 border-b border-white/20 shadow-lg pt-safe-area-top">
@@ -45,9 +47,9 @@ const Navbar = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center space-x-6">
             <Link to="/find-a-parking-space" className="text-gray-700 hover:text-primary transition-colors">
-              Find a Parking Space
+              {t('nav.findParking')}
             </Link>
             
             {/* Simple Zones Dropdown instead of NavigationMenu */}
@@ -57,7 +59,7 @@ const Navbar = () => {
                 className="text-gray-700 hover:text-primary transition-colors flex items-center"
                 onBlur={() => setTimeout(() => setIsZonesOpen(false), 200)}
               >
-                Zones
+                {t('nav.zones')}
                 <ChevronDown className="ml-1 h-4 w-4" />
               </button>
               {isZonesOpen && (
@@ -68,42 +70,42 @@ const Navbar = () => {
                       className="block px-3 py-2 text-sm text-gray-700 hover:text-primary hover:bg-gray-50 rounded-md transition-colors"
                       onClick={() => setIsZonesOpen(false)}
                     >
-                      Dubai Marina
+                      {t('zones.dubaiMarina')}
                     </Link>
                     <Link 
                       to="/downtown" 
                       className="block px-3 py-2 text-sm text-gray-700 hover:text-primary hover:bg-gray-50 rounded-md transition-colors"
                       onClick={() => setIsZonesOpen(false)}
                     >
-                      Downtown
+                      {t('zones.downtown')}
                     </Link>
                     <Link 
                       to="/palm-jumeirah" 
                       className="block px-3 py-2 text-sm text-gray-700 hover:text-primary hover:bg-gray-50 rounded-md transition-colors"
                       onClick={() => setIsZonesOpen(false)}
                     >
-                      Palm Jumeirah
+                      {t('zones.palmJumeirah')}
                     </Link>
                     <Link 
                       to="/business-bay" 
                       className="block px-3 py-2 text-sm text-gray-700 hover:text-primary hover:bg-gray-50 rounded-md transition-colors"
                       onClick={() => setIsZonesOpen(false)}
                     >
-                      Business Bay
+                      {t('zones.businessBay')}
                     </Link>
                     <Link 
                       to="/difc" 
                       className="block px-3 py-2 text-sm text-gray-700 hover:text-primary hover:bg-gray-50 rounded-md transition-colors"
                       onClick={() => setIsZonesOpen(false)}
                     >
-                      DIFC
+                      {t('zones.difc')}
                     </Link>
                     <Link 
                       to="/deira" 
                       className="block px-3 py-2 text-sm text-gray-700 hover:text-primary hover:bg-gray-50 rounded-md transition-colors"
                       onClick={() => setIsZonesOpen(false)}
                     >
-                      Deira
+                      {t('zones.deira')}
                     </Link>
                   </div>
                 </div>
@@ -111,17 +113,20 @@ const Navbar = () => {
             </div>
             
             <Link to="/about-us" className="text-gray-700 hover:text-primary transition-colors">
-              About Us
+              {t('nav.aboutUs')}
             </Link>
             <Link to="/faq" className="text-gray-700 hover:text-primary transition-colors">
-              FAQ
+              {t('nav.faq')}
             </Link>
             <Link to="/news" className="text-gray-700 hover:text-primary transition-colors">
-              News
+              {t('nav.news')}
             </Link>
             <Link to="/calculator" className="text-gray-700 hover:text-primary transition-colors">
-              Calculator
+              {t('nav.calculator')}
             </Link>
+            
+            {/* Language Switcher */}
+            <LanguageSwitcher variant="desktop" />
           </div>
 
           {/* Auth Buttons */}
@@ -131,7 +136,7 @@ const Navbar = () => {
                 <Link to="/my-account">
                   <Button variant="ghost" className="text-gray-700 hover:text-primary">
                     <User className="mr-2 h-4 w-4" />
-                    My Account
+                    {t('nav.myAccount')}
                   </Button>
                 </Link>
                 <Button 
@@ -139,11 +144,11 @@ const Navbar = () => {
                   onClick={signOut}
                   className="text-gray-700 hover:text-primary"
                 >
-                  Logout
+                  {t('nav.logout')}
                 </Button>
                 <Link to="/rent-out-your-space">
                   <Button className="bg-primary hover:bg-primary/90 text-white">
-                    List Your Space
+                    {t('nav.listSpace')}
                   </Button>
                 </Link>
               </>
@@ -151,12 +156,12 @@ const Navbar = () => {
               <>
                 <Link to="/auth">
                   <Button variant="ghost" className="text-gray-700 hover:text-primary">
-                    Login / Sign Up
+                    {t('nav.login')}
                   </Button>
                 </Link>
                 <Link to="/rent-out-your-space">
                   <Button className="bg-primary hover:bg-primary/90 text-white">
-                    List Your Space
+                    {t('nav.listSpace')}
                   </Button>
                 </Link>
               </>
@@ -189,7 +194,7 @@ const Navbar = () => {
                     <Link to="/my-account" onClick={() => setIsMenuOpen(false)}>
                       <Button variant="ghost" className="w-full text-gray-700 hover:text-primary min-h-[48px] touch-manipulation text-left justify-start">
                         <User className="mr-3 h-5 w-5" />
-                        My Account
+                        {t('nav.myAccount')}
                       </Button>
                     </Link>
                     <Button 
@@ -200,11 +205,11 @@ const Navbar = () => {
                       }}
                       className="w-full text-gray-700 hover:text-primary min-h-[48px] touch-manipulation"
                     >
-                      Logout
+                      {t('nav.logout')}
                     </Button>
                     <Link to="/rent-out-your-space" onClick={() => setIsMenuOpen(false)}>
                       <Button className="w-full bg-primary hover:bg-primary/90 text-white min-h-[48px] touch-manipulation">
-                        List Your Space
+                        {t('nav.listSpace')}
                       </Button>
                     </Link>
                   </>
@@ -212,12 +217,12 @@ const Navbar = () => {
                   <>
                     <Link to="/auth" onClick={() => setIsMenuOpen(false)}>
                       <Button variant="ghost" className="w-full text-gray-700 hover:text-primary min-h-[48px] touch-manipulation text-left justify-start">
-                        Login / Sign Up
+                        {t('nav.login')}
                       </Button>
                     </Link>
                     <Link to="/rent-out-your-space" onClick={() => setIsMenuOpen(false)}>
                       <Button className="w-full bg-primary hover:bg-primary/90 text-white min-h-[48px] touch-manipulation">
-                        List Your Space
+                        {t('nav.listSpace')}
                       </Button>
                     </Link>
                   </>
@@ -229,54 +234,54 @@ const Navbar = () => {
                 className="block text-gray-700 hover:text-primary transition-colors py-4 px-4 rounded-md touch-manipulation min-h-[48px] flex items-center text-lg font-medium"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Find a Parking Space
+                {t('nav.findParking')}
               </Link>
               
               {/* Mobile Zones Menu */}
               <div className="py-2">
-                <p className="text-sm font-semibold text-gray-600 mb-3 px-4 uppercase tracking-wide">Popular Zones</p>
+                <p className="text-sm font-semibold text-gray-600 mb-3 px-4 uppercase tracking-wide">{t('nav.popularZones')}</p>
                 <div className="space-y-1">
                   <Link
                     to="/dubai-marina"
                     className="block text-gray-700 hover:text-primary transition-colors py-3 px-6 rounded-md touch-manipulation min-h-[44px] flex items-center text-base"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    Dubai Marina
+                    {t('zones.dubaiMarina')}
                   </Link>
                   <Link
                     to="/downtown"
                     className="block text-gray-700 hover:text-primary transition-colors py-3 px-6 rounded-md touch-manipulation min-h-[44px] flex items-center text-base"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    Downtown
+                    {t('zones.downtown')}
                   </Link>
                   <Link
                     to="/palm-jumeirah"
                     className="block text-gray-700 hover:text-primary transition-colors py-3 px-6 rounded-md touch-manipulation min-h-[44px] flex items-center text-base"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    Palm Jumeirah
+                    {t('zones.palmJumeirah')}
                   </Link>
                   <Link
                     to="/business-bay"
                     className="block text-gray-700 hover:text-primary transition-colors py-3 px-6 rounded-md touch-manipulation min-h-[44px] flex items-center text-base"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    Business Bay
+                    {t('zones.businessBay')}
                   </Link>
                   <Link
                     to="/difc"
                     className="block text-gray-700 hover:text-primary transition-colors py-3 px-6 rounded-md touch-manipulation min-h-[44px] flex items-center text-base"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    DIFC
+                    {t('zones.difc')}
                   </Link>
                   <Link
                     to="/deira"
                     className="block text-gray-700 hover:text-primary transition-colors py-3 px-6 rounded-md touch-manipulation min-h-[44px] flex items-center text-base"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    Deira
+                    {t('zones.deira')}
                   </Link>
                 </div>
               </div>
@@ -285,29 +290,34 @@ const Navbar = () => {
                 className="block text-gray-700 hover:text-primary transition-colors py-4 px-4 rounded-md touch-manipulation min-h-[48px] flex items-center text-lg font-medium"
                 onClick={() => setIsMenuOpen(false)}
               >
-                About Us
+                {t('nav.aboutUs')}
               </Link>
               <Link
                 to="/faq"
                 className="block text-gray-700 hover:text-primary transition-colors py-4 px-4 rounded-md touch-manipulation min-h-[48px] flex items-center text-lg font-medium"
                 onClick={() => setIsMenuOpen(false)}
               >
-                FAQ
+                {t('nav.faq')}
               </Link>
               <Link
                 to="/news"
                 className="block text-gray-700 hover:text-primary transition-colors py-4 px-4 rounded-md touch-manipulation min-h-[48px] flex items-center text-lg font-medium"
                 onClick={() => setIsMenuOpen(false)}
               >
-                News
+                {t('nav.news')}
               </Link>
               <Link
                 to="/calculator"
                 className="block text-gray-700 hover:text-primary transition-colors py-4 px-4 rounded-md touch-manipulation min-h-[48px] flex items-center text-lg font-medium"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Calculator
+                {t('nav.calculator')}
               </Link>
+              
+              {/* Mobile Language Switcher */}
+              <div className="border-t border-gray-200 mt-4 pt-4">
+                <LanguageSwitcher variant="mobile" onLanguageChange={() => setIsMenuOpen(false)} />
+              </div>
             </div>
           </div>
         )}
