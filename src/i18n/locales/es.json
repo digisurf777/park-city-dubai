@@ -1,0 +1,42 @@
+{
+  "nav": {
+    "findParking": "Encontrar Estacionamiento",
+    "zones": "Zonas",
+    "aboutUs": "Sobre Nosotros",
+    "faq": "Preguntas Frecuentes",
+    "news": "Noticias",
+    "calculator": "Calculadora",
+    "login": "Iniciar Sesión / Registrarse",
+    "myAccount": "Mi Cuenta",
+    "logout": "Cerrar Sesión",
+    "listSpace": "Publica Tu Espacio",
+    "popularZones": "Zonas Populares"
+  },
+  "zones": {
+    "dubaiMarina": "Dubai Marina",
+    "downtown": "Downtown",
+    "palmJumeirah": "Palm Jumeirah",
+    "businessBay": "Business Bay",
+    "difc": "DIFC",
+    "deira": "Deira"
+  },
+  "hero": {
+    "title": "Encuentra Tu Espacio de Estacionamiento Perfecto",
+    "subtitle": "Estacionamiento mensual seguro en las ubicaciones más buscadas de Dubái"
+  },
+  "common": {
+    "learnMore": "Más Información",
+    "bookNow": "Reservar Ahora",
+    "viewDetails": "Ver Detalles",
+    "search": "Buscar",
+    "loading": "Cargando...",
+    "error": "Error",
+    "success": "Éxito"
+  },
+  "footer": {
+    "rights": "Todos los derechos reservados",
+    "privacy": "Política de Privacidad",
+    "terms": "Términos y Condiciones",
+    "cookies": "Aviso de Cookies"
+  }
+}
