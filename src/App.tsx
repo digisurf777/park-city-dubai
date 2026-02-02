@@ -1,4 +1,4 @@
-import { Suspense, lazy } from "react";
+import { Suspense, lazy, memo } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -8,17 +8,15 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { MFARequiredGuard } from "@/components/MFARequiredGuard";
-import TawkToChat from '@/components/TawkToChat';
-import ChatWidget from '@/components/ChatWidget';
-import { MobileOptimizations } from "@/components/MobileOptimizations";
 // Import Auth directly to fix dynamic import issue
 import Auth from "./pages/Auth";
 import EmailConfirmed from "./pages/EmailConfirmed";
 import ResetPassword from "./pages/ResetPassword";
 import OAuthCallback from "./components/ui/OAuthCallback";
 
-
-
+// Lazy load heavy third-party chat widgets - defer until after page load
+const TawkToChat = lazy(() => import('@/components/TawkToChat'));
+const ChatWidget = lazy(() => import('@/components/ChatWidget'));
 
 // Lazy load other components for better performance
 const Index = lazy(() => import("./pages/Index"));
@@ -54,33 +52,36 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 5 * 60 * 1000, // 5 minutes
-      gcTime: 10 * 60 * 1000, // 10 minutes (renamed from cacheTime)
+      gcTime: 10 * 60 * 1000, // 10 minutes
     },
   },
 });
 
-// Performance-optimized loading fallback
-const LoadingFallback = () => (
-  <div className="min-h-screen flex items-center justify-center">
-    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+// Performance-optimized loading fallback with CSS-only animation
+const LoadingFallback = memo(() => (
+  <div className="min-h-screen flex items-center justify-center bg-background">
+    <div className="loading-spinner"></div>
   </div>
-);
+));
+LoadingFallback.displayName = 'LoadingFallback';
+
+// Empty fallback for chat widgets - they load silently in background
+const EmptyFallback = () => null;
 
 const App = () => {
-  console.log('App.tsx: App component rendering');
-  
   return (
     <HelmetProvider>
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
-          <MobileOptimizations />
           <Toaster />
           <Sonner />
           <AuthProvider>
             <BrowserRouter>
-              
-              <TawkToChat />
-              <ChatWidget />
+              {/* Defer chat widgets - load after main content */}
+              <Suspense fallback={<EmptyFallback />}>
+                <TawkToChat />
+                <ChatWidget />
+              </Suspense>
               <Suspense fallback={<LoadingFallback />}>
                 <Routes>
                 {/* Lavable Routes */}
