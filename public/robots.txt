@@ -12,9 +12,3 @@ Allow: /
 
 User-agent: *
 Allow: /
-Disallow: /admin
-Disallow: /my-account
-Disallow: /auth
-Disallow: /admin-setup
-
-Sitemap: https://shazamparking.ae/sitemap.xml

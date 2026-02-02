@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -16,15 +17,9 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import difcHero from "@/assets/zones/difc-real.jpg";
 import { formatDescription } from "@/utils/formatDescription";
 import LazyImage from "@/components/LazyImage";
-import useSEO from "@/hooks/useSEO";
+
 
 const DIFC = () => {
-  const seoElement = useSEO({
-    title: "Monthly Parking in DIFC - Financial Centre Parking from AED 850 | Shazam Parking",
-    description: "Find monthly parking in DIFC Dubai. Secure parking in Dubai's financial hub near law firms, banks and consultancies. Book your bay today.",
-    keywords: "DIFC parking, monthly parking DIFC, Dubai Financial Centre parking, long-term parking DIFC, Gate Village parking",
-    url: "/zones/difc"
-  });
   const [searchTerm, setSearchTerm] = useState("");
   const [priceRange, setPriceRange] = useState([0, 2000]);
   const [showAvailableOnly, setShowAvailableOnly] = useState(false);
@@ -83,7 +78,6 @@ const DIFC = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {seoElement}
       <Navbar />
       
       {/* Hero Section */}

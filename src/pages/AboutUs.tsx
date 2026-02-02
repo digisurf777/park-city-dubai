@@ -4,22 +4,11 @@ import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import dubaiHero from "@/assets/dubai-hero-aboutus.jpg";
-import useSEO from "@/hooks/useSEO";
-
 const AboutUs = () => {
-  const seoElement = useSEO({
-    title: "About Shazam Parking - Dubai's Trusted Parking Platform",
-    description: "Learn about Shazam Parking, Dubai's leading peer-to-peer platform for monthly parking. Connect with verified parking space owners across Dubai's busiest districts.",
-    keywords: "about Shazam Parking, Dubai parking platform, peer-to-peer parking Dubai, parking space rental company",
-    url: "/about-us"
-  });
-
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
-
   return <div className="min-h-screen bg-background animate-zoom-slow">
-      {seoElement}
       <Navbar />
       
       {/* Hero Section */}

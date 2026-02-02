@@ -20,16 +20,7 @@ import { useVerificationStatus } from "@/hooks/useVerificationStatus";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import luxuryCar from "@/assets/luxury-car-dubai.png";
 import phoneLogo from "@/assets/phone-logo.png";
-import useSEO from "@/hooks/useSEO";
-
 const RentOutYourSpace = () => {
-  const seoElement = useSEO({
-    title: "List Your Parking Space for Rent - Earn Monthly Income | Shazam Parking",
-    description: "Earn passive income by renting out your empty parking bay in Dubai. Free to list, verified tenants, secure payments. Start earning from AED 500/month.",
-    keywords: "rent out parking space Dubai, list parking space, earn from parking bay, passive income parking Dubai, parking space rental income",
-    url: "/rent-out-your-space"
-  });
-
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -355,7 +346,6 @@ const RentOutYourSpace = () => {
     }
   };
   return <div className="min-h-screen bg-white animate-zoom-slow">
-      {seoElement}
       <Navbar />
       
       {/* Hero Section */}

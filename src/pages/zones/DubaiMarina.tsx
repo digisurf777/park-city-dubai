@@ -15,15 +15,8 @@ import { useParkingAvailability } from "@/hooks/useParkingAvailability";
 import dubaiMarinaHero from "@/assets/zones/dubai-marina-real.jpg";
 import { formatDescription } from "@/utils/formatDescription";
 import LazyImage from "@/components/LazyImage";
-import useSEO from "@/hooks/useSEO";
 
 const DubaiMarina = () => {
-  const seoElement = useSEO({
-    title: "Monthly Parking in Dubai Marina - Secure Bays from AED 600 | Shazam Parking",
-    description: "Find and book monthly parking spaces in Dubai Marina. Secure underground and covered parking near JBR, Marina Walk and Al Habtoor. Book your bay today.",
-    keywords: "Dubai Marina parking, monthly parking Marina, secure parking Dubai Marina, JBR parking, Marina Walk parking, long-term parking Dubai Marina",
-    url: "/zones/dubai-marina"
-  });
   const [searchTerm, setSearchTerm] = useState("");
   const [priceRange, setPriceRange] = useState([0, 20000]);
   const [showAvailableOnly, setShowAvailableOnly] = useState(false);
@@ -81,7 +74,6 @@ const DubaiMarina = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {seoElement}
       <Navbar />
 
       {/* Hero Section */}

@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -9,15 +10,9 @@ import ImageZoomModal from "@/components/ImageZoomModal";
 import { useParkingAvailability } from "@/hooks/useParkingAvailability";
 import { formatDescription } from "@/utils/formatDescription";
 import LazyImage from "@/components/LazyImage";
-import useSEO from "@/hooks/useSEO";
+
 
 const PalmJumeirah = () => {
-  const seoElement = useSEO({
-    title: "Monthly Parking on Palm Jumeirah - Exclusive Residential Parking | Shazam Parking",
-    description: "Find monthly parking on Palm Jumeirah. Secure parking near Golden Mile, Shoreline and Nakheel Mall. Book your exclusive parking bay today.",
-    keywords: "Palm Jumeirah parking, monthly parking Palm, Golden Mile parking, Shoreline parking, long-term parking Palm Jumeirah Dubai",
-    url: "/zones/palm-jumeirah"
-  });
   const [searchTerm, setSearchTerm] = useState("");
   const [priceRange, setPriceRange] = useState([0, 1500]);
   const [showAvailableOnly, setShowAvailableOnly] = useState(false);
@@ -76,7 +71,6 @@ const PalmJumeirah = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {seoElement}
       <Navbar />
       
       {/* Hero Section */}

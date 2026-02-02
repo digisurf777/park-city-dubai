@@ -3,18 +3,8 @@ import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Helmet } from "react-helmet-async";
 import dubaiParkingHero from "@/assets/dubai-parking-hero.jpg";
-import useSEO from "@/hooks/useSEO";
-
 const FAQ = () => {
-  const seoElement = useSEO({
-    title: "FAQ - Frequently Asked Questions About Shazam Parking",
-    description: "Find answers to common questions about Shazam Parking. Learn about payments, bookings, access cards, fees, and how our parking platform works in Dubai.",
-    keywords: "Shazam Parking FAQ, parking questions Dubai, how to book parking, parking fees Dubai, parking help",
-    url: "/faq"
-  });
-
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -76,29 +66,7 @@ const FAQ = () => {
       answer: "If you have an issue such as blocked access or a faulty entry device, please contact the owner through the in-platform chat and also notify us immediately by email. If the issue remains unresolved, we are always here to assist and, if necessary, will cancel the booking with a refund in line with our policy."
     }]
   }];
-  // Generate FAQ Schema for rich snippets
-  const faqSchema = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": faqData.flatMap(category => 
-      category.questions.map(q => ({
-        "@type": "Question",
-        "name": q.question.replace(/^[^\w]+/, ''),
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": q.answer
-        }
-      }))
-    )
-  };
-
   return <div className="min-h-screen bg-background animate-zoom-slow">
-      {seoElement}
-      <Helmet>
-        <script type="application/ld+json">
-          {JSON.stringify(faqSchema)}
-        </script>
-      </Helmet>
       <Navbar />
       
       {/* Hero Section */}
