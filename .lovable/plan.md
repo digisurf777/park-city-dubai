@@ -1,181 +1,196 @@
 
 
-## Fix Driver-Owner Chat Email Notifications
+## Website Loading Speed Optimization Plan
 
-### Problem Identified
+### Current Performance Status
 
-The chat email notification system is **partially working** but has a critical gap:
+Your website already has a good performance foundation:
 
-| Status | Details |
-|--------|---------|
-| Cron Job | Running every minute (check-chat-notifications) |
-| Edge Function | Deployed and functional |
-| Initial Notifications | Working correctly (3-minute delay, then sends) |
-| Follow-up Notifications | **NOT WORKING** for stuck unread messages |
+| Already Implemented | Status |
+|---------------------|--------|
+| React.lazy for routes | Done |
+| CSS animations (no framer-motion on homepage) | Done |
+| TawkTo chat deferred loading | Done |
+| Image lazy loading | Done |
+| Service Worker caching | Done |
+| Memoized components on Index page | Done |
+| CSS optimizations (content-visibility, gpu-accelerated) | Done |
+| Vite code splitting with manual chunks | Done |
 
-**Evidence of working notifications:**
-- Brendan McDonald: Email sent Jan 30 at 04:01
-- Tayler Jade Sani: Email sent Jan 28 at 04:43  
-- Edward Sollis: Email sent Jan 27 at 11:58
+### Areas for Improvement
 
-**Current issue:** 3 bookings have unread messages from days ago but are not getting re-notified because `notification_timer_active = false` and there's no mechanism to reactivate it.
+After analyzing the codebase, I've identified additional optimizations to make the site even faster:
 
-### Root Cause Analysis
+---
 
-The notification flow has a gap:
+### Phase 1: Critical Path Optimization
 
-```text
-Message Sent (unread)
-       ↓
-Trigger fires → Sets notification_timer_active = TRUE
-       ↓
-After 3 minutes → Email notification sent
-       ↓
-notification_timer_active = FALSE
-cooldown set for 15 minutes
-       ↓
-Cooldown expires BUT message still unread
-       ↓
-[GAP] Nothing reactivates notification_timer_active!
-       ↓
-User never gets reminded again
+**1.1 Memoize Navbar and Footer Components**
+
+These components render on every page but never change unless auth state changes. Wrapping them in `React.memo` prevents unnecessary re-renders.
+
+**Files:** `src/components/Navbar.tsx`, `src/components/Footer.tsx`
+
+```tsx
+// Add at top of component
+import { memo } from 'react';
+
+// Wrap export
+export default memo(Navbar);
 ```
 
-The function `get_chats_needing_notification` has this condition:
+**1.2 Optimize AuthProvider to Prevent Cascade Re-renders**
 
-```sql
-WHERE cns.notification_timer_active = TRUE  -- This is always FALSE after first notification!
+The `useAuth` hook triggers multiple state updates on auth changes. Using a single combined state update reduces re-render cascade.
+
+**File:** `src/hooks/useAuth.tsx`
+
+- Batch state updates using a single object state
+- Add `useMemo` for the context value to prevent reference changes
+- Remove console.log statements in production (they slow down execution)
+
+---
+
+### Phase 2: Image Loading Improvements
+
+**2.1 Add Priority Hints to Hero Background Image**
+
+The hero section uses a CSS background-image which doesn't benefit from `fetchpriority`. Convert to an `<img>` element for better LCP (Largest Contentful Paint).
+
+**File:** `src/pages/Index.tsx`
+
+```tsx
+{/* Before */}
+<section style={{
+  backgroundImage: `linear-gradient(...), url(${secureParking})`
+}}>
+
+{/* After - Add preload in head + use img with object-fit */}
+<section className="relative">
+  <img 
+    src={secureParking}
+    alt=""
+    className="absolute inset-0 w-full h-full object-cover"
+    fetchPriority="high"
+    loading="eager"
+  />
+  <div className="absolute inset-0 bg-black/40" />
+  ...
+</section>
 ```
 
-### Solution
+**2.2 Optimize FindParking Zone Images**
 
-Update the `get_chats_needing_notification` database function to include chats where:
-1. The cooldown has expired
-2. There are still unread messages
-3. The chat hasn't been read since the unread messages arrived
+Add explicit dimensions and native lazy loading to zone cards.
 
-This removes the dependency on `notification_timer_active` for follow-up notifications.
+**File:** `src/pages/FindParking.tsx`
 
-### Technical Implementation
-
-**Database Migration: Update get_chats_needing_notification function**
-
-```sql
-CREATE OR REPLACE FUNCTION public.get_chats_needing_notification()
- RETURNS TABLE(
-   booking_id uuid, 
-   driver_id uuid, 
-   owner_id uuid, 
-   driver_email text, 
-   owner_email text, 
-   first_unread_message_at timestamp with time zone, 
-   recipient_is_driver boolean, 
-   sender_name text, 
-   latest_message_preview text, 
-   booking_location text, 
-   booking_zone text, 
-   recipient_name text
- )
- LANGUAGE plpgsql
- SECURITY DEFINER
- SET search_path TO 'public'
-AS $function$
-BEGIN
-  RETURN QUERY
-  SELECT 
-    cns.booking_id,
-    pb.user_id as driver_id,
-    public.get_booking_owner_id(cns.booking_id) as owner_id,
-    driver_profile.email as driver_email,
-    owner_profile.email as owner_email,
-    cns.first_unread_message_at,
-    NOT (latest_msg.from_driver) as recipient_is_driver,
-    CASE 
-      WHEN latest_msg.from_driver THEN COALESCE(driver_profile.full_name, 'Driver')
-      ELSE COALESCE(owner_profile.full_name, 'Owner')
-    END as sender_name,
-    LEFT(latest_msg.message_text, 100) as latest_message_preview,
-    pb.location as booking_location,
-    pb.zone as booking_zone,
-    CASE 
-      WHEN latest_msg.from_driver THEN COALESCE(owner_profile.full_name, 'Owner')
-      ELSE COALESCE(driver_profile.full_name, 'Driver')
-    END as recipient_name
-  FROM public.chat_notification_state cns
-  INNER JOIN public.parking_bookings pb ON pb.id = cns.booking_id
-  INNER JOIN (
-    SELECT DISTINCT ON (dom.booking_id)
-      dom.booking_id,
-      dom.from_driver,
-      dom.message as message_text,
-      dom.created_at
-    FROM public.driver_owner_messages dom
-    WHERE dom.read_status = false
-    ORDER BY dom.booking_id, dom.created_at DESC
-  ) latest_msg ON latest_msg.booking_id = cns.booking_id
-  LEFT JOIN public.profiles driver_profile ON driver_profile.user_id = pb.user_id
-  LEFT JOIN public.profiles owner_profile ON owner_profile.user_id = public.get_booking_owner_id(cns.booking_id)
-  WHERE 
-    -- Key change: check for unread messages that need notification
-    cns.first_unread_message_at IS NOT NULL
-    -- Wait 3 minutes before notifying
-    AND cns.first_unread_message_at < (NOW() - INTERVAL '3 minutes')
-    -- Either: timer is active (new notification cycle)
-    -- OR: cooldown expired and message still unread (follow-up notification)
-    AND (
-      cns.notification_timer_active = TRUE
-      OR (
-        cns.notification_cooldown_until IS NOT NULL 
-        AND cns.notification_cooldown_until < NOW()
-        AND (cns.last_read_at IS NULL OR cns.last_read_at < cns.first_unread_message_at)
-      )
-    )
-    -- Only for active bookings
-    AND pb.status IN ('confirmed', 'approved')
-    -- Booking hasn't expired yet
-    AND pb.end_time > NOW();
-END;
-$function$;
+```tsx
+<img 
+  src={zoneImages[zone.slug]}
+  alt={zone.name}
+  width={400}
+  height={256}
+  loading="lazy"
+  decoding="async"
+/>
 ```
 
-### Key Changes
+---
 
-1. **Added follow-up notification logic**: When cooldown expires AND message is still unread AND user hasn't read the chat, send another notification
+### Phase 3: Bundle Optimization
 
-2. **Added booking expiry check**: Don't send notifications for expired bookings (`pb.end_time > NOW()`)
+**3.1 Add Dynamic Import for Heavy Admin Panel**
 
-3. **Preserved existing 3-minute delay**: Messages must be unread for 3+ minutes before notification
+The Admin Panel is 3,373 lines and imports heavy components like ReactQuill. Split admin-only components.
 
-4. **Maintained 15-minute cooldown**: After each notification, wait 15 minutes before sending again
+**File:** `src/pages/AdminPanel.tsx`
 
-### Expected Behavior After Fix
+```tsx
+// Replace direct import
+import ReactQuill from 'react-quill';
 
-```text
-Message Sent (unread)
-       ↓
-After 3 minutes → First email notification sent
-       ↓
-cooldown set for 15 minutes
-       ↓
-Cooldown expires, message still unread
-       ↓
-[NEW] Function detects: cooldown expired + unread + not read
-       ↓
-After 15 more minutes → Second email notification sent
-       ↓
-This continues every 15 minutes until user reads the chat
+// With dynamic import
+const ReactQuill = lazy(() => import('react-quill'));
 ```
 
-### Immediate Impact
+**3.2 Tree-shake Unused Lucide Icons**
 
-Once deployed, these 3 bookings will immediately receive follow-up notifications:
-- **Brendan McDonald** (4+ days without reply)
-- **Tayler Jade Sani** (6+ days without reply)
-- **Marcin Godek** (3+ weeks without reply)
+Currently importing icons individually is correct, but ensure unused ones are removed from imports.
 
-### Files to Modify
+---
 
-| File | Change |
-|------|--------|
-| Database migration | Update `get_chats_needing_notification` function |
+### Phase 4: Network Optimization
+
+**4.1 Preconnect to Supabase**
+
+Add preconnect hints in `index.html` for faster API connections.
+
+**File:** `index.html`
+
+```html
+<link rel="preconnect" href="https://eoknluyunximjlsnyceb.supabase.co" crossorigin>
+<link rel="dns-prefetch" href="//eoknluyunximjlsnyceb.supabase.co" />
+```
+
+**4.2 Optimize Service Worker Cache Strategy**
+
+Update the service worker to use stale-while-revalidate for static assets.
+
+**File:** `public/sw.js`
+
+- Add stale-while-revalidate for fonts and CSS
+- Reduce cache version check interval from 30 min to 60 min
+
+---
+
+### Phase 5: Mobile-Specific Optimizations
+
+**5.1 Reduce Mobile Bundle with Conditional Imports**
+
+Use dynamic imports for features not needed on mobile (like admin panel).
+
+**5.2 Add Touch Event Passive Listeners**
+
+Already partially done. Ensure all scroll handlers use `passive: true`.
+
+**5.3 Optimize Mobile Menu Animation**
+
+The mobile menu uses `animate-fade-in` which is lightweight. Keep as-is.
+
+---
+
+### Implementation Summary
+
+| File | Changes | Impact |
+|------|---------|--------|
+| `src/components/Navbar.tsx` | Add `React.memo` wrapper | Reduces re-renders |
+| `src/components/Footer.tsx` | Add `React.memo` wrapper | Reduces re-renders |
+| `src/hooks/useAuth.tsx` | Batch state updates, memoize context value | Faster auth state propagation |
+| `src/pages/Index.tsx` | Convert hero background to `<img>` with priority | Better LCP |
+| `src/pages/FindParking.tsx` | Add explicit image dimensions | Reduced CLS |
+| `src/pages/AdminPanel.tsx` | Lazy load ReactQuill | Smaller initial bundle |
+| `index.html` | Add Supabase preconnect | Faster API calls |
+| `public/sw.js` | Improve caching strategy | Better repeat visits |
+
+---
+
+### Expected Performance Gains
+
+| Metric | Expected Improvement |
+|--------|---------------------|
+| LCP (Largest Contentful Paint) | -200-400ms on mobile |
+| FID (First Input Delay) | -50-100ms |
+| CLS (Cumulative Layout Shift) | Reduced by adding dimensions |
+| Bundle size | -50-100KB (admin lazy load) |
+| Re-render count | -30-50% fewer re-renders |
+
+---
+
+### Technical Notes
+
+- All changes maintain backward compatibility
+- No visual changes to the UI
+- Service worker updates will apply on next visit
+- Preconnect hints work immediately
 
