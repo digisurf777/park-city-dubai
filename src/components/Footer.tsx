@@ -1,7 +1,8 @@
-import React from "react";
+import React, { memo } from "react";
 import { Link } from "react-router-dom";
-import { MapPin, Mail, Apple, Play } from "lucide-react";
-const Footer = () => {
+import { MapPin, Mail } from "lucide-react";
+
+const Footer = memo(() => {
   return <footer className="bg-gray-900 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
@@ -142,5 +143,8 @@ const Footer = () => {
         </div>
       </div>
     </footer>;
-};
+});
+
+Footer.displayName = 'Footer';
+
 export default Footer;

@@ -1,12 +1,11 @@
 
-import React from "react";
+import React, { memo, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { MapPin, Menu, X, ChevronDown, User } from "lucide-react";
-import { useState } from "react";
+import { Menu, X, ChevronDown, User } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 
-const Navbar = () => {
+const Navbar = memo(() => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isZonesOpen, setIsZonesOpen] = useState(false);
   
@@ -314,6 +313,8 @@ const Navbar = () => {
       </div>
     </nav>
   );
-};
+});
+
+Navbar.displayName = 'Navbar';
 
 export default Navbar;
