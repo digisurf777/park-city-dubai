@@ -140,11 +140,34 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Static assets - cache first
+  // Static assets - stale-while-revalidate for fonts/CSS, cache first for JS
   if (url.pathname.includes('/static/') || 
       url.pathname.includes('/assets/') ||
       url.pathname.match(/\.(css|js|woff2?|ttf|eot)$/)) {
     
+    const isFont = url.pathname.match(/\.(woff2?|ttf|eot)$/);
+    const isCSS = url.pathname.match(/\.css$/);
+    
+    // Stale-while-revalidate for fonts and CSS (faster perceived load)
+    if (isFont || isCSS) {
+      event.respondWith(
+        caches.open(STATIC_CACHE).then(cache => {
+          return cache.match(request).then(cachedResponse => {
+            const fetchPromise = fetch(request.clone()).then(networkResponse => {
+              if (networkResponse.ok) {
+                cache.put(request, networkResponse.clone());
+              }
+              return networkResponse;
+            }).catch(() => cachedResponse);
+            
+            return cachedResponse || fetchPromise;
+          });
+        })
+      );
+      return;
+    }
+    
+    // Cache first for JS
     event.respondWith(
       caches.open(STATIC_CACHE).then(cache => {
         return cache.match(request).then(response => {
@@ -200,7 +223,7 @@ self.addEventListener('message', (event) => {
   }
 });
 
-// Periodic cache cleanup
+// Periodic cache cleanup - every 60 minutes
 setInterval(() => {
   caches.keys().then(cacheNames => {
     cacheNames.forEach(cacheName => {
@@ -209,4 +232,4 @@ setInterval(() => {
       }
     });
   });
-}, 30 * 60 * 1000); // Every 30 minutes
+}, 60 * 60 * 1000);
