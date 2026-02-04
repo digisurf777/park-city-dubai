@@ -160,13 +160,24 @@ const handler = async (req: Request): Promise<Response> => {
 
         console.log(`✅ Email sent successfully to ${recipientEmail}`);
 
+        // Get current notification count to increment
+        const { data: currentState } = await supabase
+          .from("chat_notification_state")
+          .select("notification_count")
+          .eq("booking_id", chat.booking_id)
+          .single();
+
+        const currentCount = currentState?.notification_count || 0;
+        const newCount = currentCount + 1;
+
         // Update notification state in database
         const { error: updateError } = await supabase
           .from("chat_notification_state")
           .update({
             last_notification_sent_at: new Date().toISOString(),
             notification_cooldown_until: new Date(Date.now() + 15 * 60 * 1000).toISOString(), // 15 minutes cooldown
-            notification_timer_active: false,
+            notification_timer_active: newCount < 3, // Keep timer active only for first 3 notifications
+            notification_count: newCount,
             updated_at: new Date().toISOString(),
           })
           .eq("booking_id", chat.booking_id);
@@ -174,7 +185,7 @@ const handler = async (req: Request): Promise<Response> => {
         if (updateError) {
           console.error(`❌ Error updating notification state:`, updateError);
         } else {
-          console.log(`✅ Notification state updated for booking ${chat.booking_id}`);
+          console.log(`✅ Notification state updated for booking ${chat.booking_id} (count: ${newCount})`);
         }
 
         results.push({

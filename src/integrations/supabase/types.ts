@@ -242,6 +242,7 @@ export type Database = {
           last_notification_sent_at: string | null
           last_read_at: string | null
           notification_cooldown_until: string | null
+          notification_count: number | null
           notification_timer_active: boolean | null
           updated_at: string
         }
@@ -253,6 +254,7 @@ export type Database = {
           last_notification_sent_at?: string | null
           last_read_at?: string | null
           notification_cooldown_until?: string | null
+          notification_count?: number | null
           notification_timer_active?: boolean | null
           updated_at?: string
         }
@@ -264,6 +266,7 @@ export type Database = {
           last_notification_sent_at?: string | null
           last_read_at?: string | null
           notification_cooldown_until?: string | null
+          notification_count?: number | null
           notification_timer_active?: boolean | null
           updated_at?: string
         }
