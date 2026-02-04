@@ -1,196 +1,98 @@
 
 
-## Website Loading Speed Optimization Plan
+## Email Notification Issue - Analysis and Fix Plan
 
-### Current Performance Status
+### Problem Identified
 
-Your website already has a good performance foundation:
+You're receiving repeated email notifications about chat messages because the system is working exactly as designed - but **without a maximum limit on reminders**.
 
-| Already Implemented | Status |
-|---------------------|--------|
-| React.lazy for routes | Done |
-| CSS animations (no framer-motion on homepage) | Done |
-| TawkTo chat deferred loading | Done |
-| Image lazy loading | Done |
-| Service Worker caching | Done |
-| Memoized components on Index page | Done |
-| CSS optimizations (content-visibility, gpu-accelerated) | Done |
-| Vite code splitting with manual chunks | Done |
+### Current Behavior
 
-### Areas for Improvement
+| Setting | Value |
+|---------|-------|
+| Initial delay | 3 minutes after message |
+| Cooldown between emails | 15 minutes |
+| Follow-up reminders | Unlimited (sends every 15 min if unread) |
 
-After analyzing the codebase, I've identified additional optimizations to make the site even faster:
+### What's Happening
+
+Looking at the database, I found two chats causing the repeated emails:
+
+1. **Booking 1b528ebb**: Message from "Hi Tayler, was everything okay this morning?" sent Jan 28 - **unread for 6+ days**
+2. **Booking ea7595be**: Message "Please may I check whether all worked fine yesterday?" sent Jan 30 - **unread for 4+ days**
+
+Since these remain unread and the bookings are active, the system sends a reminder every 15 minutes (about 96 emails per day per chat).
 
 ---
 
-### Phase 1: Critical Path Optimization
+### Proposed Fix
 
-**1.1 Memoize Navbar and Footer Components**
+Add a maximum notification limit to prevent spam while still ensuring users get reminded about important messages.
 
-These components render on every page but never change unless auth state changes. Wrapping them in `React.memo` prevents unnecessary re-renders.
+**New notification rules:**
 
-**Files:** `src/components/Navbar.tsx`, `src/components/Footer.tsx`
+| Setting | Current | Proposed |
+|---------|---------|----------|
+| Initial delay | 3 minutes | 3 minutes (no change) |
+| Cooldown between reminders | 15 minutes | 15 minutes (no change) |
+| Maximum reminders | Unlimited | 3 reminders (then daily max 1) |
+| Daily notification cap | None | 1 per day after initial 3 |
 
-```tsx
-// Add at top of component
-import { memo } from 'react';
+**Implementation:**
 
-// Wrap export
-export default memo(Navbar);
+1. **Add tracking column** to `chat_notification_state` table:
+   - `notification_count` - tracks how many notifications sent for current unread message
+
+2. **Update the database function** `get_chats_needing_notification`:
+   - Add condition to limit notifications to 3 within first hour
+   - After 3 reminders, only send once per 24 hours
+   - Stop entirely after 7 days
+
+3. **Update edge function** to increment the notification count
+
+---
+
+### Technical Changes
+
+**Database Migration:**
+```sql
+-- Add notification count tracking
+ALTER TABLE chat_notification_state 
+ADD COLUMN IF NOT EXISTS notification_count INTEGER DEFAULT 0;
+
+-- Update function to limit notifications
+-- Max 3 in first hour, then once daily, stop after 7 days
 ```
 
-**1.2 Optimize AuthProvider to Prevent Cascade Re-renders**
-
-The `useAuth` hook triggers multiple state updates on auth changes. Using a single combined state update reduces re-render cascade.
-
-**File:** `src/hooks/useAuth.tsx`
-
-- Batch state updates using a single object state
-- Add `useMemo` for the context value to prevent reference changes
-- Remove console.log statements in production (they slow down execution)
+**Edge Function Update:**
+- Increment `notification_count` when sending notification
+- Reset count when user opens chat
 
 ---
 
-### Phase 2: Image Loading Improvements
+### Immediate Relief Option
 
-**2.1 Add Priority Hints to Hero Background Image**
+Before implementing the fix, I can also reset the notification state for the stuck chats to stop the current spam:
 
-The hero section uses a CSS background-image which doesn't benefit from `fetchpriority`. Convert to an `<img>` element for better LCP (Largest Contentful Paint).
-
-**File:** `src/pages/Index.tsx`
-
-```tsx
-{/* Before */}
-<section style={{
-  backgroundImage: `linear-gradient(...), url(${secureParking})`
-}}>
-
-{/* After - Add preload in head + use img with object-fit */}
-<section className="relative">
-  <img 
-    src={secureParking}
-    alt=""
-    className="absolute inset-0 w-full h-full object-cover"
-    fetchPriority="high"
-    loading="eager"
-  />
-  <div className="absolute inset-0 bg-black/40" />
-  ...
-</section>
+```sql
+UPDATE chat_notification_state 
+SET notification_cooldown_until = NOW() + INTERVAL '7 days'
+WHERE booking_id IN (
+  '1b528ebb-6c7e-4543-9bf6-af9d83c63574',
+  'ea7595be-4d78-4884-ac80-c57c477e7fe9'
+);
 ```
 
-**2.2 Optimize FindParking Zone Images**
-
-Add explicit dimensions and native lazy loading to zone cards.
-
-**File:** `src/pages/FindParking.tsx`
-
-```tsx
-<img 
-  src={zoneImages[zone.slug]}
-  alt={zone.name}
-  width={400}
-  height={256}
-  loading="lazy"
-  decoding="async"
-/>
-```
+This would pause notifications for those specific chats for a week.
 
 ---
 
-### Phase 3: Bundle Optimization
+### Summary
 
-**3.1 Add Dynamic Import for Heavy Admin Panel**
+The email system is functioning correctly but needs a cap to prevent notification fatigue. The fix will:
 
-The Admin Panel is 3,373 lines and imports heavy components like ReactQuill. Split admin-only components.
-
-**File:** `src/pages/AdminPanel.tsx`
-
-```tsx
-// Replace direct import
-import ReactQuill from 'react-quill';
-
-// With dynamic import
-const ReactQuill = lazy(() => import('react-quill'));
-```
-
-**3.2 Tree-shake Unused Lucide Icons**
-
-Currently importing icons individually is correct, but ensure unused ones are removed from imports.
-
----
-
-### Phase 4: Network Optimization
-
-**4.1 Preconnect to Supabase**
-
-Add preconnect hints in `index.html` for faster API connections.
-
-**File:** `index.html`
-
-```html
-<link rel="preconnect" href="https://eoknluyunximjlsnyceb.supabase.co" crossorigin>
-<link rel="dns-prefetch" href="//eoknluyunximjlsnyceb.supabase.co" />
-```
-
-**4.2 Optimize Service Worker Cache Strategy**
-
-Update the service worker to use stale-while-revalidate for static assets.
-
-**File:** `public/sw.js`
-
-- Add stale-while-revalidate for fonts and CSS
-- Reduce cache version check interval from 30 min to 60 min
-
----
-
-### Phase 5: Mobile-Specific Optimizations
-
-**5.1 Reduce Mobile Bundle with Conditional Imports**
-
-Use dynamic imports for features not needed on mobile (like admin panel).
-
-**5.2 Add Touch Event Passive Listeners**
-
-Already partially done. Ensure all scroll handlers use `passive: true`.
-
-**5.3 Optimize Mobile Menu Animation**
-
-The mobile menu uses `animate-fade-in` which is lightweight. Keep as-is.
-
----
-
-### Implementation Summary
-
-| File | Changes | Impact |
-|------|---------|--------|
-| `src/components/Navbar.tsx` | Add `React.memo` wrapper | Reduces re-renders |
-| `src/components/Footer.tsx` | Add `React.memo` wrapper | Reduces re-renders |
-| `src/hooks/useAuth.tsx` | Batch state updates, memoize context value | Faster auth state propagation |
-| `src/pages/Index.tsx` | Convert hero background to `<img>` with priority | Better LCP |
-| `src/pages/FindParking.tsx` | Add explicit image dimensions | Reduced CLS |
-| `src/pages/AdminPanel.tsx` | Lazy load ReactQuill | Smaller initial bundle |
-| `index.html` | Add Supabase preconnect | Faster API calls |
-| `public/sw.js` | Improve caching strategy | Better repeat visits |
-
----
-
-### Expected Performance Gains
-
-| Metric | Expected Improvement |
-|--------|---------------------|
-| LCP (Largest Contentful Paint) | -200-400ms on mobile |
-| FID (First Input Delay) | -50-100ms |
-| CLS (Cumulative Layout Shift) | Reduced by adding dimensions |
-| Bundle size | -50-100KB (admin lazy load) |
-| Re-render count | -30-50% fewer re-renders |
-
----
-
-### Technical Notes
-
-- All changes maintain backward compatibility
-- No visual changes to the UI
-- Service worker updates will apply on next visit
-- Preconnect hints work immediately
+1. Send up to 3 reminders in the first hour (at 3min, 18min, 33min)
+2. Then send at most 1 reminder per day
+3. Stop entirely after 7 days of no response
+4. Reset counter when user opens the chat
 
