@@ -24,7 +24,7 @@ const Deira = () => {
   const { toast } = useToast();
   const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
-  const [priceRange, setPriceRange] = useState([0, 2000]);
+  const [priceRange, setPriceRange] = useState([0, 500]);
   const [showAvailableOnly, setShowAvailableOnly] = useState(false);
   const [selectedSpot, setSelectedSpot] = useState<any>(null);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);

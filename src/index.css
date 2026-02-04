@@ -1,21 +1,10 @@
+
 /* Font will be preloaded in index.html for better performance */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Critical CSS loading spinner - pure CSS, no animation library needed */
-.loading-spinner {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: 3px solid hsl(174 66% 56% / 0.2);
-  border-top-color: hsl(174 66% 56%);
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
+/* Critical CSS - First paint optimization */
 
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
 All colors MUST be HSL.
@@ -143,12 +132,6 @@ All colors MUST be HSL.
     @apply border-border;
   }
 
-  html {
-    scroll-behavior: smooth;
-    -webkit-text-size-adjust: 100%;
-    text-size-adjust: 100%;
-  }
-
   body {
     @apply bg-background text-foreground;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
@@ -156,21 +139,12 @@ All colors MUST be HSL.
     /* Mobile optimizations */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    touch-action: manipulation;
+    touch-action: manipulation; /* Prevents zoom on double tap */
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
     -webkit-tap-highlight-color: transparent;
-    overflow-x: hidden;
-    /* Optimize rendering */
-    text-rendering: optimizeLegibility;
-  }
-
-  /* Optimize images globally */
-  img {
-    content-visibility: auto;
-  }
-  
-  /* Optimize large sections */
-  section {
-    contain: layout style;
+    scroll-behavior: smooth;
+    overflow-x: hidden; /* Prevent horizontal scroll */
   }
 
   /* Mobile touch targets - minimum 44px for accessibility */
@@ -183,7 +157,6 @@ All colors MUST be HSL.
   .mobile-scroll {
     -webkit-overflow-scrolling: touch;
     scroll-behavior: smooth;
-    overscroll-behavior: contain;
   }
 
   /* Focus states for accessibility */
@@ -194,21 +167,23 @@ All colors MUST be HSL.
   /* Performance optimized animations */
   .animate-fade-in {
     animation: fade-in 0.6s ease-out forwards;
-    opacity: 0;
   }
   
   .animate-slide-up {
     animation: slide-up 0.3s ease-out forwards;
   }
 
+  /* Responsive image optimization */
+  img {
+    content-visibility: auto;
+  }
+  
   /* Reduce motion for users who prefer it */
   @media (prefers-reduced-motion: reduce) {
     .animate-fade-in,
     .animate-slide-up,
     .animate-zoom-slow {
       animation: none;
-      opacity: 1;
-      transform: none;
     }
     
     * {
@@ -250,19 +225,6 @@ All colors MUST be HSL.
     touch-action: manipulation;
   }
   
-  /* GPU acceleration for animations */
-  .gpu-accelerated {
-    transform: translateZ(0);
-    will-change: transform;
-    backface-visibility: hidden;
-  }
-  
-  /* Content visibility optimization for below-fold content */
-  .content-visibility-auto {
-    content-visibility: auto;
-    contain-intrinsic-size: auto 500px;
-  }
-  
   /* Mobile-specific improvements */
   @media (max-width: 768px) {
     /* Improve touch targets */
@@ -300,22 +262,5 @@ All colors MUST be HSL.
       max-height: calc(100vh - 4rem);
       overflow-y: auto;
     }
-  }
-}
-
-/* Performance: Reduce paint on fixed elements */
-.fixed {
-  will-change: transform;
-  backface-visibility: hidden;
-}
-
-/* Optimized hover states - only on devices that support hover */
-@media (hover: hover) {
-  .hover\:scale-105:hover {
-    transform: scale(1.05);
-  }
-  
-  .hover\:scale-110:hover {
-    transform: scale(1.1);
   }
 }

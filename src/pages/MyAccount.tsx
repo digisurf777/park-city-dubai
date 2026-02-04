@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
-import { Loader2, User, History, LogOut, Shield, Mail, Home, MessageSquare, Send, Car, ParkingCircle, MessageCircle, CheckCircle, FileText, CreditCard } from 'lucide-react';
+import { Loader2, User, History, LogOut, Shield, Mail, Home, MessageSquare, Send, Car, ParkingCircle, MessageCircle, CheckCircle, FileText } from 'lucide-react';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import VerificationPanel from '@/components/VerificationPanel';
 import UserInbox from '@/components/UserInbox';
@@ -80,7 +80,6 @@ const MyAccount = () => {
   const [isParkingOwner, setIsParkingOwner] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'profile');
   const [unreadChatCount, setUnreadChatCount] = useState<number>(0);
-  const [hasBankingDetails, setHasBankingDetails] = useState<boolean | null>(null);
 
   // Redirect if not logged in
   if (!user) {
@@ -93,30 +92,7 @@ const MyAccount = () => {
     fetchListings();
     fetchUnreadChatCount();
     setupChatRealtimeSubscription();
-    checkBankingDetails();
   }, [user]);
-
-  const checkBankingDetails = async () => {
-    if (!user) return;
-    
-    try {
-      const { data, error } = await supabase
-        .from("banking_details")
-        .select("id")
-        .eq("user_id", user.id)
-        .maybeSingle();
-      
-      if (error) {
-        console.error('Error checking banking details:', error);
-        setHasBankingDetails(false);
-      } else {
-        setHasBankingDetails(!!data);
-      }
-    } catch (error) {
-      console.error('Error checking banking details:', error);
-      setHasBankingDetails(false);
-    }
-  };
   useEffect(() => {
     // Combine bookings and listings into unified history
     const combinedHistory: ParkingHistoryItem[] = [...bookings.map(booking => ({
@@ -482,37 +458,6 @@ const MyAccount = () => {
           </Card>
         )}
 
-        {/* Banking Details Reminder - Show for all owners without banking details */}
-        {!verificationLoading && 
-         isParkingOwner && 
-         hasBankingDetails === false && (
-          <Card className="mb-6 border-blue-200 bg-blue-50">
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-3">
-                <div className="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-full">
-                  <CreditCard className="h-6 w-6 text-blue-600" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-semibold text-blue-800">
-                    Add Banking Details to Receive Payouts
-                  </h3>
-                  <p className="text-sm text-blue-700 mt-1">
-                    To receive payments from your parking space bookings, please add your banking details.
-                  </p>
-                </div>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => setActiveTab('payments')}
-                  className="border-blue-300 text-blue-700 hover:bg-blue-100 font-semibold"
-                >
-                  Add Details
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           {/* Mobile Tab Navigation */}
           <div className="lg:hidden mb-6">
@@ -826,20 +771,9 @@ const MyAccount = () => {
             {/* Payments Tab - For All Users */}
             <TabsContent value="payments" className="mt-6">
               <div className="space-y-6">
-              {/* Banking Details Section - Owner Only */}
-                {isParkingOwner && (
-                  <>
-                    {verificationStatus !== 'approved' && verificationStatus !== 'verified' && (
-                      <Card className="mb-4 border-orange-200 bg-orange-50">
-                        <CardContent className="pt-4 pb-4">
-                          <p className="text-sm text-orange-700">
-                            <strong>Note:</strong> Complete your account verification in the "Verification" tab to receive payouts from bookings. You can still add your banking details now.
-                          </p>
-                        </CardContent>
-                      </Card>
-                    )}
-                    <BankingDetailsPanel />
-                  </>
+                {/* Banking Details Section - Owner Only */}
+                {isParkingOwner && (verificationStatus === 'approved' || verificationStatus === 'verified') && (
+                  <BankingDetailsPanel />
                 )}
                 
                 {/* Owner Payments Section */}

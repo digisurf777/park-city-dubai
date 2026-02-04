@@ -71,41 +71,25 @@ export const MFARequiredGuard = ({ children }: { children: React.ReactNode }) =>
           return;
         }
 
-        // Get MFA factors to check status
-        const { factors } = await getMFAFactors();
-        const totpFactor = factors.find((f: any) => f.factor_type === 'totp' && f.status === 'verified');
-
-        // If MFA is enabled (has verified TOTP factor) but session is AAL1, trigger MFA challenge
-        if (totpFactor && clientAAL === 'aal1') {
+        // If MFA is enabled but session is AAL1, trigger MFA challenge
+        if (mfaEnabled && clientAAL === 'aal1') {
           console.log('MFARequiredGuard: MFA enabled but session is AAL1, triggering challenge');
+          const { factors } = await getMFAFactors();
+          const totpFactor = factors.find((f: any) => f.factor_type === 'totp' && f.status === 'verified');
           
-          const { challengeId: newChallengeId, error: challengeError } = await challengeMFA(totpFactor.id);
-          if (!challengeError && newChallengeId) {
-            setChallengeId(newChallengeId);
-            setShowMFAChallenge(true);
-            setShowSetup(false);
-            return;
-          } else {
-            // Challenge failed but MFA is enabled - still show the challenge UI
-            console.warn('MFA challenge creation failed, retrying...');
-            // Retry once
-            const retry = await challengeMFA(totpFactor.id);
-            if (!retry.error && retry.challengeId) {
-              setChallengeId(retry.challengeId);
+          if (totpFactor) {
+            const { challengeId: newChallengeId, error: challengeError } = await challengeMFA(totpFactor.id);
+            if (!challengeError && newChallengeId) {
+              setChallengeId(newChallengeId);
               setShowMFAChallenge(true);
               setShowSetup(false);
               return;
             }
-            // If retry also failed, show re-auth prompt
-            setShowSetup(true);
-            setShowMFAChallenge(false);
-            return;
           }
         }
 
-        // If no verified TOTP factor, show MFA setup
-        if (!totpFactor) {
-          console.log('MFARequiredGuard: No verified MFA factor, showing setup');
+        // If MFA is not enabled, show setup
+        if (!mfaEnabled) {
           setShowSetup(true);
           setShowMFAChallenge(false);
         }
@@ -114,15 +98,12 @@ export const MFARequiredGuard = ({ children }: { children: React.ReactNode }) =>
         // On error, check if MFA needs to be set up
         if (!mfaEnabled) {
           setShowSetup(true);
-        } else {
-          // MFA is enabled but we hit an error - show re-auth prompt
-          setShowSetup(true);
         }
         setShowMFAChallenge(false);
       }
     };
     validateSecureAccess();
-  }, [user, loading, isAdmin, checkingRole, mfaEnabled, getMFAFactors, challengeMFA]);
+  }, [user, loading, isAdmin, checkingRole, mfaEnabled]);
 
   if (loading || checkingRole) {
     return (

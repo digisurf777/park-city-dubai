@@ -242,7 +242,6 @@ export type Database = {
           last_notification_sent_at: string | null
           last_read_at: string | null
           notification_cooldown_until: string | null
-          notification_count: number | null
           notification_timer_active: boolean | null
           updated_at: string
         }
@@ -254,7 +253,6 @@ export type Database = {
           last_notification_sent_at?: string | null
           last_read_at?: string | null
           notification_cooldown_until?: string | null
-          notification_count?: number | null
           notification_timer_active?: boolean | null
           updated_at?: string
         }
@@ -266,7 +264,6 @@ export type Database = {
           last_notification_sent_at?: string | null
           last_read_at?: string | null
           notification_cooldown_until?: string | null
-          notification_count?: number | null
           notification_timer_active?: boolean | null
           updated_at?: string
         }
@@ -754,7 +751,6 @@ export type Database = {
           payment_link_url: string | null
           payment_status: string | null
           payment_type: string | null
-          payout_email_sent_at: string | null
           pre_authorization_amount: number | null
           pre_authorization_expires_at: string | null
           security_deposit_amount: number | null
@@ -792,7 +788,6 @@ export type Database = {
           payment_link_url?: string | null
           payment_status?: string | null
           payment_type?: string | null
-          payout_email_sent_at?: string | null
           pre_authorization_amount?: number | null
           pre_authorization_expires_at?: string | null
           security_deposit_amount?: number | null
@@ -830,7 +825,6 @@ export type Database = {
           payment_link_url?: string | null
           payment_status?: string | null
           payment_type?: string | null
-          payout_email_sent_at?: string | null
           pre_authorization_amount?: number | null
           pre_authorization_expires_at?: string | null
           security_deposit_amount?: number | null
@@ -1735,18 +1729,13 @@ export type Database = {
       get_booking_details_for_chat: {
         Args: { p_booking_id: string }
         Returns: {
-          booking_id: string
-          driver_email: string
-          driver_id: string
-          driver_name: string
           end_time: string
-          is_driver: boolean
-          is_owner: boolean
-          listing_id: string
-          listing_title: string
-          owner_id: string
+          id: string
+          location: string
           start_time: string
           status: string
+          user_id: string
+          zone: string
         }[]
       }
       get_booking_messages: {
@@ -1899,16 +1888,15 @@ export type Database = {
       get_owner_active_bookings: {
         Args: never
         Returns: {
-          booking_id: string
-          driver_email: string
-          driver_id: string
+          chat_available: boolean
           driver_name: string
           end_time: string
-          has_unread_messages: boolean
-          listing_id: string
-          listing_title: string
+          id: string
+          location: string
           start_time: string
           status: string
+          unread_messages: number
+          zone: string
         }[]
       }
       get_owner_bookings_for_payment: {
@@ -2129,9 +2117,7 @@ export type Database = {
           user_type: string
         }[]
       }
-      get_unread_chat_count:
-        | { Args: never; Returns: number }
-        | { Args: { p_user_id: string }; Returns: number }
+      get_unread_chat_count: { Args: never; Returns: number }
       get_user_basic_info: {
         Args: { user_ids: string[] }
         Returns: {
@@ -2260,16 +2246,30 @@ export type Database = {
           verification_status: string
         }[]
       }
-      send_booking_message:
-        | {
-            Args: {
-              p_booking_id: string
-              p_content: string
-              p_sender_type: string
-            }
-            Returns: string
-          }
-        | { Args: { p_booking_id: string; p_message: string }; Returns: Json }
+      send_booking_message: {
+        Args: { p_booking_id: string; p_message: string }
+        Returns: {
+          admin_flagged: boolean
+          booking_id: string
+          contains_violation: boolean
+          created_at: string
+          driver_id: string
+          from_driver: boolean
+          id: string
+          is_expired: boolean
+          listing_id: string | null
+          message: string
+          owner_id: string
+          read_status: boolean
+          updated_at: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "driver_owner_messages"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       send_welcome_email_async: {
         Args: { user_email: string; user_full_name: string }
         Returns: Json

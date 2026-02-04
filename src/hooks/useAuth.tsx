@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useEffect, useState, useMemo, useCallback } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { cleanupAuthState, forcePageRefresh } from '@/utils/authUtils';
@@ -35,24 +35,17 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [authState, setAuthState] = useState<{
-    user: User | null;
-    session: Session | null;
-    loading: boolean;
-    mfaRequired: boolean;
-    mfaEnabled: boolean;
-  }>({
-    user: null,
-    session: null,
-    loading: true,
-    mfaRequired: false,
-    mfaEnabled: false,
-  });
+  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [mfaRequired, setMfaRequired] = useState(false);
+  const [mfaEnabled, setMfaEnabled] = useState(false);
 
-  // Destructure for compatibility
-  const { user, session, loading, mfaRequired, mfaEnabled } = authState;
+  console.log('AuthProvider: Initializing');
 
   useEffect(() => {
+    console.log('AuthProvider: Setting up auth state listener');
+    
     // Handle OAuth callback tokens from URL hash immediately
     const handleOAuthCallback = async () => {
       const hashParams = new URLSearchParams(window.location.hash.substring(1));
@@ -60,60 +53,65 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const refreshToken = hashParams.get('refresh_token');
       
       if (accessToken) {
+        console.log('AuthProvider: OAuth callback detected, processing tokens...');
         try {
-          const { error } = await supabase.auth.setSession({
+          // Set the session with the tokens from the URL
+          const { data, error } = await supabase.auth.setSession({
             access_token: accessToken,
             refresh_token: refreshToken || ''
           });
           
-          if (!error) {
+          if (error) {
+            console.error('AuthProvider: Error setting OAuth session:', error);
+          } else {
+            console.log('AuthProvider: OAuth session set successfully');
+            // Clean up the URL hash
             window.history.replaceState(null, '', window.location.pathname);
           }
         } catch (error) {
-          // Silent fail for OAuth callback errors
+          console.error('AuthProvider: Exception setting OAuth session:', error);
         }
       }
     };
     
+    // Process OAuth callback if present
     handleOAuthCallback();
     
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, newSession) => {
-        // Batch state update
-        setAuthState(prev => ({
-          ...prev,
-          session: newSession,
-          user: newSession?.user ?? null,
-          loading: false,
-        }));
+      (event, session) => {
+        console.log('AuthProvider: Auth state changed:', event, session?.user?.email || 'no user');
+        
+        // Update state synchronously
+        setSession(session);
+        setUser(session?.user ?? null);
+        setLoading(false);
         
         // Handle auth events
-        if (event === 'SIGNED_IN' && newSession?.user) {
+        if (event === 'SIGNED_IN' && session?.user) {
+          console.log('AuthProvider: User signed in successfully');
+          // Redirect to home page after successful OAuth login
           if (window.location.pathname === '/auth' || window.location.hash.includes('access_token')) {
             window.history.replaceState(null, '', '/');
           }
         } else if (event === 'SIGNED_OUT') {
-          setAuthState(prev => ({
-            ...prev,
-            session: null,
-            user: null,
-          }));
+          console.log('AuthProvider: User signed out');
+          setSession(null);
+          setUser(null);
         }
       }
     );
 
     // Check for existing session
-    supabase.auth.getSession().then(({ data: { session: existingSession } }) => {
-      setAuthState(prev => ({
-        ...prev,
-        session: existingSession,
-        user: existingSession?.user ?? null,
-        loading: false,
-      }));
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('AuthProvider: Initial session check:', !!session);
+      setSession(session);
+      setUser(session?.user ?? null);
+      setLoading(false);
     });
 
     return () => {
+      console.log('AuthProvider: Cleaning up subscription');
       subscription.unsubscribe();
     };
   }, []);
@@ -299,6 +297,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const checkMFARequirement = async () => {
       if (user) {
         try {
+          // Check if user is admin
           const { data: roleData } = await supabase
             .from('user_roles')
             .select('role')
@@ -307,32 +306,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             .single();
           
           if (roleData) {
+            // Admin user - check MFA status
             const { data: mfaData } = await supabase.auth.mfa.listFactors();
             const hasEnabledFactor = mfaData?.totp?.some((factor: any) => 
               factor.status === 'verified'
             );
             
-            setAuthState(prev => ({
-              ...prev,
-              mfaRequired: true,
-              mfaEnabled: !!hasEnabledFactor,
-            }));
+            setMfaRequired(true);
+            setMfaEnabled(!!hasEnabledFactor);
           } else {
-            setAuthState(prev => ({
-              ...prev,
-              mfaRequired: false,
-              mfaEnabled: false,
-            }));
+            setMfaRequired(false);
+            setMfaEnabled(false);
           }
         } catch (error) {
-          // Silent fail for MFA check
+          console.error('AuthProvider: Error checking MFA requirement:', error);
         }
       } else {
-        setAuthState(prev => ({
-          ...prev,
-          mfaRequired: false,
-          mfaEnabled: false,
-        }));
+        setMfaRequired(false);
+        setMfaEnabled(false);
       }
     };
     
@@ -394,7 +385,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           .update({ mfa_enabled_at: new Date().toISOString() })
           .eq('user_id', user?.id);
         
-        setAuthState(prev => ({ ...prev, mfaEnabled: true }));
+        setMfaEnabled(true);
       }
       
       return { error };
@@ -470,7 +461,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const { error } = await supabase.auth.mfa.unenroll({ factorId });
       
       if (!error) {
-        setAuthState(prev => ({ ...prev, mfaEnabled: false }));
+        setMfaEnabled(false);
       }
       
       return { error };
@@ -479,8 +470,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  // Memoize context value to prevent unnecessary re-renders
-  const value = useMemo(() => ({
+  const value = {
     user,
     session,
     loading,
@@ -498,7 +488,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     verifyMFAChallenge,
     unenrollMFA,
     getMFAFactors,
-  }), [user, session, loading, mfaRequired, mfaEnabled]);
+  };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

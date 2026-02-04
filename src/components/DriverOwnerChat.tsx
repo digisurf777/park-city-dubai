@@ -25,18 +25,13 @@ interface Message {
 }
 
 interface BookingDetails {
-  booking_id: string;
-  listing_id: string;
-  driver_id: string;
-  driver_name: string;
-  driver_email: string;
-  owner_id: string;
-  listing_title: string;
+  id: string;
+  status: string;
   start_time: string;
   end_time: string;
-  status: string;
-  is_owner: boolean;
-  is_driver: boolean;
+  location: string;
+  zone: string;
+  user_id: string;
 }
 
 interface DriverOwnerChatProps {
@@ -297,7 +292,7 @@ export const DriverOwnerChat = ({ bookingId, isOpen, onClose }: DriverOwnerChatP
 
   if (!isOpen) return null;
 
-  const isDriver = booking?.is_driver ?? false;
+  const isDriver = booking && user?.id === booking.user_id;
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
@@ -305,7 +300,7 @@ export const DriverOwnerChat = ({ bookingId, isOpen, onClose }: DriverOwnerChatP
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="flex items-center gap-2">
             <MessageCircle className="h-5 w-5" />
-            Booking Chat - {booking?.listing_title}
+            Booking Chat - {booking?.location}
             {isExpired && <Badge variant="secondary">Expired</Badge>}
           </CardTitle>
           <Button variant="ghost" size="sm" onClick={onClose}>

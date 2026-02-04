@@ -195,18 +195,10 @@ const FindParking = () => {
             'difc': difcZone,
             'deira': deiraZone
           };
-              return <div key={zone.slug} className="relative group overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 touch-manipulation">
+          return <div key={zone.slug} className="relative group overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 touch-manipulation">
                 {/* Zone Image */}
                 <div className="relative h-48 sm:h-56 lg:h-64 overflow-hidden">
-                  <img 
-                    src={zoneImages[zone.slug as keyof typeof zoneImages]} 
-                    alt={zone.name} 
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
-                    loading="lazy" 
-                    decoding="async"
-                    width={400}
-                    height={256}
-                  />
+                  <img src={zoneImages[zone.slug as keyof typeof zoneImages]} alt={zone.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" decoding="async" />
                   <div className="absolute inset-0 bg-black/30"></div>
                   
                   {/* Zone Title Overlay */}
