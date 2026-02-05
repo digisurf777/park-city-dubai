@@ -22,14 +22,12 @@ interface ParkingListing {
 
 interface ActiveBooking {
   id: string;
-  location: string;
-  zone: string;
+  listing_title: string;
   start_time: string;
   end_time: string;
   status: string;
   driver_name: string;
-  unread_messages: number;
-  chat_available: boolean;
+  has_unread_messages: boolean;
 }
 
 interface MyListingsProps {
@@ -72,23 +70,15 @@ export const MyListings: React.FC<MyListingsProps> = ({ chatOnly = false }) => {
         return;
       }
 
-      // Debug: Check if any booking is "uncovered parking in ddd" (which should NOT be shown)
-      const suspiciousBooking = ownerBookings.find(b => b.location?.includes('uncovered parking in ddd'));
-      if (suspiciousBooking) {
-        console.error('[MyListings] ERROR: Found booking that should not be accessible:', suspiciousBooking);
-      }
-
       // Transform RPC results to ActiveBooking format
       const transformedBookings: ActiveBooking[] = ownerBookings.map(booking => ({
-        id: booking.id,
-        location: booking.location,
-        zone: booking.zone,
+        id: booking.booking_id,
+        listing_title: booking.listing_title || 'Parking Space',
         start_time: booking.start_time,
         end_time: booking.end_time,
         status: booking.status,
         driver_name: booking.driver_name || 'Driver',
-        unread_messages: Number(booking.unread_messages),
-        chat_available: booking.chat_available
+        has_unread_messages: booking.has_unread_messages
       }));
 
       setActiveBookings(transformedBookings);
@@ -213,29 +203,29 @@ export const MyListings: React.FC<MyListingsProps> = ({ chatOnly = false }) => {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {activeBookings.map((booking) => (
+              {activeBookings.map((booking) => {
+                // Chat available for confirmed/approved bookings that haven't ended
+                const chatAvailable = ['confirmed', 'approved'].includes(booking.status) && 
+                  new Date(booking.end_time) >= new Date();
+                
+                return (
                 <Card key={booking.id} className="border">
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
-                          <h4 className="font-medium">{booking.location}</h4>
+                          <h4 className="font-medium">{booking.listing_title}</h4>
                           <Badge variant="default">
                             {booking.status === 'confirmed' ? 'Active' : 'Approved'}
                           </Badge>
-                          {booking.unread_messages > 0 && (
+                          {booking.has_unread_messages && (
                             <Badge variant="destructive" className="animate-blink-red">
-                              {booking.unread_messages} unread
+                              New message
                             </Badge>
                           )}
                         </div>
                         
                         <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-                          <div className="flex items-center gap-1">
-                            <MapPin className="h-3 w-3" />
-                            <span>{booking.zone}</span>
-                          </div>
-                          <span>•</span>
                           <span>Driver: {booking.driver_name}</span>
                         </div>
 
@@ -246,7 +236,7 @@ export const MyListings: React.FC<MyListingsProps> = ({ chatOnly = false }) => {
                           </span>
                         </div>
 
-                        {booking.chat_available ? (
+                        {chatAvailable ? (
                           <div className="bg-green-50 border border-green-200 rounded p-2 mt-2">
                             <p className="text-xs text-green-800">
                               💬 Chat is now active for this booking
@@ -263,20 +253,21 @@ export const MyListings: React.FC<MyListingsProps> = ({ chatOnly = false }) => {
                       
                       <div className="flex gap-2 ml-4">
                         <Button 
-                          variant={booking.chat_available ? "default" : "secondary"}
+                          variant={chatAvailable ? "default" : "secondary"}
                           size="sm"
                           onClick={() => setSelectedChatBooking(booking.id)}
-                          disabled={!booking.chat_available}
-                          className={booking.unread_messages > 0 ? "ring-2 ring-red-500 ring-offset-2" : ""}
+                          disabled={!chatAvailable}
+                          className={booking.has_unread_messages ? "ring-2 ring-red-500 ring-offset-2" : ""}
                         >
                           <MessageCircle className="h-4 w-4 mr-1" />
-                          {booking.unread_messages > 0 ? `Chat (${booking.unread_messages})` : 'Chat'}
+                          {booking.has_unread_messages ? 'Chat (New)' : 'Chat'}
                         </Button>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
-              ))}
+              );
+              })}
             </div>
           </CardContent>
         </Card>
