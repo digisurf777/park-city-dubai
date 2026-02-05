@@ -23,6 +23,7 @@ interface NotificationData {
   booking_location: string;
   booking_zone: string;
   recipient_name: string;
+  notification_count: number;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -160,21 +161,23 @@ const handler = async (req: Request): Promise<Response> => {
 
         console.log(`✅ Email sent successfully to ${recipientEmail}`);
 
-        // Update notification state in database
+        // Update notification state - INCREMENT the count, don't reset timer
+        // The timer stays active until messages are read
+        const newCount = (chat.notification_count || 0) + 1;
         const { error: updateError } = await supabase
           .from("chat_notification_state")
           .update({
             last_notification_sent_at: new Date().toISOString(),
-            notification_cooldown_until: new Date(Date.now() + 30 * 60 * 1000).toISOString(), // 30 minutes cooldown
-            notification_timer_active: false,
+            notification_count: newCount,
             updated_at: new Date().toISOString(),
+            // Note: notification_timer_active stays TRUE - the RPC controls when to send next
           })
           .eq("booking_id", chat.booking_id);
 
         if (updateError) {
           console.error(`❌ Error updating notification state:`, updateError);
         } else {
-          console.log(`✅ Notification state updated for booking ${chat.booking_id}`);
+          console.log(`✅ Notification state updated: count=${newCount} for booking ${chat.booking_id}`);
         }
 
         results.push({

@@ -1802,6 +1802,7 @@ export type Database = {
           driver_id: string
           first_unread_message_at: string
           latest_message_preview: string
+          notification_count: number
           owner_email: string
           owner_id: string
           recipient_is_driver: boolean
