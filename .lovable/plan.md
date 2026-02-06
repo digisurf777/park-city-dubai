@@ -1,77 +1,38 @@
 
-# Driver-Owner Chat System Verification & Fixes
 
-## Current Status
+# Simplify Chat Email Notification Schedule
 
-I investigated the chat system and found one critical bug that's breaking notifications:
+## What Changes
 
-### Bug Found: Notification State Reset by Wrong User
+The notification escalation strategy will be simplified from 3 fast reminders to just 1:
 
-**Problem:** When the **driver** (message sender) opens the chat, the `mark_booking_messages_read` function resets `notification_timer_active = FALSE` and `first_unread_message_at = NULL`, killing the notification timer for the **owner** (recipient).
+| Reminder | Current | New |
+|----------|---------|-----|
+| 1st | T+3 min | T+5 min |
+| 2nd | T+18 min | T+24 hours |
+| 3rd | T+33 min | T+48 hours |
+| 4th+ | Every 24h | Every 24h |
+| Stop | After 7 days | After 7 days |
 
-**Evidence:** For booking `b3fe9b19`:
-- Message sent by driver at 08:52
-- `last_read_at` updated to 16:00 (someone opened chat)
-- But `read_status = false` (message not marked as read)
-- `notification_timer_active = FALSE` (timer killed)
-- `first_unread_message_at = NULL` (reset incorrectly)
+## Technical Details
 
-This means the driver opened the chat, which reset the notification state, but the owner never got an email notification.
+**1 SQL migration** to update the `get_chats_needing_notification` database function.
 
----
+The escalation logic inside the `WHERE` clause will be simplified from:
 
-## Fix Required
-
-Update `mark_booking_messages_read` to **only reset the timer when the recipient marks messages as read**, not when anyone opens the chat.
-
-```sql
--- Only reset timer if the current user actually marked messages as read
--- (i.e., they were the recipient of unread messages)
-IF updated_count > 0 THEN
-  UPDATE public.chat_notification_state
-  SET 
-    last_read_at = NOW(),
-    notification_timer_active = FALSE,
-    first_unread_message_at = NULL,
-    updated_at = NOW()
-  WHERE booking_id = p_booking_id;
-END IF;
+```text
+Phase 1 (count < 3): 3 min, then 15 min gaps
+Phase 2 (count >= 3): every 24 hours
 ```
 
----
+To:
 
-## Verification Checklist
+```text
+Phase 1 (count = 0): 5 minutes after first unread message
+Phase 2 (count >= 1): every 24 hours
+```
 
-After the fix, the system should work as follows:
+The 7-day cutoff remains unchanged.
 
-| Step | What happens | Email sent? |
-|------|-------------|-------------|
-| 1. Driver sends message | Timer starts, `first_unread_message_at = NOW()` | No |
-| 2. 3 minutes pass | Escalation check runs | **Yes (1st)** |
-| 3. Owner doesn't respond | 15 min later | **Yes (2nd)** |
-| 4. Still no response | 15 min later | **Yes (3rd)** |
-| 5. Still no response | 24 hours later | **Yes (4th)** |
-| 6. Owner reads & replies | Timer resets, new cycle for driver | No |
-| 7. 7 days no response | Notifications stop | No |
+No edge function or frontend changes are needed -- only the database function controls the schedule.
 
----
-
-## Implementation
-
-1. **Fix `mark_booking_messages_read` function** - Only reset notification state when messages were actually marked as read (updated_count > 0)
-
-2. **Fix current stuck state** - Run one-time query to reactivate timer for bookings with unread messages
-
----
-
-## Files to Modify
-
-1. **SQL Migration** - Update `mark_booking_messages_read` function
-
-2. **One-time data fix** - Reactivate timers for affected bookings
-
----
-
-## Summary
-
-The chat messaging works correctly - drivers and owners CAN communicate. The bug is specifically in the notification timer logic: opening the chat (even by the sender) incorrectly resets the notification timer, preventing email notifications from being sent to the actual recipient.
