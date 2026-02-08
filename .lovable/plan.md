@@ -1,22 +1,37 @@
 
-# Extend Sky Gardens Bookings to March 19, 2026
+
+# Add Authorization Confirmation Checkbox to Listing Form
 
 ## What will change
 
-Two confirmed Sky Gardens bookings will have their `end_time` updated from **Feb 19, 2026** to **March 19, 2026**:
+A second mandatory checkbox will be added to the "Rent Out Your Space" form, placed directly below the existing "Terms & Conditions" checkbox. This restores the authorization disclaimer that was previously part of the form.
 
-| Driver | Owner | Current End | New End |
-|--------|-------|-------------|---------|
-| Tayler Jade Sani | Jewel Concordia | Feb 19 | March 19 |
-| Tania Diab | Fatima Shafqat Hussain | Feb 19 | March 19 |
+## Checkbox text
 
-## Technical Details
+> "I confirm that I am authorized to list this parking space and that my listing complies with all applicable building rules and regulations."
 
-A single `UPDATE` statement on the `parking_bookings` table targeting the two booking IDs:
+## Changes needed
 
-- `1b528ebb-6c7e-4543-9bf6-af9d83c63574` (Tayler / Jewel)
-- `75e597de-cc40-4191-9208-00e4cb490984` (Tania / Fatima)
+### 1. Add `agreeToAuthorization` to form state (line 47)
 
-Sets `end_time` to `2026-03-19 00:00:00+00`. No schema changes or code modifications are needed.
+Add a new field `agreeToAuthorization: false` to the `formData` state object, alongside the existing `agreeToTerms`.
 
-This extension will also allow the monthly email system to trigger anniversary emails on Feb 19 (the monthly anniversary date), since the bookings will still be active at that point.
+### 2. Add validation check (after line 228)
+
+Add a validation block that checks `formData.agreeToAuthorization` and shows a toast error if unchecked, preventing form submission -- similar to the existing `agreeToTerms` check.
+
+### 3. Add the checkbox UI (after line 605)
+
+Insert a new checkbox block below the Terms & Conditions checkbox with:
+- Checkbox bound to `formData.agreeToAuthorization`
+- Label displaying the authorization confirmation text
+- Same styling as the existing Terms checkbox
+
+### 4. Reset the field on form submission (line 314)
+
+Add `agreeToAuthorization: false` to the form reset block that runs after successful submission.
+
+## No backend changes needed
+
+This is a frontend-only change -- the authorization confirmation is a UI-level disclaimer and does not need to be stored in the database.
+
