@@ -44,7 +44,8 @@ const RentOutYourSpace = () => {
     bayType: "",
     accessDeviceDeposit: false,
     notes: "",
-    agreeToTerms: false
+    agreeToTerms: false,
+    agreeToAuthorization: false
   });
   const serviceFee = Math.round(monthlyPrice * 0.03);
   const netPayout = monthlyPrice - serviceFee;
@@ -226,6 +227,14 @@ const RentOutYourSpace = () => {
       });
       return;
     }
+    if (!formData.agreeToAuthorization) {
+      toast({
+        title: "Authorization confirmation required",
+        description: "Please confirm that you are authorized to list this parking space",
+        variant: "destructive"
+      });
+      return;
+    }
     setIsSubmitting(true);
     try {
       // Upload images to storage
@@ -311,7 +320,8 @@ const RentOutYourSpace = () => {
         bayType: "",
         accessDeviceDeposit: false,
         notes: "",
-        agreeToTerms: false
+        agreeToTerms: false,
+        agreeToAuthorization: false
       });
       setUploadedImages([]);
       setMonthlyPrice(300);
@@ -600,6 +610,15 @@ const RentOutYourSpace = () => {
                         Terms & Conditions
                       </Link>
                       .
+                    </Label>
+                  </div>
+                </div>
+
+                <div className="flex items-start space-x-3">
+                  <Checkbox id="listing-authorization" checked={formData.agreeToAuthorization} onCheckedChange={checked => handleInputChange('agreeToAuthorization', !!checked)} required />
+                  <div className="grid gap-1.5 leading-none">
+                    <Label htmlFor="listing-authorization" className="text-sm font-normal leading-5 cursor-pointer">
+                      I confirm that I am authorized to list this parking space and that my listing complies with all applicable building rules and regulations.
                     </Label>
                   </div>
                 </div>
