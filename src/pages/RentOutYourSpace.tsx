@@ -618,7 +618,7 @@ const RentOutYourSpace = () => {
                   <Checkbox id="listing-authorization" checked={formData.agreeToAuthorization} onCheckedChange={checked => handleInputChange('agreeToAuthorization', !!checked)} required />
                   <div className="grid gap-1.5 leading-none">
                     <Label htmlFor="listing-authorization" className="text-sm font-normal leading-5 cursor-pointer">
-                      I confirm that I am authorized to list this parking space and that my listing complies with all applicable building rules and regulations.
+                      I confirm that I am duly authorised to list and rent out the above parking space. I understand that I am responsible for ensuring compliance with all applicable building rules and regulations and that failure to adhere to the same may incur platform and/or third-party penalties.
                     </Label>
                   </div>
                 </div>
