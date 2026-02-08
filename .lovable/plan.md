@@ -1,38 +1,22 @@
 
+# Extend Sky Gardens Bookings to March 19, 2026
 
-# Simplify Chat Email Notification Schedule
+## What will change
 
-## What Changes
+Two confirmed Sky Gardens bookings will have their `end_time` updated from **Feb 19, 2026** to **March 19, 2026**:
 
-The notification escalation strategy will be simplified from 3 fast reminders to just 1:
-
-| Reminder | Current | New |
-|----------|---------|-----|
-| 1st | T+3 min | T+5 min |
-| 2nd | T+18 min | T+24 hours |
-| 3rd | T+33 min | T+48 hours |
-| 4th+ | Every 24h | Every 24h |
-| Stop | After 7 days | After 7 days |
+| Driver | Owner | Current End | New End |
+|--------|-------|-------------|---------|
+| Tayler Jade Sani | Jewel Concordia | Feb 19 | March 19 |
+| Tania Diab | Fatima Shafqat Hussain | Feb 19 | March 19 |
 
 ## Technical Details
 
-**1 SQL migration** to update the `get_chats_needing_notification` database function.
+A single `UPDATE` statement on the `parking_bookings` table targeting the two booking IDs:
 
-The escalation logic inside the `WHERE` clause will be simplified from:
+- `1b528ebb-6c7e-4543-9bf6-af9d83c63574` (Tayler / Jewel)
+- `75e597de-cc40-4191-9208-00e4cb490984` (Tania / Fatima)
 
-```text
-Phase 1 (count < 3): 3 min, then 15 min gaps
-Phase 2 (count >= 3): every 24 hours
-```
+Sets `end_time` to `2026-03-19 00:00:00+00`. No schema changes or code modifications are needed.
 
-To:
-
-```text
-Phase 1 (count = 0): 5 minutes after first unread message
-Phase 2 (count >= 1): every 24 hours
-```
-
-The 7-day cutoff remains unchanged.
-
-No edge function or frontend changes are needed -- only the database function controls the schedule.
-
+This extension will also allow the monthly email system to trigger anniversary emails on Feb 19 (the monthly anniversary date), since the bookings will still be active at that point.
