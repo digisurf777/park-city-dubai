@@ -275,9 +275,9 @@ const AdminPanelOrganized = () => {
         const waitForAAL2 = async (maxMs: number = 6000) => {
           const start = Date.now();
           while (Date.now() - start < maxMs) {
-            const { data: s } = await supabase.auth.getSession();
-            const aal = (s.session as any)?.aal;
-            if (aal === 'aal2') {
+            const { data: aalCheck } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+            if (aalCheck?.currentLevel === 'aal2') {
+              const { data: s } = await supabase.auth.getSession();
               return s.session?.access_token ?? null;
             }
             await new Promise((r) => setTimeout(r, 400));
@@ -289,7 +289,8 @@ const AdminPanelOrganized = () => {
         // Get current session and AAL
         let { data: sessionData } = await supabase.auth.getSession();
         let accessToken = sessionData.session?.access_token;
-        const currentAAL = (sessionData.session as any)?.aal;
+        const { data: aalInfo } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+        const currentAAL = aalInfo?.currentLevel;
 
         if (currentAAL !== 'aal2') {
           console.warn('AdminPanel: Waiting for AAL2, current:', currentAAL);
