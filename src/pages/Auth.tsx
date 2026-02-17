@@ -225,7 +225,8 @@ const Auth = () => {
 
       // Get current session and check AAL level
       const { data: sessionData } = await supabase.auth.getSession();
-      const currentAAL = (sessionData.session as any)?.aal;
+      const { data: aalData } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+      const currentAAL = aalData?.currentLevel;
       const userId = sessionData.session?.user?.id;
 
       if (!userId) {
@@ -322,9 +323,8 @@ const Auth = () => {
         const waitForAAL2 = async (maxMs: number = 6000) => {
           const start = Date.now();
           while (Date.now() - start < maxMs) {
-            const { data: s } = await supabase.auth.getSession();
-            const aal = (s.session as any)?.aal;
-            if (aal === 'aal2') return true;
+            const { data: aalCheck } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+            if (aalCheck?.currentLevel === 'aal2') return true;
             await new Promise((r) => setTimeout(r, 250));
           }
           return false;

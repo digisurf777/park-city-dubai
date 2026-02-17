@@ -61,8 +61,8 @@ export const MFARequiredGuard = ({ children }: { children: React.ReactNode }) =>
       
       try {
         // Quick check: if client session already shows AAL2, skip expensive validation
-        const { data: sessionData } = await supabase.auth.getSession();
-        const clientAAL = (sessionData.session as any)?.aal;
+        const { data: aalData } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+        const clientAAL = aalData?.currentLevel;
         
         if (clientAAL === 'aal2') {
           console.log('MFARequiredGuard: Session already at AAL2, allowing access');

@@ -370,9 +370,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           // Small wait loop to ensure the SDK exposes aal2 on the session
           const start = Date.now();
           while (Date.now() - start < 6000) {
-            const { data: s } = await supabase.auth.getSession();
-            const aal = (s.session as any)?.aal;
-            if (aal === 'aal2') break;
+            const { data: aalCheck } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+            if (aalCheck?.currentLevel === 'aal2') break;
             await new Promise((r) => setTimeout(r, 250));
           }
         } catch (e) {
@@ -429,9 +428,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           await supabase.auth.refreshSession();
           const start = Date.now();
           while (Date.now() - start < 6000) {
-            const { data: s } = await supabase.auth.getSession();
-            const aal = (s.session as any)?.aal;
-            if (aal === 'aal2') break;
+            const { data: aalCheck } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+            if (aalCheck?.currentLevel === 'aal2') break;
             await new Promise((r) => setTimeout(r, 250));
           }
         } catch (e) {
