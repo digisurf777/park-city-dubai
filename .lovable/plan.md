@@ -1,37 +1,67 @@
 
 
-# Add Authorization Confirmation Checkbox to Listing Form
+# Fix Two-Step Verification Loop
 
-## What will change
+## Root Cause
 
-A second mandatory checkbox will be added to the "Rent Out Your Space" form, placed directly below the existing "Terms & Conditions" checkbox. This restores the authorization disclaimer that was previously part of the form.
+The entire MFA verification flow uses `(session as any)?.aal` to check the Authenticator Assurance Level, but this property does not exist on the Supabase JS SDK session object. It always returns `undefined`, which causes:
 
-## Checkbox text
+- AAL checks to never detect `'aal2'`, even after successful MFA verification
+- The `waitForAAL2()` polling loops to always time out
+- AdminPanel to always fail validation and redirect back to `/auth`
+- `/auth` to re-trigger MFA challenge, creating an infinite loop
 
-> "I confirm that I am authorized to list this parking space and that my listing complies with all applicable building rules and regulations."
+## The Fix
 
-## Changes needed
+Replace all `(session as any)?.aal` calls with the correct Supabase API:
 
-### 1. Add `agreeToAuthorization` to form state (line 47)
+```text
+supabase.auth.mfa.getAuthenticatorAssuranceLevel()
+```
 
-Add a new field `agreeToAuthorization: false` to the `formData` state object, alongside the existing `agreeToTerms`.
+This returns `{ currentLevel: 'aal1' | 'aal2', nextLevel: ... }`.
 
-### 2. Add validation check (after line 228)
+## Files to Change
 
-Add a validation block that checks `formData.agreeToAuthorization` and shows a toast error if unchecked, preventing form submission -- similar to the existing `agreeToTerms` check.
+### 1. `src/pages/Auth.tsx` (line 228)
 
-### 3. Add the checkbox UI (after line 605)
+Replace:
+```typescript
+const currentAAL = (sessionData.session as any)?.aal;
+```
+With a call to `supabase.auth.mfa.getAuthenticatorAssuranceLevel()` and use `currentLevel` from the result.
 
-Insert a new checkbox block below the Terms & Conditions checkbox with:
-- Checkbox bound to `formData.agreeToAuthorization`
-- Label displaying the authorization confirmation text
-- Same styling as the existing Terms checkbox
+Also fix the `waitForAAL2` function (lines 322-331) in `handleMFAVerification` to use the correct API instead of polling `session.aal`.
 
-### 4. Reset the field on form submission (line 314)
+### 2. `src/pages/AdminPanel.tsx` (lines 275-296)
 
-Add `agreeToAuthorization: false` to the form reset block that runs after successful submission.
+Fix the `waitForAAL2` function and the initial AAL check (line 292) to use `getAuthenticatorAssuranceLevel()` instead of `(session as any)?.aal`.
 
-## No backend changes needed
+### 3. `src/components/MFARequiredGuard.tsx` (line 65)
 
-This is a frontend-only change -- the authorization confirmation is a UI-level disclaimer and does not need to be stored in the database.
+Replace:
+```typescript
+const clientAAL = (sessionData.session as any)?.aal;
+```
+With the correct `getAuthenticatorAssuranceLevel()` call.
+
+### 4. `src/hooks/useAuth.tsx` (lines 372-376, 431-436)
+
+Fix the `waitForAAL2` polling loops inside `verifyMFA` and `verifyMFAChallenge` to use `getAuthenticatorAssuranceLevel()` instead of `(session as any)?.aal`.
+
+## Summary of Pattern
+
+Every instance of this broken pattern:
+```typescript
+const { data: s } = await supabase.auth.getSession();
+const aal = (s.session as any)?.aal;
+```
+
+Will be replaced with:
+```typescript
+const { data: aalData } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+const aal = aalData?.currentLevel;
+```
+
+This is a 4-file fix that corrects the same underlying bug in all locations where AAL is checked.
 
