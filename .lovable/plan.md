@@ -1,67 +1,36 @@
 
+# Update Booking End Date — Faisal Amin / Index Tower
 
-# Fix Two-Step Verification Loop
+## What Needs to Change
 
-## Root Cause
+Update a single field on one booking record in the `parking_bookings` table:
 
-The entire MFA verification flow uses `(session as any)?.aal` to check the Authenticator Assurance Level, but this property does not exist on the Supabase JS SDK session object. It always returns `undefined`, which causes:
+- **Booking ID:** `2dfb3c05-38c0-4c04-8587-0f4bb025a977`
+- **Customer:** Faisal Amin (mfamin77@gmail.com)
+- **Location:** Index Tower, DIFC
+- **Current End Date:** February 23rd, 2027 00:00 UTC
+- **New End Date:** November 23rd, 2026 00:00 UTC
 
-- AAL checks to never detect `'aal2'`, even after successful MFA verification
-- The `waitForAAL2()` polling loops to always time out
-- AdminPanel to always fail validation and redirect back to `/auth`
-- `/auth` to re-trigger MFA challenge, creating an infinite loop
+## SQL to Run
 
-## The Fix
-
-Replace all `(session as any)?.aal` calls with the correct Supabase API:
-
-```text
-supabase.auth.mfa.getAuthenticatorAssuranceLevel()
+```sql
+UPDATE parking_bookings
+SET 
+  end_time = '2026-11-23 00:00:00+00',
+  duration_hours = EXTRACT(EPOCH FROM ('2026-11-23 00:00:00+00'::timestamptz - start_time)) / 3600,
+  updated_at = now()
+WHERE id = '2dfb3c05-38c0-4c04-8587-0f4bb025a977';
 ```
 
-This returns `{ currentLevel: 'aal1' | 'aal2', nextLevel: ... }`.
+This also recalculates `duration_hours` from the original start date (Feb 23 2026) to the new end date (Nov 23 2026), which equals approximately **6480 hours (9 months)**.
 
-## Files to Change
+## Impact
 
-### 1. `src/pages/Auth.tsx` (line 228)
+- The booking card in the Admin Panel will immediately show the corrected end date.
+- Monthly anniversary emails and expiry notifications will now use November 23rd, 2026 as the cutoff.
+- No emails will be triggered automatically by this change.
+- The `cost_aed` field is NOT changed — if the cost needs adjusting for the shorter period, that can be done separately.
 
-Replace:
-```typescript
-const currentAAL = (sessionData.session as any)?.aal;
-```
-With a call to `supabase.auth.mfa.getAuthenticatorAssuranceLevel()` and use `currentLevel` from the result.
+## Note on Cost
 
-Also fix the `waitForAAL2` function (lines 322-331) in `handleMFAVerification` to use the correct API instead of polling `session.aal`.
-
-### 2. `src/pages/AdminPanel.tsx` (lines 275-296)
-
-Fix the `waitForAAL2` function and the initial AAL check (line 292) to use `getAuthenticatorAssuranceLevel()` instead of `(session as any)?.aal`.
-
-### 3. `src/components/MFARequiredGuard.tsx` (line 65)
-
-Replace:
-```typescript
-const clientAAL = (sessionData.session as any)?.aal;
-```
-With the correct `getAuthenticatorAssuranceLevel()` call.
-
-### 4. `src/hooks/useAuth.tsx` (lines 372-376, 431-436)
-
-Fix the `waitForAAL2` polling loops inside `verifyMFA` and `verifyMFAChallenge` to use `getAuthenticatorAssuranceLevel()` instead of `(session as any)?.aal`.
-
-## Summary of Pattern
-
-Every instance of this broken pattern:
-```typescript
-const { data: s } = await supabase.auth.getSession();
-const aal = (s.session as any)?.aal;
-```
-
-Will be replaced with:
-```typescript
-const { data: aalData } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
-const aal = aalData?.currentLevel;
-```
-
-This is a 4-file fix that corrects the same underlying bug in all locations where AAL is checked.
-
+The current cost is **14,460 AED** (12 months). If the duration is being shortened to 9 months and the cost should be adjusted proportionally, it would be approximately **10,845 AED**. Please confirm if the cost should also be updated.
