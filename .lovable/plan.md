@@ -1,37 +1,38 @@
 
+# Fix: Ensure Customers Always Receive Payment Links
 
-# Update DAMAC Park Towers Booking Dates
+## Problem
+When a booking is submitted, three emails are sent back-to-back with no delay:
+1. Admin notification (via edge function call)
+2. "Booking Received" email (via fetch call)
+3. **Confirmation email with payment link** (via Resend directly)
 
-## Booking Details
-- **Booking ID:** `ea7595be-4d78-4884-ac80-c57c477e7fe9`
-- **Driver:** Brendan McDonald (brendanjmcdonald@hotmail.com)
-- **Owner:** Szymon (szymon.d7@gmail.com)
-- **Location:** Covered parking in DAMAC Park Towers
-- **Current Dates:** February 1, 2026 to August 1, 2026
-- **New Dates:** January 29, 2026 to July 29, 2026
-- **Cost:** Stays at 6,540 AED (unchanged)
+Resend enforces a rate limit of 2 requests per second. The third email -- the one containing the payment link -- fails with "Too many requests", so customers never receive their payment link.
 
-## What Will Be Updated
+## Solution
 
-Run a single data update on the `parking_bookings` table:
-- `start_time` changes from Feb 1 to **Jan 29, 2026**
-- `end_time` changes from Aug 1 to **Jul 29, 2026**
-- `duration_hours` recalculated to match (~4,344 hours for 181 days)
+Add 1.5-second delays between each email call in `supabase/functions/submit-booking-request/index.ts`.
 
-## Monthly Emails Will Automatically Go Out on the 29th
+### Changes (single file)
 
-The monthly email system (`check-monthly-emails`) determines email send dates based on the **day of the booking's start date**. By changing the start date to January 29, the system will automatically send both driver check-in and owner payout emails on the **29th of each month** instead of the 1st. No code changes needed -- this is handled by the existing anniversary logic.
+**File:** `supabase/functions/submit-booking-request/index.ts`
 
-## Technical Details
+1. **After line 193** (end of admin notification try/catch): Insert a 1.5-second delay before the "Booking Received" email
+2. **After line 229** (end of booking received try/catch): Insert a 1.5-second delay before the detailed confirmation email with the payment link
 
-```sql
-UPDATE parking_bookings
-SET 
-  start_time = '2026-01-29 00:00:00+00',
-  end_time = '2026-07-29 00:00:00+00',
-  duration_hours = EXTRACT(EPOCH FROM ('2026-07-29 00:00:00+00'::timestamptz - '2026-01-29 00:00:00+00'::timestamptz)) / 3600,
-  updated_at = now()
-WHERE id = 'ea7595be-4d78-4884-ac80-c57c477e7fe9';
+Each insertion is a single line:
+```typescript
+await new Promise(resolve => setTimeout(resolve, 1500));
 ```
 
-No emails are triggered by this change, and the payment/pre-authorization is unaffected.
+### Why This Works
+- Resend allows 2 requests per second
+- A 1.5-second gap between each call ensures we never exceed the limit
+- The payment link email (the most critical one) will reliably deliver
+- Total added delay is ~3 seconds, which is acceptable for a booking submission flow
+
+### What Stays the Same
+- Pre-authorization payment flow (manual capture) is unchanged
+- All three emails still send in the same order
+- Email content and payment link generation are untouched
+- The edge function will be automatically redeployed after the code change
