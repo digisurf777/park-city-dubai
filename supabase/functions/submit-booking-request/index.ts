@@ -192,6 +192,9 @@ const handler = async (req: Request): Promise<Response> => {
       // Don't fail the booking if admin notification fails
     }
 
+    // Delay to avoid Resend rate limit (2 req/s)
+    await new Promise(resolve => setTimeout(resolve, 1500));
+
     // Send "Booking Request Received" email to customer using direct fetch
     try {
       console.log(`📧 Sending booking received email to ${user.email}...`);
@@ -227,6 +230,9 @@ const handler = async (req: Request): Promise<Response> => {
       console.error("❌ Booking received notification error:", notificationError);
       // Don't fail the booking if notification fails
     }
+
+    // Delay to avoid Resend rate limit (2 req/s)
+    await new Promise(resolve => setTimeout(resolve, 1500));
 
     // Send enhanced confirmation email to customer with payment link
     console.log(`📧 Sending detailed confirmation email to ${user.email}...`);
