@@ -290,6 +290,9 @@ const RentOutYourSpace = () => {
         // Don't fail the whole process if notification fails
       }
 
+      // Delay to avoid Resend rate limit (2 req/s)
+      await new Promise(resolve => setTimeout(resolve, 1500));
+
       // Send customer confirmation email
       try {
         await supabase.functions.invoke('send-listing-confirmation', {
@@ -300,7 +303,8 @@ const RentOutYourSpace = () => {
             buildingName: formData.buildingName,
             district: formData.district,
             bayType: formData.bayType,
-            monthlyPrice: monthlyPrice
+            monthlyPrice: monthlyPrice,
+            accessDeviceDeposit: formData.accessDeviceDeposit ? 500 : 0
           }
         });
       } catch (confirmationError) {
