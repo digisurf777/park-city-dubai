@@ -1,28 +1,38 @@
 
 
-# Update Central Park Towers Booking End Date
+# Fix: Deposit Display Consistency in All Listing Emails
 
-The booking `0ccb61be-9ac5-4341-8f22-49090c068215` still has the original 12-month values. I'll use the data insert tool to run the UPDATE query directly.
+## Current State
 
-## What will change
+The code flow has been partially fixed but has two remaining issues:
 
-| Field | Current | New |
-|-------|---------|-----|
-| end_time | 2027-03-26 | 2026-10-26 |
-| duration_hours | 8640 | 5136 |
+### Issue 1: Customer confirmation email missing deposit info
+In `src/pages/RentOutYourSpace.tsx` (line 295-305), the `send-listing-confirmation` call does NOT pass `accessDeviceDeposit` in the body. So even though the edge function supports it, it always receives `undefined`, which renders as "No".
 
-## Implementation
+### Issue 2: Rate limit between listing emails
+The admin notification and customer confirmation emails fire back-to-back with no delay — same Resend rate limit issue as the booking flow.
 
-Single SQL UPDATE using the insert/update tool:
+### Issue 3: Existing Vida listing has stale data
+Listing `2c465d55` was created before the fix, so `access_device_deposit_required` is `null`/`false` in the database even though the owner selected deposit. This is why the approval email showed "No" while the admin notification (sent at submission with form data) showed "Yes".
 
-```sql
-UPDATE parking_bookings 
-SET 
-  end_time = '2026-10-26T00:00:00+00',
-  duration_hours = 5136,
-  updated_at = now()
-WHERE id = '0ccb61be-9ac5-4341-8f22-49090c068215';
-```
+## Changes
 
-After execution, I'll verify the record to confirm the change took effect.
+### 1. Add `accessDeviceDeposit` to customer confirmation email call
+**File:** `src/pages/RentOutYourSpace.tsx` (line 295-305)
+- Add `accessDeviceDeposit: formData.accessDeviceDeposit ? 500 : 0` to the `send-listing-confirmation` body
+
+### 2. Add delay between listing email sends
+**File:** `src/pages/RentOutYourSpace.tsx`
+- Add `await new Promise(resolve => setTimeout(resolve, 1500));` between the admin notification and customer confirmation calls (after line 291)
+
+### 3. Fix Vida listing in database
+- Update `access_device_deposit_required = true` and `deposit_amount_aed = 500` for listing `2c465d55` via a Supabase query so the next approval-related email for this listing is correct
+
+## Summary of Deposit Logic After Fix
+
+| Email | Source of deposit value | Status |
+|-------|------------------------|--------|
+| Admin notification (submission) | Form data → `formData.accessDeviceDeposit ? 500 : 0` | Already fixed |
+| Customer confirmation (submission) | Form data → needs adding | **Fix needed** |
+| Approval email (admin action) | DB → `access_device_deposit_required` field | Already fixed for new listings |
 
