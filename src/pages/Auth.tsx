@@ -532,7 +532,7 @@ const Auth = () => {
           duration: 6000,
           description: 'Check your inbox and confirm your email address before logging in.'
         });
-        setSignupForm({ email: '', password: '', confirmPassword: '', fullName: '', agreeToTerms: false });
+        setSignupForm({ email: '', password: '', confirmPassword: '', fullName: '', phone: '', agreeToTerms: false });
         
         // Show additional info about email confirmation
         setTimeout(() => {
