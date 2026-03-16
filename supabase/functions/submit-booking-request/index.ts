@@ -66,6 +66,7 @@ const handler = async (req: Request): Promise<Response> => {
       costAed,
       parkingSpotName,
       listingId,
+      securityDeposit,
     }: BookingRequest = await req.json();
 
     console.log("Booking data received:", { startDate, duration, zone, location, costAed });
