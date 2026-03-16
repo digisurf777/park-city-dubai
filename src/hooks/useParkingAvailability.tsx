@@ -17,6 +17,8 @@ export interface ParkingSpotWithAvailability {
   bookedSpaces: number;
   maintenanceSpaces: number;
   availabilityText: string;
+  accessDeviceDepositRequired: boolean;
+  depositAmountAed: number;
 }
 
 export const useParkingAvailability = (zone?: string) => {
