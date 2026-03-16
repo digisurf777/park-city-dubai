@@ -313,6 +313,7 @@ const handler = async (req: Request): Promise<Response> => {
                               <tr><td><strong>End Date:</strong></td><td>${endDateObj.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</td></tr>
                               <tr><td><strong>Duration:</strong></td><td>${duration} month(s)</td></tr>
                               <tr><td><strong>Total Cost:</strong></td><td>${costAed} AED</td></tr>
+                              ${depositAmount > 0 ? `<tr><td><strong>Access Card Deposit:</strong></td><td>${depositAmount} AED (refundable)</td></tr>` : ''}
                               <tr><td><strong>Payment Type:</strong></td><td>Pre-Authorization</td></tr>
                               ${notes ? `<tr><td><strong>Notes:</strong></td><td>${notes}</td></tr>` : ''}
                             </table>
