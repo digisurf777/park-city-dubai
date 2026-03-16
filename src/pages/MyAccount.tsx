@@ -226,6 +226,13 @@ const MyAccount = () => {
   const updateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!profile) return;
+    
+    // Validate mandatory phone number
+    if (!profile.phone || profile.phone.trim().length < 5) {
+      toast.error('Phone number is required. Please enter a valid phone number.');
+      return;
+    }
+    
     setUpdating(true);
     try {
       console.log('Attempting profile update', { userId: user.id, profileId: profile?.id });
