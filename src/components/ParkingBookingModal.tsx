@@ -386,6 +386,8 @@ export const ParkingBookingModal = ({
       const endDate = new Date(startDate);
       endDate.setMonth(endDate.getMonth() + selectedDuration.months);
       
+      const depositAmount = parkingSpot.accessDeviceDepositRequired ? (parkingSpot.depositAmountAed || 500) : 0;
+      
       const bookingData = {
         startDate: format(startDate, 'yyyy-MM-dd'),
         endDate: format(endDate, 'yyyy-MM-dd'),
@@ -397,7 +399,8 @@ export const ParkingBookingModal = ({
         zone: "Find Parking Page",
         costAed: finalPrice,
         parkingSpotName: parkingSpot.name,
-        listingId: typeof parkingSpot.id === 'string' ? parkingSpot.id : null
+        listingId: typeof parkingSpot.id === 'string' ? parkingSpot.id : null,
+        securityDeposit: depositAmount
       };
 
       // Submit booking request (this creates the pre-authorization PaymentIntent)
