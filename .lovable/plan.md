@@ -1,38 +1,19 @@
 
 
-# Fix: Deposit Display Consistency in All Listing Emails
+# ✅ COMPLETED: Integrate 500 AED Access Card Deposit into Booking Flow
 
-## Current State
+All changes implemented successfully.
 
-The code flow has been partially fixed but has two remaining issues:
+## What was done
 
-### Issue 1: Customer confirmation email missing deposit info
-In `src/pages/RentOutYourSpace.tsx` (line 295-305), the `send-listing-confirmation` call does NOT pass `accessDeviceDeposit` in the body. So even though the edge function supports it, it always receives `undefined`, which renders as "No".
+1. **DB Migration:** Added `access_device_deposit_required` and `deposit_amount_aed` columns to `parking_listings_public`, updated the `get_public_parking_listings_with_availability` RPC to return them, and synced existing data.
 
-### Issue 2: Rate limit between listing emails
-The admin notification and customer confirmation emails fire back-to-back with no delay — same Resend rate limit issue as the booking flow.
+2. **Data Pipeline:** Added `accessDeviceDepositRequired` and `depositAmountAed` to `ParkingSpotWithAvailability` interface and the transform in `useParkingAvailability.tsx`.
 
-### Issue 3: Existing Vida listing has stale data
-Listing `2c465d55` was created before the fix, so `access_device_deposit_required` is `null`/`false` in the database even though the owner selected deposit. This is why the approval email showed "No" while the admin notification (sent at submission with form data) showed "Yes".
+3. **Booking Modal UI:** Shows "Refundable Access Card Deposit" row in price breakdown when listing requires it. Total includes deposit. Note explains refundability.
 
-## Changes
+4. **Booking Request:** `securityDeposit` field added to booking data sent to edge function. Stored in `security_deposit_amount` column on `parking_bookings`.
 
-### 1. Add `accessDeviceDeposit` to customer confirmation email call
-**File:** `src/pages/RentOutYourSpace.tsx` (line 295-305)
-- Add `accessDeviceDeposit: formData.accessDeviceDeposit ? 500 : 0` to the `send-listing-confirmation` body
+5. **Edge Function:** `submit-booking-request` now reads `securityDeposit` from request body, passes it to `create-pre-authorization` (replacing hardcoded `0`), and includes deposit in confirmation email.
 
-### 2. Add delay between listing email sends
-**File:** `src/pages/RentOutYourSpace.tsx`
-- Add `await new Promise(resolve => setTimeout(resolve, 1500));` between the admin notification and customer confirmation calls (after line 291)
-
-### 3. Fix Vida listing in database
-- Update `access_device_deposit_required = true` and `deposit_amount_aed = 500` for listing `2c465d55` via a Supabase query so the next approval-related email for this listing is correct
-
-## Summary of Deposit Logic After Fix
-
-| Email | Source of deposit value | Status |
-|-------|------------------------|--------|
-| Admin notification (submission) | Form data → `formData.accessDeviceDeposit ? 500 : 0` | Already fixed |
-| Customer confirmation (submission) | Form data → needs adding | **Fix needed** |
-| Approval email (admin action) | DB → `access_device_deposit_required` field | Already fixed for new listings |
-
+6. **Admin UI:** Admin notification card shows deposit amount when > 0.
