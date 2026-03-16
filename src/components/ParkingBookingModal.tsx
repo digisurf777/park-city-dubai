@@ -88,6 +88,25 @@ export const ParkingBookingModal = ({
   const [stripe, setStripe] = useState<any>(null);
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [bookedDateRanges, setBookedDateRanges] = useState<Array<{ start: Date; end: Date }>>([]);
+  const [userPhone, setUserPhone] = useState("");
+
+  // Fetch user phone from profiles table
+  useEffect(() => {
+    const fetchUserPhone = async () => {
+      if (!user || !isOpen) return;
+      try {
+        const { data } = await supabase
+          .from('profiles')
+          .select('phone')
+          .eq('user_id', user.id)
+          .maybeSingle();
+        setUserPhone(data?.phone || user.user_metadata?.phone || "");
+      } catch {
+        setUserPhone(user.user_metadata?.phone || "");
+      }
+    };
+    fetchUserPhone();
+  }, [user, isOpen]);
   // Fetch booked dates for this parking spot
   useEffect(() => {
     const fetchBookedDates = async () => {
