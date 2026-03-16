@@ -439,6 +439,11 @@ const Auth = () => {
       return;
     }
     
+    if (!signupForm.phone || signupForm.phone.trim().length < 5) {
+      toast.error('Please enter a valid phone number');
+      return;
+    }
+    
     if (!signupForm.agreeToTerms) {
       toast.error('Please agree to the Terms & Conditions and Privacy Policy');
       return;
