@@ -552,8 +552,8 @@ const Auth = () => {
           duration: 8000,
           description: 'Email system is busy. Try logging in after a few minutes.'
         });
-        setSignupForm({ email: '', password: '', confirmPassword: '', fullName: '', agreeToTerms: false });
-      } else {
+          setSignupForm({ email: '', password: '', confirmPassword: '', fullName: '', phone: '', agreeToTerms: false });
+        } else {
         toast.error('An unexpected error occurred during registration', {
           description: 'Please refresh the page and try again.'
         });
