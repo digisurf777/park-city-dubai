@@ -791,12 +791,25 @@ export const ParkingBookingModal = ({
                       <span>-AED {savings.toLocaleString()}</span>
                     </div>}
                   
+                  {parkingSpot && parkingSpot.accessDeviceDepositRequired && (
+                    <div className="flex justify-between text-sm text-blue-600">
+                      <span>Refundable Access Card Deposit</span>
+                      <span>AED {(parkingSpot.depositAmountAed || 500).toLocaleString()}</span>
+                    </div>
+                  )}
+                  
                   <hr className="my-2" />
                   
                   <div className="flex justify-between font-bold text-lg">
                     <span>Total</span>
-                    <span>AED {finalPrice.toLocaleString()}</span>
+                    <span>AED {(finalPrice + (parkingSpot?.accessDeviceDepositRequired ? (parkingSpot.depositAmountAed || 500) : 0)).toLocaleString()}</span>
                   </div>
+                  
+                  {parkingSpot?.accessDeviceDepositRequired && (
+                    <p className="text-xs text-blue-600">
+                      The access card deposit is fully refundable upon return of the card.
+                    </p>
+                  )}
                   
                   {savings > 0 && <p className="text-sm text-green-600 font-medium">
                       You save AED {savings.toLocaleString()} with long term rental pricing

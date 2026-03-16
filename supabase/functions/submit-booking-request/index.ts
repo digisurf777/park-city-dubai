@@ -138,7 +138,7 @@ const handler = async (req: Request): Promise<Response> => {
       body: JSON.stringify({
         bookingId: booking.id,
         amount: costAed,
-        securityDeposit: 0, // No security deposit
+        securityDeposit: depositAmount,
         duration: duration,
         parkingSpotName: parkingSpotName,
         userEmail: user.email,
