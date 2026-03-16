@@ -83,7 +83,9 @@ export const useParkingAvailability = (zone?: string) => {
           availableSpaces: Number(spot.available_spaces),
           bookedSpaces: Number(spot.booked_spaces),
           maintenanceSpaces: Number(spot.maintenance_spaces),
-          availabilityText
+          availabilityText,
+          accessDeviceDepositRequired: spot.access_device_deposit_required ?? false,
+          depositAmountAed: spot.deposit_amount_aed ?? 0,
         };
       });
 
