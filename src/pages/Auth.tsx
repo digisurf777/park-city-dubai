@@ -455,6 +455,18 @@ const Auth = () => {
       console.log('Calling signUp function...');
       const { error } = await signUp(signupForm.email, signupForm.password, signupForm.fullName, 'seeker');
       
+      // Save phone to profiles table after signup (best-effort)
+      if (!error) {
+        try {
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session?.user?.id) {
+            await supabase.from('profiles').update({ phone: signupForm.phone.trim() }).eq('user_id', session.user.id);
+          }
+        } catch (phoneErr) {
+          console.error('Failed to save phone to profile:', phoneErr);
+        }
+      }
+      
       console.log('SignUp response:', { 
         hasError: !!error, 
         errorMessage: error?.message,
