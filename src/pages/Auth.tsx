@@ -510,7 +510,7 @@ const Auth = () => {
           }, 3000);
           
           // Clear the form since account was likely created
-          setSignupForm({ email: '', password: '', confirmPassword: '', fullName: '', agreeToTerms: false });
+          setSignupForm({ email: '', password: '', confirmPassword: '', fullName: '', phone: '', agreeToTerms: false });
           
           // Reset rate limit state after 5 minutes
           setTimeout(() => {
