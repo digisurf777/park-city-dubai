@@ -39,8 +39,8 @@ export const useParkingAvailability = (zone?: string) => {
       // If public function fails or returns empty, fallback to the admin function
       if (error || !data || data.length === 0) {
         console.log('Public function failed or empty, trying admin function:', error);
-        const adminResult = await supabase.rpc('get_parking_listings_with_availability');
-        data = adminResult.data;
+      const adminResult = await supabase.rpc('get_parking_listings_with_availability');
+        data = (adminResult.data as any) ?? [];
         error = adminResult.error;
       }
       
