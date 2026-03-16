@@ -814,6 +814,11 @@ const AdminNotifications = ({
                       <div>
                         <span className="text-gray-600 block mb-1">Total Cost:</span>
                         <span className={`font-semibold ${notification.parking_bookings.status === 'confirmed' ? 'text-green-700' : 'text-green-600'}`}>{notification.parking_bookings.cost_aed} AED</span>
+                        {(notification.parking_bookings as any).security_deposit_amount > 0 && (
+                          <span className="block text-sm text-blue-600 mt-1">
+                            + {(notification.parking_bookings as any).security_deposit_amount} AED refundable access card deposit
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>

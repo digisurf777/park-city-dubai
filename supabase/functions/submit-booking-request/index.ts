@@ -12,6 +12,7 @@ interface BookingRequest {
   costAed: number;
   parkingSpotName: string;
   listingId?: string | null;
+  securityDeposit?: number;
 }
 
 const corsHeaders = {
@@ -65,6 +66,7 @@ const handler = async (req: Request): Promise<Response> => {
       costAed,
       parkingSpotName,
       listingId,
+      securityDeposit,
     }: BookingRequest = await req.json();
 
     console.log("Booking data received:", { startDate, duration, zone, location, costAed });
@@ -89,6 +91,8 @@ const handler = async (req: Request): Promise<Response> => {
     const endDateStr = endDateObj.toISOString().split('T')[0];
 
     // Insert booking into database using service role to bypass RLS
+    const depositAmount = securityDeposit || 0;
+    
     const { data: booking, error: insertError } = await supabaseServiceClient
       .from("parking_bookings")
       .insert([
@@ -96,12 +100,13 @@ const handler = async (req: Request): Promise<Response> => {
           user_id: user.id,
           start_time: startDate,
           end_time: endDateStr,
-          duration_hours: duration * 24 * 30, // Convert months to hours (approximate)
+          duration_hours: duration * 24 * 30,
           zone,
           location,
           cost_aed: costAed,
           status: "pending",
           listing_id: listingId || null,
+          security_deposit_amount: depositAmount,
         },
       ])
       .select()
@@ -133,7 +138,7 @@ const handler = async (req: Request): Promise<Response> => {
       body: JSON.stringify({
         bookingId: booking.id,
         amount: costAed,
-        securityDeposit: 0, // No security deposit
+        securityDeposit: depositAmount,
         duration: duration,
         parkingSpotName: parkingSpotName,
         userEmail: user.email,
@@ -308,6 +313,7 @@ const handler = async (req: Request): Promise<Response> => {
                               <tr><td><strong>End Date:</strong></td><td>${endDateObj.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</td></tr>
                               <tr><td><strong>Duration:</strong></td><td>${duration} month(s)</td></tr>
                               <tr><td><strong>Total Cost:</strong></td><td>${costAed} AED</td></tr>
+                              ${depositAmount > 0 ? `<tr><td><strong>Access Card Deposit:</strong></td><td>${depositAmount} AED (refundable)</td></tr>` : ''}
                               <tr><td><strong>Payment Type:</strong></td><td>Pre-Authorization</td></tr>
                               ${notes ? `<tr><td><strong>Notes:</strong></td><td>${notes}</td></tr>` : ''}
                             </table>

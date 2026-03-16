@@ -17,6 +17,8 @@ export interface ParkingSpotWithAvailability {
   bookedSpaces: number;
   maintenanceSpaces: number;
   availabilityText: string;
+  accessDeviceDepositRequired: boolean;
+  depositAmountAed: number;
 }
 
 export const useParkingAvailability = (zone?: string) => {
@@ -37,8 +39,8 @@ export const useParkingAvailability = (zone?: string) => {
       // If public function fails or returns empty, fallback to the admin function
       if (error || !data || data.length === 0) {
         console.log('Public function failed or empty, trying admin function:', error);
-        const adminResult = await supabase.rpc('get_parking_listings_with_availability');
-        data = adminResult.data;
+      const adminResult = await supabase.rpc('get_parking_listings_with_availability');
+        data = (adminResult.data as any) ?? [];
         error = adminResult.error;
       }
       
@@ -81,7 +83,9 @@ export const useParkingAvailability = (zone?: string) => {
           availableSpaces: Number(spot.available_spaces),
           bookedSpaces: Number(spot.booked_spaces),
           maintenanceSpaces: Number(spot.maintenance_spaces),
-          availabilityText
+          availabilityText,
+          accessDeviceDepositRequired: spot.access_device_deposit_required ?? false,
+          depositAmountAed: spot.deposit_amount_aed ?? 0,
         };
       });
 
@@ -122,7 +126,9 @@ export const useParkingAvailability = (zone?: string) => {
           availableSpaces: 0,
           bookedSpaces: 0,
           maintenanceSpaces: 0,
-          availabilityText: "Available for booking"
+          availabilityText: "Available for booking",
+          accessDeviceDepositRequired: false,
+          depositAmountAed: 0,
         }
       ];
       setParkingSpots(demoData);

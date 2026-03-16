@@ -28,6 +28,8 @@ interface ParkingSpot {
   specs?: string[];
   address?: string;
   description?: string;
+  accessDeviceDepositRequired?: boolean;
+  depositAmountAed?: number;
 }
 interface ParkingBookingModalProps {
   isOpen: boolean;
@@ -384,6 +386,8 @@ export const ParkingBookingModal = ({
       const endDate = new Date(startDate);
       endDate.setMonth(endDate.getMonth() + selectedDuration.months);
       
+      const depositAmount = parkingSpot.accessDeviceDepositRequired ? (parkingSpot.depositAmountAed || 500) : 0;
+      
       const bookingData = {
         startDate: format(startDate, 'yyyy-MM-dd'),
         endDate: format(endDate, 'yyyy-MM-dd'),
@@ -395,7 +399,8 @@ export const ParkingBookingModal = ({
         zone: "Find Parking Page",
         costAed: finalPrice,
         parkingSpotName: parkingSpot.name,
-        listingId: typeof parkingSpot.id === 'string' ? parkingSpot.id : null
+        listingId: typeof parkingSpot.id === 'string' ? parkingSpot.id : null,
+        securityDeposit: depositAmount
       };
 
       // Submit booking request (this creates the pre-authorization PaymentIntent)
@@ -786,12 +791,25 @@ export const ParkingBookingModal = ({
                       <span>-AED {savings.toLocaleString()}</span>
                     </div>}
                   
+                  {parkingSpot && parkingSpot.accessDeviceDepositRequired && (
+                    <div className="flex justify-between text-sm text-blue-600">
+                      <span>Refundable Access Card Deposit</span>
+                      <span>AED {(parkingSpot.depositAmountAed || 500).toLocaleString()}</span>
+                    </div>
+                  )}
+                  
                   <hr className="my-2" />
                   
                   <div className="flex justify-between font-bold text-lg">
                     <span>Total</span>
-                    <span>AED {finalPrice.toLocaleString()}</span>
+                    <span>AED {(finalPrice + (parkingSpot?.accessDeviceDepositRequired ? (parkingSpot.depositAmountAed || 500) : 0)).toLocaleString()}</span>
                   </div>
+                  
+                  {parkingSpot?.accessDeviceDepositRequired && (
+                    <p className="text-xs text-blue-600">
+                      The access card deposit is fully refundable upon return of the card.
+                    </p>
+                  )}
                   
                   {savings > 0 && <p className="text-sm text-green-600 font-medium">
                       You save AED {savings.toLocaleString()} with long term rental pricing
