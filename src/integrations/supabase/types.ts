@@ -930,9 +930,11 @@ export type Database = {
       }
       parking_listings_public: {
         Row: {
+          access_device_deposit_required: boolean | null
           address: string | null
           availability_schedule: Json | null
           created_at: string | null
+          deposit_amount_aed: number | null
           description: string | null
           features: string[] | null
           id: string
@@ -946,9 +948,11 @@ export type Database = {
           zone: string | null
         }
         Insert: {
+          access_device_deposit_required?: boolean | null
           address?: string | null
           availability_schedule?: Json | null
           created_at?: string | null
+          deposit_amount_aed?: number | null
           description?: string | null
           features?: string[] | null
           id: string
@@ -962,9 +966,11 @@ export type Database = {
           zone?: string | null
         }
         Update: {
+          access_device_deposit_required?: boolean | null
           address?: string | null
           availability_schedule?: Json | null
           created_at?: string | null
+          deposit_amount_aed?: number | null
           description?: string | null
           features?: string[] | null
           id?: string
@@ -2044,11 +2050,13 @@ export type Database = {
       get_public_parking_listings_with_availability: {
         Args: never
         Returns: {
+          access_device_deposit_required: boolean
           address: string
           availability_schedule: Json
           available_spaces: number
           booked_spaces: number
           created_at: string
+          deposit_amount_aed: number
           description: string
           features: string[]
           id: string
