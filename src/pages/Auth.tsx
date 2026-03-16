@@ -22,7 +22,7 @@ const Auth = () => {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loginForm, setLoginForm] = useState({ email: '', password: '' });
-  const [signupForm, setSignupForm] = useState({ email: '', password: '', confirmPassword: '', fullName: '', agreeToTerms: false });
+  const [signupForm, setSignupForm] = useState({ email: '', password: '', confirmPassword: '', fullName: '', phone: '', agreeToTerms: false });
   const [rateLimited, setRateLimited] = useState(false);
   const [showMFAChallenge, setShowMFAChallenge] = useState(false);
   const [mfaCode, setMfaCode] = useState('');
