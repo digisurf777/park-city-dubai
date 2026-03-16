@@ -601,11 +601,11 @@ const MyAccount = () => {
                   </div>
                   
                    <div className="space-y-2">
-                     <Label htmlFor="phone">Phone Number</Label>
+                     <Label htmlFor="phone">Phone Number <span className="text-destructive">*</span></Label>
                      <Input id="phone" type="tel" value={profile?.phone || ''} onChange={e => setProfile(prev => prev ? {
                      ...prev,
                      phone: e.target.value
-                   } : null)} placeholder="+971 50 123 4567" />
+                   } : null)} placeholder="+971 50 123 4567" required />
                    </div>
 
                    {/* Verification Status Display */}

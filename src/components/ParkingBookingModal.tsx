@@ -759,6 +759,20 @@ export const ParkingBookingModal = ({
               </Popover>
             </div>
 
+            {/* Phone Number */}
+            <div>
+              <Label htmlFor="booking-phone">Phone Number <span className="text-destructive">*</span></Label>
+              <Input
+                id="booking-phone"
+                type="tel"
+                placeholder="+971 50 123 4567"
+                value={userPhone}
+                onChange={(e) => setUserPhone(e.target.value)}
+                required
+                className="mt-1"
+              />
+            </div>
+
             {/* Duration Selection */}
             <div>
               <label className="block text-sm font-medium mb-2">Rental Duration</label>

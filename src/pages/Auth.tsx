@@ -966,7 +966,7 @@ const Auth = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="signup-name">Full Name</Label>
+                    <Label htmlFor="signup-name">Full Name <span className="text-destructive">*</span></Label>
                     <Input
                       id="signup-name"
                       type="text"
@@ -978,7 +978,19 @@ const Auth = () => {
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="signup-email">Email Address</Label>
+                    <Label htmlFor="signup-phone">Phone Number <span className="text-destructive">*</span></Label>
+                    <Input
+                      id="signup-phone"
+                      type="tel"
+                      placeholder="+971 50 123 4567"
+                      value={signupForm.phone}
+                      onChange={(e) => setSignupForm({ ...signupForm, phone: e.target.value })}
+                      required
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-email">Email Address <span className="text-destructive">*</span></Label>
                     <Input
                       id="signup-email"
                       type="email"
