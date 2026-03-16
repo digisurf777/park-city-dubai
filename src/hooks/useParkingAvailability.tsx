@@ -126,7 +126,9 @@ export const useParkingAvailability = (zone?: string) => {
           availableSpaces: 0,
           bookedSpaces: 0,
           maintenanceSpaces: 0,
-          availabilityText: "Available for booking"
+          availabilityText: "Available for booking",
+          accessDeviceDepositRequired: false,
+          depositAmountAed: 0,
         }
       ];
       setParkingSpots(demoData);
