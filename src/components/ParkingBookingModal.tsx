@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -88,6 +89,25 @@ export const ParkingBookingModal = ({
   const [stripe, setStripe] = useState<any>(null);
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [bookedDateRanges, setBookedDateRanges] = useState<Array<{ start: Date; end: Date }>>([]);
+  const [userPhone, setUserPhone] = useState("");
+
+  // Fetch user phone from profiles table
+  useEffect(() => {
+    const fetchUserPhone = async () => {
+      if (!user || !isOpen) return;
+      try {
+        const { data } = await supabase
+          .from('profiles')
+          .select('phone')
+          .eq('user_id', user.id)
+          .maybeSingle();
+        setUserPhone(data?.phone || user.user_metadata?.phone || "");
+      } catch {
+        setUserPhone(user.user_metadata?.phone || "");
+      }
+    };
+    fetchUserPhone();
+  }, [user, isOpen]);
   // Fetch booked dates for this parking spot
   useEffect(() => {
     const fetchBookedDates = async () => {
@@ -342,6 +362,15 @@ export const ParkingBookingModal = ({
       return;
     }
 
+    if (!userPhone || userPhone.trim().length < 5) {
+      toast({
+        title: "Phone Number Required",
+        description: "Please enter a valid phone number before booking.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     if (!startDate) {
       toast({
         title: "Start Date Required",
@@ -394,7 +423,7 @@ export const ParkingBookingModal = ({
         duration: selectedDuration.months,
         email: user.email,
         fullName: user.user_metadata?.full_name || "",
-        phone: user.user_metadata?.phone || "",
+        phone: userPhone.trim(),
         location: parkingSpot.name,
         zone: "Find Parking Page",
         costAed: finalPrice,
@@ -729,6 +758,20 @@ export const ParkingBookingModal = ({
                   </div>
                 </PopoverContent>
               </Popover>
+            </div>
+
+            {/* Phone Number */}
+            <div>
+              <Label htmlFor="booking-phone">Phone Number <span className="text-destructive">*</span></Label>
+              <Input
+                id="booking-phone"
+                type="tel"
+                placeholder="+971 50 123 4567"
+                value={userPhone}
+                onChange={(e) => setUserPhone(e.target.value)}
+                required
+                className="mt-1"
+              />
             </div>
 
             {/* Duration Selection */}

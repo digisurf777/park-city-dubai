@@ -22,7 +22,7 @@ const Auth = () => {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loginForm, setLoginForm] = useState({ email: '', password: '' });
-  const [signupForm, setSignupForm] = useState({ email: '', password: '', confirmPassword: '', fullName: '', agreeToTerms: false });
+  const [signupForm, setSignupForm] = useState({ email: '', password: '', confirmPassword: '', fullName: '', phone: '', agreeToTerms: false });
   const [rateLimited, setRateLimited] = useState(false);
   const [showMFAChallenge, setShowMFAChallenge] = useState(false);
   const [mfaCode, setMfaCode] = useState('');
@@ -439,6 +439,11 @@ const Auth = () => {
       return;
     }
     
+    if (!signupForm.phone || signupForm.phone.trim().length < 5) {
+      toast.error('Please enter a valid phone number');
+      return;
+    }
+    
     if (!signupForm.agreeToTerms) {
       toast.error('Please agree to the Terms & Conditions and Privacy Policy');
       return;
@@ -449,6 +454,18 @@ const Auth = () => {
     try {
       console.log('Calling signUp function...');
       const { error } = await signUp(signupForm.email, signupForm.password, signupForm.fullName, 'seeker');
+      
+      // Save phone to profiles table after signup (best-effort)
+      if (!error) {
+        try {
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session?.user?.id) {
+            await supabase.from('profiles').update({ phone: signupForm.phone.trim() }).eq('user_id', session.user.id);
+          }
+        } catch (phoneErr) {
+          console.error('Failed to save phone to profile:', phoneErr);
+        }
+      }
       
       console.log('SignUp response:', { 
         hasError: !!error, 
@@ -493,7 +510,7 @@ const Auth = () => {
           }, 3000);
           
           // Clear the form since account was likely created
-          setSignupForm({ email: '', password: '', confirmPassword: '', fullName: '', agreeToTerms: false });
+          setSignupForm({ email: '', password: '', confirmPassword: '', fullName: '', phone: '', agreeToTerms: false });
           
           // Reset rate limit state after 5 minutes
           setTimeout(() => {
@@ -515,7 +532,7 @@ const Auth = () => {
           duration: 6000,
           description: 'Check your inbox and confirm your email address before logging in.'
         });
-        setSignupForm({ email: '', password: '', confirmPassword: '', fullName: '', agreeToTerms: false });
+        setSignupForm({ email: '', password: '', confirmPassword: '', fullName: '', phone: '', agreeToTerms: false });
         
         // Show additional info about email confirmation
         setTimeout(() => {
@@ -535,8 +552,8 @@ const Auth = () => {
           duration: 8000,
           description: 'Email system is busy. Try logging in after a few minutes.'
         });
-        setSignupForm({ email: '', password: '', confirmPassword: '', fullName: '', agreeToTerms: false });
-      } else {
+          setSignupForm({ email: '', password: '', confirmPassword: '', fullName: '', phone: '', agreeToTerms: false });
+        } else {
         toast.error('An unexpected error occurred during registration', {
           description: 'Please refresh the page and try again.'
         });
@@ -949,7 +966,7 @@ const Auth = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="signup-name">Full Name</Label>
+                    <Label htmlFor="signup-name">Full Name <span className="text-destructive">*</span></Label>
                     <Input
                       id="signup-name"
                       type="text"
@@ -961,7 +978,19 @@ const Auth = () => {
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="signup-email">Email Address</Label>
+                    <Label htmlFor="signup-phone">Phone Number <span className="text-destructive">*</span></Label>
+                    <Input
+                      id="signup-phone"
+                      type="tel"
+                      placeholder="+971 50 123 4567"
+                      value={signupForm.phone}
+                      onChange={(e) => setSignupForm({ ...signupForm, phone: e.target.value })}
+                      required
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-email">Email Address <span className="text-destructive">*</span></Label>
                     <Input
                       id="signup-email"
                       type="email"

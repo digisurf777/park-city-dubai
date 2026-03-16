@@ -226,6 +226,13 @@ const MyAccount = () => {
   const updateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!profile) return;
+    
+    // Validate mandatory phone number
+    if (!profile.phone || profile.phone.trim().length < 5) {
+      toast.error('Phone number is required. Please enter a valid phone number.');
+      return;
+    }
+    
     setUpdating(true);
     try {
       console.log('Attempting profile update', { userId: user.id, profileId: profile?.id });
@@ -594,11 +601,11 @@ const MyAccount = () => {
                   </div>
                   
                    <div className="space-y-2">
-                     <Label htmlFor="phone">Phone Number</Label>
+                     <Label htmlFor="phone">Phone Number <span className="text-destructive">*</span></Label>
                      <Input id="phone" type="tel" value={profile?.phone || ''} onChange={e => setProfile(prev => prev ? {
                      ...prev,
                      phone: e.target.value
-                   } : null)} placeholder="+971 50 123 4567" />
+                   } : null)} placeholder="+971 50 123 4567" required />
                    </div>
 
                    {/* Verification Status Display */}

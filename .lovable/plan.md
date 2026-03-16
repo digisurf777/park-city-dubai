@@ -1,38 +1,19 @@
 
 
-# Plan: Make Phone Number Mandatory
+# ✅ COMPLETED: Integrate 500 AED Access Card Deposit into Booking Flow
 
-## Current State
+All changes implemented successfully.
 
-1. **MyAccount profile form** (`src/pages/MyAccount.tsx`, line 596-602): Phone field exists but is optional — no validation before saving.
-2. **Booking modal** (`src/components/ParkingBookingModal.tsx`): No phone input field at all. Phone is silently pulled from `user.user_metadata?.phone` (line 397), which is often empty.
-3. **Rent Out Your Space** (`src/pages/RentOutYourSpace.tsx`): Phone is already required with validation (line 173).
-4. **Auth/Signup** (`src/pages/Auth.tsx`): No phone field during signup.
+## What was done
 
-## Changes
+1. **DB Migration:** Added `access_device_deposit_required` and `deposit_amount_aed` columns to `parking_listings_public`, updated the `get_public_parking_listings_with_availability` RPC to return them, and synced existing data.
 
-### 1. Add phone validation to MyAccount profile form
-**File: `src/pages/MyAccount.tsx`**
-- Add `*` indicator to Phone Number label.
-- In `updateProfile`, validate that `profile.phone` is non-empty before saving. Show toast error if missing.
+2. **Data Pipeline:** Added `accessDeviceDepositRequired` and `depositAmountAed` to `ParkingSpotWithAvailability` interface and the transform in `useParkingAvailability.tsx`.
 
-### 2. Add phone input to booking modal
-**File: `src/components/ParkingBookingModal.tsx`**
-- Add state `userPhone` initialized from user profile (fetch from `profiles` table on mount).
-- Add a phone input field in the booking form (right column) before the date picker.
-- Validate phone is filled before allowing booking submission.
-- Pass `userPhone` in `bookingData` sent to the edge function.
+3. **Booking Modal UI:** Shows "Refundable Access Card Deposit" row in price breakdown when listing requires it. Total includes deposit. Note explains refundability.
 
-### 3. Add phone field to signup form
-**File: `src/pages/Auth.tsx`**
-- Add a phone input field to the signup form.
-- Make it required with validation.
-- Include phone in the `signUp` call's `options.data` so it's stored in `user_metadata`.
-- After signup, insert phone into the `profiles` table.
+4. **Booking Request:** `securityDeposit` field added to booking data sent to edge function. Stored in `security_deposit_amount` column on `parking_bookings`.
 
-## Technical Details
+5. **Edge Function:** `submit-booking-request` now reads `securityDeposit` from request body, passes it to `create-pre-authorization` (replacing hardcoded `0`), and includes deposit in confirmation email.
 
-- Phone fetched from `profiles` table (not just `user_metadata`) for reliability in booking modal.
-- Existing users without a phone will be prompted when they try to book or update their profile.
-- The `submit-booking-request` edge function already accepts `userPhone` in the request body — no backend changes needed.
-
+6. **Admin UI:** Admin notification card shows deposit amount when > 0.
