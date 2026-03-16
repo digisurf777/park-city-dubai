@@ -28,6 +28,8 @@ interface ParkingSpot {
   specs?: string[];
   address?: string;
   description?: string;
+  accessDeviceDepositRequired?: boolean;
+  depositAmountAed?: number;
 }
 interface ParkingBookingModalProps {
   isOpen: boolean;
