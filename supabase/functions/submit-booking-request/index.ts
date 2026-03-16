@@ -91,6 +91,8 @@ const handler = async (req: Request): Promise<Response> => {
     const endDateStr = endDateObj.toISOString().split('T')[0];
 
     // Insert booking into database using service role to bypass RLS
+    const depositAmount = securityDeposit || 0;
+    
     const { data: booking, error: insertError } = await supabaseServiceClient
       .from("parking_bookings")
       .insert([
@@ -98,12 +100,13 @@ const handler = async (req: Request): Promise<Response> => {
           user_id: user.id,
           start_time: startDate,
           end_time: endDateStr,
-          duration_hours: duration * 24 * 30, // Convert months to hours (approximate)
+          duration_hours: duration * 24 * 30,
           zone,
           location,
           cost_aed: costAed,
           status: "pending",
           listing_id: listingId || null,
+          security_deposit_amount: depositAmount,
         },
       ])
       .select()
