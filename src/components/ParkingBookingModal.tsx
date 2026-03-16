@@ -361,6 +361,15 @@ export const ParkingBookingModal = ({
       return;
     }
 
+    if (!userPhone || userPhone.trim().length < 5) {
+      toast({
+        title: "Phone Number Required",
+        description: "Please enter a valid phone number before booking.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     if (!startDate) {
       toast({
         title: "Start Date Required",
