@@ -12,6 +12,7 @@ interface BookingRequest {
   costAed: number;
   parkingSpotName: string;
   listingId?: string | null;
+  securityDeposit?: number;
 }
 
 const corsHeaders = {
