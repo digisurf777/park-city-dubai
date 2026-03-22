@@ -1,19 +1,26 @@
 
 
-# ✅ COMPLETED: Integrate 500 AED Access Card Deposit into Booking Flow
+# Plan: Remove Delisting Notifications from Delete Actions
 
-All changes implemented successfully.
+## Problem
+When an admin deletes a parking space/listing, the system sends the same "Your Parking Listing Has Been Removed" email as when delisting. The user wants these notifications only when delisting (unpublishing), not when permanently deleting.
 
-## What was done
+## Changes
 
-1. **DB Migration:** Added `access_device_deposit_required` and `deposit_amount_aed` columns to `parking_listings_public`, updated the `get_public_parking_listings_with_availability` RPC to return them, and synced existing data.
+### 1. Remove notification emails from SpaceManagement `deleteCarPark`
+**File: `src/components/SpaceManagement.tsx`** (lines 369-462)
+- Remove the entire notification block: customer emails (`send-booking-cancelled-delisting`), admin email (`send-admin-delisting-notification`), and owner email (`send-listing-delisted`).
+- Keep the deletion logic, toast, and data refresh.
 
-2. **Data Pipeline:** Added `accessDeviceDepositRequired` and `depositAmountAed` to `ParkingSpotWithAvailability` interface and the transform in `useParkingAvailability.tsx`.
+### 2. Remove notification emails from AdminPanel `deleteListing`
+**File: `src/pages/AdminPanel.tsx`** (lines 1017-1110)
+- Remove the same three notification blocks: customer emails, admin email, and owner email.
+- Keep the deletion logic, local state update, and toast.
 
-3. **Booking Modal UI:** Shows "Refundable Access Card Deposit" row in price breakdown when listing requires it. Total includes deposit. Note explains refundability.
+### 3. Keep notifications on unpublish (delist) -- no change needed
+**File: `src/pages/AdminPanel.tsx`** (lines 784-818)
+- The `updateListingStatus` function already correctly sends notifications only when going from `published` → `approved` (unpublish/delist). This stays as-is.
 
-4. **Booking Request:** `securityDeposit` field added to booking data sent to edge function. Stored in `security_deposit_amount` column on `parking_bookings`.
+## Summary
+Two functions lose their email notification blocks. The unpublish flow keeps its notifications. No edge function or backend changes needed.
 
-5. **Edge Function:** `submit-booking-request` now reads `securityDeposit` from request body, passes it to `create-pre-authorization` (replacing hardcoded `0`), and includes deposit in confirmation email.
-
-6. **Admin UI:** Admin notification card shows deposit amount when > 0.
