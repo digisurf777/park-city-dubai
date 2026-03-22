@@ -1000,13 +1000,6 @@ const AdminPanelOrganized = () => {
         }
       }
 
-      // Get affected bookings before deletion
-      const { data: affectedBookings } = await supabase
-        .from('parking_bookings')
-        .select('id, user_id, start_time, end_time, status')
-        .eq('listing_id', listingId)
-        .in('status', ['pending', 'confirmed', 'approved']);
-
       // Delete the listing
       const { error } = await supabase.rpc('admin_delete_parking_listing_complete', {
         listing_id: listingId
@@ -1014,107 +1007,12 @@ const AdminPanelOrganized = () => {
 
       if (error) throw error;
 
-      // Send email notifications
-      const affectedCustomers: Array<{ name: string; email: string; startDate: string; endDate: string }> = [];
-      
-      if (affectedBookings && affectedBookings.length > 0) {
-        for (const booking of affectedBookings) {
-          // Get customer info
-          const { data: customerProfile } = await supabase
-            .from('profiles')
-            .select('full_name, email')
-            .eq('user_id', booking.user_id)
-            .single();
-
-          if (customerProfile?.email) {
-            affectedCustomers.push({
-              name: customerProfile.full_name || 'Customer',
-              email: customerProfile.email,
-              startDate: booking.start_time,
-              endDate: booking.end_time,
-            });
-
-            // Send email to customer
-            try {
-              await supabase.functions.invoke('send-booking-cancelled-delisting', {
-                body: {
-                  customerEmail: customerProfile.email,
-                  customerName: customerProfile.full_name || 'Customer',
-                  listingTitle: listing?.title || 'Parking Space',
-                  zone: listing?.zone || 'Unknown',
-                  startDate: booking.start_time,
-                  endDate: booking.end_time,
-                  bookingId: booking.id,
-                },
-              });
-              console.log(`✅ Sent delisting email to customer: ${customerProfile.email}`);
-            } catch (emailError) {
-              console.error('❌ Failed to send customer delisting email:', emailError);
-            }
-          }
-        }
-      }
-
-      // Send admin notification email
-      try {
-        const adminResult = await supabase.functions.invoke('send-admin-delisting-notification', {
-          body: {
-            listingTitle: listing?.title || 'Parking Space',
-            zone: listing?.zone || 'Unknown',
-            ownerName,
-            ownerEmail,
-            affectedBookingsCount: affectedBookings?.length || 0,
-            affectedCustomers,
-          },
-        });
-        if (adminResult.error) {
-          throw adminResult.error;
-        }
-        console.log('✅ Sent admin delisting notification');
-      } catch (adminEmailError) {
-        console.error('❌ Failed to send admin delisting notification:', adminEmailError);
-        toast({
-          title: "Warning",
-          description: "Listing deleted but admin email notification failed",
-          variant: "destructive",
-        });
-      }
-
-      // Send owner notification email
-      if (ownerEmail) {
-        try {
-          const ownerResult = await supabase.functions.invoke('send-listing-delisted', {
-            body: {
-              userEmail: ownerEmail,
-              userName: ownerName,
-              listingDetails: {
-                title: listing?.title || 'Parking Space',
-                address: listing?.address || '',
-                zone: listing?.zone || 'Unknown',
-                listingId,
-              },
-            },
-          });
-          if (ownerResult.error) {
-            throw ownerResult.error;
-          }
-          console.log(`✅ Sent delisting email to owner: ${ownerEmail}`);
-        } catch (ownerEmailError) {
-          console.error('❌ Failed to send owner delisting email:', ownerEmailError);
-          toast({
-            title: "Warning",
-            description: "Listing deleted but owner email notification failed",
-            variant: "destructive",
-          });
-        }
-      }
-
       // Remove from local state
       setParkingListings(prev => prev.filter(listing => listing.id !== listingId));
       
       toast({
         title: "Success",
-        description: `Listing deleted successfully. ${affectedBookings?.length || 0} booking(s) cancelled and notified.`,
+        description: "Listing deleted successfully.",
       });
     } catch (error) {
       console.error('Error deleting listing:', error);
