@@ -71,6 +71,14 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("Booking data received:", { startDate, duration, zone, location, costAed });
 
+    // Validate phone number is provided (mandatory field)
+    if (!userPhone || userPhone.trim().length < 5) {
+      return new Response(
+        JSON.stringify({ error: "A valid phone number is required to submit a booking request." }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
     // Get user profile information for enhanced email
     const { data: userProfile, error: profileError } = await supabaseServiceClient
       .from("profiles")
