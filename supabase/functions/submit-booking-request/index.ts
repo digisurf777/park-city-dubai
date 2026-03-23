@@ -5,7 +5,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 interface BookingRequest {
   startDate: string;
   duration: number;
-  userPhone?: string;
+  userPhone: string;
   notes?: string;
   zone: string;
   location: string;
