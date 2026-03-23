@@ -165,7 +165,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Send admin booking notification using dedicated function  
     const customerName = userProfile?.full_name || "Customer";
-    const customerPhone = userPhone || userProfile?.phone || "Not provided";
+    const customerPhone = userPhone.trim();
     
     // Track email statuses
     let adminEmailSent = false;
