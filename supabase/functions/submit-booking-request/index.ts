@@ -5,7 +5,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 interface BookingRequest {
   startDate: string;
   duration: number;
-  userPhone?: string;
+  userPhone: string;
   notes?: string;
   zone: string;
   location: string;
@@ -70,6 +70,14 @@ const handler = async (req: Request): Promise<Response> => {
     }: BookingRequest = await req.json();
 
     console.log("Booking data received:", { startDate, duration, zone, location, costAed });
+
+    // Validate phone number is provided (mandatory field)
+    if (!userPhone || userPhone.trim().length < 5) {
+      return new Response(
+        JSON.stringify({ error: "A valid phone number is required to submit a booking request." }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
 
     // Get user profile information for enhanced email
     const { data: userProfile, error: profileError } = await supabaseServiceClient
@@ -157,7 +165,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Send admin booking notification using dedicated function  
     const customerName = userProfile?.full_name || "Customer";
-    const customerPhone = userPhone || userProfile?.phone || "Not provided";
+    const customerPhone = userPhone.trim();
     
     // Track email statuses
     let adminEmailSent = false;

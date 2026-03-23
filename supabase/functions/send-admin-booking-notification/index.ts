@@ -12,7 +12,7 @@ const corsHeaders = {
 interface AdminBookingNotificationRequest {
   userName: string;
   userEmail: string;
-  userPhone?: string;
+  userPhone: string;
   bookingId: string;
   parkingSpotName: string;
   zone: string;
@@ -61,7 +61,7 @@ const handler = async (req: Request): Promise<Response> => {
           <h2 style="color: #0d47a1; margin-top: 0;">👤 Customer Information:</h2>
           <p><strong>Name:</strong> ${userName}</p>
           <p><strong>Email:</strong> <a href="mailto:${userEmail}">${userEmail}</a></p>
-          <p><strong>Phone:</strong> ${userPhone || 'Not provided'}</p>
+          <p><strong>Phone:</strong> ${userPhone}</p>
         </div>
 
         <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
