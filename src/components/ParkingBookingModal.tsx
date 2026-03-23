@@ -423,7 +423,7 @@ export const ParkingBookingModal = ({
         duration: selectedDuration.months,
         email: user.email,
         fullName: user.user_metadata?.full_name || "",
-        phone: userPhone.trim(),
+        userPhone: userPhone.trim(),
         location: parkingSpot.name,
         zone: "Find Parking Page",
         costAed: finalPrice,
