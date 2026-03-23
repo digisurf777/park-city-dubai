@@ -12,7 +12,7 @@ const corsHeaders = {
 interface AdminBookingNotificationRequest {
   userName: string;
   userEmail: string;
-  userPhone?: string;
+  userPhone: string;
   bookingId: string;
   parkingSpotName: string;
   zone: string;
