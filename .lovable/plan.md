@@ -1,24 +1,21 @@
 
 
-## Extend Damac Heights Booking to 7 May 2026
+# Remove Hours Display from Booking UI
 
-### Booking identified
-- **ID**: `b50a9fc6-a7b8-4af4-87b0-bb7d4f03c2e6`
-- **Location**: Covered parking in Damac Heights
-- **Current period**: 7 March 2026 → 7 April 2026 (720 hours)
-- **New period**: 7 March 2026 → 7 May 2026 (~1464 hours)
-- **Status**: confirmed
+## What
+Stop displaying raw hours in booking-related UI. Instead, show duration as months only (or hide duration altogether since start/end dates already convey the period).
 
-### Change
-Run a single SQL migration to update the booking's `end_time` and `duration_hours`:
+## Changes
 
-```sql
-UPDATE parking_bookings
-SET end_time = '2026-05-07 00:00:00+00',
-    duration_hours = 1464,
-    updated_at = now()
-WHERE id = 'b50a9fc6-a7b8-4af4-87b0-bb7d4f03c2e6';
-```
+### 1. `src/components/LiveBookingControl.tsx` (~line 562-568)
+Replace the duration badge that shows `{duration_hours}h` or `{X} month(s)` with just the month-based display, or remove it entirely. Change to show only months (rounded), e.g. "2 months" instead of "1464h".
 
-No code or schema changes needed — data-only update via migration.
+### 2. `src/components/AdminNotifications.tsx` (~line 806-812)
+Same change — replace `{duration_hours} hours` fallback with a months-only or days-based display. Remove the raw hours text.
+
+### 3. `src/components/ActiveBookingChats.tsx` (~line 59)
+Remove `duration_hours` from the Supabase select query since it's not displayed in this component (cleanup only).
+
+## Summary
+Two UI files need their duration display updated to show months instead of hours. No schema or migration changes needed.
 
