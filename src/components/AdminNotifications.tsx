@@ -805,10 +805,7 @@ const AdminNotifications = ({
                       <div>
                         <span className="text-gray-600 block mb-1">Duration:</span>
                         <span className="font-medium">
-                          {notification.parking_bookings.duration_hours >= 720 
-                            ? `${Math.round(notification.parking_bookings.duration_hours / 720)} month${Math.round(notification.parking_bookings.duration_hours / 720) !== 1 ? 's' : ''}`
-                            : `${notification.parking_bookings.duration_hours} hours`
-                          }
+                          {`${Math.max(1, Math.round(notification.parking_bookings.duration_hours / 720))} month${Math.max(1, Math.round(notification.parking_bookings.duration_hours / 720)) !== 1 ? 's' : ''}`}
                         </span>
                       </div>
                       <div>
