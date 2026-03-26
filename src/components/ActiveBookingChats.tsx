@@ -56,7 +56,7 @@ export const ActiveBookingChats = () => {
           zone,
           start_time,
           end_time,
-          duration_hours,
+          
           cost_aed,
           status,
           created_at,

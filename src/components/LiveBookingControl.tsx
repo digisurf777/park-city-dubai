@@ -561,10 +561,7 @@ const LiveBookingControl = ({ onRefresh }: LiveBookingControlProps) => {
                       </TableCell>
                       <TableCell className="text-center">
                         <Badge variant="outline">
-                          {booking.duration_hours >= 720 
-                            ? `${Math.round(booking.duration_hours / 720)} month${Math.round(booking.duration_hours / 720) !== 1 ? 's' : ''}`
-                            : `${booking.duration_hours}h`
-                          }
+                          {`${Math.max(1, Math.round(booking.duration_hours / 720))} month${Math.max(1, Math.round(booking.duration_hours / 720)) !== 1 ? 's' : ''}`}
                         </Badge>
                       </TableCell>
                       <TableCell className="font-semibold text-green-600">
