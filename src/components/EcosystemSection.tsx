@@ -1,26 +1,16 @@
 import { motion } from "framer-motion";
 import { ArrowUpRight, Sparkles } from "lucide-react";
-import shazamEcosystem from "@/assets/ecosystem/shazam-ecosystem.jpg";
-import dubaiLifeOs from "@/assets/ecosystem/dubai-life-os.jpg";
-import dubaiLifeMaps from "@/assets/ecosystem/dubai-life-maps.jpg";
+import shazamLogo from "@/assets/ecosystem/shazam-logo.png";
+import dubaiLifeOsLogo from "@/assets/ecosystem/dubai-life-os-logo.png";
+import dubaiLifeMapsLogo from "@/assets/ecosystem/dubai-life-maps-logo.png";
 
 const products = [
-  {
-    title: "Shazam Parking",
-    tagline: "You are here",
-    description:
-      "Long-term parking marketplace for Dubai. Owners earn from unused spaces; drivers secure reliable monthly parking.",
-    image: shazamEcosystem,
-    href: "https://shazam.ae/",
-    cta: "Visit Shazam",
-    current: true,
-  },
   {
     title: "Dubai Life OS",
     tagline: "Personal Operating System",
     description:
-      "One platform to manage admin, documents, deadlines, finances, family, vehicles and travel in Dubai.",
-    image: dubaiLifeOs,
+      "Twój osobisty system operacyjny dla życia w Dubaju — dokumenty, terminy, finanse, rodzina, pojazdy i podróże w jednym miejscu. Wszystko, czego potrzebujesz, by uporządkować codzienność.",
+    image: dubaiLifeOsLogo,
     href: "https://dubailifeos.ae",
     cta: "Open Life OS",
     current: false,
@@ -29,11 +19,21 @@ const products = [
     title: "Dubai Life Maps",
     tagline: "City Intelligence",
     description:
-      "Interactive city map for Dubai with live layers — traffic, mobility, environment, parking and area context.",
-    image: dubaiLifeMaps,
+      "Interaktywna mapa Dubaju z warstwami live — ruch, mobilność, środowisko, parkingi i kontekst dzielnic. Poznaj miasto z lotu ptaka i podejmuj lepsze decyzje każdego dnia.",
+    image: dubaiLifeMapsLogo,
     href: "https://dubailifemaps.ae/",
     cta: "Explore Maps",
     current: false,
+  },
+  {
+    title: "Shazam Technology Group",
+    tagline: "Parent Company",
+    description:
+      "Twórca całego ekosystemu — Shazam Parking, Dubai Life OS i Dubai Life Maps. Łączymy technologię, dane i codzienne potrzeby mieszkańców Dubaju w jeden spójny system.",
+    image: shazamLogo,
+    href: "https://shazam.ae/",
+    cta: "Visit Shazam",
+    current: true,
   },
 ];
 
@@ -75,8 +75,7 @@ const EcosystemSection = () => {
             — connecting life in Dubai
           </h2>
           <p className="text-base sm:text-lg text-gray-600">
-            Shazam Parking is one of three connected products. Together they help you
-            understand the city, organise your life and solve everyday mobility.
+            Shazam Parking jest częścią szerszego ekosystemu trzech produktów. Razem pomagają zrozumieć miasto, zorganizować życie i rozwiązać codzienną mobilność w Dubaju.
           </p>
         </motion.div>
 
@@ -91,27 +90,35 @@ const EcosystemSection = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-60px" }}
               transition={{ duration: 0.6, delay: i * 0.12, ease: [0.22, 1, 0.36, 1] }}
-              className="group relative rounded-2xl p-[2px] transition-all duration-500 hover:-translate-y-2"
+              className="group relative rounded-2xl p-[2px] transition-all duration-500 hover:-translate-y-2 animate-frame-pulse"
               style={{
                 background:
                   "linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-glow)) 50%, hsl(var(--primary-deep)) 100%)",
-                boxShadow:
-                  "0 20px 40px -15px hsl(var(--primary-deep) / 0.35), inset 0 1px 0 0 hsl(0 0% 100% / 0.4)",
+                animationDelay: `${i * 0.5}s`,
               }}
             >
               <article className="relative h-full rounded-[14px] bg-white overflow-hidden flex flex-col">
-                <div className="relative aspect-[3/2] overflow-hidden">
+                {/* Logo showcase area with brand-tinted backdrop */}
+                <div
+                  className="relative aspect-[4/3] overflow-hidden flex items-center justify-center p-8"
+                  style={{
+                    background:
+                      "radial-gradient(ellipse at 30% 20%, hsl(var(--primary) / 0.10) 0%, transparent 55%), radial-gradient(ellipse at 70% 80%, hsl(var(--primary-glow) / 0.12) 0%, transparent 55%), linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(174 35% 96%) 100%)",
+                  }}
+                >
+                  {/* glossy top highlight */}
+                  <div className="pointer-events-none absolute inset-x-0 top-0 h-1/3 bg-gradient-to-b from-white/60 to-transparent" />
+
                   <img
                     src={p.image}
-                    alt={`${p.title} preview — ${p.tagline}`}
-                    width={1024}
-                    height={682}
+                    alt={`${p.title} logo — ${p.tagline}`}
+                    width={280}
+                    height={280}
                     loading="lazy"
                     decoding="async"
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    className="relative max-h-[180px] w-auto object-contain transition-transform duration-700 group-hover:scale-110 drop-shadow-[0_8px_24px_hsl(var(--primary-deep)/0.25)]"
                   />
-                  {/* glossy top highlight */}
-                  <div className="pointer-events-none absolute inset-x-0 top-0 h-1/3 bg-gradient-to-b from-white/30 to-transparent" />
+
                   {p.current && (
                     <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-primary text-white text-[10px] font-bold tracking-widest uppercase shadow-lg">
                       You are here
@@ -119,14 +126,14 @@ const EcosystemSection = () => {
                   )}
                 </div>
 
-                <div className="p-5 sm:p-6 flex flex-col flex-1">
+                <div className="p-5 sm:p-6 flex flex-col flex-1 border-t border-primary/10">
                   <p className="text-[11px] font-bold tracking-[0.18em] uppercase text-primary mb-1.5">
                     {p.tagline}
                   </p>
                   <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
                     {p.title}
                   </h3>
-                  <p className="text-sm text-gray-600 flex-1">{p.description}</p>
+                  <p className="text-sm text-gray-600 flex-1 leading-relaxed">{p.description}</p>
                   <div className="mt-4 inline-flex items-center gap-1.5 text-primary font-semibold text-sm group-hover:gap-2.5 transition-all">
                     {p.cta}
                     <ArrowUpRight className="h-4 w-4" />
