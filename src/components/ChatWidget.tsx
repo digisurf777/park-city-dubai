@@ -293,11 +293,9 @@ const ChatWidget = () => {
             </Button>
           ) : (
             <div className="relative">
-              {/* Animated pulse ring */}
-              <span className="absolute inset-0 rounded-full ring-2 ring-emerald-400/60 animate-ping" />
-              <img src={supportAvatar} alt="Online Support agent" width={44} height={44}
-                className="relative w-11 h-11 rounded-full object-cover ring-2 ring-white/80" loading="lazy" />
-              <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 ring-2 ring-primary-deep" />
+              <img src={supportAvatar} alt="Online Support agent" width={40} height={40}
+                className="relative w-10 h-10 rounded-full object-cover ring-2 ring-white/80" loading="lazy" />
+              <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 ring-2 ring-primary-deep" />
             </div>
           )}
           <div className="flex-1 min-w-0 relative">
