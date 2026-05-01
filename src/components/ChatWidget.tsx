@@ -243,33 +243,29 @@ const ChatWidget = () => {
   // ---------- Launcher ----------
   if (!isOpen) {
     return (
-      <div className="hidden md:block fixed bottom-8 right-8 z-50">
-        {/* Soft outer pulsing aura to draw the eye */}
-        <span className="absolute inset-0 -z-10 rounded-full bg-primary/30 blur-xl animate-pulse" />
+      <div className="hidden md:block fixed bottom-6 right-6 z-50">
         <button
           onClick={handleOpen}
           aria-label="Open online support chat"
-          className="group relative flex items-center gap-3 pl-2 pr-5 py-2.5 rounded-full bg-gradient-to-br from-primary via-primary-glow to-primary-deep text-white shadow-[0_18px_44px_-10px_hsl(var(--primary)/0.7),0_8px_18px_-6px_hsl(var(--primary-deep)/0.5),inset_0_1px_0_0_hsl(0_0%_100%/0.4)] hover:shadow-[0_22px_50px_-8px_hsl(var(--primary-glow)/0.85),0_10px_22px_-6px_hsl(var(--primary-deep)/0.6),inset_0_1px_0_0_hsl(0_0%_100%/0.5)] hover:-translate-y-1 hover:scale-105 transition-all duration-300 ring-2 ring-white/40"
+          className="group relative flex items-center gap-2.5 pl-1.5 pr-4 py-1.5 rounded-full bg-gradient-to-br from-primary via-primary to-primary-deep text-white shadow-[0_12px_28px_-8px_hsl(var(--primary)/0.55),0_4px_12px_-4px_hsl(var(--primary-deep)/0.4),inset_0_1px_0_0_hsl(0_0%_100%/0.3)] hover:shadow-[0_16px_32px_-8px_hsl(var(--primary)/0.65),inset_0_1px_0_0_hsl(0_0%_100%/0.4)] hover:-translate-y-0.5 transition-all duration-300 ring-1 ring-white/30"
         >
           <span className="relative">
-            {/* Animated pulsing ring around the avatar */}
-            <span className="absolute inset-0 rounded-full ring-2 ring-emerald-300/80 animate-ping" />
             <img
               src={supportAvatar}
               alt="Online Support agent"
-              width={40}
-              height={40}
+              width={32}
+              height={32}
               loading="lazy"
-              className="relative w-10 h-10 rounded-full object-cover ring-2 ring-white"
+              className="relative w-8 h-8 rounded-full object-cover ring-2 ring-white/80"
             />
-            <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-emerald-400 ring-2 ring-white animate-pulse" />
+            <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 ring-2 ring-white" />
           </span>
-          <span className="flex flex-col items-start leading-tight pr-1">
-            <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-emerald-200">● Live</span>
-            <span className="text-sm font-bold whitespace-nowrap">Online Support</span>
+          <span className="flex flex-col items-start leading-tight">
+            <span className="text-[9px] font-bold uppercase tracking-[0.12em] text-emerald-200">Live</span>
+            <span className="text-[13px] font-bold whitespace-nowrap">Support</span>
           </span>
           {unread > 0 && (
-            <span className="absolute -top-1 -right-1 min-w-[22px] h-5 px-1.5 rounded-full bg-rose-500 text-white text-[11px] font-bold flex items-center justify-center ring-2 ring-white animate-bounce">
+            <span className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1.5 rounded-full bg-rose-500 text-white text-[11px] font-bold flex items-center justify-center ring-2 ring-white">
               {unread}
             </span>
           )}
