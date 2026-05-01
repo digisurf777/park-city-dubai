@@ -3,6 +3,7 @@ import { ArrowUpRight, Sparkles } from "lucide-react";
 import shazamLogo from "@/assets/ecosystem/shazam-logo.png";
 import dubaiLifeOsLogo from "@/assets/ecosystem/dubai-life-os-logo.png";
 import dubaiLifeMapsLogo from "@/assets/ecosystem/dubai-life-maps-logo.png";
+import dubaiAerial from "@/assets/dubai-drone-aerial.jpg";
 
 const products = [
   {
@@ -42,11 +43,39 @@ const EcosystemSection = () => {
     <section
       id="shazam-ecosystem"
       aria-labelledby="ecosystem-heading"
-      className="relative py-16 sm:py-20 lg:py-28 overflow-hidden bg-gradient-to-b from-background via-[hsl(174_30%_97%)] to-background"
+      className="relative py-16 sm:py-20 lg:py-28 overflow-hidden"
     >
+      {/* Drone aerial background */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 bg-cover bg-center scale-[1.04]"
+        style={{ backgroundImage: `url(${dubaiAerial})` }}
+      />
+      {/* Brand teal cinematic tint */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0"
+        style={{
+          background:
+            "linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--primary-deep) / 0.85) 18%, hsl(var(--primary) / 0.78) 50%, hsl(var(--primary-deep) / 0.88) 82%, hsl(var(--background)) 100%)",
+        }}
+      />
+      {/* Subtle grid texture */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 opacity-[0.06] mix-blend-overlay"
+        style={{
+          backgroundImage:
+            "linear-gradient(hsl(var(--primary-glow)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--primary-glow)) 1px, transparent 1px)",
+          backgroundSize: "56px 56px",
+        }}
+      />
       {/* Decorative brand glows */}
-      <div className="pointer-events-none absolute -top-20 -left-20 w-[28rem] h-[28rem] rounded-full bg-primary/10 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-20 -right-20 w-[28rem] h-[28rem] rounded-full bg-primary-glow/10 blur-3xl" />
+      <div className="pointer-events-none absolute -top-20 -left-20 w-[28rem] h-[28rem] rounded-full bg-primary-glow/25 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-20 -right-20 w-[28rem] h-[28rem] rounded-full bg-primary/30 blur-3xl" />
+      {/* Top + bottom fades into page background */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-background to-transparent" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-background to-transparent" />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
@@ -56,25 +85,25 @@ const EcosystemSection = () => {
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           className="text-center max-w-3xl mx-auto mb-12 sm:mb-16"
         >
-          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 ring-1 ring-primary/20 text-primary text-xs font-bold tracking-[0.2em] uppercase mb-4">
+          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/15 backdrop-blur-md ring-1 ring-white/30 text-primary-glow text-xs font-bold tracking-[0.2em] uppercase mb-4 shadow-[0_4px_16px_-4px_hsl(var(--primary-deep)/0.5)]">
             <Sparkles className="h-3.5 w-3.5" /> Part of the Shazam Ecosystem
           </span>
           <h2
             id="ecosystem-heading"
-            className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-gray-900 mb-4"
+            className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white mb-4 drop-shadow-[0_4px_20px_hsl(var(--primary-deep)/0.6)]"
           >
             Built by{" "}
             <a
               href="https://shazam.ae/"
               target="_blank"
               rel="noopener"
-              className="bg-gradient-to-r from-primary via-primary-glow to-primary-deep bg-clip-text text-transparent hover:underline underline-offset-4"
+              className="bg-gradient-to-r from-primary-glow via-white to-primary-glow bg-clip-text text-transparent hover:underline underline-offset-4"
             >
               Shazam
             </a>{" "}
             - connecting life in Dubai
           </h2>
-          <p className="text-base sm:text-lg text-gray-600">
+          <p className="text-base sm:text-lg text-white/85 drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]">
             Shazam Parking is part of a wider ecosystem of three products. Together they help you understand the city, organise your life and solve everyday mobility in Dubai.
           </p>
         </motion.div>
@@ -144,13 +173,13 @@ const EcosystemSection = () => {
           ))}
         </div>
 
-        <p className="text-center text-sm text-gray-500 mt-10">
+        <p className="text-center text-sm text-white/85 mt-10 drop-shadow-[0_2px_6px_rgba(0,0,0,0.4)]">
           One ecosystem.{" "}
           <a
             href="https://shazam.ae/"
             target="_blank"
             rel="noopener"
-            className="text-primary font-semibold hover:underline"
+            className="text-primary-glow font-semibold hover:text-white hover:underline transition-colors"
           >
             Learn more about Shazam →
           </a>
