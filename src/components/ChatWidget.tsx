@@ -172,6 +172,14 @@ const ChatWidget = () => {
     markAllRead();
   };
 
+  // Allow MobileBottomNav (and any other UI) to open the chat via a global event
+  useEffect(() => {
+    const open = () => handleOpen();
+    window.addEventListener("open-support-chat", open);
+    return () => window.removeEventListener("open-support-chat", open);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const startNewChat = () => {
     const fresh = crypto.randomUUID();
     setSessionId(fresh);
