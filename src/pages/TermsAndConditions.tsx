@@ -8,7 +8,7 @@ const TermsAndConditions = () => {
         <meta name="description" content="ShazamParking Terms and Conditions - Read our complete terms of service, user agreements, and legal policies for parking booking and listing services in Dubai, UAE." />
       </Helmet>
       
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-gradient-to-b from-surface to-background">
         <Navbar />
         
         {/* Hero Section */}

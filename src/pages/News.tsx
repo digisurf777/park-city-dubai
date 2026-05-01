@@ -69,7 +69,7 @@ const News = () => {
   }, [currentPage]);
 
   return (
-    <div className="min-h-screen bg-background animate-zoom-slow">
+    <div className="min-h-screen bg-gradient-to-b from-surface to-background animate-fade-in">
       {seoData}
       <Navbar />
       

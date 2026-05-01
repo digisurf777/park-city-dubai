@@ -154,7 +154,7 @@ const FindParking = () => {
     const matchesAvailability = !showAvailableOnly || spot.available;
     return matchesSearch && matchesDistrict && matchesPrice && matchesAvailability;
   });
-  return <div className="min-h-screen bg-background animate-zoom-slow">
+  return <div className="min-h-screen bg-gradient-to-b from-surface to-background animate-fade-in">
       <Navbar />
       
       {/* Hero Section - Mobile Optimized */}

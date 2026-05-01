@@ -102,7 +102,7 @@ const Index = () => {
           <div className="flex justify-center mt-8 sm:mt-12 lg:absolute lg:bottom-20 lg:left-1/2 lg:transform lg:-translate-x-1/2 px-4">
             <Link to="/my-account">
               <Button className="bg-primary hover:bg-primary/90 text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-full w-full sm:w-auto shadow-lg transition-all duration-300 hover:scale-105">
-                LOGIN / SIGN UP
+                GET STARTED FREE
               </Button>
             </Link>
           </div>
@@ -218,7 +218,7 @@ const Index = () => {
     }} viewport={{
       once: true,
       amount: 0.2
-    }} className="py-12 sm:py-16 lg:py-20 bg-gray-50">
+    }} className="py-12 sm:py-16 lg:py-20 bg-gradient-subtle">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div initial={{
           opacity: 0,
@@ -274,9 +274,10 @@ const Index = () => {
             }} viewport={{
               once: true
             }} whileHover={{
-              scale: 1.1
-            }} className="bg-primary/10 rounded-full w-16 sm:w-20 h-16 sm:h-20 flex items-center justify-center mx-auto mb-4 sm:mb-6">
-                  <step.icon className="h-8 sm:h-10 w-8 sm:w-10 text-primary" />
+              scale: 1.1,
+              rotate: 5
+            }} className="bg-gradient-primary text-primary-foreground rounded-2xl w-16 sm:w-20 h-16 sm:h-20 flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-elegant">
+                  <step.icon className="h-8 sm:h-10 w-8 sm:w-10" />
                 </motion.div>
                 <motion.h3 initial={{
               opacity: 0
@@ -409,7 +410,8 @@ IS HERE TO HELP YOU</motion.p>
       </motion.section>
 
       {/* Find Parking Section */}
-      <section className="py-12 sm:py-16 lg:py-20 bg-gray-50">
+      <section className="py-12 sm:py-16 lg:py-20 bg-gradient-to-br from-surface via-white to-surface-2 relative overflow-hidden">
+        <div className="pointer-events-none absolute -top-32 -right-32 w-96 h-96 rounded-full bg-primary/10 blur-3xl"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             <div className="order-2 lg:order-1">
@@ -436,18 +438,22 @@ IS HERE TO HELP YOU</motion.p>
       <section className="py-12 sm:py-16 lg:py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 mb-12 sm:mb-16">
-            <div className="text-center">
-              <DollarSign className="h-12 sm:h-16 w-12 sm:w-16 text-primary mx-auto mb-4 sm:mb-6" />
-              <h3 className="text-lg sm:text-xl lg:text-2xl font-semibold mb-2 sm:mb-4">Save Money</h3>
-            </div>
-            <div className="text-center">
-              <Clock className="h-12 sm:h-16 w-12 sm:w-16 text-primary mx-auto mb-4 sm:mb-6" />
-              <h3 className="text-lg sm:text-xl lg:text-2xl font-semibold mb-2 sm:mb-4">Save Time</h3>
-            </div>
-            <div className="text-center">
-              <Shield className="h-12 sm:h-16 w-12 sm:w-16 text-primary mx-auto mb-4 sm:mb-6" />
-              <h3 className="text-lg sm:text-xl lg:text-2xl font-semibold mb-2 sm:mb-4">Absolute Convenience</h3>
-            </div>
+            {[
+              { Icon: DollarSign, title: "Save Money", desc: "Lower-cost monthly parking, no hidden fees." },
+              { Icon: Clock, title: "Save Time", desc: "Book in seconds, skip the daily search." },
+              { Icon: Shield, title: "Absolute Convenience", desc: "Verified spaces and secure payments." },
+            ].map(({ Icon, title, desc }) => (
+              <div
+                key={title}
+                className="group text-center p-6 sm:p-8 rounded-2xl bg-gradient-subtle ring-1 ring-primary/10 hover-lift"
+              >
+                <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-primary text-primary-foreground shadow-elegant mb-4 sm:mb-6 group-hover:scale-110 transition-transform duration-300">
+                  <Icon className="h-8 sm:h-10 w-8 sm:w-10" />
+                </div>
+                <h3 className="text-lg sm:text-xl lg:text-2xl font-semibold mb-2">{title}</h3>
+                <p className="text-sm sm:text-base text-muted-foreground">{desc}</p>
+              </div>
+            ))}
           </div>
 
           <div className="text-center mb-12 sm:mb-16">
@@ -465,7 +471,7 @@ IS HERE TO HELP YOU</motion.p>
       </section>
 
       {/* Steps Section */}
-      <section className="py-12 sm:py-16 lg:py-20 bg-gray-50">
+      <section className="py-12 sm:py-16 lg:py-20 bg-gradient-to-b from-surface-2 to-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12 sm:mb-16">
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 sm:mb-6 px-4">
@@ -627,7 +633,7 @@ IS HERE TO HELP YOU</motion.p>
       </motion.section>
 
       {/* Final CTA */}
-      <section className="py-12 sm:py-16 lg:py-20 bg-gray-50">
+      <section className="py-12 sm:py-16 lg:py-20 bg-gradient-to-b from-white to-surface">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 sm:mb-6 px-4">
             Your Trusted Parking Platform

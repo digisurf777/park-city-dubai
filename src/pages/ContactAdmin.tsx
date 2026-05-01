@@ -88,7 +88,7 @@ const ContactAdmin = () => {
       setIsSubmitting(false);
     }
   };
-  return <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-gradient-to-b from-surface to-background">
       {seoData}
       <Navbar />
       

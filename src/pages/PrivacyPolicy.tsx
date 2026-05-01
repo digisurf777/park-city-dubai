@@ -14,7 +14,7 @@ const PrivacyPolicy = () => {
         <meta name="keywords" content="privacy policy, data protection, UAE PDPL, personal data, Shazam Parking" />
       </Helmet>
       
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-gradient-to-b from-surface to-background">
         <Navbar />
         
         {/* Hero Section */}

@@ -80,7 +80,7 @@ const Deira = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-b from-surface to-background">
       <Navbar />
       
       <div className="relative h-[300px] sm:h-[400px]">
