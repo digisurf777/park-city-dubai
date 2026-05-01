@@ -39,6 +39,8 @@ import { RevenueCommandCenter } from '@/components/admin/RevenueCommandCenter';
 import { MonthlyEmailsTab } from '@/components/admin/MonthlyEmailsTab';
 import { AdminDashboard } from '@/components/admin/AdminDashboard';
 import SupportDashboard from '@/components/admin/SupportDashboard';
+import OnlineSupportHistory from '@/components/admin/OnlineSupportHistory';
+import { MessagesSquare } from 'lucide-react';
 import { LifeBuoy } from 'lucide-react';
 import { LayoutDashboard } from 'lucide-react';
 import { useInactivityLogout } from '@/hooks/useInactivityLogout';
@@ -1910,9 +1912,18 @@ const AdminPanelOrganized = () => {
                   </Badge>
                 )}
               </TabsTrigger>
-              
-              <TabsTrigger 
-                value="booking-chats" 
+
+              <TabsTrigger
+                value="chat-history"
+                className="flex flex-col items-center p-2 sm:p-3 h-auto text-xs sm:text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg min-w-[70px] sm:min-w-0"
+              >
+                <MessagesSquare className="h-4 w-4 sm:h-5 sm:w-5 mb-1" />
+                <span className="font-semibold text-[10px] sm:text-sm">Chat History</span>
+                <span className="text-[8px] sm:text-xs opacity-70 mt-0.5 sm:mt-1 hidden sm:block">Online support log</span>
+              </TabsTrigger>
+
+              <TabsTrigger
+                value="booking-chats"
                 className="flex flex-col items-center p-2 sm:p-3 h-auto text-xs sm:text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg min-w-[70px] sm:min-w-0"
               >
                 <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5 mb-1" />
@@ -3089,6 +3100,11 @@ const AdminPanelOrganized = () => {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Online Support — Chat History (AI assistant transcripts) */}
+          <TabsContent value="chat-history" className="space-y-6 mt-6">
+            <OnlineSupportHistory />
           </TabsContent>
 
           {/* Booking Chats Monitoring Tab */}
