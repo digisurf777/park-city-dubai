@@ -1,62 +1,101 @@
+# Boss Admin Dashboard — live, real data, profesjonalny
 
-# Landing Page UI Refresh
+Nowy "Dashboard" jako pierwsza zakładka panelu admina. Wszystko liczone z aktualnych danych Supabase, z live refresh (Realtime + 60s fallback). Reszta istniejącego panelu zostaje bez zmian.
 
-Goal: a more modern, cohesive look across the landing page using the new brand color **#31B2A0**, with rounded "3D" buttons, framed images with a subtle animation, a restyled "Own a Parking Space" CTA banner, and a polished footer.
+## Co zobaczysz (na podstawie obecnych danych w bazie)
 
-## 1. Brand color update (global)
+Wstępne metryki w Twoim systemie już teraz:
+- 374 użytkowników (27 nowych w 30 dni)
+- 68 listingów (67 aktywnych)
+- 29 bookings (8 confirmed, 19 pre-authorized, 21 cancelled)
+- GMV (confirmed) ~44,538 AED · Wypłaty ownerom 24,567 AED · Net margin ~19,971 AED
 
-File: `src/index.css`
-- Change `--primary` from `174 66% 56%` (#4ECDC4) to `174 57% 44%` (#31B2A0) in both `:root` and `.dark`.
-- Update `--ring` and `--sidebar-primary` to match.
-- This automatically recolors every `bg-primary`, `text-primary`, `hover:bg-primary/90` across the app — no per-component color swaps needed.
+## Layout dashboardu
 
-## 2. Rounded 3D button style (global)
+```text
+┌─────────────────────────────────────────────────────────────┐
+│  Boss Dashboard            [7d] [30d] [90d]   ⟳ live · 12s  │
+├─────────────────────────────────────────────────────────────┤
+│ KPI ROW 1 (4 karty z trendem)                               │
+│ ┌──────────┬──────────┬──────────┬──────────┐               │
+│ │ GMV      │ Net Rev  │ Payouts  │ Bookings │               │
+│ │ 44,538 د │ 19,971 د │ 24,567 د │   29     │               │
+│ │ +12% ↑30 │  …       │  …       │  …       │               │
+│ └──────────┴──────────┴──────────┴──────────┘               │
+│ KPI ROW 2 (4 karty)                                         │
+│ │ Users 374 │ Paying 23 │ Free 351 │ Conv 2.1% │            │
+├─────────────────────────────────────────────────────────────┤
+│  Revenue & Bookings trend (area + bars)  │  New users line  │
+│  ───────────────────────────────         │  ────────────    │
+├─────────────────────────────────────────────────────────────┤
+│  Top zones (revenue + listings)   │  Top earning owners      │
+│  Marina  ████████ 18,500          │  1. A.Khan  12,300 AED   │
+│  Bay     ████  6,200              │  2. M.Ali    8,500 AED   │
+├─────────────────────────────────────────────────────────────┤
+│  Live activity feed       │  Quick actions / inbox alerts   │
+│  • Booking · Marina 1,100 │  [📣 Broadcast to all users]   │
+│  • New user · john@…      │  [📨 Message a user]           │
+│  • Payout · A.Khan 3,200  │  3 unread · 4 pending KYC      │
+└─────────────────────────────────────────────────────────────┘
+```
 
-File: `src/components/ui/button.tsx`
-- Default variant becomes more rounded and gets a soft 3D effect:
-  - Base classes: `rounded-full` (instead of `rounded-md`), `shadow-[0_4px_0_0_hsl(var(--primary)/0.35),0_8px_20px_-6px_hsl(var(--primary)/0.45)]`, `hover:-translate-y-0.5 hover:shadow-[0_6px_0_0_hsl(var(--primary)/0.4),0_12px_24px_-6px_hsl(var(--primary)/0.55)]`, `active:translate-y-0.5 active:shadow-[0_2px_0_0_hsl(var(--primary)/0.3)]`, `transition-all duration-200`.
-  - Add `transition-colors` → `transition-all` to support transform.
-- `lg` and `sm` sizes also become `rounded-full`.
-- Outcome: every button on the site (and there are many `<Button className="bg-primary ...">` usages on the landing page) gets the new look without editing each call site.
+## Sekcje i metryki
 
-## 3. Landing page image polish
+### KPI cards (8) — wszystkie z prawdziwych danych
+- **GMV (paid/confirmed)** + delta vs poprzednie 30 dni
+- **Net revenue** = GMV − payouts ownerom (przybliżona marża)
+- **Owner payouts** total + last 30d
+- **Bookings** total / paid / pre-auth / pending / cancelled (badge breakdown)
+- **Users** total · new 30d · new 7d
+- **Paying owners** vs **Free users** (segmentacja)
+- **Conversion rate** (% userów z ≥1 paid booking)
+- **Pending KYC** + **Unread messages** (CTA do odpowiednich tabów)
 
-File: `src/pages/Index.tsx`
-- **Popular Locations cards** (~line 180): change `Card` to `rounded-2xl ring-1 ring-primary/10 shadow-lg hover:shadow-2xl hover:ring-primary/30`, keep the existing zoom-on-hover. Add a subtle floating animation via `whileHover={{ y: -8 }}` (already similar) and a soft gradient overlay on hover.
-- **"Rent out your space" image** (luxuryCar, ~line 399): wrap in a framed container — `rounded-2xl ring-1 ring-primary/20 shadow-[0_20px_40px_-15px_hsl(var(--primary)/0.4)] p-1 bg-gradient-to-br from-primary/10 to-transparent`, image inside `rounded-xl`. Add a gentle continuous float animation (`animate-[float_6s_ease-in-out_infinite]`).
-- **"Find Parking" image** (dubaihero, ~line 414): same framing treatment.
-- **Businessman image** (~line 456): same framing treatment, slightly tighter ring.
-- Add a `float` keyframe to `src/index.css` (`0%,100% { translateY(0) } 50% { translateY(-8px) }`).
+### Wykresy (recharts, już w projekcie)
+- **Revenue area + bookings bars** combo, ostatnie 7/30/90 dni (przełącznik)
+- **New users line chart** w tym samym oknie czasu
+- **Zone breakdown** — bar chart z revenue per zone + listings count
 
-## 4. "Own a Parking Space" CTA banner
+### Top owners leaderboard
+Top 8 ownerów posortowane po `total_earned`. Kolumny: avatar/imię, email, listings count, payouts count, total earned. Klik → otwiera istniejący tab "Payments" / "Users".
 
-File: `src/pages/Index.tsx` (~lines 503–619)
-- Replace flat `bg-primary` with a richer brand-tinted background:
-  - `bg-gradient-to-br from-[hsl(174_57%_38%)] via-primary to-[hsl(174_60%_50%)]`.
-  - Add decorative blurred blobs (`absolute w-72 h-72 rounded-full bg-white/10 blur-3xl`) for depth.
-  - Add a subtle dotted/grid overlay using a CSS radial-gradient for texture.
-- Headline gradient: switch the yellow gradient on "Turn it into a steady passive income." to a clean white with subtle drop-shadow, so it stays on-brand (currently mismatched yellow/slate).
-- CTA button: keep white background, primary text, but use new rounded-3D button style automatically.
-- Trust indicator checkmarks: change yellow `✓` to a small white circular badge with primary check icon for cleaner brand alignment.
+### Live activity feed
+Ostatnie 12 zdarzeń: bookings, nowi użytkownicy, payouts. Status badge + kwota AED + relative time ("2 min ago"). Auto-update przez Realtime.
 
-## 5. Footer polish
+### Quick actions (boss controls)
+- **📣 Broadcast** — modal wysyła `user_messages` do wszystkich userów (z subjectem + treścią). Z confirm dialogiem ("Wyślesz do 374 osób, kontynuować?").
+- **📨 Message a user** — combobox z listą profili (wyszukiwanie po nazwie/emailu) → szybki form do napisania wiadomości jednej osobie. Insert do `user_messages` z `from_admin=true`.
+- **Jump to** — szybkie skróty do tabów: Pre-auth, Owner payments, KYC, Chats.
 
-File: `src/components/Footer.tsx`
-- Background: switch from flat `bg-gray-900` to `bg-gradient-to-b from-gray-900 to-[hsl(174_30%_8%)]` for a subtle brand tint.
-- Add a thin top accent bar: `<div className="h-1 bg-gradient-to-r from-primary via-primary/60 to-primary" />`.
-- Section headings: add small primary underline accent (`after:` pseudo via inline span, or `border-b-2 border-primary/40 inline-block pb-1`).
-- Quick Links / Support items: add `hover:translate-x-1 transition-transform` along with existing color hover for a nicer micro-interaction.
-- Contact email row: wrap in a small rounded chip `inline-flex bg-white/5 px-3 py-1.5 rounded-full ring-1 ring-white/10`.
-- App store buttons: tighten styling — `rounded-xl`, `hover:bg-white/5 transition-colors`, keep "Coming Soon" label.
-- Bottom bar: add `border-primary/20` instead of `border-gray-800` for a subtle brand line; update copyright year to 2026.
+## Technika
 
-## Out of scope
-- No copy changes besides the bottom-bar year.
-- No structural/section reordering.
-- No changes to other pages (the global color + button refresh will, however, propagate across the whole app — this is intentional).
+### Nowe pliki
+- `src/hooks/useAdminStats.tsx` — fetch z `profiles`, `parking_listings`, `parking_bookings`, `owner_payments`, `user_verifications`, `user_messages`. Liczenie KPI / trendu / zones / top owners / recent. Subskrypcja Realtime na 4 tabele + fallback `setInterval(60000)`. Eksportuje `{ data, loading, refreshing, lastUpdated, refetch }` z range `7|30|90`.
+- `src/components/admin/AdminDashboard.tsx` — UI dashboardu (KPI cards, recharts AreaChart/BarChart/LineChart, leaderboard, feed, quick action modale).
+- `src/components/admin/BroadcastDialog.tsx` — modal "Broadcast to all users" (subject, message, confirm count, batch insert do `user_messages`).
+- `src/components/admin/MessageUserDialog.tsx` — modal "Message a user" (Command/Combobox z `profiles`, subject + message, insert do `user_messages`).
 
-## Technical notes
-- All color changes flow through CSS variables; no hard-coded hex values added in components.
-- New keyframe `float` added once in `src/index.css`.
-- Button shadow uses `hsl(var(--primary)/X)` so the 3D depth automatically follows the brand color.
-- Respects existing `prefers-reduced-motion` block (animation will be disabled there).
+### Edycje
+- `src/pages/AdminPanel.tsx` — dodać `<TabsTrigger value="dashboard">` jako PIERWSZĄ zakładkę z ikoną LayoutDashboard, ustawić `defaultValue="dashboard"`. Render `<AdminDashboard />` w nowym `<TabsContent>`.
+
+### Bezpieczeństwo / zgodność z politykami
+- Wszystkie zapytania używają `supabase` clienta — RLS sam ograniczy dane do admin (już są policy "admins_full_access_*").
+- Broadcast & message wpisują wiersze do `user_messages` z `from_admin=true` — istniejąca polityka admina pokrywa insert (admin ma `ALL`).
+- Bez nowych migracji, bez nowych edge functions. Bez serwisowych kluczy, bez SQL stringów — tylko typed client.
+- Phone/email displayed tylko adminowi (już jest na MFA).
+
+### Mobile
+- KPI grid: 2 cols mobile / 4 desktop.
+- Wykresy `ResponsiveContainer` 100%.
+- Leaderboard i feed: jednokolumnowe na mobile, dwukolumnowe ≥lg.
+- Sticky range-picker nad KPI.
+
+### Brand / styl
+- Karty z `glass-card` + `shadow-elegant`, gradient akcent `bg-gradient-primary` na "GMV" i "Net Rev".
+- Wykresy w teal palette: `hsl(var(--primary))`, `hsl(var(--primary-glow))`, `hsl(var(--primary-deep))`.
+- Status badge (paid=zielony, pending=żółty, cancelled=czerwony, pre_auth=niebieski).
+
+## Co NIE jest w tym kroku
+- Eksport CSV / PDF KPI (mogę dodać w kolejnym kroku jeśli chcesz).
+- Cohort analysis / retencja (wymaga więcej danych historycznych).
+- Edge function do pre-aggregacji (póki <1000 wierszy w tabelach — niepotrzebne, fetch jest szybki).
