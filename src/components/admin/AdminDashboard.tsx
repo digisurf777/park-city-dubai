@@ -116,7 +116,7 @@ export function AdminDashboard({ onJumpTab }: Props) {
         <KpiCard
           icon={<DollarSign className="h-4 w-4" />}
           label="GMV (paid)"
-          value={`${fmtMoney(kpis.gmvAed)} د.إ`}
+          value={`${fmtMoney(kpis.gmvAed)}`}
           accent="primary"
           footer={
             <span className={`inline-flex items-center gap-1 text-xs font-medium ${gmvDelta >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
@@ -129,7 +129,7 @@ export function AdminDashboard({ onJumpTab }: Props) {
         <KpiCard
           icon={<TrendingUp className="h-4 w-4" />}
           label="Net revenue"
-          value={`${fmtMoney(kpis.netRevenueAed)} د.إ`}
+          value={`${fmtMoney(kpis.netRevenueAed)}`}
           accent="primary"
           footer={<span className="text-xs text-muted-foreground">GMV − payouts</span>}
           loading={loading}
@@ -137,8 +137,8 @@ export function AdminDashboard({ onJumpTab }: Props) {
         <KpiCard
           icon={<CreditCard className="h-4 w-4" />}
           label="Owner payouts"
-          value={`${fmtMoney(kpis.ownerPayoutsTotal)} د.إ`}
-          footer={<span className="text-xs text-muted-foreground">{fmtMoneyCompact(kpis.ownerPayoutsLast30d)} د.إ in 30d</span>}
+          value={`${fmtMoney(kpis.ownerPayoutsTotal)}`}
+          footer={<span className="text-xs text-muted-foreground">{fmtMoneyCompact(kpis.ownerPayoutsLast30d)} in 30d</span>}
           loading={loading}
         />
         <KpiCard
@@ -239,7 +239,7 @@ export function AdminDashboard({ onJumpTab }: Props) {
                 <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
                 <Tooltip
                   contentStyle={{ background: 'hsl(var(--popover))', border: '1px solid hsl(var(--border))', borderRadius: 8 }}
-                  formatter={(value: any, name: string) => name === 'revenue' ? [`${fmtMoney(Number(value))} AED`, 'Revenue'] : [value, 'Bookings']}
+                  formatter={(value: any, name: string) => name === 'revenue' ? [`${fmtMoney(Number(value))}`, 'Revenue'] : [value, 'Bookings']}
                 />
                 <Legend wrapperStyle={{ fontSize: 12 }} />
                 <Area yAxisId="left" type="monotone" dataKey="revenue" stroke="hsl(var(--primary))" fill="url(#rev)" strokeWidth={2} />
@@ -282,7 +282,7 @@ export function AdminDashboard({ onJumpTab }: Props) {
                 <Tooltip
                   contentStyle={{ background: 'hsl(var(--popover))', border: '1px solid hsl(var(--border))', borderRadius: 8 }}
                   formatter={(value: any, name: string) =>
-                    name === 'revenue' ? [`${fmtMoney(Number(value))} AED`, 'Revenue'] : [value, name === 'listings' ? 'Listings' : 'Bookings']
+                    name === 'revenue' ? [`${fmtMoney(Number(value))}`, 'Revenue'] : [value, name === 'listings' ? 'Listings' : 'Bookings']
                   }
                 />
                 <Bar dataKey="revenue" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} />
@@ -315,7 +315,7 @@ export function AdminDashboard({ onJumpTab }: Props) {
                     <div className="text-xs text-muted-foreground truncate">{o.email}</div>
                   </div>
                   <div className="text-right">
-                    <div className="font-semibold">{fmtMoney(o.totalEarned)} د.إ</div>
+                    <div className="font-semibold">{fmtMoney(o.totalEarned)}</div>
                     <div className="text-xs text-muted-foreground">{o.listingsCount} listing{o.listingsCount === 1 ? '' : 's'} · {o.payoutsCount} payout{o.payoutsCount === 1 ? '' : 's'}</div>
                   </div>
                 </div>
@@ -355,7 +355,7 @@ export function AdminDashboard({ onJumpTab }: Props) {
                   </div>
                   <div className="text-right">
                     {r.amountAed !== undefined && r.amountAed > 0 && (
-                      <div className="text-sm font-semibold">{fmtMoney(r.amountAed)} د.إ</div>
+                      <div className="text-sm font-semibold">{fmtMoney(r.amountAed)}</div>
                     )}
                     {r.status && (
                       <Badge variant="outline" className={`${statusColor(r.status)} text-[10px] py-0 px-1.5 mt-0.5`}>
