@@ -170,7 +170,7 @@ const Index = () => {
                 <motion.img
                   src={phonePremium}
                   alt="Shazam Parking app shown on a smartphone"
-                  className="relative w-52 sm:w-64 md:w-72 lg:w-80 xl:w-[22rem] h-auto drop-shadow-[0_30px_60px_rgba(0,0,0,0.45)]"
+                  className="relative w-44 sm:w-60 md:w-72 lg:w-80 xl:w-[22rem] h-auto drop-shadow-[0_30px_60px_rgba(0,0,0,0.5)]"
                   loading="eager"
                   fetchPriority="high"
                   decoding="async"
