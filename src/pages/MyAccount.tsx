@@ -425,36 +425,100 @@ const MyAccount = () => {
   }
   return <div className="min-h-screen bg-gradient-to-b from-surface via-background to-background pt-20 animate-fade-in">
       <div className="max-w-5xl mx-auto p-4 lg:p-6">
-        {/* Hero header card */}
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-hero text-primary-foreground shadow-elegant mb-6 p-6 lg:p-8 border border-white/15">
-          <div className="pointer-events-none absolute -top-16 -right-16 w-64 h-64 rounded-full bg-white/15 blur-3xl"></div>
-          <div className="pointer-events-none absolute -bottom-20 -left-20 w-72 h-72 rounded-full bg-primary-glow/30 blur-3xl"></div>
-          {/* subtle grid texture */}
-          <div className="pointer-events-none absolute inset-0 opacity-[0.06]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '24px 24px' }} />
-          <div className="relative flex flex-col gap-5 lg:flex-row lg:justify-between lg:items-center">
-            <div className="flex items-center gap-4">
-              {/* Avatar circle with initials */}
-              <div className="relative h-16 w-16 lg:h-20 lg:w-20 rounded-2xl bg-white/15 backdrop-blur-md border border-white/30 flex items-center justify-center text-white text-2xl lg:text-3xl font-black shadow-glow">
-                {(profile?.full_name || user?.email || '?').charAt(0).toUpperCase()}
+        {/* Hero header card — premium glass */}
+        <div className="relative overflow-hidden rounded-3xl mb-6 p-6 lg:p-10 shadow-elegant border border-white/20"
+             style={{ background: 'linear-gradient(135deg, hsl(var(--primary-deep)) 0%, hsl(var(--primary)) 55%, hsl(var(--primary-glow)) 100%)' }}>
+          {/* Decorative orbs */}
+          <div className="pointer-events-none absolute -top-20 -right-20 w-72 h-72 rounded-full bg-white/15 blur-3xl"></div>
+          <div className="pointer-events-none absolute -bottom-24 -left-16 w-80 h-80 rounded-full bg-primary-glow/40 blur-3xl"></div>
+          <div className="pointer-events-none absolute inset-0 opacity-[0.07]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '22px 22px' }} />
+
+          <div className="relative flex flex-col gap-6 lg:flex-row lg:justify-between lg:items-center">
+            <div className="flex items-center gap-5">
+              {/* Avatar — uploadable */}
+              <div className="relative group">
+                <Avatar className="h-20 w-20 lg:h-24 lg:w-24 rounded-2xl ring-4 ring-white/30 shadow-glow bg-white/15 backdrop-blur">
+                  {profile?.avatar_url ? (
+                    <AvatarImage src={profile.avatar_url} alt={profile.full_name || 'Profile'} className="object-cover" />
+                  ) : null}
+                  <AvatarFallback className="rounded-2xl bg-white/15 text-white text-3xl lg:text-4xl font-black">
+                    {(profile?.full_name || user?.email || '?').charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <label
+                  htmlFor="avatar-upload-hero"
+                  className="absolute inset-0 rounded-2xl bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center cursor-pointer transition-opacity"
+                  title="Change profile picture"
+                >
+                  {uploadingAvatar
+                    ? <Loader2 className="h-6 w-6 text-white animate-spin" />
+                    : <Camera className="h-6 w-6 text-white" />}
+                </label>
+                <input
+                  id="avatar-upload-hero"
+                  type="file"
+                  accept="image/*"
+                  className="sr-only"
+                  onChange={handleAvatarUpload}
+                  disabled={uploadingAvatar}
+                />
                 <span className="absolute -bottom-1 -right-1 h-5 w-5 rounded-full bg-emerald-400 border-2 border-white shadow" title="Online" />
               </div>
-              <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-white/80 mb-1 font-semibold">★ Welcome back</p>
-                <h1 className="text-2xl lg:text-3xl font-black text-3d-light">
+
+              <div className="min-w-0">
+                <p className="text-[11px] uppercase tracking-[0.22em] text-white/80 mb-1 font-bold flex items-center gap-1.5">
+                  <Sparkles className="h-3 w-3" /> Welcome back
+                </p>
+                <h1 className="text-2xl lg:text-4xl font-black text-white drop-shadow-md leading-tight truncate">
                   {profile?.full_name || user?.email?.split('@')[0] || 'My Account'}
                 </h1>
-                <p className="text-white/80 text-sm mt-1">{user?.email}</p>
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-white/85 text-sm">
+                  <span className="inline-flex items-center gap-1.5"><Mail className="h-3.5 w-3.5" /> {user?.email}</span>
+                  {profile?.phone && (
+                    <span className="inline-flex items-center gap-1.5"><Phone className="h-3.5 w-3.5" /> {profile.phone}</span>
+                  )}
+                </div>
+                <div className="flex flex-wrap gap-2 mt-3">
+                  <Badge className="bg-white/20 hover:bg-white/30 text-white border border-white/30 backdrop-blur capitalize">
+                    {isParkingOwner ? '🅿️ Parking owner' : '🚗 Driver'}
+                  </Badge>
+                  {(verificationStatus === 'approved' || verificationStatus === 'verified') ? (
+                    <Badge className="bg-emerald-500/90 hover:bg-emerald-500 text-white border-0">✓ Verified</Badge>
+                  ) : verificationStatus === 'pending' ? (
+                    <Badge className="bg-amber-500/90 hover:bg-amber-500 text-white border-0">⏳ Pending</Badge>
+                  ) : (
+                    <Badge className="bg-orange-500/90 hover:bg-orange-500 text-white border-0">! Verification needed</Badge>
+                  )}
+                </div>
               </div>
             </div>
-            <div className="flex gap-2">
-              <Button onClick={() => navigate('/')} variant="secondary" size="sm" className="bg-white/15 hover:bg-white/25 text-white border border-white/20 backdrop-blur shadow-md">
-                <Home className="mr-2 h-4 w-4" />
-                <span>Home</span>
-              </Button>
-              <Button onClick={handleLogout} variant="secondary" size="sm" className="bg-white/15 hover:bg-white/25 text-white border border-white/20 backdrop-blur shadow-md">
-                <LogOut className="mr-2 h-4 w-4" />
-                <span>Logout</span>
-              </Button>
+
+            {/* Quick stats + actions */}
+            <div className="flex flex-col gap-3">
+              <div className="grid grid-cols-3 gap-2 lg:gap-3">
+                <div className="text-center px-3 py-2 rounded-xl bg-white/15 border border-white/25 backdrop-blur">
+                  <div className="text-xl lg:text-2xl font-black text-white leading-none">{listings.length}</div>
+                  <div className="text-[10px] uppercase tracking-wider text-white/75 mt-1">Listings</div>
+                </div>
+                <div className="text-center px-3 py-2 rounded-xl bg-white/15 border border-white/25 backdrop-blur">
+                  <div className="text-xl lg:text-2xl font-black text-white leading-none">{bookings.length}</div>
+                  <div className="text-[10px] uppercase tracking-wider text-white/75 mt-1">Bookings</div>
+                </div>
+                <div className="text-center px-3 py-2 rounded-xl bg-white/15 border border-white/25 backdrop-blur">
+                  <div className="text-xl lg:text-2xl font-black text-white leading-none">{unreadChatCount}</div>
+                  <div className="text-[10px] uppercase tracking-wider text-white/75 mt-1">Unread</div>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Button onClick={() => navigate('/')} size="sm" className="flex-1 bg-white/20 hover:bg-white/30 text-white border border-white/30 backdrop-blur shadow-md">
+                  <Home className="mr-2 h-4 w-4" />
+                  Home
+                </Button>
+                <Button onClick={handleLogout} size="sm" className="flex-1 bg-white text-primary hover:bg-white/90 shadow-md font-semibold">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Logout
+                </Button>
+              </div>
             </div>
           </div>
         </div>
