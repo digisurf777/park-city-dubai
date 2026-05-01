@@ -83,7 +83,7 @@ const Deira = () => {
     <div className="min-h-screen bg-gradient-to-b from-surface to-background">
       <Navbar />
       
-      <div className="relative h-[300px] sm:h-[400px]">
+      <div className="relative h-[440px] sm:h-[560px] pt-20 sm:pt-24">
         <div className="absolute inset-0 bg-black/35"></div>
         <div 
           className="absolute inset-0 bg-cover bg-center" 
@@ -91,8 +91,8 @@ const Deira = () => {
         ></div>
         <div className="relative z-10 flex items-center justify-center h-full">
           <div className="text-center text-white px-4 max-w-4xl mx-auto">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 leading-tight">Deira</h1>
-            <p className="text-base sm:text-lg md:text-xl lg:text-2xl opacity-90 mb-4 leading-relaxed">One of Dubai's oldest commercial quarters, Deira remains a critical base for logistics firms, retail traders, and financial service providers. The workforce here spans both established businesses and day-to-day operators who keep the city moving.</p>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black mb-3 leading-tight tracking-tight">Deira</h1>
+            <p className="text-sm sm:text-base md:text-lg opacity-90 mb-4 leading-relaxed max-w-3xl mx-auto">One of Dubai's oldest commercial quarters, Deira remains a critical base for logistics firms, retail traders, and financial service providers. The workforce here spans both established businesses and day-to-day operators who keep the city moving.</p>
             <p className="text-sm sm:text-base md:text-lg lg:text-xl font-semibold bg-black/20 inline-block px-3 py-2 sm:px-4 rounded-lg">Secure a monthly parking bay from AED500</p>
           </div>
         </div>
