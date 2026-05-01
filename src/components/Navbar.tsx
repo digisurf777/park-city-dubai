@@ -61,50 +61,25 @@ const Navbar = () => {
                 <ChevronDown className="ml-1 h-4 w-4" />
               </button>
               {isZonesOpen && (
-                <div className="absolute top-full left-0 mt-1 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50">
-                  <div className="p-2">
-                    <Link 
-                      to="/dubai-marina" 
-                      className="block px-3 py-2 text-sm text-gray-700 hover:text-primary hover:bg-gray-50 rounded-md transition-colors"
-                      onClick={() => setIsZonesOpen(false)}
-                    >
-                      Dubai Marina
-                    </Link>
-                    <Link 
-                      to="/downtown" 
-                      className="block px-3 py-2 text-sm text-gray-700 hover:text-primary hover:bg-gray-50 rounded-md transition-colors"
-                      onClick={() => setIsZonesOpen(false)}
-                    >
-                      Downtown
-                    </Link>
-                    <Link 
-                      to="/palm-jumeirah" 
-                      className="block px-3 py-2 text-sm text-gray-700 hover:text-primary hover:bg-gray-50 rounded-md transition-colors"
-                      onClick={() => setIsZonesOpen(false)}
-                    >
-                      Palm Jumeirah
-                    </Link>
-                    <Link 
-                      to="/business-bay" 
-                      className="block px-3 py-2 text-sm text-gray-700 hover:text-primary hover:bg-gray-50 rounded-md transition-colors"
-                      onClick={() => setIsZonesOpen(false)}
-                    >
-                      Business Bay
-                    </Link>
-                    <Link 
-                      to="/difc" 
-                      className="block px-3 py-2 text-sm text-gray-700 hover:text-primary hover:bg-gray-50 rounded-md transition-colors"
-                      onClick={() => setIsZonesOpen(false)}
-                    >
-                      DIFC
-                    </Link>
-                    <Link 
-                      to="/deira" 
-                      className="block px-3 py-2 text-sm text-gray-700 hover:text-primary hover:bg-gray-50 rounded-md transition-colors"
-                      onClick={() => setIsZonesOpen(false)}
-                    >
-                      Deira
-                    </Link>
+                <div className="absolute top-full left-0 mt-3 w-56 dropdown-premium z-50 animate-scale-in origin-top">
+                  <div className="p-2 space-y-1">
+                    {[
+                      { to: "/dubai-marina", label: "Dubai Marina" },
+                      { to: "/downtown", label: "Downtown" },
+                      { to: "/palm-jumeirah", label: "Palm Jumeirah" },
+                      { to: "/business-bay", label: "Business Bay" },
+                      { to: "/difc", label: "DIFC" },
+                      { to: "/deira", label: "Deira" },
+                    ].map((z) => (
+                      <Link
+                        key={z.to}
+                        to={z.to}
+                        className="btn-3d block px-4 py-2.5 text-sm font-semibold text-foreground hover:text-primary rounded-lg transition-colors"
+                        onClick={() => setIsZonesOpen(false)}
+                      >
+                        {z.label}
+                      </Link>
+                    ))}
                   </div>
                 </div>
               )}
