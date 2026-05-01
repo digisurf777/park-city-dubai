@@ -1213,36 +1213,51 @@ export type Database = {
       }
       profiles: {
         Row: {
+          avatar_url: string | null
+          bio: string | null
           created_at: string
           email: string | null
           email_confirmed_at: string | null
           full_name: string | null
           id: string
+          notification_email: boolean
+          notification_sms: boolean
           phone: string | null
+          preferred_language: string | null
           signup_notified: boolean | null
           updated_at: string
           user_id: string
           user_type: string
         }
         Insert: {
+          avatar_url?: string | null
+          bio?: string | null
           created_at?: string
           email?: string | null
           email_confirmed_at?: string | null
           full_name?: string | null
           id?: string
+          notification_email?: boolean
+          notification_sms?: boolean
           phone?: string | null
+          preferred_language?: string | null
           signup_notified?: boolean | null
           updated_at?: string
           user_id: string
           user_type?: string
         }
         Update: {
+          avatar_url?: string | null
+          bio?: string | null
           created_at?: string
           email?: string | null
           email_confirmed_at?: string | null
           full_name?: string | null
           id?: string
+          notification_email?: boolean
+          notification_sms?: boolean
           phone?: string | null
+          preferred_language?: string | null
           signup_notified?: boolean | null
           updated_at?: string
           user_id?: string
