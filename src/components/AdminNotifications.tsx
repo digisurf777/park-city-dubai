@@ -710,8 +710,12 @@ const AdminNotifications = ({
   }
   return <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">Admin Notifications</h2>
-        {unreadCount > 0}
+        <h2 className="text-2xl font-bold text-slate-900">Admin Notifications</h2>
+        {unreadCount > 0 && (
+          <Badge className="bg-primary text-primary-foreground shadow-md text-sm px-3 py-1">
+            {unreadCount} unread
+          </Badge>
+        )}
       </div>
 
       {notifications.length === 0 ? <Card>
@@ -720,19 +724,19 @@ const AdminNotifications = ({
             <p className="text-gray-500">No notifications yet</p>
           </CardContent>
         </Card> : <div className="space-y-4">
-          {notifications.map(notification => <Card key={notification.id} className={`transition-all duration-200 ${!notification.is_read ? 'border-l-4 border-l-blue-500 bg-blue-50/30' : ''}`}>
+          {notifications.map(notification => <Card key={notification.id} className={`transition-all duration-200 hover:shadow-lg ${!notification.is_read ? 'border-l-4 border-l-primary bg-primary/5 ring-1 ring-primary/15' : 'border-l-4 border-l-slate-200'}`}>
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <CardTitle className="text-lg">{notification.title}</CardTitle>
-                      <Badge className={getPriorityColor(notification.priority)}>
+                    <div className="flex items-center gap-2 mb-2 flex-wrap">
+                      <CardTitle className="text-lg text-slate-900 font-bold">{notification.title}</CardTitle>
+                      <Badge className={`${getPriorityColor(notification.priority)} font-semibold uppercase text-[10px] tracking-wide`}>
                         {notification.priority}
                       </Badge>
-                      {!notification.is_read && <Badge variant="secondary">New</Badge>}
+                      {!notification.is_read && <Badge className="bg-primary text-primary-foreground font-semibold">New</Badge>}
                     </div>
-                    <p className="text-sm text-gray-600">{notification.message}</p>
-                    <p className="text-xs text-gray-400 mt-1">
+                    <p className="text-sm text-slate-700">{notification.message}</p>
+                    <p className="text-xs text-slate-500 mt-1 font-medium">
                       {format(new Date(notification.created_at), 'PPP p')}
                     </p>
                   </div>
@@ -741,78 +745,78 @@ const AdminNotifications = ({
 
               {notification.parking_bookings && <CardContent className="pt-0">
                   {/* Customer Information - Always show when booking exists */}
-                    <div className="bg-blue-50 rounded-lg p-4 mb-4 border border-blue-100">
-                      <h4 className="font-semibold mb-3 flex items-center gap-2 text-blue-900">
+                    <div className="bg-gradient-to-br from-blue-50 to-blue-100/40 rounded-lg p-4 mb-4 border border-blue-200 shadow-sm">
+                      <h4 className="font-bold mb-3 flex items-center gap-2 text-blue-900">
                         <User className="h-4 w-4" />
                         Customer Information
                       </h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                         <div>
-                          <span className="text-gray-500 block mb-1">Name:</span>
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium">{notification.customerProfile?.full_name || 'N/A'}</span>
+                          <span className="text-slate-600 font-semibold block mb-1">Name:</span>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="font-semibold text-slate-900">{notification.customerProfile?.full_name || 'N/A'}</span>
                             {notification.customerProfile?.verification_status === 'verified' && (
-                              <Badge className="bg-green-100 text-green-800 border-green-200">Verified</Badge>
+                              <Badge className="bg-green-100 text-green-800 border-green-300">Verified</Badge>
                             )}
                             {notification.customerProfile?.verification_status === 'pending' && (
-                              <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">Pending</Badge>
+                              <Badge className="bg-yellow-100 text-yellow-800 border-yellow-300">Pending</Badge>
                             )}
                             {notification.customerProfile?.verification_status === 'rejected' && (
-                              <Badge className="bg-red-100 text-red-800 border-red-200">Rejected</Badge>
+                              <Badge className="bg-red-100 text-red-800 border-red-300">Rejected</Badge>
                             )}
                             {notification.customerProfile?.verification_status === 'not_verified' && (
-                              <Badge className="bg-gray-100 text-gray-800 border-gray-200">Not Verified</Badge>
+                              <Badge className="bg-gray-100 text-gray-800 border-gray-300">Not Verified</Badge>
                             )}
                           </div>
                         </div>
                         <div>
-                          <span className="text-gray-500 block mb-1">Email:</span>
-                          <span className="font-medium">{notification.customerProfile.email || 'N/A'}</span>
+                          <span className="text-slate-600 font-semibold block mb-1">Email:</span>
+                          <span className="font-semibold text-slate-900 break-all">{notification.customerProfile?.email || 'N/A'}</span>
                         </div>
                         <div className="md:col-span-2">
-                          <span className="text-gray-500 block mb-1">Phone:</span>
-                          <span className="font-medium">{notification.customerProfile.phone || 'Not provided'}</span>
+                          <span className="text-slate-600 font-semibold block mb-1">Phone:</span>
+                          <span className="font-semibold text-slate-900">{notification.customerProfile?.phone || '—'}</span>
                         </div>
                       </div>
                     </div>
 
                   {/* Booking Period Information */}
-                  <div className={`rounded-lg p-4 mb-4 ${notification.parking_bookings.status === 'confirmed' ? 'bg-green-50 border border-green-200' : 'bg-gray-50'}`}>
-                    <h4 className={`font-semibold mb-3 flex items-center gap-2 ${notification.parking_bookings.status === 'confirmed' ? 'text-green-900' : ''}`}>
+                  <div className={`rounded-lg p-4 mb-4 shadow-sm ${notification.parking_bookings.status === 'confirmed' ? 'bg-gradient-to-br from-green-50 to-green-100/40 border border-green-300' : 'bg-slate-50 border border-slate-200'}`}>
+                    <h4 className={`font-bold mb-3 flex items-center gap-2 ${notification.parking_bookings.status === 'confirmed' ? 'text-green-900' : 'text-slate-800'}`}>
                       <Calendar className="h-4 w-4" />
                       Booking Period
                     </h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                       <div>
-                        <span className="text-gray-600 block mb-1">Location:</span>
+                        <span className="text-slate-600 font-semibold block mb-1">Location:</span>
                         <div className="flex items-center gap-2">
-                          <MapPin className="h-4 w-4 text-gray-500" />
-                          <span className="font-medium">{notification.parking_bookings.location}</span>
+                          <MapPin className="h-4 w-4 text-slate-500" />
+                          <span className="font-semibold text-slate-900">{notification.parking_bookings.location}</span>
                         </div>
                       </div>
                       <div>
-                        <span className="text-gray-600 block mb-1">Zone:</span>
-                        <span className="font-medium">{notification.parking_bookings.zone || 'Unknown'}</span>
+                        <span className="text-slate-600 font-semibold block mb-1">Zone:</span>
+                        <span className="font-semibold text-slate-900">{notification.parking_bookings.zone || 'Unknown'}</span>
                       </div>
                       <div>
-                        <span className="text-gray-600 block mb-1">Start:</span>
-                        <span className="font-medium">{format(new Date(notification.parking_bookings.start_time), 'PPP p')}</span>
+                        <span className="text-slate-600 font-semibold block mb-1">Start:</span>
+                        <span className="font-semibold text-slate-900">{format(new Date(notification.parking_bookings.start_time), 'PPP p')}</span>
                       </div>
                       <div>
-                        <span className="text-gray-600 block mb-1">End:</span>
-                        <span className="font-medium">{format(new Date(notification.parking_bookings.end_time), 'PPP p')}</span>
+                        <span className="text-slate-600 font-semibold block mb-1">End:</span>
+                        <span className="font-semibold text-slate-900">{format(new Date(notification.parking_bookings.end_time), 'PPP p')}</span>
                       </div>
                       <div>
-                        <span className="text-gray-600 block mb-1">Duration:</span>
-                        <span className="font-medium">
+                        <span className="text-slate-600 font-semibold block mb-1">Duration:</span>
+                        <span className="font-semibold text-slate-900">
                           {`${Math.max(1, Math.round(notification.parking_bookings.duration_hours / 720))} month${Math.max(1, Math.round(notification.parking_bookings.duration_hours / 720)) !== 1 ? 's' : ''}`}
                         </span>
                       </div>
                       <div>
-                        <span className="text-gray-600 block mb-1">Total Cost:</span>
-                        <span className={`font-semibold ${notification.parking_bookings.status === 'confirmed' ? 'text-green-700' : 'text-green-600'}`}>{notification.parking_bookings.cost_aed} AED</span>
+                        <span className="text-slate-600 font-semibold block mb-1">Total Cost:</span>
+                        <span className={`font-bold text-base ${notification.parking_bookings.status === 'confirmed' ? 'text-green-700' : 'text-emerald-700'}`}>{notification.parking_bookings.cost_aed} AED</span>
                         {(notification.parking_bookings as any).security_deposit_amount > 0 && (
-                          <span className="block text-sm text-blue-600 mt-1">
+                          <span className="block text-sm text-blue-700 mt-1 font-medium">
                             + {(notification.parking_bookings as any).security_deposit_amount} AED refundable access card deposit
                           </span>
                         )}
@@ -821,18 +825,18 @@ const AdminNotifications = ({
                   </div>
 
                   {notification.parking_bookings.status === 'pending' && (
-                    <div className="flex gap-2">
-                      <Button onClick={() => approveBooking(notification)} disabled={actionLoading !== null} className="flex-1 bg-green-600 hover:bg-green-700 text-white">
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <Button onClick={() => approveBooking(notification)} disabled={actionLoading !== null} className="flex-1 bg-gradient-to-br from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800 text-white font-semibold shadow-[0_8px_20px_-6px_hsl(142_70%_35%/0.5)] hover:shadow-[0_12px_28px_-6px_hsl(142_70%_35%/0.7)] hover:-translate-y-0.5 transition-all">
                         {actionLoading === `approve-${notification.id}` ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <CheckCircle className="h-4 w-4 mr-2" />}
                         Approve
                       </Button>
-                      
-                      <Button onClick={() => rejectBooking(notification)} disabled={actionLoading !== null} variant="destructive" className="flex-1">
+
+                      <Button onClick={() => rejectBooking(notification)} disabled={actionLoading !== null} className="flex-1 bg-gradient-to-br from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white font-semibold shadow-[0_8px_20px_-6px_hsl(15_80%_45%/0.5)] hover:shadow-[0_12px_28px_-6px_hsl(15_80%_45%/0.7)] hover:-translate-y-0.5 transition-all">
                         {actionLoading === `reject-${notification.id}` ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <XCircle className="h-4 w-4 mr-2" />}
                         Reject
                       </Button>
-                      
-                      <Button onClick={() => deleteBooking(notification)} disabled={actionLoading !== null} variant="destructive" className="flex-1 bg-red-600 hover:bg-red-700">
+
+                      <Button onClick={() => deleteBooking(notification)} disabled={actionLoading !== null} className="flex-1 bg-gradient-to-br from-red-600 to-rose-700 hover:from-red-700 hover:to-rose-800 text-white font-semibold shadow-[0_8px_20px_-6px_hsl(0_75%_40%/0.5)] hover:shadow-[0_12px_28px_-6px_hsl(0_75%_40%/0.7)] hover:-translate-y-0.5 transition-all">
                         {actionLoading === `delete-${notification.id}` ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Trash2 className="h-4 w-4 mr-2" />}
                         Delete
                       </Button>
@@ -840,18 +844,18 @@ const AdminNotifications = ({
                   )}
 
                   {notification.parking_bookings.status === 'confirmed' && (
-                    <div className="flex gap-2">
+                    <div className="flex flex-col sm:flex-row gap-2 items-stretch">
                       <div className="flex-1 flex items-center justify-center py-2">
-                        <Badge variant="default" className="text-sm bg-green-600">
-                          Approved
+                        <Badge className="text-sm bg-gradient-to-br from-green-600 to-emerald-700 text-white px-4 py-1.5 shadow-md">
+                          ✓ Approved
                         </Badge>
                       </div>
-                      
-                      <Button 
-                        onClick={() => revertToPending(notification)} 
-                        disabled={actionLoading !== null} 
+
+                      <Button
+                        onClick={() => revertToPending(notification)}
+                        disabled={actionLoading !== null}
+                        className="border-2 border-orange-500 text-orange-700 bg-orange-50 hover:bg-orange-100 hover:border-orange-600 font-semibold shadow-sm hover:shadow-md transition-all"
                         variant="outline"
-                        className="border-orange-500 text-orange-600 hover:bg-orange-50"
                       >
                         {actionLoading === `revert-${notification.id}` ? (
                           <Loader2 className="h-4 w-4 animate-spin mr-2" />
@@ -860,8 +864,8 @@ const AdminNotifications = ({
                         )}
                         Revert to Pending
                       </Button>
-                      
-                      <Button onClick={() => deleteBooking(notification)} disabled={actionLoading !== null} variant="destructive" className="bg-red-600 hover:bg-red-700">
+
+                      <Button onClick={() => deleteBooking(notification)} disabled={actionLoading !== null} className="bg-gradient-to-br from-red-600 to-rose-700 hover:from-red-700 hover:to-rose-800 text-white font-semibold shadow-[0_8px_20px_-6px_hsl(0_75%_40%/0.5)] hover:shadow-[0_12px_28px_-6px_hsl(0_75%_40%/0.7)] hover:-translate-y-0.5 transition-all">
                         {actionLoading === `delete-${notification.id}` ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Trash2 className="h-4 w-4 mr-2" />}
                         Delete
                       </Button>
@@ -869,14 +873,14 @@ const AdminNotifications = ({
                   )}
 
                   {notification.parking_bookings.status === 'cancelled' && (
-                    <div className="flex gap-2">
+                    <div className="flex flex-col sm:flex-row gap-2">
                       <div className="flex-1 flex items-center justify-center py-2">
-                        <Badge variant="destructive" className="text-sm">
-                          Rejected
+                        <Badge className="text-sm bg-gradient-to-br from-red-600 to-rose-700 text-white px-4 py-1.5 shadow-md">
+                          ✗ Rejected
                         </Badge>
                       </div>
-                      
-                      <Button onClick={() => deleteBooking(notification)} disabled={actionLoading !== null} variant="destructive" className="bg-red-600 hover:bg-red-700">
+
+                      <Button onClick={() => deleteBooking(notification)} disabled={actionLoading !== null} className="bg-gradient-to-br from-red-600 to-rose-700 hover:from-red-700 hover:to-rose-800 text-white font-semibold shadow-[0_8px_20px_-6px_hsl(0_75%_40%/0.5)] hover:shadow-[0_12px_28px_-6px_hsl(0_75%_40%/0.7)] hover:-translate-y-0.5 transition-all">
                         {actionLoading === `delete-${notification.id}` ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Trash2 className="h-4 w-4 mr-2" />}
                         Delete
                       </Button>
