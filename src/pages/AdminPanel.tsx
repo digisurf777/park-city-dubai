@@ -2991,10 +2991,15 @@ const AdminPanelOrganized = () => {
                                 >
                                   <div className="flex items-center gap-2 mb-1">
                                     <span className="text-sm font-medium">
-                                      {msg.from_admin ? 'Admin' : msg.profiles?.full_name || 'User'}
+                                      {msg.from_admin ? (msg.is_ai ? 'Layla AI' : 'Admin') : msg.profiles?.full_name || 'User'}
                                     </span>
+                                    {msg.is_ai && (
+                                      <Badge variant="outline" className="h-4 px-1.5 text-[9px] border-amber-300 bg-amber-50 text-amber-700">
+                                        <Sparkles className="h-2.5 w-2.5 mr-0.5" />AI
+                                      </Badge>
+                                    )}
                                   </div>
-                                  <p className="text-sm">{msg.message}</p>
+                                  <p className="text-sm whitespace-pre-wrap">{msg.message}</p>
                                   <p className="text-xs opacity-70 mt-1">
                                     {new Date(msg.created_at).toLocaleString()}
                                   </p>
@@ -3004,22 +3009,41 @@ const AdminPanelOrganized = () => {
                           <div ref={chatMessagesEndRef} />
                         </div>
 
-                        {/* Reply Input */}
-                        <div className="flex items-center space-x-2">
-                          <Input
-                            value={chatReply}
-                            onChange={(e) => setChatReply(e.target.value)}
-                            placeholder="Type your reply..."
-                            onKeyPress={(e) => e.key === 'Enter' && sendChatReply()}
-                            className="flex-1"
-                          />
-                          <Button 
-                            onClick={sendChatReply} 
-                            disabled={!chatReply.trim() || sendingReply}
-                            size="icon"
-                          >
-                            <Send className="h-4 w-4" />
-                          </Button>
+                        {/* Reply Input with AI draft */}
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={generateDraft}
+                              disabled={draftLoading}
+                              className="border-primary/30 text-primary hover:bg-primary/5"
+                            >
+                              <Sparkles className={`h-4 w-4 mr-1.5 ${draftLoading ? 'animate-pulse' : ''}`} />
+                              {draftLoading ? 'Drafting…' : 'Generate AI draft'}
+                            </Button>
+                            {chatReply && (
+                              <button onClick={() => setChatReply('')} className="text-xs text-muted-foreground hover:text-foreground">Clear</button>
+                            )}
+                          </div>
+                          <div className="flex items-end space-x-2">
+                            <Textarea
+                              value={chatReply}
+                              onChange={(e) => setChatReply(e.target.value)}
+                              placeholder="Type your reply or click 'Generate AI draft'…"
+                              rows={3}
+                              className="flex-1 resize-none"
+                            />
+                            <Button
+                              onClick={sendChatReply}
+                              disabled={!chatReply.trim() || sendingReply}
+                              size="icon"
+                              className="h-10 w-10"
+                            >
+                              <Send className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </div>
                       </>
                     ) : (
