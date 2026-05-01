@@ -201,7 +201,7 @@ const Navbar = () => {
 
               <Link
                 to="/find-a-parking-space"
-                className="block text-gray-700 hover:text-primary transition-colors py-4 px-4 rounded-md touch-manipulation min-h-[48px] flex items-center text-lg font-medium"
+                className="btn-3d block px-4 py-3 rounded-lg text-foreground hover:text-primary font-semibold text-base touch-manipulation min-h-[48px] flex items-center"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Find a Parking Space
@@ -213,42 +213,42 @@ const Navbar = () => {
                 <div className="space-y-1">
                   <Link
                     to="/dubai-marina"
-                    className="block text-gray-700 hover:text-primary transition-colors py-3 px-6 rounded-md touch-manipulation min-h-[44px] flex items-center text-base"
+                    className="btn-3d block px-4 py-3 rounded-lg text-foreground hover:text-primary font-semibold text-base touch-manipulation min-h-[48px] flex items-center"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Dubai Marina
                   </Link>
                   <Link
                     to="/downtown"
-                    className="block text-gray-700 hover:text-primary transition-colors py-3 px-6 rounded-md touch-manipulation min-h-[44px] flex items-center text-base"
+                    className="btn-3d block px-4 py-3 rounded-lg text-foreground hover:text-primary font-semibold text-base touch-manipulation min-h-[48px] flex items-center"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Downtown
                   </Link>
                   <Link
                     to="/palm-jumeirah"
-                    className="block text-gray-700 hover:text-primary transition-colors py-3 px-6 rounded-md touch-manipulation min-h-[44px] flex items-center text-base"
+                    className="btn-3d block px-4 py-3 rounded-lg text-foreground hover:text-primary font-semibold text-base touch-manipulation min-h-[48px] flex items-center"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Palm Jumeirah
                   </Link>
                   <Link
                     to="/business-bay"
-                    className="block text-gray-700 hover:text-primary transition-colors py-3 px-6 rounded-md touch-manipulation min-h-[44px] flex items-center text-base"
+                    className="btn-3d block px-4 py-3 rounded-lg text-foreground hover:text-primary font-semibold text-base touch-manipulation min-h-[48px] flex items-center"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Business Bay
                   </Link>
                   <Link
                     to="/difc"
-                    className="block text-gray-700 hover:text-primary transition-colors py-3 px-6 rounded-md touch-manipulation min-h-[44px] flex items-center text-base"
+                    className="btn-3d block px-4 py-3 rounded-lg text-foreground hover:text-primary font-semibold text-base touch-manipulation min-h-[48px] flex items-center"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     DIFC
                   </Link>
                   <Link
                     to="/deira"
-                    className="block text-gray-700 hover:text-primary transition-colors py-3 px-6 rounded-md touch-manipulation min-h-[44px] flex items-center text-base"
+                    className="btn-3d block px-4 py-3 rounded-lg text-foreground hover:text-primary font-semibold text-base touch-manipulation min-h-[48px] flex items-center"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Deira
@@ -257,28 +257,28 @@ const Navbar = () => {
               </div>
               <Link
                 to="/about-us"
-                className="block text-gray-700 hover:text-primary transition-colors py-4 px-4 rounded-md touch-manipulation min-h-[48px] flex items-center text-lg font-medium"
+                className="btn-3d block px-4 py-3 rounded-lg text-foreground hover:text-primary font-semibold text-base touch-manipulation min-h-[48px] flex items-center"
                 onClick={() => setIsMenuOpen(false)}
               >
                 About Us
               </Link>
               <Link
                 to="/faq"
-                className="block text-gray-700 hover:text-primary transition-colors py-4 px-4 rounded-md touch-manipulation min-h-[48px] flex items-center text-lg font-medium"
+                className="btn-3d block px-4 py-3 rounded-lg text-foreground hover:text-primary font-semibold text-base touch-manipulation min-h-[48px] flex items-center"
                 onClick={() => setIsMenuOpen(false)}
               >
                 FAQ
               </Link>
               <Link
                 to="/news"
-                className="block text-gray-700 hover:text-primary transition-colors py-4 px-4 rounded-md touch-manipulation min-h-[48px] flex items-center text-lg font-medium"
+                className="btn-3d block px-4 py-3 rounded-lg text-foreground hover:text-primary font-semibold text-base touch-manipulation min-h-[48px] flex items-center"
                 onClick={() => setIsMenuOpen(false)}
               >
                 News
               </Link>
               <Link
                 to="/calculator"
-                className="block text-gray-700 hover:text-primary transition-colors py-4 px-4 rounded-md touch-manipulation min-h-[48px] flex items-center text-lg font-medium"
+                className="btn-3d block px-4 py-3 rounded-lg text-foreground hover:text-primary font-semibold text-base touch-manipulation min-h-[48px] flex items-center"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Calculator
