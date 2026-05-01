@@ -14,7 +14,11 @@ import useSEO from "@/hooks/useSEO";
 import dubaihero from "@/assets/dubai-skyline-hero.webp";
 import phonePremium from "@/assets/phone-mockup-tilted-right.png";
 import secureParking from "@/assets/secure-parking-hero.webp";
-import luxuryCar from "@/assets/own-parking-luxury.jpg";
+import luxuryCar from "@/assets/luxury-car-dubai-garage.jpg";
+import problemCircling from "@/assets/problem-circling.jpg";
+import problemExpensive from "@/assets/problem-expensive.jpg";
+import problemSafety from "@/assets/problem-safety.jpg";
+import problemEmptySpot from "@/assets/problem-empty-spot.jpg";
 import businessMan from "@/assets/business-man.webp";
 import phoneLogo from "@/assets/phone-logo.webp";
 import dubaiMarinaZone from "@/assets/zones/dubai-marina.webp";
@@ -168,7 +172,7 @@ const Index = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
             {[{
             name: "Dubai Marina",
-            link: "/zones/dubai-marina",
+            link: "/find-parking?district=dubai-marina",
             image: dubaiMarinaZone
           }, {
             name: "Downtown",
@@ -309,21 +313,25 @@ const Index = () => {
             {[
               {
                 icon: Clock,
+                image: problemCircling,
                 problem: "Wasting hours circling for spots",
                 solution: "Reserve a guaranteed space in seconds.",
               },
               {
                 icon: Wallet,
+                image: problemExpensive,
                 problem: "Paying premium hotel & mall rates",
                 solution: "Save up to 60% on monthly parking.",
               },
               {
                 icon: Lock,
+                image: problemSafety,
                 problem: "Worrying about car safety",
                 solution: "Verified, private, secure locations only.",
               },
               {
                 icon: TrendingUp,
+                image: problemEmptySpot,
                 problem: "Empty parking spaces wasting money",
                 solution: "Owners earn passive monthly income.",
               },
@@ -334,17 +342,33 @@ const Index = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: i * 0.1 }}
                 viewport={{ once: true }}
-                className="group relative p-5 sm:p-6 rounded-2xl glass-card hover-lift"
+                className="group relative rounded-2xl glass-card hover-lift overflow-hidden flex flex-col"
               >
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-primary text-primary-foreground shadow-elegant mb-4 group-hover:scale-110 transition-transform">
-                  <item.icon className="h-6 w-6" />
+                {/* Visual */}
+                <div className="relative aspect-[4/3] overflow-hidden">
+                  <img
+                    src={item.image}
+                    alt={item.problem}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    loading="lazy"
+                    decoding="async"
+                    width={768}
+                    height={576}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent"></div>
+                  <div className="absolute top-3 left-3 inline-flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-primary text-primary-foreground shadow-elegant">
+                    <item.icon className="h-5 w-5" />
+                  </div>
                 </div>
-                <p className="text-sm font-semibold text-foreground/60 line-through mb-1.5">
-                  {item.problem}
-                </p>
-                <p className="text-base font-semibold text-foreground leading-snug">
-                  {item.solution}
-                </p>
+                {/* Text */}
+                <div className="p-5">
+                  <p className="text-xs font-semibold text-foreground/55 line-through mb-1.5">
+                    {item.problem}
+                  </p>
+                  <p className="text-base font-semibold text-foreground leading-snug">
+                    {item.solution}
+                  </p>
+                </div>
               </motion.div>
             ))}
           </div>
