@@ -1,7 +1,4 @@
 import { Shield, Lock, BadgeCheck, Award, Sparkles, CreditCard, Building2, MapPin } from "lucide-react";
-import shazamLogo from "@/assets/ecosystem/shazam-logo.png";
-import dubaiLifeOs from "@/assets/ecosystem/dubai-life-os-logo.png";
-import dubaiLifeMaps from "@/assets/ecosystem/dubai-life-maps-logo.png";
 
 const BADGES = [
   { Icon: Shield, label: "RTA Compliant" },
@@ -12,12 +9,6 @@ const BADGES = [
   { Icon: Building2, label: "1,200+ Buildings" },
   { Icon: MapPin, label: "All Dubai Zones" },
   { Icon: Sparkles, label: "5-Star Service" },
-];
-
-const PARTNERS = [
-  { src: shazamLogo, alt: "Shazam Technology Group" },
-  { src: dubaiLifeOs, alt: "Dubai Life OS" },
-  { src: dubaiLifeMaps, alt: "Dubai Life Maps" },
 ];
 
 const TrustedPlatform = () => {
@@ -35,30 +26,8 @@ const TrustedPlatform = () => {
           Dubai's most trusted parking platform
         </h2>
         <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
-          Backed by the Shazam ecosystem and trusted by thousands of drivers and property owners.
+          Trusted by thousands of drivers and property owners across Dubai.
         </p>
-      </div>
-
-      {/* Partner logos — centered, animated */}
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mb-10 sm:mb-14 relative">
-        <div className="grid grid-cols-3 gap-4 sm:gap-8 items-center">
-          {PARTNERS.map((p, i) => (
-            <div
-              key={p.alt}
-              className="group relative flex items-center justify-center p-4 sm:p-6 rounded-2xl bg-white ring-1 ring-primary/15 shadow-[0_12px_30px_-15px_hsl(var(--primary)/0.4)] hover:ring-primary/40 transition-all duration-300 animate-frame-pulse"
-              style={{ animationDelay: `${i * 0.4}s` }}
-            >
-              <img
-                src={p.src}
-                alt={p.alt}
-                className="h-12 sm:h-16 md:h-20 w-auto object-contain animate-logo-float"
-                style={{ animationDelay: `${i * 0.6}s` }}
-                loading="lazy"
-                decoding="async"
-              />
-            </div>
-          ))}
-        </div>
       </div>
 
       {/* Trust badges marquee */}
