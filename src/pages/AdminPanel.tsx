@@ -152,6 +152,7 @@ const AdminPanelOrganized = () => {
   const navigate = useNavigate();
   const [isValidated, setIsValidated] = useState(false);
   const [validating, setValidating] = useState(true);
+  const [activeTab, setActiveTab] = useState<string>('dashboard');
   
   // Inactivity logout with warning dialog
   const handleAutoLogout = async () => {
@@ -1790,9 +1791,17 @@ const AdminPanelOrganized = () => {
         )}
 
         {/* Main Tabs */}
-        <Tabs defaultValue="content" className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <div className="overflow-x-auto -mx-3 sm:mx-0 px-3 sm:px-0 pb-2">
-            <TabsList className="inline-flex sm:grid sm:grid-cols-8 gap-1 sm:gap-2 h-auto p-1 sm:p-2 bg-gradient-to-r from-background to-muted/20 rounded-xl border shadow-sm min-w-max sm:min-w-0 w-auto sm:w-full">
+            <TabsList className="inline-flex sm:grid sm:grid-cols-9 gap-1 sm:gap-2 h-auto p-1 sm:p-2 bg-gradient-to-r from-background to-muted/20 rounded-xl border shadow-sm min-w-max sm:min-w-0 w-auto sm:w-full">
+              <TabsTrigger 
+                value="dashboard" 
+                className="flex flex-col items-center p-2 sm:p-3 h-auto text-xs sm:text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg min-w-[70px] sm:min-w-0"
+              >
+                <LayoutDashboard className="h-4 w-4 sm:h-5 sm:w-5 mb-1" />
+                <span className="font-semibold text-[10px] sm:text-sm">Dashboard</span>
+                <span className="text-[8px] sm:text-xs opacity-70 mt-0.5 sm:mt-1 hidden sm:block">Live KPIs</span>
+              </TabsTrigger>
               <TabsTrigger 
                 value="content" 
                 className="flex flex-col items-center p-2 sm:p-3 h-auto text-xs sm:text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg min-w-[70px] sm:min-w-0"
