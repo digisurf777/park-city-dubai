@@ -59,6 +59,88 @@ const ChatWidget = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  // ---------- Draggable launcher state ----------
+  const LAUNCHER_POS_KEY = "shazam_launcher_pos_v1";
+  type LauncherPos = { side: "left" | "right"; bottom: number };
+  const defaultPos: LauncherPos = { side: "right", bottom: 24 };
+  const [launcherPos, setLauncherPos] = useState<LauncherPos>(() => {
+    if (typeof window === "undefined") return defaultPos;
+    try {
+      const raw = localStorage.getItem(LAUNCHER_POS_KEY);
+      if (!raw) return defaultPos;
+      const p = JSON.parse(raw) as LauncherPos;
+      if ((p.side === "left" || p.side === "right") && typeof p.bottom === "number") return p;
+    } catch {}
+    return defaultPos;
+  });
+  const [dragRect, setDragRect] = useState<{ left: number; top: number } | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStateRef = useRef<{
+    pointerId: number;
+    offsetX: number;
+    offsetY: number;
+    startX: number;
+    startY: number;
+    moved: boolean;
+    width: number;
+    height: number;
+  } | null>(null);
+  const launcherRef = useRef<HTMLButtonElement>(null);
+
+  const onLauncherPointerDown = (e: React.PointerEvent<HTMLButtonElement>) => {
+    if (e.button !== 0 && e.pointerType === "mouse") return;
+    const el = launcherRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    dragStateRef.current = {
+      pointerId: e.pointerId,
+      offsetX: e.clientX - rect.left,
+      offsetY: e.clientY - rect.top,
+      startX: e.clientX,
+      startY: e.clientY,
+      moved: false,
+      width: rect.width,
+      height: rect.height,
+    };
+    try { el.setPointerCapture(e.pointerId); } catch {}
+  };
+
+  const onLauncherPointerMove = (e: React.PointerEvent<HTMLButtonElement>) => {
+    const ds = dragStateRef.current;
+    if (!ds || ds.pointerId !== e.pointerId) return;
+    const dx = e.clientX - ds.startX;
+    const dy = e.clientY - ds.startY;
+    if (!ds.moved && Math.hypot(dx, dy) < 5) return; // tap threshold
+    ds.moved = true;
+    if (!isDragging) setIsDragging(true);
+    const left = Math.max(8, Math.min(window.innerWidth - ds.width - 8, e.clientX - ds.offsetX));
+    const top = Math.max(8, Math.min(window.innerHeight - ds.height - 8, e.clientY - ds.offsetY));
+    setDragRect({ left, top });
+  };
+
+  const finishDrag = (e: React.PointerEvent<HTMLButtonElement>) => {
+    const ds = dragStateRef.current;
+    if (!ds) return;
+    const moved = ds.moved;
+    const width = ds.width;
+    const height = ds.height;
+    const rect = dragRect;
+    dragStateRef.current = null;
+    try { launcherRef.current?.releasePointerCapture(e.pointerId); } catch {}
+    if (moved && rect) {
+      const centerX = rect.left + width / 2;
+      const side: "left" | "right" = centerX < window.innerWidth / 2 ? "left" : "right";
+      const bottom = Math.max(8, Math.min(window.innerHeight - height - 8, window.innerHeight - rect.top - height));
+      const next = { side, bottom };
+      setLauncherPos(next);
+      try { localStorage.setItem(LAUNCHER_POS_KEY, JSON.stringify(next)); } catch {}
+    }
+    setDragRect(null);
+    // delay clearing so onClick can read it
+    setTimeout(() => setIsDragging(false), 0);
+  };
+
+
   // Always start a brand-new session id when the widget mounts (per user's request).
   useEffect(() => {
     const fresh = crypto.randomUUID();
@@ -242,30 +324,55 @@ const ChatWidget = () => {
 
   // ---------- Launcher ----------
   if (!isOpen) {
+    const launcherStyle: React.CSSProperties = dragRect
+      ? { left: `${dragRect.left}px`, top: `${dragRect.top}px`, right: "auto", bottom: "auto" }
+      : launcherPos.side === "left"
+        ? { left: "16px", bottom: `${launcherPos.bottom}px` }
+        : { right: "16px", bottom: `${launcherPos.bottom}px` };
+
     return (
-      <div className="hidden md:block fixed bottom-6 right-6 z-50">
+      <div className="hidden md:block fixed z-50" style={launcherStyle}>
         <button
-          onClick={handleOpen}
-          aria-label="Open online support chat"
-          className="group relative flex items-center gap-2.5 pl-1.5 pr-4 py-1.5 rounded-full bg-gradient-to-br from-primary via-primary to-primary-deep text-white shadow-[0_12px_28px_-8px_hsl(var(--primary)/0.55),0_4px_12px_-4px_hsl(var(--primary-deep)/0.4),inset_0_1px_0_0_hsl(0_0%_100%/0.3)] hover:shadow-[0_16px_32px_-8px_hsl(var(--primary)/0.65),inset_0_1px_0_0_hsl(0_0%_100%/0.4)] hover:-translate-y-0.5 transition-all duration-300 ring-1 ring-white/30"
+          ref={launcherRef}
+          onClick={(e) => {
+            if (isDragging || dragStateRef.current?.moved) {
+              e.preventDefault();
+              return;
+            }
+            handleOpen();
+          }}
+          onPointerDown={onLauncherPointerDown}
+          onPointerMove={onLauncherPointerMove}
+          onPointerUp={finishDrag}
+          onPointerCancel={finishDrag}
+          aria-label="Open online support chat (drag to reposition)"
+          title="Click to open · Drag to reposition"
+          className={`group relative flex items-center gap-2.5 pl-1.5 pr-4 py-1.5 rounded-full bg-gradient-to-br from-primary via-primary to-primary-deep text-white shadow-[0_12px_28px_-8px_hsl(var(--primary)/0.55),0_4px_12px_-4px_hsl(var(--primary-deep)/0.4),inset_0_1px_0_0_hsl(0_0%_100%/0.3)] hover:shadow-[0_16px_32px_-8px_hsl(var(--primary)/0.65),inset_0_1px_0_0_hsl(0_0%_100%/0.4)] ring-1 ring-white/30 select-none touch-none ${isDragging ? "cursor-grabbing scale-105 shadow-[0_20px_40px_-10px_hsl(var(--primary)/0.7)] transition-none" : "cursor-grab hover:-translate-y-0.5 transition-all duration-300"}`}
         >
-          <span className="relative">
+          <span className="relative pointer-events-none">
             <img
               src={supportAvatar}
               alt="Online Support agent"
               width={32}
               height={32}
               loading="lazy"
+              draggable={false}
               className="relative w-8 h-8 rounded-full object-cover ring-2 ring-white/80"
             />
             <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 ring-2 ring-white" />
           </span>
-          <span className="flex flex-col items-start leading-tight">
+          <span className="flex flex-col items-start leading-tight pointer-events-none">
             <span className="text-[9px] font-bold uppercase tracking-[0.12em] text-emerald-200">Live</span>
             <span className="text-[13px] font-bold whitespace-nowrap">Support</span>
           </span>
+          {/* Drag affordance */}
+          <span className="ml-0.5 hidden group-hover:flex flex-col gap-[2px] pointer-events-none opacity-70">
+            <span className="w-[3px] h-[3px] rounded-full bg-white/90" />
+            <span className="w-[3px] h-[3px] rounded-full bg-white/90" />
+            <span className="w-[3px] h-[3px] rounded-full bg-white/90" />
+          </span>
           {unread > 0 && (
-            <span className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1.5 rounded-full bg-rose-500 text-white text-[11px] font-bold flex items-center justify-center ring-2 ring-white">
+            <span className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1.5 rounded-full bg-rose-500 text-white text-[11px] font-bold flex items-center justify-center ring-2 ring-white pointer-events-none">
               {unread}
             </span>
           )}
