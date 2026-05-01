@@ -146,7 +146,7 @@ export function AdminDashboard({ onJumpTab }: Props) {
           value={`${fmtMoney(kpis.gmvAed)}`}
           accent="primary"
           footer={
-            <span className={`inline-flex items-center gap-1 text-xs font-medium ${gmvDelta >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
+            <span className={`inline-flex items-center gap-1 text-xs font-semibold ${gmvDelta >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
               {gmvDelta >= 0 ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
               {Math.abs(gmvDelta).toFixed(0)}% · last 30d
             </span>
@@ -157,21 +157,23 @@ export function AdminDashboard({ onJumpTab }: Props) {
           icon={<TrendingUp className="h-4 w-4" />}
           label="Net revenue"
           value={`${fmtMoney(kpis.netRevenueAed)}`}
-          accent="primary"
+          accent="emerald"
           footer={<span className="text-xs text-muted-foreground">GMV − payouts</span>}
           loading={loading}
         />
         <KpiCard
-          icon={<CreditCard className="h-4 w-4" />}
+          icon={<Wallet className="h-4 w-4" />}
           label="Owner payouts"
           value={`${fmtMoney(kpis.ownerPayoutsTotal)}`}
-          footer={<span className="text-xs text-muted-foreground">{fmtMoneyCompact(kpis.ownerPayoutsLast30d)} in 30d</span>}
+          accent="amber"
+          footer={<span className="text-xs text-muted-foreground font-medium">{fmtMoneyCompact(kpis.ownerPayoutsLast30d)} in 30d</span>}
           loading={loading}
         />
         <KpiCard
           icon={<Car className="h-4 w-4" />}
           label="Bookings"
           value={kpis.totalBookings.toString()}
+          accent="sky"
           footer={
             <div className="flex flex-wrap gap-1 mt-1">
               <Badge variant="outline" className={statusColor('paid')}>{kpis.paidBookings} paid</Badge>
@@ -189,27 +191,31 @@ export function AdminDashboard({ onJumpTab }: Props) {
           icon={<Users className="h-4 w-4" />}
           label="Total users"
           value={kpis.totalUsers.toString()}
-          footer={<span className="text-xs text-emerald-600 font-medium">+{kpis.newUsers30d} in 30d · +{kpis.newUsers7d} in 7d</span>}
+          accent="primary"
+          footer={<span className="text-xs text-emerald-600 font-semibold">+{kpis.newUsers30d} in 30d · +{kpis.newUsers7d} in 7d</span>}
           loading={loading}
         />
         <KpiCard
           icon={<Crown className="h-4 w-4" />}
           label="Paying owners"
           value={kpis.payingOwners.toString()}
+          accent="amber"
           footer={<span className="text-xs text-muted-foreground">received ≥1 payout</span>}
           loading={loading}
         />
         <KpiCard
-          icon={<Users className="h-4 w-4" />}
+          icon={<UserPlus className="h-4 w-4" />}
           label="Free users"
           value={kpis.freeUsers.toString()}
+          accent="sky"
           footer={<span className="text-xs text-muted-foreground">no listing · no payout</span>}
           loading={loading}
         />
         <KpiCard
-          icon={<TrendingUp className="h-4 w-4" />}
+          icon={<Target className="h-4 w-4" />}
           label="Conversion"
           value={`${kpis.conversionRate.toFixed(1)}%`}
+          accent="emerald"
           footer={<span className="text-xs text-muted-foreground">users with paid booking</span>}
           loading={loading}
         />
