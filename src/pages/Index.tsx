@@ -52,63 +52,89 @@ const Index = () => {
         </div>
       </div>
       
-      {/* Hero Section - Simplified animations for better performance */}
-      <section className="relative min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat" style={{
-      backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url(${secureParking})`,
-      backgroundSize: 'cover'
-    }}>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-white z-10">
-          <div className="flex flex-col lg:flex-row items-center justify-between min-h-screen pt-20 sm:pt-24 lg:pt-0 py-8 sm:py-16 lg:py-[141px]">
-            {/* Left side - Text */}
-            <div className="text-center lg:text-left lg:flex-1 mb-8 lg:mb-0 mt-8 sm:mt-16 lg:mt-0 animate-fade-in">
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black leading-tight px-2 lg:px-0 mb-4">
-                <span className="block text-white" style={{
-                textShadow: '3px 3px 12px rgba(0, 0, 0, 0.9), 0 0 30px rgba(0, 0, 0, 0.7)'
-              }}>
-                  YOUR TRUSTED
-                </span>
-                <span className="block text-primary font-black" style={{
-                textShadow: '2px 2px 8px rgba(0, 0, 0, 0.5)'
-              }}>
-                  PARKING PLATFORM
-                </span>
-                <span className="block text-white" style={{
-                textShadow: '3px 3px 12px rgba(0, 0, 0, 0.9), 0 0 30px rgba(0, 0, 0, 0.7)'
-              }}>
-                  IN DUBAI
+      {/* Hero — premium, balanced, ~85vh */}
+      <section
+        className="relative overflow-hidden bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: `linear-gradient(135deg, hsl(174 65% 22% / 0.85) 0%, hsl(0 0% 0% / 0.55) 100%), url(${secureParking})`,
+        }}
+      >
+        {/* Decorative blurred glows */}
+        <div className="pointer-events-none absolute -top-32 -left-32 w-96 h-96 rounded-full bg-primary/30 blur-3xl"></div>
+        <div className="pointer-events-none absolute -bottom-32 -right-32 w-[28rem] h-[28rem] rounded-full bg-primary-glow/25 blur-3xl"></div>
+
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-white z-10 pt-24 pb-12 sm:pt-28 sm:pb-16 lg:pt-32 lg:pb-20 min-h-[640px] sm:min-h-[680px] lg:min-h-[720px] flex items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center w-full">
+            {/* Left — Text */}
+            <div className="text-center lg:text-left animate-fade-in order-2 lg:order-1">
+              <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass text-white text-xs sm:text-sm font-medium mb-4 sm:mb-6">
+                <Sparkles className="h-3.5 w-3.5 text-primary-glow" />
+                Dubai's #1 Parking Platform
+              </span>
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-black leading-[1.05] tracking-tight mb-4 sm:mb-6">
+                <span className="block text-white drop-shadow-[0_4px_20px_rgba(0,0,0,0.6)]">Park Smarter.</span>
+                <span className="block text-gradient-primary bg-gradient-to-r from-primary-glow via-primary to-primary-glow">
+                  Earn Bigger.
                 </span>
               </h1>
-              <p className="text-lg sm:text-xl text-white/90 mt-4 px-2 lg:px-0" style={{
-              textShadow: '2px 2px 8px rgba(0, 0, 0, 0.7)'
-            }}>
-                List your parking space in minutes and start earning every month.
+              <p className="text-base sm:text-lg lg:text-xl text-white/90 max-w-xl mx-auto lg:mx-0 mb-6 sm:mb-8 drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]">
+                Find verified monthly parking across Dubai — or list your space in minutes and earn passive income.
               </p>
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start">
+                <Link to="/find-parking">
+                  <Button size="lg" className="w-full sm:w-auto px-7 py-6 text-base font-semibold">
+                    Find Parking
+                    <ArrowRight className="ml-1 h-5 w-5" />
+                  </Button>
+                </Link>
+                <Link to="/rent-out-your-space">
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="w-full sm:w-auto px-7 py-6 text-base font-semibold bg-white/10 border-white/40 text-white hover:bg-white hover:text-primary backdrop-blur-md"
+                  >
+                    List Your Space
+                  </Button>
+                </Link>
+              </div>
+              {/* Inline social proof */}
+              <div className="hidden sm:flex items-center justify-center lg:justify-start gap-6 mt-8 text-white/80 text-sm">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-primary-glow" />
+                  <span>Verified spaces</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-primary-glow" />
+                  <span>Secure payments</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-primary-glow" />
+                  <span>Cancel anytime*</span>
+                </div>
+              </div>
             </div>
-            
-            {/* Right side - Phone Image */}
-            <div className="lg:flex-1 flex justify-center lg:justify-end">
-              <picture>
-                <source media="(max-width: 640px)" srcSet="/lovable-uploads/c910d35f-a4b2-4c06-88e3-7f5b16a45558.webp" type="image/webp" width="256" height="467" />
-                <source media="(max-width: 1024px)" srcSet="/lovable-uploads/c910d35f-a4b2-4c06-88e3-7f5b16a45558.webp" type="image/webp" width="320" height="583" />
-                <img alt="Shazam Parking Mobile App" className="w-64 sm:w-80 md:w-96 lg:max-w-md h-auto transition-transform duration-300 hover:scale-105" src="/lovable-uploads/c910d35f-a4b2-4c06-88e3-7f5b16a45558.webp" loading="eager" {...{
-                fetchpriority: 'high'
-              }} decoding="async" width="384" height="700" style={{
-                contentVisibility: 'auto'
-              }} />
-              </picture>
+
+            {/* Right — Phone */}
+            <div className="flex justify-center lg:justify-end order-1 lg:order-2">
+              <div className="relative">
+                {/* Glow ring behind phone */}
+                <div className="absolute inset-0 -m-8 rounded-[50%] bg-primary/40 blur-3xl animate-pulse-glow pointer-events-none"></div>
+                <img
+                  src={phonePremium}
+                  alt="Shazam Parking app shown on a smartphone"
+                  className="relative w-56 sm:w-64 md:w-72 lg:w-80 xl:w-[22rem] h-auto drop-shadow-[0_25px_50px_rgba(0,0,0,0.5)] animate-float"
+                  loading="eager"
+                  fetchPriority="high"
+                  decoding="async"
+                  width={1024}
+                  height={1536}
+                />
+              </div>
             </div>
-          </div>
-          
-          {/* CTA Button - Centered */}
-          <div className="flex justify-center mt-8 sm:mt-12 lg:absolute lg:bottom-20 lg:left-1/2 lg:transform lg:-translate-x-1/2 px-4">
-            <Link to="/my-account">
-              <Button className="bg-primary hover:bg-primary/90 text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-full w-full sm:w-auto shadow-lg transition-all duration-300 hover:scale-105">
-                GET STARTED FREE
-              </Button>
-            </Link>
           </div>
         </div>
       </section>
+
 
       {/* Popular Parking Locations */}
       <motion.section initial={{
