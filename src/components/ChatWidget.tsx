@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import {
   MessageCircle, X, Send, Minimize2, Maximize2, Sparkles, UserRound,
-  Plus, History, ArrowLeft, CheckCircle2, Clock, UserCheck, AlertCircle,
+  Plus, History, ArrowLeft, CheckCircle2, Clock, UserCheck, AlertCircle, Mail,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -44,6 +44,10 @@ const STARTERS = [
 ];
 
 const STORAGE_SESSION_KEY = "shazam_chat_session_id";
+const SUPPORT_EMAIL = "support@shazamparking.ae";
+
+const buildMailto = (subject: string, body: string) =>
+  `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 
 const ChatWidget = () => {
   const { user } = useAuth();
@@ -313,6 +317,17 @@ const ChatWidget = () => {
                 <span className="hidden sm:inline text-xs font-semibold">New</span>
               </Button>
             )}
+            <a
+              href={buildMailto(
+                "Support request — Shazam Parking",
+                `Hi Shazam Parking team,\n\n[Please describe your question here]\n\n— Sent from in-app support (${user?.email ?? ""})`
+              )}
+              className="hidden sm:inline-flex items-center gap-1 h-8 px-3 rounded-md text-white hover:bg-white/15 text-xs font-semibold transition-colors"
+              title={`Email ${SUPPORT_EMAIL}`}
+            >
+              <Mail className="h-3.5 w-3.5" />
+              Email us
+            </a>
             <Button variant="ghost" size="icon" onClick={() => setIsExpanded((v) => !v)}
               className="h-8 w-8 text-white hover:bg-white/15 hidden sm:inline-flex" aria-label={isExpanded ? "Shrink" : "Expand"}>
               {isExpanded ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
@@ -343,6 +358,48 @@ const ChatWidget = () => {
                   <p className={`${isExpanded ? "text-base mt-3 max-w-md" : "text-xs mt-2 max-w-[280px]"} text-muted-foreground mx-auto`}>
                     Ask anything about your bookings, listings, payouts or verification — I'll loop in a teammate by email if needed.
                   </p>
+
+                  {/* Prefer-email card */}
+                  <a
+                    href={buildMailto(
+                      "Support request — Shazam Parking",
+                      `Hi Shazam Parking team,\n\n[Please describe your question here]\n\n— Sent from in-app support (${user?.email ?? ""})`
+                    )}
+                    className="group mt-5 mx-auto max-w-[320px] flex items-center gap-3 p-3 rounded-2xl bg-gradient-to-br from-primary/5 via-white to-primary/5 border border-primary/20 hover:border-primary hover:shadow-md hover:-translate-y-0.5 transition-all text-left"
+                  >
+                    <span className="flex-shrink-0 w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-colors">
+                      <Mail className="h-5 w-5" />
+                    </span>
+                    <span className="flex-1 min-w-0">
+                      <span className="block text-xs font-bold text-foreground">Prefer email?</span>
+                      <span className="block text-[11px] text-muted-foreground truncate">{SUPPORT_EMAIL}</span>
+                    </span>
+                    <span className="text-[10px] font-semibold text-primary opacity-0 group-hover:opacity-100 transition-opacity">
+                      Open ↗
+                    </span>
+                  </a>
+                </div>
+              )}
+
+              {/* Handoff confirmation banner */}
+              {messages.some((m) => m.handoff_requested) && (
+                <div className="mx-auto max-w-[420px] rounded-xl border border-amber-300 bg-amber-50 p-3 flex items-start gap-3">
+                  <UserCheck className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-bold text-amber-900">A human teammate has been notified</p>
+                    <p className="text-[11px] text-amber-800 mt-0.5">
+                      We typically reply within a few business hours. Want to add details by email?
+                    </p>
+                    <a
+                      href={buildMailto(
+                        "Follow-up on my support chat — Shazam Parking",
+                        `Hi Shazam Parking team,\n\nFollowing up on my in-app chat. Additional details:\n\n[Add details here]\n\n— ${user?.email ?? ""}`
+                      )}
+                      className="inline-flex items-center gap-1 mt-1.5 text-[11px] font-bold text-amber-900 underline underline-offset-2 hover:text-amber-700"
+                    >
+                      <Mail className="h-3 w-3" /> Email {SUPPORT_EMAIL}
+                    </a>
+                  </div>
                 </div>
               )}
 
@@ -447,7 +504,7 @@ const ChatWidget = () => {
                   <Send className="h-4 w-4" />
                 </Button>
               </div>
-              <div className="flex items-center justify-between mt-2 px-1 gap-2">
+              <div className="flex items-center justify-between mt-2 px-1 gap-2 flex-wrap">
                 <button
                   onClick={() => setView("history")}
                   className="flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-primary transition-colors font-medium"
@@ -455,6 +512,17 @@ const ChatWidget = () => {
                   <History className="h-3 w-3" />
                   History {sessions.length > 0 && `(${sessions.length})`}
                 </button>
+                <a
+                  href={buildMailto(
+                    "Support request — Shazam Parking",
+                    `Hi Shazam Parking team,\n\n[Please describe your question here]\n\n— Sent from in-app support (${user?.email ?? ""})`
+                  )}
+                  className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-primary transition-colors font-medium"
+                  title={`Email ${SUPPORT_EMAIL}`}
+                >
+                  <Mail className="h-3 w-3" />
+                  Email support
+                </a>
                 {messages.length > 0 && (
                   <button
                     onClick={startNewChat}
