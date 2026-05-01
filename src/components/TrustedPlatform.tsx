@@ -1,7 +1,4 @@
 import { Shield, Lock, BadgeCheck, Award, Sparkles, CreditCard, Building2, MapPin } from "lucide-react";
-import shazamLogo from "@/assets/ecosystem/shazam-logo.png";
-import dubaiLifeOs from "@/assets/ecosystem/dubai-life-os-logo.png";
-import dubaiLifeMaps from "@/assets/ecosystem/dubai-life-maps-logo.png";
 
 const BADGES = [
   { Icon: Shield, label: "RTA Compliant" },
