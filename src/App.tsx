@@ -61,11 +61,8 @@ const queryClient = new QueryClient({
 });
 
 // Performance-optimized loading fallback
-const LoadingFallback = () => (
-  <div className="min-h-screen flex items-center justify-center">
-    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-  </div>
-);
+import { PageLoader } from "@/components/ui/loading";
+const LoadingFallback = () => <PageLoader label="Loading…" />;
 
 const App = () => {
   console.log('App.tsx: App component rendering');
