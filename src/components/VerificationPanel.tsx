@@ -229,28 +229,40 @@ const VerificationPanel = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'approved':
-        return <Badge className="bg-green-100 text-green-800">Verification Approved</Badge>;
+        return <Badge className="bg-emerald-100 text-emerald-700 border border-emerald-200 hover:bg-emerald-100"><CheckCircle className="h-3 w-3 mr-1" />Approved</Badge>;
       case 'pending':
-        return <Badge className="bg-orange-100 text-orange-800">Verification in Progress</Badge>;
+        return <Badge className="bg-amber-100 text-amber-700 border border-amber-200 hover:bg-amber-100"><Clock className="h-3 w-3 mr-1" />In review</Badge>;
       case 'rejected':
-        return <Badge className="bg-red-100 text-red-800">❌ Rejected</Badge>;
+        return <Badge className="bg-rose-100 text-rose-700 border border-rose-200 hover:bg-rose-100"><XCircle className="h-3 w-3 mr-1" />Rejected</Badge>;
       default:
         return null;
     }
   };
   if (loading) {
-    return <div className="animate-pulse">Loading verification status...</div>;
+    return (
+      <Card><CardContent className="py-12 flex items-center justify-center text-muted-foreground"><Clock className="h-4 w-4 mr-2 animate-spin" />Loading verification status…</CardContent></Card>
+    );
   }
 
   // Show alert if not approved
   const showAlert = !verification || verification.verification_status === 'rejected';
   return <div className="space-y-6">
-      {showAlert && <Alert className="border-red-200 bg-red-50">
-          <AlertTriangle className="h-4 w-4 text-red-500" />
-          <AlertDescription className="text-red-700">
-            <strong>⚠️ Verification Required</strong> – Please upload a valid photo ID to continue using all features.
-          </AlertDescription>
-        </Alert>}
+      {showAlert && (
+        <div className="relative overflow-hidden rounded-2xl border border-amber-200 bg-gradient-to-r from-amber-50 via-orange-50 to-amber-50 p-5">
+          <div className="absolute inset-0 opacity-30 pointer-events-none bg-[radial-gradient(circle_at_90%_50%,hsl(var(--primary)/0.15),transparent_60%)]" />
+          <div className="relative flex items-start gap-3">
+            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-amber-500/15 ring-2 ring-amber-500/20">
+              <AlertTriangle className="h-5 w-5 text-amber-600" />
+            </div>
+            <div className="flex-1">
+              <p className="font-semibold text-amber-900">Verification required</p>
+              <p className="text-sm text-amber-800/90 mt-0.5">
+                Upload a valid photo ID to unlock bookings, listings and payouts. Reviews usually take less than 24 hours.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       <Card>
         <CardHeader>
