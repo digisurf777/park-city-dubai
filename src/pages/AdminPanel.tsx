@@ -229,7 +229,7 @@ const AdminPanelOrganized = () => {
       if (json.reply) setChatReply(json.reply);
     } catch (e: any) {
       console.error('Draft generation failed', e);
-      toast.error(e?.message || 'Could not generate draft');
+      toast({ title: 'Draft failed', description: e?.message || 'Could not generate draft', variant: 'destructive' });
     } finally {
       setDraftLoading(false);
     }
