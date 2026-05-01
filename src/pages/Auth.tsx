@@ -804,15 +804,47 @@ const Auth = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-4 animate-zoom-slow">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle className="text-center">Welcome to Shazam Parking</CardTitle>
-          <CardDescription className="text-center">
-            Log in to your account or create a new one
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+    <div className="min-h-screen bg-gradient-to-br from-primary-deep via-background to-surface flex items-center justify-center px-4 py-10 animate-fade-in">
+      {/* Decorative blobs */}
+      <div className="pointer-events-none absolute top-20 left-10 h-64 w-64 rounded-full bg-primary/30 blur-3xl" aria-hidden />
+      <div className="pointer-events-none absolute bottom-10 right-10 h-72 w-72 rounded-full bg-primary-glow/20 blur-3xl" aria-hidden />
+
+      <div className="relative w-full max-w-5xl grid lg:grid-cols-2 frame-3d overflow-hidden">
+        {/* Left visual panel — hidden on mobile */}
+        <div className="hidden lg:block relative">
+          <img
+            src={authLuxury}
+            alt="Premium parking in Dubai"
+            className="absolute inset-0 h-full w-full object-cover"
+            loading="lazy"
+            width={896}
+            height={1216}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-primary-deep/90 via-primary-deep/40 to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
+            <span className="inline-block mb-3 px-3 py-1 rounded-full bg-white/15 backdrop-blur text-xs font-semibold tracking-[0.18em] uppercase border border-white/20">
+              ★ Premium Parking
+            </span>
+            <h2 className="text-3xl xl:text-4xl font-black leading-tight text-3d-light">
+              Dubai's Most Trusted<br/>Parking Platform
+            </h2>
+            <p className="mt-3 text-white/85 text-sm">
+              Join thousands of drivers and owners using Shazam Parking every day.
+            </p>
+          </div>
+        </div>
+
+        {/* Right form panel */}
+        <div className="bg-white p-6 sm:p-10">
+          <div className="text-center mb-6">
+            <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-primary shadow-glow mb-4">
+              <Shield className="h-7 w-7 text-white" />
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-black text-foreground">Welcome to Shazam Parking</h1>
+            <p className="text-muted-foreground text-sm mt-1">
+              Log in to your account or create a new one
+            </p>
+          </div>
           <Tabs defaultValue="login" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="login">Login</TabsTrigger>
