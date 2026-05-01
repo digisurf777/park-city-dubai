@@ -15,6 +15,8 @@ import dubaihero from "@/assets/dubai-skyline-hero.webp";
 import phonePremium from "@/assets/phone-mockup-hero.png";
 import secureParking from "@/assets/secure-parking-hero.webp";
 import luxuryCar from "@/assets/luxury-car-dubai-garage.jpg";
+import luxuryCarStreet from "@/assets/luxury-car-dubai-street.jpg";
+import dubaiDriverPov from "@/assets/dubai-driver-pov.jpg";
 import problemCircling from "@/assets/problem-circling.jpg";
 import problemExpensive from "@/assets/problem-expensive.jpg";
 import problemSafety from "@/assets/problem-safety.jpg";
@@ -524,8 +526,8 @@ const Index = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             <div className="order-2 lg:order-1">
-              <div className="rounded-2xl ring-1 ring-primary/20 shadow-[0_20px_40px_-15px_hsl(var(--primary)/0.4)] p-1.5 bg-gradient-to-br from-primary/15 to-transparent animate-[float_7s_ease-in-out_infinite]">
-                <img src={dubaihero} alt="Dubai UAE skyline" className="w-full rounded-xl shadow-lg" loading="lazy" decoding="async" />
+              <div className="rounded-2xl ring-1 ring-primary/20 shadow-[0_20px_40px_-15px_hsl(var(--primary)/0.4)] p-1.5 bg-gradient-to-br from-primary/15 to-transparent animate-[float_7s_ease-in-out_infinite] overflow-hidden">
+                <img src={luxuryCarStreet} alt="Luxury car parked on a vibrant Downtown Dubai street with Burj Khalifa at sunset" className="w-full rounded-xl shadow-lg object-cover aspect-square" loading="lazy" decoding="async" width={1280} height={1024} />
               </div>
             </div>
             <div className="order-1 lg:order-2 text-center lg:text-left">
@@ -572,8 +574,8 @@ const Index = () => {
             <h3 className="text-lg sm:text-xl lg:text-2xl text-gray-700 mb-6 sm:mb-8 px-4">
               We are the quickest, easiest, and the most secure way to rent a parking space in Dubai!
             </h3>
-            <div className="mx-auto max-w-2xl rounded-2xl ring-1 ring-primary/15 shadow-[0_20px_40px_-15px_hsl(var(--primary)/0.35)] p-1.5 bg-gradient-to-br from-primary/10 to-transparent animate-[float_8s_ease-in-out_infinite]">
-              <img src={businessMan} alt="Successful businessman" className="rounded-xl w-full" loading="lazy" decoding="async" />
+            <div className="mx-auto max-w-2xl rounded-2xl ring-1 ring-primary/15 shadow-[0_20px_40px_-15px_hsl(var(--primary)/0.35)] p-1.5 bg-gradient-to-br from-primary/10 to-transparent animate-[float_8s_ease-in-out_infinite] overflow-hidden">
+              <img src={dubaiDriverPov} alt="Driver POV from a luxury car in Dubai using the ShazamParking app to find parking" className="rounded-xl w-full object-cover" loading="lazy" decoding="async" width={1280} height={1024} />
             </div>
           </div>
         </div>
