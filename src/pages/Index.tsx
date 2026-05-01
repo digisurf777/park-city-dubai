@@ -177,16 +177,16 @@ const Index = () => {
           }} whileHover={{
             y: -5
           }}>
-                <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 group">
+                <Card className="overflow-hidden rounded-2xl ring-1 ring-primary/10 shadow-lg hover:shadow-2xl hover:ring-primary/30 transition-all duration-300 group">
                   <div className="relative aspect-video">
                     <img src={location.image} alt={location.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy" decoding="async" />
-                    <div className="absolute inset-0 bg-black bg-opacity-40 transition-opacity duration-300 group-hover:bg-opacity-30"></div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent transition-opacity duration-300 group-hover:from-primary/60 group-hover:via-black/30"></div>
                     <div className="absolute inset-0 flex flex-col items-center justify-center text-white p-4 sm:p-6">
                       <motion.h3 initial={{
                     scale: 0.9
                   }} whileHover={{
                     scale: 1.05
-                  }} className="text-lg sm:text-xl lg:text-2xl font-bold mb-3 sm:mb-4 uppercase text-center">
+                  }} className="text-lg sm:text-xl lg:text-2xl font-bold mb-3 sm:mb-4 uppercase text-center drop-shadow-lg">
                         {location.name}
                       </motion.h3>
                       <Link to={location.link}>
@@ -195,7 +195,7 @@ const Index = () => {
                     }} whileTap={{
                       scale: 0.95
                     }}>
-                          <Button className="bg-primary hover:bg-primary/90 text-white px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base lg:text-lg font-semibold transition-all duration-300">
+                          <Button className="px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base lg:text-lg font-semibold">
                             Select Zone
                           </Button>
                         </motion.div>
@@ -395,12 +395,14 @@ IS HERE TO HELP YOU</motion.p>
             delay: 0.4
           }} viewport={{
             once: true
-          }} className="order-first lg:order-last">
-              <motion.img whileHover={{
-              scale: 1.05
-            }} transition={{
-              duration: 0.3
-            }} src={luxuryCar} alt="Luxury car in Dubai" className="w-full rounded-lg shadow-lg" loading="lazy" decoding="async" />
+            }} className="order-first lg:order-last">
+              <div className="rounded-2xl ring-1 ring-primary/20 shadow-[0_20px_40px_-15px_hsl(var(--primary)/0.4)] p-1.5 bg-gradient-to-br from-primary/15 to-transparent animate-[float_6s_ease-in-out_infinite]">
+                <motion.img whileHover={{
+                scale: 1.03
+              }} transition={{
+                duration: 0.3
+              }} src={luxuryCar} alt="Luxury car in Dubai" className="w-full rounded-xl shadow-lg" loading="lazy" decoding="async" />
+              </div>
             </motion.div>
           </div>
         </div>
@@ -411,7 +413,9 @@ IS HERE TO HELP YOU</motion.p>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             <div className="order-2 lg:order-1">
-              <img src={dubaihero} alt="Dubai UAE skyline" className="w-full rounded-lg shadow-lg" loading="lazy" decoding="async" />
+              <div className="rounded-2xl ring-1 ring-primary/20 shadow-[0_20px_40px_-15px_hsl(var(--primary)/0.4)] p-1.5 bg-gradient-to-br from-primary/15 to-transparent animate-[float_7s_ease-in-out_infinite]">
+                <img src={dubaihero} alt="Dubai UAE skyline" className="w-full rounded-xl shadow-lg" loading="lazy" decoding="async" />
+              </div>
             </div>
             <div className="order-1 lg:order-2 text-center lg:text-left">
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 sm:mb-6">
@@ -453,7 +457,9 @@ IS HERE TO HELP YOU</motion.p>
             <h3 className="text-lg sm:text-xl lg:text-2xl text-gray-700 mb-6 sm:mb-8 px-4">
               We are the quickest, easiest, and the most secure way to rent a parking space in Dubai!
             </h3>
-            <img src={businessMan} alt="Successful businessman" className="mx-auto rounded-lg shadow-lg max-w-2xl w-full" loading="lazy" decoding="async" />
+            <div className="mx-auto max-w-2xl rounded-2xl ring-1 ring-primary/15 shadow-[0_20px_40px_-15px_hsl(var(--primary)/0.35)] p-1.5 bg-gradient-to-br from-primary/10 to-transparent animate-[float_8s_ease-in-out_infinite]">
+              <img src={businessMan} alt="Successful businessman" className="rounded-xl w-full" loading="lazy" decoding="async" />
+            </div>
           </div>
         </div>
       </section>
