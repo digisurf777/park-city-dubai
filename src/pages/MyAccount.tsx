@@ -107,6 +107,7 @@ const MyAccount = () => {
   const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'profile');
   const [unreadChatCount, setUnreadChatCount] = useState<number>(0);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [generatingAvatar, setGeneratingAvatar] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
