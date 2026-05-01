@@ -57,7 +57,7 @@ const PageHero = ({
       : "h-[380px] sm:h-[460px] lg:h-[520px]";
 
   return (
-    <section className={`relative ${heightClass} overflow-hidden`}>
+    <section className={`relative ${heightClass} -mt-16 overflow-hidden`}>
       {/* Background image with subtle Ken-Burns zoom */}
       <motion.div
         initial={{ scale: 1.12, opacity: 0 }}
