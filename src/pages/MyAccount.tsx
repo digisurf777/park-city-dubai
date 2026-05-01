@@ -653,15 +653,13 @@ const MyAccount = () => {
                 <Button variant={activeTab === 'verification' ? 'default' : 'outline'} onClick={() => setActiveTab('verification')} className={`flex items-center gap-2 h-12 relative ${(verificationStatus === 'pending' || verificationStatus === null) ? 'border-orange-500/20' : ''}`}>
                   <Shield className="h-4 w-4" />
                   Verify
-                  {(verificationStatus === 'pending' || verificationStatus === null) && <div className="absolute -top-1 -right-1 h-3 w-3 bg-destructive rounded-full"></div>}
+              {(verificationStatus === 'pending' || verificationStatus === null) && <div className="absolute -top-1 -right-1 h-3 w-3 bg-destructive rounded-full"></div>}
                 </Button>
               )}
-              {mfaRequired && (
-                <Button variant={activeTab === 'security' ? 'default' : 'outline'} onClick={() => setActiveTab('security')} className="flex items-center gap-2 h-12">
-                  <Shield className="h-4 w-4" />
-                  Security
-                </Button>
-              )}
+              <Button variant={activeTab === 'security' ? 'default' : 'outline'} onClick={() => setActiveTab('security')} className="flex items-center gap-2 h-12">
+                <KeyRound className="h-4 w-4" />
+                Security
+              </Button>
             </div>
             <div className="grid grid-cols-1 gap-2 mb-4">
               <Button variant={activeTab === 'listings' ? 'default' : 'outline'} onClick={() => setActiveTab('listings')} className="flex items-center gap-2 h-12">
