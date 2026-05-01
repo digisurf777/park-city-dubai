@@ -13,6 +13,7 @@ import { useAuth } from "@/hooks/useAuth";
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isZonesOpen, setIsZonesOpen] = useState(false);
+  const zonesRef = useRef<HTMLDivElement>(null);
 
   // Lock scroll when mobile menu is open
   useEffect(() => {
@@ -22,6 +23,25 @@ const Navbar = () => {
       return () => { document.body.style.overflow = original; };
     }
   }, [isMenuOpen]);
+
+  // Click-outside + Escape to close zones dropdown
+  useEffect(() => {
+    if (!isZonesOpen) return;
+    const onClick = (e: MouseEvent) => {
+      if (zonesRef.current && !zonesRef.current.contains(e.target as Node)) {
+        setIsZonesOpen(false);
+      }
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsZonesOpen(false);
+    };
+    document.addEventListener("mousedown", onClick);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onClick);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [isZonesOpen]);
 
   // Add error boundary for auth hook
   let user, signOut;
