@@ -93,7 +93,7 @@ const Index = () => {
               <Sparkles className="h-3.5 w-3.5 text-primary-glow" />
               Trusted in Dubai
             </motion.span>
-            <h1 className="text-[2.5rem] leading-[1.05] sm:text-5xl lg:text-6xl xl:text-7xl font-black tracking-tight mb-4 sm:mb-6">
+            <h1 className="text-[2rem] leading-[1.05] sm:text-4xl lg:text-5xl xl:text-6xl font-black tracking-tight mb-3 sm:mb-5">
               <motion.span
                 variants={{ hidden: { opacity: 0, y: 24 }, show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: "easeOut" } } }}
                 className="block text-white drop-shadow-[0_4px_20px_rgba(0,0,0,0.5)]"
@@ -115,45 +115,45 @@ const Index = () => {
             </h1>
             <motion.p
               variants={{ hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } } }}
-              className="text-base sm:text-lg lg:text-xl text-white/95 max-w-xl mx-auto mb-6 sm:mb-8 drop-shadow-[0_2px_8px_rgba(0,0,0,0.4)]"
+              className="text-sm sm:text-base lg:text-lg text-white/95 max-w-lg mx-auto mb-5 sm:mb-7 drop-shadow-[0_2px_8px_rgba(0,0,0,0.4)]"
             >
               List your parking space in minutes and start earning every month.
             </motion.p>
             <motion.div
               variants={{ hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } } }}
-              className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center"
+              className="flex flex-col sm:flex-row gap-2.5 sm:gap-3 justify-center"
             >
               <Link to="/find-parking">
-                <Button size="lg" className="w-full sm:w-auto px-7 py-6 text-base font-semibold">
+                <Button size="lg" className="w-full sm:w-auto px-6 py-5 text-sm sm:text-base font-semibold">
                   Find Parking
-                  <ArrowRight className="ml-1 h-5 w-5" />
+                  <ArrowRight className="ml-1 h-4 w-4" />
                 </Button>
               </Link>
               <Link to="/rent-out-your-space">
                 <Button
                   size="lg"
                   variant="outline"
-                  className="w-full sm:w-auto px-7 py-6 text-base font-semibold bg-white/15 border-white/50 text-white hover:bg-white hover:text-primary backdrop-blur-md"
+                  className="w-full sm:w-auto px-6 py-5 text-sm sm:text-base font-semibold bg-white/15 border-white/50 text-white hover:bg-white hover:text-primary backdrop-blur-md"
                 >
                   List Your Space
                 </Button>
               </Link>
             </motion.div>
-            {/* Inline social proof */}
+            {/* Inline social proof - smaller chips, stronger contrast */}
             <motion.div
               variants={{ hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } } }}
-              className="hidden sm:flex items-center justify-center gap-6 mt-8 text-white/90 text-sm"
+              className="hidden sm:flex items-center justify-center gap-2 mt-6 text-white text-xs"
             >
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-primary-glow" />
+              <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/25 shadow-md font-semibold drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)]">
+                <CheckCircle2 className="h-3.5 w-3.5 text-primary-glow" />
                 <span>Verified spaces</span>
               </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-primary-glow" />
+              <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/25 shadow-md font-semibold drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)]">
+                <CheckCircle2 className="h-3.5 w-3.5 text-primary-glow" />
                 <span>Secure payments</span>
               </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-primary-glow" />
+              <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/25 shadow-md font-semibold drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)]">
+                <CheckCircle2 className="h-3.5 w-3.5 text-primary-glow" />
                 <span>Cancel anytime*</span>
               </div>
             </motion.div>
