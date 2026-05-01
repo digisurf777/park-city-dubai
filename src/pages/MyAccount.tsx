@@ -508,25 +508,36 @@ const MyAccount = () => {
   }
   return <div className="min-h-screen bg-gradient-to-b from-surface via-background to-background pt-20 animate-fade-in">
       <div className="max-w-5xl mx-auto p-4 lg:p-6">
-        {/* Hero header card — premium 3D glass */}
+        {/* Hero header card — premium 3D glass with Dubai night photo */}
         <div className="relative overflow-hidden rounded-[2rem] mb-6 p-6 lg:p-10 border border-white/30
-                        shadow-[0_30px_60px_-20px_hsl(var(--primary-deep)/0.55),0_8px_24px_-12px_hsl(var(--primary)/0.45),inset_0_1px_0_0_hsl(0_0%_100%/0.35)]"
-             style={{ background: 'linear-gradient(135deg, hsl(var(--primary-deep)) 0%, hsl(var(--primary)) 50%, hsl(var(--primary-glow)) 100%)' }}>
+                        shadow-[0_30px_60px_-20px_hsl(var(--primary-deep)/0.55),0_8px_24px_-12px_hsl(var(--primary)/0.45),inset_0_1px_0_0_hsl(0_0%_100%/0.35)]">
+          {/* Background photo */}
+          <div
+            className="pointer-events-none absolute inset-0 bg-cover bg-center scale-105"
+            style={{ backgroundImage: `url(${accountHeroDubaiNight})` }}
+            aria-hidden="true"
+          />
+          {/* Brand teal tint to keep the platform color identity */}
+          <div className="pointer-events-none absolute inset-0"
+               style={{ background: 'linear-gradient(135deg, hsl(var(--primary-deep) / 0.85) 0%, hsl(var(--primary) / 0.70) 50%, hsl(var(--primary-glow) / 0.55) 100%)' }} />
+          {/* Bottom darken for text legibility */}
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/40 via-black/15 to-transparent" />
           {/* Decorative orbs */}
-          <div className="pointer-events-none absolute -top-24 -right-24 w-80 h-80 rounded-full bg-white/20 blur-3xl"></div>
-          <div className="pointer-events-none absolute -bottom-28 -left-20 w-96 h-96 rounded-full bg-primary-glow/40 blur-3xl"></div>
+          <div className="pointer-events-none absolute -top-24 -right-24 w-80 h-80 rounded-full bg-white/15 blur-3xl"></div>
+          <div className="pointer-events-none absolute -bottom-28 -left-20 w-96 h-96 rounded-full bg-primary-glow/30 blur-3xl"></div>
           {/* Glossy top highlight */}
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/15 to-transparent" />
-          <div className="pointer-events-none absolute inset-0 opacity-[0.07]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '22px 22px' }} />
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/10 to-transparent" />
 
           <div className="relative flex flex-col gap-6 lg:flex-row lg:justify-between lg:items-center">
             <div className="flex items-center gap-5">
               {/* Avatar — uploadable */}
               <div className="relative group">
-                <Avatar className="h-20 w-20 lg:h-24 lg:w-24 rounded-2xl ring-4 ring-white/40 shadow-[0_12px_30px_-8px_hsl(var(--primary-deep)/0.6),inset_0_1px_0_0_hsl(0_0%_100%/0.35)] bg-white/15 backdrop-blur">
-                  {profile?.avatar_url ? (
-                    <AvatarImage src={profile.avatar_url} alt={profile.full_name || 'Profile'} className="object-cover" />
-                  ) : null}
+                <Avatar className="h-20 w-20 lg:h-24 lg:w-24 rounded-2xl ring-4 ring-white/40 shadow-[0_12px_30px_-8px_hsl(var(--primary-deep)/0.6),inset_0_1px_0_0_hsl(0_0%_100%/0.35)] bg-white/15 backdrop-blur overflow-hidden">
+                  <AvatarImage
+                    src={profile?.avatar_url || pickDefaultAvatar(user?.id)}
+                    alt={profile?.full_name || 'Profile'}
+                    className="object-cover"
+                  />
                   <AvatarFallback className="rounded-2xl bg-gradient-to-br from-white/25 to-white/10 text-white text-3xl lg:text-4xl font-black">
                     {(profile?.full_name || user?.email || '?').charAt(0).toUpperCase()}
                   </AvatarFallback>
