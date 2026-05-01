@@ -176,7 +176,12 @@ const FindParking = () => {
               ★ Find Your Spot
             </span>
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black mb-4 leading-tight text-3d-light">
-              Find a Parking Space <span className="text-gradient-primary bg-gradient-to-r from-primary-glow to-white bg-clip-text text-transparent">in Dubai</span>
+              Find a Parking Space{" "}
+              <span
+                className="bg-gradient-to-r from-white via-[hsl(160_90%_88%)] to-white bg-clip-text text-transparent drop-shadow-[0_2px_12px_hsl(var(--primary-glow)/0.55)]"
+              >
+                in Dubai
+              </span>
             </h1>
             <p className="text-base sm:text-lg md:text-xl text-white/90 max-w-2xl mx-auto">
               The quickest, easiest, and most secure way to rent a monthly parking space across Dubai.
