@@ -1881,6 +1881,11 @@ const AdminPanelOrganized = () => {
             </TabsList>
           </div>
 
+          {/* Boss Dashboard Tab */}
+          <TabsContent value="dashboard" className="space-y-6 mt-6">
+            <AdminDashboard onJumpTab={(t) => setActiveTab(t)} />
+          </TabsContent>
+
           {/* Content Management Tab */}
           <TabsContent value="content" className="space-y-6 mt-6">
             <Tabs defaultValue="notifications" className="w-full">
