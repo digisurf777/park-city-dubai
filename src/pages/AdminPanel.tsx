@@ -1888,6 +1888,15 @@ const AdminPanelOrganized = () => {
                 <span className="text-[8px] sm:text-xs opacity-70 mt-0.5 sm:mt-1 hidden sm:block">Manage & Message</span>
               </TabsTrigger>
               
+              <TabsTrigger
+                value="support"
+                className="flex flex-col items-center p-2 sm:p-3 h-auto text-xs sm:text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary-glow data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg min-w-[70px] sm:min-w-0"
+              >
+                <LifeBuoy className="h-4 w-4 sm:h-5 sm:w-5 mb-1" />
+                <span className="font-semibold text-[10px] sm:text-sm">Support</span>
+                <span className="text-[8px] sm:text-xs opacity-70 mt-0.5 sm:mt-1 hidden sm:block">Inbox + AI Drafts</span>
+              </TabsTrigger>
+
               <TabsTrigger 
                 value="chat" 
                 className="flex flex-col items-center p-2 sm:p-3 h-auto text-xs sm:text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-red-500 data-[state=active]:text-white bg-gradient-to-br from-red-50 to-red-100 border-red-200 animate-pulse rounded-lg relative min-w-[70px] sm:min-w-0"
