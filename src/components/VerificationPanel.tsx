@@ -264,65 +264,136 @@ const VerificationPanel = () => {
         </div>
       )}
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <FileImage className="h-5 w-5" />
-            Identity Verification
-          </CardTitle>
-          <CardDescription>
-            Upload your ID for verification to access all features
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+      <Card className="overflow-hidden border-primary/15 shadow-elegant">
+        {/* Branded header */}
+        <div className="relative bg-gradient-to-br from-primary via-primary to-primary-deep px-5 sm:px-7 py-6 text-white">
+          <div className="absolute inset-0 opacity-25 pointer-events-none bg-[radial-gradient(circle_at_15%_20%,white,transparent_60%)]" />
+          <div className="relative flex items-center gap-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/15 ring-2 ring-white/30 backdrop-blur">
+              <ShieldCheck className="h-6 w-6" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="text-lg sm:text-xl font-bold tracking-tight">Identity Verification</h3>
+              <p className="text-xs sm:text-sm text-white/90 mt-0.5">
+                Quick, secure and reviewed by our team within 24 hours.
+              </p>
+            </div>
+            {verification && <div className="hidden sm:block">{getStatusBadge(verification.verification_status)}</div>}
+          </div>
+        </div>
+
+        <CardContent className="p-5 sm:p-7">
           {verification ? <div className="space-y-4">
               {verification.verification_status === 'pending' && (
-                <Alert className="border-orange-200 bg-orange-50">
-                  <Clock className="h-4 w-4 text-orange-600" />
-                  <AlertDescription className="text-orange-800">
-                    <strong>Verification in Progress</strong> – Your verification documents have been submitted successfully and are currently under review. You will receive an email notification once the review is complete.
-                  </AlertDescription>
-                </Alert>
+                <div className="rounded-xl border border-amber-200 bg-amber-50 p-4">
+                  <div className="flex items-start gap-3">
+                    <Clock className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="font-semibold text-amber-900 text-sm">Verification in progress</p>
+                      <p className="text-xs sm:text-sm text-amber-800/90 mt-1">
+                        Your documents are being reviewed by our team. You'll receive an email once we're done.
+                      </p>
+                    </div>
+                  </div>
+                </div>
               )}
-              
-              <div className="flex items-center justify-between">
-                <span className="font-medium">Verification Status:</span>
+
+              <div className="sm:hidden flex items-center justify-between">
+                <span className="text-sm font-medium text-muted-foreground">Status</span>
                 {getStatusBadge(verification.verification_status)}
               </div>
-              
-              <div className="text-sm text-muted-foreground">
-                <p><strong>Document Type:</strong> {verification.document_type.replace('_', ' ').toUpperCase()}</p>
-                {verification.nationality && <p><strong>Nationality:</strong> {verification.nationality}</p>}
-                <p><strong>Submitted:</strong> {new Date(verification.created_at).toLocaleDateString()}</p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="rounded-xl border border-border/60 bg-surface/40 p-3">
+                  <p className="text-[10px] uppercase tracking-wide text-muted-foreground font-semibold">Document</p>
+                  <p className="text-sm font-medium mt-0.5 truncate">{verification.document_type.replace('_', ' ').toUpperCase()}</p>
+                </div>
+                {verification.nationality && (
+                  <div className="rounded-xl border border-border/60 bg-surface/40 p-3">
+                    <p className="text-[10px] uppercase tracking-wide text-muted-foreground font-semibold">Nationality</p>
+                    <p className="text-sm font-medium mt-0.5 truncate">{verification.nationality}</p>
+                  </div>
+                )}
+                <div className="rounded-xl border border-border/60 bg-surface/40 p-3">
+                  <p className="text-[10px] uppercase tracking-wide text-muted-foreground font-semibold">Submitted</p>
+                  <p className="text-sm font-medium mt-0.5">{new Date(verification.created_at).toLocaleDateString()}</p>
+                </div>
               </div>
 
               {verification.verification_status === 'rejected' && (
-                <div className="space-y-4">
-                  <Alert className="border-red-200 bg-red-50">
-                    <XCircle className="h-4 w-4 text-red-500" />
-                    <AlertDescription className="text-red-700">
-                      Your verification was rejected. Please submit a new, clear document.
-                    </AlertDescription>
-                  </Alert>
-                  
-                  <Button 
-                    onClick={() => setVerification(null)} 
-                    variant="outline" 
-                    className="w-full"
+                <div className="space-y-3">
+                  <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 flex items-start gap-3">
+                    <XCircle className="h-5 w-5 text-rose-500 mt-0.5 flex-shrink-0" />
+                    <p className="text-sm text-rose-800">
+                      Your verification was rejected. Please submit a new, clear photo of both sides of your document.
+                    </p>
+                  </div>
+                  <Button
+                    onClick={() => setVerification(null)}
+                    className="w-full h-11 bg-gradient-to-r from-primary to-primary-deep hover:opacity-95 shadow-md font-semibold"
                   >
-                    Upload New Document
+                    <Upload className="h-4 w-4 mr-2" />
+                    Upload a new document
                   </Button>
                 </div>
               )}
-            </div> : <div className="space-y-6">
-              <div className="border-2 border-dashed border-border rounded-lg p-8 text-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors" onClick={triggerFileInput}>
-                <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                <h3 className="text-lg font-semibold mb-2">Upload your ID for verification</h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Make sure the document is clearly visible, readable, and both sides are included. 
-                  We accept a National ID, Driver's License, or Passport.
+            </div> : <div className="space-y-5">
+              {/* Drop zone */}
+              <button
+                type="button"
+                onClick={triggerFileInput}
+                className={`group w-full rounded-2xl border-2 border-dashed p-6 sm:p-8 text-center transition-all ${
+                  formData.file
+                    ? 'border-primary bg-primary/5'
+                    : 'border-border hover:border-primary/60 hover:bg-primary/5'
+                }`}
+              >
+                <div className={`mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl ring-1 transition-all ${
+                  formData.file ? 'bg-primary text-white ring-primary/30 shadow-lg' : 'bg-primary/10 text-primary ring-primary/20 group-hover:scale-105'
+                }`}>
+                  {formData.file ? <CheckCircle className="h-7 w-7" /> : <Upload className="h-7 w-7" />}
+                </div>
+                <h3 className="text-base sm:text-lg font-semibold">
+                  {formData.file ? 'Document selected' : 'Tap to upload your ID'}
+                </h3>
+                <p className="text-xs sm:text-sm text-muted-foreground mt-1.5 max-w-sm mx-auto">
+                  Make sure both sides are clearly visible and readable. JPG or PNG, up to 10 MB.
                 </p>
-                {formData.file && <p className="text-sm text-primary font-medium">Selected: {formData.file.name}</p>}
+                {formData.file && (
+                  <p className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+                    <FileImage className="h-3 w-3" /> {formData.file.name}
+                  </p>
+                )}
+              </button>
+
+              {/* Document type as visual cards */}
+              <div className="space-y-2">
+                <Label className="text-sm font-semibold">Document type</Label>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { value: 'national_id', label: 'National ID', icon: IdCard },
+                    { value: 'drivers_license', label: "Driver's License", icon: FileText },
+                    { value: 'passport', label: 'Passport', icon: BookOpen },
+                  ].map(({ value, label, icon: Icon }) => {
+                    const active = formData.documentType === value;
+                    return (
+                      <button
+                        type="button"
+                        key={value}
+                        onClick={() => setFormData(prev => ({ ...prev, documentType: value }))}
+                        className={`relative flex flex-col items-center gap-1.5 rounded-xl border-2 p-3 transition-all ${
+                          active
+                            ? 'border-primary bg-primary/5 shadow-sm'
+                            : 'border-border hover:border-primary/40 bg-white'
+                        }`}
+                      >
+                        <Icon className={`h-5 w-5 ${active ? 'text-primary' : 'text-muted-foreground'}`} />
+                        <span className={`text-[11px] sm:text-xs font-medium leading-tight text-center ${active ? 'text-primary' : 'text-foreground'}`}>{label}</span>
+                        {active && <CheckCircle className="absolute top-1 right-1 h-3.5 w-3.5 text-primary" />}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
 
               <div className="space-y-4">
