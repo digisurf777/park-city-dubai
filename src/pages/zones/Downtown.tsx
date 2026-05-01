@@ -205,7 +205,9 @@ const Downtown = () => {
                   </div>
                 )}
               </div>
-            </Card>)}
+            </Card>
+            </div>
+          ))}
         </div>
 
         {filteredSpots.length === 0 && <div className="text-center py-12">
@@ -214,6 +216,9 @@ const Downtown = () => {
               Clear filters
             </Button>
           </div>}
+
+        {/* Dubai Live Maps CTA */}
+        <DubaiLiveMapsCTA zoneName="Downtown Dubai" />
       </div>
 
       <Footer />
