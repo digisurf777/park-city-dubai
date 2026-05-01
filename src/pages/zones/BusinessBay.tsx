@@ -114,7 +114,7 @@ const BusinessBay = () => {
                 <div className="relative w-full aspect-[4/3] overflow-hidden group bg-muted">
                   <img
                     src={(spot.images && spot.images.length > 0 ? spot.images[currentImageIndexes[spot.id] || 0] : spot.image)}
-                    alt=""
+                    alt={spot.name || "Business Bay parking space"}
                     aria-hidden="true"
                     className="hidden"
                   />

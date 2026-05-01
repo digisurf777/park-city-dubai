@@ -5,7 +5,14 @@ import Footer from "@/components/Footer";
 import PageHero from "@/components/PageHero";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import dubaiParkingHero from "@/assets/dubai-parking-hero.webp";
+import useSEO from "@/hooks/useSEO";
 const FAQ = () => {
+  const seo = useSEO({
+    title: "FAQ — Shazam Parking | Dubai Monthly Parking Help & Answers",
+    description: "Common questions about Shazam Parking — bookings, payments, owner payouts, access cards, verification and how the Dubai parking marketplace works.",
+    keywords: "Shazam Parking FAQ, Dubai parking questions, monthly parking help, parking booking help Dubai",
+    url: "/faq",
+  });
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -68,6 +75,7 @@ const FAQ = () => {
     }]
   }];
   return <div className="min-h-screen bg-gradient-to-b from-surface to-background animate-fade-in">
+      {seo}
       <Navbar />
       
       {/* Hero Section */}

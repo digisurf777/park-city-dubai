@@ -5,11 +5,19 @@ import PageHero from "@/components/PageHero";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import dubaiHero from "@/assets/dubai-hero-aboutus.webp";
+import useSEO from "@/hooks/useSEO";
 const AboutUs = () => {
+  const seo = useSEO({
+    title: "About Shazam Parking — Dubai's Trusted Parking Marketplace",
+    description: "Learn about Shazam Parking — Dubai's trusted platform connecting parking owners with drivers. Verified spaces, secure payments and reliable monthly rentals across the city.",
+    keywords: "about Shazam Parking, Dubai parking marketplace, parking platform Dubai, monthly parking rentals",
+    url: "/about-us",
+  });
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
   return <div className="min-h-screen bg-gradient-to-b from-surface to-background animate-fade-in">
+      {seo}
       <Navbar />
       
       {/* Hero Section */}
