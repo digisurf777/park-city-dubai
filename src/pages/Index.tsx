@@ -180,13 +180,13 @@ const Index = () => {
                 <Card className="overflow-hidden rounded-2xl ring-1 ring-primary/10 shadow-lg hover:shadow-2xl hover:ring-primary/30 transition-all duration-300 group">
                   <div className="relative aspect-video">
                     <img src={location.image} alt={location.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy" decoding="async" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent transition-opacity duration-300 group-hover:from-primary/60 group-hover:via-black/30"></div>
-                    <div className="absolute inset-0 flex flex-col items-center justify-center text-white p-4 sm:p-6">
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent transition-opacity duration-300 group-hover:from-primary/60"></div>
+                    <div className="absolute inset-x-4 bottom-4 sm:inset-x-6 sm:bottom-6 flex flex-col items-center text-white p-4 sm:p-5 rounded-2xl glass-dark">
                       <motion.h3 initial={{
                     scale: 0.9
                   }} whileHover={{
                     scale: 1.05
-                  }} className="text-lg sm:text-xl lg:text-2xl font-bold mb-3 sm:mb-4 uppercase text-center drop-shadow-lg">
+                  }} className="text-lg sm:text-xl lg:text-2xl font-bold mb-3 uppercase text-center drop-shadow-lg">
                         {location.name}
                       </motion.h3>
                       <Link to={location.link}>
@@ -195,7 +195,7 @@ const Index = () => {
                     }} whileTap={{
                       scale: 0.95
                     }}>
-                          <Button className="px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base lg:text-lg font-semibold">
+                          <Button className="px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base font-semibold">
                             Select Zone
                           </Button>
                         </motion.div>
