@@ -1782,6 +1782,7 @@ const AdminPanelOrganized = () => {
   }
 
   return (
+    <CurrencyProvider>
     <div className="min-h-screen bg-gradient-to-b from-surface via-background to-background p-3 sm:p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
@@ -1797,7 +1798,8 @@ const AdminPanelOrganized = () => {
               <p className="hidden sm:block text-xs text-muted-foreground">ShazamParking control center</p>
             </div>
           </div>
-          <div className="flex gap-2 w-full sm:w-auto">
+          <div className="flex gap-2 w-full sm:w-auto items-center">
+            <CurrencySwitcher variant="light" />
             <Button onClick={() => navigate('/')} variant="outline" size="sm" className="flex-1 sm:flex-none">
               <Home className="mr-2 h-4 w-4" />
               <span className="hidden xs:inline">Home</span>
