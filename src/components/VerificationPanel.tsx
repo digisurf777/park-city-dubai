@@ -6,10 +6,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+// Alert components removed in favor of custom themed banners
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { Upload, FileImage, CheckCircle, Clock, XCircle, AlertTriangle } from 'lucide-react';
+import { Upload, FileImage, CheckCircle, Clock, XCircle, AlertTriangle, ShieldCheck, Sparkles, FileText, IdCard, BookOpen } from 'lucide-react';
 interface Verification {
   id: string;
   full_name: string;
@@ -36,14 +36,22 @@ const VerificationPanel = () => {
   // Return early if user is already approved
   if (verification?.verification_status === 'approved') {
     return (
-      <Card>
-        <CardContent className="pt-6">
-          <div className="text-center space-y-4">
-            <CheckCircle className="h-16 w-16 text-green-500 mx-auto" />
-            <h3 className="text-xl font-semibold text-green-700">Account Verified ✓</h3>
-            <p className="text-muted-foreground">Your account is verified and you can now access all features.</p>
+      <Card className="overflow-hidden border-emerald-200/60 shadow-elegant">
+        <div className="relative bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-600 px-6 py-10 text-center text-white">
+          <div className="absolute inset-0 opacity-25 bg-[radial-gradient(circle_at_30%_20%,white,transparent_60%)]" />
+          <div className="relative">
+            <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-white/20 ring-4 ring-white/30 backdrop-blur">
+              <ShieldCheck className="h-11 w-11" />
+            </div>
+            <h3 className="text-2xl font-bold tracking-tight">Account Verified</h3>
+            <p className="mt-2 text-sm text-white/90 max-w-sm mx-auto">
+              Your identity is confirmed. You now have full access to bookings, listings and payouts.
+            </p>
+            <div className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold backdrop-blur">
+              <Sparkles className="h-3 w-3" /> Trusted member
+            </div>
           </div>
-        </CardContent>
+        </div>
       </Card>
     );
   }
@@ -221,88 +229,171 @@ const VerificationPanel = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'approved':
-        return <Badge className="bg-green-100 text-green-800">Verification Approved</Badge>;
+        return <Badge className="bg-emerald-100 text-emerald-700 border border-emerald-200 hover:bg-emerald-100"><CheckCircle className="h-3 w-3 mr-1" />Approved</Badge>;
       case 'pending':
-        return <Badge className="bg-orange-100 text-orange-800">Verification in Progress</Badge>;
+        return <Badge className="bg-amber-100 text-amber-700 border border-amber-200 hover:bg-amber-100"><Clock className="h-3 w-3 mr-1" />In review</Badge>;
       case 'rejected':
-        return <Badge className="bg-red-100 text-red-800">❌ Rejected</Badge>;
+        return <Badge className="bg-rose-100 text-rose-700 border border-rose-200 hover:bg-rose-100"><XCircle className="h-3 w-3 mr-1" />Rejected</Badge>;
       default:
         return null;
     }
   };
   if (loading) {
-    return <div className="animate-pulse">Loading verification status...</div>;
+    return (
+      <Card><CardContent className="py-12 flex items-center justify-center text-muted-foreground"><Clock className="h-4 w-4 mr-2 animate-spin" />Loading verification status…</CardContent></Card>
+    );
   }
 
   // Show alert if not approved
   const showAlert = !verification || verification.verification_status === 'rejected';
   return <div className="space-y-6">
-      {showAlert && <Alert className="border-red-200 bg-red-50">
-          <AlertTriangle className="h-4 w-4 text-red-500" />
-          <AlertDescription className="text-red-700">
-            <strong>⚠️ Verification Required</strong> – Please upload a valid photo ID to continue using all features.
-          </AlertDescription>
-        </Alert>}
+      {showAlert && (
+        <div className="relative overflow-hidden rounded-2xl border border-amber-200 bg-gradient-to-r from-amber-50 via-orange-50 to-amber-50 p-5">
+          <div className="absolute inset-0 opacity-30 pointer-events-none bg-[radial-gradient(circle_at_90%_50%,hsl(var(--primary)/0.15),transparent_60%)]" />
+          <div className="relative flex items-start gap-3">
+            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-amber-500/15 ring-2 ring-amber-500/20">
+              <AlertTriangle className="h-5 w-5 text-amber-600" />
+            </div>
+            <div className="flex-1">
+              <p className="font-semibold text-amber-900">Verification required</p>
+              <p className="text-sm text-amber-800/90 mt-0.5">
+                Upload a valid photo ID to unlock bookings, listings and payouts. Reviews usually take less than 24 hours.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <FileImage className="h-5 w-5" />
-            Identity Verification
-          </CardTitle>
-          <CardDescription>
-            Upload your ID for verification to access all features
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+      <Card className="overflow-hidden border-primary/15 shadow-elegant">
+        {/* Branded header */}
+        <div className="relative bg-gradient-to-br from-primary via-primary to-primary-deep px-5 sm:px-7 py-6 text-white">
+          <div className="absolute inset-0 opacity-25 pointer-events-none bg-[radial-gradient(circle_at_15%_20%,white,transparent_60%)]" />
+          <div className="relative flex items-center gap-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/15 ring-2 ring-white/30 backdrop-blur">
+              <ShieldCheck className="h-6 w-6" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="text-lg sm:text-xl font-bold tracking-tight">Identity Verification</h3>
+              <p className="text-xs sm:text-sm text-white/90 mt-0.5">
+                Quick, secure and reviewed by our team within 24 hours.
+              </p>
+            </div>
+            {verification && <div className="hidden sm:block">{getStatusBadge(verification.verification_status)}</div>}
+          </div>
+        </div>
+
+        <CardContent className="p-5 sm:p-7">
           {verification ? <div className="space-y-4">
               {verification.verification_status === 'pending' && (
-                <Alert className="border-orange-200 bg-orange-50">
-                  <Clock className="h-4 w-4 text-orange-600" />
-                  <AlertDescription className="text-orange-800">
-                    <strong>Verification in Progress</strong> – Your verification documents have been submitted successfully and are currently under review. You will receive an email notification once the review is complete.
-                  </AlertDescription>
-                </Alert>
+                <div className="rounded-xl border border-amber-200 bg-amber-50 p-4">
+                  <div className="flex items-start gap-3">
+                    <Clock className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="font-semibold text-amber-900 text-sm">Verification in progress</p>
+                      <p className="text-xs sm:text-sm text-amber-800/90 mt-1">
+                        Your documents are being reviewed by our team. You'll receive an email once we're done.
+                      </p>
+                    </div>
+                  </div>
+                </div>
               )}
-              
-              <div className="flex items-center justify-between">
-                <span className="font-medium">Verification Status:</span>
+
+              <div className="sm:hidden flex items-center justify-between">
+                <span className="text-sm font-medium text-muted-foreground">Status</span>
                 {getStatusBadge(verification.verification_status)}
               </div>
-              
-              <div className="text-sm text-muted-foreground">
-                <p><strong>Document Type:</strong> {verification.document_type.replace('_', ' ').toUpperCase()}</p>
-                {verification.nationality && <p><strong>Nationality:</strong> {verification.nationality}</p>}
-                <p><strong>Submitted:</strong> {new Date(verification.created_at).toLocaleDateString()}</p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="rounded-xl border border-border/60 bg-surface/40 p-3">
+                  <p className="text-[10px] uppercase tracking-wide text-muted-foreground font-semibold">Document</p>
+                  <p className="text-sm font-medium mt-0.5 truncate">{verification.document_type.replace('_', ' ').toUpperCase()}</p>
+                </div>
+                {verification.nationality && (
+                  <div className="rounded-xl border border-border/60 bg-surface/40 p-3">
+                    <p className="text-[10px] uppercase tracking-wide text-muted-foreground font-semibold">Nationality</p>
+                    <p className="text-sm font-medium mt-0.5 truncate">{verification.nationality}</p>
+                  </div>
+                )}
+                <div className="rounded-xl border border-border/60 bg-surface/40 p-3">
+                  <p className="text-[10px] uppercase tracking-wide text-muted-foreground font-semibold">Submitted</p>
+                  <p className="text-sm font-medium mt-0.5">{new Date(verification.created_at).toLocaleDateString()}</p>
+                </div>
               </div>
 
               {verification.verification_status === 'rejected' && (
-                <div className="space-y-4">
-                  <Alert className="border-red-200 bg-red-50">
-                    <XCircle className="h-4 w-4 text-red-500" />
-                    <AlertDescription className="text-red-700">
-                      Your verification was rejected. Please submit a new, clear document.
-                    </AlertDescription>
-                  </Alert>
-                  
-                  <Button 
-                    onClick={() => setVerification(null)} 
-                    variant="outline" 
-                    className="w-full"
+                <div className="space-y-3">
+                  <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 flex items-start gap-3">
+                    <XCircle className="h-5 w-5 text-rose-500 mt-0.5 flex-shrink-0" />
+                    <p className="text-sm text-rose-800">
+                      Your verification was rejected. Please submit a new, clear photo of both sides of your document.
+                    </p>
+                  </div>
+                  <Button
+                    onClick={() => setVerification(null)}
+                    className="w-full h-11 bg-gradient-to-r from-primary to-primary-deep hover:opacity-95 shadow-md font-semibold"
                   >
-                    Upload New Document
+                    <Upload className="h-4 w-4 mr-2" />
+                    Upload a new document
                   </Button>
                 </div>
               )}
-            </div> : <div className="space-y-6">
-              <div className="border-2 border-dashed border-border rounded-lg p-8 text-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors" onClick={triggerFileInput}>
-                <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                <h3 className="text-lg font-semibold mb-2">Upload your ID for verification</h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Make sure the document is clearly visible, readable, and both sides are included. 
-                  We accept a National ID, Driver's License, or Passport.
+            </div> : <div className="space-y-5">
+              {/* Drop zone */}
+              <button
+                type="button"
+                onClick={triggerFileInput}
+                className={`group w-full rounded-2xl border-2 border-dashed p-6 sm:p-8 text-center transition-all ${
+                  formData.file
+                    ? 'border-primary bg-primary/5'
+                    : 'border-border hover:border-primary/60 hover:bg-primary/5'
+                }`}
+              >
+                <div className={`mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl ring-1 transition-all ${
+                  formData.file ? 'bg-primary text-white ring-primary/30 shadow-lg' : 'bg-primary/10 text-primary ring-primary/20 group-hover:scale-105'
+                }`}>
+                  {formData.file ? <CheckCircle className="h-7 w-7" /> : <Upload className="h-7 w-7" />}
+                </div>
+                <h3 className="text-base sm:text-lg font-semibold">
+                  {formData.file ? 'Document selected' : 'Tap to upload your ID'}
+                </h3>
+                <p className="text-xs sm:text-sm text-muted-foreground mt-1.5 max-w-sm mx-auto">
+                  Make sure both sides are clearly visible and readable. JPG or PNG, up to 10 MB.
                 </p>
-                {formData.file && <p className="text-sm text-primary font-medium">Selected: {formData.file.name}</p>}
+                {formData.file && (
+                  <p className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+                    <FileImage className="h-3 w-3" /> {formData.file.name}
+                  </p>
+                )}
+              </button>
+
+              {/* Document type as visual cards */}
+              <div className="space-y-2">
+                <Label className="text-sm font-semibold">Document type</Label>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { value: 'national_id', label: 'National ID', icon: IdCard },
+                    { value: 'drivers_license', label: "Driver's License", icon: FileText },
+                    { value: 'passport', label: 'Passport', icon: BookOpen },
+                  ].map(({ value, label, icon: Icon }) => {
+                    const active = formData.documentType === value;
+                    return (
+                      <button
+                        type="button"
+                        key={value}
+                        onClick={() => setFormData(prev => ({ ...prev, documentType: value }))}
+                        className={`relative flex flex-col items-center gap-1.5 rounded-xl border-2 p-3 transition-all ${
+                          active
+                            ? 'border-primary bg-primary/5 shadow-sm'
+                            : 'border-border hover:border-primary/40 bg-white'
+                        }`}
+                      >
+                        <Icon className={`h-5 w-5 ${active ? 'text-primary' : 'text-muted-foreground'}`} />
+                        <span className={`text-[11px] sm:text-xs font-medium leading-tight text-center ${active ? 'text-primary' : 'text-foreground'}`}>{label}</span>
+                        {active && <CheckCircle className="absolute top-1 right-1 h-3.5 w-3.5 text-primary" />}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
 
               <div className="space-y-4">
@@ -517,34 +608,23 @@ const VerificationPanel = () => {
                   </Select>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="documentType">Document Type</Label>
-                  <Select value={formData.documentType} onValueChange={value => setFormData(prev => ({
-                ...prev,
-                documentType: value
-              }))}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select document type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="national_id">National ID</SelectItem>
-                      <SelectItem value="drivers_license">Driver's License</SelectItem>
-                      <SelectItem value="passport">Passport</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                {/* Hidden file input — upload triggered via dropzone above */}
+                <Input id="document" type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
 
-                <div className="space-y-2">
-                  <Label htmlFor="document">Document Image</Label>
-                  <Input id="document" type="file" accept="image/*" onChange={handleFileChange} className="cursor-pointer" />
-                  <p className="text-xs text-muted-foreground">
-                    Upload both sides of your document in a single clear image
-                  </p>
-                </div>
-
-                <Button onClick={uploadDocument} disabled={uploading || !formData.file || !formData.fullName || !formData.nationality || !formData.documentType} className="w-full">
-                  {uploading ? 'Uploading...' : 'Submit for Verification'}
+                <Button
+                  onClick={uploadDocument}
+                  disabled={uploading || !formData.file || !formData.fullName || !formData.nationality || !formData.documentType}
+                  className="w-full h-12 bg-gradient-to-r from-primary via-primary to-primary-deep hover:opacity-95 disabled:opacity-50 disabled:from-muted disabled:to-muted disabled:text-muted-foreground shadow-lg font-semibold text-base"
+                >
+                  {uploading ? (
+                    <><Clock className="h-4 w-4 mr-2 animate-spin" /> Uploading…</>
+                  ) : (
+                    <><ShieldCheck className="h-4 w-4 mr-2" /> Submit for verification</>
+                  )}
                 </Button>
+                <p className="text-[11px] text-center text-muted-foreground">
+                  🔒 Encrypted & reviewed only by authorised admins.
+                </p>
               </div>
             </div>}
         </CardContent>
