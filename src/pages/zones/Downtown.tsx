@@ -117,7 +117,7 @@ const Downtown = () => {
                 <div className="pointer-events-none absolute inset-x-0 top-0 h-1/3 bg-gradient-to-b from-white/30 to-transparent z-20" />
                 <img
                   src={(spot.images && spot.images.length > 0 ? spot.images[currentImageIndexes[spot.id] || 0] : spot.image)}
-                  alt=""
+                  alt={spot.title || "Downtown Dubai parking space"}
                   aria-hidden="true"
                   className="hidden"
                 />
