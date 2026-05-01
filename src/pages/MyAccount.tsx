@@ -645,8 +645,8 @@ const MyAccount = () => {
                   </Button>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         )}
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
