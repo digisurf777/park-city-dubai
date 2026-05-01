@@ -1,7 +1,11 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { MapPin, Menu, X, ChevronDown, User } from "lucide-react";
+import {
+  MapPin, Menu, X, ChevronDown, User, Search, Building2,
+  Info, HelpCircle, Newspaper, Calculator as CalcIcon,
+  LogIn, LogOut, Sparkles, Home, Anchor, Landmark, Briefcase, Castle, Waves
+} from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -9,7 +13,16 @@ import { useAuth } from "@/hooks/useAuth";
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isZonesOpen, setIsZonesOpen] = useState(false);
-  
+
+  // Lock scroll when mobile menu is open
+  useEffect(() => {
+    if (isMenuOpen) {
+      const original = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => { document.body.style.overflow = original; };
+    }
+  }, [isMenuOpen]);
+
   // Add error boundary for auth hook
   let user, signOut;
   try {
@@ -152,139 +165,158 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* Mobile Navigation */}
+        {/* Mobile Navigation - Premium Full-Screen Overlay */}
         {isMenuOpen && (
-          <div className="md:hidden fixed top-16 left-0 right-0 z-40 bg-white/98 backdrop-blur-xl border-b border-primary/15 shadow-[0_20px_40px_-12px_hsl(var(--primary-deep)/0.35)] animate-slide-up max-h-[calc(100vh-4rem)] overflow-y-auto mobile-scroll">
-            <div className="px-4 py-6 space-y-2 pb-safe-area-bottom">
-              
-              {/* Auth Buttons - Top of mobile menu */}
-              <div className="pb-4 mb-4 border-b border-gray-200 space-y-3">
-                {user ? (
-                  <>
-                    <Link to="/my-account" onClick={() => setIsMenuOpen(false)}>
-                      <Button variant="ghost" className="w-full text-gray-700 hover:text-primary min-h-[48px] touch-manipulation text-left justify-start">
-                        <User className="mr-3 h-5 w-5" />
-                        My Account
-                      </Button>
-                    </Link>
-                    <Button 
-                      variant="outline" 
-                      onClick={() => {
-                        setIsMenuOpen(false);
-                        signOut();
-                      }}
-                      className="w-full text-gray-700 hover:text-primary min-h-[48px] touch-manipulation"
-                    >
-                      Logout
-                    </Button>
-                    <Link to="/rent-out-your-space" onClick={() => setIsMenuOpen(false)}>
-                      <Button className="w-full bg-primary hover:bg-primary/90 text-white min-h-[48px] touch-manipulation">
-                        List Your Space
-                      </Button>
-                    </Link>
-                  </>
-                ) : (
-                  <>
-                    <Link to="/auth" onClick={() => setIsMenuOpen(false)}>
-                      <Button variant="ghost" className="w-full text-gray-700 hover:text-primary min-h-[48px] touch-manipulation text-left justify-start">
-                        Login / Sign Up
-                      </Button>
-                    </Link>
-                    <Link to="/rent-out-your-space" onClick={() => setIsMenuOpen(false)}>
-                      <Button className="w-full bg-primary hover:bg-primary/90 text-white min-h-[48px] touch-manipulation">
-                        List Your Space
-                      </Button>
-                    </Link>
-                  </>
-                )}
-              </div>
+          <>
+            {/* Backdrop */}
+            <div
+              className="md:hidden fixed inset-0 top-16 z-30 bg-black/40 backdrop-blur-sm animate-fade-in"
+              onClick={() => setIsMenuOpen(false)}
+              aria-hidden="true"
+            />
+            {/* Drawer */}
+            <div
+              className="md:hidden fixed top-16 left-0 right-0 z-40 max-h-[calc(100vh-4rem)] overflow-y-auto mobile-scroll animate-slide-up"
+              role="dialog"
+              aria-modal="true"
+            >
+              <div className="relative bg-gradient-to-br from-white via-white to-primary/5 border-b border-primary/20 shadow-[0_30px_60px_-20px_hsl(var(--primary-deep)/0.45)] rounded-b-3xl overflow-hidden">
+                {/* Decorative orbs */}
+                <div className="pointer-events-none absolute -top-20 -right-20 w-64 h-64 bg-primary/15 rounded-full blur-3xl" />
+                <div className="pointer-events-none absolute -bottom-24 -left-16 w-72 h-72 bg-primary-glow/15 rounded-full blur-3xl" />
 
-              <Link
-                to="/find-a-parking-space"
-                className="btn-3d block px-4 py-3 rounded-lg text-foreground hover:text-primary font-semibold text-base touch-manipulation min-h-[48px] flex items-center"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Find a Parking Space
-              </Link>
-              
-              {/* Mobile Zones Menu */}
-              <div className="py-2">
-                <p className="text-sm font-semibold text-gray-600 mb-3 px-4 uppercase tracking-wide">Popular Zones</p>
-                <div className="space-y-1">
-                  <Link
-                    to="/dubai-marina"
-                    className="btn-3d block px-4 py-3 rounded-lg text-foreground hover:text-primary font-semibold text-base touch-manipulation min-h-[48px] flex items-center"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    Dubai Marina
-                  </Link>
-                  <Link
-                    to="/downtown"
-                    className="btn-3d block px-4 py-3 rounded-lg text-foreground hover:text-primary font-semibold text-base touch-manipulation min-h-[48px] flex items-center"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    Downtown
-                  </Link>
-                  <Link
-                    to="/palm-jumeirah"
-                    className="btn-3d block px-4 py-3 rounded-lg text-foreground hover:text-primary font-semibold text-base touch-manipulation min-h-[48px] flex items-center"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    Palm Jumeirah
-                  </Link>
-                  <Link
-                    to="/business-bay"
-                    className="btn-3d block px-4 py-3 rounded-lg text-foreground hover:text-primary font-semibold text-base touch-manipulation min-h-[48px] flex items-center"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    Business Bay
-                  </Link>
-                  <Link
-                    to="/difc"
-                    className="btn-3d block px-4 py-3 rounded-lg text-foreground hover:text-primary font-semibold text-base touch-manipulation min-h-[48px] flex items-center"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    DIFC
-                  </Link>
-                  <Link
-                    to="/deira"
-                    className="btn-3d block px-4 py-3 rounded-lg text-foreground hover:text-primary font-semibold text-base touch-manipulation min-h-[48px] flex items-center"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    Deira
-                  </Link>
+                <div className="relative px-5 pt-5 pb-8 space-y-6 pb-safe-area-bottom">
+
+                  {/* Auth section / Profile card */}
+                  <div className="space-y-2.5">
+                    {user ? (
+                      <>
+                        <Link to="/my-account" onClick={() => setIsMenuOpen(false)}>
+                          <div className="flex items-center gap-3 p-4 rounded-2xl bg-gradient-to-r from-primary/10 to-primary-glow/10 border border-primary/20 shadow-sm active:scale-[0.99] transition-transform">
+                            <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-primary to-primary-deep flex items-center justify-center text-white shadow-md">
+                              <User className="h-5 w-5" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-bold text-foreground truncate">My Account</p>
+                              <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                            </div>
+                            <ChevronDown className="h-4 w-4 -rotate-90 text-primary" />
+                          </div>
+                        </Link>
+                        <div className="grid grid-cols-2 gap-2.5">
+                          <Link to="/rent-out-your-space" onClick={() => setIsMenuOpen(false)}>
+                            <button className="btn-3d-primary w-full px-4 py-3 rounded-xl font-semibold text-sm text-white flex items-center justify-center gap-2">
+                              <Sparkles className="h-4 w-4" /> List Space
+                            </button>
+                          </Link>
+                          <button
+                            onClick={() => { setIsMenuOpen(false); signOut(); }}
+                            className="w-full px-4 py-3 rounded-xl font-semibold text-sm border border-border bg-white hover:bg-muted text-foreground flex items-center justify-center gap-2 transition-colors"
+                          >
+                            <LogOut className="h-4 w-4" /> Logout
+                          </button>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="grid grid-cols-2 gap-2.5">
+                        <Link to="/auth" onClick={() => setIsMenuOpen(false)}>
+                          <button className="w-full px-4 py-3 rounded-xl font-semibold text-sm border border-primary/30 bg-white text-foreground hover:bg-primary/5 flex items-center justify-center gap-2 transition-colors">
+                            <LogIn className="h-4 w-4" /> Sign In
+                          </button>
+                        </Link>
+                        <Link to="/rent-out-your-space" onClick={() => setIsMenuOpen(false)}>
+                          <button className="btn-3d-primary w-full px-4 py-3 rounded-xl font-semibold text-sm text-white flex items-center justify-center gap-2">
+                            <Sparkles className="h-4 w-4" /> List Space
+                          </button>
+                        </Link>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Discover */}
+                  <div>
+                    <p className="text-[11px] font-bold text-primary/70 mb-2.5 px-1 uppercase tracking-[0.15em]">Discover</p>
+                    <div className="rounded-2xl bg-white/70 backdrop-blur-sm border border-border/60 shadow-sm overflow-hidden divide-y divide-border/40">
+                      {[
+                        { to: "/find-a-parking-space", label: "Find a Parking Space", icon: Search, accent: true },
+                        { to: "/calculator", label: "Earnings Calculator", icon: CalcIcon },
+                      ].map((item) => (
+                        <Link
+                          key={item.to}
+                          to={item.to}
+                          onClick={() => setIsMenuOpen(false)}
+                          className="flex items-center gap-3 px-4 py-3.5 active:bg-primary/5 transition-colors min-h-[52px]"
+                        >
+                          <div className={`h-9 w-9 rounded-lg flex items-center justify-center ${item.accent ? 'bg-gradient-to-br from-primary to-primary-deep text-white shadow-md' : 'bg-primary/10 text-primary'}`}>
+                            <item.icon className="h-[18px] w-[18px]" strokeWidth={2.2} />
+                          </div>
+                          <span className="flex-1 font-semibold text-sm text-foreground">{item.label}</span>
+                          <ChevronDown className="h-4 w-4 -rotate-90 text-muted-foreground" />
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Zones */}
+                  <div>
+                    <p className="text-[11px] font-bold text-primary/70 mb-2.5 px-1 uppercase tracking-[0.15em]">Popular Zones</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      {[
+                        { to: "/dubai-marina", label: "Dubai Marina", icon: Anchor },
+                        { to: "/downtown", label: "Downtown", icon: Building2 },
+                        { to: "/palm-jumeirah", label: "Palm Jumeirah", icon: Waves },
+                        { to: "/business-bay", label: "Business Bay", icon: Briefcase },
+                        { to: "/difc", label: "DIFC", icon: Landmark },
+                        { to: "/deira", label: "Deira", icon: Castle },
+                      ].map((z) => (
+                        <Link
+                          key={z.to}
+                          to={z.to}
+                          onClick={() => setIsMenuOpen(false)}
+                          className="group flex flex-col items-start gap-2 p-3 rounded-xl bg-white/80 border border-border/60 hover:border-primary/40 active:scale-[0.97] transition-all shadow-sm"
+                        >
+                          <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary/15 to-primary-glow/15 flex items-center justify-center text-primary group-active:from-primary group-active:to-primary-deep group-active:text-white transition-colors">
+                            <z.icon className="h-4 w-4" strokeWidth={2.2} />
+                          </div>
+                          <span className="text-xs font-bold text-foreground leading-tight">{z.label}</span>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Company */}
+                  <div>
+                    <p className="text-[11px] font-bold text-primary/70 mb-2.5 px-1 uppercase tracking-[0.15em]">Company</p>
+                    <div className="rounded-2xl bg-white/70 backdrop-blur-sm border border-border/60 shadow-sm overflow-hidden divide-y divide-border/40">
+                      {[
+                        { to: "/about-us", label: "About Us", icon: Info },
+                        { to: "/faq", label: "FAQ", icon: HelpCircle },
+                        { to: "/news", label: "News & Updates", icon: Newspaper },
+                      ].map((item) => (
+                        <Link
+                          key={item.to}
+                          to={item.to}
+                          onClick={() => setIsMenuOpen(false)}
+                          className="flex items-center gap-3 px-4 py-3.5 active:bg-primary/5 transition-colors min-h-[52px]"
+                        >
+                          <div className="h-9 w-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+                            <item.icon className="h-[18px] w-[18px]" strokeWidth={2.2} />
+                          </div>
+                          <span className="flex-1 font-semibold text-sm text-foreground">{item.label}</span>
+                          <ChevronDown className="h-4 w-4 -rotate-90 text-muted-foreground" />
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Footer hint */}
+                  <p className="text-center text-[11px] text-muted-foreground pt-2">
+                    Trusted Parking Platform · Dubai, UAE
+                  </p>
                 </div>
               </div>
-              <Link
-                to="/about-us"
-                className="btn-3d block px-4 py-3 rounded-lg text-foreground hover:text-primary font-semibold text-base touch-manipulation min-h-[48px] flex items-center"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                About Us
-              </Link>
-              <Link
-                to="/faq"
-                className="btn-3d block px-4 py-3 rounded-lg text-foreground hover:text-primary font-semibold text-base touch-manipulation min-h-[48px] flex items-center"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                FAQ
-              </Link>
-              <Link
-                to="/news"
-                className="btn-3d block px-4 py-3 rounded-lg text-foreground hover:text-primary font-semibold text-base touch-manipulation min-h-[48px] flex items-center"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                News
-              </Link>
-              <Link
-                to="/calculator"
-                className="btn-3d block px-4 py-3 rounded-lg text-foreground hover:text-primary font-semibold text-base touch-manipulation min-h-[48px] flex items-center"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Calculator
-              </Link>
             </div>
-          </div>
+          </>
         )}
       </div>
     </nav>
