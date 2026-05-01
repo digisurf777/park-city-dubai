@@ -445,7 +445,7 @@ IS HERE TO HELP YOU</motion.p>
             ].map(({ Icon, title, desc }) => (
               <div
                 key={title}
-                className="group text-center p-6 sm:p-8 rounded-2xl bg-gradient-subtle ring-1 ring-primary/10 hover-lift"
+                className="group text-center p-6 sm:p-8 rounded-2xl glass-primary hover-lift"
               >
                 <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-primary text-primary-foreground shadow-elegant mb-4 sm:mb-6 group-hover:scale-110 transition-transform duration-300">
                   <Icon className="h-8 sm:h-10 w-8 sm:w-10" />
