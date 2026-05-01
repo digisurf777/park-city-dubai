@@ -24,7 +24,7 @@ const AboutUs = () => {
       {/* Main Content */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="prose prose-lg max-w-none">
-          <p className="leading-relaxed mb-6 text-base">
+          <p className="text-lg sm:text-xl leading-relaxed mb-8 text-foreground/90 font-medium border-l-4 border-primary pl-5 italic">
             ShazamParking is Dubai's leading peer-to-peer platform for long-term parking. We connect parking space owners with drivers who need secure, reliable, and affordable monthly parking in the city's busiest districts. Our mission is simple: to take the daily stress out of finding a parking spot and turn unused bays into value for owners.
           </p>
           

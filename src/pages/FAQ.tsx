@@ -82,10 +82,12 @@ const FAQ = () => {
 
       {/* FAQ Content */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold text-center mb-4">Welcome to the ShazamParking FAQ page</h2>
-          <p className="text-lg text-center text-muted-foreground">
-            Here you'll find clear answers to the most common questions from both drivers and owners about how our platform works.
+        <div className="mb-10 text-center">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3 text-foreground">
+            Welcome to the <span className="bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">ShazamParking</span> FAQ
+          </h2>
+          <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
+            Clear answers to the most common questions from drivers and owners — everything you need to know about how our platform works.
           </p>
         </div>
 
