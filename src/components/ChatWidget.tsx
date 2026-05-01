@@ -33,13 +33,8 @@ interface SessionSummary {
 }
 
 const STARTERS = [
-  { icon: "📍", label: "Where is my booking?", prompt: "Where is my booking and when does it start?" },
-  { icon: "💳", label: "How do payments work?", prompt: "Can you explain how payments and payouts work on Shazam Parking?" },
-  { icon: "🅿️", label: "List my parking space", prompt: "I'd like to list my parking space - how do I get started?" },
-  { icon: "🔑", label: "Access card status", prompt: "What's the status of my access card?" },
-  { icon: "📅", label: "Extend my booking", prompt: "How can I extend my current booking?" },
-  { icon: "📄", label: "Verification status", prompt: "What's the status of my account verification?" },
-  { icon: "💰", label: "When will I get paid?", prompt: "When is my next payout scheduled?" },
+  { icon: "🅿️", label: "List my space", prompt: "I'd like to list my parking space. How do I get started?" },
+  { icon: "💳", label: "Payments & payouts", prompt: "Can you explain how payments and payouts work on Shazam Parking?" },
   { icon: "🙋", label: "Talk to a human", prompt: "I'd like to speak with a human agent please." },
 ];
 
