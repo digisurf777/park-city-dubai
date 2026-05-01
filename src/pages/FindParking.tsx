@@ -166,11 +166,11 @@ const FindParking = () => {
       {seoData}
       <Navbar />
       
-      {/* Hero Section - Mobile Optimized */}
-      <div className="relative h-[400px] sm:h-[500px] lg:h-[560px] -mt-16 overflow-hidden">
+      {/* Hero Section - Mobile Optimized, no clipping */}
+      <div className="relative overflow-hidden">
         <div className="absolute inset-0 bg-cover bg-center scale-105" style={{ backgroundImage: `url(${findParkingHero})` }}></div>
         <div className="absolute inset-0 bg-gradient-to-b from-primary-deep/65 via-primary-deep/35 to-background"></div>
-        <div className="relative z-10 flex flex-col items-center justify-center h-full px-4 pt-20">
+        <div className="relative z-10 flex flex-col items-center justify-center px-4 pt-28 pb-14 sm:pt-32 sm:pb-20 lg:pt-36 lg:pb-24">
           <div className="text-center text-white max-w-4xl">
             <span className="inline-block mb-4 px-4 py-1.5 rounded-full bg-white/15 backdrop-blur border border-white/25 text-xs font-bold tracking-[0.2em] uppercase">
               ★ Find Your Spot
@@ -183,7 +183,7 @@ const FindParking = () => {
                 in Dubai
               </span>
             </h1>
-            <p className="text-base sm:text-lg md:text-xl text-white/90 max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg md:text-xl text-white/90 max-w-2xl mx-auto px-2">
               The quickest, easiest, and most secure way to rent a monthly parking space across Dubai.
             </p>
           </div>
@@ -197,10 +197,10 @@ const FindParking = () => {
                   placeholder="Search by zone, building, or area..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="border-0 shadow-none focus-visible:ring-0 p-0 h-auto text-base"
+                  className="border-0 shadow-none focus-visible:ring-0 p-0 h-auto text-base min-w-0"
                 />
                 {searchTerm && (
-                  <button onClick={() => setSearchTerm("")} className="p-1 text-muted-foreground hover:text-foreground">
+                  <button onClick={() => setSearchTerm("")} className="p-1 text-muted-foreground hover:text-foreground flex-shrink-0">
                     <X className="h-4 w-4" />
                   </button>
                 )}
@@ -252,27 +252,31 @@ const FindParking = () => {
                 boxShadow: '0 20px 40px -15px hsl(var(--primary-deep) / 0.45), inset 0 1px 0 0 hsl(0 0% 100% / 0.4)',
               }}
             >
-              <div className="relative overflow-hidden rounded-[14px] bg-white">
+              <div className="relative overflow-hidden rounded-[14px] bg-white flex flex-col">
                 {/* Zone Image */}
-                <div className="relative h-48 sm:h-56 lg:h-64 overflow-hidden">
+                <div className="relative h-44 sm:h-52 lg:h-60 overflow-hidden">
                   <img src={zoneImages[zone.slug as keyof typeof zoneImages]} alt={zone.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" decoding="async" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
                   {/* glossy top highlight */}
                   <div className="pointer-events-none absolute inset-x-0 top-0 h-1/3 bg-gradient-to-b from-white/30 to-transparent" />
 
-                  {/* Zone Title Overlay */}
-                  <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex items-center justify-center">
-                    <h3 className="text-xl sm:text-2xl font-bold text-white text-center px-4 drop-shadow-lg">
+                  {/* Zone Title Overlay - bottom of image */}
+                  <div className="absolute inset-x-0 bottom-0 p-4">
+                    <h3 className="text-xl sm:text-2xl font-bold text-white drop-shadow-lg">
                       {zone.name}
                     </h3>
                   </div>
                 </div>
 
-                {/* Select Zone Button */}
-                <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 right-3 sm:right-4">
-                  <Button onClick={() => handleSelectZone(zone.slug)} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium min-h-[44px] touch-manipulation shadow-lg">
+                {/* Select Zone Button - 3D, consistent with hero */}
+                <div className="p-4">
+                  <button
+                    onClick={() => handleSelectZone(zone.slug)}
+                    className="btn-3d-primary w-full px-5 py-3 rounded-xl font-bold tracking-wide flex items-center justify-center gap-2 min-h-[44px] touch-manipulation"
+                  >
+                    <MapPin className="h-4 w-4" />
                     Select zone
-                  </Button>
+                  </button>
                 </div>
               </div>
             </div>
