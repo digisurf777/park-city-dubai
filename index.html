@@ -86,30 +86,75 @@
     <meta name="twitter:description" content="Find and book parking spaces in Dubai with Shazam Parking. List your parking space and start earning monthly income." />
     <meta name="twitter:image" content="/shazam-parking-og-image.webp" />
     
-    <!-- Structured Data -->
+    <!-- Structured Data: Organization + Ecosystem -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "Organization",
+      "@id": "https://shazamparking.ae/#organization",
       "name": "Shazam Parking",
-      "description": "Dubai's trusted parking platform for finding and listing parking spaces",
+      "alternateName": "ShazamParking",
+      "description": "Dubai's trusted long-term parking marketplace — book monthly parking or earn from unused spaces.",
       "url": "https://shazamparking.ae",
-      "logo": "/shazam-parking-og-image.webp",
+      "logo": "https://shazamparking.ae/shazam-parking-og-image.webp",
+      "image": "https://shazamparking.ae/shazam-parking-og-image.webp",
+      "parentOrganization": {
+        "@type": "Organization",
+        "name": "Shazam",
+        "url": "https://shazam.ae/",
+        "description": "Shazam is a Dubai-based ecosystem of connected digital products that simplify life in Dubai."
+      },
+      "subjectOf": [
+        {
+          "@type": "WebSite",
+          "name": "Dubai Life OS",
+          "url": "https://dubailifeos.ae",
+          "description": "Personal operating system for managing life in Dubai."
+        },
+        {
+          "@type": "WebSite",
+          "name": "Dubai Life Maps",
+          "url": "https://dubailifemaps.ae/",
+          "description": "Interactive city intelligence map for Dubai."
+        }
+      ],
       "contactPoint": {
         "@type": "ContactPoint",
-        "telephone": "+971-XX-XXX-XXXX",
         "contactType": "customer service",
-        "email": "support@shazam.ae"
+        "email": "support@shazam.ae",
+        "areaServed": "AE",
+        "availableLanguage": ["en", "ar"]
       },
       "address": {
         "@type": "PostalAddress",
         "addressLocality": "Dubai",
-        "addressCountry": "UAE"
+        "addressCountry": "AE"
       },
       "sameAs": [
+        "https://shazam.ae/",
+        "https://dubailifeos.ae",
+        "https://dubailifemaps.ae/",
         "https://www.instagram.com/shazamparking",
         "https://www.linkedin.com/company/shazamparking"
       ]
+    }
+    </script>
+
+    <!-- Structured Data: WebSite with SearchAction -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "@id": "https://shazamparking.ae/#website",
+      "url": "https://shazamparking.ae/",
+      "name": "Shazam Parking",
+      "publisher": { "@id": "https://shazamparking.ae/#organization" },
+      "inLanguage": "en",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://shazamparking.ae/find-a-parking-space?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
     }
     </script>
   </head>
