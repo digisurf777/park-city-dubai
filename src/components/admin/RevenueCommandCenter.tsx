@@ -30,6 +30,8 @@ import {
 } from 'recharts';
 import { AnimatedCounter } from './AnimatedCounter';
 import { MoneyFlowDiagram } from './MoneyFlowDiagram';
+import { useCurrency } from '@/contexts/CurrencyContext';
+import CurrencySwitcher from './CurrencySwitcher';
 
 type Period = '7d' | '30d' | '90d' | 'all';
 
@@ -72,6 +74,7 @@ export const RevenueCommandCenter = () => {
   const [pulse, setPulse] = useState<PulseEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [lastSync, setLastSync] = useState<Date>(new Date());
+  const { convert, symbol, currency } = useCurrency();
 
   const sinceISO = useMemo(() => {
     const days = periodDays[period];
@@ -287,21 +290,24 @@ export const RevenueCommandCenter = () => {
           </div>
         </div>
 
-        {/* Period selector */}
-        <div className="inline-flex p-1 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
-          {(['7d', '30d', '90d', 'all'] as Period[]).map((p) => (
-            <button
-              key={p}
-              onClick={() => setPeriod(p)}
-              className={`px-3 sm:px-4 py-1.5 text-xs sm:text-sm font-bold rounded-xl transition-all ${
-                period === p
-                  ? 'bg-gradient-to-br from-primary to-primary-glow text-white shadow-[0_0_20px_hsl(var(--primary-glow)/0.6)]'
-                  : 'text-white/60 hover:text-white'
-              }`}
-            >
-              {p.toUpperCase()}
-            </button>
-          ))}
+        {/* Period selector + currency */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <CurrencySwitcher variant="dark" />
+          <div className="inline-flex p-1 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
+            {(['7d', '30d', '90d', 'all'] as Period[]).map((p) => (
+              <button
+                key={p}
+                onClick={() => setPeriod(p)}
+                className={`px-3 sm:px-4 py-1.5 text-xs sm:text-sm font-bold rounded-xl transition-all ${
+                  period === p
+                    ? 'bg-gradient-to-br from-primary to-primary-glow text-white shadow-[0_0_20px_hsl(var(--primary-glow)/0.6)]'
+                    : 'text-white/60 hover:text-white'
+                }`}
+              >
+                {p.toUpperCase()}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
