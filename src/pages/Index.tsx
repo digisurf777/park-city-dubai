@@ -177,16 +177,16 @@ const Index = () => {
           }} whileHover={{
             y: -5
           }}>
-                <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 group">
+                <Card className="overflow-hidden rounded-2xl ring-1 ring-primary/10 shadow-lg hover:shadow-2xl hover:ring-primary/30 transition-all duration-300 group">
                   <div className="relative aspect-video">
                     <img src={location.image} alt={location.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy" decoding="async" />
-                    <div className="absolute inset-0 bg-black bg-opacity-40 transition-opacity duration-300 group-hover:bg-opacity-30"></div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent transition-opacity duration-300 group-hover:from-primary/60 group-hover:via-black/30"></div>
                     <div className="absolute inset-0 flex flex-col items-center justify-center text-white p-4 sm:p-6">
                       <motion.h3 initial={{
                     scale: 0.9
                   }} whileHover={{
                     scale: 1.05
-                  }} className="text-lg sm:text-xl lg:text-2xl font-bold mb-3 sm:mb-4 uppercase text-center">
+                  }} className="text-lg sm:text-xl lg:text-2xl font-bold mb-3 sm:mb-4 uppercase text-center drop-shadow-lg">
                         {location.name}
                       </motion.h3>
                       <Link to={location.link}>
@@ -195,7 +195,7 @@ const Index = () => {
                     }} whileTap={{
                       scale: 0.95
                     }}>
-                          <Button className="bg-primary hover:bg-primary/90 text-white px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base lg:text-lg font-semibold transition-all duration-300">
+                          <Button className="px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base lg:text-lg font-semibold">
                             Select Zone
                           </Button>
                         </motion.div>
@@ -395,12 +395,14 @@ IS HERE TO HELP YOU</motion.p>
             delay: 0.4
           }} viewport={{
             once: true
-          }} className="order-first lg:order-last">
-              <motion.img whileHover={{
-              scale: 1.05
-            }} transition={{
-              duration: 0.3
-            }} src={luxuryCar} alt="Luxury car in Dubai" className="w-full rounded-lg shadow-lg" loading="lazy" decoding="async" />
+            }} className="order-first lg:order-last">
+              <div className="rounded-2xl ring-1 ring-primary/20 shadow-[0_20px_40px_-15px_hsl(var(--primary)/0.4)] p-1.5 bg-gradient-to-br from-primary/15 to-transparent animate-[float_6s_ease-in-out_infinite]">
+                <motion.img whileHover={{
+                scale: 1.03
+              }} transition={{
+                duration: 0.3
+              }} src={luxuryCar} alt="Luxury car in Dubai" className="w-full rounded-xl shadow-lg" loading="lazy" decoding="async" />
+              </div>
             </motion.div>
           </div>
         </div>
@@ -411,7 +413,9 @@ IS HERE TO HELP YOU</motion.p>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             <div className="order-2 lg:order-1">
-              <img src={dubaihero} alt="Dubai UAE skyline" className="w-full rounded-lg shadow-lg" loading="lazy" decoding="async" />
+              <div className="rounded-2xl ring-1 ring-primary/20 shadow-[0_20px_40px_-15px_hsl(var(--primary)/0.4)] p-1.5 bg-gradient-to-br from-primary/15 to-transparent animate-[float_7s_ease-in-out_infinite]">
+                <img src={dubaihero} alt="Dubai UAE skyline" className="w-full rounded-xl shadow-lg" loading="lazy" decoding="async" />
+              </div>
             </div>
             <div className="order-1 lg:order-2 text-center lg:text-left">
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 sm:mb-6">
@@ -453,7 +457,9 @@ IS HERE TO HELP YOU</motion.p>
             <h3 className="text-lg sm:text-xl lg:text-2xl text-gray-700 mb-6 sm:mb-8 px-4">
               We are the quickest, easiest, and the most secure way to rent a parking space in Dubai!
             </h3>
-            <img src={businessMan} alt="Successful businessman" className="mx-auto rounded-lg shadow-lg max-w-2xl w-full" loading="lazy" decoding="async" />
+            <div className="mx-auto max-w-2xl rounded-2xl ring-1 ring-primary/15 shadow-[0_20px_40px_-15px_hsl(var(--primary)/0.35)] p-1.5 bg-gradient-to-br from-primary/10 to-transparent animate-[float_8s_ease-in-out_infinite]">
+              <img src={businessMan} alt="Successful businessman" className="rounded-xl w-full" loading="lazy" decoding="async" />
+            </div>
           </div>
         </div>
       </section>
@@ -510,9 +516,11 @@ IS HERE TO HELP YOU</motion.p>
     }} viewport={{
       once: true,
       amount: 0.2
-    }} className="py-12 sm:py-16 lg:py-20 bg-primary relative overflow-hidden">
-        {/* Clean Background */}
-        <div className="absolute inset-0 bg-primary"></div>
+    }} className="py-12 sm:py-16 lg:py-20 relative overflow-hidden bg-gradient-to-br from-[hsl(174_57%_36%)] via-primary to-[hsl(174_60%_50%)]">
+        {/* Decorative blurred blobs */}
+        <div className="pointer-events-none absolute -top-24 -left-24 w-72 h-72 rounded-full bg-white/10 blur-3xl"></div>
+        <div className="pointer-events-none absolute -bottom-24 -right-24 w-96 h-96 rounded-full bg-white/10 blur-3xl"></div>
+        <div className="pointer-events-none absolute inset-0 opacity-[0.15]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '24px 24px' }}></div>
         
         <div className="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 text-center relative z-10">
           {/* Main Headline - Exact Match to Reference */}
@@ -554,7 +562,7 @@ IS HERE TO HELP YOU</motion.p>
           }} viewport={{
             once: true
           }} className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black mb-6 sm:mb-8 leading-[0.9] tracking-tight">
-              <span className="bg-gradient-to-r from-yellow-300 via-yellow-400 to-amber-400 bg-clip-text drop-shadow-sm text-slate-200 text-4xl font-semibold">
+              <span className="text-white text-4xl font-semibold drop-shadow-[0_2px_8px_rgba(0,0,0,0.25)]">
                 Turn it into a steady passive income.
               </span>
             </motion.h2>
@@ -579,7 +587,7 @@ IS HERE TO HELP YOU</motion.p>
             }} whileTap={{
               scale: 0.95
             }}>
-                <Button size="lg" className="bg-white text-primary hover:bg-yellow-50 hover:text-primary px-10 sm:px-16 py-5 sm:py-7 text-xl sm:text-2xl font-bold rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 w-full sm:w-auto">
+                <Button size="lg" className="bg-white text-primary hover:bg-white hover:text-primary px-10 sm:px-16 py-5 sm:py-7 text-xl sm:text-2xl font-bold shadow-[0_6px_0_0_rgba(0,0,0,0.15),0_20px_40px_-10px_rgba(0,0,0,0.4)] hover:shadow-[0_8px_0_0_rgba(0,0,0,0.2),0_24px_50px_-10px_rgba(0,0,0,0.5)] hover:-translate-y-0.5 active:translate-y-0.5 transition-all duration-300 w-full sm:w-auto h-auto">
                   Start Earning Today
                 </Button>
               </motion.div>
@@ -610,7 +618,7 @@ IS HERE TO HELP YOU</motion.p>
             }} viewport={{
               once: true
             }} className="flex items-center gap-2">
-                  <span className="text-yellow-300 text-lg">✓</span>
+                  <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-white text-primary text-sm font-bold shadow-md">✓</span>
                   {text}
                 </motion.div>)}
             </motion.div>
