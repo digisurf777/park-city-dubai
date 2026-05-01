@@ -15,7 +15,7 @@ import { ParkingBookingModal } from "@/components/ParkingBookingModal";
 import ImageZoomModal from "@/components/ImageZoomModal";
 import { useParkingAvailability } from "@/hooks/useParkingAvailability";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-import deiraHero from "@/assets/zones/deira-real.jpg";
+import deiraHero from "@/assets/zones/deira-real.webp";
 import { formatDescription } from "@/utils/formatDescription";
 import LazyImage from "@/components/LazyImage";
 

@@ -6,32 +6,32 @@ const locations = [
   {
     name: "Dubai Marina",
     link: "/zones/dubai-marina",
-    image: "/assets/zones/dubai-marina.jpg"
+    image: "/assets/zones/dubai-marina.webp"
   },
   {
     name: "Downtown",
     link: "/find-parking?district=downtown",
-    image: "/lovable-uploads/f676da2a-39c9-4211-8561-5b884e0ceed8.png"
+    image: "/lovable-uploads/f676da2a-39c9-4211-8561-5b884e0ceed8.webp"
   },
   {
     name: "Palm Jumeirah",
     link: "/find-parking?district=palm-jumeirah",
-    image: "/lovable-uploads/atlantis-hotel-hero.jpg"
+    image: "/lovable-uploads/atlantis-hotel-hero.webp"
   },
   {
     name: "Business Bay",
     link: "/find-parking?district=business-bay",
-    image: "/assets/zones/business-bay.jpg"
+    image: "/assets/zones/business-bay.webp"
   },
   {
     name: "DIFC",
     link: "/find-parking?district=difc",
-    image: "/lovable-uploads/63d539ac-8cbb-46b2-aa39-3de0695ef8c9.png"
+    image: "/lovable-uploads/63d539ac-8cbb-46b2-aa39-3de0695ef8c9.webp"
   },
   {
     name: "Deira",
     link: "/find-parking?district=deira",
-    image: "/assets/zones/deira.jpg"
+    image: "/assets/zones/deira.webp"
   }
 ];
 

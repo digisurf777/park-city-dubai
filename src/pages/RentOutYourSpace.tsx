@@ -19,7 +19,7 @@ import { Link } from "react-router-dom";
 import { useVerificationStatus } from "@/hooks/useVerificationStatus";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import luxuryCar from "@/assets/luxury-car-dubai.webp";
-import phoneLogo from "@/assets/phone-logo.png";
+import phoneLogo from "@/assets/phone-logo.webp";
 const RentOutYourSpace = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -353,7 +353,7 @@ const RentOutYourSpace = () => {
       
       {/* Hero Section */}
       <section className="relative min-h-[70vh] flex items-center justify-center bg-cover bg-center bg-no-repeat" style={{
-      backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url(/lovable-uploads/d672c78d-465f-41e0-9e3d-cd28db512923.png)`
+      backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url(/lovable-uploads/d672c78d-465f-41e0-9e3d-cd28db512923.webp)`
     }}>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
           <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
@@ -379,7 +379,7 @@ const RentOutYourSpace = () => {
           </div>
 
           <div className="flex justify-center">
-            <img src="/lovable-uploads/90ac71db-2b33-4d06-8b4e-7fdb761027f4.png" alt="Three step process: List for Free, Confirm Booking, Facilitate Access" className="max-w-full h-auto" />
+            <img src="/lovable-uploads/90ac71db-2b33-4d06-8b4e-7fdb761027f4.webp" alt="Three step process: List for Free, Confirm Booking, Facilitate Access" className="max-w-full h-auto" />
           </div>
         </div>
       </section>

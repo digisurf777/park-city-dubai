@@ -27,7 +27,7 @@ const OptimizedNewsCard: React.FC<OptimizedNewsCardProps> = ({ article, priority
       <Link to={`/news/${article.id}`} className="block">
         <div className="relative aspect-video overflow-hidden">
           <LazyImage
-            src={article.image_url || '/news/hero.jpg'}
+            src={article.image_url || '/news/hero.webp'}
             alt={article.title}
             className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
             loading={priority ? 'eager' : 'lazy'}

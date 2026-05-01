@@ -11,18 +11,18 @@ import { EmailConfirmationBanner } from "@/components/EmailConfirmationBanner";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import useSEO from "@/hooks/useSEO";
-import dubaihero from "@/assets/dubai-skyline-hero.jpg";
-import phonePremium from "@/assets/phone-mockup-premium.png";
-import secureParking from "@/assets/secure-parking-hero.jpg";
+import dubaihero from "@/assets/dubai-skyline-hero.webp";
+import phonePremium from "@/assets/phone-mockup-premium.webp";
+import secureParking from "@/assets/secure-parking-hero.webp";
 import luxuryCar from "@/assets/luxury-car-dubai.webp";
-import businessMan from "@/assets/business-man.jpg";
-import phoneLogo from "@/assets/phone-logo.png";
-import dubaiMarinaZone from "@/assets/zones/dubai-marina.jpg";
-import downtownZone from "/lovable-uploads/f676da2a-39c9-4211-8561-5b884e0ceed8.png";
-import palmJumeirahZone from "/lovable-uploads/atlantis-hotel-hero.jpg";
-import businessBayZone from "@/assets/zones/business-bay.jpg";
-import difcZone from "/lovable-uploads/63d539ac-8cbb-46b2-aa39-3de0695ef8c9.png";
-import deiraZone from "@/assets/zones/deira.jpg";
+import businessMan from "@/assets/business-man.webp";
+import phoneLogo from "@/assets/phone-logo.webp";
+import dubaiMarinaZone from "@/assets/zones/dubai-marina.webp";
+import downtownZone from "/lovable-uploads/f676da2a-39c9-4211-8561-5b884e0ceed8.webp";
+import palmJumeirahZone from "/lovable-uploads/atlantis-hotel-hero.webp";
+import businessBayZone from "@/assets/zones/business-bay.webp";
+import difcZone from "/lovable-uploads/63d539ac-8cbb-46b2-aa39-3de0695ef8c9.webp";
+import deiraZone from "@/assets/zones/deira.webp";
 const Index = () => {
   const seoData = useSEO({
     title: "Shazam Parking - Dubai's Trusted Parking Platform",
@@ -553,7 +553,7 @@ const Index = () => {
             </h2>
           </div>
           <div className="flex justify-center">
-            <img alt="Three simple steps to rent parking" className="max-w-4xl w-full" src="/lovable-uploads/e36f8df6-09a1-434e-aac9-f077569e37a1.png" />
+            <img alt="Three simple steps to rent parking" className="max-w-4xl w-full" src="/lovable-uploads/e36f8df6-09a1-434e-aac9-f077569e37a1.webp" />
           </div>
         </div>
       </section>

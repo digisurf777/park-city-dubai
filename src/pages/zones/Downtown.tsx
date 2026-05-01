@@ -13,7 +13,7 @@ import { ParkingBookingModal } from "@/components/ParkingBookingModal";
 import ImageZoomModal from "@/components/ImageZoomModal";
 import { useParkingAvailability } from "@/hooks/useParkingAvailability";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-import downtownHero from "/lovable-uploads/f676da2a-39c9-4211-8561-5b884e0ceed8.png";
+import downtownHero from "/lovable-uploads/f676da2a-39c9-4211-8561-5b884e0ceed8.webp";
 import { formatDescription } from "@/utils/formatDescription";
 import LazyImage from "@/components/LazyImage";
 

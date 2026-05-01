@@ -12,8 +12,8 @@ import { Card } from "@/components/ui/card";
 import { Search, CreditCard, Car, DollarSign, Clock, Shield, Quote } from "lucide-react";
 import { Link } from "react-router-dom";
 import luxuryCar from "@/assets/luxury-car-dubai.webp";
-import businessMan from "@/assets/business-man.jpg";
-import phoneLogo from "@/assets/phone-logo.png";
+import businessMan from "@/assets/business-man.webp";
+import phoneLogo from "@/assets/phone-logo.webp";
 
 const IndexOptimized = () => {
   const seoData = useSEO({

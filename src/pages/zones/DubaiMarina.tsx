@@ -12,7 +12,7 @@ import Footer from "@/components/Footer";
 import { ParkingBookingModal } from "@/components/ParkingBookingModal";
 import ImageZoomModal from "@/components/ImageZoomModal";
 import { useParkingAvailability } from "@/hooks/useParkingAvailability";
-import dubaiMarinaHero from "@/assets/zones/dubai-marina-real.jpg";
+import dubaiMarinaHero from "@/assets/zones/dubai-marina-real.webp";
 import { formatDescription } from "@/utils/formatDescription";
 import LazyImage from "@/components/LazyImage";
 

@@ -69,8 +69,8 @@ const EnhancedServiceWorker = () => {
     // Preload critical resources
     const preloadCriticalResources = () => {
       const criticalResources = [
-        '/assets/dubai-skyline-hero.jpg',
-        '/lovable-uploads/atlantis-hotel-hero.jpg',
+        '/assets/dubai-skyline-hero.webp',
+        '/lovable-uploads/atlantis-hotel-hero.webp',
         'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap'
       ];
 
