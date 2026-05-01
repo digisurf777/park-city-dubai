@@ -170,7 +170,7 @@ const Navbar = () => {
           <>
             {/* Backdrop */}
             <div
-              className="md:hidden fixed inset-0 top-16 z-30 bg-black/40 backdrop-blur-sm animate-fade-in"
+              className="md:hidden fixed inset-0 top-16 z-30 bg-black/60 backdrop-blur-md animate-fade-in"
               onClick={() => setIsMenuOpen(false)}
               aria-hidden="true"
             />
@@ -180,7 +180,7 @@ const Navbar = () => {
               role="dialog"
               aria-modal="true"
             >
-              <div className="relative bg-gradient-to-br from-white via-white to-primary/5 border-b border-primary/20 shadow-[0_30px_60px_-20px_hsl(var(--primary-deep)/0.45)] rounded-b-3xl overflow-hidden">
+              <div className="relative bg-white border-b border-primary/20 shadow-[0_30px_60px_-20px_hsl(var(--primary-deep)/0.55)] rounded-b-3xl overflow-hidden">
                 {/* Decorative orbs */}
                 <div className="pointer-events-none absolute -top-20 -right-20 w-64 h-64 bg-primary/15 rounded-full blur-3xl" />
                 <div className="pointer-events-none absolute -bottom-24 -left-16 w-72 h-72 bg-primary-glow/15 rounded-full blur-3xl" />
@@ -236,7 +236,7 @@ const Navbar = () => {
                   {/* Discover */}
                   <div>
                     <p className="text-[11px] font-bold text-primary/70 mb-2.5 px-1 uppercase tracking-[0.15em]">Discover</p>
-                    <div className="rounded-2xl bg-white/70 backdrop-blur-sm border border-border/60 shadow-sm overflow-hidden divide-y divide-border/40">
+                    <div className="rounded-2xl bg-white border border-border shadow-md overflow-hidden divide-y divide-border/40">
                       {[
                         { to: "/find-a-parking-space", label: "Find a Parking Space", icon: Search, accent: true },
                         { to: "/calculator", label: "Earnings Calculator", icon: CalcIcon },
@@ -273,7 +273,7 @@ const Navbar = () => {
                           key={z.to}
                           to={z.to}
                           onClick={() => setIsMenuOpen(false)}
-                          className="group flex flex-col items-start gap-2 p-3 rounded-xl bg-white/80 border border-border/60 hover:border-primary/40 active:scale-[0.97] transition-all shadow-sm"
+                          className="group flex flex-col items-start gap-2 p-3 rounded-xl bg-white border border-border hover:border-primary/40 active:scale-[0.97] transition-all shadow-md"
                         >
                           <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary/15 to-primary-glow/15 flex items-center justify-center text-primary group-active:from-primary group-active:to-primary-deep group-active:text-white transition-colors">
                             <z.icon className="h-4 w-4" strokeWidth={2.2} />
@@ -287,7 +287,7 @@ const Navbar = () => {
                   {/* Company */}
                   <div>
                     <p className="text-[11px] font-bold text-primary/70 mb-2.5 px-1 uppercase tracking-[0.15em]">Company</p>
-                    <div className="rounded-2xl bg-white/70 backdrop-blur-sm border border-border/60 shadow-sm overflow-hidden divide-y divide-border/40">
+                    <div className="rounded-2xl bg-white border border-border shadow-md overflow-hidden divide-y divide-border/40">
                       {[
                         { to: "/about-us", label: "About Us", icon: Info },
                         { to: "/faq", label: "FAQ", icon: HelpCircle },

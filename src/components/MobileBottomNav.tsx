@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, Search, Plus, User, MessageCircle } from "lucide-react";
+import { Home, Search, Plus, User } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 
@@ -7,6 +7,9 @@ import { cn } from "@/lib/utils";
  * App-like bottom nav for mobile. Hidden on md+.
  * Pages should add `pb-mobile-nav` to their root container so content
  * isn't hidden behind it.
+ *
+ * Layout: [Home] [Search] [List (raised 3D CTA)] [Account]
+ * Inbox is intentionally not here — the floating ChatWidget covers messaging.
  */
 const MobileBottomNav = () => {
   const { pathname } = useLocation();
@@ -17,77 +20,120 @@ const MobileBottomNav = () => {
     user = null;
   }
 
-  const items = [
+  const leftItems = [
     { to: "/", label: "Home", icon: Home, match: (p: string) => p === "/" },
-    { to: "/find-parking", label: "Search", icon: Search, match: (p: string) => p.startsWith("/find") },
     {
-      to: "/rent-out-your-space",
-      label: "List",
-      icon: Plus,
-      match: (p: string) => p.startsWith("/rent-out"),
-      highlight: true,
+      to: "/find-a-parking-space",
+      label: "Search",
+      icon: Search,
+      match: (p: string) => p.startsWith("/find"),
     },
-    {
-      to: user ? "/contact-admin" : "/auth",
-      label: "Inbox",
-      icon: MessageCircle,
-      match: (p: string) => p.startsWith("/contact-admin"),
-    },
+  ];
+
+  const rightItems = [
     {
       to: user ? "/my-account" : "/auth",
       label: user ? "Account" : "Sign in",
       icon: User,
-      match: (p: string) => p.startsWith("/my-account") || p.startsWith("/auth"),
+      match: (p: string) =>
+        p.startsWith("/my-account") || p.startsWith("/auth"),
     },
   ];
 
   // Hide on admin to keep dashboard immersive
   if (pathname.startsWith("/admin")) return null;
 
+  const renderItem = (item: (typeof leftItems)[number]) => {
+    const Icon = item.icon;
+    const active = item.match(pathname);
+    return (
+      <li key={item.to} className="flex-1">
+        <Link
+          to={item.to}
+          aria-current={active ? "page" : undefined}
+          className={cn(
+            "group flex flex-col items-center justify-center gap-0.5 h-full text-[10.5px] font-semibold transition-all touch-manipulation select-none",
+            active ? "text-primary" : "text-muted-foreground active:text-primary"
+          )}
+        >
+          <span
+            className={cn(
+              "flex items-center justify-center w-10 h-10 rounded-xl transition-all",
+              active
+                ? "bg-primary/12 shadow-[inset_0_1px_0_hsl(var(--primary)/0.25),0_2px_8px_-2px_hsl(var(--primary)/0.35)] scale-105"
+                : "bg-transparent group-active:bg-primary/8"
+            )}
+          >
+            <Icon
+              className={cn("h-[20px] w-[20px] transition-transform", active && "scale-110")}
+              strokeWidth={active ? 2.4 : 2}
+            />
+          </span>
+          <span className="leading-tight">{item.label}</span>
+          {/* Active dot */}
+          <span
+            className={cn(
+              "block h-1 w-1 rounded-full transition-all",
+              active ? "bg-primary opacity-100" : "opacity-0"
+            )}
+          />
+        </Link>
+      </li>
+    );
+  };
+
+  const listActive = pathname.startsWith("/rent-out");
+
   return (
     <nav
-      className="md:hidden fixed bottom-0 left-0 right-0 z-40 glass border-t border-border/40 pb-safe-area-bottom"
+      className="md:hidden fixed bottom-0 left-0 right-0 z-40 pb-safe-area-bottom"
       role="navigation"
       aria-label="Primary mobile navigation"
     >
-      <ul className="flex items-stretch justify-around h-16 px-1">
-        {items.map((item) => {
-          const Icon = item.icon;
-          const active = item.match(pathname);
-          return (
-            <li key={item.to} className="flex-1">
-              <Link
-                to={item.to}
+      {/* Solid frosted bar */}
+      <div className="relative bg-white/95 backdrop-blur-xl border-t border-border/60 shadow-[0_-8px_24px_-8px_hsl(var(--primary-deep)/0.18)]">
+        {/* Subtle top highlight line */}
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+
+        <ul className="relative flex items-stretch justify-around h-16 px-2">
+          {leftItems.map(renderItem)}
+
+          {/* Center raised "List" 3D CTA */}
+          <li className="flex-1 flex items-start justify-center -mt-5">
+            <Link
+              to="/rent-out-your-space"
+              aria-current={listActive ? "page" : undefined}
+              className="group flex flex-col items-center gap-1 touch-manipulation select-none"
+            >
+              <span
                 className={cn(
-                  "flex flex-col items-center justify-center gap-0.5 h-full text-[11px] font-medium transition-colors touch-manipulation",
-                  active ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                  "relative flex items-center justify-center w-14 h-14 rounded-2xl text-white",
+                  "bg-gradient-to-br from-primary-glow via-primary to-primary-deep",
+                  "shadow-[0_6px_0_0_hsl(var(--primary-deep)/0.55),0_12px_24px_-6px_hsl(var(--primary)/0.55)]",
+                  "ring-4 ring-white",
+                  "transition-all duration-200",
+                  "active:translate-y-1 active:shadow-[0_2px_0_0_hsl(var(--primary-deep)/0.55),0_6px_12px_-4px_hsl(var(--primary)/0.45)]",
+                  listActive && "translate-y-0.5"
                 )}
-                aria-current={active ? "page" : undefined}
               >
-                {item.highlight ? (
-                  <span
-                    className={cn(
-                      "flex items-center justify-center w-11 h-11 rounded-full -mt-4 shadow-3d transition-transform",
-                      "bg-gradient-primary text-primary-foreground",
-                      active ? "scale-110" : "hover:scale-105"
-                    )}
-                  >
-                    <Icon className="h-5 w-5" />
-                  </span>
-                ) : (
-                  <Icon
-                    className={cn(
-                      "h-5 w-5 transition-transform",
-                      active && "scale-110"
-                    )}
-                  />
+                {/* Inner glossy highlight */}
+                <span className="absolute inset-x-1.5 top-1.5 h-3 rounded-t-xl bg-gradient-to-b from-white/35 to-transparent pointer-events-none" />
+                <Plus className="h-6 w-6 relative" strokeWidth={2.6} />
+              </span>
+              <span
+                className={cn(
+                  "text-[10.5px] font-bold tracking-wide",
+                  listActive ? "text-primary" : "text-foreground/80"
                 )}
-                <span className={cn(item.highlight && "mt-0")}>{item.label}</span>
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
+              >
+                List
+              </span>
+            </Link>
+          </li>
+
+          {rightItems.map(renderItem)}
+        </ul>
+      </div>
     </nav>
   );
 };
