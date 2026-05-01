@@ -12,7 +12,7 @@ import { toast } from 'sonner';
 import { Loader2, Mail, Lock, Shield } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { InputOTP, InputOTPGroup, InputOTPSlot, InputOTPSeparator } from '@/components/ui/input-otp';
-import authLuxury from '@/assets/auth-luxury.webp';
+import authLuxury from '@/assets/auth-dubai-skyline.jpg';
 
 const Auth = () => {
   const [loading, setLoading] = useState(false);
@@ -812,34 +812,68 @@ const Auth = () => {
 
       <div className="relative w-full max-w-5xl grid lg:grid-cols-2 frame-3d overflow-hidden">
         {/* Left visual panel — hidden on mobile */}
-        <div className="hidden lg:block relative">
+        <div className="hidden lg:block relative min-h-[640px]">
           <img
             src={authLuxury}
-            alt="Premium parking in Dubai"
+            alt="Dubai skyline at golden hour"
             className="absolute inset-0 h-full w-full object-cover"
             loading="lazy"
-            width={896}
-            height={1216}
+            width={1024}
+            height={1408}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-primary-deep/90 via-primary-deep/40 to-transparent" />
+          {/* Brand-tinted gradient for legibility */}
+          <div className="absolute inset-0 bg-gradient-to-t from-primary-deep/95 via-primary-deep/30 to-primary-deep/10" />
+          <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-primary/20 mix-blend-overlay" />
+
+          {/* Logo lockup top-left */}
+          <div className="absolute top-6 left-6 flex items-center gap-3">
+            <div className="h-12 w-12 rounded-2xl bg-white/95 backdrop-blur shadow-xl flex items-center justify-center p-2 ring-1 ring-white/40">
+              <img
+                src="/lovable-uploads/logo.webp"
+                alt="Shazam Parking logo"
+                className="h-full w-full object-contain"
+                width={48}
+                height={48}
+              />
+            </div>
+            <div className="text-white">
+              <div className="text-base font-black leading-none tracking-tight">Shazam Parking</div>
+              <div className="text-[10px] uppercase tracking-[0.22em] opacity-80 mt-1">Dubai · Premium</div>
+            </div>
+          </div>
+
+          {/* Bottom copy block */}
           <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
-            <span className="inline-block mb-3 px-3 py-1 rounded-full bg-white/15 backdrop-blur text-xs font-semibold tracking-[0.18em] uppercase border border-white/20">
-              ★ Premium Parking
+            <span className="inline-flex items-center gap-1.5 mb-3 px-3 py-1 rounded-full bg-white/15 backdrop-blur text-[10px] font-semibold tracking-[0.18em] uppercase border border-white/25">
+              <span className="text-amber-300">★</span> Premium Parking
             </span>
-            <h2 className="text-3xl xl:text-4xl font-black leading-tight text-3d-light">
+            <h2 className="text-3xl xl:text-4xl font-black leading-tight">
               Dubai's Most Trusted<br/>Parking Platform
             </h2>
-            <p className="mt-3 text-white/85 text-sm">
+            <p className="mt-3 text-white/85 text-sm max-w-sm">
               Join thousands of drivers and owners using Shazam Parking every day.
             </p>
+            <div className="mt-5 flex items-center gap-4 text-xs text-white/80">
+              <div className="flex items-center gap-1.5"><Shield className="h-3.5 w-3.5" /> Secure</div>
+              <div className="opacity-40">·</div>
+              <div>★ 4.9 / 5</div>
+              <div className="opacity-40">·</div>
+              <div>10k+ users</div>
+            </div>
           </div>
         </div>
 
         {/* Right form panel */}
         <div className="bg-white p-6 sm:p-10">
           <div className="text-center mb-6">
-            <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-primary shadow-glow mb-4">
-              <Shield className="h-7 w-7 text-white" />
+            <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-white shadow-glow ring-1 ring-primary/20 mb-4 p-2">
+              <img
+                src="/lovable-uploads/logo.webp"
+                alt="Shazam Parking"
+                className="h-full w-full object-contain"
+                width={56}
+                height={56}
+              />
             </div>
             <h1 className="text-2xl sm:text-3xl font-black text-foreground">Welcome to Shazam Parking</h1>
             <p className="text-muted-foreground text-sm mt-1">

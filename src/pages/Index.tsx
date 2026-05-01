@@ -14,7 +14,7 @@ import useSEO from "@/hooks/useSEO";
 import dubaihero from "@/assets/dubai-skyline-hero.webp";
 import phonePremium from "@/assets/phone-mockup-premium.webp";
 import secureParking from "@/assets/secure-parking-hero.webp";
-import luxuryCar from "@/assets/luxury-car-dubai.webp";
+import luxuryCar from "@/assets/luxury-parking-premium.jpg";
 import businessMan from "@/assets/business-man.webp";
 import phoneLogo from "@/assets/phone-logo.webp";
 import dubaiMarinaZone from "@/assets/zones/dubai-marina.webp";
@@ -59,9 +59,8 @@ const Index = () => {
           backgroundImage: `linear-gradient(135deg, hsl(174 65% 22% / 0.85) 0%, hsl(0 0% 0% / 0.55) 100%), url(${secureParking})`,
         }}
       >
-        {/* Decorative blurred glows */}
-        <div className="pointer-events-none absolute -top-32 -left-32 w-96 h-96 rounded-full bg-primary/30 blur-3xl"></div>
-        <div className="pointer-events-none absolute -bottom-32 -right-32 w-[28rem] h-[28rem] rounded-full bg-primary-glow/25 blur-3xl"></div>
+        {/* Subtle decorative glow — bottom right only */}
+        <div className="pointer-events-none absolute -bottom-32 -right-32 w-[28rem] h-[28rem] rounded-full bg-primary-glow/15 blur-3xl"></div>
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-white z-10 pt-24 pb-12 sm:pt-28 sm:pb-16 lg:pt-32 lg:pb-20 min-h-[640px] sm:min-h-[680px] lg:min-h-[720px] flex items-center">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center w-full">
@@ -204,32 +203,27 @@ const Index = () => {
           }} whileHover={{
             y: -5
           }}>
-                <Card className="overflow-hidden rounded-2xl ring-1 ring-primary/10 shadow-lg hover:shadow-2xl hover:ring-primary/30 transition-all duration-300 group">
-                  <div className="relative aspect-video">
-                    <img src={location.image} alt={location.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy" decoding="async" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent transition-opacity duration-300 group-hover:from-primary/60"></div>
-                    <div className="absolute inset-x-4 bottom-4 sm:inset-x-6 sm:bottom-6 flex flex-col items-center text-white p-4 sm:p-5 rounded-2xl glass-dark">
-                      <motion.h3 initial={{
-                    scale: 0.9
-                  }} whileHover={{
-                    scale: 1.05
-                  }} className="text-lg sm:text-xl lg:text-2xl font-bold mb-3 uppercase text-center drop-shadow-lg">
-                        {location.name}
-                      </motion.h3>
-                      <Link to={location.link}>
-                        <motion.div whileHover={{
-                      scale: 1.05
-                    }} whileTap={{
-                      scale: 0.95
-                    }}>
-                          <Button className="px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base font-semibold">
-                            Select Zone
-                          </Button>
+                <Link to={location.link} className="block">
+                  <Card className="overflow-hidden rounded-2xl ring-1 ring-primary/10 shadow-lg hover:shadow-2xl hover:ring-primary/40 transition-all duration-300 group">
+                    <div className="relative aspect-[4/5] sm:aspect-[4/5]">
+                      <img src={location.image} alt={location.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" loading="lazy" decoding="async" />
+                      {/* Bottom gradient only — keeps image fully visible */}
+                      <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/85 via-black/40 to-transparent"></div>
+                      {/* Title pinned at bottom-left */}
+                      <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5 flex items-end justify-between gap-3">
+                        <div>
+                          <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-[0.2em] text-primary-glow mb-1 drop-shadow">Dubai</p>
+                          <motion.h3 initial={{ y: 4, opacity: 0.9 }} whileInView={{ y: 0, opacity: 1 }} className="text-xl sm:text-2xl font-black uppercase text-white drop-shadow-lg leading-tight">
+                            {location.name}
+                          </motion.h3>
+                        </div>
+                        <motion.div whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.95 }} className="flex-shrink-0 w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-elegant ring-2 ring-white/30 group-hover:bg-primary-glow transition-colors">
+                          <ArrowRight className="h-5 w-5" />
                         </motion.div>
-                      </Link>
+                      </div>
                     </div>
-                  </div>
-                </Card>
+                  </Card>
+                </Link>
               </motion.div>)}
           </div>
         </div>
@@ -378,10 +372,6 @@ const Index = () => {
               viewport={{ once: true }}
               className="text-center lg:text-left order-2 lg:order-1"
             >
-              <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-semibold uppercase tracking-wider mb-4">
-                <Wallet className="h-3.5 w-3.5" />
-                For owners
-              </span>
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-foreground mb-4 leading-tight">
                 Own a parking space?
                 <span className="block text-gradient-primary mt-1">Turn it into income.</span>
@@ -586,125 +576,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Hero CTA Banner - Matching Reference Style */}
-      <motion.section initial={{
-      opacity: 0
-    }} whileInView={{
-      opacity: 1
-    }} transition={{
-      duration: 0.8
-    }} viewport={{
-      once: true,
-      amount: 0.2
-    }} className="py-12 sm:py-16 lg:py-20 relative overflow-hidden bg-gradient-to-br from-[hsl(174_57%_36%)] via-primary to-[hsl(174_60%_50%)]">
-        {/* Decorative blurred blobs */}
-        <div className="pointer-events-none absolute -top-24 -left-24 w-72 h-72 rounded-full bg-white/10 blur-3xl"></div>
-        <div className="pointer-events-none absolute -bottom-24 -right-24 w-96 h-96 rounded-full bg-white/10 blur-3xl"></div>
-        <div className="pointer-events-none absolute inset-0 opacity-[0.15]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '24px 24px' }}></div>
-        
-        <div className="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 text-center relative z-10">
-          {/* Main Headline - Exact Match to Reference */}
-          <motion.div initial={{
-          opacity: 0,
-          y: 50
-        }} whileInView={{
-          opacity: 1,
-          y: 0
-        }} transition={{
-          duration: 0.8,
-          delay: 0.2
-        }} viewport={{
-          once: true
-        }} className="mb-6 sm:mb-8">
-            <motion.h1 initial={{
-            opacity: 0,
-            y: 30
-          }} whileInView={{
-            opacity: 1,
-            y: 0
-          }} transition={{
-            duration: 0.6,
-            delay: 0.3
-          }} viewport={{
-            once: true
-          }} className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white mb-4 sm:mb-6 tracking-tight">
-              Own a Parking Space?
-            </motion.h1>
-            <motion.h2 initial={{
-            opacity: 0,
-            y: 30
-          }} whileInView={{
-            opacity: 1,
-            y: 0
-          }} transition={{
-            duration: 0.6,
-            delay: 0.5
-          }} viewport={{
-            once: true
-          }} className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black mb-6 sm:mb-8 leading-[0.9] tracking-tight">
-              <span className="text-white text-4xl font-semibold drop-shadow-[0_2px_8px_rgba(0,0,0,0.25)]">
-                Turn it into a steady passive income.
-              </span>
-            </motion.h2>
-          </motion.div>
-          
-          {/* CTA Button */}
-          <motion.div initial={{
-          opacity: 0,
-          y: 30
-        }} whileInView={{
-          opacity: 1,
-          y: 0
-        }} transition={{
-          duration: 0.6,
-          delay: 0.7
-        }} viewport={{
-          once: true
-        }} className="space-y-6 sm:space-y-8">
-            <Link to="/rent-out-your-space">
-              <motion.div whileHover={{
-              scale: 1.05
-            }} whileTap={{
-              scale: 0.95
-            }}>
-                <Button size="lg" className="bg-white text-primary hover:bg-white hover:text-primary px-10 sm:px-16 py-5 sm:py-7 text-xl sm:text-2xl font-bold shadow-[0_6px_0_0_rgba(0,0,0,0.15),0_20px_40px_-10px_rgba(0,0,0,0.4)] hover:shadow-[0_8px_0_0_rgba(0,0,0,0.2),0_24px_50px_-10px_rgba(0,0,0,0.5)] hover:-translate-y-0.5 active:translate-y-0.5 transition-all duration-300 w-full sm:w-auto h-auto">
-                  Start Earning Today
-                </Button>
-              </motion.div>
-            </Link>
-            
-            {/* Trust Indicators */}
-            <motion.div initial={{
-            opacity: 0,
-            y: 20
-          }} whileInView={{
-            opacity: 1,
-            y: 0
-          }} transition={{
-            duration: 0.6,
-            delay: 0.9
-          }} viewport={{
-            once: true
-          }} className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-8 text-white/95 text-sm sm:text-base font-semibold">
-              {["Free to list", "Earn up to AED 1,000/month", "Secure payments"].map((text, index) => <motion.div key={index} initial={{
-              opacity: 0,
-              x: -20
-            }} whileInView={{
-              opacity: 1,
-              x: 0
-            }} transition={{
-              duration: 0.5,
-              delay: 1 + index * 0.1
-            }} viewport={{
-              once: true
-            }} className="flex items-center gap-2 px-4 py-2 rounded-full glass-dark">
-                  <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-white text-primary text-sm font-bold shadow-md">✓</span>
-                  {text}
-                </motion.div>)}
-            </motion.div>
-          </motion.div>
-        </div>
-      </motion.section>
 
       {/* Final CTA */}
       <section className="py-12 sm:py-16 lg:py-20 bg-gradient-to-b from-white to-surface">
