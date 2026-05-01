@@ -386,32 +386,42 @@ const Index = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: i * 0.1 }}
                 viewport={{ once: true }}
-                className="group relative rounded-2xl glass-card hover-lift overflow-hidden flex flex-col"
+                className="group relative rounded-2xl p-[2px] transition-all duration-500 hover:-translate-y-2 flex"
+                style={{
+                  background:
+                    'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-glow)) 50%, hsl(var(--primary-deep)) 100%)',
+                  boxShadow:
+                    '0 20px 40px -15px hsl(var(--primary-deep) / 0.45), 0 8px 16px -8px hsl(var(--primary) / 0.3), inset 0 1px 0 0 hsl(0 0% 100% / 0.4)',
+                }}
               >
-                {/* Visual */}
-                <div className="relative aspect-[4/3] overflow-hidden">
-                  <img
-                    src={item.image}
-                    alt={item.problem}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                    loading="lazy"
-                    decoding="async"
-                    width={768}
-                    height={576}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent"></div>
-                  <div className="absolute top-3 left-3 inline-flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-primary text-primary-foreground shadow-elegant">
-                    <item.icon className="h-5 w-5" />
+                <div className="relative rounded-[14px] bg-white overflow-hidden flex flex-col w-full">
+                  {/* Visual — larger */}
+                  <div className="relative aspect-[3/2] overflow-hidden">
+                    <img
+                      src={item.image}
+                      alt={item.problem}
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      loading="lazy"
+                      decoding="async"
+                      width={900}
+                      height={600}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/5 to-transparent"></div>
+                    {/* Glossy top highlight */}
+                    <div className="pointer-events-none absolute inset-x-0 top-0 h-1/3 bg-gradient-to-b from-white/15 to-transparent" />
+                    <div className="absolute top-3 left-3 inline-flex items-center justify-center w-11 h-11 rounded-xl bg-gradient-primary text-primary-foreground shadow-elegant ring-2 ring-white/40">
+                      <item.icon className="h-5 w-5" />
+                    </div>
                   </div>
-                </div>
-                {/* Text */}
-                <div className="p-5">
-                  <p className="text-xs font-semibold text-foreground/55 line-through mb-1.5">
-                    {item.problem}
-                  </p>
-                  <p className="text-base font-semibold text-foreground leading-snug">
-                    {item.solution}
-                  </p>
+                  {/* Text */}
+                  <div className="p-5 sm:p-6">
+                    <p className="text-xs font-semibold text-foreground/55 line-through mb-1.5">
+                      {item.problem}
+                    </p>
+                    <p className="text-base font-semibold text-foreground leading-snug">
+                      {item.solution}
+                    </p>
+                  </div>
                 </div>
               </motion.div>
             ))}
