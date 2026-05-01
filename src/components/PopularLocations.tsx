@@ -60,14 +60,13 @@ const PopularLocations = () => {
               className="group animate-fade-in"
               style={{ animationDelay: `${index * 0.1}s` }}
             >
-              {/* 3D framed card with branded gradient border */}
+              {/* 3D framed card with branded gradient border + soft pulsing glow */}
               <div
-                className="relative rounded-2xl p-[2px] transition-all duration-500 hover:-translate-y-2"
+                className="relative rounded-2xl p-[2px] transition-all duration-500 hover:-translate-y-2 animate-frame-pulse"
                 style={{
                   background:
                     'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-glow)) 50%, hsl(var(--primary-deep)) 100%)',
-                  boxShadow:
-                    '0 20px 40px -15px hsl(var(--primary-deep) / 0.45), 0 8px 16px -8px hsl(var(--primary) / 0.3), inset 0 1px 0 0 hsl(0 0% 100% / 0.4)',
+                  animationDelay: `${index * 0.4}s`,
                 }}
               >
                 <Card className="relative overflow-hidden rounded-[14px] border-0 bg-white">
