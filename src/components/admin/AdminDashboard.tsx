@@ -84,30 +84,56 @@ export function AdminDashboard({ onJumpTab }: Props) {
   return (
     <div className="space-y-6">
       {/* Header / range / refresh */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <h2 className="text-2xl font-bold text-gradient-primary">Boss Dashboard</h2>
-          <p className="text-xs text-muted-foreground flex items-center gap-2 mt-1">
-            <Activity className="h-3 w-3 text-emerald-500 animate-pulse" />
+      <div
+        className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 sm:p-5 rounded-2xl border border-primary/20 overflow-hidden"
+        style={{
+          background:
+            'linear-gradient(135deg, hsl(var(--surface)) 0%, hsl(var(--background)) 60%, hsl(var(--primary) / 0.06) 100%)',
+          boxShadow:
+            '0 14px 40px -16px hsl(var(--primary) / 0.35), inset 0 1px 0 0 hsl(0 0% 100% / 0.7)',
+        }}
+      >
+        <div
+          className="absolute -top-12 -right-12 h-40 w-40 rounded-full opacity-30 blur-3xl pointer-events-none"
+          style={{ background: 'radial-gradient(circle, hsl(var(--primary-glow)), transparent 70%)' }}
+        />
+        <div className="relative">
+          <div className="flex items-center gap-2">
+            <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-primary to-primary-glow flex items-center justify-center shadow-[0_6px_18px_-6px_hsl(var(--primary)/0.55)]">
+              <Crown className="h-5 w-5 text-white" />
+            </div>
+            <h2 className="text-2xl font-bold text-gradient-primary">Boss Dashboard</h2>
+          </div>
+          <p className="text-xs text-muted-foreground flex items-center gap-2 mt-2">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            </span>
             Live · {lastUpdated ? `updated ${relTime(lastUpdated.toISOString())}` : 'syncing…'}
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="inline-flex rounded-lg border bg-background p-1">
+        <div className="relative flex items-center gap-2">
+          <div className="inline-flex rounded-xl border border-primary/20 bg-background/80 backdrop-blur p-1 shadow-[inset_0_1px_0_0_hsl(0_0%_100%/0.6)]">
             {[7, 30, 90].map((d) => (
               <Button
                 key={d}
                 size="sm"
                 variant={range === d ? 'default' : 'ghost'}
-                className="h-7 px-3 text-xs"
+                className={`h-7 px-3 text-xs ${range === d ? 'shadow-[0_4px_12px_-4px_hsl(var(--primary)/0.5)]' : ''}`}
                 onClick={() => setRange(d as 7 | 30 | 90)}
               >
                 {d}d
               </Button>
             ))}
           </div>
-          <Button size="sm" variant="outline" onClick={refetch} disabled={refreshing}>
-            <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={refetch}
+            disabled={refreshing}
+            className="border-primary/20 hover:border-primary/50 hover:bg-primary/5"
+          >
+            <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin text-primary' : ''}`} />
           </Button>
         </div>
       </div>
