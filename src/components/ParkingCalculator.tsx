@@ -88,7 +88,7 @@ const ParkingCalculator = () => {
                   <span className="text-lg font-semibold text-white/90">AED / month</span>
                 </div>
                 <p className="text-sm text-white/80 mt-2">
-                  At {bestCalc.duration} {bestCalc.duration === 1 ? "month" : "months"} — based on {baseRent} AED base rent
+                  At {bestCalc.duration} {bestCalc.duration === 1 ? "month" : "months"} - based on {baseRent} AED base rent
                 </p>
               </div>
               <div className="hidden sm:flex w-16 h-16 rounded-2xl bg-white/15 backdrop-blur items-center justify-center">

@@ -37,7 +37,7 @@ const Footer = () => {
               <span>support@shazam.ae</span>
             </a>
 
-            {/* Social icons — official brand glyphs */}
+            {/* Social icons - official brand glyphs */}
             <div className="flex items-center gap-2 mt-5 flex-wrap">
               {[
                 {

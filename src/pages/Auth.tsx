@@ -826,7 +826,7 @@ const Auth = () => {
       <div className="pointer-events-none absolute bottom-10 right-10 h-72 w-72 rounded-full bg-primary-glow/20 blur-3xl" aria-hidden />
 
       <div className="relative w-full max-w-5xl grid lg:grid-cols-2 frame-3d overflow-hidden">
-        {/* Left visual panel — hidden on mobile */}
+        {/* Left visual panel - hidden on mobile */}
         <div className="hidden lg:block relative min-h-[640px]">
           <img
             src={authLuxury}

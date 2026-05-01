@@ -6,7 +6,7 @@ interface PageHeroProps {
   image: string;
   /** Small chip/eyebrow above the title (optional) */
   eyebrow?: string;
-  /** Main title — substring matching `highlight` will be rendered with the brand gradient */
+  /** Main title - substring matching `highlight` will be rendered with the brand gradient */
   title: string;
   /** Optional sub-string of the title to render with the brand gradient */
   highlight?: string;
@@ -66,9 +66,9 @@ const PageHero = ({
         className="absolute inset-0 bg-cover bg-center"
         style={{ backgroundImage: `url(${image})` }}
       />
-      {/* Subtle dark overlay for text legibility — keeps the photo clearly visible */}
+      {/* Subtle dark overlay for text legibility - keeps the photo clearly visible */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/25 via-black/10 to-background/80" />
-      {/* Very light brand tint — barely there, lets the photo breathe */}
+      {/* Very light brand tint - barely there, lets the photo breathe */}
       <div className="absolute inset-0 bg-primary-deep/5 mix-blend-multiply" />
       {/* Soft radial vignette for focus */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_45%,rgba(0,0,0,0.3)_100%)]" />

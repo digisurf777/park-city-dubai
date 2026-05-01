@@ -19,7 +19,7 @@ const Calculator = () => {
         eyebrow="Earnings calculator"
         title="See What Your Bay Could Earn"
         highlight="Could Earn"
-        subtitle="Adjust the rent below — we'll instantly show your monthly take-home for 1, 3, 6 and 12 month bookings."
+        subtitle="Adjust the rent below - we'll instantly show your monthly take-home for 1, 3, 6 and 12 month bookings."
       >
         <div className="grid grid-cols-3 gap-2 sm:gap-4 max-w-xl mx-auto">
           {[

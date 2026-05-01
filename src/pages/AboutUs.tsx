@@ -8,8 +8,8 @@ import dubaiHero from "@/assets/dubai-hero-aboutus.webp";
 import useSEO from "@/hooks/useSEO";
 const AboutUs = () => {
   const seo = useSEO({
-    title: "About Shazam Parking — Dubai's Trusted Parking Marketplace",
-    description: "Learn about Shazam Parking — Dubai's trusted platform connecting parking owners with drivers. Verified spaces, secure payments and reliable monthly rentals across the city.",
+    title: "About Shazam Parking - Dubai's Trusted Parking Marketplace",
+    description: "Learn about Shazam Parking - Dubai's trusted platform connecting parking owners with drivers. Verified spaces, secure payments and reliable monthly rentals across the city.",
     keywords: "about Shazam Parking, Dubai parking marketplace, parking platform Dubai, monthly parking rentals",
     url: "/about-us",
   });
@@ -26,7 +26,7 @@ const AboutUs = () => {
         eyebrow="Our story"
         title="About Us"
         highlight="Us"
-        subtitle="Your trusted parking platform in Dubai — connecting owners and drivers, securely and simply."
+        subtitle="Your trusted parking platform in Dubai - connecting owners and drivers, securely and simply."
         size="lg"
       />
 

@@ -224,7 +224,7 @@ const OnlineSupportHistory = () => {
         <div>
           <h2 className="text-xl sm:text-2xl font-bold flex items-center gap-2">
             <MessagesSquare className="h-5 w-5 text-primary" />
-            Online Support — Chat History
+            Online Support - Chat History
           </h2>
           <p className="text-sm text-muted-foreground">
             Every conversation users had with the in-app AI assistant.

@@ -66,7 +66,7 @@ const PopularLocations = () => {
             </span>
           </h2>
           <p className="mx-auto max-w-2xl text-base sm:text-lg text-slate-600 mb-6 px-4">
-            Discover guaranteed monthly spaces in Dubai's most sought-after districts —
+            Discover guaranteed monthly spaces in Dubai's most sought-after districts -
             verified, secure and ready to book.
           </p>
           <div className="mx-auto flex items-center justify-center gap-2">

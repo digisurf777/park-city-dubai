@@ -608,7 +608,7 @@ const VerificationPanel = () => {
                   </Select>
                 </div>
 
-                {/* Hidden file input — upload triggered via dropzone above */}
+                {/* Hidden file input - upload triggered via dropzone above */}
                 <Input id="document" type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
 
                 <Button

@@ -99,7 +99,7 @@ ${message}`,
         eyebrow="We value your voice"
         title="Send Us Feedback"
         highlight="Feedback"
-        subtitle="Share your experience, ideas, or report any issue — your input shapes how we improve ShazamParking."
+        subtitle="Share your experience, ideas, or report any issue - your input shapes how we improve ShazamParking."
       />
 
       <div className="container mx-auto px-4 py-12">
