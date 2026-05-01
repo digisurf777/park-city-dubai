@@ -235,36 +235,37 @@ const Downtown = () => {
               </div>
 
               {/* Content */}
-              <div className="p-4 sm:p-6">
+              <div className="p-4 sm:p-6 flex flex-col flex-1">
                 {/* Title */}
-                <h3 className="text-lg sm:text-xl font-bold text-foreground mb-2">{spot.name}</h3>
-                
-                {/* Description */}
-                <div className="mb-4">
+                <h3 className="text-lg sm:text-xl font-bold text-foreground mb-2 line-clamp-2 min-h-[3.5rem]">{spot.name}</h3>
+
+                {/* Description - fixed visual height keeps cards aligned */}
+                <div className="mb-4 text-sm text-muted-foreground leading-relaxed line-clamp-5 min-h-[6.25rem]">
                   {formatDescription(spot.description) || (
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                      Secure underground parking space. 24/7 access, covered area.
-                    </p>
+                    <p>Secure underground parking space. 24/7 access, covered area.</p>
                   )}
                 </div>
 
-                {/* Price prominently displayed */}
-                <div className="mb-4">
-                  <span className="text-xl sm:text-2xl font-bold text-primary">From AED {spot.price}/month</span>
-                </div>
-
-                {spot.available ? (
-                  <Button 
-                    onClick={() => handleReserveClick(spot)}
-                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-2 sm:py-3 rounded font-semibold text-sm sm:text-base"
-                  >
-                    Book Now
-                  </Button>
-                ) : (
-                  <div className="w-full bg-red-500 text-white py-2 sm:py-3 rounded text-center font-semibold text-sm sm:text-base">
-                    Currently Booked
+                {/* Spacer pushes price + CTA to bottom */}
+                <div className="mt-auto">
+                  {/* Price prominently displayed */}
+                  <div className="mb-3">
+                    <span className="text-xl sm:text-2xl font-bold text-primary">From AED {spot.price}/month</span>
                   </div>
-                )}
+
+                  {spot.available ? (
+                    <Button
+                      onClick={() => handleReserveClick(spot)}
+                      className="w-full bg-primary hover:bg-primary/90 text-primary-foreground h-11 rounded font-semibold text-sm sm:text-base"
+                    >
+                      Book Now
+                    </Button>
+                  ) : (
+                    <div className="w-full bg-red-500 text-white h-11 flex items-center justify-center rounded font-semibold text-sm sm:text-base">
+                      Currently Booked
+                    </div>
+                  )}
+                </div>
               </div>
             </Card>
             </div>
