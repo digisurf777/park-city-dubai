@@ -8,6 +8,9 @@ import { MapPin, Search, CreditCard, Car, DollarSign, Clock, Shield, Quote, Zap,
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import EcosystemSection from "@/components/EcosystemSection";
+import TestimonialsMarquee from "@/components/TestimonialsMarquee";
+import TrustedPlatform from "@/components/TrustedPlatform";
+import carEnteringParking from "@/assets/car-entering-parking.jpg";
 import { EmailConfirmationBanner } from "@/components/EmailConfirmationBanner";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
