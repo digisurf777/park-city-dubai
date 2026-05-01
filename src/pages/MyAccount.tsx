@@ -359,19 +359,30 @@ const MyAccount = () => {
         <Loader2 className="h-8 w-8 animate-spin" />
       </div>;
   }
-  return <div className="min-h-screen bg-background pt-20 animate-zoom-slow">
-      <div className="max-w-4xl mx-auto p-4 lg:p-6">
-        <div className="flex flex-col space-y-4 mb-6 lg:flex-row lg:justify-between lg:items-center lg:space-y-0">
-          <h1 className="text-2xl lg:text-3xl font-bold">My Account</h1>
-          <div className="flex gap-2">
-            <Button onClick={() => navigate('/')} variant="outline" size="sm" className="flex-1 lg:flex-initial">
-              <Home className="mr-2 h-4 w-4" />
-              <span>Home</span>
-            </Button>
-            <Button onClick={handleLogout} variant="outline" size="sm" className="flex-1 lg:flex-initial">
-              <LogOut className="mr-2 h-4 w-4" />
-              <span>Logout</span>
-            </Button>
+  return <div className="min-h-screen bg-gradient-to-b from-surface via-background to-background pt-20 animate-fade-in">
+      <div className="max-w-5xl mx-auto p-4 lg:p-6">
+        {/* Hero header card */}
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-hero text-primary-foreground shadow-elegant mb-6 p-6 lg:p-8">
+          <div className="pointer-events-none absolute -top-16 -right-16 w-64 h-64 rounded-full bg-white/10 blur-3xl"></div>
+          <div className="pointer-events-none absolute -bottom-20 -left-20 w-72 h-72 rounded-full bg-white/10 blur-3xl"></div>
+          <div className="relative flex flex-col gap-4 lg:flex-row lg:justify-between lg:items-center">
+            <div>
+              <p className="text-sm uppercase tracking-wider text-white/80 mb-1">Welcome back</p>
+              <h1 className="text-2xl lg:text-3xl font-bold">
+                {profile?.full_name || user?.email?.split('@')[0] || 'My Account'}
+              </h1>
+              <p className="text-white/80 text-sm mt-1">{user?.email}</p>
+            </div>
+            <div className="flex gap-2">
+              <Button onClick={() => navigate('/')} variant="secondary" size="sm" className="bg-white/15 hover:bg-white/25 text-white border-0 backdrop-blur">
+                <Home className="mr-2 h-4 w-4" />
+                <span>Home</span>
+              </Button>
+              <Button onClick={handleLogout} variant="secondary" size="sm" className="bg-white/15 hover:bg-white/25 text-white border-0 backdrop-blur">
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Logout</span>
+              </Button>
+            </div>
           </div>
         </div>
 
