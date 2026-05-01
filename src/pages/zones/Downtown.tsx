@@ -240,10 +240,14 @@ const Downtown = () => {
                 <h3 className="text-lg sm:text-xl font-bold text-foreground mb-2 line-clamp-2 min-h-[3.5rem]">{spot.name}</h3>
 
                 {/* Description - fixed visual height keeps cards aligned */}
-                <div className="mb-4 text-sm text-muted-foreground leading-relaxed line-clamp-5 min-h-[6.25rem]">
-                  {formatDescription(spot.description) || (
-                    <p>Secure underground parking space. 24/7 access, covered area.</p>
-                  )}
+                <div className="relative mb-4 h-[7.5rem] overflow-hidden">
+                  <div className="text-sm text-muted-foreground leading-relaxed">
+                    {formatDescription(spot.description) || (
+                      <p>Secure underground parking space. 24/7 access, covered area.</p>
+                    )}
+                  </div>
+                  {/* fade-out gradient at bottom for clipped content */}
+                  <div className="pointer-events-none absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-white to-transparent" />
                 </div>
 
                 {/* Spacer pushes price + CTA to bottom */}
