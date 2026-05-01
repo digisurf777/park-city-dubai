@@ -73,7 +73,7 @@ const DubaiMarina = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-b from-surface to-background">
       <Navbar />
 
       {/* Hero Section */}

@@ -5,7 +5,7 @@ import { MapPin, Clock, Shield, Star, Users, Car } from "lucide-react";
 
 const LavableHome = () => {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-b from-surface to-background">
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-primary/10 to-primary/5 py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

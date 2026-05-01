@@ -62,7 +62,7 @@ const NewsArticle = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background animate-zoom-slow">
+      <div className="min-h-screen bg-gradient-to-b from-surface to-background animate-fade-in">
         <Navbar />
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
           <div className="text-center mb-6">
@@ -76,7 +76,7 @@ const NewsArticle = () => {
 
   if (!article) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-gradient-to-b from-surface to-background">
         <Navbar />
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
         <div className="text-center mb-6">
@@ -95,7 +95,7 @@ const NewsArticle = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-b from-surface to-background">
       <Helmet>
         <title>{article.meta_title || article.title} - Shazam Parking</title>
         <meta name="description" content={article.meta_description || article.content.replace(/<[^>]*>/g, '').substring(0, 150)} />

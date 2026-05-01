@@ -68,7 +68,7 @@ const Downtown = () => {
       [spotId]: ((prev[spotId] || 0) - 1 + totalImages) % totalImages
     }));
   };
-  return <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-gradient-to-b from-surface to-background">
       <Navbar />
       
       {/* Hero Section */}

@@ -66,7 +66,7 @@ const FAQ = () => {
       answer: "If you have an issue such as blocked access or a faulty entry device, please contact the owner through the in-platform chat and also notify us immediately by email. If the issue remains unresolved, we are always here to assist and, if necessary, will cancel the booking with a refund in line with our policy."
     }]
   }];
-  return <div className="min-h-screen bg-background animate-zoom-slow">
+  return <div className="min-h-screen bg-gradient-to-b from-surface to-background animate-fade-in">
       <Navbar />
       
       {/* Hero Section */}
