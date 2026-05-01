@@ -1936,6 +1936,11 @@ const AdminPanelOrganized = () => {
             <AdminDashboard onJumpTab={(t) => setActiveTab(t)} />
           </TabsContent>
 
+          {/* Support Inbox Tab */}
+          <TabsContent value="support" className="space-y-6 mt-6">
+            <SupportDashboard />
+          </TabsContent>
+
           {/* Content Management Tab */}
           <TabsContent value="content" className="space-y-6 mt-6">
             <Tabs defaultValue="notifications" className="w-full">
