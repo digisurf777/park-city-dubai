@@ -3,7 +3,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import dubaiHero from "@/assets/dubai-hero-aboutus.jpg";
+import dubaiHero from "@/assets/dubai-hero-aboutus.webp";
 const AboutUs = () => {
   useEffect(() => {
     window.scrollTo(0, 0);

@@ -91,7 +91,7 @@ const LavableFAQ = () => {
       {/* Hero Section */}
       <section 
         className="relative bg-cover bg-center bg-no-repeat py-24"
-        style={{ backgroundImage: "url('/lavable-faq-hero.jpg')" }}
+        style={{ backgroundImage: "url('/lavable-faq-hero.webp')" }}
       >
         <div className="absolute inset-0 bg-black/40"></div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">

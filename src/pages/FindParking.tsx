@@ -12,13 +12,13 @@ import Footer from "@/components/Footer";
 import { useSearchParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 
-import dubaiMarinaZone from "@/assets/zones/dubai-marina-real.jpg";
-import downtownZone from "/lovable-uploads/f676da2a-39c9-4211-8561-5b884e0ceed8.png";
-import dubaiHeroImage from "@/assets/dubai-daytime-hero.jpg";
-import palmJumeirahZone from "/lovable-uploads/atlantis-hotel-hero.jpg";
-import businessBayZone from "@/assets/zones/business-bay-real.jpg";
-import difcZone from "/lovable-uploads/63d539ac-8cbb-46b2-aa39-3de0695ef8c9.png";
-import deiraZone from "@/assets/zones/deira-real.jpg";
+import dubaiMarinaZone from "@/assets/zones/dubai-marina-real.webp";
+import downtownZone from "/lovable-uploads/f676da2a-39c9-4211-8561-5b884e0ceed8.webp";
+import dubaiHeroImage from "@/assets/dubai-daytime-hero.webp";
+import palmJumeirahZone from "/lovable-uploads/atlantis-hotel-hero.webp";
+import businessBayZone from "@/assets/zones/business-bay-real.webp";
+import difcZone from "/lovable-uploads/63d539ac-8cbb-46b2-aa39-3de0695ef8c9.webp";
+import deiraZone from "@/assets/zones/deira-real.webp";
 const FindParking = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -116,7 +116,7 @@ const FindParking = () => {
           district: listing.zone,
           price: customerPrice,
           basePrice: basePrice,
-          image: listing.images && listing.images.length > 0 ? listing.images[0] : "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
+          image: listing.images && listing.images.length > 0 ? listing.images[0] : "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.webp",
           images: listing.images || [],
           specs: listing.features || ["Access Card", "Secure"],
           available: listing.status === 'approved'

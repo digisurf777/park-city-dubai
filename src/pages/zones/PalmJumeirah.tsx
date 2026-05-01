@@ -78,7 +78,7 @@ const PalmJumeirah = () => {
         <div className="absolute inset-0 bg-black/35"></div>
         <div 
           className="absolute inset-0 bg-cover bg-center" 
-          style={{ backgroundImage: `url(/lovable-uploads/atlantis-hotel-hero.jpg)` }}
+          style={{ backgroundImage: `url(/lovable-uploads/atlantis-hotel-hero.webp)` }}
         ></div>
         <div className="relative z-10 flex items-center justify-center h-full">
           <div className="text-center text-white px-4 max-w-4xl mx-auto">

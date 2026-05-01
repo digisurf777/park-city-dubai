@@ -12,7 +12,7 @@ const PerformantHero = () => {
       <link 
         rel="preload" 
         as="image" 
-        href="/lovable-uploads/25c56481-0d03-4055-bd47-67635ac0d1b0.png"
+        href="/lovable-uploads/25c56481-0d03-4055-bd47-67635ac0d1b0.webp"
         fetchPriority="high"
       />
       <link 

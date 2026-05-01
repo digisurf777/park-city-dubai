@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import dubaiParkingHero from "@/assets/dubai-parking-hero.jpg";
+import dubaiParkingHero from "@/assets/dubai-parking-hero.webp";
 const FAQ = () => {
   useEffect(() => {
     window.scrollTo(0, 0);

@@ -13,8 +13,8 @@ const CRITICAL_RESOURCES = [
   '/',
   '/static/css/main.css',
   '/static/js/main.js',
-  '/assets/dubai-skyline-hero.jpg',
-  '/lovable-uploads/atlantis-hotel-hero.jpg'
+  '/assets/dubai-skyline-hero.webp',
+  '/lovable-uploads/atlantis-hotel-hero.webp'
 ];
 
 // Install event - cache critical resources immediately

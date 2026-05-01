@@ -101,7 +101,7 @@ const NewsArticle = () => {
         <meta name="description" content={article.meta_description || article.content.replace(/<[^>]*>/g, '').substring(0, 150)} />
         <meta property="og:title" content={article.meta_title || article.title} />
         <meta property="og:description" content={article.meta_description || article.content.replace(/<[^>]*>/g, '').substring(0, 150)} />
-        <meta property="og:image" content={article.image_url || '/news/hero.jpg'} />
+        <meta property="og:image" content={article.image_url || '/news/hero.webp'} />
         <meta property="og:type" content="article" />
         <meta name="article:published_time" content={article.publication_date} />
         <meta name="keywords" content={article.tags?.join(', ') || 'Dubai parking, news, ShazamParking'} />
