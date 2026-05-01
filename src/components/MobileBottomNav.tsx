@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, Search, Plus, User } from "lucide-react";
+import { Home, Search, Plus, User, Headset } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 
@@ -8,8 +8,7 @@ import { cn } from "@/lib/utils";
  * Pages should add `pb-mobile-nav` to their root container so content
  * isn't hidden behind it.
  *
- * Layout: [Home] [Search] [List (raised 3D CTA)] [Account]
- * Inbox is intentionally not here — the floating ChatWidget covers messaging.
+ * Layout: [Home] [Search] [List (raised 3D CTA)] [Support] [Account]
  */
 const MobileBottomNav = () => {
   const { pathname } = useLocation();
@@ -19,6 +18,9 @@ const MobileBottomNav = () => {
   } catch {
     user = null;
   }
+
+  // Hide on admin to keep dashboard immersive
+  if (pathname.startsWith("/admin")) return null;
 
   const leftItems = [
     { to: "/", label: "Home", icon: Home, match: (p: string) => p === "/" },
@@ -32,6 +34,17 @@ const MobileBottomNav = () => {
 
   const rightItems = [
     {
+      // Trigger ChatWidget by dispatching a global event handled in ChatWidget
+      to: "#support",
+      label: "Support",
+      icon: Headset,
+      match: (_p: string) => false,
+      onClick: (e: React.MouseEvent) => {
+        e.preventDefault();
+        window.dispatchEvent(new CustomEvent("open-support-chat"));
+      },
+    },
+    {
       to: user ? "/my-account" : "/auth",
       label: user ? "Account" : "Sign in",
       icon: User,
@@ -40,36 +53,50 @@ const MobileBottomNav = () => {
     },
   ];
 
-  // Hide on admin to keep dashboard immersive
-  if (pathname.startsWith("/admin")) return null;
-
-  const renderItem = (item: (typeof leftItems)[number]) => {
+  const renderItem = (item: {
+    to: string;
+    label: string;
+    icon: any;
+    match: (p: string) => boolean;
+    onClick?: (e: React.MouseEvent) => void;
+  }) => {
     const Icon = item.icon;
     const active = item.match(pathname);
+    const isSupport = item.label === "Support";
     return (
-      <li key={item.to} className="flex-1">
+      <li key={item.label} className="flex-1">
         <Link
           to={item.to}
+          onClick={item.onClick}
           aria-current={active ? "page" : undefined}
           className={cn(
-            "group flex flex-col items-center justify-center gap-0.5 h-full text-[10.5px] font-semibold transition-all touch-manipulation select-none",
-            active ? "text-primary" : "text-muted-foreground active:text-primary"
+            "group relative flex flex-col items-center justify-center gap-0.5 h-full text-[10.5px] font-bold transition-all touch-manipulation select-none",
+            active
+              ? "text-primary"
+              : "text-slate-700 active:text-primary"
           )}
         >
           <span
             className={cn(
-              "flex items-center justify-center w-10 h-10 rounded-xl transition-all",
+              "relative flex items-center justify-center w-11 h-11 rounded-2xl transition-all",
               active
-                ? "bg-primary/12 shadow-[inset_0_1px_0_hsl(var(--primary)/0.25),0_2px_8px_-2px_hsl(var(--primary)/0.35)] scale-105"
-                : "bg-transparent group-active:bg-primary/8"
+                ? "bg-gradient-to-br from-primary/20 to-primary-glow/15 shadow-[inset_0_1px_0_hsl(var(--primary)/0.3),0_4px_10px_-2px_hsl(var(--primary)/0.4)] scale-105"
+                : "bg-slate-100/80 group-active:bg-primary/10 group-hover:bg-primary/10"
             )}
           >
             <Icon
-              className={cn("h-[20px] w-[20px] transition-transform", active && "scale-110")}
-              strokeWidth={active ? 2.4 : 2}
+              className={cn(
+                "h-[20px] w-[20px] transition-transform",
+                active && "scale-110"
+              )}
+              strokeWidth={active ? 2.6 : 2.2}
             />
+            {/* Live dot for support */}
+            {isSupport && (
+              <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white animate-pulse" />
+            )}
           </span>
-          <span className="leading-tight">{item.label}</span>
+          <span className="leading-tight tracking-tight">{item.label}</span>
           {/* Active dot */}
           <span
             className={cn(
@@ -91,11 +118,11 @@ const MobileBottomNav = () => {
       aria-label="Primary mobile navigation"
     >
       {/* Solid frosted bar */}
-      <div className="relative bg-white/95 backdrop-blur-xl border-t border-border/60 shadow-[0_-8px_24px_-8px_hsl(var(--primary-deep)/0.18)]">
+      <div className="relative bg-white/97 backdrop-blur-xl border-t border-primary/15 shadow-[0_-10px_28px_-8px_hsl(var(--primary-deep)/0.22)]">
         {/* Subtle top highlight line */}
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
 
-        <ul className="relative flex items-stretch justify-around h-16 px-2">
+        <ul className="relative flex items-stretch justify-around h-16 px-1.5">
           {leftItems.map(renderItem)}
 
           {/* Center raised "List" 3D CTA */}
@@ -123,7 +150,7 @@ const MobileBottomNav = () => {
               <span
                 className={cn(
                   "text-[10.5px] font-bold tracking-wide",
-                  listActive ? "text-primary" : "text-foreground/80"
+                  listActive ? "text-primary" : "text-slate-800"
                 )}
               >
                 List
