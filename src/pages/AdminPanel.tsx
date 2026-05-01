@@ -45,6 +45,8 @@ import { LifeBuoy } from 'lucide-react';
 import { LayoutDashboard } from 'lucide-react';
 import { useInactivityLogout } from '@/hooks/useInactivityLogout';
 import { InactivityWarningDialog } from '@/components/InactivityWarningDialog';
+import { CurrencyProvider } from '@/contexts/CurrencyContext';
+import CurrencySwitcher from '@/components/admin/CurrencySwitcher';
 
 // Import all interfaces and state from original AdminPanel
 interface NewsPost {
