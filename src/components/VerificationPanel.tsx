@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { Upload, FileImage, CheckCircle, Clock, XCircle, AlertTriangle } from 'lucide-react';
+import { Upload, FileImage, CheckCircle, Clock, XCircle, AlertTriangle, ShieldCheck, Sparkles, FileText, IdCard, BookOpen } from 'lucide-react';
 interface Verification {
   id: string;
   full_name: string;
@@ -36,14 +36,22 @@ const VerificationPanel = () => {
   // Return early if user is already approved
   if (verification?.verification_status === 'approved') {
     return (
-      <Card>
-        <CardContent className="pt-6">
-          <div className="text-center space-y-4">
-            <CheckCircle className="h-16 w-16 text-green-500 mx-auto" />
-            <h3 className="text-xl font-semibold text-green-700">Account Verified ✓</h3>
-            <p className="text-muted-foreground">Your account is verified and you can now access all features.</p>
+      <Card className="overflow-hidden border-emerald-200/60 shadow-elegant">
+        <div className="relative bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-600 px-6 py-10 text-center text-white">
+          <div className="absolute inset-0 opacity-25 bg-[radial-gradient(circle_at_30%_20%,white,transparent_60%)]" />
+          <div className="relative">
+            <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-white/20 ring-4 ring-white/30 backdrop-blur">
+              <ShieldCheck className="h-11 w-11" />
+            </div>
+            <h3 className="text-2xl font-bold tracking-tight">Account Verified</h3>
+            <p className="mt-2 text-sm text-white/90 max-w-sm mx-auto">
+              Your identity is confirmed. You now have full access to bookings, listings and payouts.
+            </p>
+            <div className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold backdrop-blur">
+              <Sparkles className="h-3 w-3" /> Trusted member
+            </div>
           </div>
-        </CardContent>
+        </div>
       </Card>
     );
   }
