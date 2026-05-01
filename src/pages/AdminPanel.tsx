@@ -1920,6 +1920,10 @@ const AdminPanelOrganized = () => {
                 <MessagesSquare className="h-4 w-4 sm:h-5 sm:w-5 mb-1" />
                 <span className="font-semibold text-[10px] sm:text-sm">Chat History</span>
                 <span className="text-[8px] sm:text-xs opacity-70 mt-0.5 sm:mt-1 hidden sm:block">Online support log</span>
+              </TabsTrigger>
+
+              <TabsTrigger
+                value="booking-chats"
                 className="flex flex-col items-center p-2 sm:p-3 h-auto text-xs sm:text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg min-w-[70px] sm:min-w-0"
               >
                 <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5 mb-1" />
