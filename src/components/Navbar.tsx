@@ -24,7 +24,7 @@ const Navbar = () => {
   }
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 glass border-b border-white/30 pt-safe-area-top">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/85 backdrop-blur-xl backdrop-saturate-150 border-b border-primary/15 shadow-[0_4px_20px_-8px_hsl(var(--primary)/0.25)] pt-safe-area-top">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16 min-h-[60px]">
           {/* Logo */}
@@ -117,22 +117,22 @@ const Navbar = () => {
                   Logout
                 </Button>
                 <Link to="/rent-out-your-space">
-                  <Button className="bg-primary hover:bg-primary/90 text-white">
+                  <button className="btn-3d-primary px-5 py-2 rounded-lg font-semibold text-sm tracking-wide">
                     List Your Space
-                  </Button>
+                  </button>
                 </Link>
               </>
             ) : (
               <>
                 <Link to="/auth">
-                  <Button variant="ghost" className="text-gray-700 hover:text-primary">
+                  <Button variant="ghost" className="text-gray-700 hover:text-primary font-semibold">
                     Login / Sign Up
                   </Button>
                 </Link>
                 <Link to="/rent-out-your-space">
-                  <Button className="bg-primary hover:bg-primary/90 text-white">
+                  <button className="btn-3d-primary px-5 py-2 rounded-lg font-semibold text-sm tracking-wide">
                     List Your Space
-                  </Button>
+                  </button>
                 </Link>
               </>
             )}
@@ -154,7 +154,7 @@ const Navbar = () => {
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="md:hidden fixed top-16 left-0 right-0 z-40 glass border-b border-white/30 animate-fade-in max-h-[calc(100vh-4rem)] overflow-y-auto mobile-scroll">
+          <div className="md:hidden fixed top-16 left-0 right-0 z-40 bg-white/98 backdrop-blur-xl border-b border-primary/15 shadow-[0_20px_40px_-12px_hsl(var(--primary-deep)/0.35)] animate-slide-up max-h-[calc(100vh-4rem)] overflow-y-auto mobile-scroll">
             <div className="px-4 py-6 space-y-2 pb-safe-area-bottom">
               
               {/* Auth Buttons - Top of mobile menu */}
