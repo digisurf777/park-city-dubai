@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { MapPin, Mail, ExternalLink } from "lucide-react";
+import { MapPin, Mail, ExternalLink, Apple, Smartphone } from "lucide-react";
 
 const Footer = () => {
   const socials = [
@@ -140,12 +140,12 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Legal + ecosystem link */}
+          {/* Legal */}
           <div>
             <h3 className="text-xs font-bold tracking-[0.18em] uppercase text-primary mb-3">
               Legal
             </h3>
-            <ul className="space-y-1.5 mb-4">
+            <ul className="space-y-1.5">
               {legalLinks.map((item) => (
                 <li key={item.to}>
                   <Link
@@ -157,15 +157,74 @@ const Footer = () => {
                 </li>
               ))}
             </ul>
-            <a
-              href="https://shazam.ae/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-xs text-gray-400 hover:text-primary transition-colors"
-            >
-              Part of the Shazam ecosystem
-              <ExternalLink className="h-3 w-3" />
-            </a>
+          </div>
+        </div>
+
+        {/* Ecosystem + Apps */}
+        <div className="border-t border-white/10 mt-6 pt-5 grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Shazam Ecosystem */}
+          <div>
+            <h3 className="text-xs font-bold tracking-[0.18em] uppercase text-primary mb-3">
+              Shazam Ecosystem
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              <a
+                href="https://shazam.ae/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-xs text-gray-200 bg-white/5 px-3 py-1.5 rounded-full ring-1 ring-white/10 hover:ring-primary/40 hover:bg-white/10 transition-colors"
+              >
+                Shazam
+                <ExternalLink className="h-3 w-3" />
+              </a>
+              <a
+                href="https://dubailifeos.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-xs text-gray-200 bg-white/5 px-3 py-1.5 rounded-full ring-1 ring-white/10 hover:ring-primary/40 hover:bg-white/10 transition-colors"
+              >
+                Dubai Life OS
+                <ExternalLink className="h-3 w-3" />
+              </a>
+              <a
+                href="https://dubailifemaps.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-xs text-gray-200 bg-white/5 px-3 py-1.5 rounded-full ring-1 ring-white/10 hover:ring-primary/40 hover:bg-white/10 transition-colors"
+              >
+                Dubai Life Maps
+                <ExternalLink className="h-3 w-3" />
+              </a>
+            </div>
+          </div>
+
+          {/* Mobile Apps - Coming Soon */}
+          <div className="md:text-right">
+            <h3 className="text-xs font-bold tracking-[0.18em] uppercase text-primary mb-3">
+              Mobile Apps
+            </h3>
+            <div className="flex flex-wrap gap-2 md:justify-end">
+              <div
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 ring-1 ring-white/10 text-gray-300 cursor-not-allowed"
+                title="Coming soon"
+              >
+                <Apple className="h-4 w-4" />
+                <div className="leading-tight text-left">
+                  <div className="text-[9px] uppercase tracking-wider text-gray-500">Coming soon</div>
+                  <div className="text-xs font-semibold">App Store</div>
+                </div>
+              </div>
+              <div
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 ring-1 ring-white/10 text-gray-300 cursor-not-allowed"
+                title="Coming soon"
+              >
+                <Smartphone className="h-4 w-4" />
+                <div className="leading-tight text-left">
+                  <div className="text-[9px] uppercase tracking-wider text-gray-500">Coming soon</div>
+                  <div className="text-xs font-semibold">Google Play</div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
