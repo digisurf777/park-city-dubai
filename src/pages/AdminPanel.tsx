@@ -36,6 +36,8 @@ import { BookingChatsMonitor } from '@/components/BookingChatsMonitor';
 import { PaymentHistoryUnified } from '@/components/PaymentHistoryUnified';
 import { PaymentHistoryAdmin } from '@/components/PaymentHistoryAdmin';
 import { MonthlyEmailsTab } from '@/components/admin/MonthlyEmailsTab';
+import { AdminDashboard } from '@/components/admin/AdminDashboard';
+import { LayoutDashboard } from 'lucide-react';
 import { useInactivityLogout } from '@/hooks/useInactivityLogout';
 import { InactivityWarningDialog } from '@/components/InactivityWarningDialog';
 
