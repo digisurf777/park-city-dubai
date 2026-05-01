@@ -8,8 +8,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
+import { Textarea } from '@/components/ui/textarea';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { Loader2, User, History, LogOut, Shield, Mail, Home, MessageSquare, Send, Car, ParkingCircle, MessageCircle, CheckCircle, FileText } from 'lucide-react';
+import { Loader2, User, History, LogOut, Shield, Mail, Home, MessageSquare, Send, Car, ParkingCircle, MessageCircle, CheckCircle, FileText, Camera, Phone, Globe, Bell, Sparkles, ImageIcon, Trash2 } from 'lucide-react';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import VerificationPanel from '@/components/VerificationPanel';
 import UserInbox from '@/components/UserInbox';
@@ -26,6 +29,12 @@ interface Profile {
   full_name: string;
   phone: string;
   user_type: string;
+  avatar_url?: string | null;
+  bio?: string | null;
+  preferred_language?: string | null;
+  notification_email?: boolean | null;
+  notification_sms?: boolean | null;
+  email?: string | null;
 }
 interface ParkingBooking {
   id: string;
@@ -80,8 +89,7 @@ const MyAccount = () => {
   const [isParkingOwner, setIsParkingOwner] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'profile');
   const [unreadChatCount, setUnreadChatCount] = useState<number>(0);
-
-  // Redirect if not logged in
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
   if (!user) {
     navigate('/auth');
     return null;
@@ -235,37 +243,31 @@ const MyAccount = () => {
     
     setUpdating(true);
     try {
-      console.log('Attempting profile update', { userId: user.id, profileId: profile?.id });
-      let query = supabase
-        .from('profiles')
-        .update({
-          full_name: profile.full_name,
-          phone: profile.phone,
-          email: user.email, // keep email in sync with auth
-          user_type: isParkingOwner ? 'owner' : 'seeker',
-        });
+      const updatePayload = {
+        full_name: profile.full_name,
+        phone: profile.phone,
+        email: user.email,
+        user_type: isParkingOwner ? 'owner' : 'seeker',
+        avatar_url: profile.avatar_url ?? null,
+        bio: profile.bio ?? null,
+        preferred_language: profile.preferred_language ?? 'en',
+        notification_email: profile.notification_email ?? true,
+        notification_sms: profile.notification_sms ?? false,
+      };
 
+      let query = supabase.from('profiles').update(updatePayload);
       query = profile?.id ? query.eq('id', profile.id) : query.eq('user_id', user.id);
 
       const { data, error } = await query.select().maybeSingle();
 
       if (error || !data) {
-        console.error('Profile update error or no row updated:', error);
-        // Fallback: create profile if it doesn't exist or nothing was updated
         const { error: insertError, data: insertData } = await supabase
           .from('profiles')
-          .insert({
-            user_id: user.id,
-            email: user.email,
-            full_name: profile.full_name,
-            phone: profile.phone,
-            user_type: isParkingOwner ? 'owner' : 'seeker',
-          })
+          .insert({ user_id: user.id, ...updatePayload })
           .select()
           .maybeSingle();
 
         if (insertError) {
-          console.error('Profile insert fallback error:', insertError);
           toast.error(`Failed to save profile: ${(error || insertError).message}`);
         } else {
           toast.success('Profile saved successfully');
@@ -282,6 +284,68 @@ const MyAccount = () => {
       setUpdating(false);
     }
   };
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image must be smaller than 5 MB');
+      return;
+    }
+
+    setUploadingAvatar(true);
+    try {
+      const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+      const path = `${user.id}/avatar-${Date.now()}.${ext}`;
+
+      const { error: upErr } = await supabase.storage
+        .from('avatars')
+        .upload(path, file, { upsert: true, cacheControl: '3600' });
+      if (upErr) throw upErr;
+
+      const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(path);
+      const publicUrl = urlData.publicUrl;
+
+      const { error: dbErr } = await supabase
+        .from('profiles')
+        .update({ avatar_url: publicUrl })
+        .eq('user_id', user.id);
+      if (dbErr) throw dbErr;
+
+      setProfile(prev => prev ? { ...prev, avatar_url: publicUrl } : prev);
+      toast.success('Profile picture updated');
+    } catch (err: any) {
+      console.error('Avatar upload failed:', err);
+      toast.error(err.message || 'Failed to upload picture');
+    } finally {
+      setUploadingAvatar(false);
+      e.target.value = '';
+    }
+  };
+
+  const removeAvatar = async () => {
+    if (!user || !profile?.avatar_url) return;
+    setUploadingAvatar(true);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ avatar_url: null })
+        .eq('user_id', user.id);
+      if (error) throw error;
+      setProfile(prev => prev ? { ...prev, avatar_url: null } : prev);
+      toast.success('Profile picture removed');
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to remove picture');
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
+
   const handleLogout = async () => {
     try {
       console.log('Starting logout process...');
@@ -361,36 +425,100 @@ const MyAccount = () => {
   }
   return <div className="min-h-screen bg-gradient-to-b from-surface via-background to-background pt-20 animate-fade-in">
       <div className="max-w-5xl mx-auto p-4 lg:p-6">
-        {/* Hero header card */}
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-hero text-primary-foreground shadow-elegant mb-6 p-6 lg:p-8 border border-white/15">
-          <div className="pointer-events-none absolute -top-16 -right-16 w-64 h-64 rounded-full bg-white/15 blur-3xl"></div>
-          <div className="pointer-events-none absolute -bottom-20 -left-20 w-72 h-72 rounded-full bg-primary-glow/30 blur-3xl"></div>
-          {/* subtle grid texture */}
-          <div className="pointer-events-none absolute inset-0 opacity-[0.06]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '24px 24px' }} />
-          <div className="relative flex flex-col gap-5 lg:flex-row lg:justify-between lg:items-center">
-            <div className="flex items-center gap-4">
-              {/* Avatar circle with initials */}
-              <div className="relative h-16 w-16 lg:h-20 lg:w-20 rounded-2xl bg-white/15 backdrop-blur-md border border-white/30 flex items-center justify-center text-white text-2xl lg:text-3xl font-black shadow-glow">
-                {(profile?.full_name || user?.email || '?').charAt(0).toUpperCase()}
+        {/* Hero header card — premium glass */}
+        <div className="relative overflow-hidden rounded-3xl mb-6 p-6 lg:p-10 shadow-elegant border border-white/20"
+             style={{ background: 'linear-gradient(135deg, hsl(var(--primary-deep)) 0%, hsl(var(--primary)) 55%, hsl(var(--primary-glow)) 100%)' }}>
+          {/* Decorative orbs */}
+          <div className="pointer-events-none absolute -top-20 -right-20 w-72 h-72 rounded-full bg-white/15 blur-3xl"></div>
+          <div className="pointer-events-none absolute -bottom-24 -left-16 w-80 h-80 rounded-full bg-primary-glow/40 blur-3xl"></div>
+          <div className="pointer-events-none absolute inset-0 opacity-[0.07]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '22px 22px' }} />
+
+          <div className="relative flex flex-col gap-6 lg:flex-row lg:justify-between lg:items-center">
+            <div className="flex items-center gap-5">
+              {/* Avatar — uploadable */}
+              <div className="relative group">
+                <Avatar className="h-20 w-20 lg:h-24 lg:w-24 rounded-2xl ring-4 ring-white/30 shadow-glow bg-white/15 backdrop-blur">
+                  {profile?.avatar_url ? (
+                    <AvatarImage src={profile.avatar_url} alt={profile.full_name || 'Profile'} className="object-cover" />
+                  ) : null}
+                  <AvatarFallback className="rounded-2xl bg-white/15 text-white text-3xl lg:text-4xl font-black">
+                    {(profile?.full_name || user?.email || '?').charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <label
+                  htmlFor="avatar-upload-hero"
+                  className="absolute inset-0 rounded-2xl bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center cursor-pointer transition-opacity"
+                  title="Change profile picture"
+                >
+                  {uploadingAvatar
+                    ? <Loader2 className="h-6 w-6 text-white animate-spin" />
+                    : <Camera className="h-6 w-6 text-white" />}
+                </label>
+                <input
+                  id="avatar-upload-hero"
+                  type="file"
+                  accept="image/*"
+                  className="sr-only"
+                  onChange={handleAvatarUpload}
+                  disabled={uploadingAvatar}
+                />
                 <span className="absolute -bottom-1 -right-1 h-5 w-5 rounded-full bg-emerald-400 border-2 border-white shadow" title="Online" />
               </div>
-              <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-white/80 mb-1 font-semibold">★ Welcome back</p>
-                <h1 className="text-2xl lg:text-3xl font-black text-3d-light">
+
+              <div className="min-w-0">
+                <p className="text-[11px] uppercase tracking-[0.22em] text-white/80 mb-1 font-bold flex items-center gap-1.5">
+                  <Sparkles className="h-3 w-3" /> Welcome back
+                </p>
+                <h1 className="text-2xl lg:text-4xl font-black text-white drop-shadow-md leading-tight truncate">
                   {profile?.full_name || user?.email?.split('@')[0] || 'My Account'}
                 </h1>
-                <p className="text-white/80 text-sm mt-1">{user?.email}</p>
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-white/85 text-sm">
+                  <span className="inline-flex items-center gap-1.5"><Mail className="h-3.5 w-3.5" /> {user?.email}</span>
+                  {profile?.phone && (
+                    <span className="inline-flex items-center gap-1.5"><Phone className="h-3.5 w-3.5" /> {profile.phone}</span>
+                  )}
+                </div>
+                <div className="flex flex-wrap gap-2 mt-3">
+                  <Badge className="bg-white/20 hover:bg-white/30 text-white border border-white/30 backdrop-blur capitalize">
+                    {isParkingOwner ? '🅿️ Parking owner' : '🚗 Driver'}
+                  </Badge>
+                  {(verificationStatus === 'approved' || verificationStatus === 'verified') ? (
+                    <Badge className="bg-emerald-500/90 hover:bg-emerald-500 text-white border-0">✓ Verified</Badge>
+                  ) : verificationStatus === 'pending' ? (
+                    <Badge className="bg-amber-500/90 hover:bg-amber-500 text-white border-0">⏳ Pending</Badge>
+                  ) : (
+                    <Badge className="bg-orange-500/90 hover:bg-orange-500 text-white border-0">! Verification needed</Badge>
+                  )}
+                </div>
               </div>
             </div>
-            <div className="flex gap-2">
-              <Button onClick={() => navigate('/')} variant="secondary" size="sm" className="bg-white/15 hover:bg-white/25 text-white border border-white/20 backdrop-blur shadow-md">
-                <Home className="mr-2 h-4 w-4" />
-                <span>Home</span>
-              </Button>
-              <Button onClick={handleLogout} variant="secondary" size="sm" className="bg-white/15 hover:bg-white/25 text-white border border-white/20 backdrop-blur shadow-md">
-                <LogOut className="mr-2 h-4 w-4" />
-                <span>Logout</span>
-              </Button>
+
+            {/* Quick stats + actions */}
+            <div className="flex flex-col gap-3">
+              <div className="grid grid-cols-3 gap-2 lg:gap-3">
+                <div className="text-center px-3 py-2 rounded-xl bg-white/15 border border-white/25 backdrop-blur">
+                  <div className="text-xl lg:text-2xl font-black text-white leading-none">{listings.length}</div>
+                  <div className="text-[10px] uppercase tracking-wider text-white/75 mt-1">Listings</div>
+                </div>
+                <div className="text-center px-3 py-2 rounded-xl bg-white/15 border border-white/25 backdrop-blur">
+                  <div className="text-xl lg:text-2xl font-black text-white leading-none">{bookings.length}</div>
+                  <div className="text-[10px] uppercase tracking-wider text-white/75 mt-1">Bookings</div>
+                </div>
+                <div className="text-center px-3 py-2 rounded-xl bg-white/15 border border-white/25 backdrop-blur">
+                  <div className="text-xl lg:text-2xl font-black text-white leading-none">{unreadChatCount}</div>
+                  <div className="text-[10px] uppercase tracking-wider text-white/75 mt-1">Unread</div>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Button onClick={() => navigate('/')} size="sm" className="flex-1 bg-white/20 hover:bg-white/30 text-white border border-white/30 backdrop-blur shadow-md">
+                  <Home className="mr-2 h-4 w-4" />
+                  Home
+                </Button>
+                <Button onClick={handleLogout} size="sm" className="flex-1 bg-white text-primary hover:bg-white/90 shadow-md font-semibold">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Logout
+                </Button>
+              </div>
             </div>
           </div>
         </div>
@@ -598,86 +726,214 @@ const MyAccount = () => {
           </TabsList>
           
           <TabsContent value="profile">
-            <Card>
-              <CardHeader>
-                <CardTitle>Profile Information</CardTitle>
-                <CardDescription>
-                  Update your personal information
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={updateProfile} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input id="email" type="email" value={user.email || ''} disabled className="bg-muted" />
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Left: Profile picture card */}
+              <Card className="glass-card border-0 shadow-elegant lg:col-span-1">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <ImageIcon className="h-5 w-5 text-primary" />
+                    Profile picture
+                  </CardTitle>
+                  <CardDescription>JPG or PNG, up to 5 MB</CardDescription>
+                </CardHeader>
+                <CardContent className="flex flex-col items-center text-center gap-4">
+                  <div className="relative">
+                    <Avatar className="h-32 w-32 rounded-3xl ring-4 ring-primary/20 shadow-glow bg-muted">
+                      {profile?.avatar_url ? (
+                        <AvatarImage src={profile.avatar_url} alt={profile.full_name || 'Profile'} className="object-cover" />
+                      ) : null}
+                      <AvatarFallback className="rounded-3xl bg-gradient-primary text-primary-foreground text-4xl font-black">
+                        {(profile?.full_name || user?.email || '?').charAt(0).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    {uploadingAvatar && (
+                      <div className="absolute inset-0 rounded-3xl bg-black/50 flex items-center justify-center">
+                        <Loader2 className="h-8 w-8 text-white animate-spin" />
+                      </div>
+                    )}
                   </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="full_name">Full Name</Label>
-                    <Input id="full_name" type="text" value={profile?.full_name || ''} onChange={e => setProfile(prev => prev ? {
-                    ...prev,
-                    full_name: e.target.value
-                  } : null)} />
+                  <div className="flex flex-col sm:flex-row gap-2 w-full">
+                    <label htmlFor="avatar-upload" className="flex-1 cursor-pointer">
+                      <div className="inline-flex w-full items-center justify-center gap-2 h-10 px-4 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors text-sm font-medium shadow-md">
+                        <Camera className="h-4 w-4" />
+                        {profile?.avatar_url ? 'Change' : 'Upload'}
+                      </div>
+                      <input
+                        id="avatar-upload"
+                        type="file"
+                        accept="image/*"
+                        className="sr-only"
+                        onChange={handleAvatarUpload}
+                        disabled={uploadingAvatar}
+                      />
+                    </label>
+                    {profile?.avatar_url && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={removeAvatar}
+                        disabled={uploadingAvatar}
+                        className="flex-1"
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" /> Remove
+                      </Button>
+                    )}
                   </div>
-                  
-                   <div className="space-y-2">
-                     <Label htmlFor="phone">Phone Number <span className="text-destructive">*</span></Label>
-                     <Input id="phone" type="tel" value={profile?.phone || ''} onChange={e => setProfile(prev => prev ? {
-                     ...prev,
-                     phone: e.target.value
-                   } : null)} placeholder="+971 50 123 4567" required />
-                   </div>
+                  <p className="text-xs text-muted-foreground">
+                    Your photo appears on chats and bookings.
+                  </p>
+                </CardContent>
+              </Card>
 
-                   {/* Verification Status Display */}
-                   {!verificationLoading && (
-                     <div className="space-y-2">
-                       <Label>Account Status</Label>
-                       <div className="flex items-center gap-3 p-3 rounded-lg bg-muted">
-                       {verificationStatus === 'approved' || verificationStatus === 'verified' ? (
-                           <>
-                             <CheckCircle className="h-5 w-5 text-green-500" />
-                             <div className="flex flex-col">
-                               <span className="text-green-700 font-bold text-lg">✅ Verified Account</span>
-                               <span className="text-green-600 text-sm">Full access to all features</span>
-                             </div>
-                           </>
-                         ) : verificationStatus === 'pending' ? (
-                           <>
-                             <Shield className="h-5 w-5 text-orange-500" />
-                             <span className="text-orange-700 font-medium">⏳ Verification Pending</span>
-                           </>
-                         ) : verificationStatus === 'rejected' ? (
-                           <>
-                             <Shield className="h-5 w-5 text-red-500" />
-                             <span className="text-red-700 font-medium">❌ Verification Required</span>
-                           </>
-                         ) : (
-                           <>
-                             <Shield className="h-5 w-5 text-gray-500" />
-                             <span className="text-gray-700 font-medium">⚠️ Verification Not Started</span>
-                           </>
-                         )}
-                       </div>
-                     </div>
-                   )}
+              {/* Right: Information form */}
+              <Card className="glass-card border-0 shadow-elegant lg:col-span-2">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <User className="h-5 w-5 text-primary" />
+                    Profile information
+                  </CardTitle>
+                  <CardDescription>Update your personal details and preferences</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={updateProfile} className="space-y-5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="email" className="flex items-center gap-1.5"><Mail className="h-3.5 w-3.5" /> Email</Label>
+                        <Input id="email" type="email" value={user.email || ''} disabled className="bg-muted" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="full_name" className="flex items-center gap-1.5"><User className="h-3.5 w-3.5" /> Full Name</Label>
+                        <Input id="full_name" type="text" value={profile?.full_name || ''} onChange={e => setProfile(prev => prev ? { ...prev, full_name: e.target.value } : null)} placeholder="Your full name" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="phone" className="flex items-center gap-1.5">
+                          <Phone className="h-3.5 w-3.5" /> Phone Number <span className="text-destructive">*</span>
+                        </Label>
+                        <Input id="phone" type="tel" value={profile?.phone || ''} onChange={e => setProfile(prev => prev ? { ...prev, phone: e.target.value } : null)} placeholder="+971 50 123 4567" required />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="language" className="flex items-center gap-1.5"><Globe className="h-3.5 w-3.5" /> Preferred language</Label>
+                        <Select
+                          value={profile?.preferred_language || 'en'}
+                          onValueChange={val => setProfile(prev => prev ? { ...prev, preferred_language: val } : null)}
+                        >
+                          <SelectTrigger id="language">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="en">English</SelectItem>
+                            <SelectItem value="ar">العربية (Arabic)</SelectItem>
+                            <SelectItem value="ru">Русский (Russian)</SelectItem>
+                            <SelectItem value="hi">हिन्दी (Hindi)</SelectItem>
+                            <SelectItem value="ur">اردو (Urdu)</SelectItem>
+                            <SelectItem value="fr">Français (French)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
 
-                   <div className="flex gap-2">
-                     <Button type="submit" disabled={updating} className="flex-1">
-                       {updating ? <>
-                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                           Updating...
-                         </> : 'Update Profile'}
-                     </Button>
-                     <div className="flex items-center space-x-2">
-                       
-                       
-                     </div>
-                   </div>
-                 </form>
-               </CardContent>
-             </Card>
-           </TabsContent>
-          
+                    <div className="space-y-2">
+                      <Label htmlFor="bio">About me</Label>
+                      <Textarea
+                        id="bio"
+                        rows={3}
+                        maxLength={300}
+                        placeholder="Tell other users a bit about yourself (e.g. 'Owner of 3 spaces in Marina, fast responder')"
+                        value={profile?.bio || ''}
+                        onChange={e => setProfile(prev => prev ? { ...prev, bio: e.target.value } : null)}
+                      />
+                      <p className="text-xs text-muted-foreground text-right">{(profile?.bio || '').length}/300</p>
+                    </div>
+
+                    {/* Account type toggle */}
+                    <div className="rounded-xl border border-border/60 bg-background/50 p-4 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <ParkingCircle className="h-5 w-5 text-primary" />
+                        <div>
+                          <p className="font-semibold text-sm">I list parking spaces</p>
+                          <p className="text-xs text-muted-foreground">Enable owner features (listings, payouts, banking)</p>
+                        </div>
+                      </div>
+                      <Switch checked={isParkingOwner} onCheckedChange={setIsParkingOwner} />
+                    </div>
+
+                    {/* Notification preferences */}
+                    <div className="rounded-xl border border-border/60 bg-background/50 p-4 space-y-3">
+                      <div className="flex items-center gap-2">
+                        <Bell className="h-4 w-4 text-primary" />
+                        <p className="font-semibold text-sm">Notification preferences</p>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm">Email notifications</p>
+                          <p className="text-xs text-muted-foreground">Booking, listing and chat updates</p>
+                        </div>
+                        <Switch
+                          checked={profile?.notification_email ?? true}
+                          onCheckedChange={val => setProfile(prev => prev ? { ...prev, notification_email: val } : null)}
+                        />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm">SMS notifications</p>
+                          <p className="text-xs text-muted-foreground">Critical updates only (additional charges may apply)</p>
+                        </div>
+                        <Switch
+                          checked={profile?.notification_sms ?? false}
+                          onCheckedChange={val => setProfile(prev => prev ? { ...prev, notification_sms: val } : null)}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Verification Status Display */}
+                    {!verificationLoading && (
+                      <div className="space-y-2">
+                        <Label>Account Status</Label>
+                        <div className="flex items-center gap-3 p-3 rounded-lg bg-muted">
+                          {verificationStatus === 'approved' || verificationStatus === 'verified' ? (
+                            <>
+                              <CheckCircle className="h-5 w-5 text-green-500" />
+                              <div className="flex flex-col">
+                                <span className="text-green-700 font-bold text-lg">✅ Verified Account</span>
+                                <span className="text-green-600 text-sm">Full access to all features</span>
+                              </div>
+                            </>
+                          ) : verificationStatus === 'pending' ? (
+                            <>
+                              <Shield className="h-5 w-5 text-orange-500" />
+                              <span className="text-orange-700 font-medium">⏳ Verification Pending</span>
+                            </>
+                          ) : verificationStatus === 'rejected' ? (
+                            <>
+                              <Shield className="h-5 w-5 text-red-500" />
+                              <span className="text-red-700 font-medium">❌ Verification Required</span>
+                            </>
+                          ) : (
+                            <>
+                              <Shield className="h-5 w-5 text-gray-500" />
+                              <span className="text-gray-700 font-medium">⚠️ Verification Not Started</span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    <Button type="submit" disabled={updating} size="lg" className="w-full font-semibold shadow-md">
+                      {updating ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Saving...
+                        </>
+                      ) : (
+                        'Save changes'
+                      )}
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
           {verificationStatus !== 'approved' && verificationStatus !== 'verified' && (
             <TabsContent value="verification">
               <VerificationPanel />
