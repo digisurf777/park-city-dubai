@@ -805,6 +805,13 @@ const Auth = () => {
     );
   }
 
+  const seoTags = useSEO({
+    title: 'Sign In or Sign Up | Shazam Parking Dubai',
+    description: 'Log in or create your Shazam Parking account to book secure parking across Dubai or list your parking space and earn monthly income.',
+    keywords: 'Shazam Parking login, sign up Dubai parking, parking account Dubai, list parking space Dubai',
+    url: '/auth'
+  });
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-deep via-background to-surface flex items-center justify-center px-4 py-10 animate-fade-in">
       {seoTags}
