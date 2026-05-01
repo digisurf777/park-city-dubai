@@ -1,5 +1,5 @@
 
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import {
   MapPin, Menu, X, ChevronDown, User, Search, Building2,
@@ -13,6 +13,7 @@ import { useAuth } from "@/hooks/useAuth";
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isZonesOpen, setIsZonesOpen] = useState(false);
+  const zonesRef = useRef<HTMLDivElement>(null);
 
   // Lock scroll when mobile menu is open
   useEffect(() => {
@@ -22,6 +23,25 @@ const Navbar = () => {
       return () => { document.body.style.overflow = original; };
     }
   }, [isMenuOpen]);
+
+  // Click-outside + Escape to close zones dropdown
+  useEffect(() => {
+    if (!isZonesOpen) return;
+    const onClick = (e: MouseEvent) => {
+      if (zonesRef.current && !zonesRef.current.contains(e.target as Node)) {
+        setIsZonesOpen(false);
+      }
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsZonesOpen(false);
+    };
+    document.addEventListener("mousedown", onClick);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onClick);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [isZonesOpen]);
 
   // Add error boundary for auth hook
   let user, signOut;
@@ -63,51 +83,60 @@ const Navbar = () => {
               Find a Parking Space
             </Link>
             
-            {/* Simple Zones Dropdown instead of NavigationMenu */}
-            <div className="relative">
-              <button 
+            {/* Zones Dropdown */}
+            <div className="relative" ref={zonesRef}>
+              <button
                 onClick={() => setIsZonesOpen(!isZonesOpen)}
-                className="text-gray-700 hover:text-primary transition-colors flex items-center"
-                onBlur={() => setTimeout(() => setIsZonesOpen(false), 200)}
+                aria-expanded={isZonesOpen}
+                aria-haspopup="menu"
+                className={`flex items-center gap-1 font-semibold transition-colors px-2 py-1.5 rounded-lg ${isZonesOpen ? 'text-primary bg-primary/10' : 'text-gray-700 hover:text-primary hover:bg-primary/5'}`}
               >
                 Zones
-                <ChevronDown className="ml-1 h-4 w-4" />
+                <ChevronDown className={`h-4 w-4 transition-transform ${isZonesOpen ? 'rotate-180' : ''}`} />
               </button>
               {isZonesOpen && (
-                <div className="absolute top-full left-0 mt-3 w-56 dropdown-premium z-50 animate-scale-in origin-top">
-                  <div className="p-2 space-y-1">
+                <div
+                  role="menu"
+                  className="absolute top-full left-0 mt-3 w-64 bg-white rounded-2xl shadow-[0_24px_50px_-12px_hsl(var(--primary-deep)/0.35),0_8px_16px_-8px_hsl(var(--primary)/0.25)] ring-1 ring-primary/15 z-50 animate-scale-in origin-top overflow-hidden"
+                >
+                  <div className="p-2 space-y-0.5">
                     {[
-                      { to: "/dubai-marina", label: "Dubai Marina" },
-                      { to: "/downtown", label: "Downtown" },
-                      { to: "/palm-jumeirah", label: "Palm Jumeirah" },
-                      { to: "/business-bay", label: "Business Bay" },
-                      { to: "/difc", label: "DIFC" },
-                      { to: "/deira", label: "Deira" },
+                      { to: "/dubai-marina", label: "Dubai Marina", icon: Anchor },
+                      { to: "/downtown", label: "Downtown", icon: Building2 },
+                      { to: "/palm-jumeirah", label: "Palm Jumeirah", icon: Waves },
+                      { to: "/business-bay", label: "Business Bay", icon: Briefcase },
+                      { to: "/difc", label: "DIFC", icon: Landmark },
+                      { to: "/deira", label: "Deira", icon: Castle },
                     ].map((z) => (
                       <Link
                         key={z.to}
                         to={z.to}
-                        className="btn-3d block px-4 py-2.5 text-sm font-semibold text-foreground hover:text-primary rounded-lg transition-colors"
+                        role="menuitem"
                         onClick={() => setIsZonesOpen(false)}
+                        className="group flex items-center gap-3 px-3 py-2.5 text-sm font-semibold text-slate-800 rounded-xl hover:bg-gradient-to-r hover:from-primary/10 hover:to-primary-glow/10 hover:text-primary transition-all"
                       >
-                        {z.label}
+                        <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white transition-colors shadow-sm">
+                          <z.icon className="h-4 w-4" strokeWidth={2.2} />
+                        </span>
+                        <span className="flex-1">{z.label}</span>
+                        <ChevronDown className="h-3.5 w-3.5 -rotate-90 opacity-0 group-hover:opacity-100 text-primary transition-opacity" />
                       </Link>
                     ))}
                   </div>
                 </div>
               )}
             </div>
-            
-            <Link to="/about-us" className="text-gray-700 hover:text-primary transition-colors">
+
+            <Link to="/about-us" className="text-gray-700 hover:text-primary font-semibold transition-colors">
               About Us
             </Link>
-            <Link to="/faq" className="text-gray-700 hover:text-primary transition-colors">
+            <Link to="/faq" className="text-gray-700 hover:text-primary font-semibold transition-colors">
               FAQ
             </Link>
-            <Link to="/news" className="text-gray-700 hover:text-primary transition-colors">
+            <Link to="/news" className="text-gray-700 hover:text-primary font-semibold transition-colors">
               News
             </Link>
-            <Link to="/calculator" className="text-gray-700 hover:text-primary transition-colors">
+            <Link to="/calculator" className="text-gray-700 hover:text-primary font-semibold transition-colors">
               Calculator
             </Link>
           </div>

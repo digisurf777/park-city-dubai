@@ -172,6 +172,14 @@ const ChatWidget = () => {
     markAllRead();
   };
 
+  // Allow MobileBottomNav (and any other UI) to open the chat via a global event
+  useEffect(() => {
+    const open = () => handleOpen();
+    window.addEventListener("open-support-chat", open);
+    return () => window.removeEventListener("open-support-chat", open);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const startNewChat = () => {
     const fresh = crypto.randomUUID();
     setSessionId(fresh);
@@ -240,7 +248,7 @@ const ChatWidget = () => {
   // ---------- Launcher ----------
   if (!isOpen) {
     return (
-      <div className="fixed bottom-24 md:bottom-8 right-4 md:right-8 z-50">
+      <div className="hidden md:block fixed bottom-8 right-8 z-50">
         {/* Soft outer pulsing aura to draw the eye */}
         <span className="absolute inset-0 -z-10 rounded-full bg-primary/30 blur-xl animate-pulse" />
         <button
