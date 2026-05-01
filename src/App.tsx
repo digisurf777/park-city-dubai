@@ -10,6 +10,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import { MFARequiredGuard } from "@/components/MFARequiredGuard";
 import TawkToChat from '@/components/TawkToChat';
 import ChatWidget from '@/components/ChatWidget';
+import MobileBottomNav from '@/components/MobileBottomNav';
 import { MobileOptimizations } from "@/components/MobileOptimizations";
 // Import Auth directly to fix dynamic import issue
 import Auth from "./pages/Auth";
@@ -81,6 +82,7 @@ const App = () => {
               
               <TawkToChat />
               <ChatWidget />
+              <MobileBottomNav />
               <Suspense fallback={<LoadingFallback />}>
                 <Routes>
                 {/* Lavable Routes */}
