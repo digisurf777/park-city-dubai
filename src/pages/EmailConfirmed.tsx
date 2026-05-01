@@ -142,27 +142,30 @@ const EmailConfirmed = () => {
 
   if (confirmed) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center px-4">
-        <Card className="w-full max-w-md">
-          <CardHeader>
-            <CardTitle className="text-center flex items-center justify-center gap-2 text-green-600">
-              <CheckCircle className="h-6 w-6" />
-              Email Confirmed!
-            </CardTitle>
-            <CardDescription className="text-center">
-              Your email has been successfully confirmed. You can now log in to your account.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button
-              onClick={() => navigate('/')}
-              className="w-full"
-            >
-              Go to Homepage
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
+      <>
+        <Navbar />
+        <div className="min-h-screen bg-background flex items-center justify-center px-4 pt-24">
+          <Card className="w-full max-w-md">
+            <CardHeader>
+              <CardTitle className="text-center flex items-center justify-center gap-2 text-green-600">
+                <CheckCircle className="h-6 w-6" />
+                Email Confirmed!
+              </CardTitle>
+              <CardDescription className="text-center">
+                Your email has been successfully confirmed. You can now log in to your account.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button
+                onClick={() => navigate('/')}
+                className="w-full"
+              >
+                Go to Homepage
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </>
     );
   }
 
