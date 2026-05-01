@@ -288,6 +288,7 @@ Deno.serve(async (req: Request) => {
         message: body.message.trim(),
         from_admin: false,
         is_ai: false,
+        session_id: body.sessionId ?? null,
       });
     }
 
@@ -326,7 +327,16 @@ Deno.serve(async (req: Request) => {
     }
 
     const aiJson = await aiResp.json();
-    const replyText: string = aiJson?.choices?.[0]?.message?.content?.trim() || '';
+    let replyText: string = aiJson?.choices?.[0]?.message?.content?.trim() || '';
+
+    // Detect handoff token
+    const handoff = replyText.includes(HANDOFF_TOKEN);
+    if (handoff) {
+      replyText = replyText.replace(HANDOFF_TOKEN, '').trim();
+      if (!replyText) {
+        replyText = "Let me connect you with a teammate — they'll reach out by email shortly.";
+      }
+    }
 
     // For 'reply' mode: persist assistant message so admin sees the AI reply
     if (mode === 'reply' && replyText) {
@@ -337,10 +347,25 @@ Deno.serve(async (req: Request) => {
         from_admin: true,
         is_ai: true,
         read_status: false,
+        session_id: body.sessionId ?? null,
+        handoff_requested: handoff,
       });
     }
 
-    return new Response(JSON.stringify({ reply: replyText, mode }), {
+    // Fire handoff email (don't block response)
+    if (handoff && mode === 'reply') {
+      const profile = ctx.profile as any;
+      notifyHumanHandoff({
+        resendKey: Deno.env.get('RESEND_API_KEY'),
+        userName: profile?.full_name || 'Unknown user',
+        userEmail: profile?.email || userData.user.email || '—',
+        userPhone: profile?.phone || '—',
+        question: body.message || '(no message)',
+        sessionId: body.sessionId,
+      }).catch((e) => console.error('handoff email error', e));
+    }
+
+    return new Response(JSON.stringify({ reply: replyText, mode, handoff }), {
       status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
