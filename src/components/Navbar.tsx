@@ -37,7 +37,7 @@ const Navbar = () => {
   }
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/85 backdrop-blur-xl backdrop-saturate-150 border-b border-primary/15 shadow-[0_4px_20px_-8px_hsl(var(--primary)/0.25)] pt-safe-area-top">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/85 backdrop-blur-xl backdrop-saturate-150 shadow-[0_8px_24px_-12px_hsl(var(--primary)/0.25)] pt-safe-area-top">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16 min-h-[60px]">
           {/* Logo */}
