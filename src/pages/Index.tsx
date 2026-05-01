@@ -12,7 +12,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import useSEO from "@/hooks/useSEO";
 import dubaihero from "@/assets/dubai-skyline-hero.webp";
-import phonePremium from "@/assets/phone-mockup-premium.webp";
+import phonePremium from "@/assets/phone-mockup-tilted-right.png";
 import secureParking from "@/assets/secure-parking-hero.webp";
 import luxuryCar from "@/assets/own-parking-luxury.jpg";
 import businessMan from "@/assets/business-man.webp";
@@ -56,7 +56,7 @@ const Index = () => {
       <section
         className="relative overflow-hidden bg-cover bg-center bg-no-repeat"
         style={{
-          backgroundImage: `linear-gradient(135deg, hsl(174 65% 22% / 0.85) 0%, hsl(0 0% 0% / 0.55) 100%), url(${secureParking})`,
+          backgroundImage: `linear-gradient(135deg, hsl(174 65% 22% / 0.55) 0%, hsl(0 0% 0% / 0.25) 100%), url(${secureParking})`,
         }}
       >
         {/* Subtle decorative glow — bottom right only */}
