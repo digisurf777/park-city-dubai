@@ -138,6 +138,18 @@ export default {
 					boxShadow:
 						'0 22px 44px -14px hsl(var(--primary-deep) / 0.55), 0 10px 20px -8px hsl(var(--primary-glow) / 0.5), 0 0 0 6px hsl(var(--primary) / 0.12), inset 0 1px 0 0 hsl(0 0% 100% / 0.5)'
 				}
+			},
+			'marquee': {
+				'0%': { transform: 'translateX(0)' },
+				'100%': { transform: 'translateX(-50%)' }
+			},
+			'marquee-reverse': {
+				'0%': { transform: 'translateX(-50%)' },
+				'100%': { transform: 'translateX(0)' }
+			},
+			'logo-float': {
+				'0%, 100%': { transform: 'translateY(0) scale(1)' },
+				'50%': { transform: 'translateY(-6px) scale(1.04)' }
 			}
 			},
 			animation: {
@@ -147,7 +159,11 @@ export default {
 				'mobile-fade-in': 'mobile-fade-in 0.4s ease-out',
 				'slide-up': 'slide-up 0.3s ease-out',
 				'blink-red': 'blink-red 1.5s ease-in-out infinite',
-				'frame-pulse': 'frame-pulse 3s ease-in-out infinite'
+				'frame-pulse': 'frame-pulse 3s ease-in-out infinite',
+				'marquee': 'marquee 50s linear infinite',
+				'marquee-fast': 'marquee 35s linear infinite',
+				'marquee-reverse': 'marquee-reverse 50s linear infinite',
+				'logo-float': 'logo-float 4s ease-in-out infinite'
 			},
 			spacing: {
 				'safe-area-top': 'env(safe-area-inset-top)',

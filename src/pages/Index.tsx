@@ -8,6 +8,9 @@ import { MapPin, Search, CreditCard, Car, DollarSign, Clock, Shield, Quote, Zap,
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import EcosystemSection from "@/components/EcosystemSection";
+import TestimonialsMarquee from "@/components/TestimonialsMarquee";
+import TrustedPlatform from "@/components/TrustedPlatform";
+import carEnteringParking from "@/assets/car-entering-parking.jpg";
 import { EmailConfirmationBanner } from "@/components/EmailConfirmationBanner";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -537,8 +540,25 @@ const Index = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             <div className="order-2 lg:order-1">
-              <div className="rounded-2xl ring-1 ring-primary/20 shadow-[0_20px_40px_-15px_hsl(var(--primary)/0.4)] p-1.5 bg-gradient-to-br from-primary/15 to-transparent animate-[float_7s_ease-in-out_infinite] overflow-hidden">
-                <img src={luxuryCarStreet} alt="Luxury car parked on a vibrant Downtown Dubai street with Burj Khalifa at sunset" className="w-full rounded-xl shadow-lg object-cover aspect-square" loading="lazy" decoding="async" width={1280} height={1024} />
+              <div
+                className="group relative rounded-3xl p-[3px] bg-gradient-to-br from-primary via-primary-glow to-primary-deep shadow-[0_30px_60px_-20px_hsl(var(--primary)/0.55)] animate-frame-pulse overflow-hidden"
+              >
+                <div className="absolute -inset-1 bg-gradient-to-br from-primary/30 via-transparent to-primary-glow/30 blur-2xl opacity-60 pointer-events-none" />
+                <div className="relative rounded-[22px] overflow-hidden bg-white">
+                  <img
+                    src={carEnteringParking}
+                    alt="Luxury car entering a premium Dubai building parking garage at golden hour"
+                    className="w-full object-cover aspect-[4/3] transition-transform duration-700 group-hover:scale-[1.03]"
+                    loading="lazy"
+                    decoding="async"
+                    width={1536}
+                    height={1024}
+                  />
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-primary-deep/30 via-transparent to-transparent" />
+                  <div className="absolute top-4 left-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 backdrop-blur text-xs font-semibold text-primary shadow-sm">
+                    <Sparkles className="h-3.5 w-3.5" /> Premium Locations
+                  </div>
+                </div>
               </div>
             </div>
             <div className="order-1 lg:order-2 text-center lg:text-left">
@@ -606,33 +626,11 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section className="py-12 sm:py-16 lg:py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12 sm:mb-16">
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 sm:mb-6 px-4">
-              What customers say about ShazamParking
-            </h2>
-          </div>
+      {/* Testimonials — animated marquee */}
+      <TestimonialsMarquee />
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
-            {[{
-            quote: "ShazamParking is a game-changer for anyone looking for a stress-free parking experience, it's easy to use, reliable and convenient.",
-            name: "Aaliyah Armasi"
-          }, {
-            quote: "I highly recommend ShazamParking, it offers an easy-to-use platform, a wide range of parking options, and excellent customer service, making it the perfect parking solution.",
-            name: "Ahmed Mohammed"
-          }, {
-            quote: "ShazamParking is my go-to platform for parking, it's user-friendly, reliable, and offers a wide range of options, making it convenient and easy to find a parking spot.",
-            name: "Murtaza Hussain"
-          }].map((testimonial, index) => <Card key={index} className="p-6 sm:p-8 glass-card hover-lift border-0 rounded-2xl">
-                <Quote className="h-6 sm:h-8 w-6 sm:w-8 text-primary mb-3 sm:mb-4" />
-                <p className="text-gray-600 mb-4 sm:mb-6 italic text-sm sm:text-base">"{testimonial.quote}"</p>
-                <h4 className="font-semibold text-gray-900 text-sm sm:text-base">{testimonial.name}</h4>
-              </Card>)}
-          </div>
-        </div>
-      </section>
+      {/* Trusted Platform — partners + badges */}
+      <TrustedPlatform />
 
 
       {/* Final CTA */}
