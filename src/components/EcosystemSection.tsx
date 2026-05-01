@@ -3,6 +3,7 @@ import { ArrowUpRight, Sparkles } from "lucide-react";
 import shazamLogo from "@/assets/ecosystem/shazam-logo.png";
 import dubaiLifeOsLogo from "@/assets/ecosystem/dubai-life-os-logo.png";
 import dubaiLifeMapsLogo from "@/assets/ecosystem/dubai-life-maps-logo.png";
+import dubaiAerial from "@/assets/dubai-drone-aerial.jpg";
 
 const products = [
   {
