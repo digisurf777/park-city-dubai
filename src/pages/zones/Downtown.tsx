@@ -73,19 +73,80 @@ const Downtown = () => {
       <Navbar />
       
       {/* Hero Section */}
-      <div className="relative h-[440px] sm:h-[560px] pt-20 sm:pt-24">
-        <div className="absolute inset-0 bg-black/35"></div>
-        <div className="absolute inset-0 bg-cover bg-center" style={{
-        backgroundImage: `url(${downtownHero})`
-      }}></div>
-        <div className="relative z-10 flex items-center justify-center h-full">
-          <div className="text-center text-white px-4 max-w-4xl mx-auto">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black mb-3 leading-tight tracking-tight">Downtown Dubai</h1>
-            <p className="text-sm sm:text-base md:text-lg opacity-90 mb-4 leading-relaxed max-w-3xl mx-auto">As the corporate heart of Dubai, Downtown is a hub for government offices, commercial towers, and prestigious brands. It's frequented by those working in Emaar Square, Boulevard Plaza, and nearby hospitality or retail sectors.</p>
-            <p className="text-sm sm:text-base md:text-lg lg:text-xl font-semibold bg-black/20 inline-block px-3 py-2 sm:px-4 rounded-lg">Secure a monthly parking bay from AED750</p>
+      <section className="relative min-h-[480px] sm:min-h-[600px] pt-20 sm:pt-24 overflow-hidden">
+        {/* Background photo */}
+        <div
+          className="absolute inset-0 bg-cover bg-center scale-[1.04]"
+          style={{ backgroundImage: `url(${downtownHero})` }}
+          aria-hidden="true"
+        />
+        {/* Brand teal cinematic tint */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              'linear-gradient(135deg, hsl(var(--primary-deep) / 0.78) 0%, hsl(var(--primary) / 0.55) 45%, hsl(220 50% 8% / 0.65) 100%)',
+          }}
+          aria-hidden="true"
+        />
+        {/* Bottom darken for text legibility */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+        {/* Top vignette */}
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/40 to-transparent" />
+        {/* Decorative glowing orbs */}
+        <div className="pointer-events-none absolute -top-24 -right-24 w-96 h-96 rounded-full bg-primary-glow/30 blur-3xl animate-pulse-glow" />
+        <div className="pointer-events-none absolute -bottom-32 -left-24 w-[28rem] h-[28rem] rounded-full bg-primary/30 blur-3xl" />
+        {/* Subtle grid texture */}
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.07] mix-blend-overlay"
+          style={{
+            backgroundImage:
+              'linear-gradient(hsl(var(--primary-glow)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--primary-glow)) 1px, transparent 1px)',
+            backgroundSize: '48px 48px',
+          }}
+          aria-hidden="true"
+        />
+
+        <div className="relative z-10 flex items-center justify-center min-h-[480px] sm:min-h-[600px]">
+          <div className="text-center px-4 max-w-4xl mx-auto py-12 animate-fade-in">
+            {/* Eyebrow chip */}
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 mb-5 rounded-full bg-white/10 backdrop-blur-md border border-white/25 shadow-[0_4px_16px_-4px_hsl(var(--primary-deep)/0.5),inset_0_1px_0_0_hsl(0_0%_100%/0.3)]">
+              <MapPin className="h-3.5 w-3.5 text-primary-glow" />
+              <span className="text-[11px] sm:text-xs font-bold uppercase tracking-[0.18em] text-white/95">
+                Dubai · Premium zone
+              </span>
+            </div>
+
+            {/* Headline with gradient */}
+            <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black mb-4 leading-[1.05] tracking-tight">
+              <span className="block bg-gradient-to-br from-white via-white to-primary-glow/90 bg-clip-text text-transparent drop-shadow-[0_4px_20px_hsl(var(--primary-deep)/0.6)]">
+                Downtown
+              </span>
+              <span className="block text-xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mt-1 text-primary-glow drop-shadow-[0_2px_12px_hsl(var(--primary-glow)/0.5)]">
+                Dubai
+              </span>
+            </h1>
+
+            {/* Description */}
+            <p className="text-sm sm:text-base md:text-lg text-white/90 mb-6 leading-relaxed max-w-3xl mx-auto drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]">
+              The corporate heart of Dubai — home to Emaar Square, Boulevard Plaza and the city&apos;s most prestigious hospitality and retail brands.
+            </p>
+
+            {/* Premium pricing badge */}
+            <div className="inline-flex items-center gap-2.5 px-5 py-3 rounded-2xl bg-gradient-to-br from-white/15 to-white/5 backdrop-blur-xl border border-white/30 shadow-[0_12px_32px_-8px_hsl(var(--primary-deep)/0.6),inset_0_1px_0_0_hsl(0_0%_100%/0.4)]">
+              <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-primary-glow to-primary text-white shadow-[0_4px_12px_-2px_hsl(var(--primary)/0.5)]">
+                <Car className="h-4 w-4" />
+              </span>
+              <div className="text-left">
+                <p className="text-[10px] uppercase tracking-[0.15em] font-bold text-primary-glow leading-none">From</p>
+                <p className="text-base sm:text-lg font-black text-white leading-tight">
+                  AED 750 <span className="text-xs font-semibold text-white/70">/ month</span>
+                </p>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
+      </section>
 
       {/* Results Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
