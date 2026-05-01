@@ -158,24 +158,58 @@ const FindParking = () => {
       <Navbar />
       
       {/* Hero Section - Mobile Optimized */}
-      <div className="relative h-[400px] sm:h-[500px] lg:h-[600px] bg-gradient-to-r from-primary/10 to-primary/5">
-        <div className="absolute inset-0 bg-black/40"></div>
-        <div className="absolute inset-0 bg-cover bg-center" style={{
-        backgroundImage: `url(${dubaiHeroImage})`
-      }}></div>
-        <div className="relative z-10 flex items-center justify-center h-full px-4">
+      <div className="relative h-[400px] sm:h-[500px] lg:h-[560px] overflow-hidden">
+        <div className="absolute inset-0 bg-cover bg-center scale-105" style={{ backgroundImage: `url(${dubaiHeroImage})` }}></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-primary-deep/70 via-primary-deep/40 to-background"></div>
+        <div className="relative z-10 flex flex-col items-center justify-center h-full px-4 pt-20">
           <div className="text-center text-white max-w-4xl">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6 leading-tight">
-              We are the quickest, easiest, and the most secure way to rent a parking space in Dubai!
+            <span className="inline-block mb-4 px-4 py-1.5 rounded-full bg-white/15 backdrop-blur border border-white/25 text-xs font-bold tracking-[0.2em] uppercase">
+              ★ Find Your Spot
+            </span>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black mb-4 leading-tight text-3d-light">
+              Park Smarter <span className="text-gradient-primary bg-gradient-to-r from-primary-glow to-white bg-clip-text text-transparent">in Dubai</span>
             </h1>
-            <p className="text-base sm:text-lg md:text-xl opacity-90">Browse secure monthly bays across Dubai</p>
+            <p className="text-base sm:text-lg md:text-xl text-white/90 max-w-2xl mx-auto">
+              The quickest, easiest, and most secure way to rent a parking space.
+            </p>
+          </div>
+
+          {/* Premium Search Bar */}
+          <div className="w-full max-w-3xl mt-8 px-2">
+            <div className="frame-3d p-2 sm:p-3 flex flex-col sm:flex-row gap-2 items-stretch">
+              <div className="flex-1 flex items-center gap-2 px-4 py-2 bg-white rounded-xl">
+                <Search className="h-5 w-5 text-primary flex-shrink-0" />
+                <Input
+                  placeholder="Search by zone, building, or area..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="border-0 shadow-none focus-visible:ring-0 p-0 h-auto text-base"
+                />
+                {searchTerm && (
+                  <button onClick={() => setSearchTerm("")} className="p-1 text-muted-foreground hover:text-foreground">
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
+              <button className="btn-3d-primary px-6 py-3 rounded-xl font-bold tracking-wide flex items-center justify-center gap-2 sm:min-w-[140px]">
+                <Search className="h-4 w-4" />
+                Search
+              </button>
+            </div>
+            {/* Quick chips */}
+            <div className="flex flex-wrap justify-center gap-2 mt-4">
+              {districtZones.slice(0, 6).map((z) => (
+                <button
+                  key={z.slug}
+                  onClick={() => handleSelectZone(z.slug)}
+                  className="px-3 py-1.5 rounded-full text-xs font-semibold bg-white/15 backdrop-blur border border-white/25 text-white hover:bg-white/25 transition-colors"
+                >
+                  {z.name}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
-
-      {/* Sticky Filter Bar */}
-      <div className="sticky top-20 z-40 bg-white border-b shadow-sm">
-        
       </div>
 
       {/* District Selector Section - Mobile Optimized */}
