@@ -831,25 +831,62 @@ const MyAccount = () => {
                 </CardHeader>
                 <CardContent className="flex flex-col items-center text-center gap-4">
                   <div className="relative">
-                    <Avatar className="h-32 w-32 rounded-3xl ring-4 ring-primary/20 shadow-glow bg-muted">
-                      {profile?.avatar_url ? (
-                        <AvatarImage src={profile.avatar_url} alt={profile.full_name || 'Profile'} className="object-cover" />
-                      ) : null}
+                    <Avatar className="h-32 w-32 rounded-3xl ring-4 ring-primary/20 shadow-glow bg-muted overflow-hidden">
+                      <AvatarImage
+                        src={profile?.avatar_url || pickDefaultAvatar(user?.id)}
+                        alt={profile?.full_name || 'Profile'}
+                        className="object-cover"
+                      />
                       <AvatarFallback className="rounded-3xl bg-gradient-primary text-primary-foreground text-4xl font-black">
                         {(profile?.full_name || user?.email || '?').charAt(0).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
-                    {uploadingAvatar && (
+                    {(uploadingAvatar || generatingAvatar) && (
                       <div className="absolute inset-0 rounded-3xl bg-black/50 flex items-center justify-center">
                         <Loader2 className="h-8 w-8 text-white animate-spin" />
                       </div>
                     )}
                   </div>
-                  <div className="flex flex-col sm:flex-row gap-2 w-full">
-                    <label htmlFor="avatar-upload" className="flex-1 cursor-pointer">
-                      <div className="inline-flex w-full items-center justify-center gap-2 h-10 px-4 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors text-sm font-medium shadow-md">
+
+                  {/* Default avatar gallery */}
+                  <div className="w-full">
+                    <p className="text-[11px] uppercase tracking-[0.18em] font-bold text-muted-foreground mb-2">Pick a default</p>
+                    <div className="grid grid-cols-6 gap-1.5">
+                      {DEFAULT_AVATARS.map((src, i) => {
+                        const selected = profile?.avatar_url === src;
+                        return (
+                          <button
+                            key={i}
+                            type="button"
+                            onClick={() => setDefaultAvatar(src)}
+                            disabled={uploadingAvatar || generatingAvatar}
+                            className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all active:scale-95 ${selected ? 'border-primary shadow-[0_4px_14px_-4px_hsl(var(--primary)/0.55)]' : 'border-transparent hover:border-primary/40'}`}
+                            aria-label={`Use default avatar ${i + 1}`}
+                          >
+                            <img src={src} alt="" className="w-full h-full object-cover" loading="lazy" />
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
+                    <Button
+                      type="button"
+                      onClick={generateAiAvatar}
+                      disabled={uploadingAvatar || generatingAvatar}
+                      className="w-full bg-gradient-to-br from-primary via-primary to-primary-deep hover:opacity-95 text-white border-0 shadow-[0_6px_16px_-4px_hsl(var(--primary)/0.55),inset_0_1px_0_0_hsl(0_0%_100%/0.25)] active:translate-y-0.5 transition-all"
+                    >
+                      {generatingAvatar ? (
+                        <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Generating…</>
+                      ) : (
+                        <><Wand2 className="h-4 w-4 mr-2" /> Generate AI avatar</>
+                      )}
+                    </Button>
+                    <label htmlFor="avatar-upload" className="cursor-pointer">
+                      <div className="inline-flex w-full items-center justify-center gap-2 h-10 px-4 rounded-md bg-white border border-primary/30 text-foreground hover:bg-primary/5 transition-colors text-sm font-semibold shadow-sm">
                         <Camera className="h-4 w-4" />
-                        {profile?.avatar_url ? 'Change' : 'Upload'}
+                        Upload photo
                       </div>
                       <input
                         id="avatar-upload"
@@ -857,21 +894,24 @@ const MyAccount = () => {
                         accept="image/*"
                         className="sr-only"
                         onChange={handleAvatarUpload}
-                        disabled={uploadingAvatar}
+                        disabled={uploadingAvatar || generatingAvatar}
                       />
                     </label>
-                    {profile?.avatar_url && (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={removeAvatar}
-                        disabled={uploadingAvatar}
-                        className="flex-1"
-                      >
-                        <Trash2 className="h-4 w-4 mr-2" /> Remove
-                      </Button>
-                    )}
                   </div>
+
+                  {profile?.avatar_url && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={removeAvatar}
+                      disabled={uploadingAvatar || generatingAvatar}
+                      className="text-muted-foreground hover:text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" /> Remove current
+                    </Button>
+                  )}
+
                   <p className="text-xs text-muted-foreground">
                     Your photo appears on chats and bookings.
                   </p>
