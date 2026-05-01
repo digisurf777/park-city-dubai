@@ -442,21 +442,18 @@ const ChatWidget = () => {
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Conversation starters - only when empty */}
+            {/* Conversation starters - only when empty, compact single row */}
             {messages.length === 0 && !thinking && (
-              <div className={`px-3 sm:px-4 pb-3 ${isExpanded ? "lg:px-12 xl:px-24" : ""}`}>
-                <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2 text-center">
-                  Quick start
-                </p>
-                <div className={`grid gap-2 ${isExpanded ? "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4" : "grid-cols-2"}`}>
+              <div className={`px-3 sm:px-4 pb-2 ${isExpanded ? "lg:px-12 xl:px-24" : ""}`}>
+                <div className="grid grid-cols-3 gap-1.5">
                   {STARTERS.map((s) => (
                     <button
                       key={s.label}
                       onClick={() => send(s.prompt)}
-                      className="group flex items-center gap-2 px-2.5 py-2.5 rounded-xl text-xs font-medium bg-white text-foreground border border-border/60 hover:border-primary hover:bg-primary/5 hover:shadow-md hover:-translate-y-0.5 transition-all text-left active:scale-95"
+                      className="group flex flex-col items-center gap-1 px-2 py-2 rounded-lg text-[11px] font-medium bg-white text-foreground border border-border/60 hover:border-primary hover:bg-primary/5 transition-all text-center active:scale-95"
                     >
-                      <span className="text-base flex-shrink-0">{s.icon}</span>
-                      <span className="truncate group-hover:text-primary transition-colors">{s.label}</span>
+                      <span className="text-sm leading-none">{s.icon}</span>
+                      <span className="truncate w-full group-hover:text-primary transition-colors">{s.label}</span>
                     </button>
                   ))}
                 </div>
@@ -476,12 +473,12 @@ const ChatWidget = () => {
                       send();
                     }
                   }}
-                  rows={1}
-                  placeholder="Ask Layla anything…"
-                  className="flex-1 resize-none rounded-xl border border-border/70 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition placeholder:text-muted-foreground"
+                  rows={2}
+                  placeholder="Type your message to support…"
+                  className="flex-1 resize-none rounded-xl border border-border/70 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition placeholder:text-muted-foreground min-h-[56px]"
                 />
                 <Button onClick={() => send()} disabled={!input.trim() || thinking} size="icon"
-                  className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary to-primary-deep hover:opacity-90 shadow-md flex-shrink-0">
+                  className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary to-primary-deep hover:opacity-90 shadow-md flex-shrink-0">
                   <Send className="h-4 w-4" />
                 </Button>
               </div>
