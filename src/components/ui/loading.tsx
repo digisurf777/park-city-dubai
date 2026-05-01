@@ -8,15 +8,31 @@ export const Shimmer = ({ className }: { className?: string }) => (
 );
 
 /**
- * Branded full-page loader (used in Suspense fallback).
+ * Premium full-page loader (used in Suspense fallback).
+ * Dual concentric spinner rings with brand glow + shimmering wordmark.
  */
-export const PageLoader = ({ label }: { label?: string }) => (
-  <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-gradient-subtle">
-    <div className="relative">
-      <div className="h-14 w-14 rounded-full bg-gradient-primary animate-pulse-glow" />
-      <div className="absolute inset-0 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
+export const PageLoader = ({ label = "Loading" }: { label?: string }) => (
+  <div className="min-h-screen flex flex-col items-center justify-center gap-6 bg-gradient-to-br from-surface via-background to-surface-2">
+    <div className="relative h-24 w-24 flex items-center justify-center">
+      {/* Outer glow */}
+      <div className="absolute inset-0 rounded-full bg-gradient-primary opacity-30 blur-2xl animate-pulse-glow" />
+      {/* Outer ring */}
+      <div className="absolute inset-0 loader-ring" />
+      {/* Inner counter-ring */}
+      <div className="absolute inset-3 loader-ring-inner" />
+      {/* Center dot */}
+      <div className="relative h-3 w-3 rounded-full bg-gradient-primary shadow-glow" />
     </div>
-    {label && <p className="text-sm text-muted-foreground animate-fade-in">{label}</p>}
+
+    <div className="flex flex-col items-center gap-1">
+      <p className="text-base font-bold tracking-[0.25em] uppercase text-gradient-primary">
+        Shazam Parking
+      </p>
+      <p className="text-xs text-muted-foreground tracking-wider uppercase animate-fade-in">
+        {label}
+        <span className="inline-block animate-pulse">…</span>
+      </p>
+    </div>
   </div>
 );
 
