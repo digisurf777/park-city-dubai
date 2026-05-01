@@ -13,6 +13,7 @@ import { Loader2, Mail, Lock, Shield } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { InputOTP, InputOTPGroup, InputOTPSlot, InputOTPSeparator } from '@/components/ui/input-otp';
 import authLuxury from '@/assets/auth-dubai-skyline.jpg';
+import useSEO from '@/hooks/useSEO';
 
 const Auth = () => {
   const [loading, setLoading] = useState(false);
