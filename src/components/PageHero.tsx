@@ -51,13 +51,14 @@ const PageHero = ({
     );
   };
 
-  const heightClass =
+  // Min-height (was fixed height) - prevents text/CTA clipping with long content or mobile
+  const minHeightClass =
     size === "lg"
-      ? "h-[440px] sm:h-[520px] lg:h-[580px]"
-      : "h-[380px] sm:h-[460px] lg:h-[520px]";
+      ? "min-h-[440px] sm:min-h-[520px] lg:min-h-[580px]"
+      : "min-h-[380px] sm:min-h-[460px] lg:min-h-[520px]";
 
   return (
-    <section className={`relative ${heightClass} -mt-16 overflow-hidden`}>
+    <section className={`relative ${minHeightClass} overflow-hidden`}>
       {/* Background image with subtle Ken-Burns zoom */}
       <motion.div
         initial={{ scale: 1.12, opacity: 0 }}
@@ -77,7 +78,7 @@ const PageHero = ({
       <div className="pointer-events-none absolute -bottom-32 -left-24 w-[24rem] h-[24rem] rounded-full bg-primary/5 blur-3xl" />
 
       {/* Content */}
-      <div className="relative z-10 h-full flex flex-col items-center justify-center px-4 pt-16 sm:pt-20">
+      <div className="relative z-10 w-full flex flex-col items-center justify-center px-4 pt-28 pb-12 sm:pt-32 sm:pb-16 lg:pt-36 lg:pb-20">
         <motion.div
           initial="hidden"
           animate="show"
