@@ -795,10 +795,24 @@ const MyAccount = () => {
               Profile
             </TabsTrigger>
             {verificationStatus !== 'approved' && verificationStatus !== 'verified' && (
-              <TabsTrigger value="verification" className={`flex items-center gap-2 py-2.5 rounded-xl font-semibold transition-all hover:bg-orange-500/5 ${verificationStatus === 'pending' || verificationStatus === null ? 'bg-gradient-to-br from-orange-100 to-amber-50 text-orange-800 border border-orange-200/60 shadow-[inset_0_1px_0_0_hsl(0_0%_100%/0.6)]' : ''} data-[state=active]:!bg-gradient-to-br data-[state=active]:!from-orange-500 data-[state=active]:!to-orange-600 data-[state=active]:!text-white data-[state=active]:!shadow-[0_6px_16px_-4px_hsl(24_95%_53%/0.5),inset_0_1px_0_0_hsl(0_0%_100%/0.25)]`}>
-                <ShieldAlert className="h-4 w-4" />
+              <TabsTrigger
+                value="verification"
+                className={`group relative flex items-center gap-2 py-2.5 rounded-xl font-semibold transition-all hover:bg-orange-500/5 ${
+                  verificationStatus === 'pending' || verificationStatus === null
+                    ? 'bg-gradient-to-br from-orange-50 to-amber-50/60 text-orange-800 ring-1 ring-orange-200/70 shadow-[inset_0_1px_0_0_hsl(0_0%_100%/0.6)]'
+                    : ''
+                } data-[state=active]:!bg-gradient-to-br data-[state=active]:!from-orange-500 data-[state=active]:!to-orange-600 data-[state=active]:!text-white data-[state=active]:!shadow-[0_8px_20px_-6px_hsl(24_95%_53%/0.55),inset_0_1px_0_0_hsl(0_0%_100%/0.3)] data-[state=active]:!ring-0`}
+              >
+                <span className="relative flex h-5 w-5 items-center justify-center">
+                  <ShieldAlert className="h-4 w-4" />
+                  {(verificationStatus === 'pending' || verificationStatus === null) && (
+                    <span className="absolute -top-0.5 -right-0.5 flex h-2 w-2">
+                      <span className="absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-70 animate-ping" />
+                      <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500 ring-1 ring-white" />
+                    </span>
+                  )}
+                </span>
                 Verification
-                {(verificationStatus === 'pending' || verificationStatus === null) && <Badge variant="destructive" className="ml-1 h-5 w-5 p-0 text-xs">!</Badge>}
               </TabsTrigger>
             )}
             <TabsTrigger value="security" className="flex items-center gap-2 py-2.5 rounded-xl font-semibold transition-all data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary-deep data-[state=active]:text-white data-[state=active]:shadow-[0_6px_16px_-4px_hsl(var(--primary)/0.5),inset_0_1px_0_0_hsl(0_0%_100%/0.25)] hover:bg-primary/5">
