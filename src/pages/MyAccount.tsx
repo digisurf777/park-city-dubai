@@ -964,24 +964,95 @@ const MyAccount = () => {
             </TabsContent>
           )}
           
-          {mfaRequired && (
-            <TabsContent value="security">
-              <Card>
+          <TabsContent value="security">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Change password card */}
+              <Card className="glass-card border-0 shadow-elegant">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Shield className="h-5 w-5" />
-                    Security Settings
+                    <KeyRound className="h-5 w-5 text-primary" />
+                    Change password
+                  </CardTitle>
+                  <CardDescription>Use at least 8 characters. Mix letters, numbers and symbols.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={changePassword} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="new-password">New password</Label>
+                      <div className="relative">
+                        <Input
+                          id="new-password"
+                          type={showPassword ? 'text' : 'password'}
+                          value={newPassword}
+                          onChange={(e) => setNewPassword(e.target.value)}
+                          placeholder="••••••••"
+                          minLength={8}
+                          required
+                          className="pr-10"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(s => !s)}
+                          className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-muted-foreground hover:text-foreground"
+                          aria-label="Toggle password visibility"
+                        >
+                          {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </button>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="confirm-password">Confirm new password</Label>
+                      <Input
+                        id="confirm-password"
+                        type={showPassword ? 'text' : 'password'}
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        placeholder="••••••••"
+                        minLength={8}
+                        required
+                      />
+                      {confirmPassword && newPassword !== confirmPassword && (
+                        <p className="text-xs text-destructive">Passwords do not match</p>
+                      )}
+                    </div>
+                    <Button
+                      type="submit"
+                      disabled={changingPassword || !newPassword || newPassword !== confirmPassword}
+                      className="w-full font-semibold"
+                    >
+                      {changingPassword ? (
+                        <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Updating...</>
+                      ) : (
+                        <><KeyRound className="mr-2 h-4 w-4" /> Update password</>
+                      )}
+                    </Button>
+                    <p className="text-xs text-muted-foreground">
+                      Forgot your current password?{' '}
+                      <Link to="/auth?reset=1" className="text-primary hover:underline font-medium">
+                        Send reset email
+                      </Link>
+                    </p>
+                  </form>
+                </CardContent>
+              </Card>
+
+              {/* Two-factor authentication card */}
+              <Card className="glass-card border-0 shadow-elegant">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Shield className="h-5 w-5 text-primary" />
+                    Two-factor authentication
                   </CardTitle>
                   <CardDescription>
-                    Manage your account security and two-factor authentication
+                    Add an extra layer of security to your account using an authenticator app.
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <MFASetup />
                 </CardContent>
               </Card>
-            </TabsContent>
-          )}
+            </div>
+          </TabsContent>
           
           <TabsContent value="listings">
             <MyListings />
