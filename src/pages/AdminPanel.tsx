@@ -3381,6 +3381,7 @@ const AdminPanelOrganized = () => {
         onStayLoggedIn={resetTimer}
       />
     </div>
+    </CurrencyProvider>
   );
 };
 
