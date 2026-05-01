@@ -58,21 +58,21 @@ const Index = () => {
         </div>
       </div>
       
-      {/* Hero — premium, lighter, balanced */}
+      {/* Hero — premium, balanced, readable on mobile */}
       <section
         className="relative overflow-hidden bg-cover bg-center bg-no-repeat"
         style={{
-          backgroundImage: `linear-gradient(135deg, hsl(174 55% 35% / 0.35) 0%, hsl(174 40% 55% / 0.20) 50%, hsl(0 0% 100% / 0.10) 100%), url(${secureParking})`,
+          backgroundImage: `linear-gradient(135deg, hsl(174 60% 22% / 0.70) 0%, hsl(174 50% 30% / 0.55) 50%, hsl(174 45% 40% / 0.40) 100%), url(${secureParking})`,
         }}
       >
-        {/* Soft light wash to brighten the whole hero */}
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-white/15"></div>
+        {/* Bottom darken for text legibility on mobile */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/30 via-black/10 to-transparent"></div>
         {/* Decorative glows */}
-        <div className="pointer-events-none absolute -bottom-32 -right-32 w-[28rem] h-[28rem] rounded-full bg-primary-glow/20 blur-3xl"></div>
-        <div className="pointer-events-none absolute -top-24 -left-24 w-[22rem] h-[22rem] rounded-full bg-white/15 blur-3xl"></div>
+        <div className="pointer-events-none absolute -bottom-32 -right-32 w-[28rem] h-[28rem] rounded-full bg-primary-glow/25 blur-3xl"></div>
+        <div className="pointer-events-none absolute -top-24 -left-24 w-[22rem] h-[22rem] rounded-full bg-primary/20 blur-3xl"></div>
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-white z-10 pt-20 pb-10 sm:pt-28 sm:pb-16 lg:pt-32 lg:pb-20 min-h-[620px] sm:min-h-[680px] lg:min-h-[720px] flex items-center">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 items-center w-full">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-white z-10 pt-16 pb-10 sm:pt-28 sm:pb-16 lg:pt-32 lg:pb-20 min-h-[600px] sm:min-h-[680px] lg:min-h-[720px] flex items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8 lg:gap-12 items-center w-full">
             {/* Left — Text */}
             <motion.div
               className="text-center lg:text-left order-2 lg:order-1"
@@ -90,22 +90,22 @@ const Index = () => {
                 <Sparkles className="h-3.5 w-3.5 text-primary-glow" />
                 Trusted in Dubai
               </motion.span>
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-black leading-[1.05] tracking-tight mb-4 sm:mb-6">
+              <h1 className="text-[2.5rem] leading-[1.05] sm:text-5xl lg:text-6xl xl:text-7xl font-black tracking-tight mb-4 sm:mb-6">
                 <motion.span
                   variants={{ hidden: { opacity: 0, y: 24 }, show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: "easeOut" } } }}
-                  className="block text-white drop-shadow-[0_4px_20px_rgba(0,0,0,0.45)]"
+                  className="block text-white drop-shadow-[0_4px_20px_rgba(0,0,0,0.5)]"
                 >
                   YOUR TRUSTED
                 </motion.span>
                 <motion.span
                   variants={{ hidden: { opacity: 0, y: 24 }, show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: "easeOut" } } }}
-                  className="block bg-gradient-to-r from-primary-glow via-white to-primary bg-clip-text text-transparent"
+                  className="block bg-gradient-to-r from-primary-glow via-[hsl(160_85%_75%)] to-white bg-clip-text text-transparent drop-shadow-[0_4px_20px_rgba(0,0,0,0.4)]"
                 >
                   PARKING PLATFORM
                 </motion.span>
                 <motion.span
                   variants={{ hidden: { opacity: 0, y: 24 }, show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: "easeOut" } } }}
-                  className="block text-white drop-shadow-[0_4px_20px_rgba(0,0,0,0.45)]"
+                  className="block text-white drop-shadow-[0_4px_20px_rgba(0,0,0,0.5)]"
                 >
                   IN DUBAI
                 </motion.span>
@@ -170,7 +170,7 @@ const Index = () => {
                 <motion.img
                   src={phonePremium}
                   alt="Shazam Parking app shown on a smartphone"
-                  className="relative w-52 sm:w-64 md:w-72 lg:w-80 xl:w-[22rem] h-auto drop-shadow-[0_30px_60px_rgba(0,0,0,0.45)]"
+                  className="relative w-44 sm:w-60 md:w-72 lg:w-80 xl:w-[22rem] h-auto drop-shadow-[0_30px_60px_rgba(0,0,0,0.5)]"
                   loading="eager"
                   fetchPriority="high"
                   decoding="async"
