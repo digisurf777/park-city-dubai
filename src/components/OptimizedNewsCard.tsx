@@ -37,8 +37,9 @@ const OptimizedNewsCard: React.FC<OptimizedNewsCardProps> = ({ article, priority
       .eq('id', article.id)
       .eq('status', 'published')
       .single()
-      .then(() => {})
-      .catch(() => articlePrefetchCache.delete(article.id));
+      .then(({ error }) => {
+        if (error) articlePrefetchCache.delete(article.id);
+      });
   }, [article.id]);
 
   return (
