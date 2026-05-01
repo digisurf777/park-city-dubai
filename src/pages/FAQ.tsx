@@ -75,6 +75,7 @@ const FAQ = () => {
     }]
   }];
   return <div className="min-h-screen bg-gradient-to-b from-surface to-background animate-fade-in">
+      {seo}
       <Navbar />
       
       {/* Hero Section */}
