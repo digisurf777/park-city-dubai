@@ -334,9 +334,21 @@ export function AdminDashboard({ onJumpTab }: Props) {
 
       {/* Zones + Top owners */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <Card className="glass-card">
+        <Card
+          className="relative overflow-hidden border border-sky-500/20 transition-all duration-300 hover:shadow-[0_18px_48px_-18px_hsl(200_90%_50%/0.4)]"
+          style={{
+            background: 'linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(var(--surface)) 100%)',
+            boxShadow: '0 6px 22px -10px hsl(200 90% 50% / 0.3), inset 0 1px 0 0 hsl(0 0% 100% / 0.8)',
+          }}
+        >
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-sky-500 via-sky-400 to-sky-500" />
           <CardHeader className="pb-2">
-            <CardTitle className="text-base">Top zones</CardTitle>
+            <CardTitle className="text-base flex items-center gap-2">
+              <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-sky-500 to-sky-400 flex items-center justify-center shadow-[0_4px_12px_-4px_hsl(200_90%_50%/0.5)]">
+                <Zap className="h-4 w-4 text-white" />
+              </div>
+              Top zones
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={Math.max(zones.length * 36, 220)}>
@@ -357,34 +369,51 @@ export function AdminDashboard({ onJumpTab }: Props) {
           </CardContent>
         </Card>
 
-        <Card className="glass-card">
+        <Card
+          className="relative overflow-hidden border border-amber-500/20 transition-all duration-300 hover:shadow-[0_18px_48px_-18px_hsl(40_95%_55%/0.4)]"
+          style={{
+            background: 'linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(var(--surface)) 100%)',
+            boxShadow: '0 6px 22px -10px hsl(40 95% 55% / 0.3), inset 0 1px 0 0 hsl(0 0% 100% / 0.8)',
+          }}
+        >
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500" />
           <CardHeader className="pb-2 flex flex-row items-center justify-between">
-            <CardTitle className="text-base flex items-center gap-2"><Crown className="h-4 w-4 text-primary" /> Top earning owners</CardTitle>
+            <CardTitle className="text-base flex items-center gap-2">
+              <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-amber-500 to-amber-400 flex items-center justify-center shadow-[0_4px_12px_-4px_hsl(40_95%_55%/0.5)]">
+                <Crown className="h-4 w-4 text-white" />
+              </div>
+              Top earning owners
+            </CardTitle>
             <Button size="sm" variant="ghost" onClick={() => onJumpTab?.('owner-payments')}>View all</Button>
           </CardHeader>
           <CardContent className="p-0">
-            <div className="divide-y">
+            <div className="divide-y divide-border/40">
               {topOwners.length === 0 && <div className="p-6 text-sm text-muted-foreground">No payouts yet.</div>}
-              {topOwners.map((o, i) => (
-                <div key={o.ownerId} className="flex items-center gap-3 px-4 py-3 hover:bg-muted/40 transition">
-                  <div className={`h-8 w-8 rounded-full flex items-center justify-center text-xs font-bold ${
-                    i === 0 ? 'bg-amber-500/20 text-amber-700' :
-                    i === 1 ? 'bg-slate-400/20 text-slate-700' :
-                    i === 2 ? 'bg-orange-600/20 text-orange-700' :
-                    'bg-muted text-muted-foreground'
-                  }`}>
-                    #{i + 1}
+              {topOwners.map((o, i) => {
+                const medal =
+                  i === 0 ? { bg: 'bg-gradient-to-br from-amber-400 to-amber-500', shadow: '0 4px 12px -4px hsl(40 95% 55% / 0.6)' } :
+                  i === 1 ? { bg: 'bg-gradient-to-br from-slate-300 to-slate-400', shadow: '0 4px 12px -4px hsl(215 15% 60% / 0.6)' } :
+                  i === 2 ? { bg: 'bg-gradient-to-br from-orange-500 to-orange-600', shadow: '0 4px 12px -4px hsl(25 90% 55% / 0.6)' } :
+                  { bg: 'bg-gradient-to-br from-muted to-muted/70', shadow: 'none' };
+                return (
+                  <div key={o.ownerId} className="flex items-center gap-3 px-4 py-3 hover:bg-primary/5 transition-all duration-200 hover:translate-x-0.5">
+                    <div
+                      className={`h-9 w-9 rounded-full flex items-center justify-center text-xs font-bold text-white ${medal.bg}`}
+                      style={{ boxShadow: medal.shadow }}
+                    >
+                      {i < 3 ? '★' : `#${i + 1}`}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-semibold truncate text-sm">{o.name}</div>
+                      <div className="text-xs text-muted-foreground truncate">{o.email}</div>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-bold text-primary tabular-nums">{fmtMoney(o.totalEarned)}</div>
+                      <div className="text-[10px] text-muted-foreground">{o.listingsCount} listing{o.listingsCount === 1 ? '' : 's'} · {o.payoutsCount} payout{o.payoutsCount === 1 ? '' : 's'}</div>
+                    </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-medium truncate">{o.name}</div>
-                    <div className="text-xs text-muted-foreground truncate">{o.email}</div>
-                  </div>
-                  <div className="text-right">
-                    <div className="font-semibold">{fmtMoney(o.totalEarned)}</div>
-                    <div className="text-xs text-muted-foreground">{o.listingsCount} listing{o.listingsCount === 1 ? '' : 's'} · {o.payoutsCount} payout{o.payoutsCount === 1 ? '' : 's'}</div>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </CardContent>
         </Card>
