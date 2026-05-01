@@ -317,6 +317,17 @@ const ChatWidget = () => {
                 <span className="hidden sm:inline text-xs font-semibold">New</span>
               </Button>
             )}
+            <a
+              href={buildMailto(
+                "Support request — Shazam Parking",
+                `Hi Shazam Parking team,\n\n[Please describe your question here]\n\n— Sent from in-app support (${user?.email ?? ""})`
+              )}
+              className="hidden sm:inline-flex items-center gap-1 h-8 px-3 rounded-md text-white hover:bg-white/15 text-xs font-semibold transition-colors"
+              title={`Email ${SUPPORT_EMAIL}`}
+            >
+              <Mail className="h-3.5 w-3.5" />
+              Email us
+            </a>
             <Button variant="ghost" size="icon" onClick={() => setIsExpanded((v) => !v)}
               className="h-8 w-8 text-white hover:bg-white/15 hidden sm:inline-flex" aria-label={isExpanded ? "Shrink" : "Expand"}>
               {isExpanded ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
