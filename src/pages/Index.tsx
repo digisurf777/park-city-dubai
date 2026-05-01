@@ -357,7 +357,7 @@ const Index = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
             {[
               {
                 icon: Clock,
@@ -395,26 +395,26 @@ const Index = () => {
                   background:
                     'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-glow)) 50%, hsl(var(--primary-deep)) 100%)',
                   boxShadow:
-                    '0 20px 40px -15px hsl(var(--primary-deep) / 0.45), 0 8px 16px -8px hsl(var(--primary) / 0.3), inset 0 1px 0 0 hsl(0 0% 100% / 0.4)',
+                    '0 24px 48px -16px hsl(var(--primary-deep) / 0.5), 0 10px 20px -8px hsl(var(--primary) / 0.35), inset 0 1px 0 0 hsl(0 0% 100% / 0.4)',
                 }}
               >
                 <div className="relative rounded-[14px] bg-white overflow-hidden flex flex-col w-full">
-                  {/* Visual — larger */}
-                  <div className="relative aspect-[3/2] overflow-hidden">
+                  {/* Visual — bigger, more prominent */}
+                  <div className="relative aspect-[4/3] sm:aspect-square overflow-hidden">
                     <img
                       src={item.image}
                       alt={item.problem}
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                       loading="lazy"
                       decoding="async"
-                      width={900}
-                      height={600}
+                      width={1000}
+                      height={1000}
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/5 to-transparent"></div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent"></div>
                     {/* Glossy top highlight */}
                     <div className="pointer-events-none absolute inset-x-0 top-0 h-1/3 bg-gradient-to-b from-white/15 to-transparent" />
-                    <div className="absolute top-3 left-3 inline-flex items-center justify-center w-11 h-11 rounded-xl bg-gradient-primary text-primary-foreground shadow-elegant ring-2 ring-white/40">
-                      <item.icon className="h-5 w-5" />
+                    <div className="absolute top-3 left-3 inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-primary text-primary-foreground shadow-elegant ring-2 ring-white/50">
+                      <item.icon className="h-5.5 w-5.5" />
                     </div>
                   </div>
                   {/* Text */}
@@ -422,7 +422,7 @@ const Index = () => {
                     <p className="text-xs font-semibold text-foreground/55 line-through mb-1.5">
                       {item.problem}
                     </p>
-                    <p className="text-base font-semibold text-foreground leading-snug">
+                    <p className="text-base sm:text-lg font-bold text-foreground leading-snug">
                       {item.solution}
                     </p>
                   </div>
