@@ -12,7 +12,24 @@ import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { Loader2, User, History, LogOut, Shield, ShieldAlert, ShieldCheck, Mail, Home, MessageSquare, Send, Car, ParkingCircle, MessageCircle, CheckCircle, FileText, Camera, Phone, Globe, Bell, Sparkles, ImageIcon, Trash2, KeyRound, Eye, EyeOff, LifeBuoy, MessagesSquare, HelpCircle } from 'lucide-react';
+import { Loader2, User, History, LogOut, Shield, ShieldAlert, ShieldCheck, Mail, Home, MessageSquare, Send, Car, ParkingCircle, MessageCircle, CheckCircle, FileText, Camera, Phone, Globe, Bell, Sparkles, ImageIcon, Trash2, KeyRound, Eye, EyeOff, LifeBuoy, MessagesSquare, HelpCircle, Wand2, RefreshCw } from 'lucide-react';
+import accountHeroDubaiNight from '@/assets/account-hero-dubai-night.jpg';
+import defaultAvatar1 from '@/assets/avatars/avatar-1.png';
+import defaultAvatar2 from '@/assets/avatars/avatar-2.png';
+import defaultAvatar3 from '@/assets/avatars/avatar-3.png';
+import defaultAvatar4 from '@/assets/avatars/avatar-4.png';
+import defaultAvatar5 from '@/assets/avatars/avatar-5.png';
+import defaultAvatar6 from '@/assets/avatars/avatar-6.png';
+
+const DEFAULT_AVATARS = [defaultAvatar1, defaultAvatar2, defaultAvatar3, defaultAvatar4, defaultAvatar5, defaultAvatar6];
+
+// Pick a deterministic default avatar based on user id (stable per user)
+const pickDefaultAvatar = (seed?: string | null) => {
+  if (!seed) return DEFAULT_AVATARS[0];
+  let h = 0;
+  for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) >>> 0;
+  return DEFAULT_AVATARS[h % DEFAULT_AVATARS.length];
+};
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import VerificationPanel from '@/components/VerificationPanel';
 import UserInbox from '@/components/UserInbox';
@@ -90,6 +107,7 @@ const MyAccount = () => {
   const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'profile');
   const [unreadChatCount, setUnreadChatCount] = useState<number>(0);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [generatingAvatar, setGeneratingAvatar] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -374,6 +392,43 @@ const MyAccount = () => {
     }
   };
 
+  const generateAiAvatar = async () => {
+    if (!user) return;
+    setGeneratingAvatar(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-avatar', { body: {} });
+      if (error) throw error;
+      const url = (data as any)?.avatar_url as string | undefined;
+      if (!url) throw new Error('No avatar returned');
+      setProfile(prev => prev ? { ...prev, avatar_url: url } : prev);
+      toast.success('AI avatar generated ✨');
+    } catch (err: any) {
+      console.error('Generate AI avatar failed:', err);
+      const msg = err?.context?.error || err?.message || 'Failed to generate avatar';
+      toast.error(msg);
+    } finally {
+      setGeneratingAvatar(false);
+    }
+  };
+
+  const setDefaultAvatar = async (url: string) => {
+    if (!user) return;
+    setUploadingAvatar(true);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ avatar_url: url })
+        .eq('user_id', user.id);
+      if (error) throw error;
+      setProfile(prev => prev ? { ...prev, avatar_url: url } : prev);
+      toast.success('Avatar updated');
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to update avatar');
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
+
   const handleLogout = async () => {
     try {
       console.log('Starting logout process...');
@@ -453,25 +508,36 @@ const MyAccount = () => {
   }
   return <div className="min-h-screen bg-gradient-to-b from-surface via-background to-background pt-20 animate-fade-in">
       <div className="max-w-5xl mx-auto p-4 lg:p-6">
-        {/* Hero header card — premium 3D glass */}
+        {/* Hero header card — premium 3D glass with Dubai night photo */}
         <div className="relative overflow-hidden rounded-[2rem] mb-6 p-6 lg:p-10 border border-white/30
-                        shadow-[0_30px_60px_-20px_hsl(var(--primary-deep)/0.55),0_8px_24px_-12px_hsl(var(--primary)/0.45),inset_0_1px_0_0_hsl(0_0%_100%/0.35)]"
-             style={{ background: 'linear-gradient(135deg, hsl(var(--primary-deep)) 0%, hsl(var(--primary)) 50%, hsl(var(--primary-glow)) 100%)' }}>
+                        shadow-[0_30px_60px_-20px_hsl(var(--primary-deep)/0.55),0_8px_24px_-12px_hsl(var(--primary)/0.45),inset_0_1px_0_0_hsl(0_0%_100%/0.35)]">
+          {/* Background photo */}
+          <div
+            className="pointer-events-none absolute inset-0 bg-cover bg-center scale-105"
+            style={{ backgroundImage: `url(${accountHeroDubaiNight})` }}
+            aria-hidden="true"
+          />
+          {/* Brand teal tint to keep the platform color identity */}
+          <div className="pointer-events-none absolute inset-0"
+               style={{ background: 'linear-gradient(135deg, hsl(var(--primary-deep) / 0.85) 0%, hsl(var(--primary) / 0.70) 50%, hsl(var(--primary-glow) / 0.55) 100%)' }} />
+          {/* Bottom darken for text legibility */}
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/40 via-black/15 to-transparent" />
           {/* Decorative orbs */}
-          <div className="pointer-events-none absolute -top-24 -right-24 w-80 h-80 rounded-full bg-white/20 blur-3xl"></div>
-          <div className="pointer-events-none absolute -bottom-28 -left-20 w-96 h-96 rounded-full bg-primary-glow/40 blur-3xl"></div>
+          <div className="pointer-events-none absolute -top-24 -right-24 w-80 h-80 rounded-full bg-white/15 blur-3xl"></div>
+          <div className="pointer-events-none absolute -bottom-28 -left-20 w-96 h-96 rounded-full bg-primary-glow/30 blur-3xl"></div>
           {/* Glossy top highlight */}
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/15 to-transparent" />
-          <div className="pointer-events-none absolute inset-0 opacity-[0.07]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '22px 22px' }} />
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/10 to-transparent" />
 
           <div className="relative flex flex-col gap-6 lg:flex-row lg:justify-between lg:items-center">
             <div className="flex items-center gap-5">
               {/* Avatar — uploadable */}
               <div className="relative group">
-                <Avatar className="h-20 w-20 lg:h-24 lg:w-24 rounded-2xl ring-4 ring-white/40 shadow-[0_12px_30px_-8px_hsl(var(--primary-deep)/0.6),inset_0_1px_0_0_hsl(0_0%_100%/0.35)] bg-white/15 backdrop-blur">
-                  {profile?.avatar_url ? (
-                    <AvatarImage src={profile.avatar_url} alt={profile.full_name || 'Profile'} className="object-cover" />
-                  ) : null}
+                <Avatar className="h-20 w-20 lg:h-24 lg:w-24 rounded-2xl ring-4 ring-white/40 shadow-[0_12px_30px_-8px_hsl(var(--primary-deep)/0.6),inset_0_1px_0_0_hsl(0_0%_100%/0.35)] bg-white/15 backdrop-blur overflow-hidden">
+                  <AvatarImage
+                    src={profile?.avatar_url || pickDefaultAvatar(user?.id)}
+                    alt={profile?.full_name || 'Profile'}
+                    className="object-cover"
+                  />
                   <AvatarFallback className="rounded-2xl bg-gradient-to-br from-white/25 to-white/10 text-white text-3xl lg:text-4xl font-black">
                     {(profile?.full_name || user?.email || '?').charAt(0).toUpperCase()}
                   </AvatarFallback>
@@ -765,25 +831,62 @@ const MyAccount = () => {
                 </CardHeader>
                 <CardContent className="flex flex-col items-center text-center gap-4">
                   <div className="relative">
-                    <Avatar className="h-32 w-32 rounded-3xl ring-4 ring-primary/20 shadow-glow bg-muted">
-                      {profile?.avatar_url ? (
-                        <AvatarImage src={profile.avatar_url} alt={profile.full_name || 'Profile'} className="object-cover" />
-                      ) : null}
+                    <Avatar className="h-32 w-32 rounded-3xl ring-4 ring-primary/20 shadow-glow bg-muted overflow-hidden">
+                      <AvatarImage
+                        src={profile?.avatar_url || pickDefaultAvatar(user?.id)}
+                        alt={profile?.full_name || 'Profile'}
+                        className="object-cover"
+                      />
                       <AvatarFallback className="rounded-3xl bg-gradient-primary text-primary-foreground text-4xl font-black">
                         {(profile?.full_name || user?.email || '?').charAt(0).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
-                    {uploadingAvatar && (
+                    {(uploadingAvatar || generatingAvatar) && (
                       <div className="absolute inset-0 rounded-3xl bg-black/50 flex items-center justify-center">
                         <Loader2 className="h-8 w-8 text-white animate-spin" />
                       </div>
                     )}
                   </div>
-                  <div className="flex flex-col sm:flex-row gap-2 w-full">
-                    <label htmlFor="avatar-upload" className="flex-1 cursor-pointer">
-                      <div className="inline-flex w-full items-center justify-center gap-2 h-10 px-4 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors text-sm font-medium shadow-md">
+
+                  {/* Default avatar gallery */}
+                  <div className="w-full">
+                    <p className="text-[11px] uppercase tracking-[0.18em] font-bold text-muted-foreground mb-2">Pick a default</p>
+                    <div className="grid grid-cols-6 gap-1.5">
+                      {DEFAULT_AVATARS.map((src, i) => {
+                        const selected = profile?.avatar_url === src;
+                        return (
+                          <button
+                            key={i}
+                            type="button"
+                            onClick={() => setDefaultAvatar(src)}
+                            disabled={uploadingAvatar || generatingAvatar}
+                            className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all active:scale-95 ${selected ? 'border-primary shadow-[0_4px_14px_-4px_hsl(var(--primary)/0.55)]' : 'border-transparent hover:border-primary/40'}`}
+                            aria-label={`Use default avatar ${i + 1}`}
+                          >
+                            <img src={src} alt="" className="w-full h-full object-cover" loading="lazy" />
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
+                    <Button
+                      type="button"
+                      onClick={generateAiAvatar}
+                      disabled={uploadingAvatar || generatingAvatar}
+                      className="w-full bg-gradient-to-br from-primary via-primary to-primary-deep hover:opacity-95 text-white border-0 shadow-[0_6px_16px_-4px_hsl(var(--primary)/0.55),inset_0_1px_0_0_hsl(0_0%_100%/0.25)] active:translate-y-0.5 transition-all"
+                    >
+                      {generatingAvatar ? (
+                        <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Generating…</>
+                      ) : (
+                        <><Wand2 className="h-4 w-4 mr-2" /> Generate AI avatar</>
+                      )}
+                    </Button>
+                    <label htmlFor="avatar-upload" className="cursor-pointer">
+                      <div className="inline-flex w-full items-center justify-center gap-2 h-10 px-4 rounded-md bg-white border border-primary/30 text-foreground hover:bg-primary/5 transition-colors text-sm font-semibold shadow-sm">
                         <Camera className="h-4 w-4" />
-                        {profile?.avatar_url ? 'Change' : 'Upload'}
+                        Upload photo
                       </div>
                       <input
                         id="avatar-upload"
@@ -791,21 +894,24 @@ const MyAccount = () => {
                         accept="image/*"
                         className="sr-only"
                         onChange={handleAvatarUpload}
-                        disabled={uploadingAvatar}
+                        disabled={uploadingAvatar || generatingAvatar}
                       />
                     </label>
-                    {profile?.avatar_url && (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={removeAvatar}
-                        disabled={uploadingAvatar}
-                        className="flex-1"
-                      >
-                        <Trash2 className="h-4 w-4 mr-2" /> Remove
-                      </Button>
-                    )}
                   </div>
+
+                  {profile?.avatar_url && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={removeAvatar}
+                      disabled={uploadingAvatar || generatingAvatar}
+                      className="text-muted-foreground hover:text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" /> Remove current
+                    </Button>
+                  )}
+
                   <p className="text-xs text-muted-foreground">
                     Your photo appears on chats and bookings.
                   </p>
