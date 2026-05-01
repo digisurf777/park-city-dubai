@@ -235,105 +235,127 @@ const Index = () => {
         </div>
       </motion.section>
 
-      {/* How It Works Strip */}
-      <motion.section initial={{
-      opacity: 0
-    }} whileInView={{
-      opacity: 1
-    }} transition={{
-      duration: 0.8
-    }} viewport={{
-      once: true,
-      amount: 0.2
-    }} className="py-12 sm:py-16 lg:py-20 bg-gradient-subtle">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div initial={{
-          opacity: 0,
-          y: 30
-        }} whileInView={{
-          opacity: 1,
-          y: 0
-        }} transition={{
-          duration: 0.8,
-          delay: 0.2
-        }} viewport={{
-          once: true
-        }} className="text-center mb-12 sm:mb-16">
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 sm:mb-6 px-4">
-              How It Works
+      {/* How It Works — tightened */}
+      <motion.section
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        transition={{ duration: 0.8 }}
+        viewport={{ once: true, amount: 0.2 }}
+        className="py-12 sm:py-16 bg-gradient-subtle"
+      >
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-8 sm:mb-12">
+            <span className="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold uppercase tracking-wider mb-3">
+              How it works
+            </span>
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground">
+              Park in 3 simple steps
             </h2>
-          </motion.div>
+          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-12">
-            {[{
-            icon: Search,
-            title: "Search & Select",
-            description: "Find the perfect parking location from our verified spaces"
-          }, {
-            icon: CreditCard,
-            title: "Book & Pay Securely",
-            description: "Reserve your spot instantly with secure online payment"
-          }, {
-            icon: Car,
-            title: "Park & Relax",
-            description: "Arrive at your destination with parking available"
-          }].map((step, index) => <motion.div key={index} initial={{
-            opacity: 0,
-            y: 50
-          }} whileInView={{
-            opacity: 1,
-            y: 0
-          }} transition={{
-            duration: 0.6,
-            delay: 0.3 + index * 0.2
-          }} viewport={{
-            once: true
-          }} whileHover={{
-            y: -5
-          }} className="text-center">
-                <motion.div initial={{
-              scale: 0
-            }} whileInView={{
-              scale: 1
-            }} transition={{
-              duration: 0.5,
-              delay: 0.5 + index * 0.2
-            }} viewport={{
-              once: true
-            }} whileHover={{
-              scale: 1.1,
-              rotate: 5
-            }} className="bg-gradient-primary text-primary-foreground rounded-2xl w-16 sm:w-20 h-16 sm:h-20 flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-elegant">
-                  <step.icon className="h-8 sm:h-10 w-8 sm:w-10" />
-                </motion.div>
-                <motion.h3 initial={{
-              opacity: 0
-            }} whileInView={{
-              opacity: 1
-            }} transition={{
-              duration: 0.6,
-              delay: 0.7 + index * 0.2
-            }} viewport={{
-              once: true
-            }} className="text-lg sm:text-xl lg:text-2xl font-semibold mb-3 sm:mb-4">
-                  {step.title}
-                </motion.h3>
-                <motion.p initial={{
-              opacity: 0
-            }} whileInView={{
-              opacity: 1
-            }} transition={{
-              duration: 0.6,
-              delay: 0.9 + index * 0.2
-            }} viewport={{
-              once: true
-            }} className="text-gray-600 text-sm sm:text-base px-4">
-                  {step.description}
-                </motion.p>
-              </motion.div>)}
+          <div className="relative grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-4">
+            {/* Connector line on desktop */}
+            <div className="hidden md:block absolute top-10 left-[16.66%] right-[16.66%] h-0.5 bg-gradient-to-r from-primary/30 via-primary/60 to-primary/30 z-0"></div>
+
+            {[
+              { icon: Search, title: "Search & Select", description: "Browse verified spaces near you." },
+              { icon: CreditCard, title: "Book Securely", description: "Reserve in seconds with secure payment." },
+              { icon: Car, title: "Park & Relax", description: "Arrive — your spot is waiting." },
+            ].map((step, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.12 }}
+                viewport={{ once: true }}
+                className="relative z-10 text-center"
+              >
+                <div className="relative mx-auto w-20 h-20 mb-4">
+                  <div className="absolute inset-0 bg-gradient-primary rounded-2xl shadow-elegant rotate-3 group-hover:rotate-6 transition-transform"></div>
+                  <div className="relative bg-gradient-primary text-primary-foreground rounded-2xl w-20 h-20 flex items-center justify-center shadow-elegant">
+                    <step.icon className="h-9 w-9" />
+                  </div>
+                  <span className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-white text-primary text-sm font-bold flex items-center justify-center shadow-md ring-2 ring-primary/20">
+                    {index + 1}
+                  </span>
+                </div>
+                <h3 className="text-lg sm:text-xl font-semibold mb-1.5">{step.title}</h3>
+                <p className="text-sm text-muted-foreground max-w-xs mx-auto">{step.description}</p>
+              </motion.div>
+            ))}
           </div>
         </div>
       </motion.section>
+
+      {/* Problems We Solve — NEW section */}
+      <motion.section
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        transition={{ duration: 0.8 }}
+        viewport={{ once: true, amount: 0.2 }}
+        className="py-14 sm:py-20 bg-white relative overflow-hidden"
+      >
+        <div className="pointer-events-none absolute top-0 right-0 w-[30rem] h-[30rem] bg-primary/5 rounded-full blur-3xl"></div>
+
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+          <div className="text-center mb-10 sm:mb-14">
+            <span className="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold uppercase tracking-wider mb-3">
+              The problem
+            </span>
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-3">
+              Parking in Dubai shouldn't be a daily headache
+            </h2>
+            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
+              We connect drivers with private parking owners — solving the four biggest pains of city parking.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+            {[
+              {
+                icon: Clock,
+                problem: "Wasting hours circling for spots",
+                solution: "Reserve a guaranteed space in seconds.",
+              },
+              {
+                icon: Wallet,
+                problem: "Paying premium hotel & mall rates",
+                solution: "Save up to 60% on monthly parking.",
+              },
+              {
+                icon: Lock,
+                problem: "Worrying about car safety",
+                solution: "Verified, private, secure locations only.",
+              },
+              {
+                icon: TrendingUp,
+                problem: "Empty parking spaces wasting money",
+                solution: "Owners earn passive monthly income.",
+              },
+            ].map((item, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+                viewport={{ once: true }}
+                className="group relative p-5 sm:p-6 rounded-2xl glass-card hover-lift"
+              >
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-primary text-primary-foreground shadow-elegant mb-4 group-hover:scale-110 transition-transform">
+                  <item.icon className="h-6 w-6" />
+                </div>
+                <p className="text-sm font-semibold text-foreground/60 line-through mb-1.5">
+                  {item.problem}
+                </p>
+                <p className="text-base font-semibold text-foreground leading-snug">
+                  {item.solution}
+                </p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </motion.section>
+
 
       {/* Rent Out Your Space Section */}
       <motion.section initial={{
