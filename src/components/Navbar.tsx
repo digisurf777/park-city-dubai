@@ -13,7 +13,16 @@ import { useAuth } from "@/hooks/useAuth";
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isZonesOpen, setIsZonesOpen] = useState(false);
-  
+
+  // Lock scroll when mobile menu is open
+  useEffect(() => {
+    if (isMenuOpen) {
+      const original = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => { document.body.style.overflow = original; };
+    }
+  }, [isMenuOpen]);
+
   // Add error boundary for auth hook
   let user, signOut;
   try {
