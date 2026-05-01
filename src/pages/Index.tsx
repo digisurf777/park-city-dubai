@@ -446,31 +446,6 @@ const Index = () => {
                   height={1280}
                 />
               </div>
-              <div className="hidden">
-                <div>
-                  {/* Floating earnings card */}
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 0.6 }}
-                    viewport={{ once: true }}
-                    className="absolute bottom-4 left-4 right-4 sm:left-6 sm:right-auto sm:max-w-[260px] glass-card rounded-2xl p-4 shadow-elegant"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-primary text-primary-foreground flex items-center justify-center shadow-elegant">
-                        <TrendingUp className="h-6 w-6" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs text-muted-foreground">This month</p>
-                        <p className="text-lg sm:text-xl font-black text-foreground leading-tight">
-                          + AED 1,250
-                        </p>
-                      </div>
-                      <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0" />
-                    </div>
-                  </motion.div>
-                </div>
-              </div>
             </motion.div>
           </div>
         </div>
