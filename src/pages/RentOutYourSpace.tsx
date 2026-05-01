@@ -18,7 +18,7 @@ import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { useVerificationStatus } from "@/hooks/useVerificationStatus";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import luxuryCar from "@/assets/luxury-car-dubai.png";
+import luxuryCar from "@/assets/luxury-car-dubai.webp";
 import phoneLogo from "@/assets/phone-logo.png";
 const RentOutYourSpace = () => {
   useEffect(() => {

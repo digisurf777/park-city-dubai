@@ -18,7 +18,7 @@ const PerformantHero = () => {
       <link 
         rel="preload" 
         as="image" 
-        href="/lovable-uploads/c910d35f-a4b2-4c06-88e3-7f5b16a45558.png"
+        href="/lovable-uploads/c910d35f-a4b2-4c06-88e3-7f5b16a45558.webp"
         fetchPriority="high"
       />
       
@@ -60,18 +60,18 @@ const PerformantHero = () => {
               <picture>
                 <source 
                   media="(max-width: 640px)" 
-                  srcSet="/lovable-uploads/c910d35f-a4b2-4c06-88e3-7f5b16a45558.png?w=256&f=webp 256w"
+                  srcSet="/lovable-uploads/c910d35f-a4b2-4c06-88e3-7f5b16a45558.webp?w=256&f=webp 256w"
                   type="image/webp"
                 />
                 <source 
                   media="(max-width: 1024px)" 
-                  srcSet="/lovable-uploads/c910d35f-a4b2-4c06-88e3-7f5b16a45558.png?w=320&f=webp 320w"
+                  srcSet="/lovable-uploads/c910d35f-a4b2-4c06-88e3-7f5b16a45558.webp?w=320&f=webp 320w"
                   type="image/webp"
                 />
                 <img 
                   alt="Shazam Parking Mobile App" 
                   className="w-64 sm:w-80 md:w-96 lg:max-w-md h-auto transition-transform duration-300 hover:scale-105" 
-                  src="/lovable-uploads/c910d35f-a4b2-4c06-88e3-7f5b16a45558.png"
+                  src="/lovable-uploads/c910d35f-a4b2-4c06-88e3-7f5b16a45558.webp"
                   loading="eager"
                   {...({ fetchpriority: 'high' })}
                   decoding="async"
