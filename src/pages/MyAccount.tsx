@@ -560,53 +560,56 @@ const MyAccount = () => {
 
         {/* Verification Status Alert - Only show if not approved/verified */}
         {!verificationLoading && verificationStatus && verificationStatus !== 'approved' && verificationStatus !== 'verified' && (
-          <Card className="mb-6 border-orange-200 bg-orange-50/70 backdrop-blur-md shadow-soft">
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-3">
-                <Shield className="h-6 w-6 text-orange-600" />
-                <div className="flex-1">
-                  <h3 className="font-semibold text-orange-800">Account Verification Required</h3>
-                  <p className="text-sm text-orange-700 mt-1">
-                    Your account must be verified before you can list or book parking spaces.
-                    Current status: {verificationStatus}
+          <div className="relative mb-6 rounded-2xl p-[1.5px] bg-gradient-to-r from-orange-400 via-amber-400 to-orange-500 shadow-[0_18px_40px_-18px_hsl(24_95%_53%/0.55)]">
+            <div className="rounded-[14px] bg-gradient-to-br from-orange-50 via-amber-50/80 to-white p-5 lg:p-6">
+              <div className="flex items-center gap-4">
+                <div className="relative flex-shrink-0 h-14 w-14 rounded-2xl bg-gradient-to-br from-orange-400 to-orange-600 shadow-[0_10px_24px_-6px_hsl(24_95%_53%/0.55),inset_0_1px_0_0_hsl(0_0%_100%/0.4)] flex items-center justify-center">
+                  <ShieldAlert className="h-7 w-7 text-white drop-shadow" />
+                  <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-red-500 text-white text-[11px] font-black flex items-center justify-center border-2 border-white shadow">!</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-bold text-orange-900 text-base lg:text-lg leading-tight">Account Verification Required</h3>
+                  <p className="text-sm text-orange-700/90 mt-1">
+                    Verify your account to list or book parking spaces. Current status: <span className="font-semibold capitalize">{verificationStatus}</span>
                   </p>
                 </div>
-                <Button 
-                  variant="outline" 
+                <Button
                   size="sm"
                   onClick={() => setActiveTab('verification')}
-                  className="border-orange-300 text-orange-700 hover:bg-orange-100"
+                  className="bg-gradient-to-br from-orange-500 to-orange-600 hover:from-orange-500 hover:to-orange-700 text-white border-0 shadow-[0_6px_16px_-4px_hsl(24_95%_53%/0.55),inset_0_1px_0_0_hsl(0_0%_100%/0.3)] font-semibold active:translate-y-0.5 transition-all"
                 >
                   {verificationStatus === 'rejected' ? 'Resubmit' : 'Check Status'}
                 </Button>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         )}
 
         {/* Show verification required for users without any verification record */}
         {!verificationLoading && !verificationStatus && (
-          <Card className="mb-6 border-orange-200 bg-orange-50/70 backdrop-blur-md shadow-soft">
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-3">
-                <Shield className="h-6 w-6 text-orange-600" />
-                <div className="flex-1">
-                  <h3 className="font-semibold text-orange-800">Account Verification Required</h3>
-                  <p className="text-sm text-orange-700 mt-1">
+          <div className="relative mb-6 rounded-2xl p-[1.5px] bg-gradient-to-r from-orange-400 via-amber-400 to-orange-500 shadow-[0_18px_40px_-18px_hsl(24_95%_53%/0.55)]">
+            <div className="rounded-[14px] bg-gradient-to-br from-orange-50 via-amber-50/80 to-white p-5 lg:p-6">
+              <div className="flex items-center gap-4">
+                <div className="relative flex-shrink-0 h-14 w-14 rounded-2xl bg-gradient-to-br from-orange-400 to-orange-600 shadow-[0_10px_24px_-6px_hsl(24_95%_53%/0.55),inset_0_1px_0_0_hsl(0_0%_100%/0.4)] flex items-center justify-center">
+                  <ShieldAlert className="h-7 w-7 text-white drop-shadow" />
+                  <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-red-500 text-white text-[11px] font-black flex items-center justify-center border-2 border-white shadow">!</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-bold text-orange-900 text-base lg:text-lg leading-tight">Account Verification Required</h3>
+                  <p className="text-sm text-orange-700/90 mt-1">
                     Your account must be verified before you can list or book parking spaces.
                   </p>
                 </div>
-                <Button 
-                  variant="outline" 
+                <Button
                   size="sm"
                   onClick={() => setActiveTab('verification')}
-                  className="border-orange-300 text-orange-700 hover:bg-orange-100"
+                  className="bg-gradient-to-br from-orange-500 to-orange-600 hover:from-orange-500 hover:to-orange-700 text-white border-0 shadow-[0_6px_16px_-4px_hsl(24_95%_53%/0.55),inset_0_1px_0_0_hsl(0_0%_100%/0.3)] font-semibold active:translate-y-0.5 transition-all"
                 >
                   Start Verification
                 </Button>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         )}
 
         {/* Success Message for Verified Users */}
