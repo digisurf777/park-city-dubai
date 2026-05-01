@@ -3102,6 +3102,11 @@ const AdminPanelOrganized = () => {
             </Card>
           </TabsContent>
 
+          {/* Online Support — Chat History (AI assistant transcripts) */}
+          <TabsContent value="chat-history" className="space-y-6 mt-6">
+            <OnlineSupportHistory />
+          </TabsContent>
+
           {/* Booking Chats Monitoring Tab */}
           <TabsContent value="booking-chats" className="space-y-6 mt-6">
             <BookingChatsMonitor />
