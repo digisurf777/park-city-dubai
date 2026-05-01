@@ -92,51 +92,79 @@ const FAQ = () => {
           </p>
         </div>
 
-        {faqData.map((category, categoryIndex) => <div key={categoryIndex} className="mb-12">
-            <h3 className="text-2xl font-bold mb-6" style={{
-          color: '#202020'
-        }}>
-              {category.category}
-            </h3>
-            <Accordion type="single" collapsible className="w-full">
-              {category.questions.map((item, questionIndex) => <AccordionItem key={questionIndex} value={`${categoryIndex}-${questionIndex}`} className="border-b border-border">
-                  <AccordionTrigger className="text-left hover:no-underline py-6">
-                    <span className="font-semibold">{item.question}</span>
+        {faqData.map((category, categoryIndex) => (
+          <div key={categoryIndex} className="mb-10 sm:mb-12">
+            <div className="flex items-center gap-3 mb-5">
+              <span className="inline-block w-1.5 h-7 rounded-full bg-gradient-to-b from-primary to-primary-glow shadow-[0_0_12px_hsl(var(--primary)/0.5)]" />
+              <h3 className="text-xl sm:text-2xl font-bold text-foreground">
+                {category.category}
+              </h3>
+            </div>
+            <Accordion
+              type="single"
+              collapsible
+              className="w-full space-y-3"
+            >
+              {category.questions.map((item, questionIndex) => (
+                <AccordionItem
+                  key={questionIndex}
+                  value={`${categoryIndex}-${questionIndex}`}
+                  className="
+                    rounded-2xl bg-card
+                    ring-1 ring-primary/15
+                    shadow-[0_8px_20px_-10px_hsl(var(--primary)/0.18)]
+                    transition-all duration-300
+                    hover:ring-primary/35 hover:shadow-[0_18px_35px_-12px_hsl(var(--primary)/0.35)]
+                    data-[state=open]:ring-primary/50
+                    data-[state=open]:shadow-[0_22px_40px_-14px_hsl(var(--primary)/0.45)]
+                    overflow-hidden border-0
+                  "
+                >
+                  <AccordionTrigger className="text-left hover:no-underline px-5 sm:px-6 py-5 group">
+                    <span className="font-semibold text-foreground group-hover:text-primary transition-colors text-sm sm:text-base">
+                      {item.question}
+                    </span>
                   </AccordionTrigger>
-                    <AccordionContent className="pb-6">
-                      {item.question === "⭐️ Can I leave a review?" ? <p className="text-muted-foreground leading-relaxed">
-                          Yes. We value your feedback. Drivers and owners can leave a review after each completed booking. We also encourage you to share your experience on{" "}
-                          <a href="https://www.trustpilot.com/review/shazamparking.ae" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-medium">
-                            Trustpilot
-                          </a>
-                          {" "}and{" "}
-                          <a href="https://www.google.com/search?q=shazamparking+reviews" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-medium">
-                            Google Reviews
-                          </a>.
-                        </p> : <p className="text-muted-foreground leading-relaxed">
-                           {item.answer.includes('Terms and Conditions') || item.answer.includes('Privacy Policy') || item.answer.includes('Cancellation Policy') || item.answer.includes('cookies notice') ? (
-                             <>
-                               {item.answer
-                                 .split(/(Terms and Conditions|Privacy Policy|Cancellation Policy|cookies notice)/g)
-                                 .map((part, index) => {
-                                   if (part === 'Terms and Conditions') {
-                                     return <Link key={index} to="/terms-and-conditions" className="text-primary hover:underline font-medium">Terms and Conditions</Link>
-                                   } else if (part === 'Privacy Policy') {
-                                     return <Link key={index} to="/privacy-policy" className="text-primary hover:underline font-medium">Privacy Policy</Link>
-                                   } else if (part === 'Cancellation Policy') {
-                                     return <Link key={index} to="/terms-and-conditions" className="text-primary hover:underline font-medium">Cancellation Policy</Link>
-                                   } else if (part === 'cookies notice') {
-                                     return <Link key={index} to="/cookies-notice" className="text-primary hover:underline font-medium">cookies notice</Link>
-                                   }
-                                   return part
-                                 })}
-                             </>
-                           ) : item.answer}
-                         </p>}
-                    </AccordionContent>
-                </AccordionItem>)}
+                  <AccordionContent className="px-5 sm:px-6 pb-5">
+                    {item.question === "⭐️ Can I leave a review?" ? (
+                      <p className="text-muted-foreground leading-relaxed">
+                        Yes. We value your feedback. Drivers and owners can leave a review after each completed booking. We also encourage you to share your experience on{" "}
+                        <a href="https://www.trustpilot.com/review/shazamparking.ae" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-medium">
+                          Trustpilot
+                        </a>
+                        {" "}and{" "}
+                        <a href="https://www.google.com/search?q=shazamparking+reviews" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-medium">
+                          Google Reviews
+                        </a>.
+                      </p>
+                    ) : (
+                      <p className="text-muted-foreground leading-relaxed">
+                        {item.answer.includes('Terms and Conditions') || item.answer.includes('Privacy Policy') || item.answer.includes('Cancellation Policy') || item.answer.includes('cookies notice') ? (
+                          <>
+                            {item.answer
+                              .split(/(Terms and Conditions|Privacy Policy|Cancellation Policy|cookies notice)/g)
+                              .map((part, index) => {
+                                if (part === 'Terms and Conditions') {
+                                  return <Link key={index} to="/terms-and-conditions" className="text-primary hover:underline font-medium">Terms and Conditions</Link>
+                                } else if (part === 'Privacy Policy') {
+                                  return <Link key={index} to="/privacy-policy" className="text-primary hover:underline font-medium">Privacy Policy</Link>
+                                } else if (part === 'Cancellation Policy') {
+                                  return <Link key={index} to="/terms-and-conditions" className="text-primary hover:underline font-medium">Cancellation Policy</Link>
+                                } else if (part === 'cookies notice') {
+                                  return <Link key={index} to="/cookies-notice" className="text-primary hover:underline font-medium">cookies notice</Link>
+                                }
+                                return part
+                              })}
+                          </>
+                        ) : item.answer}
+                      </p>
+                    )}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
             </Accordion>
-          </div>)}
+          </div>
+        ))}
       </div>
 
       {/* Customer Reviews Section */}
