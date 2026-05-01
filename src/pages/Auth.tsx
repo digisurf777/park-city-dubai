@@ -807,6 +807,7 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-deep via-background to-surface flex items-center justify-center px-4 py-10 animate-fade-in">
+      {seoTags}
       {/* Decorative blobs */}
       <div className="pointer-events-none absolute top-20 left-10 h-64 w-64 rounded-full bg-primary/30 blur-3xl" aria-hidden />
       <div className="pointer-events-none absolute bottom-10 right-10 h-72 w-72 rounded-full bg-primary-glow/20 blur-3xl" aria-hidden />
