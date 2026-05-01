@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { MapPin, Mail } from "lucide-react";
+import { MapPin, Mail, Instagram, Facebook, Linkedin, Twitter } from "lucide-react";
 
 const Footer = () => {
   return (
@@ -33,6 +33,27 @@ const Footer = () => {
               <Mail className="h-4 w-4 mr-2 text-primary" />
               <span>support@shazam.ae</span>
             </a>
+
+            {/* Social icons */}
+            <div className="flex items-center gap-2 mt-5">
+              {[
+                { Icon: Instagram, href: "https://instagram.com", label: "Instagram" },
+                { Icon: Facebook, href: "https://facebook.com", label: "Facebook" },
+                { Icon: Linkedin, href: "https://linkedin.com", label: "LinkedIn" },
+                { Icon: Twitter, href: "https://twitter.com", label: "Twitter" },
+              ].map(({ Icon, href, label }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={label}
+                  className="h-9 w-9 inline-flex items-center justify-center rounded-full bg-white/5 ring-1 ring-white/10 text-gray-300 hover:text-primary hover:bg-white/10 hover:ring-primary/40 hover:-translate-y-0.5 transition-all"
+                >
+                  <Icon className="h-4 w-4" />
+                </a>
+              ))}
+            </div>
           </div>
 
           {/* Quick Links */}
