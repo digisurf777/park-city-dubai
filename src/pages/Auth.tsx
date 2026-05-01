@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 import { Loader2, Mail, Lock, Shield } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { InputOTP, InputOTPGroup, InputOTPSlot, InputOTPSeparator } from '@/components/ui/input-otp';
+import authLuxury from '@/assets/auth-luxury.jpg';
 
 const Auth = () => {
   const [loading, setLoading] = useState(false);
