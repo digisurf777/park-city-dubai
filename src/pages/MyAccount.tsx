@@ -726,86 +726,214 @@ const MyAccount = () => {
           </TabsList>
           
           <TabsContent value="profile">
-            <Card>
-              <CardHeader>
-                <CardTitle>Profile Information</CardTitle>
-                <CardDescription>
-                  Update your personal information
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={updateProfile} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input id="email" type="email" value={user.email || ''} disabled className="bg-muted" />
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Left: Profile picture card */}
+              <Card className="glass-card border-0 shadow-elegant lg:col-span-1">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <ImageIcon className="h-5 w-5 text-primary" />
+                    Profile picture
+                  </CardTitle>
+                  <CardDescription>JPG or PNG, up to 5 MB</CardDescription>
+                </CardHeader>
+                <CardContent className="flex flex-col items-center text-center gap-4">
+                  <div className="relative">
+                    <Avatar className="h-32 w-32 rounded-3xl ring-4 ring-primary/20 shadow-glow bg-muted">
+                      {profile?.avatar_url ? (
+                        <AvatarImage src={profile.avatar_url} alt={profile.full_name || 'Profile'} className="object-cover" />
+                      ) : null}
+                      <AvatarFallback className="rounded-3xl bg-gradient-primary text-primary-foreground text-4xl font-black">
+                        {(profile?.full_name || user?.email || '?').charAt(0).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    {uploadingAvatar && (
+                      <div className="absolute inset-0 rounded-3xl bg-black/50 flex items-center justify-center">
+                        <Loader2 className="h-8 w-8 text-white animate-spin" />
+                      </div>
+                    )}
                   </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="full_name">Full Name</Label>
-                    <Input id="full_name" type="text" value={profile?.full_name || ''} onChange={e => setProfile(prev => prev ? {
-                    ...prev,
-                    full_name: e.target.value
-                  } : null)} />
+                  <div className="flex flex-col sm:flex-row gap-2 w-full">
+                    <label htmlFor="avatar-upload" className="flex-1 cursor-pointer">
+                      <div className="inline-flex w-full items-center justify-center gap-2 h-10 px-4 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors text-sm font-medium shadow-md">
+                        <Camera className="h-4 w-4" />
+                        {profile?.avatar_url ? 'Change' : 'Upload'}
+                      </div>
+                      <input
+                        id="avatar-upload"
+                        type="file"
+                        accept="image/*"
+                        className="sr-only"
+                        onChange={handleAvatarUpload}
+                        disabled={uploadingAvatar}
+                      />
+                    </label>
+                    {profile?.avatar_url && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={removeAvatar}
+                        disabled={uploadingAvatar}
+                        className="flex-1"
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" /> Remove
+                      </Button>
+                    )}
                   </div>
-                  
-                   <div className="space-y-2">
-                     <Label htmlFor="phone">Phone Number <span className="text-destructive">*</span></Label>
-                     <Input id="phone" type="tel" value={profile?.phone || ''} onChange={e => setProfile(prev => prev ? {
-                     ...prev,
-                     phone: e.target.value
-                   } : null)} placeholder="+971 50 123 4567" required />
-                   </div>
+                  <p className="text-xs text-muted-foreground">
+                    Your photo appears on chats and bookings.
+                  </p>
+                </CardContent>
+              </Card>
 
-                   {/* Verification Status Display */}
-                   {!verificationLoading && (
-                     <div className="space-y-2">
-                       <Label>Account Status</Label>
-                       <div className="flex items-center gap-3 p-3 rounded-lg bg-muted">
-                       {verificationStatus === 'approved' || verificationStatus === 'verified' ? (
-                           <>
-                             <CheckCircle className="h-5 w-5 text-green-500" />
-                             <div className="flex flex-col">
-                               <span className="text-green-700 font-bold text-lg">✅ Verified Account</span>
-                               <span className="text-green-600 text-sm">Full access to all features</span>
-                             </div>
-                           </>
-                         ) : verificationStatus === 'pending' ? (
-                           <>
-                             <Shield className="h-5 w-5 text-orange-500" />
-                             <span className="text-orange-700 font-medium">⏳ Verification Pending</span>
-                           </>
-                         ) : verificationStatus === 'rejected' ? (
-                           <>
-                             <Shield className="h-5 w-5 text-red-500" />
-                             <span className="text-red-700 font-medium">❌ Verification Required</span>
-                           </>
-                         ) : (
-                           <>
-                             <Shield className="h-5 w-5 text-gray-500" />
-                             <span className="text-gray-700 font-medium">⚠️ Verification Not Started</span>
-                           </>
-                         )}
-                       </div>
-                     </div>
-                   )}
+              {/* Right: Information form */}
+              <Card className="glass-card border-0 shadow-elegant lg:col-span-2">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <User className="h-5 w-5 text-primary" />
+                    Profile information
+                  </CardTitle>
+                  <CardDescription>Update your personal details and preferences</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={updateProfile} className="space-y-5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="email" className="flex items-center gap-1.5"><Mail className="h-3.5 w-3.5" /> Email</Label>
+                        <Input id="email" type="email" value={user.email || ''} disabled className="bg-muted" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="full_name" className="flex items-center gap-1.5"><User className="h-3.5 w-3.5" /> Full Name</Label>
+                        <Input id="full_name" type="text" value={profile?.full_name || ''} onChange={e => setProfile(prev => prev ? { ...prev, full_name: e.target.value } : null)} placeholder="Your full name" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="phone" className="flex items-center gap-1.5">
+                          <Phone className="h-3.5 w-3.5" /> Phone Number <span className="text-destructive">*</span>
+                        </Label>
+                        <Input id="phone" type="tel" value={profile?.phone || ''} onChange={e => setProfile(prev => prev ? { ...prev, phone: e.target.value } : null)} placeholder="+971 50 123 4567" required />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="language" className="flex items-center gap-1.5"><Globe className="h-3.5 w-3.5" /> Preferred language</Label>
+                        <Select
+                          value={profile?.preferred_language || 'en'}
+                          onValueChange={val => setProfile(prev => prev ? { ...prev, preferred_language: val } : null)}
+                        >
+                          <SelectTrigger id="language">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="en">English</SelectItem>
+                            <SelectItem value="ar">العربية (Arabic)</SelectItem>
+                            <SelectItem value="ru">Русский (Russian)</SelectItem>
+                            <SelectItem value="hi">हिन्दी (Hindi)</SelectItem>
+                            <SelectItem value="ur">اردو (Urdu)</SelectItem>
+                            <SelectItem value="fr">Français (French)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
 
-                   <div className="flex gap-2">
-                     <Button type="submit" disabled={updating} className="flex-1">
-                       {updating ? <>
-                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                           Updating...
-                         </> : 'Update Profile'}
-                     </Button>
-                     <div className="flex items-center space-x-2">
-                       
-                       
-                     </div>
-                   </div>
-                 </form>
-               </CardContent>
-             </Card>
-           </TabsContent>
-          
+                    <div className="space-y-2">
+                      <Label htmlFor="bio">About me</Label>
+                      <Textarea
+                        id="bio"
+                        rows={3}
+                        maxLength={300}
+                        placeholder="Tell other users a bit about yourself (e.g. 'Owner of 3 spaces in Marina, fast responder')"
+                        value={profile?.bio || ''}
+                        onChange={e => setProfile(prev => prev ? { ...prev, bio: e.target.value } : null)}
+                      />
+                      <p className="text-xs text-muted-foreground text-right">{(profile?.bio || '').length}/300</p>
+                    </div>
+
+                    {/* Account type toggle */}
+                    <div className="rounded-xl border border-border/60 bg-background/50 p-4 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <ParkingCircle className="h-5 w-5 text-primary" />
+                        <div>
+                          <p className="font-semibold text-sm">I list parking spaces</p>
+                          <p className="text-xs text-muted-foreground">Enable owner features (listings, payouts, banking)</p>
+                        </div>
+                      </div>
+                      <Switch checked={isParkingOwner} onCheckedChange={setIsParkingOwner} />
+                    </div>
+
+                    {/* Notification preferences */}
+                    <div className="rounded-xl border border-border/60 bg-background/50 p-4 space-y-3">
+                      <div className="flex items-center gap-2">
+                        <Bell className="h-4 w-4 text-primary" />
+                        <p className="font-semibold text-sm">Notification preferences</p>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm">Email notifications</p>
+                          <p className="text-xs text-muted-foreground">Booking, listing and chat updates</p>
+                        </div>
+                        <Switch
+                          checked={profile?.notification_email ?? true}
+                          onCheckedChange={val => setProfile(prev => prev ? { ...prev, notification_email: val } : null)}
+                        />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm">SMS notifications</p>
+                          <p className="text-xs text-muted-foreground">Critical updates only (additional charges may apply)</p>
+                        </div>
+                        <Switch
+                          checked={profile?.notification_sms ?? false}
+                          onCheckedChange={val => setProfile(prev => prev ? { ...prev, notification_sms: val } : null)}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Verification Status Display */}
+                    {!verificationLoading && (
+                      <div className="space-y-2">
+                        <Label>Account Status</Label>
+                        <div className="flex items-center gap-3 p-3 rounded-lg bg-muted">
+                          {verificationStatus === 'approved' || verificationStatus === 'verified' ? (
+                            <>
+                              <CheckCircle className="h-5 w-5 text-green-500" />
+                              <div className="flex flex-col">
+                                <span className="text-green-700 font-bold text-lg">✅ Verified Account</span>
+                                <span className="text-green-600 text-sm">Full access to all features</span>
+                              </div>
+                            </>
+                          ) : verificationStatus === 'pending' ? (
+                            <>
+                              <Shield className="h-5 w-5 text-orange-500" />
+                              <span className="text-orange-700 font-medium">⏳ Verification Pending</span>
+                            </>
+                          ) : verificationStatus === 'rejected' ? (
+                            <>
+                              <Shield className="h-5 w-5 text-red-500" />
+                              <span className="text-red-700 font-medium">❌ Verification Required</span>
+                            </>
+                          ) : (
+                            <>
+                              <Shield className="h-5 w-5 text-gray-500" />
+                              <span className="text-gray-700 font-medium">⚠️ Verification Not Started</span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    <Button type="submit" disabled={updating} size="lg" className="w-full font-semibold shadow-md">
+                      {updating ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Saving...
+                        </>
+                      ) : (
+                        'Save changes'
+                      )}
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
           {verificationStatus !== 'approved' && verificationStatus !== 'verified' && (
             <TabsContent value="verification">
               <VerificationPanel />
