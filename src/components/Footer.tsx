@@ -158,10 +158,94 @@ const Footer = () => {
           </div>
         </div>
 
+        {/* Shazam Ecosystem strip */}
+        <div className="mt-12 pt-8 border-t border-white/10">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6">
+            <div>
+              <p className="text-xs font-bold tracking-[0.22em] uppercase text-primary mb-2">
+                Part of the Shazam Ecosystem
+              </p>
+              <h4 className="text-xl font-bold text-white">
+                Built by{" "}
+                <a
+                  href="https://shazam.ae/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary hover:text-primary-glow underline-offset-4 hover:underline inline-flex items-center gap-1"
+                >
+                  Shazam <ExternalLink className="h-4 w-4" />
+                </a>
+              </h4>
+            </div>
+            <p className="text-sm text-gray-400 max-w-md">
+              One ecosystem connecting city intelligence, life organisation and practical mobility in Dubai.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {[
+              {
+                title: "Shazam",
+                subtitle: "Parent brand",
+                href: "https://shazam.ae/",
+                image: shazamEcosystem,
+              },
+              {
+                title: "Dubai Life OS",
+                subtitle: "Personal OS for Dubai",
+                href: "https://dubailifeos.ae",
+                image: dubaiLifeOs,
+              },
+              {
+                title: "Dubai Life Maps",
+                subtitle: "City intelligence map",
+                href: "https://dubailifemaps.ae/",
+                image: dubaiLifeMaps,
+              },
+            ].map((item) => (
+              <a
+                key={item.title}
+                href={item.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex items-center gap-3 p-3 rounded-xl bg-white/5 ring-1 ring-white/10 hover:ring-primary/40 hover:bg-white/10 transition-all"
+              >
+                <img
+                  src={item.image}
+                  alt={`${item.title} thumbnail`}
+                  width={64}
+                  height={64}
+                  loading="lazy"
+                  decoding="async"
+                  className="h-14 w-14 rounded-lg object-cover ring-1 ring-white/10 group-hover:ring-primary/30 transition"
+                />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5 text-white font-semibold text-sm">
+                    {item.title}
+                    <ExternalLink className="h-3.5 w-3.5 opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
+                  </div>
+                  <div className="text-xs text-gray-400 truncate">{item.subtitle}</div>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+
         {/* Bottom Bar */}
-        <div className="border-t border-primary/20 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-gray-400 text-sm">© 2026 ShazamParking.ae. All rights reserved.</p>
-          <div className="flex items-center space-x-2 text-gray-400 text-sm mt-4 md:mt-0">
+        <div className="border-t border-primary/20 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center gap-3">
+          <p className="text-gray-400 text-sm text-center md:text-left">
+            © 2026 ShazamParking.ae · A{" "}
+            <a
+              href="https://shazam.ae/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary hover:text-primary-glow underline-offset-4 hover:underline"
+            >
+              Shazam
+            </a>{" "}
+            product. All rights reserved.
+          </p>
+          <div className="flex items-center space-x-2 text-gray-400 text-sm">
             <MapPin className="h-4 w-4 text-primary" />
             <span>Dubai, United Arab Emirates</span>
           </div>
