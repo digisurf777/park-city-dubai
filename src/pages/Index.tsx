@@ -218,7 +218,7 @@ const Index = () => {
     }} viewport={{
       once: true,
       amount: 0.2
-    }} className="py-12 sm:py-16 lg:py-20 bg-gray-50">
+    }} className="py-12 sm:py-16 lg:py-20 bg-gradient-subtle">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div initial={{
           opacity: 0,
@@ -274,9 +274,10 @@ const Index = () => {
             }} viewport={{
               once: true
             }} whileHover={{
-              scale: 1.1
-            }} className="bg-primary/10 rounded-full w-16 sm:w-20 h-16 sm:h-20 flex items-center justify-center mx-auto mb-4 sm:mb-6">
-                  <step.icon className="h-8 sm:h-10 w-8 sm:w-10 text-primary" />
+              scale: 1.1,
+              rotate: 5
+            }} className="bg-gradient-primary text-primary-foreground rounded-2xl w-16 sm:w-20 h-16 sm:h-20 flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-elegant">
+                  <step.icon className="h-8 sm:h-10 w-8 sm:w-10" />
                 </motion.div>
                 <motion.h3 initial={{
               opacity: 0
