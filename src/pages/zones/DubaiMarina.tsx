@@ -116,7 +116,7 @@ const DubaiMarina = () => {
               <div className="relative w-full aspect-[4/3] overflow-hidden group bg-muted">
                 <img
                   src={(spot.images && spot.images.length > 0 ? spot.images[currentImageIndexes[spot.id] || 0] : spot.image)}
-                  alt={spot.title || "Dubai Marina parking space"}
+                  alt={spot.name || "Dubai Marina parking space"}
                   aria-hidden="true"
                   className="hidden"
                 />

@@ -117,7 +117,7 @@ const DIFC = () => {
                 <div className="relative w-full aspect-[4/3] overflow-hidden group bg-muted">
                   <img
                     src={(spot.images && spot.images.length > 0 ? spot.images[currentImageIndexes[spot.id] || 0] : spot.image)}
-                    alt={spot.title || "DIFC parking space"}
+                    alt={spot.name || "DIFC parking space"}
                     aria-hidden="true"
                     className="hidden"
                   />
