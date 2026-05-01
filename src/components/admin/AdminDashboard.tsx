@@ -14,12 +14,10 @@ import {
 } from 'lucide-react';
 import { BroadcastDialog } from './BroadcastDialog';
 import { MessageUserDialog } from './MessageUserDialog';
+import { useCurrency } from '@/contexts/CurrencyContext';
 
-const fmtAed = (n: number) =>
+const fmtAedCompact = (n: number) =>
   n >= 1000 ? `${(n / 1000).toFixed(n >= 10000 ? 0 : 1)}k` : n.toFixed(0);
-
-const fmtFullAed = (n: number) =>
-  new Intl.NumberFormat('en-AE', { maximumFractionDigits: 0 }).format(n);
 
 const relTime = (iso: string) => {
   const diff = (Date.now() - new Date(iso).getTime()) / 1000;
@@ -57,6 +55,15 @@ export function AdminDashboard({ onJumpTab }: Props) {
   const { data, loading, refreshing, lastUpdated, refetch } = useAdminStats(range);
   const [broadcastOpen, setBroadcastOpen] = useState(false);
   const [messageOpen, setMessageOpen] = useState(false);
+  const { format: fmtMoney, convert, symbol, currency } = useCurrency();
+  // Compact format in active currency
+  const fmtMoneyCompact = (aedAmount: number) => {
+    const v = convert(aedAmount);
+    if (Math.abs(v) >= 1000) {
+      return `${symbol}${new Intl.NumberFormat('en', { notation: 'compact', maximumFractionDigits: 1 }).format(v)}`;
+    }
+    return `${symbol}${Math.round(v)}`;
+  };
 
   const { kpis, trend, zones, topOwners, recent } = data;
 
