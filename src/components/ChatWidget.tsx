@@ -59,6 +59,88 @@ const ChatWidget = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  // ---------- Draggable launcher state ----------
+  const LAUNCHER_POS_KEY = "shazam_launcher_pos_v1";
+  type LauncherPos = { side: "left" | "right"; bottom: number };
+  const defaultPos: LauncherPos = { side: "right", bottom: 24 };
+  const [launcherPos, setLauncherPos] = useState<LauncherPos>(() => {
+    if (typeof window === "undefined") return defaultPos;
+    try {
+      const raw = localStorage.getItem(LAUNCHER_POS_KEY);
+      if (!raw) return defaultPos;
+      const p = JSON.parse(raw) as LauncherPos;
+      if ((p.side === "left" || p.side === "right") && typeof p.bottom === "number") return p;
+    } catch {}
+    return defaultPos;
+  });
+  const [dragRect, setDragRect] = useState<{ left: number; top: number } | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStateRef = useRef<{
+    pointerId: number;
+    offsetX: number;
+    offsetY: number;
+    startX: number;
+    startY: number;
+    moved: boolean;
+    width: number;
+    height: number;
+  } | null>(null);
+  const launcherRef = useRef<HTMLButtonElement>(null);
+
+  const onLauncherPointerDown = (e: React.PointerEvent<HTMLButtonElement>) => {
+    if (e.button !== 0 && e.pointerType === "mouse") return;
+    const el = launcherRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    dragStateRef.current = {
+      pointerId: e.pointerId,
+      offsetX: e.clientX - rect.left,
+      offsetY: e.clientY - rect.top,
+      startX: e.clientX,
+      startY: e.clientY,
+      moved: false,
+      width: rect.width,
+      height: rect.height,
+    };
+    try { el.setPointerCapture(e.pointerId); } catch {}
+  };
+
+  const onLauncherPointerMove = (e: React.PointerEvent<HTMLButtonElement>) => {
+    const ds = dragStateRef.current;
+    if (!ds || ds.pointerId !== e.pointerId) return;
+    const dx = e.clientX - ds.startX;
+    const dy = e.clientY - ds.startY;
+    if (!ds.moved && Math.hypot(dx, dy) < 5) return; // tap threshold
+    ds.moved = true;
+    if (!isDragging) setIsDragging(true);
+    const left = Math.max(8, Math.min(window.innerWidth - ds.width - 8, e.clientX - ds.offsetX));
+    const top = Math.max(8, Math.min(window.innerHeight - ds.height - 8, e.clientY - ds.offsetY));
+    setDragRect({ left, top });
+  };
+
+  const finishDrag = (e: React.PointerEvent<HTMLButtonElement>) => {
+    const ds = dragStateRef.current;
+    if (!ds) return;
+    const moved = ds.moved;
+    const width = ds.width;
+    const height = ds.height;
+    const rect = dragRect;
+    dragStateRef.current = null;
+    try { launcherRef.current?.releasePointerCapture(e.pointerId); } catch {}
+    if (moved && rect) {
+      const centerX = rect.left + width / 2;
+      const side: "left" | "right" = centerX < window.innerWidth / 2 ? "left" : "right";
+      const bottom = Math.max(8, Math.min(window.innerHeight - height - 8, window.innerHeight - rect.top - height));
+      const next = { side, bottom };
+      setLauncherPos(next);
+      try { localStorage.setItem(LAUNCHER_POS_KEY, JSON.stringify(next)); } catch {}
+    }
+    setDragRect(null);
+    // delay clearing so onClick can read it
+    setTimeout(() => setIsDragging(false), 0);
+  };
+
+
   // Always start a brand-new session id when the widget mounts (per user's request).
   useEffect(() => {
     const fresh = crypto.randomUUID();
