@@ -14,7 +14,7 @@ import useSEO from "@/hooks/useSEO";
 import dubaihero from "@/assets/dubai-skyline-hero.webp";
 import phonePremium from "@/assets/phone-mockup-premium.webp";
 import secureParking from "@/assets/secure-parking-hero.webp";
-import luxuryCar from "@/assets/luxury-parking-premium.jpg";
+import luxuryCar from "@/assets/own-parking-luxury.jpg";
 import businessMan from "@/assets/business-man.webp";
 import phoneLogo from "@/assets/phone-logo.webp";
 import dubaiMarinaZone from "@/assets/zones/dubai-marina.webp";
@@ -429,44 +429,22 @@ const Index = () => {
               viewport={{ once: true }}
               className="order-1 lg:order-2 relative"
             >
-              {/* Outer glow */}
-              <div className="absolute inset-0 -m-4 rounded-[2rem] bg-gradient-primary opacity-30 blur-2xl animate-pulse-glow pointer-events-none"></div>
+              {/* Soft outer glow */}
+              <div className="absolute inset-0 -m-6 rounded-[2.25rem] bg-gradient-primary opacity-25 blur-3xl pointer-events-none"></div>
 
-              {/* Gradient border frame */}
-              <div className="relative rounded-3xl p-[2px] bg-gradient-to-br from-primary via-primary-glow to-primary-deep shadow-elegant animate-float">
-                <div className="rounded-3xl overflow-hidden bg-background relative">
-                  <motion.img
-                    whileHover={{ scale: 1.04 }}
-                    transition={{ duration: 0.5 }}
-                    src={luxuryCar}
-                    alt="Luxury car parked in Dubai"
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                    decoding="async"
-                  />
-
-                  {/* Floating earnings card */}
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 0.6 }}
-                    viewport={{ once: true }}
-                    className="absolute bottom-4 left-4 right-4 sm:left-6 sm:right-auto sm:max-w-[260px] glass-card rounded-2xl p-4 shadow-elegant"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-primary text-primary-foreground flex items-center justify-center shadow-elegant">
-                        <TrendingUp className="h-6 w-6" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs text-muted-foreground">This month</p>
-                        <p className="text-lg sm:text-xl font-black text-foreground leading-tight">
-                          + AED 1,250
-                        </p>
-                      </div>
-                      <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0" />
-                    </div>
-                  </motion.div>
-                </div>
+              {/* Clean rounded image frame */}
+              <div className="relative rounded-3xl overflow-hidden shadow-elegant bg-background">
+                <motion.img
+                  whileHover={{ scale: 1.04 }}
+                  transition={{ duration: 0.5 }}
+                  src={luxuryCar}
+                  alt="Luxury car parked in a premium Dubai garage at golden hour"
+                  className="w-full h-auto object-cover block"
+                  loading="lazy"
+                  decoding="async"
+                  width={1280}
+                  height={1280}
+                />
               </div>
             </motion.div>
           </div>
