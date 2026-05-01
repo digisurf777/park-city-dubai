@@ -116,7 +116,7 @@ export function AdminDashboard({ onJumpTab }: Props) {
         <KpiCard
           icon={<DollarSign className="h-4 w-4" />}
           label="GMV (paid)"
-          value={`${fmtFullAed(kpis.gmvAed)} د.إ`}
+          value={`${fmtMoney(kpis.gmvAed)} د.إ`}
           accent="primary"
           footer={
             <span className={`inline-flex items-center gap-1 text-xs font-medium ${gmvDelta >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
@@ -129,7 +129,7 @@ export function AdminDashboard({ onJumpTab }: Props) {
         <KpiCard
           icon={<TrendingUp className="h-4 w-4" />}
           label="Net revenue"
-          value={`${fmtFullAed(kpis.netRevenueAed)} د.إ`}
+          value={`${fmtMoney(kpis.netRevenueAed)} د.إ`}
           accent="primary"
           footer={<span className="text-xs text-muted-foreground">GMV − payouts</span>}
           loading={loading}
@@ -137,8 +137,8 @@ export function AdminDashboard({ onJumpTab }: Props) {
         <KpiCard
           icon={<CreditCard className="h-4 w-4" />}
           label="Owner payouts"
-          value={`${fmtFullAed(kpis.ownerPayoutsTotal)} د.إ`}
-          footer={<span className="text-xs text-muted-foreground">{fmtAed(kpis.ownerPayoutsLast30d)} د.إ in 30d</span>}
+          value={`${fmtMoney(kpis.ownerPayoutsTotal)} د.إ`}
+          footer={<span className="text-xs text-muted-foreground">{fmtMoneyCompact(kpis.ownerPayoutsLast30d)} د.إ in 30d</span>}
           loading={loading}
         />
         <KpiCard
@@ -235,11 +235,11 @@ export function AdminDashboard({ onJumpTab }: Props) {
                 </defs>
                 <CartesianGrid stroke="hsl(var(--border))" strokeDasharray="3 3" vertical={false} />
                 <XAxis dataKey="label" tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
-                <YAxis yAxisId="left" tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" tickFormatter={(v) => fmtAed(v)} />
+                <YAxis yAxisId="left" tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" tickFormatter={(v) => fmtMoneyCompact(v)} />
                 <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
                 <Tooltip
                   contentStyle={{ background: 'hsl(var(--popover))', border: '1px solid hsl(var(--border))', borderRadius: 8 }}
-                  formatter={(value: any, name: string) => name === 'revenue' ? [`${fmtFullAed(Number(value))} AED`, 'Revenue'] : [value, 'Bookings']}
+                  formatter={(value: any, name: string) => name === 'revenue' ? [`${fmtMoney(Number(value))} AED`, 'Revenue'] : [value, 'Bookings']}
                 />
                 <Legend wrapperStyle={{ fontSize: 12 }} />
                 <Area yAxisId="left" type="monotone" dataKey="revenue" stroke="hsl(var(--primary))" fill="url(#rev)" strokeWidth={2} />
@@ -277,12 +277,12 @@ export function AdminDashboard({ onJumpTab }: Props) {
             <ResponsiveContainer width="100%" height={Math.max(zones.length * 36, 220)}>
               <BarChart data={zones.slice(0, 8)} layout="vertical" margin={{ left: 16 }}>
                 <CartesianGrid stroke="hsl(var(--border))" strokeDasharray="3 3" horizontal={false} />
-                <XAxis type="number" tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" tickFormatter={(v) => fmtAed(v)} />
+                <XAxis type="number" tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" tickFormatter={(v) => fmtMoneyCompact(v)} />
                 <YAxis type="category" dataKey="zone" tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" width={100} />
                 <Tooltip
                   contentStyle={{ background: 'hsl(var(--popover))', border: '1px solid hsl(var(--border))', borderRadius: 8 }}
                   formatter={(value: any, name: string) =>
-                    name === 'revenue' ? [`${fmtFullAed(Number(value))} AED`, 'Revenue'] : [value, name === 'listings' ? 'Listings' : 'Bookings']
+                    name === 'revenue' ? [`${fmtMoney(Number(value))} AED`, 'Revenue'] : [value, name === 'listings' ? 'Listings' : 'Bookings']
                   }
                 />
                 <Bar dataKey="revenue" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} />
@@ -315,7 +315,7 @@ export function AdminDashboard({ onJumpTab }: Props) {
                     <div className="text-xs text-muted-foreground truncate">{o.email}</div>
                   </div>
                   <div className="text-right">
-                    <div className="font-semibold">{fmtFullAed(o.totalEarned)} د.إ</div>
+                    <div className="font-semibold">{fmtMoney(o.totalEarned)} د.إ</div>
                     <div className="text-xs text-muted-foreground">{o.listingsCount} listing{o.listingsCount === 1 ? '' : 's'} · {o.payoutsCount} payout{o.payoutsCount === 1 ? '' : 's'}</div>
                   </div>
                 </div>
@@ -355,7 +355,7 @@ export function AdminDashboard({ onJumpTab }: Props) {
                   </div>
                   <div className="text-right">
                     {r.amountAed !== undefined && r.amountAed > 0 && (
-                      <div className="text-sm font-semibold">{fmtFullAed(r.amountAed)} د.إ</div>
+                      <div className="text-sm font-semibold">{fmtMoney(r.amountAed)} د.إ</div>
                     )}
                     {r.status && (
                       <Badge variant="outline" className={`${statusColor(r.status)} text-[10px] py-0 px-1.5 mt-0.5`}>
