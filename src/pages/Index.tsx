@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card";
 import { MapPin, Search, CreditCard, Car, DollarSign, Clock, Shield, Quote, Zap, Lock, Wallet, Smartphone, TrendingUp, Sparkles, ArrowRight, CheckCircle2 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import EcosystemSection from "@/components/EcosystemSection";
 import { EmailConfirmationBanner } from "@/components/EmailConfirmationBanner";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -652,6 +653,9 @@ Makes it Easy</h3>
           </Link>
         </div>
       </section>
+
+      {/* Shazam Ecosystem */}
+      <EcosystemSection />
 
       <Footer />
     </div>;
