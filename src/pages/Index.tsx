@@ -12,7 +12,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import useSEO from "@/hooks/useSEO";
 import dubaihero from "@/assets/dubai-skyline-hero.webp";
-import phonePremium from "@/assets/phone-mockup-tilted-right.png";
+import phonePremium from "@/assets/phone-mockup-hero.png";
 import secureParking from "@/assets/secure-parking-hero.webp";
 import luxuryCar from "@/assets/luxury-car-dubai-garage.jpg";
 import problemCircling from "@/assets/problem-circling.jpg";
@@ -56,35 +56,68 @@ const Index = () => {
         </div>
       </div>
       
-      {/* Hero — premium, balanced, ~85vh */}
+      {/* Hero — premium, lighter, balanced */}
       <section
         className="relative overflow-hidden bg-cover bg-center bg-no-repeat"
         style={{
-          backgroundImage: `linear-gradient(135deg, hsl(174 65% 22% / 0.55) 0%, hsl(0 0% 0% / 0.25) 100%), url(${secureParking})`,
+          backgroundImage: `linear-gradient(135deg, hsl(174 55% 35% / 0.35) 0%, hsl(174 40% 55% / 0.20) 50%, hsl(0 0% 100% / 0.10) 100%), url(${secureParking})`,
         }}
       >
-        {/* Subtle decorative glow — bottom right only */}
-        <div className="pointer-events-none absolute -bottom-32 -right-32 w-[28rem] h-[28rem] rounded-full bg-primary-glow/15 blur-3xl"></div>
+        {/* Soft light wash to brighten the whole hero */}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-white/15"></div>
+        {/* Decorative glows */}
+        <div className="pointer-events-none absolute -bottom-32 -right-32 w-[28rem] h-[28rem] rounded-full bg-primary-glow/20 blur-3xl"></div>
+        <div className="pointer-events-none absolute -top-24 -left-24 w-[22rem] h-[22rem] rounded-full bg-white/15 blur-3xl"></div>
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-white z-10 pt-24 pb-12 sm:pt-28 sm:pb-16 lg:pt-32 lg:pb-20 min-h-[640px] sm:min-h-[680px] lg:min-h-[720px] flex items-center">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center w-full">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-white z-10 pt-20 pb-10 sm:pt-28 sm:pb-16 lg:pt-32 lg:pb-20 min-h-[620px] sm:min-h-[680px] lg:min-h-[720px] flex items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 items-center w-full">
             {/* Left — Text */}
-            <div className="text-center lg:text-left animate-fade-in order-2 lg:order-1">
-              <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass text-white text-xs sm:text-sm font-medium mb-4 sm:mb-6">
+            <motion.div
+              className="text-center lg:text-left order-2 lg:order-1"
+              initial="hidden"
+              animate="show"
+              variants={{
+                hidden: {},
+                show: { transition: { staggerChildren: 0.12, delayChildren: 0.1 } },
+              }}
+            >
+              <motion.span
+                variants={{ hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } } }}
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass text-white text-xs sm:text-sm font-medium mb-4 sm:mb-6"
+              >
                 <Sparkles className="h-3.5 w-3.5 text-primary-glow" />
                 Trusted in Dubai
-              </span>
+              </motion.span>
               <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-black leading-[1.05] tracking-tight mb-4 sm:mb-6">
-                <span className="block text-white drop-shadow-[0_4px_20px_rgba(0,0,0,0.6)]">YOUR TRUSTED</span>
-                <span className="block bg-gradient-to-r from-primary-glow via-white to-primary bg-clip-text text-transparent">
+                <motion.span
+                  variants={{ hidden: { opacity: 0, y: 24 }, show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: "easeOut" } } }}
+                  className="block text-white drop-shadow-[0_4px_20px_rgba(0,0,0,0.45)]"
+                >
+                  YOUR TRUSTED
+                </motion.span>
+                <motion.span
+                  variants={{ hidden: { opacity: 0, y: 24 }, show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: "easeOut" } } }}
+                  className="block bg-gradient-to-r from-primary-glow via-white to-primary bg-clip-text text-transparent"
+                >
                   PARKING PLATFORM
-                </span>
-                <span className="block text-white drop-shadow-[0_4px_20px_rgba(0,0,0,0.6)]">IN DUBAI</span>
+                </motion.span>
+                <motion.span
+                  variants={{ hidden: { opacity: 0, y: 24 }, show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: "easeOut" } } }}
+                  className="block text-white drop-shadow-[0_4px_20px_rgba(0,0,0,0.45)]"
+                >
+                  IN DUBAI
+                </motion.span>
               </h1>
-              <p className="text-base sm:text-lg lg:text-xl text-white/90 max-w-xl mx-auto lg:mx-0 mb-6 sm:mb-8 drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]">
+              <motion.p
+                variants={{ hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } } }}
+                className="text-base sm:text-lg lg:text-xl text-white/95 max-w-xl mx-auto lg:mx-0 mb-6 sm:mb-8 drop-shadow-[0_2px_8px_rgba(0,0,0,0.4)]"
+              >
                 List your parking space in minutes and start earning every month.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start">
+              </motion.p>
+              <motion.div
+                variants={{ hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } } }}
+                className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start"
+              >
                 <Link to="/find-parking">
                   <Button size="lg" className="w-full sm:w-auto px-7 py-6 text-base font-semibold">
                     Find Parking
@@ -95,14 +128,17 @@ const Index = () => {
                   <Button
                     size="lg"
                     variant="outline"
-                    className="w-full sm:w-auto px-7 py-6 text-base font-semibold bg-white/10 border-white/40 text-white hover:bg-white hover:text-primary backdrop-blur-md"
+                    className="w-full sm:w-auto px-7 py-6 text-base font-semibold bg-white/15 border-white/50 text-white hover:bg-white hover:text-primary backdrop-blur-md"
                   >
                     List Your Space
                   </Button>
                 </Link>
-              </div>
+              </motion.div>
               {/* Inline social proof */}
-              <div className="hidden sm:flex items-center justify-center lg:justify-start gap-6 mt-8 text-white/80 text-sm">
+              <motion.div
+                variants={{ hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } } }}
+                className="hidden sm:flex items-center justify-center lg:justify-start gap-6 mt-8 text-white/90 text-sm"
+              >
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="h-4 w-4 text-primary-glow" />
                   <span>Verified spaces</span>
@@ -115,25 +151,31 @@ const Index = () => {
                   <CheckCircle2 className="h-4 w-4 text-primary-glow" />
                   <span>Cancel anytime*</span>
                 </div>
-              </div>
-            </div>
+              </motion.div>
+            </motion.div>
 
-            {/* Right — Phone */}
+            {/* Right — Phone (transparent PNG, centered & balanced) */}
             <div className="flex justify-center lg:justify-end order-1 lg:order-2">
-              <div className="relative">
-                {/* Glow ring behind phone */}
-                <div className="absolute inset-0 -m-8 rounded-[50%] bg-primary/40 blur-3xl animate-pulse-glow pointer-events-none"></div>
-                <img
+              <motion.div
+                className="relative flex items-center justify-center"
+                initial={{ opacity: 0, scale: 0.85, y: 40, rotate: -4 }}
+                animate={{ opacity: 1, scale: 1, y: 0, rotate: 0 }}
+                transition={{ duration: 1, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
+              >
+                {/* Soft glow halo behind phone */}
+                <div className="absolute inset-0 -m-10 rounded-full bg-primary-glow/30 blur-3xl animate-pulse-glow pointer-events-none"></div>
+                <div className="absolute inset-0 -m-4 rounded-full bg-white/10 blur-2xl pointer-events-none"></div>
+                <motion.img
                   src={phonePremium}
                   alt="Shazam Parking app shown on a smartphone"
-                  className="relative w-56 sm:w-64 md:w-72 lg:w-80 xl:w-[22rem] h-auto drop-shadow-[0_25px_50px_rgba(0,0,0,0.5)] animate-float"
+                  className="relative w-52 sm:w-64 md:w-72 lg:w-80 xl:w-[22rem] h-auto drop-shadow-[0_30px_60px_rgba(0,0,0,0.45)]"
                   loading="eager"
                   fetchPriority="high"
                   decoding="async"
-                  width={1024}
-                  height={1536}
+                  animate={{ y: [0, -12, 0] }}
+                  transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
                 />
-              </div>
+              </motion.div>
             </div>
           </div>
         </div>
