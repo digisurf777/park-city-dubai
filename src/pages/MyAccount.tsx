@@ -614,18 +614,16 @@ const MyAccount = () => {
 
         {/* Success Message for Verified Users */}
         {!verificationLoading && (verificationStatus === 'approved' || verificationStatus === 'verified') && (
-          <Card className="mb-6 border-green-200 bg-green-50/70 backdrop-blur-md shadow-elegant">
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-3">
-                <div className="flex items-center justify-center w-12 h-12 bg-green-100 rounded-full">
-                  <CheckCircle className="h-8 w-8 text-green-600" />
+          <div className="relative mb-6 rounded-2xl p-[1.5px] bg-gradient-to-r from-emerald-400 via-primary to-emerald-500 shadow-[0_18px_40px_-18px_hsl(160_85%_45%/0.45)]">
+            <div className="rounded-[14px] bg-gradient-to-br from-emerald-50 via-green-50/80 to-white p-5 lg:p-6">
+              <div className="flex items-center gap-4">
+                <div className="relative flex-shrink-0 h-14 w-14 rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 shadow-[0_10px_24px_-6px_hsl(160_85%_45%/0.55),inset_0_1px_0_0_hsl(0_0%_100%/0.4)] flex items-center justify-center">
+                  <ShieldCheck className="h-7 w-7 text-white drop-shadow" />
                 </div>
-                <div className="flex-1">
-                  <h3 className="text-lg font-bold text-green-800 flex items-center gap-2">
-                    ✅ Account Verified
-                  </h3>
-                  <p className="text-sm text-green-700 mt-1">
-                    Congratulations! Your account is verified. You can now list parking spaces and make bookings without restrictions.
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-base lg:text-lg font-bold text-emerald-900 leading-tight">Account Verified</h3>
+                  <p className="text-sm text-emerald-700/90 mt-1">
+                    Congratulations! You can now list parking spaces and make bookings without restrictions.
                   </p>
                 </div>
                 <div className="flex gap-2">
