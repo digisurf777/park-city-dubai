@@ -441,29 +441,81 @@ export function AdminDashboard({ onJumpTab }: Props) {
   );
 }
 
+type Accent = 'primary' | 'emerald' | 'amber' | 'sky' | 'rose';
+
+const accentStyles: Record<Accent, { bg: string; ring: string; iconBg: string; iconText: string; glow: string }> = {
+  primary: {
+    bg: 'bg-gradient-to-br from-primary/8 via-transparent to-primary/12',
+    ring: 'ring-primary/25',
+    iconBg: 'bg-gradient-to-br from-primary to-primary-glow',
+    iconText: 'text-white',
+    glow: 'hsl(var(--primary) / 0.45)',
+  },
+  emerald: {
+    bg: 'bg-gradient-to-br from-emerald-500/8 via-transparent to-emerald-500/12',
+    ring: 'ring-emerald-500/25',
+    iconBg: 'bg-gradient-to-br from-emerald-500 to-emerald-400',
+    iconText: 'text-white',
+    glow: 'hsl(152 70% 45% / 0.45)',
+  },
+  amber: {
+    bg: 'bg-gradient-to-br from-amber-500/8 via-transparent to-amber-500/12',
+    ring: 'ring-amber-500/25',
+    iconBg: 'bg-gradient-to-br from-amber-500 to-amber-400',
+    iconText: 'text-white',
+    glow: 'hsl(40 95% 55% / 0.45)',
+  },
+  sky: {
+    bg: 'bg-gradient-to-br from-sky-500/8 via-transparent to-sky-500/12',
+    ring: 'ring-sky-500/25',
+    iconBg: 'bg-gradient-to-br from-sky-500 to-sky-400',
+    iconText: 'text-white',
+    glow: 'hsl(200 90% 50% / 0.45)',
+  },
+  rose: {
+    bg: 'bg-gradient-to-br from-rose-500/8 via-transparent to-rose-500/12',
+    ring: 'ring-rose-500/25',
+    iconBg: 'bg-gradient-to-br from-rose-500 to-rose-400',
+    iconText: 'text-white',
+    glow: 'hsl(350 80% 55% / 0.45)',
+  },
+};
+
 function KpiCard({
-  icon, label, value, footer, accent, loading,
+  icon, label, value, footer, accent = 'primary', loading,
 }: {
   icon: React.ReactNode;
   label: string;
   value: string;
   footer?: React.ReactNode;
-  accent?: 'primary';
+  accent?: Accent;
   loading?: boolean;
 }) {
+  const a = accentStyles[accent];
   return (
-    <Card className={`glass-card relative overflow-hidden ${accent === 'primary' ? 'ring-1 ring-primary/20' : ''}`}>
-      {accent === 'primary' && (
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 pointer-events-none" />
-      )}
+    <Card
+      className={`group relative overflow-hidden ring-1 ${a.ring} border-border/60 transition-all duration-300 hover:-translate-y-1 hover:ring-2`}
+      style={{
+        background: 'linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(var(--surface)) 100%)',
+        boxShadow: `0 4px 14px -6px ${a.glow}, inset 0 1px 0 0 hsl(0 0% 100% / 0.85)`,
+      }}
+    >
+      <div className={`absolute inset-0 ${a.bg} pointer-events-none`} />
+      <div
+        className="absolute -top-10 -right-10 h-28 w-28 rounded-full opacity-0 group-hover:opacity-60 blur-2xl transition-opacity duration-500 pointer-events-none"
+        style={{ background: `radial-gradient(circle, ${a.glow}, transparent 70%)` }}
+      />
       <CardContent className="p-4 relative">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{label}</span>
-          <div className={`h-7 w-7 rounded-lg flex items-center justify-center ${
-            accent === 'primary' ? 'bg-primary/15 text-primary' : 'bg-muted text-muted-foreground'
-          }`}>{icon}</div>
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{label}</span>
+          <div
+            className={`h-8 w-8 rounded-xl flex items-center justify-center ${a.iconBg} ${a.iconText} transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3`}
+            style={{ boxShadow: `0 6px 16px -6px ${a.glow}, inset 0 1px 0 0 hsl(0 0% 100% / 0.4)` }}
+          >
+            {icon}
+          </div>
         </div>
-        <div className="text-2xl font-bold tracking-tight">
+        <div className="text-2xl sm:text-[26px] font-bold tracking-tight tabular-nums">
           {loading ? <span className="inline-block h-7 w-24 rounded bg-muted animate-pulse" /> : value}
         </div>
         {footer && <div className="mt-2">{footer}</div>}
@@ -479,17 +531,26 @@ function AlertChip({
   tone: 'amber' | 'rose' | 'sky';
 }) {
   const colors = {
-    amber: 'bg-amber-500/10 border-amber-500/30 text-amber-700 dark:text-amber-300 hover:bg-amber-500/20',
-    rose: 'bg-rose-500/10 border-rose-500/30 text-rose-700 dark:text-rose-300 hover:bg-rose-500/20',
-    sky: 'bg-sky-500/10 border-sky-500/30 text-sky-700 dark:text-sky-300 hover:bg-sky-500/20',
+    amber: { bg: 'from-amber-50 to-amber-100/70', border: 'border-amber-300/60', text: 'text-amber-800', glow: 'hsl(40 95% 55% / 0.35)', dot: 'bg-amber-500' },
+    rose:  { bg: 'from-rose-50 to-rose-100/70',   border: 'border-rose-300/60',  text: 'text-rose-800',  glow: 'hsl(350 80% 55% / 0.35)', dot: 'bg-rose-500' },
+    sky:   { bg: 'from-sky-50 to-sky-100/70',     border: 'border-sky-300/60',   text: 'text-sky-800',   glow: 'hsl(200 90% 50% / 0.35)', dot: 'bg-sky-500' },
   };
+  const c = colors[tone];
   return (
     <button
       onClick={onClick}
-      className={`flex items-center justify-between gap-3 px-4 py-3 rounded-lg border transition text-sm font-medium ${colors[tone]}`}
+      className={`group relative flex items-center justify-between gap-3 px-4 py-3 rounded-xl border ${c.border} ${c.text} bg-gradient-to-br ${c.bg} transition-all duration-300 text-sm font-semibold hover:-translate-y-0.5 overflow-hidden`}
+      style={{ boxShadow: `0 4px 14px -6px ${c.glow}, inset 0 1px 0 0 hsl(0 0% 100% / 0.8)` }}
     >
-      <span className="flex items-center gap-2">{icon}{label}</span>
-      <ArrowUpRight className="h-4 w-4 opacity-60" />
+      <span className="flex items-center gap-2">
+        <span className="relative flex h-2 w-2">
+          <span className={`animate-ping absolute inline-flex h-full w-full rounded-full ${c.dot} opacity-60`}></span>
+          <span className={`relative inline-flex rounded-full h-2 w-2 ${c.dot}`}></span>
+        </span>
+        {icon}
+        {label}
+      </span>
+      <ArrowUpRight className="h-4 w-4 opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
     </button>
   );
 }
