@@ -35,7 +35,7 @@ export const useSEO = ({
       
       {/* Resource hints for critical images */}
       <link rel="preload" as="image" href="/lovable-uploads/25c56481-0d03-4055-bd47-67635ac0d1b0.png" />
-      <link rel="preload" as="image" href="/lovable-uploads/c910d35f-a4b2-4c06-88e3-7f5b16a45558.png" />
+      <link rel="preload" as="image" href="/lovable-uploads/c910d35f-a4b2-4c06-88e3-7f5b16a45558.webp" />
       
       {/* Open Graph */}
       <meta property="og:title" content={title} />

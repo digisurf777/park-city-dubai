@@ -18,7 +18,7 @@ const Footer = () => {
               onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
             >
               <img
-                src="/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.png"
+                src="/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.webp"
                 alt="Shazam Parking"
                 className="h-10 w-auto"
               />
