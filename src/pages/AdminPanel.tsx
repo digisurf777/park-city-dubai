@@ -131,6 +131,7 @@ interface ChatMessage {
   message: string;
   from_admin: boolean;
   read_status: boolean;
+  is_ai?: boolean;
   created_at: string;
   profiles?: {
     full_name: string;
