@@ -32,6 +32,7 @@ const pickDefaultAvatar = (seed?: string | null) => {
 };
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import VerificationPanel from '@/components/VerificationPanel';
+import Navbar from '@/components/Navbar';
 import UserInbox from '@/components/UserInbox';
 import { ActiveBookingChats } from '@/components/ActiveBookingChats';
 import { MyListings } from '@/components/MyListings';
