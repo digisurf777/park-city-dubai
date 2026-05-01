@@ -68,16 +68,17 @@ const Index = () => {
             <div className="text-center lg:text-left animate-fade-in order-2 lg:order-1">
               <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass text-white text-xs sm:text-sm font-medium mb-4 sm:mb-6">
                 <Sparkles className="h-3.5 w-3.5 text-primary-glow" />
-                Dubai's #1 Parking Platform
+                Trusted in Dubai
               </span>
               <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-black leading-[1.05] tracking-tight mb-4 sm:mb-6">
-                <span className="block text-white drop-shadow-[0_4px_20px_rgba(0,0,0,0.6)]">Park Smarter.</span>
-                <span className="block text-gradient-primary bg-gradient-to-r from-primary-glow via-primary to-primary-glow">
-                  Earn Bigger.
+                <span className="block text-white drop-shadow-[0_4px_20px_rgba(0,0,0,0.6)]">YOUR TRUSTED</span>
+                <span className="block bg-gradient-to-r from-primary-glow via-white to-primary bg-clip-text text-transparent">
+                  PARKING PLATFORM
                 </span>
+                <span className="block text-white drop-shadow-[0_4px_20px_rgba(0,0,0,0.6)]">IN DUBAI</span>
               </h1>
               <p className="text-base sm:text-lg lg:text-xl text-white/90 max-w-xl mx-auto lg:mx-0 mb-6 sm:mb-8 drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]">
-                Find verified monthly parking across Dubai — or list your space in minutes and earn passive income.
+                List your parking space in minutes and start earning every month.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start">
                 <Link to="/find-parking">
