@@ -421,76 +421,132 @@ export function AdminDashboard({ onJumpTab }: Props) {
 
       {/* Activity + Quick actions */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <Card className="lg:col-span-2 glass-card">
+        <Card
+          className="lg:col-span-2 relative overflow-hidden border border-emerald-500/20 transition-all duration-300 hover:shadow-[0_18px_48px_-18px_hsl(152_70%_45%/0.4)]"
+          style={{
+            background: 'linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(var(--surface)) 100%)',
+            boxShadow: '0 6px 22px -10px hsl(152 70% 45% / 0.3), inset 0 1px 0 0 hsl(0 0% 100% / 0.8)',
+          }}
+        >
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 via-emerald-400 to-emerald-500" />
           <CardHeader className="pb-2">
             <CardTitle className="text-base flex items-center gap-2">
-              <Activity className="h-4 w-4 text-emerald-500" /> Live activity
+              <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-400 flex items-center justify-center shadow-[0_4px_12px_-4px_hsl(152_70%_45%/0.5)] relative">
+                <Activity className="h-4 w-4 text-white" />
+                <span className="absolute -top-0.5 -right-0.5 flex h-2.5 w-2.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-300 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-200 border border-white"></span>
+                </span>
+              </div>
+              Live activity
+              <Badge variant="outline" className="ml-auto text-[10px] font-semibold border-emerald-500/30 text-emerald-700 bg-emerald-500/5 animate-pulse">LIVE</Badge>
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
-            <div className="divide-y max-h-[420px] overflow-y-auto">
+            <div className="divide-y divide-border/40 max-h-[420px] overflow-y-auto">
               {recent.length === 0 && <div className="p-6 text-sm text-muted-foreground">Nothing yet — once data flows it will appear here in real time.</div>}
-              {recent.map((r) => (
-                <div key={r.id} className="flex items-center gap-3 px-4 py-3 hover:bg-muted/40 transition">
-                  <div className={`h-8 w-8 rounded-lg flex items-center justify-center ${
-                    r.kind === 'booking' ? 'bg-primary/15 text-primary' :
-                    r.kind === 'user' ? 'bg-emerald-500/15 text-emerald-600' :
-                    r.kind === 'payment' ? 'bg-amber-500/15 text-amber-600' :
-                    'bg-muted text-muted-foreground'
-                  }`}>
-                    {r.kind === 'booking' && <Car className="h-4 w-4" />}
-                    {r.kind === 'user' && <Users className="h-4 w-4" />}
-                    {r.kind === 'payment' && <DollarSign className="h-4 w-4" />}
-                    {r.kind === 'listing' && <Car className="h-4 w-4" />}
+              {recent.map((r) => {
+                const kindStyle =
+                  r.kind === 'booking' ? { bg: 'bg-gradient-to-br from-primary to-primary-glow', glow: 'hsl(var(--primary) / 0.5)' } :
+                  r.kind === 'user' ? { bg: 'bg-gradient-to-br from-emerald-500 to-emerald-400', glow: 'hsl(152 70% 45% / 0.5)' } :
+                  r.kind === 'payment' ? { bg: 'bg-gradient-to-br from-amber-500 to-amber-400', glow: 'hsl(40 95% 55% / 0.5)' } :
+                  { bg: 'bg-gradient-to-br from-sky-500 to-sky-400', glow: 'hsl(200 90% 50% / 0.5)' };
+                return (
+                  <div key={r.id} className="flex items-center gap-3 px-4 py-3 hover:bg-primary/5 transition-all duration-200 hover:translate-x-0.5">
+                    <div
+                      className={`h-9 w-9 rounded-xl flex items-center justify-center text-white ${kindStyle.bg}`}
+                      style={{ boxShadow: `0 4px 12px -4px ${kindStyle.glow}, inset 0 1px 0 0 hsl(0 0% 100% / 0.4)` }}
+                    >
+                      {r.kind === 'booking' && <Car className="h-4 w-4" />}
+                      {r.kind === 'user' && <Users className="h-4 w-4" />}
+                      {r.kind === 'payment' && <DollarSign className="h-4 w-4" />}
+                      {r.kind === 'listing' && <Receipt className="h-4 w-4" />}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-semibold text-sm truncate">{r.title}</div>
+                      <div className="text-xs text-muted-foreground truncate">{r.subtitle}</div>
+                    </div>
+                    <div className="text-right">
+                      {r.amountAed !== undefined && r.amountAed > 0 && (
+                        <div className="text-sm font-bold text-primary tabular-nums">{fmtMoney(r.amountAed)}</div>
+                      )}
+                      {r.status && (
+                        <Badge variant="outline" className={`${statusColor(r.status)} text-[10px] py-0 px-1.5 mt-0.5`}>
+                          {r.status}
+                        </Badge>
+                      )}
+                      <div className="text-[10px] text-muted-foreground mt-0.5">{relTime(r.createdAt)}</div>
+                    </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-medium text-sm truncate">{r.title}</div>
-                    <div className="text-xs text-muted-foreground truncate">{r.subtitle}</div>
-                  </div>
-                  <div className="text-right">
-                    {r.amountAed !== undefined && r.amountAed > 0 && (
-                      <div className="text-sm font-semibold">{fmtMoney(r.amountAed)}</div>
-                    )}
-                    {r.status && (
-                      <Badge variant="outline" className={`${statusColor(r.status)} text-[10px] py-0 px-1.5 mt-0.5`}>
-                        {r.status}
-                      </Badge>
-                    )}
-                    <div className="text-[10px] text-muted-foreground mt-0.5">{relTime(r.createdAt)}</div>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </CardContent>
         </Card>
 
-        <Card className="glass-card">
+        <Card
+          className="relative overflow-hidden border border-primary/20 transition-all duration-300 hover:shadow-[0_18px_48px_-18px_hsl(var(--primary)/0.5)]"
+          style={{
+            background: 'linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(var(--surface)) 100%)',
+            boxShadow: '0 6px 22px -10px hsl(var(--primary) / 0.3), inset 0 1px 0 0 hsl(0 0% 100% / 0.8)',
+          }}
+        >
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-primary-glow to-primary" />
           <CardHeader className="pb-2">
-            <CardTitle className="text-base">Quick actions</CardTitle>
+            <CardTitle className="text-base flex items-center gap-2">
+              <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-primary to-primary-glow flex items-center justify-center shadow-[0_4px_12px_-4px_hsl(var(--primary)/0.5)]">
+                <Sparkles className="h-4 w-4 text-white" />
+              </div>
+              Quick actions
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
-            <Button className="w-full justify-start" onClick={() => setBroadcastOpen(true)}>
+            <Button
+              className="w-full justify-start bg-gradient-to-r from-primary to-primary-glow hover:from-primary-glow hover:to-primary shadow-[0_6px_18px_-6px_hsl(var(--primary)/0.5)] hover:shadow-[0_10px_24px_-6px_hsl(var(--primary-glow)/0.6)] hover:-translate-y-0.5 transition-all"
+              onClick={() => setBroadcastOpen(true)}
+            >
               <Megaphone className="h-4 w-4 mr-2" />
               Broadcast to all users
             </Button>
-            <Button variant="outline" className="w-full justify-start" onClick={() => setMessageOpen(true)}>
-              <Send className="h-4 w-4 mr-2" />
+            <Button
+              variant="outline"
+              className="w-full justify-start border-primary/30 hover:border-primary/60 hover:bg-primary/5 hover:-translate-y-0.5 transition-all"
+              onClick={() => setMessageOpen(true)}
+            >
+              <Send className="h-4 w-4 mr-2 text-primary" />
               Message a user
             </Button>
-            <div className="pt-2 border-t mt-2 space-y-1">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Jump to</p>
-              <Button variant="ghost" className="w-full justify-start text-sm" onClick={() => onJumpTab?.('pre-auth')}>
-                💳 Pre-authorizations ({kpis.preAuthorizedBookings})
-              </Button>
-              <Button variant="ghost" className="w-full justify-start text-sm" onClick={() => onJumpTab?.('owner-payments')}>
-                💰 Owner payments
-              </Button>
-              <Button variant="ghost" className="w-full justify-start text-sm" onClick={() => onJumpTab?.('users')}>
-                👥 Users & KYC ({kpis.pendingVerifications})
-              </Button>
-              <Button variant="ghost" className="w-full justify-start text-sm" onClick={() => onJumpTab?.('chat')}>
-                💬 Chat support ({kpis.unreadAdminMessages})
-              </Button>
+            <div className="pt-2 border-t border-border/50 mt-2 space-y-1">
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Jump to</p>
+              {[
+                { tab: 'pre-auth', icon: CreditCard, label: 'Pre-authorizations', count: kpis.preAuthorizedBookings, tone: 'sky' },
+                { tab: 'owner-payments', icon: Wallet, label: 'Owner payments', count: null, tone: 'amber' },
+                { tab: 'users', icon: Users, label: 'Users & KYC', count: kpis.pendingVerifications, tone: 'emerald' },
+                { tab: 'chat', icon: AlertCircle, label: 'Chat support', count: kpis.unreadAdminMessages, tone: 'rose' },
+              ].map(({ tab, icon: Ico, label, count, tone }) => {
+                const toneClasses: Record<string, string> = {
+                  sky: 'text-sky-600 bg-sky-50',
+                  amber: 'text-amber-600 bg-amber-50',
+                  emerald: 'text-emerald-600 bg-emerald-50',
+                  rose: 'text-rose-600 bg-rose-50',
+                };
+                return (
+                  <Button
+                    key={tab}
+                    variant="ghost"
+                    className="w-full justify-start text-sm hover:bg-primary/5 hover:translate-x-0.5 transition-all"
+                    onClick={() => onJumpTab?.(tab)}
+                  >
+                    <span className={`h-6 w-6 rounded-md flex items-center justify-center mr-2 ${toneClasses[tone]}`}>
+                      <Ico className="h-3.5 w-3.5" />
+                    </span>
+                    <span className="flex-1 text-left">{label}</span>
+                    {count !== null && count > 0 && (
+                      <Badge variant="secondary" className="ml-auto bg-primary/10 text-primary border-primary/20 text-[10px]">{count}</Badge>
+                    )}
+                  </Button>
+                );
+              })}
             </div>
           </CardContent>
         </Card>
