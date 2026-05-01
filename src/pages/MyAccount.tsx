@@ -12,7 +12,24 @@ import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { Loader2, User, History, LogOut, Shield, ShieldAlert, ShieldCheck, Mail, Home, MessageSquare, Send, Car, ParkingCircle, MessageCircle, CheckCircle, FileText, Camera, Phone, Globe, Bell, Sparkles, ImageIcon, Trash2, KeyRound, Eye, EyeOff, LifeBuoy, MessagesSquare, HelpCircle } from 'lucide-react';
+import { Loader2, User, History, LogOut, Shield, ShieldAlert, ShieldCheck, Mail, Home, MessageSquare, Send, Car, ParkingCircle, MessageCircle, CheckCircle, FileText, Camera, Phone, Globe, Bell, Sparkles, ImageIcon, Trash2, KeyRound, Eye, EyeOff, LifeBuoy, MessagesSquare, HelpCircle, Wand2, RefreshCw } from 'lucide-react';
+import accountHeroDubaiNight from '@/assets/account-hero-dubai-night.jpg';
+import defaultAvatar1 from '@/assets/avatars/avatar-1.png';
+import defaultAvatar2 from '@/assets/avatars/avatar-2.png';
+import defaultAvatar3 from '@/assets/avatars/avatar-3.png';
+import defaultAvatar4 from '@/assets/avatars/avatar-4.png';
+import defaultAvatar5 from '@/assets/avatars/avatar-5.png';
+import defaultAvatar6 from '@/assets/avatars/avatar-6.png';
+
+const DEFAULT_AVATARS = [defaultAvatar1, defaultAvatar2, defaultAvatar3, defaultAvatar4, defaultAvatar5, defaultAvatar6];
+
+// Pick a deterministic default avatar based on user id (stable per user)
+const pickDefaultAvatar = (seed?: string | null) => {
+  if (!seed) return DEFAULT_AVATARS[0];
+  let h = 0;
+  for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) >>> 0;
+  return DEFAULT_AVATARS[h % DEFAULT_AVATARS.length];
+};
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import VerificationPanel from '@/components/VerificationPanel';
 import UserInbox from '@/components/UserInbox';
