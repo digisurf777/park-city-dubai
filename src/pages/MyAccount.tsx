@@ -1067,44 +1067,87 @@ const MyAccount = () => {
           </TabsContent>
           
           <TabsContent value="contact">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <MessageSquare className="h-5 w-5" />
-                  Contact & Support
-                </CardTitle>
-                
-              </CardHeader>
-               <CardContent className="space-y-4">
-                 <Card>
-                   <CardContent className="pt-4">
-                     <div className="text-center space-y-3">
-                       <Send className="h-8 w-8 text-primary mx-auto" />
-                       <h3 className="font-semibold">Contact Admin</h3>
-                       <p className="text-sm text-muted-foreground">
-                         Send a direct message to our administrators for support or questions.
-                       </p>
-                       <Link to="/contact-admin">
-                         <Button className="w-full">
-                           Send Message
-                         </Button>
-                       </Link>
-                     </div>
-                   </CardContent>
-                 </Card>
+            <div className="space-y-6">
+              {/* Hero header */}
+              <div className="relative overflow-hidden rounded-3xl p-6 lg:p-8 border border-primary/15 shadow-elegant"
+                   style={{ background: 'linear-gradient(135deg, hsl(var(--primary)/0.10), hsl(var(--primary-glow)/0.06))' }}>
+                <div className="pointer-events-none absolute -top-16 -right-16 w-56 h-56 rounded-full bg-primary/15 blur-3xl" />
+                <div className="relative flex items-start gap-4">
+                  <div className="h-12 w-12 rounded-2xl bg-gradient-primary text-primary-foreground flex items-center justify-center shadow-glow shrink-0">
+                    <LifeBuoy className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl lg:text-2xl font-black text-foreground">Need help? We're here for you</h2>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Average response time under 30 minutes during business hours.
+                    </p>
+                  </div>
+                </div>
+              </div>
 
-                 <div className="bg-muted p-4 rounded-lg">
-                   <h4 className="font-medium mb-2">Email Support</h4>
-                   <p className="text-sm text-muted-foreground">
-                     For urgent matters, you can also reach us directly at{' '}
-                      <a href="mailto:support@shazamparking.ae" className="text-primary hover:underline">
-                        support@shazamparking.ae
-                     </a>
-                   </p>
-                 </div>
-               </CardContent>
-             </Card>
-           </TabsContent>
+              {/* Quick action grid */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Link to="/contact-admin" className="group">
+                  <Card className="glass-card border-0 shadow-soft hover:shadow-elegant transition-all duration-300 hover:-translate-y-1 h-full ring-1 ring-primary/10 hover:ring-primary/30">
+                    <CardContent className="pt-6 text-center space-y-3">
+                      <div className="mx-auto h-12 w-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <MessagesSquare className="h-6 w-6" />
+                      </div>
+                      <h3 className="font-bold">Message Admin</h3>
+                      <p className="text-xs text-muted-foreground">Direct line to our admin team</p>
+                      <Button size="sm" className="w-full font-semibold">
+                        <Send className="h-4 w-4 mr-2" /> Open chat
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </Link>
+
+                <a href="mailto:support@shazamparking.ae" className="group">
+                  <Card className="glass-card border-0 shadow-soft hover:shadow-elegant transition-all duration-300 hover:-translate-y-1 h-full ring-1 ring-primary/10 hover:ring-primary/30">
+                    <CardContent className="pt-6 text-center space-y-3">
+                      <div className="mx-auto h-12 w-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <Mail className="h-6 w-6" />
+                      </div>
+                      <h3 className="font-bold">Email Support</h3>
+                      <p className="text-xs text-muted-foreground break-all">support@shazamparking.ae</p>
+                      <Button size="sm" variant="outline" className="w-full font-semibold">
+                        <Mail className="h-4 w-4 mr-2" /> Send email
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </a>
+
+                <Link to="/faq" className="group">
+                  <Card className="glass-card border-0 shadow-soft hover:shadow-elegant transition-all duration-300 hover:-translate-y-1 h-full ring-1 ring-primary/10 hover:ring-primary/30">
+                    <CardContent className="pt-6 text-center space-y-3">
+                      <div className="mx-auto h-12 w-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <HelpCircle className="h-6 w-6" />
+                      </div>
+                      <h3 className="font-bold">Help Center</h3>
+                      <p className="text-xs text-muted-foreground">Browse common questions</p>
+                      <Button size="sm" variant="outline" className="w-full font-semibold">
+                        Visit FAQ
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </Link>
+              </div>
+
+              {/* Inbox section */}
+              <Card className="glass-card border-0 shadow-elegant">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Mail className="h-5 w-5 text-primary" />
+                    Your messages
+                  </CardTitle>
+                  <CardDescription>Replies from our support team appear here</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <UserInbox />
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
            
             <TabsContent value="history">
               <div className="space-y-6">
