@@ -12,6 +12,7 @@ import Footer from "@/components/Footer";
 import { useSearchParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import useSEO from "@/hooks/useSEO";
+import DubaiLiveMapsCTA from "@/components/DubaiLiveMapsCTA";
 
 import dubaiMarinaZone from "@/assets/zones/dubai-marina-real.webp";
 import downtownZone from "/lovable-uploads/f676da2a-39c9-4211-8561-5b884e0ceed8.webp";
@@ -227,7 +228,7 @@ const FindParking = () => {
           <p className="text-muted-foreground text-base sm:text-lg">Select a zone to find parking spaces in that area</p>
         </div>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-7 lg:gap-8">
           {districtZones.map(zone => {
           const zoneImages = {
             'dubai-marina': dubaiMarinaZone,
@@ -237,29 +238,45 @@ const FindParking = () => {
             'difc': difcZone,
             'deira': deiraZone
           };
-          return <div key={zone.slug} className="relative group overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 touch-manipulation">
+          return (
+            <div
+              key={zone.slug}
+              className="group relative rounded-2xl p-[2px] transition-all duration-500 hover:-translate-y-2 touch-manipulation"
+              style={{
+                background: 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-glow)) 50%, hsl(var(--primary-deep)) 100%)',
+                boxShadow: '0 20px 40px -15px hsl(var(--primary-deep) / 0.45), inset 0 1px 0 0 hsl(0 0% 100% / 0.4)',
+              }}
+            >
+              <div className="relative overflow-hidden rounded-[14px] bg-white">
                 {/* Zone Image */}
                 <div className="relative h-48 sm:h-56 lg:h-64 overflow-hidden">
-                  <img src={zoneImages[zone.slug as keyof typeof zoneImages]} alt={zone.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" decoding="async" />
-                  <div className="absolute inset-0 bg-black/30"></div>
-                  
+                  <img src={zoneImages[zone.slug as keyof typeof zoneImages]} alt={zone.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" decoding="async" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+                  {/* glossy top highlight */}
+                  <div className="pointer-events-none absolute inset-x-0 top-0 h-1/3 bg-gradient-to-b from-white/30 to-transparent" />
+
                   {/* Zone Title Overlay */}
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <h3 className="text-xl sm:text-2xl font-bold text-white text-center px-4">
+                  <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex items-center justify-center">
+                    <h3 className="text-xl sm:text-2xl font-bold text-white text-center px-4 drop-shadow-lg">
                       {zone.name}
                     </h3>
                   </div>
                 </div>
-                
+
                 {/* Select Zone Button */}
                 <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 right-3 sm:right-4">
-                  <Button onClick={() => handleSelectZone(zone.slug)} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium min-h-[44px] touch-manipulation">
+                  <Button onClick={() => handleSelectZone(zone.slug)} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium min-h-[44px] touch-manipulation shadow-lg">
                     Select zone
                   </Button>
                 </div>
-              </div>;
+              </div>
+            </div>
+          );
         })}
         </div>
+
+        {/* Dubai Live Maps CTA */}
+        <DubaiLiveMapsCTA />
 
         {/* Parking Listings Section */}
         {loading ? <div id="listings-section" className="mt-16 text-center">
