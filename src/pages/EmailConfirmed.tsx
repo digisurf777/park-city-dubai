@@ -124,16 +124,19 @@ const EmailConfirmed = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center px-4">
-        <Card className="w-full max-w-md">
-          <CardContent className="pt-6">
-            <div className="text-center space-y-4">
-              <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
-              <p className="text-muted-foreground">Confirming your email...</p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <>
+        <Navbar />
+        <div className="min-h-screen bg-background flex items-center justify-center px-4 pt-24">
+          <Card className="w-full max-w-md">
+            <CardContent className="pt-6">
+              <div className="text-center space-y-4">
+                <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
+                <p className="text-muted-foreground">Confirming your email...</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </>
     );
   }
 
