@@ -157,7 +157,7 @@ const ChatWidget = () => {
     <>
       {/* Chat Button */}
       {!isOpen && (
-        <div className="fixed bottom-6 right-6 z-50">
+        <div className="fixed bottom-20 md:bottom-6 right-4 md:right-6 z-50">
           <Button
             onClick={handleOpen}
             className={`relative bg-primary hover:bg-primary/90 text-white rounded-full p-4 shadow-lg ${
@@ -177,7 +177,7 @@ const ChatWidget = () => {
 
       {/* Chat Window */}
       {isOpen && (
-        <div className="fixed bottom-6 right-6 z-50 w-80 h-96">
+        <div className="fixed bottom-20 md:bottom-6 right-4 md:right-6 z-50 w-80 h-96">
           <Card className="h-full flex flex-col shadow-xl">
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b bg-primary text-white rounded-t-lg">
