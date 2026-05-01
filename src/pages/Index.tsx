@@ -90,22 +90,22 @@ const Index = () => {
                 <Sparkles className="h-3.5 w-3.5 text-primary-glow" />
                 Trusted in Dubai
               </motion.span>
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-black leading-[1.05] tracking-tight mb-4 sm:mb-6">
+              <h1 className="text-[2.5rem] leading-[1.05] sm:text-5xl lg:text-6xl xl:text-7xl font-black tracking-tight mb-4 sm:mb-6">
                 <motion.span
                   variants={{ hidden: { opacity: 0, y: 24 }, show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: "easeOut" } } }}
-                  className="block text-white drop-shadow-[0_4px_20px_rgba(0,0,0,0.45)]"
+                  className="block text-white drop-shadow-[0_4px_20px_rgba(0,0,0,0.5)]"
                 >
                   YOUR TRUSTED
                 </motion.span>
                 <motion.span
                   variants={{ hidden: { opacity: 0, y: 24 }, show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: "easeOut" } } }}
-                  className="block bg-gradient-to-r from-primary-glow via-white to-primary bg-clip-text text-transparent"
+                  className="block bg-gradient-to-r from-primary-glow via-[hsl(160_85%_75%)] to-white bg-clip-text text-transparent drop-shadow-[0_4px_20px_rgba(0,0,0,0.4)]"
                 >
                   PARKING PLATFORM
                 </motion.span>
                 <motion.span
                   variants={{ hidden: { opacity: 0, y: 24 }, show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: "easeOut" } } }}
-                  className="block text-white drop-shadow-[0_4px_20px_rgba(0,0,0,0.45)]"
+                  className="block text-white drop-shadow-[0_4px_20px_rgba(0,0,0,0.5)]"
                 >
                   IN DUBAI
                 </motion.span>
