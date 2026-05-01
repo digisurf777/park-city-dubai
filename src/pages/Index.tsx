@@ -59,9 +59,8 @@ const Index = () => {
           backgroundImage: `linear-gradient(135deg, hsl(174 65% 22% / 0.85) 0%, hsl(0 0% 0% / 0.55) 100%), url(${secureParking})`,
         }}
       >
-        {/* Decorative blurred glows */}
-        <div className="pointer-events-none absolute -top-32 -left-32 w-96 h-96 rounded-full bg-primary/30 blur-3xl"></div>
-        <div className="pointer-events-none absolute -bottom-32 -right-32 w-[28rem] h-[28rem] rounded-full bg-primary-glow/25 blur-3xl"></div>
+        {/* Subtle decorative glow — bottom right only */}
+        <div className="pointer-events-none absolute -bottom-32 -right-32 w-[28rem] h-[28rem] rounded-full bg-primary-glow/15 blur-3xl"></div>
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-white z-10 pt-24 pb-12 sm:pt-28 sm:pb-16 lg:pt-32 lg:pb-20 min-h-[640px] sm:min-h-[680px] lg:min-h-[720px] flex items-center">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center w-full">
