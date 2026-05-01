@@ -626,11 +626,8 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Testimonials — animated marquee */}
+      {/* Testimonials - animated marquee */}
       <TestimonialsMarquee />
-
-      {/* Trusted Platform — partners + badges */}
-      <TrustedPlatform />
 
 
       {/* Final CTA */}
