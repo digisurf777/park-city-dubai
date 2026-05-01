@@ -505,8 +505,22 @@ const MyAccount = () => {
   if (loading) {
     return <>
         <Navbar />
-        <div className="min-h-screen bg-background flex items-center justify-center pt-24">
-          <Loader2 className="h-8 w-8 animate-spin" />
+        <div className="min-h-screen bg-gradient-to-b from-surface via-background to-background pt-24">
+          <div className="max-w-5xl mx-auto p-4 lg:p-6 space-y-6 animate-pulse">
+            {/* Hero skeleton */}
+            <div className="rounded-[2rem] h-44 lg:h-52 bg-gradient-to-br from-primary/20 via-primary/10 to-primary-deep/20" />
+            {/* Tabs skeleton */}
+            <div className="grid grid-cols-3 gap-2">
+              <div className="h-11 rounded-xl bg-muted" />
+              <div className="h-11 rounded-xl bg-muted" />
+              <div className="h-11 rounded-xl bg-muted" />
+            </div>
+            {/* Content skeleton */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="h-72 rounded-2xl bg-muted lg:col-span-1" />
+              <div className="h-72 rounded-2xl bg-muted lg:col-span-2" />
+            </div>
+          </div>
         </div>
       </>;
   }
