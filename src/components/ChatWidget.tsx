@@ -358,6 +358,48 @@ const ChatWidget = () => {
                   <p className={`${isExpanded ? "text-base mt-3 max-w-md" : "text-xs mt-2 max-w-[280px]"} text-muted-foreground mx-auto`}>
                     Ask anything about your bookings, listings, payouts or verification — I'll loop in a teammate by email if needed.
                   </p>
+
+                  {/* Prefer-email card */}
+                  <a
+                    href={buildMailto(
+                      "Support request — Shazam Parking",
+                      `Hi Shazam Parking team,\n\n[Please describe your question here]\n\n— Sent from in-app support (${user?.email ?? ""})`
+                    )}
+                    className="group mt-5 mx-auto max-w-[320px] flex items-center gap-3 p-3 rounded-2xl bg-gradient-to-br from-primary/5 via-white to-primary/5 border border-primary/20 hover:border-primary hover:shadow-md hover:-translate-y-0.5 transition-all text-left"
+                  >
+                    <span className="flex-shrink-0 w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-colors">
+                      <Mail className="h-5 w-5" />
+                    </span>
+                    <span className="flex-1 min-w-0">
+                      <span className="block text-xs font-bold text-foreground">Prefer email?</span>
+                      <span className="block text-[11px] text-muted-foreground truncate">{SUPPORT_EMAIL}</span>
+                    </span>
+                    <span className="text-[10px] font-semibold text-primary opacity-0 group-hover:opacity-100 transition-opacity">
+                      Open ↗
+                    </span>
+                  </a>
+                </div>
+              )}
+
+              {/* Handoff confirmation banner */}
+              {messages.some((m) => m.handoff_requested) && (
+                <div className="mx-auto max-w-[420px] rounded-xl border border-amber-300 bg-amber-50 p-3 flex items-start gap-3">
+                  <UserCheck className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-bold text-amber-900">A human teammate has been notified</p>
+                    <p className="text-[11px] text-amber-800 mt-0.5">
+                      We typically reply within a few business hours. Want to add details by email?
+                    </p>
+                    <a
+                      href={buildMailto(
+                        "Follow-up on my support chat — Shazam Parking",
+                        `Hi Shazam Parking team,\n\nFollowing up on my in-app chat. Additional details:\n\n[Add details here]\n\n— ${user?.email ?? ""}`
+                      )}
+                      className="inline-flex items-center gap-1 mt-1.5 text-[11px] font-bold text-amber-900 underline underline-offset-2 hover:text-amber-700"
+                    >
+                      <Mail className="h-3 w-3" /> Email {SUPPORT_EMAIL}
+                    </a>
+                  </div>
                 </div>
               )}
 
