@@ -1,7 +1,11 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { MapPin, Menu, X, ChevronDown, User } from "lucide-react";
+import {
+  MapPin, Menu, X, ChevronDown, User, Search, Building2,
+  Info, HelpCircle, Newspaper, Calculator as CalcIcon,
+  LogIn, LogOut, Sparkles, Home, Anchor, Landmark, Briefcase, Castle, Waves
+} from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
