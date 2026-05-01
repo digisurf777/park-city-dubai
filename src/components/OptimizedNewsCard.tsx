@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
 import LazyImage from './LazyImage';
+import { supabase } from '@/integrations/supabase/client';
 
 interface NewsPost {
   id: string;
@@ -17,14 +18,39 @@ interface OptimizedNewsCardProps {
   priority?: boolean;
 }
 
+// Module-level prefetch cache so NewsArticle can read instantly
+const articlePrefetchCache = new Set<string>();
+export const __newsArticlePrefetch = articlePrefetchCache;
+
 const OptimizedNewsCard: React.FC<OptimizedNewsCardProps> = ({ article, priority = false }) => {
   const truncatedContent = article.content
     .replace(/<[^>]*>/g, '')
     .substring(0, 150);
 
+  const prefetchArticle = useCallback(() => {
+    if (articlePrefetchCache.has(article.id)) return;
+    articlePrefetchCache.add(article.id);
+    // Warm Supabase cache; result is discarded but stays in network cache
+    supabase
+      .from('news')
+      .select('*')
+      .eq('id', article.id)
+      .eq('status', 'published')
+      .single()
+      .then(({ error }) => {
+        if (error) articlePrefetchCache.delete(article.id);
+      });
+  }, [article.id]);
+
   return (
     <Card className="overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 group">
-      <Link to={`/news/${article.id}`} className="block">
+      <Link
+        to={`/news/${article.id}`}
+        className="block"
+        onMouseEnter={prefetchArticle}
+        onTouchStart={prefetchArticle}
+        onFocus={prefetchArticle}
+      >
         <div className="relative aspect-video overflow-hidden">
           <LazyImage
             src={article.image_url || '/news/hero.webp'}
@@ -34,25 +60,25 @@ const OptimizedNewsCard: React.FC<OptimizedNewsCardProps> = ({ article, priority
             fetchPriority={priority ? 'high' : 'auto'}
           />
         </div>
-        
+
         <CardContent className="p-6">
           <div className="flex items-center gap-2 mb-3">
-            <time 
+            <time
               className="text-xs text-muted-foreground"
               dateTime={article.publication_date}
             >
               {format(new Date(article.publication_date), 'MMMM d, yyyy')}
             </time>
           </div>
-        
+
           <h3 className="text-lg font-bold mb-3 line-clamp-2 group-hover:text-primary transition-colors">
             {article.title}
           </h3>
-        
+
           <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
             {truncatedContent}...
           </p>
-        
+
           <div className="flex items-center justify-between">
             <span className="text-xs text-muted-foreground">
               {format(new Date(article.publication_date), 'PPP')}
