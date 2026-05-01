@@ -16,6 +16,7 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import downtownHero from "/lovable-uploads/f676da2a-39c9-4211-8561-5b884e0ceed8.webp";
 import { formatDescription } from "@/utils/formatDescription";
 import LazyImage from "@/components/LazyImage";
+import DubaiLiveMapsCTA from "@/components/DubaiLiveMapsCTA";
 
 const Downtown = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -86,25 +87,34 @@ const Downtown = () => {
         </div>
       </div>
 
-      {/* Filter Bar */}
-      <div className="sticky top-20 z-40 bg-white border-b shadow-sm">
-        
-      </div>
-
       {/* Results Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold text-foreground mb-2">Available Parking Spaces</h2>
-          <p className="text-muted-foreground">
-            {loading ? "Loading..." : `${filteredSpots.length} spaces found in Downtown Dubai`}
-          </p>
+        <div className="mb-6 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
+          <div>
+            <h2 className="text-2xl font-bold text-foreground mb-2">Available Parking Spaces</h2>
+            <p className="text-muted-foreground">
+              {loading ? "Loading..." : `${filteredSpots.length} spaces found in Downtown Dubai`}
+            </p>
+          </div>
+          <DubaiLiveMapsCTA variant="compact" />
         </div>
 
-        {/* Listing Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-          {filteredSpots.map(spot => <Card key={spot.id} className="overflow-hidden rounded-2xl border-0 ring-1 ring-primary/10 shadow-[0_8px_24px_-12px_hsl(var(--primary)/0.25)] hover:shadow-[0_24px_48px_-16px_hsl(var(--primary)/0.45)] hover:ring-primary/40 hover:-translate-y-1.5 transition-all duration-300 bg-gradient-to-b from-white to-surface group">
+        {/* Listing Grid - 3D glowing frames */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-7">
+          {filteredSpots.map(spot => (
+            <div
+              key={spot.id}
+              className="group relative rounded-2xl p-[2px] transition-all duration-500 hover:-translate-y-2"
+              style={{
+                background: 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-glow)) 50%, hsl(var(--primary-deep)) 100%)',
+                boxShadow: '0 20px 40px -15px hsl(var(--primary-deep) / 0.45), inset 0 1px 0 0 hsl(0 0% 100% / 0.4)',
+              }}
+            >
+            <Card className="overflow-hidden rounded-[14px] border-0 bg-white h-full flex flex-col">
               {/* Image carousel */}
-              <div className="relative w-full aspect-[4/3] overflow-hidden group bg-muted">
+              <div className="relative w-full aspect-[4/3] overflow-hidden bg-muted">
+                {/* glossy top highlight */}
+                <div className="pointer-events-none absolute inset-x-0 top-0 h-1/3 bg-gradient-to-b from-white/30 to-transparent z-20" />
                 <img
                   src={(spot.images && spot.images.length > 0 ? spot.images[currentImageIndexes[spot.id] || 0] : spot.image)}
                   alt=""
