@@ -12,7 +12,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { Loader2, User, History, LogOut, Shield, Mail, Home, MessageSquare, Send, Car, ParkingCircle, MessageCircle, CheckCircle, FileText, Camera, Phone, Globe, Bell, Sparkles, ImageIcon, Trash2, KeyRound, Eye, EyeOff, LifeBuoy, MessagesSquare, HelpCircle } from 'lucide-react';
+import { Loader2, User, History, LogOut, Shield, ShieldAlert, ShieldCheck, Mail, Home, MessageSquare, Send, Car, ParkingCircle, MessageCircle, CheckCircle, FileText, Camera, Phone, Globe, Bell, Sparkles, ImageIcon, Trash2, KeyRound, Eye, EyeOff, LifeBuoy, MessagesSquare, HelpCircle } from 'lucide-react';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import VerificationPanel from '@/components/VerificationPanel';
 import UserInbox from '@/components/UserInbox';
@@ -453,23 +453,26 @@ const MyAccount = () => {
   }
   return <div className="min-h-screen bg-gradient-to-b from-surface via-background to-background pt-20 animate-fade-in">
       <div className="max-w-5xl mx-auto p-4 lg:p-6">
-        {/* Hero header card — premium glass */}
-        <div className="relative overflow-hidden rounded-3xl mb-6 p-6 lg:p-10 shadow-elegant border border-white/20"
-             style={{ background: 'linear-gradient(135deg, hsl(var(--primary-deep)) 0%, hsl(var(--primary)) 55%, hsl(var(--primary-glow)) 100%)' }}>
+        {/* Hero header card — premium 3D glass */}
+        <div className="relative overflow-hidden rounded-[2rem] mb-6 p-6 lg:p-10 border border-white/30
+                        shadow-[0_30px_60px_-20px_hsl(var(--primary-deep)/0.55),0_8px_24px_-12px_hsl(var(--primary)/0.45),inset_0_1px_0_0_hsl(0_0%_100%/0.35)]"
+             style={{ background: 'linear-gradient(135deg, hsl(var(--primary-deep)) 0%, hsl(var(--primary)) 50%, hsl(var(--primary-glow)) 100%)' }}>
           {/* Decorative orbs */}
-          <div className="pointer-events-none absolute -top-20 -right-20 w-72 h-72 rounded-full bg-white/15 blur-3xl"></div>
-          <div className="pointer-events-none absolute -bottom-24 -left-16 w-80 h-80 rounded-full bg-primary-glow/40 blur-3xl"></div>
+          <div className="pointer-events-none absolute -top-24 -right-24 w-80 h-80 rounded-full bg-white/20 blur-3xl"></div>
+          <div className="pointer-events-none absolute -bottom-28 -left-20 w-96 h-96 rounded-full bg-primary-glow/40 blur-3xl"></div>
+          {/* Glossy top highlight */}
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/15 to-transparent" />
           <div className="pointer-events-none absolute inset-0 opacity-[0.07]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '22px 22px' }} />
 
           <div className="relative flex flex-col gap-6 lg:flex-row lg:justify-between lg:items-center">
             <div className="flex items-center gap-5">
               {/* Avatar — uploadable */}
               <div className="relative group">
-                <Avatar className="h-20 w-20 lg:h-24 lg:w-24 rounded-2xl ring-4 ring-white/30 shadow-glow bg-white/15 backdrop-blur">
+                <Avatar className="h-20 w-20 lg:h-24 lg:w-24 rounded-2xl ring-4 ring-white/40 shadow-[0_12px_30px_-8px_hsl(var(--primary-deep)/0.6),inset_0_1px_0_0_hsl(0_0%_100%/0.35)] bg-white/15 backdrop-blur">
                   {profile?.avatar_url ? (
                     <AvatarImage src={profile.avatar_url} alt={profile.full_name || 'Profile'} className="object-cover" />
                   ) : null}
-                  <AvatarFallback className="rounded-2xl bg-white/15 text-white text-3xl lg:text-4xl font-black">
+                  <AvatarFallback className="rounded-2xl bg-gradient-to-br from-white/25 to-white/10 text-white text-3xl lg:text-4xl font-black">
                     {(profile?.full_name || user?.email || '?').charAt(0).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
@@ -490,32 +493,32 @@ const MyAccount = () => {
                   onChange={handleAvatarUpload}
                   disabled={uploadingAvatar}
                 />
-                <span className="absolute -bottom-1 -right-1 h-5 w-5 rounded-full bg-emerald-400 border-2 border-white shadow" title="Online" />
+                <span className="absolute -bottom-1 -right-1 h-5 w-5 rounded-full bg-emerald-400 border-2 border-white shadow-[0_2px_8px_hsl(160_85%_45%/0.6)]" title="Online" />
               </div>
 
               <div className="min-w-0">
-                <p className="text-[11px] uppercase tracking-[0.22em] text-white/80 mb-1 font-bold flex items-center gap-1.5">
+                <p className="text-[11px] uppercase tracking-[0.22em] text-white/85 mb-1 font-bold flex items-center gap-1.5">
                   <Sparkles className="h-3 w-3" /> Welcome back
                 </p>
-                <h1 className="text-2xl lg:text-4xl font-black text-white drop-shadow-md leading-tight truncate">
+                <h1 className="text-2xl lg:text-4xl font-black text-white drop-shadow-[0_2px_8px_hsl(var(--primary-deep)/0.6)] leading-tight truncate">
                   {profile?.full_name || user?.email?.split('@')[0] || 'My Account'}
                 </h1>
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-white/85 text-sm">
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-white/90 text-sm">
                   <span className="inline-flex items-center gap-1.5"><Mail className="h-3.5 w-3.5" /> {user?.email}</span>
                   {profile?.phone && (
                     <span className="inline-flex items-center gap-1.5"><Phone className="h-3.5 w-3.5" /> {profile.phone}</span>
                   )}
                 </div>
                 <div className="flex flex-wrap gap-2 mt-3">
-                  <Badge className="bg-white/20 hover:bg-white/30 text-white border border-white/30 backdrop-blur capitalize">
+                  <Badge className="bg-white/25 hover:bg-white/35 text-white border border-white/35 backdrop-blur capitalize shadow-md">
                     {isParkingOwner ? '🅿️ Parking owner' : '🚗 Driver'}
                   </Badge>
                   {(verificationStatus === 'approved' || verificationStatus === 'verified') ? (
-                    <Badge className="bg-emerald-500/90 hover:bg-emerald-500 text-white border-0">✓ Verified</Badge>
+                    <Badge className="bg-emerald-500 hover:bg-emerald-500 text-white border-0 shadow-[0_4px_12px_-2px_hsl(160_85%_45%/0.6)]">✓ Verified</Badge>
                   ) : verificationStatus === 'pending' ? (
-                    <Badge className="bg-amber-500/90 hover:bg-amber-500 text-white border-0">⏳ Pending</Badge>
+                    <Badge className="bg-amber-500 hover:bg-amber-500 text-white border-0 shadow-[0_4px_12px_-2px_hsl(38_92%_50%/0.6)]">⏳ Pending</Badge>
                   ) : (
-                    <Badge className="bg-orange-500/90 hover:bg-orange-500 text-white border-0">! Verification needed</Badge>
+                    <Badge className="bg-orange-500 hover:bg-orange-500 text-white border-0 shadow-[0_4px_12px_-2px_hsl(24_95%_53%/0.6)]">! Verification needed</Badge>
                   )}
                 </div>
               </div>
@@ -524,25 +527,29 @@ const MyAccount = () => {
             {/* Quick stats + actions */}
             <div className="flex flex-col gap-3">
               <div className="grid grid-cols-3 gap-2 lg:gap-3">
-                <div className="text-center px-3 py-2 rounded-xl bg-white/15 border border-white/25 backdrop-blur">
-                  <div className="text-xl lg:text-2xl font-black text-white leading-none">{listings.length}</div>
-                  <div className="text-[10px] uppercase tracking-wider text-white/75 mt-1">Listings</div>
+                <div className="text-center px-3 py-3 rounded-2xl bg-white/20 border border-white/35 backdrop-blur-md
+                                shadow-[0_8px_20px_-8px_hsl(var(--primary-deep)/0.5),inset_0_1px_0_0_hsl(0_0%_100%/0.4)]
+                                hover:bg-white/25 transition-all">
+                  <div className="text-xl lg:text-2xl font-black text-white leading-none drop-shadow">{listings.length}</div>
+                  <div className="text-[10px] uppercase tracking-wider text-white/85 mt-1 font-semibold">Listings</div>
                 </div>
-                <div className="text-center px-3 py-2 rounded-xl bg-white/15 border border-white/25 backdrop-blur">
-                  <div className="text-xl lg:text-2xl font-black text-white leading-none">{bookings.length}</div>
-                  <div className="text-[10px] uppercase tracking-wider text-white/75 mt-1">Bookings</div>
+                <div className="text-center px-3 py-3 rounded-2xl bg-white/20 border border-white/35 backdrop-blur-md
+                                shadow-[0_8px_20px_-8px_hsl(var(--primary-deep)/0.5),inset_0_1px_0_0_hsl(0_0%_100%/0.4)]
+                                hover:bg-white/25 transition-all">
+                  <div className="text-xl lg:text-2xl font-black text-white leading-none drop-shadow">{bookings.length}</div>
+                  <div className="text-[10px] uppercase tracking-wider text-white/85 mt-1 font-semibold">Bookings</div>
                 </div>
-                <div className="text-center px-3 py-2 rounded-xl bg-white/15 border border-white/25 backdrop-blur">
-                  <div className="text-xl lg:text-2xl font-black text-white leading-none">{unreadChatCount}</div>
-                  <div className="text-[10px] uppercase tracking-wider text-white/75 mt-1">Unread</div>
+                <div className={`text-center px-3 py-3 rounded-2xl border backdrop-blur-md shadow-[0_8px_20px_-8px_hsl(var(--primary-deep)/0.5),inset_0_1px_0_0_hsl(0_0%_100%/0.4)] hover:bg-white/25 transition-all ${unreadChatCount > 0 ? 'bg-red-500/30 border-red-300/60 animate-pulse' : 'bg-white/20 border-white/35'}`}>
+                  <div className="text-xl lg:text-2xl font-black text-white leading-none drop-shadow">{unreadChatCount}</div>
+                  <div className="text-[10px] uppercase tracking-wider text-white/85 mt-1 font-semibold">Unread</div>
                 </div>
               </div>
               <div className="flex gap-2">
-                <Button onClick={() => navigate('/')} size="sm" className="flex-1 bg-white/20 hover:bg-white/30 text-white border border-white/30 backdrop-blur shadow-md">
+                <Button onClick={() => navigate('/')} size="sm" className="flex-1 bg-white/25 hover:bg-white/35 text-white border border-white/35 backdrop-blur shadow-[0_6px_16px_-6px_hsl(var(--primary-deep)/0.5),inset_0_1px_0_0_hsl(0_0%_100%/0.3)] active:translate-y-0.5 transition-all">
                   <Home className="mr-2 h-4 w-4" />
                   Home
                 </Button>
-                <Button onClick={handleLogout} size="sm" className="flex-1 bg-white text-primary hover:bg-white/90 shadow-md font-semibold">
+                <Button onClick={handleLogout} size="sm" className="flex-1 bg-white text-primary-deep hover:bg-white/95 shadow-[0_6px_16px_-4px_hsl(var(--primary-deep)/0.45),inset_0_-2px_0_0_hsl(var(--primary)/0.1)] font-bold active:translate-y-0.5 transition-all">
                   <LogOut className="mr-2 h-4 w-4" />
                   Logout
                 </Button>
@@ -553,69 +560,70 @@ const MyAccount = () => {
 
         {/* Verification Status Alert - Only show if not approved/verified */}
         {!verificationLoading && verificationStatus && verificationStatus !== 'approved' && verificationStatus !== 'verified' && (
-          <Card className="mb-6 border-orange-200 bg-orange-50/70 backdrop-blur-md shadow-soft">
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-3">
-                <Shield className="h-6 w-6 text-orange-600" />
-                <div className="flex-1">
-                  <h3 className="font-semibold text-orange-800">Account Verification Required</h3>
-                  <p className="text-sm text-orange-700 mt-1">
-                    Your account must be verified before you can list or book parking spaces.
-                    Current status: {verificationStatus}
+          <div className="relative mb-6 rounded-2xl p-[1.5px] bg-gradient-to-r from-orange-400 via-amber-400 to-orange-500 shadow-[0_18px_40px_-18px_hsl(24_95%_53%/0.55)]">
+            <div className="rounded-[14px] bg-gradient-to-br from-orange-50 via-amber-50/80 to-white p-5 lg:p-6">
+              <div className="flex items-center gap-4">
+                <div className="relative flex-shrink-0 h-14 w-14 rounded-2xl bg-gradient-to-br from-orange-400 to-orange-600 shadow-[0_10px_24px_-6px_hsl(24_95%_53%/0.55),inset_0_1px_0_0_hsl(0_0%_100%/0.4)] flex items-center justify-center">
+                  <ShieldAlert className="h-7 w-7 text-white drop-shadow" />
+                  <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-red-500 text-white text-[11px] font-black flex items-center justify-center border-2 border-white shadow">!</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-bold text-orange-900 text-base lg:text-lg leading-tight">Account Verification Required</h3>
+                  <p className="text-sm text-orange-700/90 mt-1">
+                    Verify your account to list or book parking spaces. Current status: <span className="font-semibold capitalize">{verificationStatus}</span>
                   </p>
                 </div>
-                <Button 
-                  variant="outline" 
+                <Button
                   size="sm"
                   onClick={() => setActiveTab('verification')}
-                  className="border-orange-300 text-orange-700 hover:bg-orange-100"
+                  className="bg-gradient-to-br from-orange-500 to-orange-600 hover:from-orange-500 hover:to-orange-700 text-white border-0 shadow-[0_6px_16px_-4px_hsl(24_95%_53%/0.55),inset_0_1px_0_0_hsl(0_0%_100%/0.3)] font-semibold active:translate-y-0.5 transition-all"
                 >
                   {verificationStatus === 'rejected' ? 'Resubmit' : 'Check Status'}
                 </Button>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         )}
 
         {/* Show verification required for users without any verification record */}
         {!verificationLoading && !verificationStatus && (
-          <Card className="mb-6 border-orange-200 bg-orange-50/70 backdrop-blur-md shadow-soft">
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-3">
-                <Shield className="h-6 w-6 text-orange-600" />
-                <div className="flex-1">
-                  <h3 className="font-semibold text-orange-800">Account Verification Required</h3>
-                  <p className="text-sm text-orange-700 mt-1">
+          <div className="relative mb-6 rounded-2xl p-[1.5px] bg-gradient-to-r from-orange-400 via-amber-400 to-orange-500 shadow-[0_18px_40px_-18px_hsl(24_95%_53%/0.55)]">
+            <div className="rounded-[14px] bg-gradient-to-br from-orange-50 via-amber-50/80 to-white p-5 lg:p-6">
+              <div className="flex items-center gap-4">
+                <div className="relative flex-shrink-0 h-14 w-14 rounded-2xl bg-gradient-to-br from-orange-400 to-orange-600 shadow-[0_10px_24px_-6px_hsl(24_95%_53%/0.55),inset_0_1px_0_0_hsl(0_0%_100%/0.4)] flex items-center justify-center">
+                  <ShieldAlert className="h-7 w-7 text-white drop-shadow" />
+                  <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-red-500 text-white text-[11px] font-black flex items-center justify-center border-2 border-white shadow">!</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-bold text-orange-900 text-base lg:text-lg leading-tight">Account Verification Required</h3>
+                  <p className="text-sm text-orange-700/90 mt-1">
                     Your account must be verified before you can list or book parking spaces.
                   </p>
                 </div>
-                <Button 
-                  variant="outline" 
+                <Button
                   size="sm"
                   onClick={() => setActiveTab('verification')}
-                  className="border-orange-300 text-orange-700 hover:bg-orange-100"
+                  className="bg-gradient-to-br from-orange-500 to-orange-600 hover:from-orange-500 hover:to-orange-700 text-white border-0 shadow-[0_6px_16px_-4px_hsl(24_95%_53%/0.55),inset_0_1px_0_0_hsl(0_0%_100%/0.3)] font-semibold active:translate-y-0.5 transition-all"
                 >
                   Start Verification
                 </Button>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         )}
 
         {/* Success Message for Verified Users */}
         {!verificationLoading && (verificationStatus === 'approved' || verificationStatus === 'verified') && (
-          <Card className="mb-6 border-green-200 bg-green-50/70 backdrop-blur-md shadow-elegant">
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-3">
-                <div className="flex items-center justify-center w-12 h-12 bg-green-100 rounded-full">
-                  <CheckCircle className="h-8 w-8 text-green-600" />
+          <div className="relative mb-6 rounded-2xl p-[1.5px] bg-gradient-to-r from-emerald-400 via-primary to-emerald-500 shadow-[0_18px_40px_-18px_hsl(160_85%_45%/0.45)]">
+            <div className="rounded-[14px] bg-gradient-to-br from-emerald-50 via-green-50/80 to-white p-5 lg:p-6">
+              <div className="flex items-center gap-4">
+                <div className="relative flex-shrink-0 h-14 w-14 rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 shadow-[0_10px_24px_-6px_hsl(160_85%_45%/0.55),inset_0_1px_0_0_hsl(0_0%_100%/0.4)] flex items-center justify-center">
+                  <ShieldCheck className="h-7 w-7 text-white drop-shadow" />
                 </div>
-                <div className="flex-1">
-                  <h3 className="text-lg font-bold text-green-800 flex items-center gap-2">
-                    ✅ Account Verified
-                  </h3>
-                  <p className="text-sm text-green-700 mt-1">
-                    Congratulations! Your account is verified. You can now list parking spaces and make bookings without restrictions.
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-base lg:text-lg font-bold text-emerald-900 leading-tight">Account Verified</h3>
+                  <p className="text-sm text-emerald-700/90 mt-1">
+                    Congratulations! You can now list parking spaces and make bookings without restrictions.
                   </p>
                 </div>
                 <div className="flex gap-2">
@@ -637,8 +645,8 @@ const MyAccount = () => {
                   </Button>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         )}
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -700,50 +708,45 @@ const MyAccount = () => {
           </div>
 
           {/* Desktop Tab Navigation */}
-          <TabsList className="hidden lg:grid w-full grid-cols-8 gap-1 h-auto p-1">
-            <TabsTrigger value="profile" className="flex items-center gap-2 py-2">
+          <TabsList className="hidden lg:grid w-full grid-cols-8 gap-1.5 h-auto p-1.5 rounded-2xl bg-gradient-to-b from-white to-surface border border-primary/10 shadow-[0_8px_24px_-12px_hsl(var(--primary)/0.25),inset_0_1px_0_0_hsl(0_0%_100%/0.6)]">
+            <TabsTrigger value="profile" className="flex items-center gap-2 py-2.5 rounded-xl font-semibold transition-all data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary-deep data-[state=active]:text-white data-[state=active]:shadow-[0_6px_16px_-4px_hsl(var(--primary)/0.5),inset_0_1px_0_0_hsl(0_0%_100%/0.25)] hover:bg-primary/5">
               <User className="h-4 w-4" />
               Profile
             </TabsTrigger>
             {verificationStatus !== 'approved' && verificationStatus !== 'verified' && (
-              <TabsTrigger value="verification" className={`flex items-center gap-2 py-2 ${verificationStatus === 'pending' || verificationStatus === null ? 'bg-orange-500/10 text-orange-700 dark:text-orange-300 border-orange-500/20' : ''}`}>
-                <Shield className="h-4 w-4" />
+              <TabsTrigger value="verification" className={`flex items-center gap-2 py-2.5 rounded-xl font-semibold transition-all hover:bg-orange-500/5 ${verificationStatus === 'pending' || verificationStatus === null ? 'bg-gradient-to-br from-orange-100 to-amber-50 text-orange-800 border border-orange-200/60 shadow-[inset_0_1px_0_0_hsl(0_0%_100%/0.6)]' : ''} data-[state=active]:!bg-gradient-to-br data-[state=active]:!from-orange-500 data-[state=active]:!to-orange-600 data-[state=active]:!text-white data-[state=active]:!shadow-[0_6px_16px_-4px_hsl(24_95%_53%/0.5),inset_0_1px_0_0_hsl(0_0%_100%/0.25)]`}>
+                <ShieldAlert className="h-4 w-4" />
                 Verification
-                {(verificationStatus === 'pending' || verificationStatus === null) && <Badge variant="destructive" className="ml-2 h-5 w-5 p-0 text-xs">!</Badge>}
+                {(verificationStatus === 'pending' || verificationStatus === null) && <Badge variant="destructive" className="ml-1 h-5 w-5 p-0 text-xs">!</Badge>}
               </TabsTrigger>
             )}
-            <TabsTrigger value="security" className="flex items-center gap-2 py-2">
+            <TabsTrigger value="security" className="flex items-center gap-2 py-2.5 rounded-xl font-semibold transition-all data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary-deep data-[state=active]:text-white data-[state=active]:shadow-[0_6px_16px_-4px_hsl(var(--primary)/0.5),inset_0_1px_0_0_hsl(0_0%_100%/0.25)] hover:bg-primary/5">
               <KeyRound className="h-4 w-4" />
               Security
             </TabsTrigger>
-            <TabsTrigger value="listings" className="flex items-center gap-2 py-2">
+            <TabsTrigger value="listings" className="flex items-center gap-2 py-2.5 rounded-xl font-semibold transition-all data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary-deep data-[state=active]:text-white data-[state=active]:shadow-[0_6px_16px_-4px_hsl(var(--primary)/0.5),inset_0_1px_0_0_hsl(0_0%_100%/0.25)] hover:bg-primary/5">
               <Home className="h-4 w-4" />
               My Listings
             </TabsTrigger>
             <TabsTrigger 
               value="chats" 
-              className={`flex items-center gap-2 py-2 relative ${unreadChatCount > 0 ? '!border-2 !border-red-500 !bg-red-50 !text-red-700 hover:!bg-red-100 dark:!bg-red-950/50 dark:!text-red-400 dark:hover:!bg-red-950/70 data-[state=active]:!bg-red-100 data-[state=active]:!text-red-700 dark:data-[state=active]:!bg-red-950/70 dark:data-[state=active]:!text-red-400' : ''}`}
+              className={`flex items-center gap-2 py-2.5 rounded-xl font-semibold transition-all relative ${unreadChatCount > 0 ? '!bg-gradient-to-br !from-red-50 !to-red-100 !text-red-700 !border !border-red-200 hover:!from-red-100 hover:!to-red-200 data-[state=active]:!from-red-500 data-[state=active]:!to-red-600 data-[state=active]:!text-white data-[state=active]:!shadow-[0_6px_16px_-4px_hsl(0_85%_55%/0.5),inset_0_1px_0_0_hsl(0_0%_100%/0.25)]' : 'data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary-deep data-[state=active]:text-white data-[state=active]:shadow-[0_6px_16px_-4px_hsl(var(--primary)/0.5),inset_0_1px_0_0_hsl(0_0%_100%/0.25)] hover:bg-primary/5'}`}
             >
               <MessageCircle className="h-4 w-4" />
               Chats
               {unreadChatCount > 0 && (
-                <>
-                  <Badge variant="destructive" className="ml-2 h-5 w-5 p-0 text-xs">!</Badge>
-                  <Badge variant="destructive" className="ml-1">
-                    {unreadChatCount}
-                  </Badge>
-                </>
+                <Badge variant="destructive" className="ml-1 h-5 min-w-5 px-1 text-xs">{unreadChatCount}</Badge>
               )}
             </TabsTrigger>
-            <TabsTrigger value="payments" className="flex items-center gap-2 py-2">
+            <TabsTrigger value="payments" className="flex items-center gap-2 py-2.5 rounded-xl font-semibold transition-all data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary-deep data-[state=active]:text-white data-[state=active]:shadow-[0_6px_16px_-4px_hsl(var(--primary)/0.5),inset_0_1px_0_0_hsl(0_0%_100%/0.25)] hover:bg-primary/5">
               <FileText className="h-4 w-4" />
               Payments
             </TabsTrigger>
-            <TabsTrigger value="contact" className="flex items-center gap-2 py-2">
+            <TabsTrigger value="contact" className="flex items-center gap-2 py-2.5 rounded-xl font-semibold transition-all data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary-deep data-[state=active]:text-white data-[state=active]:shadow-[0_6px_16px_-4px_hsl(var(--primary)/0.5),inset_0_1px_0_0_hsl(0_0%_100%/0.25)] hover:bg-primary/5">
               <MessageSquare className="h-4 w-4" />
               Contact
             </TabsTrigger>
-            <TabsTrigger value="history" className="flex items-center gap-2 py-2">
+            <TabsTrigger value="history" className="flex items-center gap-2 py-2.5 rounded-xl font-semibold transition-all data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary-deep data-[state=active]:text-white data-[state=active]:shadow-[0_6px_16px_-4px_hsl(var(--primary)/0.5),inset_0_1px_0_0_hsl(0_0%_100%/0.25)] hover:bg-primary/5">
               <History className="h-4 w-4" />
               History
             </TabsTrigger>
