@@ -32,6 +32,7 @@ const pickDefaultAvatar = (seed?: string | null) => {
 };
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import VerificationPanel from '@/components/VerificationPanel';
+import Navbar from '@/components/Navbar';
 import UserInbox from '@/components/UserInbox';
 import { ActiveBookingChats } from '@/components/ActiveBookingChats';
 import { MyListings } from '@/components/MyListings';
@@ -502,11 +503,16 @@ const MyAccount = () => {
     }
   };
   if (loading) {
-    return <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>;
+    return <>
+        <Navbar />
+        <div className="min-h-screen bg-background flex items-center justify-center pt-24">
+          <Loader2 className="h-8 w-8 animate-spin" />
+        </div>
+      </>;
   }
-  return <div className="min-h-screen bg-gradient-to-b from-surface via-background to-background pt-20 animate-fade-in">
+  return <>
+    <Navbar />
+    <div className="min-h-screen bg-gradient-to-b from-surface via-background to-background pt-24 animate-fade-in">
       <div className="max-w-5xl mx-auto p-4 lg:p-6">
         {/* Hero header card - premium 3D glass with Dubai night photo */}
         <div className="relative overflow-hidden rounded-[2rem] mb-6 p-6 lg:p-10 border border-white/30
@@ -1337,6 +1343,7 @@ const MyAccount = () => {
             </TabsContent>
         </Tabs>
       </div>
-    </div>;
+    </div>
+    </>;
 };
 export default MyAccount;

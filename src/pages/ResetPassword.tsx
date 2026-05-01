@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Loader2, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
+import Navbar from '@/components/Navbar';
 
 const ResetPassword = () => {
   const [newPassword, setNewPassword] = useState('');
@@ -75,7 +76,9 @@ const ResetPassword = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-4">
+    <>
+      <Navbar />
+      <div className="min-h-screen bg-background flex items-center justify-center px-4 pt-24">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold">Reset Your Password</CardTitle>
@@ -166,8 +169,9 @@ const ResetPassword = () => {
             </div>
           </form>
         </CardContent>
-      </Card>
-    </div>
+        </Card>
+      </div>
+    </>
   );
 };
 
