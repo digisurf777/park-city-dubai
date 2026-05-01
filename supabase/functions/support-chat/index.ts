@@ -241,15 +241,17 @@ Deno.serve(async (req: Request) => {
       contextUserId = body.targetUserId;
     }
 
-    // Load conversation history if not supplied
+    // Load conversation history scoped to the current session (so "new chat" really starts fresh)
     let history: IncomingMsg[] = body.history ?? [];
     if (history.length === 0) {
-      const { data: msgs } = await adminClient
+      let q = adminClient
         .from('user_messages')
-        .select('message, from_admin, is_ai, created_at')
+        .select('message, from_admin, is_ai, created_at, session_id')
         .eq('user_id', contextUserId)
         .order('created_at', { ascending: true })
         .limit(40);
+      if (body.sessionId) q = q.eq('session_id', body.sessionId);
+      const { data: msgs } = await q;
       history = (msgs ?? []).map((m: any) => ({
         role: m.from_admin ? 'assistant' : 'user',
         content: m.message,
