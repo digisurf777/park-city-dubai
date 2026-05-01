@@ -1385,10 +1385,12 @@ export type Database = {
         Row: {
           created_at: string
           from_admin: boolean
+          handoff_requested: boolean
           id: string
           is_ai: boolean
           message: string
           read_status: boolean
+          session_id: string | null
           subject: string
           updated_at: string
           user_id: string
@@ -1396,10 +1398,12 @@ export type Database = {
         Insert: {
           created_at?: string
           from_admin?: boolean
+          handoff_requested?: boolean
           id?: string
           is_ai?: boolean
           message: string
           read_status?: boolean
+          session_id?: string | null
           subject: string
           updated_at?: string
           user_id: string
@@ -1407,10 +1411,12 @@ export type Database = {
         Update: {
           created_at?: string
           from_admin?: boolean
+          handoff_requested?: boolean
           id?: string
           is_ai?: boolean
           message?: string
           read_status?: boolean
+          session_id?: string | null
           subject?: string
           updated_at?: string
           user_id?: string

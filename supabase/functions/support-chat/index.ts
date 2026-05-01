@@ -22,6 +22,53 @@ interface Body {
   history?: IncomingMsg[];          // optional already-loaded history (widget)
   mode?: 'reply' | 'draft';         // 'draft' = admin draft generator
   targetUserId?: string;            // admin draft only — generate context for this user
+  sessionId?: string;               // groups messages into one chat session (new chat = new id)
+}
+
+const SUPPORT_EMAIL = 'support@shazamparking.ae';
+const HANDOFF_TOKEN = '[[HANDOFF]]';
+
+async function notifyHumanHandoff(opts: {
+  resendKey: string | undefined;
+  userName: string;
+  userEmail: string;
+  userPhone: string;
+  question: string;
+  sessionId?: string;
+}) {
+  if (!opts.resendKey) {
+    console.warn('RESEND_API_KEY not set — skipping handoff email');
+    return;
+  }
+  try {
+    const html = `
+      <div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;padding:24px">
+        <h2 style="color:#0f172a">🆘 Layla escalated a chat to a human</h2>
+        <p style="color:#334155">A user asked something the AI assistant could not answer with confidence.</p>
+        <div style="background:#f1f5f9;padding:16px;border-radius:8px;margin:16px 0">
+          <p style="margin:4px 0"><b>User:</b> ${opts.userName}</p>
+          <p style="margin:4px 0"><b>Email:</b> ${opts.userEmail}</p>
+          <p style="margin:4px 0"><b>Phone:</b> ${opts.userPhone}</p>
+          ${opts.sessionId ? `<p style="margin:4px 0"><b>Session:</b> ${opts.sessionId}</p>` : ''}
+        </div>
+        <p style="color:#334155"><b>Last message:</b></p>
+        <blockquote style="border-left:3px solid #6366f1;padding-left:12px;color:#475569">${opts.question.replace(/</g,'&lt;')}</blockquote>
+        <p style="color:#64748b;font-size:12px;margin-top:24px">Reply directly in the admin chat panel.</p>
+      </div>`;
+    await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${opts.resendKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        from: 'Shazam Parking <noreply@shazamparking.ae>',
+        to: [SUPPORT_EMAIL],
+        bcc: [SUPPORT_EMAIL],
+        subject: `🆘 Human handoff requested — ${opts.userName}`,
+        html,
+      }),
+    });
+  } catch (err) {
+    console.error('Handoff email failed', err);
+  }
 }
 
 function fmt(d: string | Date | null | undefined) {
@@ -113,8 +160,13 @@ Never invent facts. If you don't know, say "I'll check with the team and get bac
 You speak warmly and confidently, like a real human teammate. Use the user's first name once when you have it.
 Always check the user context below BEFORE answering — refer to specific bookings, listings or payouts where relevant ("your booking at Marina Heights starting 12 Mar…").
 Be concise: 1-3 short paragraphs, with bullet points only when helpful. Use markdown.
-Never invent facts, prices, or dates. If a question needs a human (refunds, complaints, sensitive issues, anything you're not sure about), reply with empathy and add: "I'm flagging this for our team and a human will follow up shortly." Then stop.
-If the user asks to "talk to a human" or similar, do exactly that — short, warm acknowledgement only, then stop.
+Never invent facts, prices, or dates.
+
+ESCALATION TO A HUMAN — VERY IMPORTANT:
+If you are not fully confident in your answer, OR the user asks for refunds, complaints, account changes, legal matters, payouts disputes, anything sensitive, OR explicitly asks for a human / agent / person, you MUST end your reply with this exact token on its own line:
+${HANDOFF_TOKEN}
+When you escalate, your visible reply should be a short, warm message like: "Let me connect you with a teammate who can help with this — they'll email you shortly at the address on your account." Then the token. Do not invent answers when escalating.
+
 Do NOT mention pricing-per-hour. All bookings are final and non-refundable once paid. Phone numbers are mandatory.`;
 
   return `${persona}
@@ -189,15 +241,17 @@ Deno.serve(async (req: Request) => {
       contextUserId = body.targetUserId;
     }
 
-    // Load conversation history if not supplied
+    // Load conversation history scoped to the current session (so "new chat" really starts fresh)
     let history: IncomingMsg[] = body.history ?? [];
     if (history.length === 0) {
-      const { data: msgs } = await adminClient
+      let q = adminClient
         .from('user_messages')
-        .select('message, from_admin, is_ai, created_at')
+        .select('message, from_admin, is_ai, created_at, session_id')
         .eq('user_id', contextUserId)
         .order('created_at', { ascending: true })
         .limit(40);
+      if (body.sessionId) q = q.eq('session_id', body.sessionId);
+      const { data: msgs } = await q;
       history = (msgs ?? []).map((m: any) => ({
         role: m.from_admin ? 'assistant' : 'user',
         content: m.message,
@@ -234,6 +288,7 @@ Deno.serve(async (req: Request) => {
         message: body.message.trim(),
         from_admin: false,
         is_ai: false,
+        session_id: body.sessionId ?? null,
       });
     }
 
@@ -272,7 +327,16 @@ Deno.serve(async (req: Request) => {
     }
 
     const aiJson = await aiResp.json();
-    const replyText: string = aiJson?.choices?.[0]?.message?.content?.trim() || '';
+    let replyText: string = aiJson?.choices?.[0]?.message?.content?.trim() || '';
+
+    // Detect handoff token
+    const handoff = replyText.includes(HANDOFF_TOKEN);
+    if (handoff) {
+      replyText = replyText.replace(HANDOFF_TOKEN, '').trim();
+      if (!replyText) {
+        replyText = "Let me connect you with a teammate — they'll reach out by email shortly.";
+      }
+    }
 
     // For 'reply' mode: persist assistant message so admin sees the AI reply
     if (mode === 'reply' && replyText) {
@@ -283,10 +347,25 @@ Deno.serve(async (req: Request) => {
         from_admin: true,
         is_ai: true,
         read_status: false,
+        session_id: body.sessionId ?? null,
+        handoff_requested: handoff,
       });
     }
 
-    return new Response(JSON.stringify({ reply: replyText, mode }), {
+    // Fire handoff email (don't block response)
+    if (handoff && mode === 'reply') {
+      const profile = ctx.profile as any;
+      notifyHumanHandoff({
+        resendKey: Deno.env.get('RESEND_API_KEY'),
+        userName: profile?.full_name || 'Unknown user',
+        userEmail: profile?.email || userData.user.email || '—',
+        userPhone: profile?.phone || '—',
+        question: body.message || '(no message)',
+        sessionId: body.sessionId,
+      }).catch((e) => console.error('handoff email error', e));
+    }
+
+    return new Response(JSON.stringify({ reply: replyText, mode, handoff }), {
       status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
