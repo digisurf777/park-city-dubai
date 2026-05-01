@@ -248,7 +248,7 @@ const ChatWidget = () => {
   // ---------- Launcher ----------
   if (!isOpen) {
     return (
-      <div className="fixed bottom-24 md:bottom-8 right-4 md:right-8 z-50">
+      <div className="hidden md:block fixed bottom-8 right-8 z-50">
         {/* Soft outer pulsing aura to draw the eye */}
         <span className="absolute inset-0 -z-10 rounded-full bg-primary/30 blur-xl animate-pulse" />
         <button
