@@ -206,6 +206,34 @@ const AdminPanelOrganized = () => {
   const [chatUsers, setChatUsers] = useState<ChatUser[]>([]);
   const [chatTotalUnread, setChatTotalUnread] = useState(0);
   const chatMessagesEndRef = useRef<HTMLDivElement>(null);
+  const [draftLoading, setDraftLoading] = useState(false);
+
+  const generateDraft = async () => {
+    if (!selectedChatUser) return;
+    setDraftLoading(true);
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData.session?.access_token;
+      if (!token) throw new Error('Not authenticated');
+      const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/support-chat`;
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ mode: 'draft', targetUserId: selectedChatUser }),
+      });
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        throw new Error(j.error || `Request failed (${res.status})`);
+      }
+      const json = await res.json();
+      if (json.reply) setChatReply(json.reply);
+    } catch (e: any) {
+      console.error('Draft generation failed', e);
+      toast.error(e?.message || 'Could not generate draft');
+    } finally {
+      setDraftLoading(false);
+    }
+  };
 
   // Form state
   const [title, setTitle] = useState('');
