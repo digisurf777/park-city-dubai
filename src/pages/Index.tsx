@@ -343,15 +343,20 @@ const Index = () => {
         <div className="pointer-events-none absolute top-0 right-0 w-[30rem] h-[30rem] bg-primary/5 rounded-full blur-3xl"></div>
 
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-          <div className="text-center mb-10 sm:mb-14">
-            <span className="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold uppercase tracking-wider mb-3">
+          <div className="text-center mb-10 sm:mb-14 max-w-3xl mx-auto">
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-primary/15 to-primary-glow/15 text-primary text-[11px] font-bold uppercase tracking-[0.18em] mb-4 ring-1 ring-primary/20 shadow-sm">
+              <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
               The problem
             </span>
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-3">
-              Parking in Dubai shouldn't be a daily headache
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-foreground mb-4 leading-[1.1]">
+              Parking in Dubai shouldn't be a{' '}
+              <span className="bg-gradient-to-r from-primary via-primary-glow to-primary-deep bg-clip-text text-transparent">
+                daily headache
+              </span>
             </h2>
-            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
-              We connect drivers with private parking owners - solving the four biggest pains of city parking.
+            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+              We connect drivers with private parking owners — solving the{' '}
+              <span className="font-semibold text-foreground">four biggest pains</span> of city parking.
             </p>
           </div>
 
