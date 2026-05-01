@@ -166,11 +166,11 @@ const FindParking = () => {
       {seoData}
       <Navbar />
       
-      {/* Hero Section - Mobile Optimized */}
-      <div className="relative h-[400px] sm:h-[500px] lg:h-[560px] -mt-16 overflow-hidden">
+      {/* Hero Section - Mobile Optimized, no clipping */}
+      <div className="relative overflow-hidden">
         <div className="absolute inset-0 bg-cover bg-center scale-105" style={{ backgroundImage: `url(${findParkingHero})` }}></div>
         <div className="absolute inset-0 bg-gradient-to-b from-primary-deep/65 via-primary-deep/35 to-background"></div>
-        <div className="relative z-10 flex flex-col items-center justify-center h-full px-4 pt-20">
+        <div className="relative z-10 flex flex-col items-center justify-center px-4 pt-28 pb-14 sm:pt-32 sm:pb-20 lg:pt-36 lg:pb-24">
           <div className="text-center text-white max-w-4xl">
             <span className="inline-block mb-4 px-4 py-1.5 rounded-full bg-white/15 backdrop-blur border border-white/25 text-xs font-bold tracking-[0.2em] uppercase">
               ★ Find Your Spot
@@ -183,7 +183,7 @@ const FindParking = () => {
                 in Dubai
               </span>
             </h1>
-            <p className="text-base sm:text-lg md:text-xl text-white/90 max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg md:text-xl text-white/90 max-w-2xl mx-auto px-2">
               The quickest, easiest, and most secure way to rent a monthly parking space across Dubai.
             </p>
           </div>
@@ -197,10 +197,10 @@ const FindParking = () => {
                   placeholder="Search by zone, building, or area..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="border-0 shadow-none focus-visible:ring-0 p-0 h-auto text-base"
+                  className="border-0 shadow-none focus-visible:ring-0 p-0 h-auto text-base min-w-0"
                 />
                 {searchTerm && (
-                  <button onClick={() => setSearchTerm("")} className="p-1 text-muted-foreground hover:text-foreground">
+                  <button onClick={() => setSearchTerm("")} className="p-1 text-muted-foreground hover:text-foreground flex-shrink-0">
                     <X className="h-4 w-4" />
                   </button>
                 )}
