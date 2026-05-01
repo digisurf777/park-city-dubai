@@ -11,15 +11,22 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useSearchParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import useSEO from "@/hooks/useSEO";
 
 import dubaiMarinaZone from "@/assets/zones/dubai-marina-real.webp";
 import downtownZone from "/lovable-uploads/f676da2a-39c9-4211-8561-5b884e0ceed8.webp";
-import dubaiHeroImage from "@/assets/dubai-daytime-hero.webp";
+import findParkingHero from "@/assets/find-parking-hero.jpg";
 import palmJumeirahZone from "/lovable-uploads/atlantis-hotel-hero.webp";
 import businessBayZone from "@/assets/zones/business-bay-real.webp";
 import difcZone from "/lovable-uploads/63d539ac-8cbb-46b2-aa39-3de0695ef8c9.webp";
 import deiraZone from "@/assets/zones/deira-real.webp";
 const FindParking = () => {
+  const seoData = useSEO({
+    title: "Find a Parking Space in Dubai | Monthly Rentals - Shazam Parking",
+    description: "Looking for a parking space in Dubai? Browse verified monthly parking rentals in Marina, Downtown, Business Bay, DIFC, Palm Jumeirah and Deira. Secure, hassle-free booking.",
+    keywords: "find parking Dubai, monthly parking Dubai, rent parking space, Dubai Marina parking, Downtown parking, Business Bay parking, DIFC parking, Palm Jumeirah parking",
+    url: "/find-a-parking-space"
+  });
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -155,22 +162,23 @@ const FindParking = () => {
     return matchesSearch && matchesDistrict && matchesPrice && matchesAvailability;
   });
   return <div className="min-h-screen bg-gradient-to-b from-surface to-background animate-fade-in">
+      {seoData}
       <Navbar />
       
       {/* Hero Section - Mobile Optimized */}
-      <div className="relative h-[400px] sm:h-[500px] lg:h-[560px] overflow-hidden">
-        <div className="absolute inset-0 bg-cover bg-center scale-105" style={{ backgroundImage: `url(${dubaiHeroImage})` }}></div>
-        <div className="absolute inset-0 bg-gradient-to-b from-primary-deep/70 via-primary-deep/40 to-background"></div>
+      <div className="relative h-[400px] sm:h-[500px] lg:h-[560px] -mt-16 overflow-hidden">
+        <div className="absolute inset-0 bg-cover bg-center scale-105" style={{ backgroundImage: `url(${findParkingHero})` }}></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-primary-deep/65 via-primary-deep/35 to-background"></div>
         <div className="relative z-10 flex flex-col items-center justify-center h-full px-4 pt-20">
           <div className="text-center text-white max-w-4xl">
             <span className="inline-block mb-4 px-4 py-1.5 rounded-full bg-white/15 backdrop-blur border border-white/25 text-xs font-bold tracking-[0.2em] uppercase">
               ★ Find Your Spot
             </span>
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black mb-4 leading-tight text-3d-light">
-              Park Smarter <span className="text-gradient-primary bg-gradient-to-r from-primary-glow to-white bg-clip-text text-transparent">in Dubai</span>
+              Find a Parking Space <span className="text-gradient-primary bg-gradient-to-r from-primary-glow to-white bg-clip-text text-transparent">in Dubai</span>
             </h1>
             <p className="text-base sm:text-lg md:text-xl text-white/90 max-w-2xl mx-auto">
-              The quickest, easiest, and most secure way to rent a parking space.
+              The quickest, easiest, and most secure way to rent a monthly parking space across Dubai.
             </p>
           </div>
 
