@@ -10,7 +10,8 @@ import {
 import {
   TrendingUp, TrendingDown, DollarSign, Users, Car, CreditCard,
   Megaphone, Send, RefreshCw, AlertCircle, Crown, Activity, ShieldAlert,
-  ArrowUpRight, ArrowDownRight,
+  ArrowUpRight, ArrowDownRight, Sparkles, Wallet, Receipt, UserPlus,
+  Target, Zap,
 } from 'lucide-react';
 import { BroadcastDialog } from './BroadcastDialog';
 import { MessageUserDialog } from './MessageUserDialog';
