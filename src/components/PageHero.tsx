@@ -43,7 +43,7 @@ const PageHero = ({
     return (
       <>
         {before}
-        <span className="bg-gradient-to-r from-primary-glow via-[hsl(160_85%_75%)] to-white bg-clip-text text-transparent">
+        <span className="text-[hsl(160_90%_82%)] drop-shadow-[0_2px_8px_hsl(var(--primary)/0.45)]">
           {match}
         </span>
         {after}
