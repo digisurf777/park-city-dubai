@@ -575,7 +575,7 @@ const Index = () => {
               We are the quickest, easiest, and the most secure way to rent a parking space in Dubai!
             </h3>
             <div className="mx-auto max-w-2xl rounded-2xl ring-1 ring-primary/15 shadow-[0_20px_40px_-15px_hsl(var(--primary)/0.35)] p-1.5 bg-gradient-to-br from-primary/10 to-transparent animate-[float_8s_ease-in-out_infinite] overflow-hidden">
-              <img src={dubaiDriverPov} alt="Driver POV from a luxury car in Dubai using the ShazamParking app to find parking" className="rounded-xl w-full object-cover" loading="lazy" decoding="async" width={1280} height={1024} />
+              <img src={dubaiDriverPov} alt="Stylish man in Dubai using the ShazamParking app next to his luxury car with Burj Khalifa in the background" className="rounded-xl w-full object-cover aspect-video" loading="lazy" decoding="async" width={1536} height={1024} />
             </div>
           </div>
         </div>
