@@ -35,6 +35,7 @@ import { PreAuthorizationPanel } from '@/components/PreAuthorizationPanel';
 import { BookingChatsMonitor } from '@/components/BookingChatsMonitor';
 import { PaymentHistoryUnified } from '@/components/PaymentHistoryUnified';
 import { PaymentHistoryAdmin } from '@/components/PaymentHistoryAdmin';
+import { RevenueCommandCenter } from '@/components/admin/RevenueCommandCenter';
 import { MonthlyEmailsTab } from '@/components/admin/MonthlyEmailsTab';
 import { AdminDashboard } from '@/components/admin/AdminDashboard';
 import { LayoutDashboard } from 'lucide-react';
@@ -1822,7 +1823,7 @@ const AdminPanelOrganized = () => {
         {/* Main Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <div className="overflow-x-auto -mx-3 sm:mx-0 px-3 sm:px-0 pb-2">
-            <TabsList className="inline-flex sm:grid sm:grid-cols-9 gap-1 sm:gap-2 h-auto p-1 sm:p-2 bg-gradient-to-r from-background to-muted/20 rounded-xl border shadow-sm min-w-max sm:min-w-0 w-auto sm:w-full">
+            <TabsList className="inline-flex sm:grid sm:grid-cols-10 gap-1 sm:gap-2 h-auto p-1 sm:p-2 bg-gradient-to-r from-background to-muted/20 rounded-xl border shadow-sm min-w-max sm:min-w-0 w-auto sm:w-full">
               <TabsTrigger 
                 value="dashboard" 
                 className="flex flex-col items-center p-2 sm:p-3 h-auto text-xs sm:text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg min-w-[70px] sm:min-w-0"
@@ -1856,6 +1857,15 @@ const AdminPanelOrganized = () => {
                 <CreditCard className="h-4 w-4 sm:h-5 sm:w-5 mb-1" />
                 <span className="font-semibold text-[10px] sm:text-sm">Pre-Auth</span>
                 <span className="text-[8px] sm:text-xs opacity-70 mt-0.5 sm:mt-1 hidden sm:block">Payment Holds</span>
+              </TabsTrigger>
+
+              <TabsTrigger
+                value="revenue"
+                className="flex flex-col items-center p-2 sm:p-3 h-auto text-xs sm:text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary-glow data-[state=active]:text-white data-[state=active]:shadow-[0_0_24px_hsl(var(--primary-glow)/0.5)] rounded-lg min-w-[70px] sm:min-w-0"
+              >
+                <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 mb-1" />
+                <span className="font-semibold text-[10px] sm:text-sm">Revenue</span>
+                <span className="text-[8px] sm:text-xs opacity-70 mt-0.5 sm:mt-1 hidden sm:block">Cosmic Insights</span>
               </TabsTrigger>
 
               <TabsTrigger 
@@ -2382,7 +2392,11 @@ const AdminPanelOrganized = () => {
             <PreAuthorizationPanel />
           </TabsContent>
 
-          {/* Owner Payments Tab */}
+          {/* Cosmic Revenue Command Center */}
+          <TabsContent value="revenue" className="space-y-6 mt-6">
+            <RevenueCommandCenter />
+          </TabsContent>
+
           <TabsContent value="owner-payments" className="space-y-6 mt-6">
             <PaymentHistoryAdmin />
           </TabsContent>
