@@ -540,8 +540,25 @@ const Index = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             <div className="order-2 lg:order-1">
-              <div className="rounded-2xl ring-1 ring-primary/20 shadow-[0_20px_40px_-15px_hsl(var(--primary)/0.4)] p-1.5 bg-gradient-to-br from-primary/15 to-transparent animate-[float_7s_ease-in-out_infinite] overflow-hidden">
-                <img src={luxuryCarStreet} alt="Luxury car parked on a vibrant Downtown Dubai street with Burj Khalifa at sunset" className="w-full rounded-xl shadow-lg object-cover aspect-square" loading="lazy" decoding="async" width={1280} height={1024} />
+              <div
+                className="group relative rounded-3xl p-[3px] bg-gradient-to-br from-primary via-primary-glow to-primary-deep shadow-[0_30px_60px_-20px_hsl(var(--primary)/0.55)] animate-frame-pulse overflow-hidden"
+              >
+                <div className="absolute -inset-1 bg-gradient-to-br from-primary/30 via-transparent to-primary-glow/30 blur-2xl opacity-60 pointer-events-none" />
+                <div className="relative rounded-[22px] overflow-hidden bg-white">
+                  <img
+                    src={carEnteringParking}
+                    alt="Luxury car entering a premium Dubai building parking garage at golden hour"
+                    className="w-full object-cover aspect-[4/3] transition-transform duration-700 group-hover:scale-[1.03]"
+                    loading="lazy"
+                    decoding="async"
+                    width={1536}
+                    height={1024}
+                  />
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-primary-deep/30 via-transparent to-transparent" />
+                  <div className="absolute top-4 left-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 backdrop-blur text-xs font-semibold text-primary shadow-sm">
+                    <Sparkles className="h-3.5 w-3.5" /> Premium Locations
+                  </div>
+                </div>
               </div>
             </div>
             <div className="order-1 lg:order-2 text-center lg:text-left">
