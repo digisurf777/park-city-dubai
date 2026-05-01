@@ -708,50 +708,45 @@ const MyAccount = () => {
           </div>
 
           {/* Desktop Tab Navigation */}
-          <TabsList className="hidden lg:grid w-full grid-cols-8 gap-1 h-auto p-1">
-            <TabsTrigger value="profile" className="flex items-center gap-2 py-2">
+          <TabsList className="hidden lg:grid w-full grid-cols-8 gap-1.5 h-auto p-1.5 rounded-2xl bg-gradient-to-b from-white to-surface border border-primary/10 shadow-[0_8px_24px_-12px_hsl(var(--primary)/0.25),inset_0_1px_0_0_hsl(0_0%_100%/0.6)]">
+            <TabsTrigger value="profile" className="flex items-center gap-2 py-2.5 rounded-xl font-semibold transition-all data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary-deep data-[state=active]:text-white data-[state=active]:shadow-[0_6px_16px_-4px_hsl(var(--primary)/0.5),inset_0_1px_0_0_hsl(0_0%_100%/0.25)] hover:bg-primary/5">
               <User className="h-4 w-4" />
               Profile
             </TabsTrigger>
             {verificationStatus !== 'approved' && verificationStatus !== 'verified' && (
-              <TabsTrigger value="verification" className={`flex items-center gap-2 py-2 ${verificationStatus === 'pending' || verificationStatus === null ? 'bg-orange-500/10 text-orange-700 dark:text-orange-300 border-orange-500/20' : ''}`}>
-                <Shield className="h-4 w-4" />
+              <TabsTrigger value="verification" className={`flex items-center gap-2 py-2.5 rounded-xl font-semibold transition-all hover:bg-orange-500/5 ${verificationStatus === 'pending' || verificationStatus === null ? 'bg-gradient-to-br from-orange-100 to-amber-50 text-orange-800 border border-orange-200/60 shadow-[inset_0_1px_0_0_hsl(0_0%_100%/0.6)]' : ''} data-[state=active]:!bg-gradient-to-br data-[state=active]:!from-orange-500 data-[state=active]:!to-orange-600 data-[state=active]:!text-white data-[state=active]:!shadow-[0_6px_16px_-4px_hsl(24_95%_53%/0.5),inset_0_1px_0_0_hsl(0_0%_100%/0.25)]`}>
+                <ShieldAlert className="h-4 w-4" />
                 Verification
-                {(verificationStatus === 'pending' || verificationStatus === null) && <Badge variant="destructive" className="ml-2 h-5 w-5 p-0 text-xs">!</Badge>}
+                {(verificationStatus === 'pending' || verificationStatus === null) && <Badge variant="destructive" className="ml-1 h-5 w-5 p-0 text-xs">!</Badge>}
               </TabsTrigger>
             )}
-            <TabsTrigger value="security" className="flex items-center gap-2 py-2">
+            <TabsTrigger value="security" className="flex items-center gap-2 py-2.5 rounded-xl font-semibold transition-all data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary-deep data-[state=active]:text-white data-[state=active]:shadow-[0_6px_16px_-4px_hsl(var(--primary)/0.5),inset_0_1px_0_0_hsl(0_0%_100%/0.25)] hover:bg-primary/5">
               <KeyRound className="h-4 w-4" />
               Security
             </TabsTrigger>
-            <TabsTrigger value="listings" className="flex items-center gap-2 py-2">
+            <TabsTrigger value="listings" className="flex items-center gap-2 py-2.5 rounded-xl font-semibold transition-all data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary-deep data-[state=active]:text-white data-[state=active]:shadow-[0_6px_16px_-4px_hsl(var(--primary)/0.5),inset_0_1px_0_0_hsl(0_0%_100%/0.25)] hover:bg-primary/5">
               <Home className="h-4 w-4" />
               My Listings
             </TabsTrigger>
             <TabsTrigger 
               value="chats" 
-              className={`flex items-center gap-2 py-2 relative ${unreadChatCount > 0 ? '!border-2 !border-red-500 !bg-red-50 !text-red-700 hover:!bg-red-100 dark:!bg-red-950/50 dark:!text-red-400 dark:hover:!bg-red-950/70 data-[state=active]:!bg-red-100 data-[state=active]:!text-red-700 dark:data-[state=active]:!bg-red-950/70 dark:data-[state=active]:!text-red-400' : ''}`}
+              className={`flex items-center gap-2 py-2.5 rounded-xl font-semibold transition-all relative ${unreadChatCount > 0 ? '!bg-gradient-to-br !from-red-50 !to-red-100 !text-red-700 !border !border-red-200 hover:!from-red-100 hover:!to-red-200 data-[state=active]:!from-red-500 data-[state=active]:!to-red-600 data-[state=active]:!text-white data-[state=active]:!shadow-[0_6px_16px_-4px_hsl(0_85%_55%/0.5),inset_0_1px_0_0_hsl(0_0%_100%/0.25)]' : 'data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary-deep data-[state=active]:text-white data-[state=active]:shadow-[0_6px_16px_-4px_hsl(var(--primary)/0.5),inset_0_1px_0_0_hsl(0_0%_100%/0.25)] hover:bg-primary/5'}`}
             >
               <MessageCircle className="h-4 w-4" />
               Chats
               {unreadChatCount > 0 && (
-                <>
-                  <Badge variant="destructive" className="ml-2 h-5 w-5 p-0 text-xs">!</Badge>
-                  <Badge variant="destructive" className="ml-1">
-                    {unreadChatCount}
-                  </Badge>
-                </>
+                <Badge variant="destructive" className="ml-1 h-5 min-w-5 px-1 text-xs">{unreadChatCount}</Badge>
               )}
             </TabsTrigger>
-            <TabsTrigger value="payments" className="flex items-center gap-2 py-2">
+            <TabsTrigger value="payments" className="flex items-center gap-2 py-2.5 rounded-xl font-semibold transition-all data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary-deep data-[state=active]:text-white data-[state=active]:shadow-[0_6px_16px_-4px_hsl(var(--primary)/0.5),inset_0_1px_0_0_hsl(0_0%_100%/0.25)] hover:bg-primary/5">
               <FileText className="h-4 w-4" />
               Payments
             </TabsTrigger>
-            <TabsTrigger value="contact" className="flex items-center gap-2 py-2">
+            <TabsTrigger value="contact" className="flex items-center gap-2 py-2.5 rounded-xl font-semibold transition-all data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary-deep data-[state=active]:text-white data-[state=active]:shadow-[0_6px_16px_-4px_hsl(var(--primary)/0.5),inset_0_1px_0_0_hsl(0_0%_100%/0.25)] hover:bg-primary/5">
               <MessageSquare className="h-4 w-4" />
               Contact
             </TabsTrigger>
-            <TabsTrigger value="history" className="flex items-center gap-2 py-2">
+            <TabsTrigger value="history" className="flex items-center gap-2 py-2.5 rounded-xl font-semibold transition-all data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary-deep data-[state=active]:text-white data-[state=active]:shadow-[0_6px_16px_-4px_hsl(var(--primary)/0.5),inset_0_1px_0_0_hsl(0_0%_100%/0.25)] hover:bg-primary/5">
               <History className="h-4 w-4" />
               History
             </TabsTrigger>
