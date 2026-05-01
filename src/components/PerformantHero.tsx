@@ -29,24 +29,25 @@ const PerformantHero = () => {
         <div className="flex flex-col lg:flex-row items-center justify-between min-h-screen pt-20 sm:pt-24 lg:pt-0 py-8 sm:py-16 lg:py-[141px]">
           {/* Left side - Text */}
           <div className="text-center lg:text-left lg:flex-1 mb-8 lg:mb-0 mt-8 sm:mt-16 lg:mt-0">
-            <h1 className="hero-title leading-tight px-2 lg:px-0 mb-4">
-              <span className="block text-white">
-                YOUR TRUSTED
+            <div className="hero-copy-frame inline-block px-5 sm:px-7 py-5 sm:py-7 lg:px-9 lg:py-8 max-w-2xl">
+              <span className="inline-block mb-3 px-3 py-1 rounded-full bg-primary/90 text-primary-foreground text-[10px] sm:text-xs font-bold tracking-[0.2em] uppercase shadow-lg">
+                ★ Trusted in Dubai
               </span>
-              <span className="block text-primary font-black" style={{
-                textShadow: '2px 2px 8px rgba(0, 0, 0, 0.5)'
-              }}>
-                PARKING PLATFORM
-              </span>
-              <span className="block text-white">
-                IN DUBAI
-              </span>
-            </h1>
-            <p className="text-lg sm:text-xl text-white/90 mt-4 px-2 lg:px-0" style={{
-              textShadow: '2px 2px 8px rgba(0, 0, 0, 0.7)'
-            }}>
-              List your parking space in minutes and start earning every month.
-            </p>
+              <h1 className="hero-title leading-tight">
+                <span className="block text-white text-3d-light font-extrabold">
+                  YOUR TRUSTED
+                </span>
+                <span className="block font-black text-3d bg-gradient-to-r from-primary-glow via-white to-primary bg-clip-text text-transparent">
+                  PARKING PLATFORM
+                </span>
+                <span className="block text-white text-3d-light font-extrabold">
+                  IN DUBAI
+                </span>
+              </h1>
+              <p className="text-base sm:text-lg text-white mt-4 font-medium drop-shadow-lg">
+                List your parking space in minutes and start earning every month.
+              </p>
+            </div>
           </div>
           
           {/* Right side - Optimized Phone Image */}
@@ -87,9 +88,9 @@ const PerformantHero = () => {
         {/* CTA Button - Optimized */}
         <div className="flex justify-center mt-8 sm:mt-12 lg:absolute lg:bottom-20 lg:left-1/2 lg:transform lg:-translate-x-1/2 px-4">
           <Link to="/auth" className="touch-manipulation">
-            <Button className="hero-button shadow-lg transition-transform duration-200 hover:scale-105 min-h-[48px] touch-target">
-              LOGIN / SIGN UP
-            </Button>
+            <button className="btn-3d-primary px-8 py-4 rounded-xl font-bold text-base tracking-[0.15em] uppercase min-h-[52px] touch-target">
+              Get Started Free
+            </button>
           </Link>
         </div>
       </div>

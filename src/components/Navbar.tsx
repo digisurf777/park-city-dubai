@@ -24,7 +24,7 @@ const Navbar = () => {
   }
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 glass border-b border-white/30 pt-safe-area-top">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/85 backdrop-blur-xl backdrop-saturate-150 border-b border-primary/15 shadow-[0_4px_20px_-8px_hsl(var(--primary)/0.25)] pt-safe-area-top">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16 min-h-[60px]">
           {/* Logo */}
@@ -61,50 +61,25 @@ const Navbar = () => {
                 <ChevronDown className="ml-1 h-4 w-4" />
               </button>
               {isZonesOpen && (
-                <div className="absolute top-full left-0 mt-1 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50">
-                  <div className="p-2">
-                    <Link 
-                      to="/dubai-marina" 
-                      className="block px-3 py-2 text-sm text-gray-700 hover:text-primary hover:bg-gray-50 rounded-md transition-colors"
-                      onClick={() => setIsZonesOpen(false)}
-                    >
-                      Dubai Marina
-                    </Link>
-                    <Link 
-                      to="/downtown" 
-                      className="block px-3 py-2 text-sm text-gray-700 hover:text-primary hover:bg-gray-50 rounded-md transition-colors"
-                      onClick={() => setIsZonesOpen(false)}
-                    >
-                      Downtown
-                    </Link>
-                    <Link 
-                      to="/palm-jumeirah" 
-                      className="block px-3 py-2 text-sm text-gray-700 hover:text-primary hover:bg-gray-50 rounded-md transition-colors"
-                      onClick={() => setIsZonesOpen(false)}
-                    >
-                      Palm Jumeirah
-                    </Link>
-                    <Link 
-                      to="/business-bay" 
-                      className="block px-3 py-2 text-sm text-gray-700 hover:text-primary hover:bg-gray-50 rounded-md transition-colors"
-                      onClick={() => setIsZonesOpen(false)}
-                    >
-                      Business Bay
-                    </Link>
-                    <Link 
-                      to="/difc" 
-                      className="block px-3 py-2 text-sm text-gray-700 hover:text-primary hover:bg-gray-50 rounded-md transition-colors"
-                      onClick={() => setIsZonesOpen(false)}
-                    >
-                      DIFC
-                    </Link>
-                    <Link 
-                      to="/deira" 
-                      className="block px-3 py-2 text-sm text-gray-700 hover:text-primary hover:bg-gray-50 rounded-md transition-colors"
-                      onClick={() => setIsZonesOpen(false)}
-                    >
-                      Deira
-                    </Link>
+                <div className="absolute top-full left-0 mt-3 w-56 dropdown-premium z-50 animate-scale-in origin-top">
+                  <div className="p-2 space-y-1">
+                    {[
+                      { to: "/dubai-marina", label: "Dubai Marina" },
+                      { to: "/downtown", label: "Downtown" },
+                      { to: "/palm-jumeirah", label: "Palm Jumeirah" },
+                      { to: "/business-bay", label: "Business Bay" },
+                      { to: "/difc", label: "DIFC" },
+                      { to: "/deira", label: "Deira" },
+                    ].map((z) => (
+                      <Link
+                        key={z.to}
+                        to={z.to}
+                        className="btn-3d block px-4 py-2.5 text-sm font-semibold text-foreground hover:text-primary rounded-lg transition-colors"
+                        onClick={() => setIsZonesOpen(false)}
+                      >
+                        {z.label}
+                      </Link>
+                    ))}
                   </div>
                 </div>
               )}
@@ -142,22 +117,22 @@ const Navbar = () => {
                   Logout
                 </Button>
                 <Link to="/rent-out-your-space">
-                  <Button className="bg-primary hover:bg-primary/90 text-white">
+                  <button className="btn-3d-primary px-5 py-2 rounded-lg font-semibold text-sm tracking-wide">
                     List Your Space
-                  </Button>
+                  </button>
                 </Link>
               </>
             ) : (
               <>
                 <Link to="/auth">
-                  <Button variant="ghost" className="text-gray-700 hover:text-primary">
+                  <Button variant="ghost" className="text-gray-700 hover:text-primary font-semibold">
                     Login / Sign Up
                   </Button>
                 </Link>
                 <Link to="/rent-out-your-space">
-                  <Button className="bg-primary hover:bg-primary/90 text-white">
+                  <button className="btn-3d-primary px-5 py-2 rounded-lg font-semibold text-sm tracking-wide">
                     List Your Space
-                  </Button>
+                  </button>
                 </Link>
               </>
             )}
@@ -179,7 +154,7 @@ const Navbar = () => {
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="md:hidden fixed top-16 left-0 right-0 z-40 glass border-b border-white/30 animate-fade-in max-h-[calc(100vh-4rem)] overflow-y-auto mobile-scroll">
+          <div className="md:hidden fixed top-16 left-0 right-0 z-40 bg-white/98 backdrop-blur-xl border-b border-primary/15 shadow-[0_20px_40px_-12px_hsl(var(--primary-deep)/0.35)] animate-slide-up max-h-[calc(100vh-4rem)] overflow-y-auto mobile-scroll">
             <div className="px-4 py-6 space-y-2 pb-safe-area-bottom">
               
               {/* Auth Buttons - Top of mobile menu */}
@@ -226,7 +201,7 @@ const Navbar = () => {
 
               <Link
                 to="/find-a-parking-space"
-                className="block text-gray-700 hover:text-primary transition-colors py-4 px-4 rounded-md touch-manipulation min-h-[48px] flex items-center text-lg font-medium"
+                className="btn-3d block px-4 py-3 rounded-lg text-foreground hover:text-primary font-semibold text-base touch-manipulation min-h-[48px] flex items-center"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Find a Parking Space
@@ -238,42 +213,42 @@ const Navbar = () => {
                 <div className="space-y-1">
                   <Link
                     to="/dubai-marina"
-                    className="block text-gray-700 hover:text-primary transition-colors py-3 px-6 rounded-md touch-manipulation min-h-[44px] flex items-center text-base"
+                    className="btn-3d block px-4 py-3 rounded-lg text-foreground hover:text-primary font-semibold text-base touch-manipulation min-h-[48px] flex items-center"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Dubai Marina
                   </Link>
                   <Link
                     to="/downtown"
-                    className="block text-gray-700 hover:text-primary transition-colors py-3 px-6 rounded-md touch-manipulation min-h-[44px] flex items-center text-base"
+                    className="btn-3d block px-4 py-3 rounded-lg text-foreground hover:text-primary font-semibold text-base touch-manipulation min-h-[48px] flex items-center"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Downtown
                   </Link>
                   <Link
                     to="/palm-jumeirah"
-                    className="block text-gray-700 hover:text-primary transition-colors py-3 px-6 rounded-md touch-manipulation min-h-[44px] flex items-center text-base"
+                    className="btn-3d block px-4 py-3 rounded-lg text-foreground hover:text-primary font-semibold text-base touch-manipulation min-h-[48px] flex items-center"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Palm Jumeirah
                   </Link>
                   <Link
                     to="/business-bay"
-                    className="block text-gray-700 hover:text-primary transition-colors py-3 px-6 rounded-md touch-manipulation min-h-[44px] flex items-center text-base"
+                    className="btn-3d block px-4 py-3 rounded-lg text-foreground hover:text-primary font-semibold text-base touch-manipulation min-h-[48px] flex items-center"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Business Bay
                   </Link>
                   <Link
                     to="/difc"
-                    className="block text-gray-700 hover:text-primary transition-colors py-3 px-6 rounded-md touch-manipulation min-h-[44px] flex items-center text-base"
+                    className="btn-3d block px-4 py-3 rounded-lg text-foreground hover:text-primary font-semibold text-base touch-manipulation min-h-[48px] flex items-center"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     DIFC
                   </Link>
                   <Link
                     to="/deira"
-                    className="block text-gray-700 hover:text-primary transition-colors py-3 px-6 rounded-md touch-manipulation min-h-[44px] flex items-center text-base"
+                    className="btn-3d block px-4 py-3 rounded-lg text-foreground hover:text-primary font-semibold text-base touch-manipulation min-h-[48px] flex items-center"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Deira
@@ -282,28 +257,28 @@ const Navbar = () => {
               </div>
               <Link
                 to="/about-us"
-                className="block text-gray-700 hover:text-primary transition-colors py-4 px-4 rounded-md touch-manipulation min-h-[48px] flex items-center text-lg font-medium"
+                className="btn-3d block px-4 py-3 rounded-lg text-foreground hover:text-primary font-semibold text-base touch-manipulation min-h-[48px] flex items-center"
                 onClick={() => setIsMenuOpen(false)}
               >
                 About Us
               </Link>
               <Link
                 to="/faq"
-                className="block text-gray-700 hover:text-primary transition-colors py-4 px-4 rounded-md touch-manipulation min-h-[48px] flex items-center text-lg font-medium"
+                className="btn-3d block px-4 py-3 rounded-lg text-foreground hover:text-primary font-semibold text-base touch-manipulation min-h-[48px] flex items-center"
                 onClick={() => setIsMenuOpen(false)}
               >
                 FAQ
               </Link>
               <Link
                 to="/news"
-                className="block text-gray-700 hover:text-primary transition-colors py-4 px-4 rounded-md touch-manipulation min-h-[48px] flex items-center text-lg font-medium"
+                className="btn-3d block px-4 py-3 rounded-lg text-foreground hover:text-primary font-semibold text-base touch-manipulation min-h-[48px] flex items-center"
                 onClick={() => setIsMenuOpen(false)}
               >
                 News
               </Link>
               <Link
                 to="/calculator"
-                className="block text-gray-700 hover:text-primary transition-colors py-4 px-4 rounded-md touch-manipulation min-h-[48px] flex items-center text-lg font-medium"
+                className="btn-3d block px-4 py-3 rounded-lg text-foreground hover:text-primary font-semibold text-base touch-manipulation min-h-[48px] flex items-center"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Calculator
