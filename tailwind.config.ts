@@ -128,6 +128,16 @@ export default {
 					backgroundColor: 'rgb(220 38 38)',
 					opacity: '0.8'
 				}
+			},
+			'frame-pulse': {
+				'0%, 100%': {
+					boxShadow:
+						'0 20px 40px -15px hsl(var(--primary-deep) / 0.45), 0 8px 16px -8px hsl(var(--primary) / 0.3), 0 0 0 0 hsl(var(--primary) / 0.45), inset 0 1px 0 0 hsl(0 0% 100% / 0.4)'
+				},
+				'50%': {
+					boxShadow:
+						'0 22px 44px -14px hsl(var(--primary-deep) / 0.55), 0 10px 20px -8px hsl(var(--primary-glow) / 0.5), 0 0 0 6px hsl(var(--primary) / 0.12), inset 0 1px 0 0 hsl(0 0% 100% / 0.5)'
+				}
 			}
 			},
 			animation: {
@@ -136,7 +146,8 @@ export default {
 				'zoom-slow': 'zoom-slow 0.6s ease-out',
 				'mobile-fade-in': 'mobile-fade-in 0.4s ease-out',
 				'slide-up': 'slide-up 0.3s ease-out',
-				'blink-red': 'blink-red 1.5s ease-in-out infinite'
+				'blink-red': 'blink-red 1.5s ease-in-out infinite',
+				'frame-pulse': 'frame-pulse 3s ease-in-out infinite'
 			},
 			spacing: {
 				'safe-area-top': 'env(safe-area-inset-top)',
