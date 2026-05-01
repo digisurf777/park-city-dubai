@@ -1862,34 +1862,35 @@ const AdminPanelOrganized = () => {
                   <TabsTrigger
                     key={t.value}
                     value={t.value}
-                    className={`group relative flex flex-col items-center justify-center gap-1 p-2.5 sm:p-3 h-auto min-h-[78px] sm:min-h-[88px] text-xs sm:text-sm font-medium rounded-xl transition-all duration-300 hover:-translate-y-0.5 min-w-[90px] sm:min-w-0
-                      bg-gradient-to-b from-white to-[hsl(var(--surface))] border border-border/60
+                    className={`group relative flex flex-col items-center justify-center gap-1 p-2.5 sm:p-3 h-auto min-h-[78px] sm:min-h-[88px] text-xs sm:text-sm font-semibold rounded-xl transition-all duration-300 hover:-translate-y-0.5 min-w-[90px] sm:min-w-0
+                      bg-white border border-border/70 text-slate-800
                       shadow-[0_2px_6px_-2px_hsl(var(--primary)/0.12),inset_0_1px_0_0_hsl(0_0%_100%/0.8)]
-                      hover:shadow-[0_8px_18px_-6px_hsl(var(--primary)/0.35),inset_0_1px_0_0_hsl(0_0%_100%/0.9)]
-                      hover:border-primary/30
-                      ${isHot ? 'bg-gradient-to-br from-red-50 to-red-100 border-red-200 animate-pulse' : ''}
+                      hover:bg-gradient-to-b hover:from-white hover:to-[hsl(var(--surface-2))]
+                      hover:shadow-[0_10px_22px_-8px_hsl(var(--primary)/0.4),inset_0_1px_0_0_hsl(0_0%_100%/0.9)]
+                      hover:border-primary/40 hover:text-slate-900
+                      ${isHot ? '!bg-gradient-to-br !from-red-500 !to-rose-600 !text-white !border-red-700 shadow-[0_10px_24px_-6px_hsl(0_75%_45%/0.55)] animate-pulse hover:!text-white' : ''}
                       ${
                         isCosmic
-                          ? 'data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary-glow data-[state=active]:text-white data-[state=active]:shadow-[0_10px_28px_-8px_hsl(var(--primary-glow)/0.6),inset_0_1px_0_0_hsl(0_0%_100%/0.4)] data-[state=active]:border-primary-glow/40'
+                          ? 'data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary-deep data-[state=active]:via-primary data-[state=active]:to-primary-glow data-[state=active]:!text-white data-[state=active]:shadow-[0_12px_30px_-8px_hsl(var(--primary-glow)/0.7),inset_0_1px_0_0_hsl(0_0%_100%/0.4)] data-[state=active]:border-primary-deep/60'
                           : isHot
-                          ? 'data-[state=active]:bg-red-500 data-[state=active]:text-white data-[state=active]:shadow-[0_10px_24px_-8px_hsl(0_75%_50%/0.55),inset_0_1px_0_0_hsl(0_0%_100%/0.4)]'
+                          ? 'data-[state=active]:!from-red-600 data-[state=active]:!to-rose-700 data-[state=active]:!text-white data-[state=active]:shadow-[0_12px_28px_-8px_hsl(0_75%_40%/0.7),inset_0_1px_0_0_hsl(0_0%_100%/0.4)]'
                           : isSoft
-                          ? 'data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary-glow data-[state=active]:text-white data-[state=active]:shadow-[0_8px_22px_-6px_hsl(var(--primary)/0.45),inset_0_1px_0_0_hsl(0_0%_100%/0.4)]'
-                          : 'data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-[0_8px_22px_-6px_hsl(var(--primary)/0.5),inset_0_1px_0_0_hsl(0_0%_100%/0.4)] data-[state=active]:border-primary/60'
+                          ? 'data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary-deep data-[state=active]:to-primary data-[state=active]:!text-white data-[state=active]:shadow-[0_10px_24px_-6px_hsl(var(--primary)/0.55),inset_0_1px_0_0_hsl(0_0%_100%/0.4)]'
+                          : 'data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary-deep data-[state=active]:to-primary data-[state=active]:!text-white data-[state=active]:shadow-[0_10px_24px_-6px_hsl(var(--primary)/0.55),inset_0_1px_0_0_hsl(0_0%_100%/0.4)] data-[state=active]:border-primary-deep/60'
                       }
                     `}
                   >
-                    <Icon className="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:scale-110" />
-                    <span className="font-semibold text-[10px] sm:text-sm leading-tight text-center">
+                    <Icon className={`h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:scale-110 ${isHot ? 'text-white' : 'text-primary group-data-[state=active]:text-white'}`} />
+                    <span className="font-bold text-[10px] sm:text-sm leading-tight text-center">
                       {t.label}
                     </span>
-                    <span className="text-[8px] sm:text-[10px] opacity-70 leading-tight text-center hidden sm:block">
+                    <span className={`text-[8px] sm:text-[10px] leading-tight text-center hidden sm:block font-medium ${isHot ? 'text-white/90' : 'text-slate-500 group-data-[state=active]:text-white/90'}`}>
                       {t.sub}
                     </span>
                     {typeof t.badge === 'number' && t.badge > 0 && (
                       <Badge
                         variant="destructive"
-                        className="absolute -top-1.5 -right-1.5 min-w-[18px] sm:min-w-[20px] h-4 sm:h-5 text-[10px] sm:text-xs px-1 shadow-md"
+                        className="absolute -top-1.5 -right-1.5 min-w-[18px] sm:min-w-[20px] h-4 sm:h-5 text-[10px] sm:text-xs px-1 shadow-md ring-2 ring-white"
                       >
                         {t.badge}
                       </Badge>
