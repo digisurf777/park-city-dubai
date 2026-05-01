@@ -2392,7 +2392,11 @@ const AdminPanelOrganized = () => {
             <PreAuthorizationPanel />
           </TabsContent>
 
-          {/* Owner Payments Tab */}
+          {/* Cosmic Revenue Command Center */}
+          <TabsContent value="revenue" className="space-y-6 mt-6">
+            <RevenueCommandCenter />
+          </TabsContent>
+
           <TabsContent value="owner-payments" className="space-y-6 mt-6">
             <PaymentHistoryAdmin />
           </TabsContent>
