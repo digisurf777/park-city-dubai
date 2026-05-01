@@ -43,11 +43,39 @@ const EcosystemSection = () => {
     <section
       id="shazam-ecosystem"
       aria-labelledby="ecosystem-heading"
-      className="relative py-16 sm:py-20 lg:py-28 overflow-hidden bg-gradient-to-b from-background via-[hsl(174_30%_97%)] to-background"
+      className="relative py-16 sm:py-20 lg:py-28 overflow-hidden"
     >
+      {/* Drone aerial background */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 bg-cover bg-center scale-[1.04]"
+        style={{ backgroundImage: `url(${dubaiAerial})` }}
+      />
+      {/* Brand teal cinematic tint */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0"
+        style={{
+          background:
+            "linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--primary-deep) / 0.85) 18%, hsl(var(--primary) / 0.78) 50%, hsl(var(--primary-deep) / 0.88) 82%, hsl(var(--background)) 100%)",
+        }}
+      />
+      {/* Subtle grid texture */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 opacity-[0.06] mix-blend-overlay"
+        style={{
+          backgroundImage:
+            "linear-gradient(hsl(var(--primary-glow)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--primary-glow)) 1px, transparent 1px)",
+          backgroundSize: "56px 56px",
+        }}
+      />
       {/* Decorative brand glows */}
-      <div className="pointer-events-none absolute -top-20 -left-20 w-[28rem] h-[28rem] rounded-full bg-primary/10 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-20 -right-20 w-[28rem] h-[28rem] rounded-full bg-primary-glow/10 blur-3xl" />
+      <div className="pointer-events-none absolute -top-20 -left-20 w-[28rem] h-[28rem] rounded-full bg-primary-glow/25 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-20 -right-20 w-[28rem] h-[28rem] rounded-full bg-primary/30 blur-3xl" />
+      {/* Top + bottom fades into page background */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-background to-transparent" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-background to-transparent" />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
