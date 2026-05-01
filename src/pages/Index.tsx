@@ -516,9 +516,11 @@ IS HERE TO HELP YOU</motion.p>
     }} viewport={{
       once: true,
       amount: 0.2
-    }} className="py-12 sm:py-16 lg:py-20 bg-primary relative overflow-hidden">
-        {/* Clean Background */}
-        <div className="absolute inset-0 bg-primary"></div>
+    }} className="py-12 sm:py-16 lg:py-20 relative overflow-hidden bg-gradient-to-br from-[hsl(174_57%_36%)] via-primary to-[hsl(174_60%_50%)]">
+        {/* Decorative blurred blobs */}
+        <div className="pointer-events-none absolute -top-24 -left-24 w-72 h-72 rounded-full bg-white/10 blur-3xl"></div>
+        <div className="pointer-events-none absolute -bottom-24 -right-24 w-96 h-96 rounded-full bg-white/10 blur-3xl"></div>
+        <div className="pointer-events-none absolute inset-0 opacity-[0.15]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '24px 24px' }}></div>
         
         <div className="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 text-center relative z-10">
           {/* Main Headline - Exact Match to Reference */}
@@ -560,7 +562,7 @@ IS HERE TO HELP YOU</motion.p>
           }} viewport={{
             once: true
           }} className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black mb-6 sm:mb-8 leading-[0.9] tracking-tight">
-              <span className="bg-gradient-to-r from-yellow-300 via-yellow-400 to-amber-400 bg-clip-text drop-shadow-sm text-slate-200 text-4xl font-semibold">
+              <span className="text-white text-4xl font-semibold drop-shadow-[0_2px_8px_rgba(0,0,0,0.25)]">
                 Turn it into a steady passive income.
               </span>
             </motion.h2>
@@ -585,7 +587,7 @@ IS HERE TO HELP YOU</motion.p>
             }} whileTap={{
               scale: 0.95
             }}>
-                <Button size="lg" className="bg-white text-primary hover:bg-yellow-50 hover:text-primary px-10 sm:px-16 py-5 sm:py-7 text-xl sm:text-2xl font-bold rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 w-full sm:w-auto">
+                <Button size="lg" className="bg-white text-primary hover:bg-white hover:text-primary px-10 sm:px-16 py-5 sm:py-7 text-xl sm:text-2xl font-bold shadow-[0_6px_0_0_rgba(0,0,0,0.15),0_20px_40px_-10px_rgba(0,0,0,0.4)] hover:shadow-[0_8px_0_0_rgba(0,0,0,0.2),0_24px_50px_-10px_rgba(0,0,0,0.5)] hover:-translate-y-0.5 active:translate-y-0.5 transition-all duration-300 w-full sm:w-auto h-auto">
                   Start Earning Today
                 </Button>
               </motion.div>
@@ -616,7 +618,7 @@ IS HERE TO HELP YOU</motion.p>
             }} viewport={{
               once: true
             }} className="flex items-center gap-2">
-                  <span className="text-yellow-300 text-lg">✓</span>
+                  <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-white text-primary text-sm font-bold shadow-md">✓</span>
                   {text}
                 </motion.div>)}
             </motion.div>
