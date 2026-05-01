@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -142,13 +142,15 @@ const Auth = () => {
 
   // Redirect logic: only redirect when either not admin or session is AAL2; if admin+AAL1, trigger MFA challenge here
   const isRecoveryMode = searchParams.get('type') === 'recovery' || showPasswordUpdate;
+  const mfaChallengeInFlight = useRef(false);
   useEffect(() => {
     const maybeRedirectOrChallenge = async () => {
-      if (!user || isRecoveryMode || showMFAChallenge) return;
+      if (!user || isRecoveryMode || showMFAChallenge || mfaChallengeInFlight.current) return;
 
       try {
         const { data: sessionData } = await supabase.auth.getSession();
-        const currentAAL = (sessionData.session as any)?.aal;
+        const { data: aalData } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+        const currentAAL = aalData?.currentLevel;
         const userId = sessionData.session?.user?.id;
         if (!userId) return;
 
@@ -159,7 +161,7 @@ const Auth = () => {
           .eq('user_id', userId)
           .eq('role', 'admin')
           .maybeSingle();
-        
+
         if (roleData) {
           // Admin user
           if (currentAAL === 'aal2') {
@@ -168,6 +170,7 @@ const Auth = () => {
             return;
           }
           // AAL1: ensure MFA challenge is shown (fallback in case login handler didn't run)
+          mfaChallengeInFlight.current = true;
           try {
             const { factors } = await getMFAFactors();
             const totpFactor = factors?.find((f: any) => f.status === 'verified');
@@ -182,13 +185,16 @@ const Auth = () => {
               setMfaChallengeId(challengeId);
               setShowMFAChallenge(true);
               toast.info('Enter your 6-digit authentication code');
+            } else {
+              mfaChallengeInFlight.current = false;
             }
           } catch (e) {
+            mfaChallengeInFlight.current = false;
             console.error('Failed to initiate MFA challenge in redirect effect:', e);
           }
           return;
         }
-        
+
         // Not admin: redirect home
         navigate('/');
       } catch (e) {
