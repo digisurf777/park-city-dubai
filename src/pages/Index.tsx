@@ -623,7 +623,7 @@ IS HERE TO HELP YOU</motion.p>
               delay: 1 + index * 0.1
             }} viewport={{
               once: true
-            }} className="flex items-center gap-2">
+            }} className="flex items-center gap-2 px-4 py-2 rounded-full glass-dark">
                   <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-white text-primary text-sm font-bold shadow-md">✓</span>
                   {text}
                 </motion.div>)}
