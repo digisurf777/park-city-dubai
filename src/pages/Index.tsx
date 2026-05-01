@@ -414,7 +414,7 @@ const Index = () => {
                     {/* Glossy top highlight */}
                     <div className="pointer-events-none absolute inset-x-0 top-0 h-1/3 bg-gradient-to-b from-white/15 to-transparent" />
                     <div className="absolute top-3 left-3 inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-primary text-primary-foreground shadow-elegant ring-2 ring-white/50">
-                      <item.icon className="h-5.5 w-5.5" />
+                      <item.icon className="h-6 w-6" />
                     </div>
                   </div>
                   {/* Text */}
