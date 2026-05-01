@@ -345,40 +345,20 @@ const ChatWidget = () => {
           <>
             <div className={`flex-1 overflow-y-auto px-3 sm:px-6 py-4 space-y-3 bg-gradient-to-b from-white to-surface/40 ${isExpanded ? "lg:px-12 xl:px-24" : ""}`}>
               {messages.length === 0 && (
-                <div className="text-center pt-6 pb-2">
-                  <div className="relative inline-block mb-4">
-                    <span className="absolute inset-0 rounded-full ring-4 ring-emerald-400/40 animate-ping" />
-                    <img src={supportAvatar} alt="Online Support agent" width={isExpanded ? 120 : 88} height={isExpanded ? 120 : 88}
-                      className={`relative ${isExpanded ? "w-28 h-28" : "w-22 h-22"} rounded-full object-cover ring-4 ring-primary/15 shadow-lg`}
-                      style={{ width: isExpanded ? 112 : 88, height: isExpanded ? 112 : 88 }}
+                <div className="text-center pt-3 pb-1">
+                  <div className="relative inline-block mb-2.5">
+                    <img src={supportAvatar} alt="Online Support agent"
+                      width={isExpanded ? 88 : 64} height={isExpanded ? 88 : 64}
+                      className={`relative ${isExpanded ? "w-22 h-22" : "w-16 h-16"} rounded-full object-cover ring-2 ring-primary/15 shadow-md`}
+                      style={{ width: isExpanded ? 88 : 64, height: isExpanded ? 88 : 64 }}
                       loading="lazy" />
-                    <span className="absolute bottom-1 right-1 w-3.5 h-3.5 rounded-full bg-emerald-400 ring-2 ring-white animate-pulse" />
+                    <span className="absolute bottom-0.5 right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 ring-2 ring-white" />
                   </div>
-                  <p className={`${isExpanded ? "text-2xl" : "text-lg"} font-bold text-foreground`}>Online Support</p>
-                  <p className="text-xs text-emerald-600 font-semibold mt-0.5">● Available now</p>
-                  <p className={`${isExpanded ? "text-base mt-3 max-w-md" : "text-xs mt-2 max-w-[280px]"} text-muted-foreground mx-auto`}>
-                    Ask anything about your bookings, listings, payouts or verification - I'll loop in a teammate by email if needed.
+                  <p className={`${isExpanded ? "text-xl" : "text-base"} font-bold text-foreground leading-tight`}>How can we help?</p>
+                  <p className="text-[11px] text-emerald-600 font-semibold mt-0.5">Online Support · Available now</p>
+                  <p className={`${isExpanded ? "text-sm mt-2 max-w-md" : "text-[11px] mt-1.5 max-w-[280px]"} text-muted-foreground mx-auto leading-snug`}>
+                    Type below or pick a quick prompt. We&apos;ll loop in a teammate by email if needed.
                   </p>
-
-                  {/* Prefer-email card */}
-                  <a
-                    href={buildMailto(
-                      "Support request - Shazam Parking",
-                      `Hi Shazam Parking team,\n\n[Please describe your question here]\n\n- Sent from in-app support (${user?.email ?? ""})`
-                    )}
-                    className="group mt-5 mx-auto max-w-[320px] flex items-center gap-3 p-3 rounded-2xl bg-gradient-to-br from-primary/5 via-white to-primary/5 border border-primary/20 hover:border-primary hover:shadow-md hover:-translate-y-0.5 transition-all text-left"
-                  >
-                    <span className="flex-shrink-0 w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-colors">
-                      <Mail className="h-5 w-5" />
-                    </span>
-                    <span className="flex-1 min-w-0">
-                      <span className="block text-xs font-bold text-foreground">Prefer email?</span>
-                      <span className="block text-[11px] text-muted-foreground truncate">{SUPPORT_EMAIL}</span>
-                    </span>
-                    <span className="text-[10px] font-semibold text-primary opacity-0 group-hover:opacity-100 transition-opacity">
-                      Open ↗
-                    </span>
-                  </a>
                 </div>
               )}
 
