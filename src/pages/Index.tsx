@@ -503,7 +503,7 @@ IS HERE TO HELP YOU</motion.p>
           }, {
             quote: "ShazamParking is my go-to platform for parking, it's user-friendly, reliable, and offers a wide range of options, making it convenient and easy to find a parking spot.",
             name: "Murtaza Hussain"
-          }].map((testimonial, index) => <Card key={index} className="p-6 sm:p-8 hover:shadow-xl transition-all duration-300">
+          }].map((testimonial, index) => <Card key={index} className="p-6 sm:p-8 glass-card hover-lift border-0 rounded-2xl">
                 <Quote className="h-6 sm:h-8 w-6 sm:w-8 text-primary mb-3 sm:mb-4" />
                 <p className="text-gray-600 mb-4 sm:mb-6 italic text-sm sm:text-base">"{testimonial.quote}"</p>
                 <h4 className="font-semibold text-gray-900 text-sm sm:text-base">{testimonial.name}</h4>
