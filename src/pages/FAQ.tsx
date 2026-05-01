@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import PageHero from "@/components/PageHero";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import dubaiParkingHero from "@/assets/dubai-parking-hero.webp";
 const FAQ = () => {
@@ -70,18 +71,14 @@ const FAQ = () => {
       <Navbar />
       
       {/* Hero Section */}
-      <div className="relative h-[400px] bg-gradient-to-r from-primary/10 to-primary/5">
-        <div className="absolute inset-0 bg-black/40"></div>
-        <div className="absolute inset-0 bg-cover bg-center" style={{
-        backgroundImage: `url(${dubaiParkingHero})`
-      }}></div>
-        <div className="relative z-10 flex items-center justify-center h-full">
-          <div className="text-center text-white px-4">
-            <h1 className="text-5xl md:text-6xl font-bold mb-4">Frequently Asked Questions</h1>
-            <p className="text-xl md:text-2xl opacity-90">Find answers to common questions about ShazamParking</p>
-          </div>
-        </div>
-      </div>
+      <PageHero
+        image={dubaiParkingHero}
+        eyebrow="Help Center"
+        title="Frequently Asked Questions"
+        highlight="Asked Questions"
+        subtitle="Find clear answers to common questions about ShazamParking — from bookings and payments to access cards and support."
+        size="lg"
+      />
 
       {/* FAQ Content */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">

@@ -1,5 +1,6 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import PageHero from "@/components/PageHero";
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import useSEO from "@/hooks/useSEO";
@@ -153,24 +154,13 @@ const News = () => {
       <Navbar />
 
       {/* Hero Section */}
-      <div className="relative h-[400px] bg-gradient-to-r from-primary/10 to-primary/5">
-        <div className="absolute inset-0 bg-black/40"></div>
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage:
-              'url("/lovable-uploads/ba4a4def-2cd7-4e97-89d5-074c13f0bbe8.webp")',
-          }}
-        ></div>
-        <div className="relative z-10 flex items-center justify-center h-full">
-          <div className="text-center text-white px-4">
-            <h1 className="text-5xl md:text-6xl font-bold mb-4">News</h1>
-            <p className="text-xl md:text-2xl opacity-90">
-              Latest updates and insights from ShazamParking
-            </p>
-          </div>
-        </div>
-      </div>
+      <PageHero
+        image="/lovable-uploads/ba4a4def-2cd7-4e97-89d5-074c13f0bbe8.webp"
+        eyebrow="Newsroom"
+        title="Latest News"
+        highlight="News"
+        subtitle="Updates, insights and stories from ShazamParking and the Dubai parking scene."
+      />
 
       {/* News Grid */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
