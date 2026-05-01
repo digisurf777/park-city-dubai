@@ -1342,6 +1342,7 @@ const MyAccount = () => {
             </TabsContent>
         </Tabs>
       </div>
-    </div>;
+    </div>
+    </>;
 };
 export default MyAccount;
