@@ -1828,121 +1828,75 @@ const AdminPanelOrganized = () => {
           </div>
         )}
 
-        {/* Main Tabs */}
+        {/* Main Tabs - 2 rows with 3D depth */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <div className="overflow-x-auto -mx-3 sm:mx-0 px-3 sm:px-0 pb-2">
-            <TabsList className="inline-flex sm:grid sm:grid-cols-11 gap-1 sm:gap-2 h-auto p-1 sm:p-2 bg-gradient-to-r from-background to-muted/20 rounded-xl border shadow-sm min-w-max sm:min-w-0 w-auto sm:w-full">
-              <TabsTrigger 
-                value="dashboard" 
-                className="flex flex-col items-center p-2 sm:p-3 h-auto text-xs sm:text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg min-w-[70px] sm:min-w-0"
-              >
-                <LayoutDashboard className="h-4 w-4 sm:h-5 sm:w-5 mb-1" />
-                <span className="font-semibold text-[10px] sm:text-sm">Dashboard</span>
-                <span className="text-[8px] sm:text-xs opacity-70 mt-0.5 sm:mt-1 hidden sm:block">Live KPIs</span>
-              </TabsTrigger>
-              <TabsTrigger 
-                value="content" 
-                className="flex flex-col items-center p-2 sm:p-3 h-auto text-xs sm:text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg min-w-[70px] sm:min-w-0"
-              >
-                <FileText className="h-4 w-4 sm:h-5 sm:w-5 mb-1" />
-                <span className="font-semibold text-[10px] sm:text-sm">Content</span>
-                <span className="text-[8px] sm:text-xs opacity-70 mt-0.5 sm:mt-1 hidden sm:block">News & Updates</span>
-              </TabsTrigger>
-              
-              <TabsTrigger 
-                value="parking" 
-                className="flex flex-col items-center p-2 sm:p-3 h-auto text-xs sm:text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg min-w-[70px] sm:min-w-0"
-              >
-                <Car className="h-4 w-4 sm:h-5 sm:w-5 mb-1" />
-                <span className="font-semibold text-[10px] sm:text-sm">Parking</span>
-                <span className="text-[8px] sm:text-xs opacity-70 mt-0.5 sm:mt-1 hidden sm:block">Spaces & Bookings</span>
-              </TabsTrigger>
-
-              <TabsTrigger 
-                value="pre-auth" 
-                className="flex flex-col items-center p-2 sm:p-3 h-auto text-xs sm:text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg relative min-w-[70px] sm:min-w-0"
-              >
-                <CreditCard className="h-4 w-4 sm:h-5 sm:w-5 mb-1" />
-                <span className="font-semibold text-[10px] sm:text-sm">Pre-Auth</span>
-                <span className="text-[8px] sm:text-xs opacity-70 mt-0.5 sm:mt-1 hidden sm:block">Payment Holds</span>
-              </TabsTrigger>
-
-              <TabsTrigger
-                value="revenue"
-                className="flex flex-col items-center p-2 sm:p-3 h-auto text-xs sm:text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary-glow data-[state=active]:text-white data-[state=active]:shadow-[0_0_24px_hsl(var(--primary-glow)/0.5)] rounded-lg min-w-[70px] sm:min-w-0"
-              >
-                <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 mb-1" />
-                <span className="font-semibold text-[10px] sm:text-sm">Revenue</span>
-                <span className="text-[8px] sm:text-xs opacity-70 mt-0.5 sm:mt-1 hidden sm:block">Cosmic Insights</span>
-              </TabsTrigger>
-
-              <TabsTrigger 
-                value="owner-payments" 
-                className="flex flex-col items-center p-2 sm:p-3 h-auto text-xs sm:text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg min-w-[70px] sm:min-w-0"
-              >
-                <DollarSign className="h-4 w-4 sm:h-5 sm:w-5 mb-1" />
-                <span className="font-semibold text-[10px] sm:text-sm">Payments</span>
-                <span className="text-[8px] sm:text-xs opacity-70 mt-0.5 sm:mt-1 hidden sm:block">View Banking & Pay</span>
-              </TabsTrigger>
-              
-              <TabsTrigger 
-                value="users"
-                className="flex flex-col items-center p-2 sm:p-3 h-auto text-xs sm:text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg min-w-[70px] sm:min-w-0"
-              >
-                <Users className="h-4 w-4 sm:h-5 sm:w-5 mb-1" />
-                <span className="font-semibold text-[10px] sm:text-sm">Users</span>
-                <span className="text-[8px] sm:text-xs opacity-70 mt-0.5 sm:mt-1 hidden sm:block">Manage & Message</span>
-              </TabsTrigger>
-              
-              <TabsTrigger
-                value="support"
-                className="flex flex-col items-center p-2 sm:p-3 h-auto text-xs sm:text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary-glow data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg min-w-[70px] sm:min-w-0"
-              >
-                <LifeBuoy className="h-4 w-4 sm:h-5 sm:w-5 mb-1" />
-                <span className="font-semibold text-[10px] sm:text-sm">Support</span>
-                <span className="text-[8px] sm:text-xs opacity-70 mt-0.5 sm:mt-1 hidden sm:block">Inbox + AI Drafts</span>
-              </TabsTrigger>
-
-              <TabsTrigger 
-                value="chat" 
-                className="flex flex-col items-center p-2 sm:p-3 h-auto text-xs sm:text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-red-500 data-[state=active]:text-white bg-gradient-to-br from-red-50 to-red-100 border-red-200 animate-pulse rounded-lg relative min-w-[70px] sm:min-w-0"
-              >
-                <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5 mb-1" />
-                <span className="font-bold text-[10px] sm:text-sm">🔥 Chat</span>
-                <span className="text-[8px] sm:text-xs mt-0.5 sm:mt-1 hidden sm:block">Real-time Support</span>
-                {chatTotalUnread > 0 && (
-                  <Badge variant="destructive" className="absolute -top-1 -right-1 min-w-[18px] sm:min-w-[20px] h-4 sm:h-5 text-[10px] sm:text-xs px-1">
-                    {chatTotalUnread}
-                  </Badge>
-                )}
-              </TabsTrigger>
-
-              <TabsTrigger
-                value="chat-history"
-                className="flex flex-col items-center p-2 sm:p-3 h-auto text-xs sm:text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg min-w-[70px] sm:min-w-0"
-              >
-                <MessagesSquare className="h-4 w-4 sm:h-5 sm:w-5 mb-1" />
-                <span className="font-semibold text-[10px] sm:text-sm">Chat History</span>
-                <span className="text-[8px] sm:text-xs opacity-70 mt-0.5 sm:mt-1 hidden sm:block">Online support log</span>
-              </TabsTrigger>
-
-              <TabsTrigger
-                value="booking-chats"
-                className="flex flex-col items-center p-2 sm:p-3 h-auto text-xs sm:text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg min-w-[70px] sm:min-w-0"
-              >
-                <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5 mb-1" />
-                <span className="font-semibold text-[10px] sm:text-sm">Bookings</span>
-                <span className="text-[8px] sm:text-xs opacity-70 mt-0.5 sm:mt-1 hidden sm:block">Driver ↔ Owner</span>
-              </TabsTrigger>
-
-              <TabsTrigger 
-                value="invoices" 
-                className="flex flex-col items-center p-2 sm:p-3 h-auto text-xs sm:text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg min-w-[70px] sm:min-w-0"
-              >
-                <FileText className="h-4 w-4 sm:h-5 sm:w-5 mb-1" />
-                <span className="font-semibold text-[10px] sm:text-sm">Invoices</span>
-                <span className="text-[8px] sm:text-xs opacity-70 mt-0.5 sm:mt-1 hidden sm:block">All Customer Invoices</span>
-              </TabsTrigger>
+            <TabsList
+              className="inline-flex sm:grid sm:grid-cols-6 gap-2 sm:gap-3 h-auto p-2 sm:p-3 rounded-2xl border border-primary/15 min-w-max sm:min-w-0 w-auto sm:w-full"
+              style={{
+                background:
+                  'linear-gradient(135deg, hsl(var(--surface)) 0%, hsl(var(--background)) 100%)',
+                boxShadow:
+                  '0 12px 30px -12px hsl(var(--primary) / 0.25), inset 0 1px 0 0 hsl(0 0% 100% / 0.6), inset 0 -1px 0 0 hsl(var(--primary) / 0.08)',
+              }}
+            >
+              {[
+                { value: 'dashboard', icon: LayoutDashboard, label: 'Dashboard', sub: 'Live KPIs' },
+                { value: 'content', icon: FileText, label: 'Content', sub: 'News & Updates' },
+                { value: 'parking', icon: Car, label: 'Parking', sub: 'Spaces & Bookings' },
+                { value: 'pre-auth', icon: CreditCard, label: 'Pre-Auth', sub: 'Payment Holds' },
+                { value: 'revenue', icon: Sparkles, label: 'Revenue', sub: 'Cosmic Insights', highlight: 'cosmic' as const },
+                { value: 'owner-payments', icon: DollarSign, label: 'Payments', sub: 'View Banking & Pay' },
+                { value: 'users', icon: Users, label: 'Users', sub: 'Manage & Message' },
+                { value: 'support', icon: LifeBuoy, label: 'Support', sub: 'Inbox + AI Drafts', highlight: 'soft' as const },
+                { value: 'chat', icon: MessageCircle, label: '🔥 Chat', sub: 'Real-time Support', badge: chatTotalUnread, highlight: 'hot' as const },
+                { value: 'chat-history', icon: MessagesSquare, label: 'Chat History', sub: 'Online support log' },
+                { value: 'booking-chats', icon: MessageCircle, label: 'Bookings', sub: 'Driver ↔ Owner' },
+                { value: 'invoices', icon: FileText, label: 'Invoices', sub: 'All Customer Invoices' },
+              ].map((t) => {
+                const Icon = t.icon;
+                const isCosmic = t.highlight === 'cosmic';
+                const isHot = t.highlight === 'hot';
+                const isSoft = t.highlight === 'soft';
+                return (
+                  <TabsTrigger
+                    key={t.value}
+                    value={t.value}
+                    className={`group relative flex flex-col items-center justify-center gap-1 p-2.5 sm:p-3 h-auto min-h-[78px] sm:min-h-[88px] text-xs sm:text-sm font-medium rounded-xl transition-all duration-300 hover:-translate-y-0.5 min-w-[90px] sm:min-w-0
+                      bg-gradient-to-b from-white to-[hsl(var(--surface))] border border-border/60
+                      shadow-[0_2px_6px_-2px_hsl(var(--primary)/0.12),inset_0_1px_0_0_hsl(0_0%_100%/0.8)]
+                      hover:shadow-[0_8px_18px_-6px_hsl(var(--primary)/0.35),inset_0_1px_0_0_hsl(0_0%_100%/0.9)]
+                      hover:border-primary/30
+                      ${isHot ? 'bg-gradient-to-br from-red-50 to-red-100 border-red-200 animate-pulse' : ''}
+                      ${
+                        isCosmic
+                          ? 'data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary-glow data-[state=active]:text-white data-[state=active]:shadow-[0_10px_28px_-8px_hsl(var(--primary-glow)/0.6),inset_0_1px_0_0_hsl(0_0%_100%/0.4)] data-[state=active]:border-primary-glow/40'
+                          : isHot
+                          ? 'data-[state=active]:bg-red-500 data-[state=active]:text-white data-[state=active]:shadow-[0_10px_24px_-8px_hsl(0_75%_50%/0.55),inset_0_1px_0_0_hsl(0_0%_100%/0.4)]'
+                          : isSoft
+                          ? 'data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary-glow data-[state=active]:text-white data-[state=active]:shadow-[0_8px_22px_-6px_hsl(var(--primary)/0.45),inset_0_1px_0_0_hsl(0_0%_100%/0.4)]'
+                          : 'data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-[0_8px_22px_-6px_hsl(var(--primary)/0.5),inset_0_1px_0_0_hsl(0_0%_100%/0.4)] data-[state=active]:border-primary/60'
+                      }
+                    `}
+                  >
+                    <Icon className="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:scale-110" />
+                    <span className="font-semibold text-[10px] sm:text-sm leading-tight text-center">
+                      {t.label}
+                    </span>
+                    <span className="text-[8px] sm:text-[10px] opacity-70 leading-tight text-center hidden sm:block">
+                      {t.sub}
+                    </span>
+                    {typeof t.badge === 'number' && t.badge > 0 && (
+                      <Badge
+                        variant="destructive"
+                        className="absolute -top-1.5 -right-1.5 min-w-[18px] sm:min-w-[20px] h-4 sm:h-5 text-[10px] sm:text-xs px-1 shadow-md"
+                      >
+                        {t.badge}
+                      </Badge>
+                    )}
+                  </TabsTrigger>
+                );
+              })}
             </TabsList>
           </div>
 
