@@ -66,13 +66,15 @@ const PageHero = ({
         className="absolute inset-0 bg-cover bg-center"
         style={{ backgroundImage: `url(${image})` }}
       />
-      {/* Branded gradient overlay — top tinted with brand, fades to background at bottom */}
-      <div className="absolute inset-0 bg-gradient-to-b from-primary-deep/70 via-primary-deep/40 to-background" />
-      {/* Subtle radial vignette for focus */}
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_30%,rgba(0,0,0,0.35)_100%)]" />
-      {/* Decorative glows */}
-      <div className="pointer-events-none absolute -top-24 -right-24 w-[22rem] h-[22rem] rounded-full bg-primary-glow/20 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-32 -left-24 w-[24rem] h-[24rem] rounded-full bg-primary/25 blur-3xl" />
+      {/* Subtle dark overlay for text legibility — keeps the photo clearly visible */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/15 to-background/90" />
+      {/* Light brand tint — just a hint of green, not dominating */}
+      <div className="absolute inset-0 bg-primary-deep/15 mix-blend-multiply" />
+      {/* Soft radial vignette for focus */}
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_40%,rgba(0,0,0,0.35)_100%)]" />
+      {/* Decorative brand glows (subtle) */}
+      <div className="pointer-events-none absolute -top-24 -right-24 w-[22rem] h-[22rem] rounded-full bg-primary-glow/10 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-32 -left-24 w-[24rem] h-[24rem] rounded-full bg-primary/10 blur-3xl" />
 
       {/* Content */}
       <div className="relative z-10 h-full flex flex-col items-center justify-center px-4 pt-16 sm:pt-20">
