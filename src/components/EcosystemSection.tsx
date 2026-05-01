@@ -85,25 +85,25 @@ const EcosystemSection = () => {
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           className="text-center max-w-3xl mx-auto mb-12 sm:mb-16"
         >
-          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 ring-1 ring-primary/20 text-primary text-xs font-bold tracking-[0.2em] uppercase mb-4">
+          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/15 backdrop-blur-md ring-1 ring-white/30 text-primary-glow text-xs font-bold tracking-[0.2em] uppercase mb-4 shadow-[0_4px_16px_-4px_hsl(var(--primary-deep)/0.5)]">
             <Sparkles className="h-3.5 w-3.5" /> Part of the Shazam Ecosystem
           </span>
           <h2
             id="ecosystem-heading"
-            className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-gray-900 mb-4"
+            className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white mb-4 drop-shadow-[0_4px_20px_hsl(var(--primary-deep)/0.6)]"
           >
             Built by{" "}
             <a
               href="https://shazam.ae/"
               target="_blank"
               rel="noopener"
-              className="bg-gradient-to-r from-primary via-primary-glow to-primary-deep bg-clip-text text-transparent hover:underline underline-offset-4"
+              className="bg-gradient-to-r from-primary-glow via-white to-primary-glow bg-clip-text text-transparent hover:underline underline-offset-4"
             >
               Shazam
             </a>{" "}
             - connecting life in Dubai
           </h2>
-          <p className="text-base sm:text-lg text-gray-600">
+          <p className="text-base sm:text-lg text-white/85 drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]">
             Shazam Parking is part of a wider ecosystem of three products. Together they help you understand the city, organise your life and solve everyday mobility in Dubai.
           </p>
         </motion.div>
