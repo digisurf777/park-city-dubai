@@ -38,6 +38,8 @@ import { PaymentHistoryAdmin } from '@/components/PaymentHistoryAdmin';
 import { RevenueCommandCenter } from '@/components/admin/RevenueCommandCenter';
 import { MonthlyEmailsTab } from '@/components/admin/MonthlyEmailsTab';
 import { AdminDashboard } from '@/components/admin/AdminDashboard';
+import SupportDashboard from '@/components/admin/SupportDashboard';
+import { LifeBuoy } from 'lucide-react';
 import { LayoutDashboard } from 'lucide-react';
 import { useInactivityLogout } from '@/hooks/useInactivityLogout';
 import { InactivityWarningDialog } from '@/components/InactivityWarningDialog';
