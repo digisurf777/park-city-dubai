@@ -13,6 +13,7 @@ import { Loader2, Mail, Lock, Shield } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { InputOTP, InputOTPGroup, InputOTPSlot, InputOTPSeparator } from '@/components/ui/input-otp';
 import authLuxury from '@/assets/auth-dubai-skyline.jpg';
+import useSEO from '@/hooks/useSEO';
 
 const Auth = () => {
   const [loading, setLoading] = useState(false);
@@ -804,8 +805,16 @@ const Auth = () => {
     );
   }
 
+  const seoTags = useSEO({
+    title: 'Sign In or Sign Up | Shazam Parking Dubai',
+    description: 'Log in or create your Shazam Parking account to book secure parking across Dubai or list your parking space and earn monthly income.',
+    keywords: 'Shazam Parking login, sign up Dubai parking, parking account Dubai, list parking space Dubai',
+    url: '/auth'
+  });
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-deep via-background to-surface flex items-center justify-center px-4 py-10 animate-fade-in">
+      {seoTags}
       {/* Decorative blobs */}
       <div className="pointer-events-none absolute top-20 left-10 h-64 w-64 rounded-full bg-primary/30 blur-3xl" aria-hidden />
       <div className="pointer-events-none absolute bottom-10 right-10 h-72 w-72 rounded-full bg-primary-glow/20 blur-3xl" aria-hidden />
