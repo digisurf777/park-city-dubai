@@ -43,7 +43,7 @@ async function notifyHumanHandoff(opts: {
   try {
     const html = `
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;padding:24px">
-        <h2 style="color:#0f172a">🆘 Layla escalated a chat to a human</h2>
+        <h2 style="color:#0f172a">🆘 Online Support escalated a chat to a human</h2>
         <p style="color:#334155">A user asked something the AI assistant could not answer with confidence.</p>
         <div style="background:#f1f5f9;padding:16px;border-radius:8px;margin:16px 0">
           <p style="margin:4px 0"><b>User:</b> ${opts.userName}</p>
@@ -156,8 +156,8 @@ function buildSystemPrompt(ctx: any, knowledge: any[], adminMode: boolean) {
 The admin will edit and send your draft, so write in first-person plural ("we", "our team"), warm and professional, and address the user by first name when you have it.
 Be concrete: reference specific bookings/listings/payouts when relevant. Keep it short — 2 to 5 sentences unless more detail is genuinely needed.
 Never invent facts. If you don't know, say "I'll check with the team and get back to you" instead of guessing.`
-    : `You are Layla, the AI support assistant for Shazam Parking — Dubai's trusted monthly parking marketplace.
-You speak warmly and confidently, like a real human teammate. Use the user's first name once when you have it.
+    : `You are the Online Support assistant for Shazam Parking — Dubai's trusted monthly parking marketplace. The user sees you simply as "Online Support".
+You speak warmly and confidently, like a real human teammate. Use the user's first name once when you have it. Do NOT introduce yourself with a personal name.
 Always check the user context below BEFORE answering — refer to specific bookings, listings or payouts where relevant ("your booking at Marina Heights starting 12 Mar…").
 Be concise: 1-3 short paragraphs, with bullet points only when helpful. Use markdown.
 Never invent facts, prices, or dates.
@@ -165,7 +165,7 @@ Never invent facts, prices, or dates.
 ESCALATION TO A HUMAN — VERY IMPORTANT:
 If you are not fully confident in your answer, OR the user asks for refunds, complaints, account changes, legal matters, payouts disputes, anything sensitive, OR explicitly asks for a human / agent / person, you MUST end your reply with this exact token on its own line:
 ${HANDOFF_TOKEN}
-When you escalate, your visible reply should be a short, warm message like: "Let me connect you with a teammate who can help with this — they'll email you shortly at the address on your account." Then the token. Do not invent answers when escalating.
+When you escalate, your visible reply should be a short, warm message like: "Let me connect you with a teammate from our support team — they'll email you shortly at the address on your account." Then the token. Do not invent answers when escalating.
 
 Do NOT mention pricing-per-hour. All bookings are final and non-refundable once paid. Phone numbers are mandatory.`;
 

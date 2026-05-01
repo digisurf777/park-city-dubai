@@ -10,7 +10,7 @@ import ReactMarkdown from "react-markdown";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import supportAvatar from "@/assets/support-avatar-pro.webp";
+import supportAvatar from "@/assets/online-support-agent.jpg";
 
 interface Message {
   id: string;
@@ -140,14 +140,14 @@ const ChatWidget = () => {
   }, [allMessages, sessionId]);
 
   const conversationStatus = useMemo(() => {
-    if (!messages.length) return { label: "Ready", color: "bg-slate-400", icon: Sparkles };
+    if (!messages.length) return { label: "Online now", color: "bg-emerald-400", icon: CheckCircle2 };
     const last = messages[messages.length - 1];
     if (messages.some((m) => m.handoff_requested)) {
-      return { label: "Awaiting human", color: "bg-amber-500", icon: UserCheck };
+      return { label: "Awaiting human agent", color: "bg-amber-500", icon: UserCheck };
     }
     if (last.from_admin && !last.is_ai) return { label: "Replied by team", color: "bg-emerald-500", icon: CheckCircle2 };
-    if (last.from_admin && last.is_ai) return { label: "Active with Layla", color: "bg-primary", icon: Sparkles };
-    if (thinking) return { label: "Layla is typing…", color: "bg-primary animate-pulse", icon: Clock };
+    if (last.from_admin && last.is_ai) return { label: "Active conversation", color: "bg-emerald-400", icon: CheckCircle2 };
+    if (thinking) return { label: "Typing…", color: "bg-primary animate-pulse", icon: Clock };
     return { label: "Waiting for reply", color: "bg-amber-500", icon: Clock };
   }, [messages, thinking]);
 
@@ -239,15 +239,23 @@ const ChatWidget = () => {
       <div className="fixed bottom-20 md:bottom-6 right-4 md:right-6 z-50">
         <button
           onClick={handleOpen}
-          aria-label="Open support chat"
+          aria-label="Open online support chat"
           className="group relative flex items-center gap-3 pl-2 pr-4 py-2 rounded-full bg-gradient-to-br from-primary via-primary to-primary-deep text-white shadow-[0_12px_30px_-8px_hsl(var(--primary)/0.55)] hover:shadow-[0_16px_36px_-6px_hsl(var(--primary)/0.7)] hover:-translate-y-0.5 transition-all duration-300"
         >
           <span className="relative">
-            <img src={supportAvatar} alt="" width={36} height={36} loading="lazy"
-              className="w-9 h-9 rounded-full object-cover ring-2 ring-white/70" />
+            {/* Animated pulsing ring around the avatar */}
+            <span className="absolute inset-0 rounded-full ring-2 ring-emerald-400/70 animate-ping" />
+            <img
+              src={supportAvatar}
+              alt="Online Support agent"
+              width={36}
+              height={36}
+              loading="lazy"
+              className="relative w-9 h-9 rounded-full object-cover ring-2 ring-white/80"
+            />
             <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 ring-2 ring-white animate-pulse" />
           </span>
-          <span className="hidden sm:inline text-sm font-semibold pr-1">Chat with us</span>
+          <span className="hidden sm:inline text-sm font-semibold pr-1">Online Support</span>
           <MessageCircle className="sm:hidden h-5 w-5" />
           {unread > 0 && (
             <span className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1.5 rounded-full bg-rose-500 text-white text-[11px] font-bold flex items-center justify-center ring-2 ring-white animate-bounce">
@@ -278,17 +286,18 @@ const ChatWidget = () => {
             </Button>
           ) : (
             <div className="relative">
-              <img src={supportAvatar} alt="" width={44} height={44}
-                className="w-11 h-11 rounded-full object-cover ring-2 ring-white/70" loading="lazy" />
+              {/* Animated pulse ring */}
+              <span className="absolute inset-0 rounded-full ring-2 ring-emerald-400/60 animate-ping" />
+              <img src={supportAvatar} alt="Online Support agent" width={44} height={44}
+                className="relative w-11 h-11 rounded-full object-cover ring-2 ring-white/80" loading="lazy" />
               <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 ring-2 ring-primary-deep" />
             </div>
           )}
           <div className="flex-1 min-w-0 relative">
             <div className="flex items-center gap-1.5">
               <h3 className="font-bold text-sm sm:text-base truncate">
-                {view === "history" ? "Chat history" : "Layla — Shazam Assistant"}
+                {view === "history" ? "Chat history" : "Online Support"}
               </h3>
-              {view === "chat" && <Sparkles className="h-3.5 w-3.5 text-amber-200" />}
             </div>
             <div className="flex items-center gap-1.5 text-[11px] sm:text-xs opacity-95">
               <span className={`inline-block w-1.5 h-1.5 rounded-full ${conversationStatus.color}`} />
@@ -297,10 +306,11 @@ const ChatWidget = () => {
             </div>
           </div>
           <div className="relative flex items-center gap-1">
-            {view === "chat" && (
-              <Button variant="ghost" size="icon" onClick={startNewChat}
-                className="h-8 w-8 text-white hover:bg-white/15" aria-label="New chat" title="Start new chat">
-                <Plus className="h-4 w-4" />
+            {view === "chat" && messages.length > 0 && (
+              <Button variant="ghost" size="sm" onClick={startNewChat}
+                className="h-8 px-2 sm:px-3 text-white hover:bg-white/15 gap-1" aria-label="Start new chat" title="Start new chat">
+                <Plus className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline text-xs font-semibold">New</span>
               </Button>
             )}
             <Button variant="ghost" size="icon" onClick={() => setIsExpanded((v) => !v)}
@@ -319,12 +329,19 @@ const ChatWidget = () => {
           <>
             <div className={`flex-1 overflow-y-auto px-3 sm:px-6 py-4 space-y-3 bg-gradient-to-b from-white to-surface/40 ${isExpanded ? "lg:px-12 xl:px-24" : ""}`}>
               {messages.length === 0 && (
-                <div className="text-center pt-8 pb-2">
-                  <img src={supportAvatar} alt="" width={isExpanded ? 120 : 80} height={isExpanded ? 120 : 80}
-                    className={`${isExpanded ? "w-28 h-28" : "w-20 h-20"} rounded-full object-cover mx-auto mb-4 ring-4 ring-primary/15 shadow-lg`} loading="lazy" />
-                  <p className={`${isExpanded ? "text-2xl" : "text-base"} font-bold text-foreground`}>Hi! I'm Layla 👋</p>
-                  <p className={`${isExpanded ? "text-base mt-3 max-w-md" : "text-xs mt-1.5 max-w-[280px]"} text-muted-foreground mx-auto`}>
-                    I know your bookings, listings and payouts. Ask me anything — I'll loop in a human teammate via email if I can't help.
+                <div className="text-center pt-6 pb-2">
+                  <div className="relative inline-block mb-4">
+                    <span className="absolute inset-0 rounded-full ring-4 ring-emerald-400/40 animate-ping" />
+                    <img src={supportAvatar} alt="Online Support agent" width={isExpanded ? 120 : 88} height={isExpanded ? 120 : 88}
+                      className={`relative ${isExpanded ? "w-28 h-28" : "w-22 h-22"} rounded-full object-cover ring-4 ring-primary/15 shadow-lg`}
+                      style={{ width: isExpanded ? 112 : 88, height: isExpanded ? 112 : 88 }}
+                      loading="lazy" />
+                    <span className="absolute bottom-1 right-1 w-3.5 h-3.5 rounded-full bg-emerald-400 ring-2 ring-white animate-pulse" />
+                  </div>
+                  <p className={`${isExpanded ? "text-2xl" : "text-lg"} font-bold text-foreground`}>Online Support</p>
+                  <p className="text-xs text-emerald-600 font-semibold mt-0.5">● Available now</p>
+                  <p className={`${isExpanded ? "text-base mt-3 max-w-md" : "text-xs mt-2 max-w-[280px]"} text-muted-foreground mx-auto`}>
+                    Ask anything about your bookings, listings, payouts or verification — I'll loop in a teammate by email if needed.
                   </p>
                 </div>
               )}
@@ -345,13 +362,8 @@ const ChatWidget = () => {
                       {!isMe && (
                         <div className="flex items-center gap-1.5 mb-1 flex-wrap">
                           <span className="text-[10px] font-bold uppercase tracking-wide text-primary">
-                            {msg.is_ai ? "Layla AI" : "Support team"}
+                            Online Support
                           </span>
-                          {msg.is_ai && (
-                            <Badge variant="outline" className="h-4 px-1.5 text-[9px] border-primary/30 text-primary/80 bg-primary/5">
-                              <Sparkles className="h-2.5 w-2.5 mr-0.5" />AI
-                            </Badge>
-                          )}
                           {msg.handoff_requested && (
                             <Badge variant="outline" className="h-4 px-1.5 text-[9px] border-amber-400 text-amber-700 bg-amber-50">
                               <UserCheck className="h-2.5 w-2.5 mr-0.5" />Human notified
@@ -394,17 +406,22 @@ const ChatWidget = () => {
 
             {/* Conversation starters — only when empty */}
             {messages.length === 0 && !thinking && (
-              <div className={`px-3 sm:px-4 pb-2 grid gap-1.5 ${isExpanded ? "grid-cols-2 sm:grid-cols-4 lg:grid-cols-4 px-6 sm:px-12" : "grid-cols-2"}`}>
-                {STARTERS.map((s) => (
-                  <button
-                    key={s.label}
-                    onClick={() => send(s.prompt)}
-                    className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium bg-white hover:bg-primary/5 text-foreground border border-border/60 hover:border-primary/40 transition-all text-left shadow-sm hover:shadow"
-                  >
-                    <span className="text-base">{s.icon}</span>
-                    <span className="truncate">{s.label}</span>
-                  </button>
-                ))}
+              <div className={`px-3 sm:px-4 pb-3 ${isExpanded ? "lg:px-12 xl:px-24" : ""}`}>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2 text-center">
+                  Quick start
+                </p>
+                <div className={`grid gap-2 ${isExpanded ? "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4" : "grid-cols-2"}`}>
+                  {STARTERS.map((s) => (
+                    <button
+                      key={s.label}
+                      onClick={() => send(s.prompt)}
+                      className="group flex items-center gap-2 px-2.5 py-2.5 rounded-xl text-xs font-medium bg-white text-foreground border border-border/60 hover:border-primary hover:bg-primary/5 hover:shadow-md hover:-translate-y-0.5 transition-all text-left active:scale-95"
+                    >
+                      <span className="text-base flex-shrink-0">{s.icon}</span>
+                      <span className="truncate group-hover:text-primary transition-colors">{s.label}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
 
@@ -430,15 +447,23 @@ const ChatWidget = () => {
                   <Send className="h-4 w-4" />
                 </Button>
               </div>
-              <div className="flex items-center justify-between mt-2 px-1">
+              <div className="flex items-center justify-between mt-2 px-1 gap-2">
                 <button
                   onClick={() => setView("history")}
-                  className="flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-primary transition-colors"
+                  className="flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-primary transition-colors font-medium"
                 >
                   <History className="h-3 w-3" />
-                  Past conversations {sessions.length > 0 && `(${sessions.length})`}
+                  History {sessions.length > 0 && `(${sessions.length})`}
                 </button>
-                <p className="text-[10px] text-muted-foreground">Powered by AI · Human escalation available</p>
+                {messages.length > 0 && (
+                  <button
+                    onClick={startNewChat}
+                    className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-primary transition-colors font-medium"
+                  >
+                    <Plus className="h-3 w-3" />
+                    Clear / New chat
+                  </button>
+                )}
               </div>
             </div>
           </>
