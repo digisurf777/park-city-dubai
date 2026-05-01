@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+// Alert components removed in favor of custom themed banners
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { Upload, FileImage, CheckCircle, Clock, XCircle, AlertTriangle, ShieldCheck, Sparkles, FileText, IdCard, BookOpen } from 'lucide-react';
