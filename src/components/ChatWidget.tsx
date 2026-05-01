@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import {
   MessageCircle, X, Send, Minimize2, Maximize2, Sparkles, UserRound,
-  Plus, History, ArrowLeft, CheckCircle2, Clock, UserCheck, AlertCircle,
+  Plus, History, ArrowLeft, CheckCircle2, Clock, UserCheck, AlertCircle, Mail,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -44,6 +44,10 @@ const STARTERS = [
 ];
 
 const STORAGE_SESSION_KEY = "shazam_chat_session_id";
+const SUPPORT_EMAIL = "support@shazamparking.ae";
+
+const buildMailto = (subject: string, body: string) =>
+  `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 
 const ChatWidget = () => {
   const { user } = useAuth();
