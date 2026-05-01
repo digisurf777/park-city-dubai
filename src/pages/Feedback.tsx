@@ -103,7 +103,7 @@ ${message}`,
       />
 
       <div className="container mx-auto px-4 py-12">
-        <div className="max-w-2xl mx-auto"></div>
+        <div className="max-w-2xl mx-auto">
 
           <Card>
             <CardHeader>
