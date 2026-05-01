@@ -362,23 +362,32 @@ const MyAccount = () => {
   return <div className="min-h-screen bg-gradient-to-b from-surface via-background to-background pt-20 animate-fade-in">
       <div className="max-w-5xl mx-auto p-4 lg:p-6">
         {/* Hero header card */}
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-hero text-primary-foreground shadow-elegant mb-6 p-6 lg:p-8">
-          <div className="pointer-events-none absolute -top-16 -right-16 w-64 h-64 rounded-full bg-white/10 blur-3xl"></div>
-          <div className="pointer-events-none absolute -bottom-20 -left-20 w-72 h-72 rounded-full bg-white/10 blur-3xl"></div>
-          <div className="relative flex flex-col gap-4 lg:flex-row lg:justify-between lg:items-center">
-            <div>
-              <p className="text-sm uppercase tracking-wider text-white/80 mb-1">Welcome back</p>
-              <h1 className="text-2xl lg:text-3xl font-bold">
-                {profile?.full_name || user?.email?.split('@')[0] || 'My Account'}
-              </h1>
-              <p className="text-white/80 text-sm mt-1">{user?.email}</p>
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-hero text-primary-foreground shadow-elegant mb-6 p-6 lg:p-8 border border-white/15">
+          <div className="pointer-events-none absolute -top-16 -right-16 w-64 h-64 rounded-full bg-white/15 blur-3xl"></div>
+          <div className="pointer-events-none absolute -bottom-20 -left-20 w-72 h-72 rounded-full bg-primary-glow/30 blur-3xl"></div>
+          {/* subtle grid texture */}
+          <div className="pointer-events-none absolute inset-0 opacity-[0.06]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '24px 24px' }} />
+          <div className="relative flex flex-col gap-5 lg:flex-row lg:justify-between lg:items-center">
+            <div className="flex items-center gap-4">
+              {/* Avatar circle with initials */}
+              <div className="relative h-16 w-16 lg:h-20 lg:w-20 rounded-2xl bg-white/15 backdrop-blur-md border border-white/30 flex items-center justify-center text-white text-2xl lg:text-3xl font-black shadow-glow">
+                {(profile?.full_name || user?.email || '?').charAt(0).toUpperCase()}
+                <span className="absolute -bottom-1 -right-1 h-5 w-5 rounded-full bg-emerald-400 border-2 border-white shadow" title="Online" />
+              </div>
+              <div>
+                <p className="text-xs uppercase tracking-[0.2em] text-white/80 mb-1 font-semibold">★ Welcome back</p>
+                <h1 className="text-2xl lg:text-3xl font-black text-3d-light">
+                  {profile?.full_name || user?.email?.split('@')[0] || 'My Account'}
+                </h1>
+                <p className="text-white/80 text-sm mt-1">{user?.email}</p>
+              </div>
             </div>
             <div className="flex gap-2">
-              <Button onClick={() => navigate('/')} variant="secondary" size="sm" className="bg-white/15 hover:bg-white/25 text-white border-0 backdrop-blur">
+              <Button onClick={() => navigate('/')} variant="secondary" size="sm" className="bg-white/15 hover:bg-white/25 text-white border border-white/20 backdrop-blur shadow-md">
                 <Home className="mr-2 h-4 w-4" />
                 <span>Home</span>
               </Button>
-              <Button onClick={handleLogout} variant="secondary" size="sm" className="bg-white/15 hover:bg-white/25 text-white border-0 backdrop-blur">
+              <Button onClick={handleLogout} variant="secondary" size="sm" className="bg-white/15 hover:bg-white/25 text-white border border-white/20 backdrop-blur shadow-md">
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Logout</span>
               </Button>
