@@ -173,13 +173,13 @@ const EcosystemSection = () => {
           ))}
         </div>
 
-        <p className="text-center text-sm text-gray-500 mt-10">
+        <p className="text-center text-sm text-white/85 mt-10 drop-shadow-[0_2px_6px_rgba(0,0,0,0.4)]">
           One ecosystem.{" "}
           <a
             href="https://shazam.ae/"
             target="_blank"
             rel="noopener"
-            className="text-primary font-semibold hover:underline"
+            className="text-primary-glow font-semibold hover:text-white hover:underline transition-colors"
           >
             Learn more about Shazam →
           </a>
