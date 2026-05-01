@@ -193,6 +193,13 @@ All colors MUST be HSL.
     overflow-x: hidden; /* Prevent horizontal scroll */
   }
 
+  /* Reserve space for the mobile bottom nav so fixed footers/CTAs don't overlap */
+  @media (max-width: 767px) {
+    body {
+      padding-bottom: calc(4rem + env(safe-area-inset-bottom));
+    }
+  }
+
   /* Mobile touch targets - minimum 44px for accessibility */
   .touch-target {
     min-height: 44px;
