@@ -1743,13 +1743,21 @@ const AdminPanelOrganized = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background p-3 sm:p-6">
+    <div className="min-h-screen bg-gradient-to-b from-surface via-background to-background p-3 sm:p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-            Admin Dashboard
-          </h1>
+        <div className="sticky top-2 z-30 mb-6 sm:mb-8 rounded-2xl glass shadow-soft px-4 sm:px-6 py-3 sm:py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+          <div className="flex items-center gap-3">
+            <div className="hidden sm:flex h-10 w-10 rounded-xl bg-gradient-primary shadow-elegant items-center justify-center text-primary-foreground font-bold">
+              S
+            </div>
+            <div>
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gradient-primary leading-tight">
+                Admin Dashboard
+              </h1>
+              <p className="hidden sm:block text-xs text-muted-foreground">ShazamParking control center</p>
+            </div>
+          </div>
           <div className="flex gap-2 w-full sm:w-auto">
             <Button onClick={() => navigate('/')} variant="outline" size="sm" className="flex-1 sm:flex-none">
               <Home className="mr-2 h-4 w-4" />
