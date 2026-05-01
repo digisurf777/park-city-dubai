@@ -739,10 +739,25 @@ const MyAccount = () => {
                 Profile
               </Button>
               {verificationStatus !== 'approved' && verificationStatus !== 'verified' && (
-                <Button variant={activeTab === 'verification' ? 'default' : 'outline'} onClick={() => setActiveTab('verification')} className={`flex items-center gap-2 h-12 relative ${(verificationStatus === 'pending' || verificationStatus === null) ? 'border-orange-500/20' : ''}`}>
-                  <Shield className="h-4 w-4" />
+                <Button
+                  variant={activeTab === 'verification' ? 'default' : 'outline'}
+                  onClick={() => setActiveTab('verification')}
+                  className={`flex items-center gap-2 h-12 relative ${
+                    activeTab === 'verification'
+                      ? '!bg-gradient-to-br !from-orange-500 !to-orange-600 !text-white !border-0 !shadow-[0_8px_20px_-6px_hsl(24_95%_53%/0.55)]'
+                      : (verificationStatus === 'pending' || verificationStatus === null)
+                        ? 'border-orange-300/70 text-orange-700 bg-orange-50/40 hover:bg-orange-50'
+                        : ''
+                  }`}
+                >
+                  <ShieldAlert className="h-4 w-4" />
                   Verify
-              {(verificationStatus === 'pending' || verificationStatus === null) && <div className="absolute -top-1 -right-1 h-3 w-3 bg-destructive rounded-full"></div>}
+                  {(verificationStatus === 'pending' || verificationStatus === null) && activeTab !== 'verification' && (
+                    <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+                      <span className="absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-70 animate-ping" />
+                      <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white" />
+                    </span>
+                  )}
                 </Button>
               )}
               <Button variant={activeTab === 'security' ? 'default' : 'outline'} onClick={() => setActiveTab('security')} className="flex items-center gap-2 h-12">
