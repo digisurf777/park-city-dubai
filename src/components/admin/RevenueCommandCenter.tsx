@@ -144,18 +144,14 @@ export const RevenueCommandCenter = () => {
         (payload: any) => {
           const row = payload.new;
           if (!row) return;
-          setPulse((prev) =>
-            [
-              {
-                id: `${row.id}-${Date.now()}`,
-                kind: 'payout',
-                amount: Number(row.amount_aed || 0),
-                label: 'Payout sent to owner',
-                at: new Date(),
-              },
-              ...prev,
-            ].slice(0, 12)
-          );
+          const ev: PulseEvent = {
+            id: `${row.id}-${Date.now()}`,
+            kind: 'payout',
+            amount: Number(row.amount_aed || 0),
+            label: 'Payout sent to owner',
+            at: new Date(),
+          };
+          setPulse((prev) => [ev, ...prev].slice(0, 12));
           fetchData();
         }
       )
