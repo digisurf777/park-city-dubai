@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { MapPin, Mail, Instagram, Facebook, Linkedin, Twitter, ExternalLink } from "lucide-react";
+import { MapPin, Mail, ExternalLink } from "lucide-react";
 import dubaiLifeOs from "@/assets/ecosystem/dubai-life-os.jpg";
 import dubaiLifeMaps from "@/assets/ecosystem/dubai-life-maps.jpg";
 import shazamEcosystem from "@/assets/ecosystem/shazam-ecosystem.jpg";
