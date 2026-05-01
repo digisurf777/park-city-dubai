@@ -357,106 +357,131 @@ const Index = () => {
       </motion.section>
 
 
-      {/* Rent Out Your Space Section */}
-      <motion.section initial={{
-      opacity: 0
-    }} whileInView={{
-      opacity: 1
-    }} transition={{
-      duration: 0.8
-    }} viewport={{
-      once: true,
-      amount: 0.2
-    }} className="py-12 sm:py-16 lg:py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-            <motion.div initial={{
-            opacity: 0,
-            x: -50
-          }} whileInView={{
-            opacity: 1,
-            x: 0
-          }} transition={{
-            duration: 0.8,
-            delay: 0.2
-          }} viewport={{
-            once: true
-          }} className="text-center lg:text-left">
-              <motion.h2 initial={{
-              opacity: 0,
-              y: 30
-            }} whileInView={{
-              opacity: 1,
-              y: 0
-            }} transition={{
-              duration: 0.6,
-              delay: 0.3
-            }} viewport={{
-              once: true
-            }} className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 sm:mb-6">
-                Are you looking to rent out your space?
-              </motion.h2>
-              <motion.p initial={{
-              opacity: 0,
-              y: 20
-            }} whileInView={{
-              opacity: 1,
-              y: 0
-            }} transition={{
-              duration: 0.6,
-              delay: 0.5
-            }} viewport={{
-              once: true
-            }} className="text-base lg:text-xl text-gray-600 mb-6 sm:mb-8 uppercase font-semibold sm:text-lg">ShazamParking
-IS HERE TO HELP YOU</motion.p>
-              <motion.div initial={{
-              opacity: 0,
-              y: 20
-            }} whileInView={{
-              opacity: 1,
-              y: 0
-            }} transition={{
-              duration: 0.6,
-              delay: 0.7
-            }} viewport={{
-              once: true
-            }}>
+      {/* Own a Parking Space — premium */}
+      <motion.section
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        transition={{ duration: 0.8 }}
+        viewport={{ once: true, amount: 0.2 }}
+        className="py-14 sm:py-20 bg-gradient-to-br from-surface via-white to-surface-2 relative overflow-hidden"
+      >
+        <div className="pointer-events-none absolute -top-20 -left-20 w-80 h-80 rounded-full bg-primary/15 blur-3xl"></div>
+        <div className="pointer-events-none absolute -bottom-32 -right-20 w-96 h-96 rounded-full bg-primary-glow/15 blur-3xl"></div>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+            {/* Text */}
+            <motion.div
+              initial={{ opacity: 0, x: -40 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.7 }}
+              viewport={{ once: true }}
+              className="text-center lg:text-left order-2 lg:order-1"
+            >
+              <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-semibold uppercase tracking-wider mb-4">
+                <Wallet className="h-3.5 w-3.5" />
+                For owners
+              </span>
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-foreground mb-4 leading-tight">
+                Own a parking space?
+                <span className="block text-gradient-primary mt-1">Turn it into income.</span>
+              </h2>
+              <p className="text-base sm:text-lg text-muted-foreground mb-6 max-w-lg mx-auto lg:mx-0">
+                Your unused parking spot can earn steady monthly income. We handle bookings, payments, and tenant matching — you just get paid.
+              </p>
+
+              {/* Stat badges */}
+              <div className="grid grid-cols-3 gap-3 sm:gap-4 mb-8 max-w-md mx-auto lg:mx-0">
+                {[
+                  { value: "AED 1k+", label: "Avg. monthly" },
+                  { value: "5 min", label: "To list" },
+                  { value: "0%", label: "Fees to list" },
+                ].map((stat) => (
+                  <div
+                    key={stat.label}
+                    className="text-center p-3 rounded-xl glass-card hover-lift"
+                  >
+                    <div className="text-lg sm:text-xl font-black text-gradient-primary leading-none">
+                      {stat.value}
+                    </div>
+                    <div className="text-[10px] sm:text-xs text-muted-foreground mt-1 uppercase tracking-wide">
+                      {stat.label}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
                 <Link to="/rent-out-your-space">
-                  <motion.div whileHover={{
-                  scale: 1.05
-                }} whileTap={{
-                  scale: 0.95
-                }}>
-                    <Button className="bg-primary hover:bg-primary/90 text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg w-full sm:w-auto shadow-lg transition-all duration-300">
-                      List Your Space
-                    </Button>
-                  </motion.div>
+                  <Button size="lg" className="w-full sm:w-auto px-7 py-6 text-base font-semibold">
+                    List Your Space
+                    <ArrowRight className="ml-1 h-5 w-5" />
+                  </Button>
                 </Link>
-              </motion.div>
+                <Link to="/calculator">
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="w-full sm:w-auto px-7 py-6 text-base font-semibold border-primary/30 text-primary hover:bg-primary hover:text-primary-foreground"
+                  >
+                    Estimate earnings
+                  </Button>
+                </Link>
+              </div>
             </motion.div>
-            <motion.div initial={{
-            opacity: 0,
-            x: 50
-          }} whileInView={{
-            opacity: 1,
-            x: 0
-          }} transition={{
-            duration: 0.8,
-            delay: 0.4
-          }} viewport={{
-            once: true
-            }} className="order-first lg:order-last">
-              <div className="rounded-2xl ring-1 ring-primary/20 shadow-[0_20px_40px_-15px_hsl(var(--primary)/0.4)] p-1.5 bg-gradient-to-br from-primary/15 to-transparent animate-[float_6s_ease-in-out_infinite]">
-                <motion.img whileHover={{
-                scale: 1.03
-              }} transition={{
-                duration: 0.3
-              }} src={luxuryCar} alt="Luxury car in Dubai" className="w-full rounded-xl shadow-lg" loading="lazy" decoding="async" />
+
+            {/* Image — premium frame */}
+            <motion.div
+              initial={{ opacity: 0, x: 40 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.7, delay: 0.15 }}
+              viewport={{ once: true }}
+              className="order-1 lg:order-2 relative"
+            >
+              {/* Outer glow */}
+              <div className="absolute inset-0 -m-4 rounded-[2rem] bg-gradient-primary opacity-30 blur-2xl animate-pulse-glow pointer-events-none"></div>
+
+              {/* Gradient border frame */}
+              <div className="relative rounded-3xl p-[2px] bg-gradient-to-br from-primary via-primary-glow to-primary-deep shadow-elegant animate-float">
+                <div className="rounded-3xl overflow-hidden bg-background relative">
+                  <motion.img
+                    whileHover={{ scale: 1.04 }}
+                    transition={{ duration: 0.5 }}
+                    src={luxuryCar}
+                    alt="Luxury car parked in Dubai"
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                    decoding="async"
+                  />
+
+                  {/* Floating earnings card */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.6 }}
+                    viewport={{ once: true }}
+                    className="absolute bottom-4 left-4 right-4 sm:left-6 sm:right-auto sm:max-w-[260px] glass-card rounded-2xl p-4 shadow-elegant"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-primary text-primary-foreground flex items-center justify-center shadow-elegant">
+                        <TrendingUp className="h-6 w-6" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs text-muted-foreground">This month</p>
+                        <p className="text-lg sm:text-xl font-black text-foreground leading-tight">
+                          + AED 1,250
+                        </p>
+                      </div>
+                      <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0" />
+                    </div>
+                  </motion.div>
+                </div>
               </div>
             </motion.div>
           </div>
         </div>
       </motion.section>
+
 
       {/* Find Parking Section */}
       <section className="py-12 sm:py-16 lg:py-20 bg-gradient-to-br from-surface via-white to-surface-2 relative overflow-hidden">
