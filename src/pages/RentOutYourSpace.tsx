@@ -25,7 +25,7 @@ import heroRentOut from "@/assets/hero-rent-out.jpg";
 import useSEO from "@/hooks/useSEO";
 const RentOutYourSpace = () => {
   const seo = useSEO({
-    title: "Rent Out Your Parking Space in Dubai — Earn Monthly Income | Shazam Parking",
+    title: "Rent Out Your Parking Space in Dubai - Earn Monthly Income | Shazam Parking",
     description: "List your unused parking space in Dubai and earn passive monthly income. Free listing, verified drivers, secure payments and full owner protection with Shazam Parking.",
     keywords: "rent out parking Dubai, list parking space, earn from parking Dubai, monthly parking income, parking owner Dubai",
     url: "/rent-out-your-space",
@@ -367,7 +367,7 @@ const RentOutYourSpace = () => {
         eyebrow="List your space"
         title="Earn From Your Empty Bay"
         highlight="Empty Bay"
-        subtitle="List your parking space in minutes and start earning every month — completely free to post."
+        subtitle="List your parking space in minutes and start earning every month - completely free to post."
         size="lg"
       />
 

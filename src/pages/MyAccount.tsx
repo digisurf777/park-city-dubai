@@ -508,7 +508,7 @@ const MyAccount = () => {
   }
   return <div className="min-h-screen bg-gradient-to-b from-surface via-background to-background pt-20 animate-fade-in">
       <div className="max-w-5xl mx-auto p-4 lg:p-6">
-        {/* Hero header card — premium 3D glass with Dubai night photo */}
+        {/* Hero header card - premium 3D glass with Dubai night photo */}
         <div className="relative overflow-hidden rounded-[2rem] mb-6 p-6 lg:p-10 border border-white/30
                         shadow-[0_30px_60px_-20px_hsl(var(--primary-deep)/0.55),0_8px_24px_-12px_hsl(var(--primary)/0.45),inset_0_1px_0_0_hsl(0_0%_100%/0.35)]">
           {/* Background photo */}
@@ -530,7 +530,7 @@ const MyAccount = () => {
 
           <div className="relative flex flex-col gap-6 lg:flex-row lg:justify-between lg:items-center">
             <div className="flex items-center gap-5">
-              {/* Avatar — uploadable */}
+              {/* Avatar - uploadable */}
               <div className="relative group">
                 <Avatar className="h-20 w-20 lg:h-24 lg:w-24 rounded-2xl ring-4 ring-white/40 shadow-[0_12px_30px_-8px_hsl(var(--primary-deep)/0.6),inset_0_1px_0_0_hsl(0_0%_100%/0.35)] bg-white/15 backdrop-blur overflow-hidden">
                   <AvatarImage

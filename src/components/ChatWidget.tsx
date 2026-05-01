@@ -35,7 +35,7 @@ interface SessionSummary {
 const STARTERS = [
   { icon: "📍", label: "Where is my booking?", prompt: "Where is my booking and when does it start?" },
   { icon: "💳", label: "How do payments work?", prompt: "Can you explain how payments and payouts work on Shazam Parking?" },
-  { icon: "🅿️", label: "List my parking space", prompt: "I'd like to list my parking space — how do I get started?" },
+  { icon: "🅿️", label: "List my parking space", prompt: "I'd like to list my parking space - how do I get started?" },
   { icon: "🔑", label: "Access card status", prompt: "What's the status of my access card?" },
   { icon: "📅", label: "Extend my booking", prompt: "How can I extend my current booking?" },
   { icon: "📄", label: "Verification status", prompt: "What's the status of my account verification?" },
@@ -331,8 +331,8 @@ const ChatWidget = () => {
             )}
             <a
               href={buildMailto(
-                "Support request — Shazam Parking",
-                `Hi Shazam Parking team,\n\n[Please describe your question here]\n\n— Sent from in-app support (${user?.email ?? ""})`
+                "Support request - Shazam Parking",
+                `Hi Shazam Parking team,\n\n[Please describe your question here]\n\n- Sent from in-app support (${user?.email ?? ""})`
               )}
               className="hidden sm:inline-flex items-center gap-1 h-8 px-3 rounded-md text-white hover:bg-white/15 text-xs font-semibold transition-colors"
               title={`Email ${SUPPORT_EMAIL}`}
@@ -351,7 +351,7 @@ const ChatWidget = () => {
           </div>
         </div>
 
-        {/* Body — chat view */}
+        {/* Body - chat view */}
         {view === "chat" && (
           <>
             <div className={`flex-1 overflow-y-auto px-3 sm:px-6 py-4 space-y-3 bg-gradient-to-b from-white to-surface/40 ${isExpanded ? "lg:px-12 xl:px-24" : ""}`}>
@@ -368,14 +368,14 @@ const ChatWidget = () => {
                   <p className={`${isExpanded ? "text-2xl" : "text-lg"} font-bold text-foreground`}>Online Support</p>
                   <p className="text-xs text-emerald-600 font-semibold mt-0.5">● Available now</p>
                   <p className={`${isExpanded ? "text-base mt-3 max-w-md" : "text-xs mt-2 max-w-[280px]"} text-muted-foreground mx-auto`}>
-                    Ask anything about your bookings, listings, payouts or verification — I'll loop in a teammate by email if needed.
+                    Ask anything about your bookings, listings, payouts or verification - I'll loop in a teammate by email if needed.
                   </p>
 
                   {/* Prefer-email card */}
                   <a
                     href={buildMailto(
-                      "Support request — Shazam Parking",
-                      `Hi Shazam Parking team,\n\n[Please describe your question here]\n\n— Sent from in-app support (${user?.email ?? ""})`
+                      "Support request - Shazam Parking",
+                      `Hi Shazam Parking team,\n\n[Please describe your question here]\n\n- Sent from in-app support (${user?.email ?? ""})`
                     )}
                     className="group mt-5 mx-auto max-w-[320px] flex items-center gap-3 p-3 rounded-2xl bg-gradient-to-br from-primary/5 via-white to-primary/5 border border-primary/20 hover:border-primary hover:shadow-md hover:-translate-y-0.5 transition-all text-left"
                   >
@@ -404,8 +404,8 @@ const ChatWidget = () => {
                     </p>
                     <a
                       href={buildMailto(
-                        "Follow-up on my support chat — Shazam Parking",
-                        `Hi Shazam Parking team,\n\nFollowing up on my in-app chat. Additional details:\n\n[Add details here]\n\n— ${user?.email ?? ""}`
+                        "Follow-up on my support chat - Shazam Parking",
+                        `Hi Shazam Parking team,\n\nFollowing up on my in-app chat. Additional details:\n\n[Add details here]\n\n- ${user?.email ?? ""}`
                       )}
                       className="inline-flex items-center gap-1 mt-1.5 text-[11px] font-bold text-amber-900 underline underline-offset-2 hover:text-amber-700"
                     >
@@ -473,7 +473,7 @@ const ChatWidget = () => {
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Conversation starters — only when empty */}
+            {/* Conversation starters - only when empty */}
             {messages.length === 0 && !thinking && (
               <div className={`px-3 sm:px-4 pb-3 ${isExpanded ? "lg:px-12 xl:px-24" : ""}`}>
                 <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2 text-center">
@@ -526,8 +526,8 @@ const ChatWidget = () => {
                 </button>
                 <a
                   href={buildMailto(
-                    "Support request — Shazam Parking",
-                    `Hi Shazam Parking team,\n\n[Please describe your question here]\n\n— Sent from in-app support (${user?.email ?? ""})`
+                    "Support request - Shazam Parking",
+                    `Hi Shazam Parking team,\n\n[Please describe your question here]\n\n- Sent from in-app support (${user?.email ?? ""})`
                   )}
                   className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-primary transition-colors font-medium"
                   title={`Email ${SUPPORT_EMAIL}`}
@@ -549,7 +549,7 @@ const ChatWidget = () => {
           </>
         )}
 
-        {/* Body — history view */}
+        {/* Body - history view */}
         {view === "history" && (
           <div className="flex-1 overflow-y-auto p-4 bg-gradient-to-b from-white to-surface/40">
             <p className="text-xs text-muted-foreground mb-3">

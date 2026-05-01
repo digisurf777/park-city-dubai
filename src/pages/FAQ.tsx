@@ -8,8 +8,8 @@ import dubaiParkingHero from "@/assets/dubai-parking-hero.webp";
 import useSEO from "@/hooks/useSEO";
 const FAQ = () => {
   const seo = useSEO({
-    title: "FAQ — Shazam Parking | Dubai Monthly Parking Help & Answers",
-    description: "Common questions about Shazam Parking — bookings, payments, owner payouts, access cards, verification and how the Dubai parking marketplace works.",
+    title: "FAQ - Shazam Parking | Dubai Monthly Parking Help & Answers",
+    description: "Common questions about Shazam Parking - bookings, payments, owner payouts, access cards, verification and how the Dubai parking marketplace works.",
     keywords: "Shazam Parking FAQ, Dubai parking questions, monthly parking help, parking booking help Dubai",
     url: "/faq",
   });
@@ -84,7 +84,7 @@ const FAQ = () => {
         eyebrow="Help Center"
         title="Frequently Asked Questions"
         highlight="Asked Questions"
-        subtitle="Find clear answers to common questions about ShazamParking — from bookings and payments to access cards and support."
+        subtitle="Find clear answers to common questions about ShazamParking - from bookings and payments to access cards and support."
         size="lg"
       />
 
@@ -95,7 +95,7 @@ const FAQ = () => {
             Welcome to the <span className="bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">ShazamParking</span> FAQ
           </h2>
           <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
-            Clear answers to the most common questions from drivers and owners — everything you need to know about how our platform works.
+            Clear answers to the most common questions from drivers and owners - everything you need to know about how our platform works.
           </p>
         </div>
 

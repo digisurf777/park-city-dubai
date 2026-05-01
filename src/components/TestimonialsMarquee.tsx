@@ -19,7 +19,7 @@ const TESTIMONIALS: Testimonial[] = [
   },
   {
     quote:
-      "I work in DIFC and used to pay 2,500 AED at a building. Found a private spot on ShazamParking for almost half — same building, same convenience. No-brainer.",
+      "I work in DIFC and used to pay 2,500 AED at a building. Found a private spot on ShazamParking for almost half - same building, same convenience. No-brainer.",
     name: "Ahmed Mohammed",
     role: "Investment Analyst",
     initials: "AM",
@@ -27,7 +27,7 @@ const TESTIMONIALS: Testimonial[] = [
   },
   {
     quote:
-      "Listed my spare parking in Downtown and it was rented within a week. Money lands in my account every month — completely passive income.",
+      "Listed my spare parking in Downtown and it was rented within a week. Money lands in my account every month - completely passive income.",
     name: "Murtaza Hussain",
     role: "Property Owner",
     initials: "MH",
@@ -43,7 +43,7 @@ const TESTIMONIALS: Testimonial[] = [
   },
   {
     quote:
-      "Verified spaces, secure payment, real photos — finally a parking platform that feels professional. Highly recommended.",
+      "Verified spaces, secure payment, real photos - finally a parking platform that feels professional. Highly recommended.",
     name: "Khalid Al Suwaidi",
     role: "Business Owner",
     initials: "KS",
@@ -59,7 +59,7 @@ const TESTIMONIALS: Testimonial[] = [
   },
   {
     quote:
-      "Visited Dubai for 3 months on a project — having a guaranteed monthly spot near my office made my life so much easier.",
+      "Visited Dubai for 3 months on a project - having a guaranteed monthly spot near my office made my life so much easier.",
     name: "James Walker",
     role: "Project Consultant",
     initials: "JW",
@@ -110,7 +110,7 @@ const Card = ({ t }: { t: Testimonial }) => (
 );
 
 const TestimonialsMarquee = () => {
-  // Two rows for richer feel — duplicate items for seamless loop
+  // Two rows for richer feel - duplicate items for seamless loop
   const rowA = [...TESTIMONIALS, ...TESTIMONIALS];
   const rowB = [...TESTIMONIALS.slice().reverse(), ...TESTIMONIALS.slice().reverse()];
 
@@ -131,7 +131,7 @@ const TestimonialsMarquee = () => {
         </p>
       </div>
 
-      {/* Row 1 — left to right scrolling content (visual movement is right→left) */}
+      {/* Row 1 - left to right scrolling content (visual movement is right→left) */}
       <div
         className="group relative overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]"
       >
@@ -142,7 +142,7 @@ const TestimonialsMarquee = () => {
         </div>
       </div>
 
-      {/* Row 2 — opposite direction for depth */}
+      {/* Row 2 - opposite direction for depth */}
       <div className="group relative overflow-hidden mt-6 [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]">
         <div className="flex w-max animate-marquee-reverse group-hover:[animation-play-state:paused]">
           {rowB.map((t, i) => (

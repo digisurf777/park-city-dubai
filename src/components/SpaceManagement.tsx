@@ -844,7 +844,7 @@ const SpaceManagement = ({
                     <TableCell>{l.overridesManual}</TableCell>
                     <TableCell>
                       <div className="text-sm text-muted-foreground">
-                        {l.last_updated ? format(new Date(l.last_updated), 'MMM d, HH:mm') : '—'}
+                        {l.last_updated ? format(new Date(l.last_updated), 'MMM d, HH:mm') : '-'}
                       </div>
                     </TableCell>
                     <TableCell>

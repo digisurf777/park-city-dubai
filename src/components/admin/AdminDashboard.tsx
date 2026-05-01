@@ -138,7 +138,7 @@ export function AdminDashboard({ onJumpTab }: Props) {
         </div>
       </div>
 
-      {/* KPI ROW 1 — money */}
+      {/* KPI ROW 1 - money */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <KpiCard
           icon={<DollarSign className="h-4 w-4" />}
@@ -185,7 +185,7 @@ export function AdminDashboard({ onJumpTab }: Props) {
         />
       </div>
 
-      {/* KPI ROW 2 — users */}
+      {/* KPI ROW 2 - users */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <KpiCard
           icon={<Users className="h-4 w-4" />}
@@ -444,7 +444,7 @@ export function AdminDashboard({ onJumpTab }: Props) {
           </CardHeader>
           <CardContent className="p-0">
             <div className="divide-y divide-border/40 max-h-[420px] overflow-y-auto">
-              {recent.length === 0 && <div className="p-6 text-sm text-muted-foreground">Nothing yet — once data flows it will appear here in real time.</div>}
+              {recent.length === 0 && <div className="p-6 text-sm text-muted-foreground">Nothing yet - once data flows it will appear here in real time.</div>}
               {recent.map((r) => {
                 const kindStyle =
                   r.kind === 'booking' ? { bg: 'bg-gradient-to-br from-primary to-primary-glow', glow: 'hsl(var(--primary) / 0.5)' } :

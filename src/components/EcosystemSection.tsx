@@ -9,7 +9,7 @@ const products = [
     title: "Dubai Life OS",
     tagline: "Personal Operating System",
     description:
-      "Twój osobisty system operacyjny dla życia w Dubaju — dokumenty, terminy, finanse, rodzina, pojazdy i podróże w jednym miejscu. Wszystko, czego potrzebujesz, by uporządkować codzienność.",
+      "Your personal operating system for life in Dubai: documents, deadlines, finances, family, vehicles and travel in one place. Everything you need to keep daily life organised.",
     image: dubaiLifeOsLogo,
     href: "https://dubailifeos.ae",
     cta: "Open Life OS",
@@ -19,7 +19,7 @@ const products = [
     title: "Dubai Life Maps",
     tagline: "City Intelligence",
     description:
-      "Interaktywna mapa Dubaju z warstwami live — ruch, mobilność, środowisko, parkingi i kontekst dzielnic. Poznaj miasto z lotu ptaka i podejmuj lepsze decyzje każdego dnia.",
+      "An interactive map of Dubai with live layers: traffic, mobility, environment, parking and neighbourhood context. See the city from above and make smarter decisions every day.",
     image: dubaiLifeMapsLogo,
     href: "https://dubailifemaps.ae/",
     cta: "Explore Maps",
@@ -29,7 +29,7 @@ const products = [
     title: "Shazam Technology Group",
     tagline: "Parent Company",
     description:
-      "Twórca całego ekosystemu — Shazam Parking, Dubai Life OS i Dubai Life Maps. Łączymy technologię, dane i codzienne potrzeby mieszkańców Dubaju w jeden spójny system.",
+      "The creator of the whole ecosystem: Shazam Parking, Dubai Life OS and Dubai Life Maps. We connect technology, data and the daily needs of Dubai residents into one coherent system.",
     image: shazamLogo,
     href: "https://shazam.ae/",
     cta: "Visit Shazam",
@@ -72,10 +72,10 @@ const EcosystemSection = () => {
             >
               Shazam
             </a>{" "}
-            — connecting life in Dubai
+            - connecting life in Dubai
           </h2>
           <p className="text-base sm:text-lg text-gray-600">
-            Shazam Parking jest częścią szerszego ekosystemu trzech produktów. Razem pomagają zrozumieć miasto, zorganizować życie i rozwiązać codzienną mobilność w Dubaju.
+            Shazam Parking is part of a wider ecosystem of three products. Together they help you understand the city, organise your life and solve everyday mobility in Dubai.
           </p>
         </motion.div>
 
@@ -111,7 +111,7 @@ const EcosystemSection = () => {
 
                   <img
                     src={p.image}
-                    alt={`${p.title} logo — ${p.tagline}`}
+                    alt={`${p.title} logo - ${p.tagline}`}
                     width={280}
                     height={280}
                     loading="lazy"

@@ -775,7 +775,7 @@ const AdminNotifications = ({
                         </div>
                         <div className="md:col-span-2">
                           <span className="text-slate-600 font-semibold block mb-1">Phone:</span>
-                          <span className="font-semibold text-slate-900">{notification.customerProfile?.phone || '—'}</span>
+                          <span className="font-semibold text-slate-900">{notification.customerProfile?.phone || '-'}</span>
                         </div>
                       </div>
                     </div>

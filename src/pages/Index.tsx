@@ -9,7 +9,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import EcosystemSection from "@/components/EcosystemSection";
 import TestimonialsMarquee from "@/components/TestimonialsMarquee";
-import TrustedPlatform from "@/components/TrustedPlatform";
+
 import carEnteringParking from "@/assets/car-entering-parking.jpg";
 import { EmailConfirmationBanner } from "@/components/EmailConfirmationBanner";
 import { Link } from "react-router-dom";
@@ -62,7 +62,7 @@ const Index = () => {
         </div>
       </div>
       
-      {/* Hero — premium, balanced, readable on mobile */}
+      {/* Hero - premium, balanced, readable on mobile */}
       <section
         className="relative overflow-hidden bg-cover bg-center bg-no-repeat"
         style={{
@@ -71,13 +71,13 @@ const Index = () => {
       >
         {/* Bottom darken for text legibility on mobile (only where text sits) */}
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/40 via-black/10 to-transparent"></div>
-        {/* Decorative glows — subtle */}
+        {/* Decorative glows - subtle */}
         <div className="pointer-events-none absolute -bottom-32 -right-32 w-[28rem] h-[28rem] rounded-full bg-primary-glow/10 blur-3xl"></div>
         <div className="pointer-events-none absolute -top-24 -left-24 w-[22rem] h-[22rem] rounded-full bg-primary/10 blur-3xl"></div>
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-white z-10 pt-16 pb-10 sm:pt-28 sm:pb-16 lg:pt-32 lg:pb-20 min-h-[600px] sm:min-h-[680px] lg:min-h-[720px] flex items-center">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8 lg:gap-12 items-center w-full">
-            {/* Left — Text */}
+            {/* Left - Text */}
             <motion.div
               className="text-center lg:text-left order-2 lg:order-1"
               initial="hidden"
@@ -160,7 +160,7 @@ const Index = () => {
               </motion.div>
             </motion.div>
 
-            {/* Right — Phone (transparent PNG, centered & balanced) */}
+            {/* Right - Phone (transparent PNG, centered & balanced) */}
             <div className="flex justify-center lg:justify-end order-1 lg:order-2">
               <motion.div
                 className="relative flex items-center justify-center"
@@ -260,7 +260,7 @@ const Index = () => {
                   <Card className="overflow-hidden rounded-2xl ring-1 ring-primary/10 shadow-lg hover:shadow-2xl hover:ring-primary/40 transition-all duration-300 group">
                     <div className="relative aspect-[4/5] sm:aspect-[4/5]">
                       <img src={location.image} alt={location.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" loading="lazy" decoding="async" />
-                      {/* Bottom gradient only — keeps image fully visible */}
+                      {/* Bottom gradient only - keeps image fully visible */}
                       <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/85 via-black/40 to-transparent"></div>
                       {/* Title pinned at bottom-left */}
                       <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5 flex items-end justify-between gap-3">
@@ -282,7 +282,7 @@ const Index = () => {
         </div>
       </motion.section>
 
-      {/* How It Works — tightened */}
+      {/* How It Works - tightened */}
       <motion.section
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
@@ -307,7 +307,7 @@ const Index = () => {
             {[
               { icon: Search, title: "Search & Select", description: "Browse verified spaces near you." },
               { icon: CreditCard, title: "Book Securely", description: "Reserve in seconds with secure payment." },
-              { icon: Car, title: "Park & Relax", description: "Arrive — your spot is waiting." },
+              { icon: Car, title: "Park & Relax", description: "Arrive - your spot is waiting." },
             ].map((step, index) => (
               <motion.div
                 key={index}
@@ -334,7 +334,7 @@ const Index = () => {
         </div>
       </motion.section>
 
-      {/* Problems We Solve — NEW section */}
+      {/* Problems We Solve - NEW section */}
       <motion.section
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
@@ -353,7 +353,7 @@ const Index = () => {
               Parking in Dubai shouldn't be a daily headache
             </h2>
             <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
-              We connect drivers with private parking owners — solving the four biggest pains of city parking.
+              We connect drivers with private parking owners - solving the four biggest pains of city parking.
             </p>
           </div>
 
@@ -399,7 +399,7 @@ const Index = () => {
                 }}
               >
                 <div className="relative rounded-[14px] bg-white overflow-hidden flex flex-col w-full">
-                  {/* Visual — bigger, more prominent */}
+                  {/* Visual - bigger, more prominent */}
                   <div className="relative aspect-[4/3] sm:aspect-square overflow-hidden">
                     <img
                       src={item.image}
@@ -434,7 +434,7 @@ const Index = () => {
       </motion.section>
 
 
-      {/* Own a Parking Space — premium */}
+      {/* Own a Parking Space - premium */}
       <motion.section
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
@@ -460,7 +460,7 @@ const Index = () => {
                 <span className="block text-gradient-primary mt-1">Turn it into income.</span>
               </h2>
               <p className="text-base sm:text-lg text-muted-foreground mb-6 max-w-lg mx-auto lg:mx-0">
-                Your unused parking spot can earn steady monthly income. We handle bookings, payments, and tenant matching — you just get paid.
+                Your unused parking spot can earn steady monthly income. We handle bookings, payments, and tenant matching - you just get paid.
               </p>
 
               {/* Stat badges */}
@@ -503,7 +503,7 @@ const Index = () => {
               </div>
             </motion.div>
 
-            {/* Image — premium frame */}
+            {/* Image - premium frame */}
             <motion.div
               initial={{ opacity: 0, x: 40 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -626,11 +626,8 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Testimonials — animated marquee */}
+      {/* Testimonials - animated marquee */}
       <TestimonialsMarquee />
-
-      {/* Trusted Platform — partners + badges */}
-      <TrustedPlatform />
 
 
       {/* Final CTA */}

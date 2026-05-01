@@ -99,7 +99,7 @@ const ContactAdmin = () => {
         eyebrow="We're here to help"
         title="Contact Support"
         highlight="Support"
-        subtitle="Send us a message through the form below or email us directly — our team typically replies within 24 hours."
+        subtitle="Send us a message through the form below or email us directly - our team typically replies within 24 hours."
       />
 
       <div className="container mx-auto px-4 py-12">
