@@ -248,7 +248,7 @@ const Navbar = () => {
                           className="flex items-center gap-3 px-4 py-3.5 active:bg-primary/5 transition-colors min-h-[52px]"
                         >
                           <div className={`h-9 w-9 rounded-lg flex items-center justify-center ${item.accent ? 'bg-gradient-to-br from-primary to-primary-deep text-white shadow-md' : 'bg-primary/10 text-primary'}`}>
-                            <item.icon className="h-4.5 w-4.5" strokeWidth={2.2} />
+                            <item.icon className="h-[18px] w-[18px]" strokeWidth={2.2} />
                           </div>
                           <span className="flex-1 font-semibold text-sm text-foreground">{item.label}</span>
                           <ChevronDown className="h-4 w-4 -rotate-90 text-muted-foreground" />
@@ -300,7 +300,7 @@ const Navbar = () => {
                           className="flex items-center gap-3 px-4 py-3.5 active:bg-primary/5 transition-colors min-h-[52px]"
                         >
                           <div className="h-9 w-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
-                            <item.icon className="h-4.5 w-4.5" strokeWidth={2.2} />
+                            <item.icon className="h-[18px] w-[18px]" strokeWidth={2.2} />
                           </div>
                           <span className="flex-1 font-semibold text-sm text-foreground">{item.label}</span>
                           <ChevronDown className="h-4 w-4 -rotate-90 text-muted-foreground" />
