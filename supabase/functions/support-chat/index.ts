@@ -22,6 +22,53 @@ interface Body {
   history?: IncomingMsg[];          // optional already-loaded history (widget)
   mode?: 'reply' | 'draft';         // 'draft' = admin draft generator
   targetUserId?: string;            // admin draft only — generate context for this user
+  sessionId?: string;               // groups messages into one chat session (new chat = new id)
+}
+
+const SUPPORT_EMAIL = 'support@shazamparking.ae';
+const HANDOFF_TOKEN = '[[HANDOFF]]';
+
+async function notifyHumanHandoff(opts: {
+  resendKey: string | undefined;
+  userName: string;
+  userEmail: string;
+  userPhone: string;
+  question: string;
+  sessionId?: string;
+}) {
+  if (!opts.resendKey) {
+    console.warn('RESEND_API_KEY not set — skipping handoff email');
+    return;
+  }
+  try {
+    const html = `
+      <div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;padding:24px">
+        <h2 style="color:#0f172a">🆘 Layla escalated a chat to a human</h2>
+        <p style="color:#334155">A user asked something the AI assistant could not answer with confidence.</p>
+        <div style="background:#f1f5f9;padding:16px;border-radius:8px;margin:16px 0">
+          <p style="margin:4px 0"><b>User:</b> ${opts.userName}</p>
+          <p style="margin:4px 0"><b>Email:</b> ${opts.userEmail}</p>
+          <p style="margin:4px 0"><b>Phone:</b> ${opts.userPhone}</p>
+          ${opts.sessionId ? `<p style="margin:4px 0"><b>Session:</b> ${opts.sessionId}</p>` : ''}
+        </div>
+        <p style="color:#334155"><b>Last message:</b></p>
+        <blockquote style="border-left:3px solid #6366f1;padding-left:12px;color:#475569">${opts.question.replace(/</g,'&lt;')}</blockquote>
+        <p style="color:#64748b;font-size:12px;margin-top:24px">Reply directly in the admin chat panel.</p>
+      </div>`;
+    await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${opts.resendKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        from: 'Shazam Parking <noreply@shazamparking.ae>',
+        to: [SUPPORT_EMAIL],
+        bcc: [SUPPORT_EMAIL],
+        subject: `🆘 Human handoff requested — ${opts.userName}`,
+        html,
+      }),
+    });
+  } catch (err) {
+    console.error('Handoff email failed', err);
+  }
 }
 
 function fmt(d: string | Date | null | undefined) {
