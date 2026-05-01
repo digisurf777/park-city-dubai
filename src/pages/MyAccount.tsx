@@ -243,37 +243,31 @@ const MyAccount = () => {
     
     setUpdating(true);
     try {
-      console.log('Attempting profile update', { userId: user.id, profileId: profile?.id });
-      let query = supabase
-        .from('profiles')
-        .update({
-          full_name: profile.full_name,
-          phone: profile.phone,
-          email: user.email, // keep email in sync with auth
-          user_type: isParkingOwner ? 'owner' : 'seeker',
-        });
+      const updatePayload = {
+        full_name: profile.full_name,
+        phone: profile.phone,
+        email: user.email,
+        user_type: isParkingOwner ? 'owner' : 'seeker',
+        avatar_url: profile.avatar_url ?? null,
+        bio: profile.bio ?? null,
+        preferred_language: profile.preferred_language ?? 'en',
+        notification_email: profile.notification_email ?? true,
+        notification_sms: profile.notification_sms ?? false,
+      };
 
+      let query = supabase.from('profiles').update(updatePayload);
       query = profile?.id ? query.eq('id', profile.id) : query.eq('user_id', user.id);
 
       const { data, error } = await query.select().maybeSingle();
 
       if (error || !data) {
-        console.error('Profile update error or no row updated:', error);
-        // Fallback: create profile if it doesn't exist or nothing was updated
         const { error: insertError, data: insertData } = await supabase
           .from('profiles')
-          .insert({
-            user_id: user.id,
-            email: user.email,
-            full_name: profile.full_name,
-            phone: profile.phone,
-            user_type: isParkingOwner ? 'owner' : 'seeker',
-          })
+          .insert({ user_id: user.id, ...updatePayload })
           .select()
           .maybeSingle();
 
         if (insertError) {
-          console.error('Profile insert fallback error:', insertError);
           toast.error(`Failed to save profile: ${(error || insertError).message}`);
         } else {
           toast.success('Profile saved successfully');
@@ -290,6 +284,68 @@ const MyAccount = () => {
       setUpdating(false);
     }
   };
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image must be smaller than 5 MB');
+      return;
+    }
+
+    setUploadingAvatar(true);
+    try {
+      const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+      const path = `${user.id}/avatar-${Date.now()}.${ext}`;
+
+      const { error: upErr } = await supabase.storage
+        .from('avatars')
+        .upload(path, file, { upsert: true, cacheControl: '3600' });
+      if (upErr) throw upErr;
+
+      const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(path);
+      const publicUrl = urlData.publicUrl;
+
+      const { error: dbErr } = await supabase
+        .from('profiles')
+        .update({ avatar_url: publicUrl })
+        .eq('user_id', user.id);
+      if (dbErr) throw dbErr;
+
+      setProfile(prev => prev ? { ...prev, avatar_url: publicUrl } : prev);
+      toast.success('Profile picture updated');
+    } catch (err: any) {
+      console.error('Avatar upload failed:', err);
+      toast.error(err.message || 'Failed to upload picture');
+    } finally {
+      setUploadingAvatar(false);
+      e.target.value = '';
+    }
+  };
+
+  const removeAvatar = async () => {
+    if (!user || !profile?.avatar_url) return;
+    setUploadingAvatar(true);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ avatar_url: null })
+        .eq('user_id', user.id);
+      if (error) throw error;
+      setProfile(prev => prev ? { ...prev, avatar_url: null } : prev);
+      toast.success('Profile picture removed');
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to remove picture');
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
+
   const handleLogout = async () => {
     try {
       console.log('Starting logout process...');
