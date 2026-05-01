@@ -24,7 +24,7 @@ const Navbar = () => {
   }
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-white/80 border-b border-white/20 shadow-lg pt-safe-area-top">
+    <nav className="fixed top-0 left-0 right-0 z-50 glass border-b border-white/30 pt-safe-area-top">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16 min-h-[60px]">
           {/* Logo */}
@@ -179,7 +179,7 @@ const Navbar = () => {
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="md:hidden fixed top-16 left-0 right-0 z-40 backdrop-blur-md bg-white/95 border-b border-white/20 shadow-lg animate-fade-in max-h-[calc(100vh-4rem)] overflow-y-auto mobile-scroll">
+          <div className="md:hidden fixed top-16 left-0 right-0 z-40 glass border-b border-white/30 animate-fade-in max-h-[calc(100vh-4rem)] overflow-y-auto mobile-scroll">
             <div className="px-4 py-6 space-y-2 pb-safe-area-bottom">
               
               {/* Auth Buttons - Top of mobile menu */}
