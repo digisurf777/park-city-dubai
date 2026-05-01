@@ -1136,6 +1136,42 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_knowledge: {
+        Row: {
+          category: string
+          content: string
+          created_at: string
+          id: string
+          is_active: boolean
+          keywords: string[]
+          priority: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          content: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          keywords?: string[]
+          priority?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          content?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          keywords?: string[]
+          priority?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profile_access_audit: {
         Row: {
           access_reason: string | null
@@ -1335,6 +1371,7 @@ export type Database = {
           created_at: string
           from_admin: boolean
           id: string
+          is_ai: boolean
           message: string
           read_status: boolean
           subject: string
@@ -1345,6 +1382,7 @@ export type Database = {
           created_at?: string
           from_admin?: boolean
           id?: string
+          is_ai?: boolean
           message: string
           read_status?: boolean
           subject: string
@@ -1355,6 +1393,7 @@ export type Database = {
           created_at?: string
           from_admin?: boolean
           id?: string
+          is_ai?: boolean
           message?: string
           read_status?: boolean
           subject?: string

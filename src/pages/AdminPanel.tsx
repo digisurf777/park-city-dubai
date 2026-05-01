@@ -19,7 +19,7 @@ import {
   Pencil, Trash2, Plus, CheckCircle, XCircle, FileText, Mail, Upload, X, 
   Eye, Edit, Lightbulb, Camera, Settings, RefreshCw, MessageCircle, Send, 
   LogOut, Home, Grid, Bell, Users, Car, Copy, ExternalLink, Image, CreditCard,
-  Calendar, Clock, DollarSign, AlertTriangle, RotateCcw, Shield
+  Calendar, Clock, DollarSign, AlertTriangle, RotateCcw, Shield, Sparkles
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
@@ -131,6 +131,7 @@ interface ChatMessage {
   message: string;
   from_admin: boolean;
   read_status: boolean;
+  is_ai?: boolean;
   created_at: string;
   profiles?: {
     full_name: string;
@@ -206,6 +207,34 @@ const AdminPanelOrganized = () => {
   const [chatUsers, setChatUsers] = useState<ChatUser[]>([]);
   const [chatTotalUnread, setChatTotalUnread] = useState(0);
   const chatMessagesEndRef = useRef<HTMLDivElement>(null);
+  const [draftLoading, setDraftLoading] = useState(false);
+
+  const generateDraft = async () => {
+    if (!selectedChatUser) return;
+    setDraftLoading(true);
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData.session?.access_token;
+      if (!token) throw new Error('Not authenticated');
+      const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/support-chat`;
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ mode: 'draft', targetUserId: selectedChatUser }),
+      });
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        throw new Error(j.error || `Request failed (${res.status})`);
+      }
+      const json = await res.json();
+      if (json.reply) setChatReply(json.reply);
+    } catch (e: any) {
+      console.error('Draft generation failed', e);
+      toast({ title: 'Draft failed', description: e?.message || 'Could not generate draft', variant: 'destructive' });
+    } finally {
+      setDraftLoading(false);
+    }
+  };
 
   // Form state
   const [title, setTitle] = useState('');
@@ -2963,10 +2992,15 @@ const AdminPanelOrganized = () => {
                                 >
                                   <div className="flex items-center gap-2 mb-1">
                                     <span className="text-sm font-medium">
-                                      {msg.from_admin ? 'Admin' : msg.profiles?.full_name || 'User'}
+                                      {msg.from_admin ? (msg.is_ai ? 'Layla AI' : 'Admin') : msg.profiles?.full_name || 'User'}
                                     </span>
+                                    {msg.is_ai && (
+                                      <Badge variant="outline" className="h-4 px-1.5 text-[9px] border-amber-300 bg-amber-50 text-amber-700">
+                                        <Sparkles className="h-2.5 w-2.5 mr-0.5" />AI
+                                      </Badge>
+                                    )}
                                   </div>
-                                  <p className="text-sm">{msg.message}</p>
+                                  <p className="text-sm whitespace-pre-wrap">{msg.message}</p>
                                   <p className="text-xs opacity-70 mt-1">
                                     {new Date(msg.created_at).toLocaleString()}
                                   </p>
@@ -2976,22 +3010,41 @@ const AdminPanelOrganized = () => {
                           <div ref={chatMessagesEndRef} />
                         </div>
 
-                        {/* Reply Input */}
-                        <div className="flex items-center space-x-2">
-                          <Input
-                            value={chatReply}
-                            onChange={(e) => setChatReply(e.target.value)}
-                            placeholder="Type your reply..."
-                            onKeyPress={(e) => e.key === 'Enter' && sendChatReply()}
-                            className="flex-1"
-                          />
-                          <Button 
-                            onClick={sendChatReply} 
-                            disabled={!chatReply.trim() || sendingReply}
-                            size="icon"
-                          >
-                            <Send className="h-4 w-4" />
-                          </Button>
+                        {/* Reply Input with AI draft */}
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={generateDraft}
+                              disabled={draftLoading}
+                              className="border-primary/30 text-primary hover:bg-primary/5"
+                            >
+                              <Sparkles className={`h-4 w-4 mr-1.5 ${draftLoading ? 'animate-pulse' : ''}`} />
+                              {draftLoading ? 'Drafting…' : 'Generate AI draft'}
+                            </Button>
+                            {chatReply && (
+                              <button onClick={() => setChatReply('')} className="text-xs text-muted-foreground hover:text-foreground">Clear</button>
+                            )}
+                          </div>
+                          <div className="flex items-end space-x-2">
+                            <Textarea
+                              value={chatReply}
+                              onChange={(e) => setChatReply(e.target.value)}
+                              placeholder="Type your reply or click 'Generate AI draft'…"
+                              rows={3}
+                              className="flex-1 resize-none"
+                            />
+                            <Button
+                              onClick={sendChatReply}
+                              disabled={!chatReply.trim() || sendingReply}
+                              size="icon"
+                              className="h-10 w-10"
+                            >
+                              <Send className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </div>
                       </>
                     ) : (

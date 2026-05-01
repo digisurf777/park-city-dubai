@@ -1,101 +1,106 @@
-# Boss Admin Dashboard — live, real data, profesjonalny
+## Goals
 
-Nowy "Dashboard" jako pierwsza zakładka panelu admina. Wszystko liczone z aktualnych danych Supabase, z live refresh (Realtime + 60s fallback). Reszta istniejącego panelu zostaje bez zmian.
+1. **Support chat** that already knows everything about the logged-in user (profile, bookings, listings, payouts, verification) before it answers, replies like a human, and resolves most issues itself.
+2. **Bigger, prettier chat window** with smooth expand/collapse, a polished launcher button, branded avatar, and proper history.
+3. **Admin Live Chat** gets a "Generate draft reply" button — AI drafts a personalised response using the same user context, admin can edit & send.
+4. **Admin dashboard** gets richer visualisations and a couple of new high-signal panels.
 
-## Co zobaczysz (na podstawie obecnych danych w bazie)
+---
 
-Wstępne metryki w Twoim systemie już teraz:
-- 374 użytkowników (27 nowych w 30 dni)
-- 68 listingów (67 aktywnych)
-- 29 bookings (8 confirmed, 19 pre-authorized, 21 cancelled)
-- GMV (confirmed) ~44,538 AED · Wypłaty ownerom 24,567 AED · Net margin ~19,971 AED
+## 1. Knowledge base for the AI
 
-## Layout dashboardu
+Most facts the bot needs already live in the DB (bookings, listings, payouts, verification, profile, MFA). We add **one new table** for editable platform knowledge (FAQs, policies, how-to articles) so support answers stay in sync without redeploys.
 
 ```text
-┌─────────────────────────────────────────────────────────────┐
-│  Boss Dashboard            [7d] [30d] [90d]   ⟳ live · 12s  │
-├─────────────────────────────────────────────────────────────┤
-│ KPI ROW 1 (4 karty z trendem)                               │
-│ ┌──────────┬──────────┬──────────┬──────────┐               │
-│ │ GMV      │ Net Rev  │ Payouts  │ Bookings │               │
-│ │ 44,538 د │ 19,971 د │ 24,567 د │   29     │               │
-│ │ +12% ↑30 │  …       │  …       │  …       │               │
-│ └──────────┴──────────┴──────────┴──────────┘               │
-│ KPI ROW 2 (4 karty)                                         │
-│ │ Users 374 │ Paying 23 │ Free 351 │ Conv 2.1% │            │
-├─────────────────────────────────────────────────────────────┤
-│  Revenue & Bookings trend (area + bars)  │  New users line  │
-│  ───────────────────────────────         │  ────────────    │
-├─────────────────────────────────────────────────────────────┤
-│  Top zones (revenue + listings)   │  Top earning owners      │
-│  Marina  ████████ 18,500          │  1. A.Khan  12,300 AED   │
-│  Bay     ████  6,200              │  2. M.Ali    8,500 AED   │
-├─────────────────────────────────────────────────────────────┤
-│  Live activity feed       │  Quick actions / inbox alerts   │
-│  • Booking · Marina 1,100 │  [📣 Broadcast to all users]   │
-│  • New user · john@…      │  [📨 Message a user]           │
-│  • Payout · A.Khan 3,200  │  3 unread · 4 pending KYC      │
-└─────────────────────────────────────────────────────────────┘
+platform_knowledge
+─ id uuid pk
+─ category text         (booking | payment | listing | account | policy | general)
+─ title text
+─ content text          (markdown — the actual answer)
+─ keywords text[]       (helps retrieval)
+─ priority int default 0
+─ is_active bool default true
+─ created_at, updated_at
 ```
 
-## Sekcje i metryki
+RLS: public can `SELECT` active rows; only admins can write. Seeded with ~20 entries covering: how bookings work, refund policy (final & non-refundable), 500 AED access-card deposit, payout schedule, listing approval flow, MFA, contact info, etc. Editable from Admin → "Knowledge Base" sub-tab.
 
-### KPI cards (8) — wszystkie z prawdziwych danych
-- **GMV (paid/confirmed)** + delta vs poprzednie 30 dni
-- **Net revenue** = GMV − payouts ownerom (przybliżona marża)
-- **Owner payouts** total + last 30d
-- **Bookings** total / paid / pre-auth / pending / cancelled (badge breakdown)
-- **Users** total · new 30d · new 7d
-- **Paying owners** vs **Free users** (segmentacja)
-- **Conversion rate** (% userów z ≥1 paid booking)
-- **Pending KYC** + **Unread messages** (CTA do odpowiednich tabów)
+## 2. AI edge function: `support-chat`
 
-### Wykresy (recharts, już w projekcie)
-- **Revenue area + bookings bars** combo, ostatnie 7/30/90 dni (przełącznik)
-- **New users line chart** w tym samym oknie czasu
-- **Zone breakdown** — bar chart z revenue per zone + listings count
+New function streams responses from Lovable AI Gateway (`google/gemini-2.5-flash`, `LOVABLE_API_KEY` already set).
 
-### Top owners leaderboard
-Top 8 ownerów posortowane po `total_earned`. Kolumny: avatar/imię, email, listings count, payouts count, total earned. Klik → otwiera istniejący tab "Payments" / "Users".
+On each request the function:
+1. Validates JWT, gets `user.id`.
+2. Loads **user context bundle** server-side:
+   - profile (name, email, phone, user_type, created_at)
+   - active + recent bookings (status, dates, location, amount, payment_status)
+   - listings owned (status, zone, address)
+   - latest owner payouts
+   - verification status / MFA
+   - unread admin notifications
+3. Pulls top relevant `platform_knowledge` rows (keyword match on the user's last message).
+4. Builds a strict system prompt: human, warm, concise, never invents facts, refers to bookings by date/location, escalates to human when unsure ("I'll flag this for our team").
+5. Streams the assistant reply (SSE) back to the widget.
+6. Persists both user message and assistant reply into `user_messages` (assistant marked `from_admin = true`, with new flag `is_ai = true`) so admin sees the full thread.
 
-### Live activity feed
-Ostatnie 12 zdarzeń: bookings, nowi użytkownicy, payouts. Status badge + kwota AED + relative time ("2 min ago"). Auto-update przez Realtime.
+Schema tweak: `ALTER TABLE user_messages ADD COLUMN is_ai bool DEFAULT false`.
 
-### Quick actions (boss controls)
-- **📣 Broadcast** — modal wysyła `user_messages` do wszystkich userów (z subjectem + treścią). Z confirm dialogiem ("Wyślesz do 374 osób, kontynuować?").
-- **📨 Message a user** — combobox z listą profili (wyszukiwanie po nazwie/emailu) → szybki form do napisania wiadomości jednej osobie. Insert do `user_messages` z `from_admin=true`.
-- **Jump to** — szybkie skróty do tabów: Pre-auth, Owner payments, KYC, Chats.
+## 3. Redesigned ChatWidget
 
-## Technika
+File: `src/components/ChatWidget.tsx` — full rewrite.
 
-### Nowe pliki
-- `src/hooks/useAdminStats.tsx` — fetch z `profiles`, `parking_listings`, `parking_bookings`, `owner_payments`, `user_verifications`, `user_messages`. Liczenie KPI / trendu / zones / top owners / recent. Subskrypcja Realtime na 4 tabele + fallback `setInterval(60000)`. Eksportuje `{ data, loading, refreshing, lastUpdated, refetch }` z range `7|30|90`.
-- `src/components/admin/AdminDashboard.tsx` — UI dashboardu (KPI cards, recharts AreaChart/BarChart/LineChart, leaderboard, feed, quick action modale).
-- `src/components/admin/BroadcastDialog.tsx` — modal "Broadcast to all users" (subject, message, confirm count, batch insert do `user_messages`).
-- `src/components/admin/MessageUserDialog.tsx` — modal "Message a user" (Command/Combobox z `profiles`, subject + message, insert do `user_messages`).
+- **Launcher button**: floating gradient pill ("Chat with us"), gentle pulse, online dot, unread badge. Mobile = compact circle.
+- **Window sizes**: 3 states — minimized header bar, default (`w-[380px] h-[560px]`), expanded (`w-[560px] h-[80vh]` with side-fade animation). Toggle via maximize icon.
+- **Header**: AI avatar (generated image — friendly support agent, no text), name "Layla – Shazam Assistant", green online dot, expand / minimize / close icons.
+- **Messages**: bubble layout with markdown rendering (`react-markdown`), typing indicator (animated dots) while streaming, timestamps, distinct AI vs human-admin styling.
+- **Composer**: auto-grow textarea, Enter to send / Shift+Enter newline, attachment-style quick suggestions (chips) on first open ("My booking", "Payments", "List my space", "Talk to a human").
+- **Streaming**: reads SSE chunks from `support-chat` and appends to the in-flight assistant bubble.
+- **History**: full thread loaded from `user_messages`, realtime subscription for admin replies.
+- **"Talk to a human"** chip flips a flag — bot stops auto-replying and admin gets a high-priority notification.
 
-### Edycje
-- `src/pages/AdminPanel.tsx` — dodać `<TabsTrigger value="dashboard">` jako PIERWSZĄ zakładkę z ikoną LayoutDashboard, ustawić `defaultValue="dashboard"`. Render `<AdminDashboard />` w nowym `<TabsContent>`.
+Image to generate (no text on it): `src/assets/support-avatar.webp` — friendly Middle-East-style support agent portrait, soft brand-green backdrop.
 
-### Bezpieczeństwo / zgodność z politykami
-- Wszystkie zapytania używają `supabase` clienta — RLS sam ograniczy dane do admin (już są policy "admins_full_access_*").
-- Broadcast & message wpisują wiersze do `user_messages` z `from_admin=true` — istniejąca polityka admina pokrywa insert (admin ma `ALL`).
-- Bez nowych migracji, bez nowych edge functions. Bez serwisowych kluczy, bez SQL stringów — tylko typed client.
-- Phone/email displayed tylko adminowi (już jest na MFA).
+## 4. Admin Live Chat upgrades
 
-### Mobile
-- KPI grid: 2 cols mobile / 4 desktop.
-- Wykresy `ResponsiveContainer` 100%.
-- Leaderboard i feed: jednokolumnowe na mobile, dwukolumnowe ≥lg.
-- Sticky range-picker nad KPI.
+File: `src/pages/AdminPanel.tsx` (chat tab) — keep current 3-column layout, add:
 
-### Brand / styl
-- Karty z `glass-card` + `shadow-elegant`, gradient akcent `bg-gradient-primary` na "GMV" i "Net Rev".
-- Wykresy w teal palette: `hsl(var(--primary))`, `hsl(var(--primary-glow))`, `hsl(var(--primary-deep))`.
-- Status badge (paid=zielony, pending=żółty, cancelled=czerwony, pre_auth=niebieski).
+- **Right-side User Context panel** (replaces empty space when a conversation is selected): profile card, latest bookings list, listings, payouts total, verification status, unread alerts. One click → jump to that booking/listing in admin.
+- **"Generate draft" button** above the reply input. Calls `support-chat` with `mode: "draft"` and the conversation history; returned text is placed (editable) in the reply textarea. Admin tweaks → sends.
+- **Quick canned replies** dropdown (pulled from `platform_knowledge`) for one-click insertion.
+- **AI badge** on messages where `is_ai = true` so admin can tell apart bot vs human-admin replies.
+- **Search & filter** on the conversations list (by name/email, only-unread toggle).
 
-## Co NIE jest w tym kroku
-- Eksport CSV / PDF KPI (mogę dodać w kolejnym kroku jeśli chcesz).
-- Cohort analysis / retencja (wymaga więcej danych historycznych).
-- Edge function do pre-aggregacji (póki <1000 wierszy w tabelach — niepotrzebne, fetch jest szybki).
+## 5. Admin Dashboard upgrades
+
+File: `src/components/admin/AdminDashboard.tsx` + `useAdminStats.tsx`.
+
+Add:
+- **Funnel card**: Visitors → Signups → Verified → First booking → Repeat (uses existing tables; visitors = signups for now).
+- **Revenue split donut**: GMV vs payouts vs net.
+- **Booking status mix** stacked bar over time.
+- **Occupancy heatmap** (zone × weekday) from `parking_bookings`.
+- **AI support stats** small KPI: chats today, resolved-by-AI %, avg reply time, escalations.
+- **Sticky live activity** ticker with subtle slide-in for new rows (realtime channel on bookings + user_messages + parking_listings).
+- Polished tooltips and empty-state illustrations.
+
+## 6. Memory rule
+
+Save: AI support agent persona is "Layla", powered by `google/gemini-2.5-flash` via Lovable AI Gateway, must always load full user context before replying, never invent facts, escalate when unsure.
+
+---
+
+## Technical notes
+
+- New table `platform_knowledge` + new column `user_messages.is_ai` via migration tool.
+- New edge function `supabase/functions/support-chat/index.ts` (streaming, JWT-validated, CORS).
+- Frontend deps: add `react-markdown` (already common). Streaming via `fetch` + `ReadableStream`.
+- All colors via existing semantic tokens (`primary`, `primary-glow`, `muted`, etc.) — no hard-coded hex.
+- Mobile: chat window adapts to `inset-0` with safe-area padding when expanded on small screens.
+- Rate limit safety: client debounces sends; edge function returns 429-friendly errors.
+- No service-role key on the client; widget calls the edge function with the user's JWT.
+
+## Out of scope (ask if you want them)
+
+- Voice input / file uploads in chat.
+- Multilingual auto-detect (currently English; can add Arabic toggle later).
+- Per-conversation AI on/off toggle from the widget (admin can disable globally).

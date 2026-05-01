@@ -1,0 +1,299 @@
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.0';
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers':
+    'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+};
+
+const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
+const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY')!;
+const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+
+interface IncomingMsg {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
+interface Body {
+  message?: string;                 // single new user message (widget mode)
+  history?: IncomingMsg[];          // optional already-loaded history (widget)
+  mode?: 'reply' | 'draft';         // 'draft' = admin draft generator
+  targetUserId?: string;            // admin draft only — generate context for this user
+}
+
+function fmt(d: string | Date | null | undefined) {
+  if (!d) return '—';
+  try { return new Date(d).toLocaleDateString('en-AE', { day: 'numeric', month: 'short', year: 'numeric' }); } catch { return '—'; }
+}
+
+async function loadUserContext(admin: ReturnType<typeof createClient>, userId: string) {
+  const [profileR, bookingsR, listingsR, payoutsR, verifR, notifR] = await Promise.all([
+    admin.from('profiles').select('full_name, email, phone, user_type, created_at').eq('user_id', userId).maybeSingle(),
+    admin.from('parking_bookings')
+      .select('id, location, zone, start_time, end_time, status, payment_status, cost_aed, created_at')
+      .eq('user_id', userId).order('created_at', { ascending: false }).limit(8),
+    admin.from('parking_listings')
+      .select('id, title, address, zone, status, price_per_month, created_at')
+      .eq('owner_id', userId).order('created_at', { ascending: false }).limit(8),
+    admin.from('owner_payments')
+      .select('id, amount_aed, payment_date, status, payment_period_start, payment_period_end')
+      .eq('owner_id', userId).order('payment_date', { ascending: false }).limit(5),
+    admin.from('user_verifications').select('verification_status, document_type, created_at').eq('user_id', userId).maybeSingle(),
+    admin.from('user_notifications').select('title, message, created_at, is_read').eq('user_id', userId).order('created_at', { ascending: false }).limit(5),
+  ]);
+
+  return {
+    profile: profileR.data,
+    bookings: bookingsR.data ?? [],
+    listings: listingsR.data ?? [],
+    payouts: payoutsR.data ?? [],
+    verification: verifR.data,
+    notifications: notifR.data ?? [],
+  };
+}
+
+async function loadKnowledge(admin: ReturnType<typeof createClient>, query: string) {
+  // Pull all active entries (small table). Rank client-side by keyword overlap.
+  const { data } = await admin
+    .from('platform_knowledge')
+    .select('category, title, content, keywords, priority')
+    .eq('is_active', true);
+
+  if (!data) return [];
+
+  const q = (query || '').toLowerCase();
+  const scored = data.map((row: any) => {
+    let score = row.priority ?? 0;
+    for (const kw of (row.keywords ?? []) as string[]) {
+      if (q.includes(kw.toLowerCase())) score += 25;
+    }
+    if (q && row.title && q.includes(row.title.toLowerCase())) score += 15;
+    return { row, score };
+  });
+
+  scored.sort((a, b) => b.score - a.score);
+  return scored.slice(0, 8).map((s) => s.row);
+}
+
+function buildSystemPrompt(ctx: any, knowledge: any[], adminMode: boolean) {
+  const profile = ctx.profile;
+  const userBlock = profile
+    ? `Name: ${profile.full_name || '—'}\nEmail: ${profile.email || '—'}\nPhone: ${profile.phone || '—'}\nAccount type: ${profile.user_type || 'seeker'}\nMember since: ${fmt(profile.created_at)}`
+    : 'No profile on file.';
+
+  const bookingBlock = ctx.bookings.length
+    ? ctx.bookings.map((b: any) => `• ${b.location} (${b.zone}) — ${fmt(b.start_time)} → ${fmt(b.end_time)} — status: ${b.status}, payment: ${b.payment_status}, ${b.cost_aed} AED`).join('\n')
+    : 'No bookings yet.';
+
+  const listingBlock = ctx.listings.length
+    ? ctx.listings.map((l: any) => `• ${l.title} (${l.zone}) — ${l.address} — status: ${l.status}, monthly: ${l.price_per_month ?? '—'} AED`).join('\n')
+    : 'No listings.';
+
+  const payoutBlock = ctx.payouts.length
+    ? ctx.payouts.map((p: any) => `• ${fmt(p.payment_date)}: ${p.amount_aed} AED — ${p.status} (${fmt(p.payment_period_start)}–${fmt(p.payment_period_end)})`).join('\n')
+    : 'No payouts yet.';
+
+  const verifBlock = ctx.verification
+    ? `Verification: ${ctx.verification.verification_status} (${ctx.verification.document_type || '—'})`
+    : 'Verification: not started.';
+
+  const knowledgeBlock = knowledge
+    .map((k: any) => `## ${k.title} [${k.category}]\n${k.content}`)
+    .join('\n\n');
+
+  const persona = adminMode
+    ? `You are drafting a reply on behalf of the Shazam Parking admin team.
+The admin will edit and send your draft, so write in first-person plural ("we", "our team"), warm and professional, and address the user by first name when you have it.
+Be concrete: reference specific bookings/listings/payouts when relevant. Keep it short — 2 to 5 sentences unless more detail is genuinely needed.
+Never invent facts. If you don't know, say "I'll check with the team and get back to you" instead of guessing.`
+    : `You are Layla, the AI support assistant for Shazam Parking — Dubai's trusted monthly parking marketplace.
+You speak warmly and confidently, like a real human teammate. Use the user's first name once when you have it.
+Always check the user context below BEFORE answering — refer to specific bookings, listings or payouts where relevant ("your booking at Marina Heights starting 12 Mar…").
+Be concise: 1-3 short paragraphs, with bullet points only when helpful. Use markdown.
+Never invent facts, prices, or dates. If a question needs a human (refunds, complaints, sensitive issues, anything you're not sure about), reply with empathy and add: "I'm flagging this for our team and a human will follow up shortly." Then stop.
+If the user asks to "talk to a human" or similar, do exactly that — short, warm acknowledgement only, then stop.
+Do NOT mention pricing-per-hour. All bookings are final and non-refundable once paid. Phone numbers are mandatory.`;
+
+  return `${persona}
+
+================ USER PROFILE ================
+${userBlock}
+
+================ BOOKINGS (newest first) ================
+${bookingBlock}
+
+================ LISTINGS ================
+${listingBlock}
+
+================ RECENT PAYOUTS ================
+${payoutBlock}
+
+${verifBlock}
+
+================ PLATFORM KNOWLEDGE (use these facts) ================
+${knowledgeBlock || '(none matched)'}
+
+================ END CONTEXT ================`;
+}
+
+Deno.serve(async (req: Request) => {
+  if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
+  if (req.method !== 'POST') return new Response('Method not allowed', { status: 405, headers: corsHeaders });
+
+  try {
+    if (!LOVABLE_API_KEY) {
+      return new Response(JSON.stringify({ error: 'AI gateway not configured' }), {
+        status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: 'Missing authorization' }), {
+        status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const userClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      global: { headers: { Authorization: authHeader } },
+    });
+    const { data: userData, error: userErr } = await userClient.auth.getUser();
+    if (userErr || !userData?.user) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+    const callerId = userData.user.id;
+
+    const body = (await req.json()) as Body;
+    const mode = body.mode === 'draft' ? 'draft' : 'reply';
+    const adminClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+
+    let contextUserId = callerId;
+    if (mode === 'draft') {
+      // Verify caller is admin
+      const { data: roleRow } = await adminClient.from('user_roles').select('role').eq('user_id', callerId).eq('role', 'admin').maybeSingle();
+      if (!roleRow) {
+        return new Response(JSON.stringify({ error: 'Admin only' }), {
+          status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      if (!body.targetUserId) {
+        return new Response(JSON.stringify({ error: 'targetUserId required for draft mode' }), {
+          status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      contextUserId = body.targetUserId;
+    }
+
+    // Load conversation history if not supplied
+    let history: IncomingMsg[] = body.history ?? [];
+    if (history.length === 0) {
+      const { data: msgs } = await adminClient
+        .from('user_messages')
+        .select('message, from_admin, is_ai, created_at')
+        .eq('user_id', contextUserId)
+        .order('created_at', { ascending: true })
+        .limit(40);
+      history = (msgs ?? []).map((m: any) => ({
+        role: m.from_admin ? 'assistant' : 'user',
+        content: m.message,
+      }));
+    }
+
+    const lastUserText = body.message || (history.length ? history[history.length - 1]?.content : '') || '';
+
+    const [ctx, knowledge] = await Promise.all([
+      loadUserContext(adminClient, contextUserId),
+      loadKnowledge(adminClient, lastUserText),
+    ]);
+
+    const systemPrompt = buildSystemPrompt(ctx, knowledge, mode === 'draft');
+
+    // Build chat messages array for the gateway
+    const chatMessages: IncomingMsg[] = [...history];
+    if (body.message && mode === 'reply') {
+      chatMessages.push({ role: 'user', content: body.message });
+    }
+    if (mode === 'draft') {
+      // Ask the model to draft the next admin reply
+      chatMessages.push({
+        role: 'user',
+        content: '[INTERNAL] Draft the next reply from the admin team to this user. Output only the message text — no quotes, no explanation.',
+      });
+    }
+
+    // For 'reply' mode, persist the user message right away so it shows in admin
+    if (mode === 'reply' && body.message?.trim()) {
+      await adminClient.from('user_messages').insert({
+        user_id: callerId,
+        subject: 'Chat Message',
+        message: body.message.trim(),
+        from_admin: false,
+        is_ai: false,
+      });
+    }
+
+    const aiResp = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'google/gemini-2.5-flash',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          ...chatMessages,
+        ],
+        stream: false,
+      }),
+    });
+
+    if (!aiResp.ok) {
+      const text = await aiResp.text();
+      console.error('AI gateway error', aiResp.status, text);
+      if (aiResp.status === 429) {
+        return new Response(JSON.stringify({ error: 'Rate limit exceeded. Please try again in a moment.' }), {
+          status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      if (aiResp.status === 402) {
+        return new Response(JSON.stringify({ error: 'AI credits exhausted. Please add funds in workspace settings.' }), {
+          status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      return new Response(JSON.stringify({ error: 'AI gateway error' }), {
+        status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const aiJson = await aiResp.json();
+    const replyText: string = aiJson?.choices?.[0]?.message?.content?.trim() || '';
+
+    // For 'reply' mode: persist assistant message so admin sees the AI reply
+    if (mode === 'reply' && replyText) {
+      await adminClient.from('user_messages').insert({
+        user_id: callerId,
+        subject: 'Chat Message',
+        message: replyText,
+        from_admin: true,
+        is_ai: true,
+        read_status: false,
+      });
+    }
+
+    return new Response(JSON.stringify({ reply: replyText, mode }), {
+      status: 200,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  } catch (e) {
+    console.error('support-chat error', e);
+    return new Response(JSON.stringify({ error: e instanceof Error ? e.message : 'Unknown error' }), {
+      status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+});
