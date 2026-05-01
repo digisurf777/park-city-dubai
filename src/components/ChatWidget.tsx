@@ -146,7 +146,7 @@ const ChatWidget = () => {
     }
     if (last.from_admin && !last.is_ai) return { label: "Replied by team", color: "bg-emerald-500", icon: CheckCircle2 };
     if (last.from_admin && last.is_ai) return { label: "Active conversation", color: "bg-emerald-400", icon: CheckCircle2 };
-    if (thinking) return { label: "Typing…", color: "bg-primary animate-pulse", icon: Clock };
+    if (thinking) return { label: "Typing…", color: "bg-primary", icon: Clock };
     return { label: "Waiting for reply", color: "bg-amber-500", icon: Clock };
   }, [messages, thinking]);
 
