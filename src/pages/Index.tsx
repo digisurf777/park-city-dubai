@@ -14,7 +14,7 @@ import useSEO from "@/hooks/useSEO";
 import dubaihero from "@/assets/dubai-skyline-hero.webp";
 import phonePremium from "@/assets/phone-mockup-premium.webp";
 import secureParking from "@/assets/secure-parking-hero.webp";
-import luxuryCar from "@/assets/luxury-parking-premium.jpg";
+import luxuryCar from "@/assets/own-parking-luxury.jpg";
 import businessMan from "@/assets/business-man.webp";
 import phoneLogo from "@/assets/phone-logo.webp";
 import dubaiMarinaZone from "@/assets/zones/dubai-marina.webp";
@@ -429,22 +429,25 @@ const Index = () => {
               viewport={{ once: true }}
               className="order-1 lg:order-2 relative"
             >
-              {/* Outer glow */}
-              <div className="absolute inset-0 -m-4 rounded-[2rem] bg-gradient-primary opacity-30 blur-2xl animate-pulse-glow pointer-events-none"></div>
+              {/* Soft outer glow */}
+              <div className="absolute inset-0 -m-6 rounded-[2.25rem] bg-gradient-primary opacity-25 blur-3xl pointer-events-none"></div>
 
-              {/* Gradient border frame */}
-              <div className="relative rounded-3xl p-[2px] bg-gradient-to-br from-primary via-primary-glow to-primary-deep shadow-elegant animate-float">
-                <div className="rounded-3xl overflow-hidden bg-background relative">
-                  <motion.img
-                    whileHover={{ scale: 1.04 }}
-                    transition={{ duration: 0.5 }}
-                    src={luxuryCar}
-                    alt="Luxury car parked in Dubai"
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                    decoding="async"
-                  />
-
+              {/* Clean rounded image frame */}
+              <div className="relative rounded-3xl overflow-hidden shadow-elegant bg-background">
+                <motion.img
+                  whileHover={{ scale: 1.04 }}
+                  transition={{ duration: 0.5 }}
+                  src={luxuryCar}
+                  alt="Luxury car parked in a premium Dubai garage at golden hour"
+                  className="w-full h-auto object-cover block"
+                  loading="lazy"
+                  decoding="async"
+                  width={1280}
+                  height={1280}
+                />
+              </div>
+              <div className="hidden">
+                <div>
                   {/* Floating earnings card */}
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
