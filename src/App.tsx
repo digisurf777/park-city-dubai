@@ -46,8 +46,6 @@ const Deira = lazy(() => import("./pages/zones/Deira"));
 const TermsAndConditions = lazy(() => import("./pages/TermsAndConditions"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const CookiesNotice = lazy(() => import("./pages/CookiesNotice"));
-const LavableHome = lazy(() => import("./pages/LavableHome"));
-const LavableFAQ = lazy(() => import("./pages/LavableFAQ"));
 const AdminSetup = lazy(() => import("./pages/AdminSetup"));
 const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
 
@@ -82,10 +80,8 @@ const App = () => {
               <MobileBottomNav />
               <Suspense fallback={<LoadingFallback />}>
                 <Routes>
-                {/* Lavable Routes */}
-                <Route path="/lavable" element={<LavableHome />} />
-                 <Route path="/lavable/faq" element={<LavableFAQ />} />
-                 
+
+
                  <Route path="/" element={<Index />} />
                  <Route path="/find-parking" element={<FindParking />} />
                  <Route path="/find-a-parking-space" element={<FindParking />} />
