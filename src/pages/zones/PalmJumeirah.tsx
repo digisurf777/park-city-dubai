@@ -105,21 +105,21 @@ const PalmJumeirah = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {filteredSpots.map(spot => (
-              <Card key={spot.id} className="overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+              <Card key={spot.id} className="overflow-hidden rounded-2xl border-0 ring-1 ring-primary/10 shadow-[0_8px_24px_-12px_hsl(var(--primary)/0.25)] hover:shadow-[0_24px_48px_-16px_hsl(var(--primary)/0.45)] hover:ring-primary/40 hover:-translate-y-1.5 transition-all duration-300 bg-gradient-to-b from-white to-surface group">
                 {/* Image carousel */}
                 <div className="relative w-full aspect-[4/3] overflow-hidden group bg-muted">
                   <img
                     src={(spot.images && spot.images.length > 0 ? spot.images[currentImageIndexes[spot.id] || 0] : spot.image)}
                     alt=""
                     aria-hidden="true"
-                    className="absolute inset-0 w-full h-full object-cover blur-md scale-110 opacity-60 pointer-events-none z-0"
+                    className="hidden"
                   />
                   {spot.images && spot.images.length > 0 ? (
                     <>
                       <LazyImage 
                         src={spot.images[currentImageIndexes[spot.id] || 0]} 
                         alt={`${spot.name} - Image ${(currentImageIndexes[spot.id] || 0) + 1}`} 
-                        className="w-full h-full object-contain cursor-pointer" 
+                        className="w-full h-full object-cover cursor-pointer transition-transform duration-500 group-hover:scale-105" 
                         loading="lazy"
                         fetchPriority="low"
                       />
@@ -181,7 +181,7 @@ const PalmJumeirah = () => {
                         <LazyImage 
                           src={spot.image} 
                           alt={spot.name} 
-                          className="w-full h-full object-contain cursor-pointer" 
+                          className="w-full h-full object-cover cursor-pointer transition-transform duration-500 group-hover:scale-105" 
                           loading="lazy"
                           fetchPriority="low"
                         />
