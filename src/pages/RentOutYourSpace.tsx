@@ -22,7 +22,14 @@ import luxuryCar from "@/assets/luxury-car-dubai.webp";
 import phoneLogo from "@/assets/phone-logo.webp";
 import PageHero from "@/components/PageHero";
 import heroRentOut from "@/assets/hero-rent-out.jpg";
+import useSEO from "@/hooks/useSEO";
 const RentOutYourSpace = () => {
+  const seo = useSEO({
+    title: "Rent Out Your Parking Space in Dubai — Earn Monthly Income | Shazam Parking",
+    description: "List your unused parking space in Dubai and earn passive monthly income. Free listing, verified drivers, secure payments and full owner protection with Shazam Parking.",
+    keywords: "rent out parking Dubai, list parking space, earn from parking Dubai, monthly parking income, parking owner Dubai",
+    url: "/rent-out-your-space",
+  });
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
