@@ -12,7 +12,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { Loader2, User, History, LogOut, Shield, Mail, Home, MessageSquare, Send, Car, ParkingCircle, MessageCircle, CheckCircle, FileText, Camera, Phone, Globe, Bell, Sparkles, ImageIcon, Trash2 } from 'lucide-react';
+import { Loader2, User, History, LogOut, Shield, Mail, Home, MessageSquare, Send, Car, ParkingCircle, MessageCircle, CheckCircle, FileText, Camera, Phone, Globe, Bell, Sparkles, ImageIcon, Trash2, KeyRound, Eye, EyeOff, LifeBuoy, MessagesSquare, HelpCircle } from 'lucide-react';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import VerificationPanel from '@/components/VerificationPanel';
 import UserInbox from '@/components/UserInbox';
@@ -90,6 +90,34 @@ const MyAccount = () => {
   const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'profile');
   const [unreadChatCount, setUnreadChatCount] = useState<number>(0);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [changingPassword, setChangingPassword] = useState(false);
+
+  const changePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newPassword.length < 8) {
+      toast.error('Password must be at least 8 characters');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      toast.error('Passwords do not match');
+      return;
+    }
+    setChangingPassword(true);
+    try {
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) throw error;
+      toast.success('Password updated successfully');
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to update password');
+    } finally {
+      setChangingPassword(false);
+    }
+  };
   if (!user) {
     navigate('/auth');
     return null;
@@ -625,15 +653,13 @@ const MyAccount = () => {
                 <Button variant={activeTab === 'verification' ? 'default' : 'outline'} onClick={() => setActiveTab('verification')} className={`flex items-center gap-2 h-12 relative ${(verificationStatus === 'pending' || verificationStatus === null) ? 'border-orange-500/20' : ''}`}>
                   <Shield className="h-4 w-4" />
                   Verify
-                  {(verificationStatus === 'pending' || verificationStatus === null) && <div className="absolute -top-1 -right-1 h-3 w-3 bg-destructive rounded-full"></div>}
+              {(verificationStatus === 'pending' || verificationStatus === null) && <div className="absolute -top-1 -right-1 h-3 w-3 bg-destructive rounded-full"></div>}
                 </Button>
               )}
-              {mfaRequired && (
-                <Button variant={activeTab === 'security' ? 'default' : 'outline'} onClick={() => setActiveTab('security')} className="flex items-center gap-2 h-12">
-                  <Shield className="h-4 w-4" />
-                  Security
-                </Button>
-              )}
+              <Button variant={activeTab === 'security' ? 'default' : 'outline'} onClick={() => setActiveTab('security')} className="flex items-center gap-2 h-12">
+                <KeyRound className="h-4 w-4" />
+                Security
+              </Button>
             </div>
             <div className="grid grid-cols-1 gap-2 mb-4">
               <Button variant={activeTab === 'listings' ? 'default' : 'outline'} onClick={() => setActiveTab('listings')} className="flex items-center gap-2 h-12">
@@ -674,7 +700,7 @@ const MyAccount = () => {
           </div>
 
           {/* Desktop Tab Navigation */}
-          <TabsList className="hidden lg:grid w-full grid-cols-7 gap-1 h-auto p-1">
+          <TabsList className="hidden lg:grid w-full grid-cols-8 gap-1 h-auto p-1">
             <TabsTrigger value="profile" className="flex items-center gap-2 py-2">
               <User className="h-4 w-4" />
               Profile
@@ -686,12 +712,10 @@ const MyAccount = () => {
                 {(verificationStatus === 'pending' || verificationStatus === null) && <Badge variant="destructive" className="ml-2 h-5 w-5 p-0 text-xs">!</Badge>}
               </TabsTrigger>
             )}
-            {mfaRequired && (
-              <TabsTrigger value="security" className="flex items-center gap-2 py-2">
-                <Shield className="h-4 w-4" />
-                Security
-              </TabsTrigger>
-            )}
+            <TabsTrigger value="security" className="flex items-center gap-2 py-2">
+              <KeyRound className="h-4 w-4" />
+              Security
+            </TabsTrigger>
             <TabsTrigger value="listings" className="flex items-center gap-2 py-2">
               <Home className="h-4 w-4" />
               My Listings
@@ -940,24 +964,95 @@ const MyAccount = () => {
             </TabsContent>
           )}
           
-          {mfaRequired && (
-            <TabsContent value="security">
-              <Card>
+          <TabsContent value="security">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Change password card */}
+              <Card className="glass-card border-0 shadow-elegant">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Shield className="h-5 w-5" />
-                    Security Settings
+                    <KeyRound className="h-5 w-5 text-primary" />
+                    Change password
+                  </CardTitle>
+                  <CardDescription>Use at least 8 characters. Mix letters, numbers and symbols.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={changePassword} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="new-password">New password</Label>
+                      <div className="relative">
+                        <Input
+                          id="new-password"
+                          type={showPassword ? 'text' : 'password'}
+                          value={newPassword}
+                          onChange={(e) => setNewPassword(e.target.value)}
+                          placeholder="••••••••"
+                          minLength={8}
+                          required
+                          className="pr-10"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(s => !s)}
+                          className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-muted-foreground hover:text-foreground"
+                          aria-label="Toggle password visibility"
+                        >
+                          {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </button>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="confirm-password">Confirm new password</Label>
+                      <Input
+                        id="confirm-password"
+                        type={showPassword ? 'text' : 'password'}
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        placeholder="••••••••"
+                        minLength={8}
+                        required
+                      />
+                      {confirmPassword && newPassword !== confirmPassword && (
+                        <p className="text-xs text-destructive">Passwords do not match</p>
+                      )}
+                    </div>
+                    <Button
+                      type="submit"
+                      disabled={changingPassword || !newPassword || newPassword !== confirmPassword}
+                      className="w-full font-semibold"
+                    >
+                      {changingPassword ? (
+                        <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Updating...</>
+                      ) : (
+                        <><KeyRound className="mr-2 h-4 w-4" /> Update password</>
+                      )}
+                    </Button>
+                    <p className="text-xs text-muted-foreground">
+                      Forgot your current password?{' '}
+                      <Link to="/auth?reset=1" className="text-primary hover:underline font-medium">
+                        Send reset email
+                      </Link>
+                    </p>
+                  </form>
+                </CardContent>
+              </Card>
+
+              {/* Two-factor authentication card */}
+              <Card className="glass-card border-0 shadow-elegant">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Shield className="h-5 w-5 text-primary" />
+                    Two-factor authentication
                   </CardTitle>
                   <CardDescription>
-                    Manage your account security and two-factor authentication
+                    Add an extra layer of security to your account using an authenticator app.
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <MFASetup />
                 </CardContent>
               </Card>
-            </TabsContent>
-          )}
+            </div>
+          </TabsContent>
           
           <TabsContent value="listings">
             <MyListings />
@@ -972,44 +1067,87 @@ const MyAccount = () => {
           </TabsContent>
           
           <TabsContent value="contact">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <MessageSquare className="h-5 w-5" />
-                  Contact & Support
-                </CardTitle>
-                
-              </CardHeader>
-               <CardContent className="space-y-4">
-                 <Card>
-                   <CardContent className="pt-4">
-                     <div className="text-center space-y-3">
-                       <Send className="h-8 w-8 text-primary mx-auto" />
-                       <h3 className="font-semibold">Contact Admin</h3>
-                       <p className="text-sm text-muted-foreground">
-                         Send a direct message to our administrators for support or questions.
-                       </p>
-                       <Link to="/contact-admin">
-                         <Button className="w-full">
-                           Send Message
-                         </Button>
-                       </Link>
-                     </div>
-                   </CardContent>
-                 </Card>
+            <div className="space-y-6">
+              {/* Hero header */}
+              <div className="relative overflow-hidden rounded-3xl p-6 lg:p-8 border border-primary/15 shadow-elegant"
+                   style={{ background: 'linear-gradient(135deg, hsl(var(--primary)/0.10), hsl(var(--primary-glow)/0.06))' }}>
+                <div className="pointer-events-none absolute -top-16 -right-16 w-56 h-56 rounded-full bg-primary/15 blur-3xl" />
+                <div className="relative flex items-start gap-4">
+                  <div className="h-12 w-12 rounded-2xl bg-gradient-primary text-primary-foreground flex items-center justify-center shadow-glow shrink-0">
+                    <LifeBuoy className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl lg:text-2xl font-black text-foreground">Need help? We're here for you</h2>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Average response time under 30 minutes during business hours.
+                    </p>
+                  </div>
+                </div>
+              </div>
 
-                 <div className="bg-muted p-4 rounded-lg">
-                   <h4 className="font-medium mb-2">Email Support</h4>
-                   <p className="text-sm text-muted-foreground">
-                     For urgent matters, you can also reach us directly at{' '}
-                      <a href="mailto:support@shazamparking.ae" className="text-primary hover:underline">
-                        support@shazamparking.ae
-                     </a>
-                   </p>
-                 </div>
-               </CardContent>
-             </Card>
-           </TabsContent>
+              {/* Quick action grid */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Link to="/contact-admin" className="group">
+                  <Card className="glass-card border-0 shadow-soft hover:shadow-elegant transition-all duration-300 hover:-translate-y-1 h-full ring-1 ring-primary/10 hover:ring-primary/30">
+                    <CardContent className="pt-6 text-center space-y-3">
+                      <div className="mx-auto h-12 w-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <MessagesSquare className="h-6 w-6" />
+                      </div>
+                      <h3 className="font-bold">Message Admin</h3>
+                      <p className="text-xs text-muted-foreground">Direct line to our admin team</p>
+                      <Button size="sm" className="w-full font-semibold">
+                        <Send className="h-4 w-4 mr-2" /> Open chat
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </Link>
+
+                <a href="mailto:support@shazamparking.ae" className="group">
+                  <Card className="glass-card border-0 shadow-soft hover:shadow-elegant transition-all duration-300 hover:-translate-y-1 h-full ring-1 ring-primary/10 hover:ring-primary/30">
+                    <CardContent className="pt-6 text-center space-y-3">
+                      <div className="mx-auto h-12 w-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <Mail className="h-6 w-6" />
+                      </div>
+                      <h3 className="font-bold">Email Support</h3>
+                      <p className="text-xs text-muted-foreground break-all">support@shazamparking.ae</p>
+                      <Button size="sm" variant="outline" className="w-full font-semibold">
+                        <Mail className="h-4 w-4 mr-2" /> Send email
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </a>
+
+                <Link to="/faq" className="group">
+                  <Card className="glass-card border-0 shadow-soft hover:shadow-elegant transition-all duration-300 hover:-translate-y-1 h-full ring-1 ring-primary/10 hover:ring-primary/30">
+                    <CardContent className="pt-6 text-center space-y-3">
+                      <div className="mx-auto h-12 w-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <HelpCircle className="h-6 w-6" />
+                      </div>
+                      <h3 className="font-bold">Help Center</h3>
+                      <p className="text-xs text-muted-foreground">Browse common questions</p>
+                      <Button size="sm" variant="outline" className="w-full font-semibold">
+                        Visit FAQ
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </Link>
+              </div>
+
+              {/* Inbox section */}
+              <Card className="glass-card border-0 shadow-elegant">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Mail className="h-5 w-5 text-primary" />
+                    Your messages
+                  </CardTitle>
+                  <CardDescription>Replies from our support team appear here</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <UserInbox />
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
            
             <TabsContent value="history">
               <div className="space-y-6">
