@@ -253,9 +253,22 @@ export function AdminDashboard({ onJumpTab }: Props) {
 
       {/* Charts row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <Card className="lg:col-span-2 glass-card">
+        <Card
+          className="lg:col-span-2 relative overflow-hidden border border-primary/15 transition-all duration-300 hover:shadow-[0_18px_48px_-18px_hsl(var(--primary)/0.5)]"
+          style={{
+            background: 'linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(var(--surface)) 100%)',
+            boxShadow: '0 6px 22px -10px hsl(var(--primary) / 0.3), inset 0 1px 0 0 hsl(0 0% 100% / 0.8)',
+          }}
+        >
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-primary-glow to-primary" />
           <CardHeader className="pb-2">
-            <CardTitle className="text-base">Revenue & bookings · last {range}d</CardTitle>
+            <CardTitle className="text-base flex items-center gap-2">
+              <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-primary to-primary-glow flex items-center justify-center shadow-[0_4px_12px_-4px_hsl(var(--primary)/0.5)]">
+                <TrendingUp className="h-4 w-4 text-white" />
+              </div>
+              Revenue & bookings
+              <Badge variant="outline" className="ml-auto text-[10px] font-semibold border-primary/30 text-primary bg-primary/5">last {range}d</Badge>
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={260}>
@@ -282,18 +295,37 @@ export function AdminDashboard({ onJumpTab }: Props) {
           </CardContent>
         </Card>
 
-        <Card className="glass-card">
+        <Card
+          className="relative overflow-hidden border border-emerald-500/20 transition-all duration-300 hover:shadow-[0_18px_48px_-18px_hsl(152_70%_45%/0.4)]"
+          style={{
+            background: 'linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(var(--surface)) 100%)',
+            boxShadow: '0 6px 22px -10px hsl(152 70% 45% / 0.3), inset 0 1px 0 0 hsl(0 0% 100% / 0.8)',
+          }}
+        >
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 via-emerald-400 to-emerald-500" />
           <CardHeader className="pb-2">
-            <CardTitle className="text-base">New users · last {range}d</CardTitle>
+            <CardTitle className="text-base flex items-center gap-2">
+              <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-400 flex items-center justify-center shadow-[0_4px_12px_-4px_hsl(152_70%_45%/0.5)]">
+                <UserPlus className="h-4 w-4 text-white" />
+              </div>
+              New users
+              <Badge variant="outline" className="ml-auto text-[10px] font-semibold border-emerald-500/30 text-emerald-700 bg-emerald-500/5">last {range}d</Badge>
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={260}>
               <LineChart data={trendData}>
+                <defs>
+                  <linearGradient id="usr" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="hsl(152 70% 45%)" stopOpacity={0.4} />
+                    <stop offset="100%" stopColor="hsl(152 70% 45%)" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
                 <CartesianGrid stroke="hsl(var(--border))" strokeDasharray="3 3" vertical={false} />
                 <XAxis dataKey="label" tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
                 <YAxis tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
                 <Tooltip contentStyle={{ background: 'hsl(var(--popover))', border: '1px solid hsl(var(--border))', borderRadius: 8 }} />
-                <Line type="monotone" dataKey="newUsers" stroke="hsl(var(--primary))" strokeWidth={2} dot={{ r: 3 }} />
+                <Line type="monotone" dataKey="newUsers" stroke="hsl(152 70% 45%)" strokeWidth={2.5} dot={{ r: 3, fill: 'hsl(152 70% 45%)' }} activeDot={{ r: 5 }} />
               </LineChart>
             </ResponsiveContainer>
           </CardContent>
