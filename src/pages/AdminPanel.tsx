@@ -1859,6 +1859,15 @@ const AdminPanelOrganized = () => {
                 <span className="text-[8px] sm:text-xs opacity-70 mt-0.5 sm:mt-1 hidden sm:block">Payment Holds</span>
               </TabsTrigger>
 
+              <TabsTrigger
+                value="revenue"
+                className="flex flex-col items-center p-2 sm:p-3 h-auto text-xs sm:text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary-glow data-[state=active]:text-white data-[state=active]:shadow-[0_0_24px_hsl(var(--primary-glow)/0.5)] rounded-lg min-w-[70px] sm:min-w-0"
+              >
+                <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 mb-1" />
+                <span className="font-semibold text-[10px] sm:text-sm">Revenue</span>
+                <span className="text-[8px] sm:text-xs opacity-70 mt-0.5 sm:mt-1 hidden sm:block">Cosmic Insights</span>
+              </TabsTrigger>
+
               <TabsTrigger 
                 value="owner-payments" 
                 className="flex flex-col items-center p-2 sm:p-3 h-auto text-xs sm:text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg min-w-[70px] sm:min-w-0"
