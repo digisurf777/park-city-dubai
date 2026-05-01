@@ -38,6 +38,8 @@ import { PaymentHistoryAdmin } from '@/components/PaymentHistoryAdmin';
 import { RevenueCommandCenter } from '@/components/admin/RevenueCommandCenter';
 import { MonthlyEmailsTab } from '@/components/admin/MonthlyEmailsTab';
 import { AdminDashboard } from '@/components/admin/AdminDashboard';
+import SupportDashboard from '@/components/admin/SupportDashboard';
+import { LifeBuoy } from 'lucide-react';
 import { LayoutDashboard } from 'lucide-react';
 import { useInactivityLogout } from '@/hooks/useInactivityLogout';
 import { InactivityWarningDialog } from '@/components/InactivityWarningDialog';
@@ -1823,7 +1825,7 @@ const AdminPanelOrganized = () => {
         {/* Main Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <div className="overflow-x-auto -mx-3 sm:mx-0 px-3 sm:px-0 pb-2">
-            <TabsList className="inline-flex sm:grid sm:grid-cols-10 gap-1 sm:gap-2 h-auto p-1 sm:p-2 bg-gradient-to-r from-background to-muted/20 rounded-xl border shadow-sm min-w-max sm:min-w-0 w-auto sm:w-full">
+            <TabsList className="inline-flex sm:grid sm:grid-cols-11 gap-1 sm:gap-2 h-auto p-1 sm:p-2 bg-gradient-to-r from-background to-muted/20 rounded-xl border shadow-sm min-w-max sm:min-w-0 w-auto sm:w-full">
               <TabsTrigger 
                 value="dashboard" 
                 className="flex flex-col items-center p-2 sm:p-3 h-auto text-xs sm:text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg min-w-[70px] sm:min-w-0"
@@ -1886,6 +1888,15 @@ const AdminPanelOrganized = () => {
                 <span className="text-[8px] sm:text-xs opacity-70 mt-0.5 sm:mt-1 hidden sm:block">Manage & Message</span>
               </TabsTrigger>
               
+              <TabsTrigger
+                value="support"
+                className="flex flex-col items-center p-2 sm:p-3 h-auto text-xs sm:text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary-glow data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg min-w-[70px] sm:min-w-0"
+              >
+                <LifeBuoy className="h-4 w-4 sm:h-5 sm:w-5 mb-1" />
+                <span className="font-semibold text-[10px] sm:text-sm">Support</span>
+                <span className="text-[8px] sm:text-xs opacity-70 mt-0.5 sm:mt-1 hidden sm:block">Inbox + AI Drafts</span>
+              </TabsTrigger>
+
               <TabsTrigger 
                 value="chat" 
                 className="flex flex-col items-center p-2 sm:p-3 h-auto text-xs sm:text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-red-500 data-[state=active]:text-white bg-gradient-to-br from-red-50 to-red-100 border-red-200 animate-pulse rounded-lg relative min-w-[70px] sm:min-w-0"
@@ -1923,6 +1934,11 @@ const AdminPanelOrganized = () => {
           {/* Boss Dashboard Tab */}
           <TabsContent value="dashboard" className="space-y-6 mt-6">
             <AdminDashboard onJumpTab={(t) => setActiveTab(t)} />
+          </TabsContent>
+
+          {/* Support Inbox Tab */}
+          <TabsContent value="support" className="space-y-6 mt-6">
+            <SupportDashboard />
           </TabsContent>
 
           {/* Content Management Tab */}
