@@ -89,8 +89,7 @@ const MyAccount = () => {
   const [isParkingOwner, setIsParkingOwner] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'profile');
   const [unreadChatCount, setUnreadChatCount] = useState<number>(0);
-
-  // Redirect if not logged in
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
   if (!user) {
     navigate('/auth');
     return null;
