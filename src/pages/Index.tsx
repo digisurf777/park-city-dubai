@@ -626,33 +626,11 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section className="py-12 sm:py-16 lg:py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12 sm:mb-16">
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 sm:mb-6 px-4">
-              What customers say about ShazamParking
-            </h2>
-          </div>
+      {/* Testimonials — animated marquee */}
+      <TestimonialsMarquee />
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
-            {[{
-            quote: "ShazamParking is a game-changer for anyone looking for a stress-free parking experience, it's easy to use, reliable and convenient.",
-            name: "Aaliyah Armasi"
-          }, {
-            quote: "I highly recommend ShazamParking, it offers an easy-to-use platform, a wide range of parking options, and excellent customer service, making it the perfect parking solution.",
-            name: "Ahmed Mohammed"
-          }, {
-            quote: "ShazamParking is my go-to platform for parking, it's user-friendly, reliable, and offers a wide range of options, making it convenient and easy to find a parking spot.",
-            name: "Murtaza Hussain"
-          }].map((testimonial, index) => <Card key={index} className="p-6 sm:p-8 glass-card hover-lift border-0 rounded-2xl">
-                <Quote className="h-6 sm:h-8 w-6 sm:w-8 text-primary mb-3 sm:mb-4" />
-                <p className="text-gray-600 mb-4 sm:mb-6 italic text-sm sm:text-base">"{testimonial.quote}"</p>
-                <h4 className="font-semibold text-gray-900 text-sm sm:text-base">{testimonial.name}</h4>
-              </Card>)}
-          </div>
-        </div>
-      </section>
+      {/* Trusted Platform — partners + badges */}
+      <TrustedPlatform />
 
 
       {/* Final CTA */}
