@@ -28,7 +28,7 @@ const AboutUs = () => {
             ShazamParking is Dubai's leading peer-to-peer platform for long-term parking. We connect parking space owners with drivers who need secure, reliable, and affordable monthly parking in the city's busiest districts. Our mission is simple: to take the daily stress out of finding a parking spot and turn unused bays into value for owners.
           </p>
           
-          <h2 className="text-2xl font-bold mb-4 mt-8">Our Story & Vision</h2>
+          <h2 className="flex items-center gap-3 text-2xl sm:text-3xl font-bold text-foreground mb-5 mt-12"><span className="inline-block w-1.5 h-7 sm:h-8 rounded-full bg-gradient-to-b from-primary to-primary-glow shadow-[0_0_12px_hsl(var(--primary)/0.5)]" />Our Story & Vision</h2>
           <p className="leading-relaxed mb-6 text-base">
             The idea for ShazamParking was born out of a common frustration: the constant search for parking in high-demand areas like DIFC, Downtown, Business Bay, Marina, Palm Jumeirah, and Deira. We set out to create a smarter solution that benefits both sides:
           </p>
@@ -40,7 +40,7 @@ const AboutUs = () => {
             Our vision is to become the most trusted long-term parking platform in the UAE, supporting smarter, more efficient city living.
           </p>
 
-          <h2 className="text-2xl font-bold mb-4 mt-8">How It Works for Owners</h2>
+          <h2 className="flex items-center gap-3 text-2xl sm:text-3xl font-bold text-foreground mb-5 mt-12"><span className="inline-block w-1.5 h-7 sm:h-8 rounded-full bg-gradient-to-b from-primary to-primary-glow shadow-[0_0_12px_hsl(var(--primary)/0.5)]" />How It Works for Owners</h2>
           <p className="leading-relaxed mb-4 text-base">Listing your parking space takes just minutes:</p>
           <ol className="list-decimal ml-6 mb-8 space-y-2">
             <li>Sign up and verify your account.</li>
@@ -51,7 +51,7 @@ const AboutUs = () => {
             <li>Approve booking when you will be notified of a proposed booking which you must approve or disapprove within 48h.</li>
           </ol>
 
-          <h2 className="text-2xl font-bold mb-4 mt-8">How It Works for Drivers</h2>
+          <h2 className="flex items-center gap-3 text-2xl sm:text-3xl font-bold text-foreground mb-5 mt-12"><span className="inline-block w-1.5 h-7 sm:h-8 rounded-full bg-gradient-to-b from-primary to-primary-glow shadow-[0_0_12px_hsl(var(--primary)/0.5)]" />How It Works for Drivers</h2>
           <p className="leading-relaxed mb-4 text-base">Finding parking with ShazamParking is simple:</p>
           <ol className="list-decimal ml-6 mb-6 space-y-2">
             <li>Sign up and verify your account.</li>
@@ -64,7 +64,7 @@ const AboutUs = () => {
             Please note that, when a driver makes a booking, the payment is first pre-authorised only. The owner then has up to 48 hours to approve the booking. Once approved, the payment is processed and charged to the driver's account. If the owner declines or does not respond within 48 hours, the pre-authorisation is automatically released back to the driver. This step is designed to ensure that none of the listings are out of date / parking spaces unavailable, prior to the driver committing to the booking.
           </p>
 
-          <h2 className="text-2xl font-bold mb-4 mt-8">Communication and Handover</h2>
+          <h2 className="flex items-center gap-3 text-2xl sm:text-3xl font-bold text-foreground mb-5 mt-12"><span className="inline-block w-1.5 h-7 sm:h-8 rounded-full bg-gradient-to-b from-primary to-primary-glow shadow-[0_0_12px_hsl(var(--primary)/0.5)]" />Communication and Handover</h2>
           <p className="leading-relaxed mb-6 text-base">
             To keep all arrangements safe, secure, and transparent, all communication takes place inside the platform chat. External apps such as WhatsApp are not permitted. This protects personal information and ensures there's always a record of what was agreed.
           </p>
@@ -80,7 +80,7 @@ const AboutUs = () => {
             By coordinating through the in-platform chat, both sides can choose the method that works best, while keeping everything traceable.
           </p>
 
-          <h2 className="text-2xl font-bold mb-4 mt-8">Transparent Fees</h2>
+          <h2 className="flex items-center gap-3 text-2xl sm:text-3xl font-bold text-foreground mb-5 mt-12"><span className="inline-block w-1.5 h-7 sm:h-8 rounded-full bg-gradient-to-b from-primary to-primary-glow shadow-[0_0_12px_hsl(var(--primary)/0.5)]" />Transparent Fees</h2>
           <p className="leading-relaxed mb-4 text-base">The platform's fee model is clear and simple:</p>
           <ul className="list-disc ml-6 mb-6 space-y-2">
             <li>Listing is FREE.</li>
@@ -96,7 +96,7 @@ const AboutUs = () => {
             Owners are paid monthly in arrears, with all fees already deducted. This protects drivers in case of any issues or disputes, while ensuring smooth and transparent payouts for owners. For exact figures, owners should use the built-in calculator, which clearly shows what the driver will pay and what the owner will receive.
           </p>
 
-          <h2 className="text-2xl font-bold mb-4 mt-8">Why Long-Term Parking</h2>
+          <h2 className="flex items-center gap-3 text-2xl sm:text-3xl font-bold text-foreground mb-5 mt-12"><span className="inline-block w-1.5 h-7 sm:h-8 rounded-full bg-gradient-to-b from-primary to-primary-glow shadow-[0_0_12px_hsl(var(--primary)/0.5)]" />Why Long-Term Parking</h2>
           <p className="leading-relaxed mb-6 text-base">
             ShazamParking is built for long-term rentals only. The minimum rental is one month, but the platform encourages stability by automatically applying discounts for longer commitments:
           </p>
@@ -116,12 +116,12 @@ const AboutUs = () => {
             <li>Less congestion from drivers constantly searching for short-term spaces.</li>
           </ul>
 
-          <h2 className="text-2xl font-bold mb-4 mt-8">ID Verification for Safety and Trust</h2>
+          <h2 className="flex items-center gap-3 text-2xl sm:text-3xl font-bold text-foreground mb-5 mt-12"><span className="inline-block w-1.5 h-7 sm:h-8 rounded-full bg-gradient-to-b from-primary to-primary-glow shadow-[0_0_12px_hsl(var(--primary)/0.5)]" />ID Verification for Safety and Trust</h2>
           <p className="leading-relaxed mb-8 text-base">
             To maintain a secure and trustworthy community, all users are required to complete ID verification before listing a space or booking one. This involves uploading a valid government-issued ID, which is reviewed as a measure for fraud-prevention. This step adds an important layer of security and accountability, helping to build confidence between owners and drivers.
           </p>
 
-          <h2 className="text-2xl font-bold mb-4 mt-8">Why List Now</h2>
+          <h2 className="flex items-center gap-3 text-2xl sm:text-3xl font-bold text-foreground mb-5 mt-12"><span className="inline-block w-1.5 h-7 sm:h-8 rounded-full bg-gradient-to-b from-primary to-primary-glow shadow-[0_0_12px_hsl(var(--primary)/0.5)]" />Why List Now</h2>
           <p className="leading-relaxed mb-12 text-base">
             Demand for secure monthly parking in Dubai is growing rapidly. As roadworks, new projects, and increased commuting put pressure on popular districts, long-term spaces are more valuable than ever. Owners who list today gain visibility and attract reliable long-term tenants.
           </p>
