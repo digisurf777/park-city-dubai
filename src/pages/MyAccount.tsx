@@ -388,7 +388,7 @@ const MyAccount = () => {
 
         {/* Verification Status Alert - Only show if not approved/verified */}
         {!verificationLoading && verificationStatus && verificationStatus !== 'approved' && verificationStatus !== 'verified' && (
-          <Card className="mb-6 border-orange-200 bg-orange-50">
+          <Card className="mb-6 border-orange-200 bg-orange-50/70 backdrop-blur-md shadow-soft">
             <CardContent className="pt-6">
               <div className="flex items-center gap-3">
                 <Shield className="h-6 w-6 text-orange-600" />
@@ -414,7 +414,7 @@ const MyAccount = () => {
 
         {/* Show verification required for users without any verification record */}
         {!verificationLoading && !verificationStatus && (
-          <Card className="mb-6 border-orange-200 bg-orange-50">
+          <Card className="mb-6 border-orange-200 bg-orange-50/70 backdrop-blur-md shadow-soft">
             <CardContent className="pt-6">
               <div className="flex items-center gap-3">
                 <Shield className="h-6 w-6 text-orange-600" />
@@ -439,7 +439,7 @@ const MyAccount = () => {
 
         {/* Success Message for Verified Users */}
         {!verificationLoading && (verificationStatus === 'approved' || verificationStatus === 'verified') && (
-          <Card className="mb-6 border-green-200 bg-green-50 shadow-lg">
+          <Card className="mb-6 border-green-200 bg-green-50/70 backdrop-blur-md shadow-elegant">
             <CardContent className="pt-6">
               <div className="flex items-center gap-3">
                 <div className="flex items-center justify-center w-12 h-12 bg-green-100 rounded-full">
