@@ -504,7 +504,7 @@ const ChatWidget = () => {
                   <Send className="h-4 w-4" />
                 </Button>
               </div>
-              <div className="flex items-center justify-between mt-2 px-1 gap-2">
+              <div className="flex items-center justify-between mt-2 px-1 gap-2 flex-wrap">
                 <button
                   onClick={() => setView("history")}
                   className="flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-primary transition-colors font-medium"
@@ -512,6 +512,17 @@ const ChatWidget = () => {
                   <History className="h-3 w-3" />
                   History {sessions.length > 0 && `(${sessions.length})`}
                 </button>
+                <a
+                  href={buildMailto(
+                    "Support request — Shazam Parking",
+                    `Hi Shazam Parking team,\n\n[Please describe your question here]\n\n— Sent from in-app support (${user?.email ?? ""})`
+                  )}
+                  className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-primary transition-colors font-medium"
+                  title={`Email ${SUPPORT_EMAIL}`}
+                >
+                  <Mail className="h-3 w-3" />
+                  Email support
+                </a>
                 {messages.length > 0 && (
                   <button
                     onClick={startNewChat}
