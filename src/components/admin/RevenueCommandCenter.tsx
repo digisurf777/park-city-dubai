@@ -125,20 +125,16 @@ export const RevenueCommandCenter = () => {
           const row = payload.new || payload.old;
           if (!row) return;
           const isPreAuth = row.payment_status === 'pre_authorized';
-          setPulse((prev) =>
-            [
-              {
-                id: `${row.id}-${Date.now()}`,
-                kind: isPreAuth ? 'preauth' : 'booking',
-                amount: Number(row.cost_aed || 0),
-                label: isPreAuth
-                  ? `Pre-auth held in ${row.zone || 'Dubai'}`
-                  : `Booking ${row.status} in ${row.zone || 'Dubai'}`,
-                at: new Date(),
-              } as PulseEvent,
-              ...prev,
-            ].slice(0, 12)
-          );
+          const ev: PulseEvent = {
+            id: `${row.id}-${Date.now()}`,
+            kind: isPreAuth ? 'preauth' : 'booking',
+            amount: Number(row.cost_aed || 0),
+            label: isPreAuth
+              ? `Pre-auth held in ${row.zone || 'Dubai'}`
+              : `Booking ${row.status} in ${row.zone || 'Dubai'}`,
+            at: new Date(),
+          };
+          setPulse((prev) => [ev, ...prev].slice(0, 12));
           fetchData();
         }
       )
