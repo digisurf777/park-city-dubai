@@ -20,6 +20,8 @@ import { useVerificationStatus } from "@/hooks/useVerificationStatus";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import luxuryCar from "@/assets/luxury-car-dubai.webp";
 import phoneLogo from "@/assets/phone-logo.webp";
+import PageHero from "@/components/PageHero";
+import heroRentOut from "@/assets/hero-rent-out.jpg";
 const RentOutYourSpace = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -352,19 +354,14 @@ const RentOutYourSpace = () => {
       <Navbar />
       
       {/* Hero Section */}
-      <section className="relative min-h-[70vh] flex items-center justify-center bg-cover bg-center bg-no-repeat" style={{
-      backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url(/lovable-uploads/d672c78d-465f-41e0-9e3d-cd28db512923.webp)`
-    }}>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
-          <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
-            Earn Passive Income<br />
-            <span className="text-primary">From Your Empty Bay</span>
-          </h1>
-          <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto opacity-90">
-            List your parking space in minutes and start earning every month.
-          </p>
-        </div>
-      </section>
+      <PageHero
+        image={heroRentOut}
+        eyebrow="List your space"
+        title="Earn From Your Empty Bay"
+        highlight="Empty Bay"
+        subtitle="List your parking space in minutes and start earning every month — completely free to post."
+        size="lg"
+      />
 
       {/* How It Works Section */}
       <section className="py-20 bg-gray-50">

@@ -160,6 +160,7 @@ const News = () => {
         title="Latest News"
         highlight="News"
         subtitle="Updates, insights and stories from ShazamParking and the Dubai parking scene."
+        size="lg"
       />
 
       {/* News Grid */}

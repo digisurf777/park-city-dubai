@@ -1,12 +1,12 @@
 import { motion } from "framer-motion";
-import { Sparkles } from "lucide-react";
+import { ReactNode } from "react";
 
 interface PageHeroProps {
   /** Background image URL */
   image: string;
   /** Small chip/eyebrow above the title (optional) */
   eyebrow?: string;
-  /** Main title — second word can be highlighted via `highlight` */
+  /** Main title — substring matching `highlight` will be rendered with the brand gradient */
   title: string;
   /** Optional sub-string of the title to render with the brand gradient */
   highlight?: string;
@@ -14,11 +14,13 @@ interface PageHeroProps {
   subtitle?: string;
   /** Height variant */
   size?: "md" | "lg";
+  /** Optional CTAs / search bars rendered below the subtitle */
+  children?: ReactNode;
 }
 
 const fadeUp = {
-  hidden: { opacity: 0, y: 24 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: "easeOut" } },
+  hidden: { opacity: 0, y: 28 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } },
 } as const;
 
 const PageHero = ({
@@ -28,6 +30,7 @@ const PageHero = ({
   highlight,
   subtitle,
   size = "md",
+  children,
 }: PageHeroProps) => {
   // Split title around the highlighted span (case-insensitive)
   const renderTitle = () => {
@@ -50,60 +53,71 @@ const PageHero = ({
 
   const heightClass =
     size === "lg"
-      ? "h-[420px] sm:h-[480px] lg:h-[520px]"
-      : "h-[340px] sm:h-[400px] lg:h-[440px]";
+      ? "h-[440px] sm:h-[520px] lg:h-[580px]"
+      : "h-[380px] sm:h-[460px] lg:h-[520px]";
 
   return (
     <section className={`relative ${heightClass} overflow-hidden`}>
-      {/* Background image */}
-      <div
-        className="absolute inset-0 bg-cover bg-center scale-105"
+      {/* Background image with subtle Ken-Burns zoom */}
+      <motion.div
+        initial={{ scale: 1.12, opacity: 0 }}
+        animate={{ scale: 1.04, opacity: 1 }}
+        transition={{ duration: 1.6, ease: "easeOut" }}
+        className="absolute inset-0 bg-cover bg-center"
         style={{ backgroundImage: `url(${image})` }}
       />
-      {/* Branded gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary-deep/85 via-primary/55 to-black/55" />
-      {/* Bottom darken for text legibility */}
-      <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/40 via-black/15 to-transparent" />
+      {/* Branded gradient overlay — top tinted with brand, fades to background at bottom */}
+      <div className="absolute inset-0 bg-gradient-to-b from-primary-deep/70 via-primary-deep/40 to-background" />
+      {/* Subtle radial vignette for focus */}
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_30%,rgba(0,0,0,0.35)_100%)]" />
       {/* Decorative glows */}
-      <div className="pointer-events-none absolute -top-24 -right-24 w-[22rem] h-[22rem] rounded-full bg-primary-glow/25 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-32 -left-24 w-[24rem] h-[24rem] rounded-full bg-primary/30 blur-3xl" />
+      <div className="pointer-events-none absolute -top-24 -right-24 w-[22rem] h-[22rem] rounded-full bg-primary-glow/20 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-32 -left-24 w-[24rem] h-[24rem] rounded-full bg-primary/25 blur-3xl" />
 
       {/* Content */}
-      <div className="relative z-10 h-full flex items-center justify-center px-4 pt-16">
+      <div className="relative z-10 h-full flex flex-col items-center justify-center px-4 pt-16 sm:pt-20">
         <motion.div
           initial="hidden"
           animate="show"
-          variants={{ hidden: {}, show: { transition: { staggerChildren: 0.12, delayChildren: 0.1 } } }}
-          className="text-center text-white max-w-3xl"
+          variants={{
+            hidden: {},
+            show: { transition: { staggerChildren: 0.14, delayChildren: 0.15 } },
+          }}
+          className="text-center text-white max-w-4xl w-full"
         >
           {eyebrow && (
             <motion.span
               variants={fadeUp}
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass text-white text-xs sm:text-sm font-medium mb-4 sm:mb-5"
+              className="inline-block mb-4 sm:mb-5 px-4 py-1.5 rounded-full bg-white/15 backdrop-blur border border-white/25 text-[10px] sm:text-xs font-bold tracking-[0.2em] uppercase"
             >
-              <Sparkles className="h-3.5 w-3.5 text-primary-glow" />
-              {eyebrow}
+              ★ {eyebrow}
             </motion.span>
           )}
           <motion.h1
             variants={fadeUp}
-            className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-black leading-[1.05] tracking-tight mb-3 sm:mb-5 drop-shadow-[0_4px_20px_rgba(0,0,0,0.5)]"
+            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black leading-[1.05] tracking-tight mb-3 sm:mb-5 text-3d-light"
           >
             {renderTitle()}
           </motion.h1>
           {subtitle && (
             <motion.p
               variants={fadeUp}
-              className="text-base sm:text-lg lg:text-xl text-white/95 max-w-2xl mx-auto drop-shadow-[0_2px_8px_rgba(0,0,0,0.45)]"
+              className="text-base sm:text-lg md:text-xl text-white/90 max-w-2xl mx-auto"
             >
               {subtitle}
             </motion.p>
           )}
-          {/* Decorative underline accent */}
-          <motion.div
-            variants={fadeUp}
-            className="mt-6 sm:mt-8 mx-auto h-1 w-20 sm:w-28 rounded-full bg-gradient-to-r from-transparent via-primary-glow to-transparent"
-          />
+          {children && (
+            <motion.div variants={fadeUp} className="mt-6 sm:mt-8 w-full">
+              {children}
+            </motion.div>
+          )}
+          {!children && (
+            <motion.div
+              variants={fadeUp}
+              className="mt-6 sm:mt-8 mx-auto h-1 w-20 sm:w-28 rounded-full bg-gradient-to-r from-transparent via-primary-glow to-transparent"
+            />
+          )}
         </motion.div>
       </div>
     </section>

@@ -11,6 +11,8 @@ import { Mail, Send, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import PageHero from '@/components/PageHero';
+import heroContact from '@/assets/hero-contact.jpg';
 import useSEO from '@/hooks/useSEO';
 const ContactAdmin = () => {
   useEffect(() => {
@@ -88,10 +90,18 @@ const ContactAdmin = () => {
       setIsSubmitting(false);
     }
   };
-  return <div className="min-h-screen bg-gradient-to-b from-surface to-background">
+  return <div className="min-h-screen bg-gradient-to-b from-surface to-background animate-fade-in">
       {seoData}
       <Navbar />
-      
+
+      <PageHero
+        image={heroContact}
+        eyebrow="We're here to help"
+        title="Contact Support"
+        highlight="Support"
+        subtitle="Send us a message through the form below or email us directly — our team typically replies within 24 hours."
+      />
+
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-2xl mx-auto">
           <div className="mb-6">
@@ -102,20 +112,11 @@ const ContactAdmin = () => {
           </div>
 
           <div className="text-center mb-8">
-            <Mail className="h-12 w-12 text-primary mx-auto mb-4" />
-            <h1 className="text-3xl font-bold mb-4">Contact Support</h1>
-            <p className="text-muted-foreground text-lg mb-4">
-              We're here to help! Send us a message through the form below or email us directly at{' '}
+            <p className="text-muted-foreground text-base mb-3">
+              Prefer email? Reach us directly at{' '}
               <a href="mailto:support@shazamparking.ae" className="text-primary hover:underline font-medium">
                 support@shazamparking.ae
               </a>
-            </p>
-            <p className="text-sm text-muted-foreground">
-              Have any questions? Feel free to send a direct email to{' '}
-              <a href="mailto:support@shazamparking.ae" className="text-primary hover:underline">
-                support@shazamparking.ae
-              </a>{' '}
-              and we'll get back to you as soon as possible.
             </p>
           </div>
 

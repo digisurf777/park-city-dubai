@@ -19,6 +19,7 @@ const AboutUs = () => {
         title="About Us"
         highlight="Us"
         subtitle="Your trusted parking platform in Dubai — connecting owners and drivers, securely and simply."
+        size="lg"
       />
 
       {/* Main Content */}
