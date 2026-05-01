@@ -608,34 +608,23 @@ const VerificationPanel = () => {
                   </Select>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="documentType">Document Type</Label>
-                  <Select value={formData.documentType} onValueChange={value => setFormData(prev => ({
-                ...prev,
-                documentType: value
-              }))}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select document type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="national_id">National ID</SelectItem>
-                      <SelectItem value="drivers_license">Driver's License</SelectItem>
-                      <SelectItem value="passport">Passport</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                {/* Hidden file input — upload triggered via dropzone above */}
+                <Input id="document" type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
 
-                <div className="space-y-2">
-                  <Label htmlFor="document">Document Image</Label>
-                  <Input id="document" type="file" accept="image/*" onChange={handleFileChange} className="cursor-pointer" />
-                  <p className="text-xs text-muted-foreground">
-                    Upload both sides of your document in a single clear image
-                  </p>
-                </div>
-
-                <Button onClick={uploadDocument} disabled={uploading || !formData.file || !formData.fullName || !formData.nationality || !formData.documentType} className="w-full">
-                  {uploading ? 'Uploading...' : 'Submit for Verification'}
+                <Button
+                  onClick={uploadDocument}
+                  disabled={uploading || !formData.file || !formData.fullName || !formData.nationality || !formData.documentType}
+                  className="w-full h-12 bg-gradient-to-r from-primary via-primary to-primary-deep hover:opacity-95 disabled:opacity-50 disabled:from-muted disabled:to-muted disabled:text-muted-foreground shadow-lg font-semibold text-base"
+                >
+                  {uploading ? (
+                    <><Clock className="h-4 w-4 mr-2 animate-spin" /> Uploading…</>
+                  ) : (
+                    <><ShieldCheck className="h-4 w-4 mr-2" /> Submit for verification</>
+                  )}
                 </Button>
+                <p className="text-[11px] text-center text-muted-foreground">
+                  🔒 Encrypted & reviewed only by authorised admins.
+                </p>
               </div>
             </div>}
         </CardContent>
