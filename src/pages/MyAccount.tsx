@@ -700,7 +700,7 @@ const MyAccount = () => {
           </div>
 
           {/* Desktop Tab Navigation */}
-          <TabsList className="hidden lg:grid w-full grid-cols-7 gap-1 h-auto p-1">
+          <TabsList className="hidden lg:grid w-full grid-cols-8 gap-1 h-auto p-1">
             <TabsTrigger value="profile" className="flex items-center gap-2 py-2">
               <User className="h-4 w-4" />
               Profile
@@ -712,12 +712,10 @@ const MyAccount = () => {
                 {(verificationStatus === 'pending' || verificationStatus === null) && <Badge variant="destructive" className="ml-2 h-5 w-5 p-0 text-xs">!</Badge>}
               </TabsTrigger>
             )}
-            {mfaRequired && (
-              <TabsTrigger value="security" className="flex items-center gap-2 py-2">
-                <Shield className="h-4 w-4" />
-                Security
-              </TabsTrigger>
-            )}
+            <TabsTrigger value="security" className="flex items-center gap-2 py-2">
+              <KeyRound className="h-4 w-4" />
+              Security
+            </TabsTrigger>
             <TabsTrigger value="listings" className="flex items-center gap-2 py-2">
               <Home className="h-4 w-4" />
               My Listings
