@@ -85,8 +85,8 @@ export function AdminDashboard({ onJumpTab, headerActions }: Props) {
 
   return (
     <div className="space-y-6">
-      {/* Premium Dubai banner header */}
-      <DubaiSkylineBanner tall flatTop className="p-5 sm:p-8 -mt-6 sm:-mt-8">
+      {/* Premium Dubai banner header — unified Boss Dashboard hero */}
+      <DubaiSkylineBanner tall className="p-5 sm:p-8">
         <div className="flex flex-col gap-5">
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
             <div className="flex items-center gap-3">
