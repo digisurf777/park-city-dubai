@@ -1,4 +1,5 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
+import { cn } from '@/lib/utils';
 
 interface LazyImageProps {
   src: string;
@@ -9,61 +10,82 @@ interface LazyImageProps {
   loading?: 'lazy' | 'eager';
   fetchPriority?: 'high' | 'low' | 'auto';
   onClick?: () => void;
+  /** Optional explicit aspect ratio for the placeholder, e.g. "16/9" */
+  aspectRatio?: string;
 }
 
-const LazyImage = ({ 
-  src, 
-  alt, 
-  className = '', 
-  width, 
-  height, 
+/**
+ * Performance-aware <img> wrapper:
+ *  - shimmer placeholder until decoded
+ *  - graceful error fallback
+ *  - native lazy loading + async decoding
+ *  - if the image is already in the browser/SW cache it skips the fade entirely
+ */
+const LazyImage = ({
+  src,
+  alt,
+  className = '',
+  width,
+  height,
   loading = 'lazy',
   fetchPriority = 'auto',
-  onClick
+  onClick,
+  aspectRatio,
 }: LazyImageProps) => {
+  const imgRef = useRef<HTMLImageElement>(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
 
-  const handleLoad = useCallback(() => {
-    setIsLoaded(true);
-  }, []);
+  const handleLoad = useCallback(() => setIsLoaded(true), []);
+  const handleError = useCallback(() => setHasError(true), []);
 
-  const handleError = useCallback(() => {
-    setHasError(true);
-  }, []);
+  // If the image is already cached (SW / browser), `complete` is true on mount —
+  // skip the fade so cached pages feel instant.
+  useEffect(() => {
+    const img = imgRef.current;
+    if (img && img.complete && img.naturalWidth > 0) {
+      setIsLoaded(true);
+    }
+  }, [src]);
 
   if (hasError) {
     return (
-      <div 
-        className={`bg-gray-200 flex items-center justify-center ${className}`}
-        style={{ width, height }}
+      <div
+        className={cn('bg-muted flex items-center justify-center text-muted-foreground text-xs', className)}
+        style={{ width, height, aspectRatio }}
       >
-        <span className="text-gray-500 text-sm">Image failed to load</span>
+        Image unavailable
       </div>
     );
   }
 
   return (
-    <div className="relative">
+    <div
+      className={cn('relative overflow-hidden', className)}
+      style={{ aspectRatio }}
+    >
       {!isLoaded && (
-        <div 
-          className={`absolute inset-0 bg-gray-200 animate-pulse ${className}`}
-          style={{ width, height }}
+        <div
+          aria-hidden
+          className="absolute inset-0 bg-gradient-to-br from-muted via-muted/70 to-muted animate-pulse"
         />
       )}
       <img
+        ref={imgRef}
         src={src}
         alt={alt}
-        className={`${className} ${isLoaded ? 'opacity-100' : 'opacity-0'} transition-opacity duration-300`}
+        className={cn(
+          'w-full h-full object-cover transition-opacity duration-500',
+          isLoaded ? 'opacity-100' : 'opacity-0'
+        )}
         width={width}
         height={height}
         loading={loading}
-        {...(fetchPriority !== 'auto' && { fetchpriority: fetchPriority })}
+        {...(fetchPriority !== 'auto' && { fetchpriority: fetchPriority as any })}
         onLoad={handleLoad}
         onError={handleError}
         onClick={onClick}
         decoding="async"
-        style={{ contentVisibility: 'auto' }}
       />
     </div>
   );
