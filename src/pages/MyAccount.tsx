@@ -906,23 +906,11 @@ const MyAccount = () => {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
-                    <Button
-                      type="button"
-                      onClick={generateAiAvatar}
-                      disabled={uploadingAvatar || generatingAvatar}
-                      className="w-full bg-gradient-to-br from-primary via-primary to-primary-deep hover:opacity-95 text-white border-0 shadow-[0_6px_16px_-4px_hsl(var(--primary)/0.55),inset_0_1px_0_0_hsl(0_0%_100%/0.25)] active:translate-y-0.5 transition-all"
-                    >
-                      {generatingAvatar ? (
-                        <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Generating…</>
-                      ) : (
-                        <><Wand2 className="h-4 w-4 mr-2" /> Generate AI avatar</>
-                      )}
-                    </Button>
-                    <label htmlFor="avatar-upload" className="cursor-pointer">
-                      <div className="inline-flex w-full items-center justify-center gap-2 h-10 px-4 rounded-md bg-white border border-primary/30 text-foreground hover:bg-primary/5 transition-colors text-sm font-semibold shadow-sm">
+                  <div className="w-full">
+                    <label htmlFor="avatar-upload" className="cursor-pointer block">
+                      <div className="inline-flex w-full items-center justify-center gap-2 h-11 px-4 rounded-xl bg-gradient-to-br from-primary via-primary to-primary-deep text-white border-0 shadow-[0_6px_16px_-4px_hsl(var(--primary)/0.55),inset_0_1px_0_0_hsl(0_0%_100%/0.25)] active:translate-y-0.5 transition-all text-sm font-semibold">
                         <Camera className="h-4 w-4" />
-                        Upload photo
+                        Upload your photo
                       </div>
                       <input
                         id="avatar-upload"
@@ -930,7 +918,7 @@ const MyAccount = () => {
                         accept="image/*"
                         className="sr-only"
                         onChange={handleAvatarUpload}
-                        disabled={uploadingAvatar || generatingAvatar}
+                        disabled={uploadingAvatar}
                       />
                     </label>
                   </div>
