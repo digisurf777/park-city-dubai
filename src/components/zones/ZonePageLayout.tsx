@@ -352,7 +352,7 @@ const ZonePageLayout = ({
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: (idx % 6) * 0.05 }}
                   viewport={{ once: true, amount: 0.15 }}
-                  className="group relative"
+                  className="group relative h-full flex"
                 >
                   {/* Subtle green underglow */}
                   <div
