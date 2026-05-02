@@ -886,7 +886,7 @@ const MyAccount = () => {
 
                   {/* Default avatar gallery */}
                   <div className="w-full">
-                    <p className="text-[11px] uppercase tracking-[0.18em] font-bold text-muted-foreground mb-2">Pick a default</p>
+                    <p className="text-[11px] uppercase tracking-[0.18em] font-bold text-muted-foreground mb-2">Pick a default ({DEFAULT_AVATARS.length} options)</p>
                     <div className="grid grid-cols-6 gap-1.5">
                       {DEFAULT_AVATARS.map((src, i) => {
                         const selected = profile?.avatar_url === src;
