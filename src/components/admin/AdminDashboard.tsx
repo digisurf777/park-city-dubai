@@ -112,47 +112,12 @@ export function AdminDashboard({ onJumpTab, headerActions, bannerOnly, hideBanne
             </div>
 
             <div className="flex items-center gap-2 flex-wrap">
-              <div className="inline-flex rounded-xl border border-white/40 bg-white/10 backdrop-blur p-1 shadow-[0_4px_12px_-4px_rgba(0,0,0,0.3)]">
-                {[7, 30, 90].map((d) => (
-                  <button
-                    key={d}
-                    onClick={() => setRange(d as 7 | 30 | 90)}
-                    className={
-                      'h-7 px-3 text-xs font-semibold rounded-lg transition-all ' +
-                      (range === d
-                        ? 'bg-white text-primary shadow-[0_4px_12px_-4px_rgba(0,0,0,0.4)]'
-                        : 'text-white/80 hover:text-white hover:bg-white/10')
-                    }
-                  >
-                    Last {d}d
-                  </button>
-                ))}
-              </div>
-              <div
-                className="inline-flex rounded-xl border border-white/40 bg-white/10 backdrop-blur p-1 shadow-[0_4px_12px_-4px_rgba(0,0,0,0.3)]"
-                title={ratesUpdatedAt ? `FX updated ${relTime(ratesUpdatedAt.toISOString())}` : 'Using fallback FX rates'}
-              >
-                {currencyOptions.map((c) => (
-                  <button
-                    key={c}
-                    onClick={() => setCurrency(c)}
-                    className={
-                      'h-7 px-2.5 text-[11px] font-semibold rounded-lg transition-all ' +
-                      (currency === c
-                        ? 'bg-white text-primary shadow-[0_4px_12px_-4px_rgba(0,0,0,0.4)]'
-                        : 'text-white/80 hover:text-white hover:bg-white/10')
-                    }
-                  >
-                    {c}
-                  </button>
-                ))}
-              </div>
               <Button
                 size="sm"
                 variant="outline"
                 onClick={refetch}
                 disabled={refreshing}
-                className="border-white/40 bg-white/15 text-white hover:bg-white/25 hover:text-white backdrop-blur"
+                className="h-9 px-3 border-white/50 bg-white/20 text-white hover:bg-white/30 hover:text-white backdrop-blur shadow-[0_4px_12px_-4px_rgba(0,0,0,0.3)]"
               >
                 <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
               </Button>
