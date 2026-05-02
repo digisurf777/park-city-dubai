@@ -733,3 +733,28 @@ All colors MUST be HSL.
     transform: translateY(0) scale(1);
   }
 }
+
+/* Apple-style minimal spinner */
+.apple-spinner {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  display: inline-block;
+}
+.apple-spinner span {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 3px;
+  height: 11px;
+  margin-left: -1.5px;
+  border-radius: 2px;
+  background: hsl(var(--primary));
+  transform-origin: 50% 20px;
+  animation: apple-spinner-fade 1s linear infinite;
+  opacity: 0.15;
+}
+@keyframes apple-spinner-fade {
+  0% { opacity: 1; }
+  100% { opacity: 0.15; }
+}
