@@ -200,6 +200,50 @@ All colors MUST be HSL.
     }
   }
 
+  /* ===========================================================
+     MOBILE PERFORMANCE HARDENING
+     - backdrop-blur is the #1 cause of "flashing" while scrolling
+       on mobile (Safari/Chrome re-sample the underlying layer
+       every frame). Disable it on small screens entirely.
+     - Disable hover-scale transforms on touch devices to avoid
+       compositor thrash mid-scroll.
+     - Promote heavy hero/section backgrounds to their own GPU
+       layer so scroll is buttery smooth.
+     =========================================================== */
+  @media (max-width: 767px) {
+    [class*="backdrop-blur"] {
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+    }
+    /* Keep frosted look by upping the bg opacity where needed */
+    .bg-white\/80, .bg-white\/85, .bg-white\/90, .bg-white\/95, .bg-white\/97 {
+      background-color: rgba(255, 255, 255, 0.97) !important;
+    }
+    /* Kill hover-driven scale transforms on touch — they cause jank */
+    .hover\:scale-105:hover,
+    .hover\:scale-110:hover,
+    .group:hover .group-hover\:scale-105,
+    .group:hover .group-hover\:scale-110 {
+      transform: none !important;
+    }
+    /* Stabilize image-heavy cards during scroll */
+    img {
+      transform: translateZ(0);
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+  }
+
+  /* Touch-only devices (phones + tablets) — disable hover transitions
+     that fire on tap and cause flicker */
+  @media (hover: none) and (pointer: coarse) {
+    .transition-transform,
+    .group-hover\:scale-105,
+    .group-hover\:scale-110 {
+      transition: none !important;
+    }
+  }
+
   /* Mobile touch targets - minimum 44px for accessibility */
   .touch-target {
     min-height: 44px;
