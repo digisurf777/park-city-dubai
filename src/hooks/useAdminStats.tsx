@@ -165,51 +165,71 @@ export function useAdminStats(rangeDays: 7 | 30 | 90 = 30) {
         b.payment_status === 'paid' || b.payment_status === 'confirmed' || b.status === 'confirmed';
       const isActiveListing = (l: any) => l.status === 'approved' || l.status === 'published';
 
-      const paidBookings = bookings.filter(isPaidBooking);
-      const preAuthorized = bookings.filter((b: any) => b.payment_status === 'pre_authorized');
-      const pending = bookings.filter((b: any) => b.status === 'pending');
-      const cancelled = bookings.filter((b: any) => b.status === 'cancelled');
+      // Range-scoped subsets (drives all KPIs the user expects to filter)
+      const bookingsInRange = bookings.filter((b: any) => b.created_at >= sinceRange);
+      const bookingsPrevRange = bookings.filter(
+        (b: any) => b.created_at >= sincePrevRange && b.created_at < sinceRange
+      );
+      const payoutsInRange = payouts.filter((p: any) => p.payment_date >= sinceRange);
 
+      const paidBookings = bookingsInRange.filter(isPaidBooking);
+      const paidBookingsAll = bookings.filter(isPaidBooking); // for all-time conversion rate
+      const preAuthorized = bookingsInRange.filter((b: any) => b.payment_status === 'pre_authorized');
+      const pending = bookingsInRange.filter((b: any) => b.status === 'pending');
+      const cancelled = bookingsInRange.filter((b: any) => b.status === 'cancelled');
+
+      // GMV inside the selected range + previous equivalent window for delta
       const gmv = paidBookings.reduce((s, b: any) => s + Number(b.cost_aed || 0), 0);
-      const gmv30 = paidBookings
-        .filter((b: any) => b.created_at >= since30)
-        .reduce((s, b: any) => s + Number(b.cost_aed || 0), 0);
-      const gmvPrev30 = paidBookings
-        .filter((b: any) => b.created_at >= since60 && b.created_at < since30)
+      const gmvPrev = bookingsPrevRange
+        .filter(isPaidBooking)
         .reduce((s, b: any) => s + Number(b.cost_aed || 0), 0);
 
-      const completedPayouts = payouts.filter((p: any) => p.status === 'completed');
-      const payoutsTotal = completedPayouts.reduce((s, p: any) => s + Number(p.amount_aed || 0), 0);
-      const payouts30 = completedPayouts
-        .filter((p: any) => p.payment_date >= since30)
+      // Backward-compat 30d numbers (still used by some footers)
+      const gmv30 = bookings
+        .filter((b: any) => b.created_at >= since30)
+        .filter(isPaidBooking)
+        .reduce((s, b: any) => s + Number(b.cost_aed || 0), 0);
+      const gmvPrev30 = bookings
+        .filter((b: any) => b.created_at >= since60 && b.created_at < since30)
+        .filter(isPaidBooking)
+        .reduce((s, b: any) => s + Number(b.cost_aed || 0), 0);
+
+      const completedPayoutsRange = payoutsInRange.filter((p: any) => p.status === 'completed');
+      const payoutsTotal = completedPayoutsRange.reduce((s, p: any) => s + Number(p.amount_aed || 0), 0);
+      const payouts30 = payouts
+        .filter((p: any) => p.status === 'completed' && p.payment_date >= since30)
         .reduce((s, p: any) => s + Number(p.amount_aed || 0), 0);
 
-      const payingOwnerIds = new Set(completedPayouts.map((p: any) => p.owner_id));
+      // All-time payouts kept as a reference for top owners + free-user calc
+      const completedPayoutsAll = payouts.filter((p: any) => p.status === 'completed');
+      const payingOwnerIds = new Set(completedPayoutsAll.map((p: any) => p.owner_id));
       const ownersWithListings = new Set(listings.map((l: any) => l.owner_id).filter(Boolean));
       const freeUsers = profiles.filter(
         (p: any) => !payingOwnerIds.has(p.user_id) && !ownersWithListings.has(p.user_id)
       ).length;
 
-      const usersWithPaidBooking = new Set(paidBookings.map((b: any) => b.user_id));
+      const usersWithPaidBooking = new Set(paidBookingsAll.map((b: any) => b.user_id));
       const conversionRate = profiles.length
         ? (usersWithPaidBooking.size / profiles.length) * 100
         : 0;
 
+      const newUsersInRange = profiles.filter((p: any) => p.created_at >= sinceRange).length;
+
       const kpis: AdminKPIs = {
         totalUsers: profiles.length,
-        newUsers30d: profiles.filter((p: any) => p.created_at >= since30).length,
+        newUsers30d: newUsersInRange, // now range-scoped (label updated in UI)
         newUsers7d: profiles.filter((p: any) => p.created_at >= since7).length,
         totalListings: listings.length,
         activeListings: listings.filter(isActiveListing).length,
         pendingListings: listings.filter((l: any) => l.status === 'pending').length,
-        totalBookings: bookings.length,
+        totalBookings: bookingsInRange.length,
         paidBookings: paidBookings.length,
         preAuthorizedBookings: preAuthorized.length,
         pendingBookings: pending.length,
         cancelledBookings: cancelled.length,
         gmvAed: gmv,
-        gmvLast30d: gmv30,
-        gmvPrev30d: gmvPrev30,
+        gmvLast30d: gmv,        // alias to active range for the KPI footer delta
+        gmvPrev30d: gmvPrev,    // previous equivalent window
         ownerPayoutsTotal: payoutsTotal,
         ownerPayoutsLast30d: payouts30,
         netRevenueAed: gmv - payoutsTotal,
