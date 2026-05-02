@@ -472,7 +472,7 @@ const Index = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: i * 0.1 }}
                 viewport={{ once: true }}
-                className="group relative rounded-2xl p-[2px] transition-all duration-500 hover:-translate-y-2 flex"
+                className="group relative rounded-2xl p-[2px] flex"
                 style={{
                   background:
                     'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-glow)) 50%, hsl(var(--primary-deep)) 100%)',
