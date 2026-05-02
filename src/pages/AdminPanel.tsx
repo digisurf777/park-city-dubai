@@ -2612,6 +2612,16 @@ const AdminPanelOrganized = () => {
                                     )}
                                     
                                     <Button
+                                      onClick={() => setMessageUserId(verification.user_id)}
+                                      variant="outline"
+                                      size="sm"
+                                      className="border-primary/40 text-primary hover:bg-primary/5"
+                                    >
+                                      <Mail className="h-4 w-4 mr-2" />
+                                      Message
+                                    </Button>
+
+                                    <Button
                                       onClick={() => deleteVerification(verification.id)}
                                       disabled={verificationUpdating === verification.id}
                                       variant="outline"
@@ -2631,8 +2641,16 @@ const AdminPanelOrganized = () => {
                                   </div>
                                 </div>
 
-                                {/* Document Viewer */}
-                                <div className="lg:w-80">
+                                {/* Document Viewer + inline preview thumbnail */}
+                                <div className="lg:w-80 space-y-3">
+                                  <VerificationDocThumb
+                                    verificationId={verification.id}
+                                    alt={`${verification.full_name} ID document`}
+                                    onClick={(url) => {
+                                      setDocumentImageUrl(url);
+                                      setDocumentViewDialog(true);
+                                    }}
+                                  />
                                   <SecureDocumentViewer
                                     verificationId={verification.id}
                                     documentType={verification.document_type}
