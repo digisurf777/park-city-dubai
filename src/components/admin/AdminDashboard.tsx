@@ -85,7 +85,7 @@ export function AdminDashboard({ onJumpTab }: Props) {
   return (
     <div className="space-y-6">
       {/* Premium Dubai banner header */}
-      <DubaiSkylineBanner className="p-5 sm:p-7">
+      <DubaiSkylineBanner tall flatTop className="p-5 sm:p-8 -mt-6 sm:-mt-8">
         <div className="flex flex-col gap-5">
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
             <div className="flex items-center gap-3">
@@ -109,7 +109,7 @@ export function AdminDashboard({ onJumpTab }: Props) {
             </div>
 
             <div className="flex items-center gap-2 flex-wrap">
-              <div className="inline-flex rounded-xl border border-white/20 bg-white/10 backdrop-blur p-1">
+              <div className="inline-flex rounded-xl border border-white/40 bg-white/10 backdrop-blur p-1 shadow-[0_4px_12px_-4px_rgba(0,0,0,0.3)]">
                 {[7, 30, 90].map((d) => (
                   <button
                     key={d}
@@ -126,7 +126,7 @@ export function AdminDashboard({ onJumpTab }: Props) {
                 ))}
               </div>
               <div
-                className="inline-flex rounded-xl border border-white/20 bg-white/10 backdrop-blur p-1"
+                className="inline-flex rounded-xl border border-white/40 bg-white/10 backdrop-blur p-1 shadow-[0_4px_12px_-4px_rgba(0,0,0,0.3)]"
                 title={ratesUpdatedAt ? `FX updated ${relTime(ratesUpdatedAt.toISOString())}` : 'Using fallback FX rates'}
               >
                 {currencyOptions.map((c) => (
@@ -149,7 +149,7 @@ export function AdminDashboard({ onJumpTab }: Props) {
                 variant="outline"
                 onClick={refetch}
                 disabled={refreshing}
-                className="border-white/30 bg-white/10 text-white hover:bg-white/20 hover:text-white backdrop-blur"
+                className="border-white/40 bg-white/15 text-white hover:bg-white/25 hover:text-white backdrop-blur"
               >
                 <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
               </Button>
