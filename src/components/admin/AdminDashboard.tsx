@@ -154,6 +154,7 @@ export function AdminDashboard({ onJumpTab, headerActions }: Props) {
               >
                 <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
               </Button>
+              {headerActions}
             </div>
           </div>
 
