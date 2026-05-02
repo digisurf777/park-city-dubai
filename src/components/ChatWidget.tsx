@@ -199,6 +199,58 @@ const ChatWidget = () => {
     return () => { supabase.removeChannel(channel); };
   }, [user, isOpen, fetchAll]);
 
+  // Typewriter: animate the latest admin/AI message in the current session
+  // Strategy: only animate messages that arrive AFTER the widget mounted (not history).
+  const seenMessageIdsRef = useRef<Set<string>>(new Set());
+  const initializedTypingRef = useRef(false);
+  useEffect(() => {
+    // First pass: seed all existing messages so we don't typewrite history on open
+    if (!initializedTypingRef.current) {
+      messages.forEach((m) => seenMessageIdsRef.current.add(m.id));
+      initializedTypingRef.current = true;
+      return;
+    }
+    // Look for new admin/AI messages that we haven't started typing yet
+    for (const m of messages) {
+      if (seenMessageIdsRef.current.has(m.id)) continue;
+      seenMessageIdsRef.current.add(m.id);
+      if (!m.from_admin) continue; // only animate AI / admin replies
+      if (m.pending) continue;
+      const fullLength = m.message?.length ?? 0;
+      if (fullLength === 0) continue;
+      // start at 0
+      setTypingProgress((prev) => ({ ...prev, [m.id]: 0 }));
+      // characters per tick — natural cadence ~22-32ms per char, with small bursts
+      const tickMs = 18;
+      const charsPerTick = Math.max(1, Math.round(fullLength / 80)); // longer messages reveal a bit faster
+      const id = window.setInterval(() => {
+        setTypingProgress((prev) => {
+          const cur = prev[m.id] ?? 0;
+          // Tiny natural variability: occasionally pause for a beat at sentence ends
+          const next = Math.min(fullLength, cur + charsPerTick + Math.floor(Math.random() * 2));
+          if (next >= fullLength) {
+            window.clearInterval(typingTimers.current[m.id]);
+            delete typingTimers.current[m.id];
+            const { [m.id]: _, ...rest } = prev;
+            return { ...rest, [m.id]: fullLength };
+          }
+          return { ...prev, [m.id]: next };
+        });
+        // gentle scroll along with typing
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+      }, tickMs);
+      typingTimers.current[m.id] = id as unknown as number;
+    }
+  }, [messages]);
+
+  // Cleanup any running typewriter timers on unmount
+  useEffect(() => {
+    return () => {
+      Object.values(typingTimers.current).forEach((t) => window.clearInterval(t));
+      typingTimers.current = {};
+    };
+  }, []);
+
   // Build session history list (grouped)
   const sessions: SessionSummary[] = useMemo(() => {
     const groups = new Map<string, Message[]>();
