@@ -490,11 +490,11 @@ const ZonePageLayout = ({
                       </div>
 
                       {/* Body */}
-                      <div className="p-4 sm:p-5">
-                        <h3 className="text-base sm:text-lg font-bold text-foreground mb-2 leading-tight line-clamp-2">
+                      <div className="p-4 sm:p-5 flex flex-col flex-1">
+                        <h3 className="text-base sm:text-lg font-bold text-foreground mb-2 leading-tight line-clamp-2 min-h-[2.75rem]">
                           {spot.name}
                         </h3>
-                        <div className="mb-4 min-h-[3rem]">
+                        <div className="mb-4 flex-1">
                           {formatDescription(spot.description) || (
                             <p className="text-sm text-muted-foreground leading-relaxed">
                               Secure parking space. 24/7 access, covered area.
