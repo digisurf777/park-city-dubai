@@ -172,9 +172,16 @@ export function AdminDashboard({ onJumpTab, headerActions, bannerOnly, hideBanne
             />
           </div>
         </div>
-      </DubaiSkylineBanner>
+    </DubaiSkylineBanner>
+  );
 
-      {/* KPI ROW 1 - money */}
+  if (bannerOnly) return banner;
+
+  return (
+    <div className="space-y-6">
+      {!hideBanner && banner}
+
+
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <KpiCard
           icon={<DollarSign className="h-4 w-4" />}
