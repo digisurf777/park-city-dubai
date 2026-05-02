@@ -57,7 +57,7 @@ export function AdminDashboard({ onJumpTab }: Props) {
   const { data, loading, refreshing, lastUpdated, refetch } = useAdminStats(range);
   const [broadcastOpen, setBroadcastOpen] = useState(false);
   const [messageOpen, setMessageOpen] = useState(false);
-  const { format: fmtMoney, convert, symbol, currency } = useCurrency();
+  const { format: fmtMoney, convert, symbol, currency, setCurrency, options: currencyOptions, ratesUpdatedAt } = useCurrency();
   // Compact format in active currency
   const fmtMoneyCompact = (aedAmount: number) => {
     const v = convert(aedAmount);
