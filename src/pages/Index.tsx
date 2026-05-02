@@ -160,7 +160,7 @@ const Index = () => {
           </motion.div>
 
           {/* Bottom - Phone (transparent PNG, centered) */}
-          <div className="flex justify-center w-full mt-10 sm:mt-14">
+          <div className="flex justify-center w-full mt-6 sm:mt-8">">
             <motion.div
               className="relative flex items-center justify-center"
               initial={{ opacity: 0, scale: 0.85, y: 40 }}
