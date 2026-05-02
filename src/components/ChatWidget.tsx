@@ -56,6 +56,9 @@ const ChatWidget = () => {
   const [input, setInput] = useState("");
   const [unread, setUnread] = useState(0);
   const [thinking, setThinking] = useState(false);
+  // Typewriter effect: maps message id -> currently revealed character count
+  const [typingProgress, setTypingProgress] = useState<Record<string, number>>({});
+  const typingTimers = useRef<Record<string, number>>({});
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
