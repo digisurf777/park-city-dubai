@@ -180,7 +180,7 @@ export function AdminDashboard({ onJumpTab }: Props) {
           footer={
             <span className={`inline-flex items-center gap-1 text-xs font-semibold ${gmvDelta >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
               {gmvDelta >= 0 ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
-              {Math.abs(gmvDelta).toFixed(0)}% · last 30d
+              {Math.abs(gmvDelta).toFixed(0)}% vs prev {range}d
             </span>
           }
           loading={loading}
