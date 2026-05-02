@@ -1,63 +1,62 @@
-## Cel
+## Problem
 
-Top Navigation Bar (desktop) wygląda obecnie płasko: linki to czysty `text-gray-700 hover:text-primary` bez tła ani podkreślenia, a guziki **My Account / Login / Logout** używają domyślnych wariantów `ghost`/`outline` — szare, bez zielonych akcentów, nie pasują do reszty platformy. Dopracowujemy styl, kolorystykę, hover/active states oraz wyróżnienie aktywnej strony.
+Two issues on `/admin`:
 
-## Zakres
+1. The **Boss Dashboard hero banner** is slightly clipped at the top because the global `Navbar` is `fixed top-0` with height `h-16` (64px), but `src/pages/AdminPanel.tsx` wraps content in `p-3 sm:p-6` with no top offset for the fixed bar. Every other page (Index, AboutUs, etc.) adds its own `pt-16`/`pt-20`. The admin page is missing this.
+2. The hero currently only shows the gold **Crown** icon next to the "Boss Dashboard" title. The user wants a richer Dubai-flavored visual — a "boss from Dubai" character — inside the banner.
 
-Tylko `src/components/Navbar.tsx` — sekcja desktop (mobile drawer już ładnie wygląda i zostaje bez zmian).
+## Plan
 
-## Zmiany
+### 1. Push the boss dashboard down so the navbar no longer covers it
 
-### 1. Linki w głównym pasku (Find a Parking Space, Zones, About Us, FAQ, News, Calculator)
+In `src/pages/AdminPanel.tsx` (line ~1789), update the page wrapper to add top padding equal to the fixed navbar height (plus a small breathing buffer):
 
-- Wprowadzam pomocniczą funkcję `isActive(path)` z `useLocation()`.
-- Każdy link dostaje wspólny wzorzec stylu:
-  - Padding `px-3 py-2`, `rounded-lg`, `font-semibold text-sm`.
-  - Hover: subtelny gradient `from-primary/8 to-primary-glow/8` + `text-primary`.
-  - **Aktywna strona**: tło `bg-gradient-to-r from-primary/15 to-primary-glow/15`, `text-primary-deep`, `ring-1 ring-primary/20`, plus mała kropka-wskaźnik pod linkiem (zielony pasek 2px szerokości, `bg-primary` z glow).
-  - Hover dodatkowo: lekka translacja `-translate-y-0.5` + transition dla efektu 3D.
-- Ujednolicam Zones dropdown trigger — ten sam wzorzec aktywny/hover.
+- Change `p-3 sm:p-6` → `px-3 sm:px-6 pb-3 sm:pb-6 pt-20 sm:pt-24`
 
-### 2. Guziki autoryzacyjne (zalogowany)
+This gives the hero banner clean space below the glass navbar on every breakpoint, matching the spacing used elsewhere on the site.
 
-**My Account** — zamiast szarego ghost button zrobimy premium "profile pill":
+### 2. Generate a "Dubai boss" character illustration
+
+Use the AI image generation gateway (`google/gemini-3.1-flash-image-preview` — Nano banana 2, fast + high quality) to produce a single hero portrait:
+
+- Prompt direction: a confident, friendly Emirati businessman in a crisp white kandura and ghutra, soft smile, premium executive vibe, Dubai skyline (Burj Khalifa, Business Bay) softly blurred in the background at golden hour, cinematic lighting, transparent or soft gradient backdrop, square framing, professional editorial illustration style, no text.
+- Save the output to `src/assets/boss-dubai-character.webp` (or `.png` if alpha is needed).
+
+### 3. Place the character inside the existing `DubaiSkylineBanner`
+
+Edit `src/components/admin/AdminDashboard.tsx`, the `banner` JSX (around lines 90–130):
+
+- Add a right-side decorative portrait that sits inside the banner without competing with the title:
+  - On `sm+`: absolutely positioned on the right edge of the banner, ~h-44 to h-56, with `object-contain object-bottom`, slight drop-shadow, `pointer-events-none`, `select-none`, `aria-hidden`.
+  - On mobile: hidden (`hidden sm:block`) so the title and refresh button stay readable.
+- Increase the banner's right padding on `sm+` (e.g. `sm:pr-56`) so text never overlaps the portrait.
+- Keep the gold Crown badge next to the "Boss Dashboard" title — it acts as the small icon the user also asked for; the portrait is the bigger statement piece.
+
+### 4. Optional polish
+
+- Add a soft radial highlight behind the portrait (tinted gold) so it blends with the existing skyline gradient already in `DubaiSkylineBanner`.
+- Ensure the image uses `loading="lazy"` and `decoding="async"` for performance (consistent with the existing skyline `<img>` in `DubaiSkylineBanner.tsx`).
+
+## Technical details
+
+Files touched:
+
+- `src/pages/AdminPanel.tsx` — wrapper padding only (1 line).
+- `src/components/admin/AdminDashboard.tsx` — import the new asset, render the `<img>` inside the banner, adjust right padding.
+- `src/assets/boss-dubai-character.webp` — new generated image asset.
+
+Layout sketch of the updated hero:
+
+```text
+┌──────────────────────────────────────────────────────────────┐
+│ [👑] Boss Dashboard                                          │
+│      ● Live · synced 4s ago · Dubai, UAE        [⟳][AED][⎋] │
+│                                              ╔═════════════╗ │
+│                                              ║   Dubai     ║ │
+│                                              ║   Boss      ║ │
+│                                              ║  portrait   ║ │
+│                                              ╚═════════════╝ │
+└──────────────────────────────────────────────────────────────┘
 ```
-[avatar circle gradient] My Account ▾
-```
-- Pigułka z `bg-white`, `ring-1 ring-primary/25`, hover `ring-primary/50` + cień `shadow-[0_4px_14px_-4px_hsl(var(--primary)/0.35)]`.
-- Mała kółkowa ikona `User` z gradientem `from-primary to-primary-glow`, biała ikona — pasuje do pigułek na landing.
-- `text-primary-deep font-semibold`.
-- Aktywne (na `/my-account`): pełny zielony gradient tła + biały text.
 
-**Logout** — zamiast `variant="outline"`:
-- Zachowujemy outline, ale z `border-primary/30`, `text-primary-deep`, hover `bg-primary/8 border-primary/60`.
-- Ikona `LogOut` po lewej dla spójności wizualnej.
-
-**Login / Sign Up** (niezalogowany):
-- Zamiast szarego ghost: pigułka `bg-primary/8 ring-1 ring-primary/25 text-primary-deep`, hover `bg-primary/15 ring-primary/45`. Ikona `LogIn` z lewej.
-
-**List Your Space** — zostaje `btn-3d-primary` (już dobrze wygląda, jest brand-CTA).
-
-### 3. Dropdown Zones — drobne wykończenie
-
-- Zachowujemy strukturę, dodajemy `aria-current="page"` dla aktywnej zony (zaznaczone tłem `bg-primary/10` na stałe).
-- Dropdown panel: lekko wzmocnić cień, tytuł "Choose a Zone" jako mały eyebrow nagłówek u góry (`text-[10px] uppercase tracking-[0.2em] text-primary/70 font-bold px-3 pt-2.5 pb-1`).
-
-### 4. Cały navbar — drobne tła
-
-- Bardziej wyrazisty separator: zostaje `bg-white/85 backdrop-blur-xl` (już glassmorphism), ale dorzucamy `border-b border-primary/10` żeby pasek miał lekką zieloną krawędź — wizualnie spina się z resztą stron.
-
-## Czego NIE zmieniam
-
-- Mobile drawer (`isMenuOpen`) — wygląda już dobrze, nie ruszamy.
-- Logika Auth, Zones state, Escape/Click-outside, scroll-lock.
-- Routing.
-- Mobile bottom nav.
-
-## Notatki techniczne
-
-- Nowy import: `useLocation` z `react-router-dom` + `cn` z `@/lib/utils`.
-- Dodaję `aria-current="page"` na aktywnym linku (a11y).
-- Animacje przez Tailwind transitions (bez nowych keyframes).
-- Wszystkie kolory przez semantic tokens (`primary`, `primary-glow`, `primary-deep`).
-- Bez zmian w `index.css` / `tailwind.config.ts`.
+No KPI/chart logic, routing, or data layer is touched — purely visual.
