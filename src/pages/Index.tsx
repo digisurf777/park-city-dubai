@@ -430,7 +430,7 @@ const Index = () => {
               >
                 <div className="relative rounded-[14px] bg-white overflow-hidden flex flex-col w-full">
                   {/* Visual - bigger, more prominent */}
-                  <div className="relative aspect-[4/3] sm:aspect-square overflow-hidden">
+                  <div className="relative aspect-[5/4] sm:aspect-[4/5] overflow-hidden">
                     <img
                       src={item.image}
                       alt={item.problem}
@@ -440,11 +440,19 @@ const Index = () => {
                       width={1000}
                       height={1000}
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent"></div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/15 to-transparent"></div>
                     {/* Glossy top highlight */}
-                    <div className="pointer-events-none absolute inset-x-0 top-0 h-1/3 bg-gradient-to-b from-white/15 to-transparent" />
-                    <div className="absolute top-3 left-3 inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-primary text-primary-foreground shadow-elegant ring-2 ring-white/50">
-                      <item.icon className="h-6 w-6" />
+                    <div className="pointer-events-none absolute inset-x-0 top-0 h-1/3 bg-gradient-to-b from-white/20 to-transparent" />
+                    <div
+                      className="absolute top-4 left-4 inline-flex items-center justify-center w-14 h-14 rounded-2xl text-white ring-2 ring-white/70 backdrop-blur-md transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3"
+                      style={{
+                        background:
+                          'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-glow)) 100%)',
+                        boxShadow:
+                          '0 12px 28px -8px hsl(var(--primary-deep) / 0.7), inset 0 1px 0 0 hsl(0 0% 100% / 0.5)',
+                      }}
+                    >
+                      <item.icon className="h-7 w-7 drop-shadow-[0_2px_4px_rgba(0,0,0,0.35)]" strokeWidth={2.4} />
                     </div>
                   </div>
                   {/* Text */}
