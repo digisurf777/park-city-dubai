@@ -722,3 +722,14 @@ All colors MUST be HSL.
     );
   }
 }
+
+@keyframes chat-drop {
+  0% {
+    opacity: 0;
+    transform: translateY(-24px) scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}

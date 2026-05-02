@@ -73,9 +73,9 @@ const ChatWidget = () => {
     const w = window.innerWidth;
     const h = window.innerHeight;
     const isMobile = w < 768;
-    const size = isMobile ? 64 : 64; // launcher size
+    const size = isMobile ? 52 : 56; // launcher size (smaller, less obtrusive)
     // Mobile: leave space for bottom-nav (~64px) + safe-area + comfy gap
-    const bottomGap = isMobile ? 110 : 28;
+    const bottomGap = isMobile ? 96 : 28;
     const sideGap = isMobile ? 14 : 20;
     return { left: w - size - sideGap, top: h - size - bottomGap };
   };
@@ -87,7 +87,7 @@ const ChatWidget = () => {
         const p = JSON.parse(raw) as LauncherPos;
         if (typeof p.left === "number" && typeof p.top === "number") {
           // clamp into viewport
-          const size = 64;
+          const size = 56;
           return {
             left: Math.max(8, Math.min(window.innerWidth - size - 8, p.left)),
             top: Math.max(8, Math.min(window.innerHeight - size - 8, p.top)),
@@ -102,7 +102,7 @@ const ChatWidget = () => {
   useEffect(() => {
     const onResize = () => {
       setLauncherPos((prev) => {
-        const size = 64;
+        const size = 56;
         return {
           left: Math.max(8, Math.min(window.innerWidth - size - 8, prev.left)),
           top: Math.max(8, Math.min(window.innerHeight - size - 8, prev.top)),
@@ -448,26 +448,26 @@ const ChatWidget = () => {
           onPointerCancel={finishDrag}
           aria-label="Open online support chat (drag to reposition)"
           title="Click to open · Drag to reposition"
-          className={`group relative flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-primary via-primary to-primary-deep text-white shadow-[0_14px_32px_-8px_hsl(var(--primary)/0.6),0_6px_14px_-4px_hsl(var(--primary-deep)/0.45),inset_0_1px_0_0_hsl(0_0%_100%/0.35)] ring-2 ring-white/40 select-none touch-none ${isDragging ? "cursor-grabbing scale-110 shadow-[0_22px_44px_-10px_hsl(var(--primary)/0.75)] transition-none" : "cursor-grab active:scale-95 hover:-translate-y-0.5 transition-all duration-200"}`}
+          className={`group relative flex items-center justify-center w-[52px] h-[52px] sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-primary via-primary to-primary-deep text-white shadow-[0_8px_20px_-6px_hsl(var(--primary)/0.5),0_3px_8px_-2px_hsl(var(--primary-deep)/0.35),inset_0_1px_0_0_hsl(0_0%_100%/0.3)] ring-1 ring-white/40 select-none touch-none ${isDragging ? "cursor-grabbing scale-105 shadow-[0_14px_28px_-8px_hsl(var(--primary)/0.65)] transition-none" : "cursor-grab active:scale-95 hover:-translate-y-0.5 transition-all duration-200"}`}
         >
           <span className="relative pointer-events-none">
             <img
               src={supportAvatar}
               alt="Online Support agent"
-              width={48}
-              height={48}
+              width={40}
+              height={40}
               loading="lazy"
               draggable={false}
-              className="relative w-12 h-12 rounded-full object-cover ring-2 ring-white/80"
+              className="relative w-10 h-10 sm:w-11 sm:h-11 rounded-full object-cover ring-2 ring-white/80"
             />
-            <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 ring-2 ring-white animate-pulse" />
+            <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 ring-[1.5px] ring-white animate-pulse" />
           </span>
-          {/* "Live" pill badge */}
-          <span className="absolute -top-1.5 left-1/2 -translate-x-1/2 px-1.5 py-px rounded-full bg-emerald-500 text-white text-[8px] font-black uppercase tracking-[0.12em] ring-2 ring-white shadow pointer-events-none">
+          {/* "Live" pill badge - smaller */}
+          <span className="absolute -top-1 left-1/2 -translate-x-1/2 px-1 py-px rounded-full bg-emerald-500 text-white text-[7px] font-black uppercase tracking-[0.1em] ring-[1.5px] ring-white shadow pointer-events-none">
             Live
           </span>
           {unread > 0 && (
-            <span className="absolute -top-1 -right-1 min-w-[22px] h-[22px] px-1.5 rounded-full bg-rose-500 text-white text-[11px] font-bold flex items-center justify-center ring-2 ring-white pointer-events-none">
+            <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center ring-2 ring-white pointer-events-none">
               {unread}
             </span>
           )}
@@ -484,7 +484,12 @@ const ChatWidget = () => {
   const StatusIcon = conversationStatus.icon;
 
   return (
-    <div className={`${windowSize} z-50 flex flex-col`}>
+    <div
+      className={`${windowSize} z-50 flex flex-col animate-[chat-drop_320ms_cubic-bezier(0.22,1,0.36,1)] origin-top`}
+      style={{
+        // @ts-ignore - inline keyframes via animation name; defined in index.css
+      }}
+    >
       <Card className="h-full flex flex-col shadow-[0_25px_60px_-12px_hsl(var(--primary-deep)/0.45)] border-primary/15 overflow-hidden rounded-2xl bg-gradient-to-b from-white to-surface">
         {/* Header */}
         <div className="relative flex items-center gap-3 p-3 sm:p-4 bg-gradient-to-r from-primary to-primary-deep text-white">
