@@ -266,19 +266,38 @@ const Index = () => {
             y: -5
           }}>
                 <Link to={location.link} className="block">
-                  {/* Brand-green gradient frame */}
+                  {/* Brand-green gradient frame with bottom green glow */}
                   <div
-                    className="rounded-[22px] p-[2.5px] transition-all duration-500 hover:-translate-y-1 shadow-[0_18px_40px_-18px_hsl(var(--primary-deep)/0.5)] hover:shadow-[0_26px_60px_-20px_hsl(var(--primary)/0.6)]"
+                    className="relative rounded-[22px] p-[2.5px] transition-all duration-500 hover:-translate-y-1 shadow-[0_18px_40px_-18px_hsl(var(--primary-deep)/0.5)] hover:shadow-[0_26px_60px_-20px_hsl(var(--primary)/0.6)]"
                     style={{
                       background:
                         'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-glow)) 50%, hsl(var(--primary-deep)) 100%)',
                     }}
                   >
+                    {/* Subtle green underglow for 3D lift */}
+                    <div
+                      aria-hidden
+                      className="pointer-events-none absolute -bottom-4 left-4 right-4 h-8 rounded-full blur-2xl opacity-70 group-hover:opacity-100 transition-opacity"
+                      style={{
+                        background:
+                          'radial-gradient(ellipse at center, hsl(var(--primary-glow) / 0.55) 0%, hsl(var(--primary) / 0.25) 45%, transparent 75%)',
+                      }}
+                    />
                     <Card className="overflow-hidden rounded-[19px] border-0 bg-white group">
                       <div className="relative aspect-[4/5] sm:aspect-[4/5]">
                         <img src={location.image} alt={location.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" loading="lazy" decoding="async" />
                         {/* Bottom gradient only - keeps image fully visible */}
                         <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/85 via-black/40 to-transparent"></div>
+                        {/* Inner green glow rising from bottom for unified 3D feel */}
+                        <div
+                          aria-hidden
+                          className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2"
+                          style={{
+                            background:
+                              'radial-gradient(ellipse at 50% 110%, hsl(var(--primary-glow) / 0.45) 0%, hsl(var(--primary) / 0.18) 35%, transparent 70%)',
+                            mixBlendMode: 'screen',
+                          }}
+                        />
                         {/* Title pinned at bottom-left */}
                         <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5 flex items-end justify-between gap-3">
                           <div>
