@@ -51,38 +51,18 @@ const PerformantHero = () => {
             </div>
           </div>
           
-          {/* Right side - Optimized Phone Image */}
+          {/* Right side - Phone Mockup (slightly smaller, optimized) */}
           <div className="lg:flex-1 flex justify-center lg:justify-end">
-            <Suspense fallback={
-              <div 
-                className="w-64 sm:w-80 md:w-96 lg:max-w-md bg-gray-200 animate-pulse rounded-lg"
-                style={{ aspectRatio: '384/700' }}
-              />
-            }>
-              <picture>
-                <source 
-                  media="(max-width: 640px)" 
-                  srcSet="/lovable-uploads/c910d35f-a4b2-4c06-88e3-7f5b16a45558.webp?w=256&f=webp 256w"
-                  type="image/webp"
-                />
-                <source 
-                  media="(max-width: 1024px)" 
-                  srcSet="/lovable-uploads/c910d35f-a4b2-4c06-88e3-7f5b16a45558.webp?w=320&f=webp 320w"
-                  type="image/webp"
-                />
-                <img 
-                  alt="Shazam Parking Mobile App" 
-                  className="w-64 sm:w-80 md:w-96 lg:max-w-md h-auto transition-transform duration-300 hover:scale-105" 
-                  src="/lovable-uploads/c910d35f-a4b2-4c06-88e3-7f5b16a45558.webp"
-                  loading="eager"
-                  {...({ fetchpriority: 'high' })}
-                  decoding="async"
-                  width="384"
-                  height="700"
-                  style={{ contentVisibility: 'auto' }}
-                />
-              </picture>
-            </Suspense>
+            <img
+              alt="Shazam Parking Mobile App"
+              className="w-52 sm:w-64 md:w-72 lg:w-80 xl:w-96 h-auto transition-transform duration-300 hover:scale-105 drop-shadow-2xl"
+              src={heroPhoneMockup}
+              loading="eager"
+              {...({ fetchpriority: 'high' })}
+              decoding="async"
+              width="384"
+              height="700"
+            />
           </div>
         </div>
         
