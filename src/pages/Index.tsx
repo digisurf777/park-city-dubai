@@ -382,7 +382,7 @@ const Index = () => {
               </span>
             </h2>
             <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              We connect drivers with private parking owners — solving the{' '}
+              We connect drivers with private parking owners, solving the{' '}
               <span className="font-semibold text-foreground">four biggest pains</span> of city parking.
             </p>
           </div>
