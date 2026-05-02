@@ -486,7 +486,7 @@ const Index = () => {
                     <img
                       src={item.image}
                       alt={item.problem}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      className="w-full h-full object-cover"
                       loading="lazy"
                       decoding="async"
                       width={1000}
