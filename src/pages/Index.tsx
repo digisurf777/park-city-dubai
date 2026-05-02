@@ -18,7 +18,7 @@ import useSEO from "@/hooks/useSEO";
 import dubaihero from "@/assets/dubai-skyline-hero.webp";
 import phonePremium from "@/assets/phone-mockup-hero.png";
 import secureParking from "@/assets/secure-parking-hero.webp";
-import luxuryCar from "@/assets/luxury-car-dubai-garage.jpg";
+import luxuryCar from "@/assets/own-parking-space.jpg";
 import luxuryCarStreet from "@/assets/luxury-car-dubai-street.jpg";
 import dubaiDriverPov from "@/assets/dubai-driver-pov.jpg";
 import problemCircling from "@/assets/problem-circling.jpg";
@@ -547,19 +547,27 @@ const Index = () => {
               {/* Soft outer glow */}
               <div className="absolute inset-0 -m-6 rounded-[2.25rem] bg-gradient-primary opacity-25 blur-3xl pointer-events-none"></div>
 
-              {/* Clean rounded image frame */}
-              <div className="relative rounded-3xl overflow-hidden shadow-elegant bg-background">
-                <motion.img
-                  whileHover={{ scale: 1.04 }}
-                  transition={{ duration: 0.5 }}
-                  src={luxuryCar}
-                  alt="Luxury car parked in a premium Dubai garage at golden hour"
-                  className="w-full h-auto object-cover block"
-                  loading="lazy"
-                  decoding="async"
-                  width={1280}
-                  height={1280}
-                />
+              {/* Premium green gradient frame */}
+              <div
+                className="relative rounded-3xl p-[3px] shadow-[0_30px_60px_-20px_hsl(var(--primary)/0.55)] animate-frame-pulse overflow-hidden"
+                style={{
+                  background:
+                    'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-glow)) 50%, hsl(var(--primary-deep)) 100%)',
+                }}
+              >
+                <div className="relative rounded-[22px] overflow-hidden bg-background">
+                  <motion.img
+                    whileHover={{ scale: 1.04 }}
+                    transition={{ duration: 0.5 }}
+                    src={luxuryCar}
+                    alt="Smart parking space dashboard with monthly income, occupancy and bookings overlay"
+                    className="w-full h-auto object-cover block"
+                    loading="lazy"
+                    decoding="async"
+                    width={1280}
+                    height={1280}
+                  />
+                </div>
               </div>
             </motion.div>
           </div>
