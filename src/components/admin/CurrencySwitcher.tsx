@@ -22,9 +22,9 @@ const CurrencySwitcher = ({ variant = "light" }: Props) => {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button
-          className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl font-bold text-xs sm:text-sm transition-all ${
+          className={`inline-flex items-center gap-2 px-3 h-9 rounded-xl font-bold text-xs sm:text-sm transition-all ${
             isDark
-              ? "bg-white/10 hover:bg-white/15 border border-white/15 text-white shadow-[0_4px_12px_-4px_hsl(var(--primary-glow)/0.4)]"
+              ? "bg-white/25 hover:bg-white/35 border-2 border-white/60 text-white backdrop-blur-md shadow-[0_4px_14px_-4px_rgba(0,0,0,0.4)]"
               : "bg-background hover:bg-muted border border-border text-foreground shadow-sm"
           }`}
           aria-label="Change currency"

@@ -112,47 +112,12 @@ export function AdminDashboard({ onJumpTab, headerActions, bannerOnly, hideBanne
             </div>
 
             <div className="flex items-center gap-2 flex-wrap">
-              <div className="inline-flex rounded-xl border border-white/40 bg-white/10 backdrop-blur p-1 shadow-[0_4px_12px_-4px_rgba(0,0,0,0.3)]">
-                {[7, 30, 90].map((d) => (
-                  <button
-                    key={d}
-                    onClick={() => setRange(d as 7 | 30 | 90)}
-                    className={
-                      'h-7 px-3 text-xs font-semibold rounded-lg transition-all ' +
-                      (range === d
-                        ? 'bg-white text-primary shadow-[0_4px_12px_-4px_rgba(0,0,0,0.4)]'
-                        : 'text-white/80 hover:text-white hover:bg-white/10')
-                    }
-                  >
-                    Last {d}d
-                  </button>
-                ))}
-              </div>
-              <div
-                className="inline-flex rounded-xl border border-white/40 bg-white/10 backdrop-blur p-1 shadow-[0_4px_12px_-4px_rgba(0,0,0,0.3)]"
-                title={ratesUpdatedAt ? `FX updated ${relTime(ratesUpdatedAt.toISOString())}` : 'Using fallback FX rates'}
-              >
-                {currencyOptions.map((c) => (
-                  <button
-                    key={c}
-                    onClick={() => setCurrency(c)}
-                    className={
-                      'h-7 px-2.5 text-[11px] font-semibold rounded-lg transition-all ' +
-                      (currency === c
-                        ? 'bg-white text-primary shadow-[0_4px_12px_-4px_rgba(0,0,0,0.4)]'
-                        : 'text-white/80 hover:text-white hover:bg-white/10')
-                    }
-                  >
-                    {c}
-                  </button>
-                ))}
-              </div>
               <Button
                 size="sm"
                 variant="outline"
                 onClick={refetch}
                 disabled={refreshing}
-                className="border-white/40 bg-white/15 text-white hover:bg-white/25 hover:text-white backdrop-blur"
+                className="h-9 px-3 border-white/50 bg-white/20 text-white hover:bg-white/30 hover:text-white backdrop-blur shadow-[0_4px_12px_-4px_rgba(0,0,0,0.3)]"
               >
                 <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
               </Button>
@@ -160,17 +125,6 @@ export function AdminDashboard({ onJumpTab, headerActions, bannerOnly, hideBanne
             </div>
           </div>
 
-          {/* Quick stats inline */}
-          <div className="grid grid-cols-3 gap-2 sm:gap-3">
-            <BannerStat icon={<Car className="h-4 w-4" />} label="Bookings today" value={today.bookingsToday.toString()} />
-            <BannerStat icon={<DollarSign className="h-4 w-4" />} label="Revenue today" value={fmtMoneyCompact(today.revenueToday)} />
-            <BannerStat
-              icon={<AlertCircle className="h-4 w-4" />}
-              label="Pending actions"
-              value={today.pendingActions.toString()}
-              accent={today.pendingActions > 0 ? 'amber' : 'default'}
-            />
-          </div>
         </div>
     </DubaiSkylineBanner>
   );
@@ -180,6 +134,64 @@ export function AdminDashboard({ onJumpTab, headerActions, bannerOnly, hideBanne
   return (
     <div className="space-y-6">
       {!hideBanner && banner}
+
+      {/* Stats filter bar — keeps range + currency + today snapshot together with the metrics */}
+      <Card className="border border-primary/20 bg-gradient-to-br from-background to-surface shadow-sm">
+        <CardContent className="p-3 sm:p-4 space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-muted-foreground">
+              Stats filters
+            </span>
+            <div className="flex items-center gap-2 flex-wrap">
+              <div className="inline-flex rounded-lg border border-border bg-background p-0.5 shadow-sm">
+                {[7, 30, 90].map((d) => (
+                  <button
+                    key={d}
+                    onClick={() => setRange(d as 7 | 30 | 90)}
+                    className={
+                      'h-8 px-2.5 sm:px-3 text-[11px] sm:text-xs font-semibold rounded-md transition-all ' +
+                      (range === d
+                        ? 'bg-primary text-primary-foreground shadow-sm'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-muted')
+                    }
+                  >
+                    Last {d}d
+                  </button>
+                ))}
+              </div>
+              <div
+                className="inline-flex rounded-lg border border-border bg-background p-0.5 shadow-sm"
+                title={ratesUpdatedAt ? `FX updated ${relTime(ratesUpdatedAt.toISOString())}` : 'Using fallback FX rates'}
+              >
+                {currencyOptions.map((c) => (
+                  <button
+                    key={c}
+                    onClick={() => setCurrency(c)}
+                    className={
+                      'h-8 px-2 sm:px-2.5 text-[10px] sm:text-[11px] font-semibold rounded-md transition-all ' +
+                      (currency === c
+                        ? 'bg-primary text-primary-foreground shadow-sm'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-muted')
+                    }
+                  >
+                    {c}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+          <div className="grid grid-cols-3 gap-2 sm:gap-3">
+            <TodayStat icon={<Car className="h-3.5 w-3.5" />} label="Bookings today" value={today.bookingsToday.toString()} />
+            <TodayStat icon={<DollarSign className="h-3.5 w-3.5" />} label="Revenue today" value={fmtMoneyCompact(today.revenueToday)} />
+            <TodayStat
+              icon={<AlertCircle className="h-3.5 w-3.5" />}
+              label="Pending"
+              value={today.pendingActions.toString()}
+              accent={today.pendingActions > 0 ? 'amber' : 'default'}
+            />
+          </div>
+        </CardContent>
+      </Card>
 
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
@@ -932,6 +944,31 @@ function BannerStat({
         <span className="h-6 w-6 rounded-md bg-white/15 flex items-center justify-center">{icon}</span>
       </div>
       <div className="text-white text-lg sm:text-xl font-bold tabular-nums mt-1">{value}</div>
+    </div>
+  );
+}
+
+function TodayStat({
+  icon, label, value, accent = 'default',
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  accent?: 'default' | 'amber';
+}) {
+  const accentCls =
+    accent === 'amber'
+      ? 'bg-amber-500/10 border-amber-500/30'
+      : 'bg-muted/40 border-border';
+  return (
+    <div className={`rounded-lg border p-2 sm:p-3 ${accentCls}`}>
+      <div className="flex items-center justify-between text-muted-foreground text-[9px] sm:text-[10px] font-bold uppercase tracking-widest">
+        <span className="truncate">{label}</span>
+        <span className="h-5 w-5 sm:h-6 sm:w-6 rounded-md bg-background flex items-center justify-center text-primary shrink-0 ml-1">
+          {icon}
+        </span>
+      </div>
+      <div className="text-foreground text-base sm:text-xl font-bold tabular-nums mt-1">{value}</div>
     </div>
   );
 }

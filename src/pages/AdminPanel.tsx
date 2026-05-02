@@ -1798,21 +1798,19 @@ const AdminPanelOrganized = () => {
                 <CurrencySwitcher variant="dark" />
                 <Button
                   onClick={() => navigate('/')}
-                  variant="outline"
                   size="sm"
-                  className="border border-white/40 bg-white/15 text-white hover:bg-white/25 hover:text-white backdrop-blur"
+                  className="h-9 px-3 border-2 border-white/60 bg-white/25 text-white hover:bg-white/35 hover:text-white backdrop-blur-md font-semibold shadow-[0_4px_14px_-4px_rgba(0,0,0,0.4)]"
                 >
-                  <Home className="mr-2 h-4 w-4" />
-                  <span className="hidden xs:inline">Home</span>
+                  <Home className="h-4 w-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Home</span>
                 </Button>
                 <Button
                   onClick={handleLogout}
-                  variant="outline"
                   size="sm"
-                  className="border border-white/40 bg-white/15 text-white hover:bg-white/25 hover:text-white backdrop-blur"
+                  className="h-9 px-3 border-2 border-white/60 bg-white/25 text-white hover:bg-white/35 hover:text-white backdrop-blur-md font-semibold shadow-[0_4px_14px_-4px_rgba(0,0,0,0.4)]"
                 >
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span className="hidden xs:inline">Logout</span>
+                  <LogOut className="h-4 w-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Logout</span>
                 </Button>
               </>
             }
