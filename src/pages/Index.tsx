@@ -266,96 +266,80 @@ const Index = () => {
             </div>
           </motion.div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
-            {[{
-            name: "Dubai Marina",
-            link: "/find-parking?district=dubai-marina",
-            image: dubaiMarinaZone
-          }, {
-            name: "Downtown",
-            link: "/find-parking?district=downtown",
-            image: downtownZone
-          }, {
-            name: "Palm Jumeirah",
-            link: "/find-parking?district=palm-jumeirah",
-            image: palmJumeirahZone
-          }, {
-            name: "Business Bay",
-            link: "/find-parking?district=business-bay",
-            image: businessBayZone
-          }, {
-            name: "DIFC",
-            link: "/find-parking?district=difc",
-            image: difcZone
-          }, {
-            name: "Deira",
-            link: "/find-parking?district=deira",
-            image: deiraZone
-          }].map((location, index) => <motion.div key={index} initial={{
-            opacity: 0,
-            y: 50
-          }} whileInView={{
-            opacity: 1,
-            y: 0
-          }} transition={{
-            duration: 0.6,
-            delay: index * 0.1
-          }} viewport={{
-            once: true
-          }} whileHover={{
-            y: -5
-          }}>
-                <Link to={location.link} className="block">
-                  {/* Brand-green gradient frame with bottom green glow */}
-                  <div
-                    className="relative rounded-[22px] p-[2.5px] transition-all duration-500 hover:-translate-y-1 shadow-[0_18px_40px_-18px_hsl(var(--primary-deep)/0.5)] hover:shadow-[0_26px_60px_-20px_hsl(var(--primary)/0.6)]"
-                    style={{
-                      background:
-                        'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-glow)) 50%, hsl(var(--primary-deep)) 100%)',
-                    }}
-                  >
-                    {/* Subtle green underglow for 3D lift */}
-                    <div
-                      aria-hidden
-                      className="pointer-events-none absolute -bottom-4 left-4 right-4 h-8 rounded-full blur-2xl opacity-70 group-hover:opacity-100 transition-opacity"
-                      style={{
-                        background:
-                          'radial-gradient(ellipse at center, hsl(var(--primary-glow) / 0.55) 0%, hsl(var(--primary) / 0.25) 45%, transparent 75%)',
-                      }}
-                    />
-                    <Card className="overflow-hidden rounded-[19px] border-0 bg-white group">
-                      <div className="relative aspect-[4/5] sm:aspect-[4/5]">
-                        <img src={location.image} alt={location.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" loading="lazy" decoding="async" />
-                        {/* Bottom gradient only - keeps image fully visible */}
-                        <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/85 via-black/40 to-transparent"></div>
-                        {/* Inner green glow rising from bottom for unified 3D feel */}
-                        <div
-                          aria-hidden
-                          className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2"
-                          style={{
-                            background:
-                              'radial-gradient(ellipse at 50% 110%, hsl(var(--primary-glow) / 0.45) 0%, hsl(var(--primary) / 0.18) 35%, transparent 70%)',
-                            mixBlendMode: 'screen',
-                          }}
-                        />
-                        {/* Title pinned at bottom-left */}
-                        <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5 flex items-end justify-between gap-3">
-                          <div>
-                            <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-[0.2em] text-primary-glow mb-1 drop-shadow">Dubai</p>
-                            <motion.h3 initial={{ y: 4, opacity: 0.9 }} whileInView={{ y: 0, opacity: 1 }} className="text-xl sm:text-2xl font-black uppercase text-white drop-shadow-lg leading-tight tracking-tight">
-                              {location.name}
-                            </motion.h3>
-                          </div>
-                          <motion.div whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.95 }} className="flex-shrink-0 w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-elegant ring-2 ring-white/40 group-hover:bg-primary-glow transition-colors">
-                            <ArrowRight className="h-5 w-5" />
-                          </motion.div>
+          {(() => {
+            const zones = [
+              { name: "Dubai Marina", link: "/find-parking?district=dubai-marina", image: dubaiMarinaZone },
+              { name: "Downtown", link: "/find-parking?district=downtown", image: downtownZone },
+              { name: "Palm Jumeirah", link: "/find-parking?district=palm-jumeirah", image: palmJumeirahZone },
+              { name: "Business Bay", link: "/find-parking?district=business-bay", image: businessBayZone },
+              { name: "DIFC", link: "/find-parking?district=difc", image: difcZone },
+              { name: "Deira", link: "/find-parking?district=deira", image: deiraZone },
+            ];
+
+            const renderCard = (location: typeof zones[number], index: number, compact = false) => (
+              <Link to={location.link} className="block">
+                <div
+                  className="relative rounded-[20px] p-[2px] shadow-[0_18px_40px_-18px_hsl(var(--primary-deep)/0.5)]"
+                  style={{
+                    background:
+                      'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-glow)) 50%, hsl(var(--primary-deep)) 100%)',
+                  }}
+                >
+                  <Card className="overflow-hidden rounded-[18px] border-0 bg-white group">
+                    <div className={compact ? "relative aspect-[4/3]" : "relative aspect-[4/5]"}>
+                      <img src={location.image} alt={location.name} className="w-full h-full object-cover" loading="lazy" decoding="async" />
+                      <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/85 via-black/40 to-transparent"></div>
+                      <div className="absolute inset-x-0 bottom-0 p-3 sm:p-5 flex items-end justify-between gap-3">
+                        <div>
+                          <p className="text-[9px] sm:text-xs font-semibold uppercase tracking-[0.2em] text-primary-glow mb-0.5 sm:mb-1 drop-shadow">Dubai</p>
+                          <h3 className="text-base sm:text-2xl font-black uppercase text-white drop-shadow-lg leading-tight tracking-tight">
+                            {location.name}
+                          </h3>
+                        </div>
+                        <div className="flex-shrink-0 w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-elegant ring-2 ring-white/40">
+                          <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5" />
                         </div>
                       </div>
-                    </Card>
+                    </div>
+                  </Card>
+                </div>
+              </Link>
+            );
+
+            return (
+              <>
+                {/* Mobile - auto-scrolling marquee carousel */}
+                <div className="sm:hidden -mx-4 overflow-hidden relative">
+                  {/* Edge fades */}
+                  <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-white to-transparent z-10" />
+                  <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white to-transparent z-10" />
+                  <div className="flex gap-4 px-4 py-2 animate-marquee" style={{ width: 'max-content' }}>
+                    {[...zones, ...zones].map((location, index) => (
+                      <div key={`${location.name}-${index}`} className="w-[68vw] max-w-[280px] flex-shrink-0">
+                        {renderCard(location, index, true)}
+                      </div>
+                    ))}
                   </div>
-                </Link>
-              </motion.div>)}
-          </div>
+                </div>
+
+                {/* Desktop - grid */}
+                <div className="hidden sm:grid grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+                  {zones.map((location, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, y: 50 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.6, delay: index * 0.1 }}
+                      viewport={{ once: true }}
+                      whileHover={{ y: -5 }}
+                    >
+                      {renderCard(location, index, false)}
+                    </motion.div>
+                  ))}
+                </div>
+              </>
+            );
+          })()}
         </div>
       </motion.section>
 
