@@ -558,7 +558,7 @@ const ChatWidget = () => {
                       isMe
                         ? "bg-gradient-to-br from-primary to-primary-deep text-white rounded-br-md"
                         : "bg-white border border-border/60 text-foreground rounded-bl-md"
-                    } ${msg.pending ? "opacity-70" : ""}`}>
+                    } ${msg.pending ? "opacity-70" : ""} animate-fade-in`}>
                       {!isMe && (
                         <div className="flex items-center gap-1.5 mb-1 flex-wrap">
                           <span className="text-[10px] font-bold uppercase tracking-wide text-primary">
@@ -571,9 +571,24 @@ const ChatWidget = () => {
                           )}
                         </div>
                       )}
-                      <div className={`prose prose-sm max-w-none ${isMe ? "prose-invert" : ""} prose-p:my-1 prose-ul:my-1 prose-li:my-0`}>
-                        <ReactMarkdown>{msg.message}</ReactMarkdown>
-                      </div>
+                      {(() => {
+                        // Typewriter only for assistant/admin replies that are still revealing
+                        const progress = typingProgress[msg.id];
+                        const isTyping = !isMe && typeof progress === "number" && progress < (msg.message?.length ?? 0);
+                        const visibleText = isTyping ? msg.message.slice(0, progress) : msg.message;
+                        return (
+                          <div className={`prose prose-sm max-w-none ${isMe ? "prose-invert" : ""} prose-p:my-1 prose-ul:my-1 prose-li:my-0`}>
+                            {isTyping ? (
+                              <p className="whitespace-pre-wrap leading-relaxed">
+                                {visibleText}
+                                <span className="inline-block w-[2px] h-[1em] -mb-[2px] ml-0.5 bg-primary animate-pulse align-middle" aria-hidden="true" />
+                              </p>
+                            ) : (
+                              <ReactMarkdown>{visibleText}</ReactMarkdown>
+                            )}
+                          </div>
+                        );
+                      })()}
                       <p className={`text-[10px] mt-1 ${isMe ? "text-white/70" : "text-muted-foreground"}`}>
                         {new Date(msg.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                       </p>
@@ -588,14 +603,17 @@ const ChatWidget = () => {
               })}
 
               {thinking && (
-                <div className="flex justify-start gap-2">
+                <div className="flex justify-start gap-2 animate-fade-in">
                   <img src={supportAvatar} alt="" width={28} height={28}
                     className="w-7 h-7 rounded-full object-cover mt-auto flex-shrink-0" loading="lazy" />
-                  <div className="bg-white border border-border/60 px-4 py-3 rounded-2xl rounded-bl-md shadow-sm">
-                    <div className="flex items-center gap-1">
-                      <span className="w-2 h-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: "0ms" }} />
-                      <span className="w-2 h-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: "150ms" }} />
-                      <span className="w-2 h-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: "300ms" }} />
+                  <div className="bg-white border border-border/60 px-4 py-2.5 rounded-2xl rounded-bl-md shadow-sm">
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-primary/70 animate-bounce" style={{ animationDelay: "0ms" }} />
+                        <span className="w-1.5 h-1.5 rounded-full bg-primary/70 animate-bounce" style={{ animationDelay: "150ms" }} />
+                        <span className="w-1.5 h-1.5 rounded-full bg-primary/70 animate-bounce" style={{ animationDelay: "300ms" }} />
+                      </div>
+                      <span className="text-[11px] text-muted-foreground italic">Online Support is typing…</span>
                     </div>
                   </div>
                 </div>
