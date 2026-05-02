@@ -899,9 +899,9 @@ const Auth = () => {
             </p>
           </div>
           <Tabs defaultValue="login" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="login">Login</TabsTrigger>
-              <TabsTrigger value="signup">Sign Up</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 h-11 p-1 bg-muted/70 rounded-xl">
+              <TabsTrigger value="login" className="h-9 rounded-lg text-sm font-semibold data-[state=active]:shadow-md">Login</TabsTrigger>
+              <TabsTrigger value="signup" className="h-9 rounded-lg text-sm font-semibold data-[state=active]:shadow-md">Sign Up</TabsTrigger>
             </TabsList>
             
             <TabsContent value="login">
