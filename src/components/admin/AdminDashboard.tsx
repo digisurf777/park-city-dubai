@@ -51,9 +51,13 @@ const statusColor = (s?: string) => {
 interface Props {
   onJumpTab?: (tab: string) => void;
   headerActions?: React.ReactNode;
+  /** When true, render only the Boss Dashboard hero banner (no KPIs/charts). */
+  bannerOnly?: boolean;
+  /** When true, skip rendering the hero banner (it's rendered elsewhere). */
+  hideBanner?: boolean;
 }
 
-export function AdminDashboard({ onJumpTab, headerActions }: Props) {
+export function AdminDashboard({ onJumpTab, headerActions, bannerOnly, hideBanner }: Props) {
   const [range, setRange] = useState<7 | 30 | 90>(30);
   const { data, loading, refreshing, lastUpdated, refetch } = useAdminStats(range);
   const [broadcastOpen, setBroadcastOpen] = useState(false);
