@@ -108,7 +108,7 @@ export function AdminDashboard({ onJumpTab }: Props) {
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <div className="inline-flex rounded-xl border border-white/20 bg-white/10 backdrop-blur p-1">
                 {[7, 30, 90].map((d) => (
                   <button
@@ -121,7 +121,26 @@ export function AdminDashboard({ onJumpTab }: Props) {
                         : 'text-white/80 hover:text-white hover:bg-white/10')
                     }
                   >
-                    {d}d
+                    Last {d}d
+                  </button>
+                ))}
+              </div>
+              <div
+                className="inline-flex rounded-xl border border-white/20 bg-white/10 backdrop-blur p-1"
+                title={ratesUpdatedAt ? `FX updated ${relTime(ratesUpdatedAt.toISOString())}` : 'Using fallback FX rates'}
+              >
+                {currencyOptions.map((c) => (
+                  <button
+                    key={c}
+                    onClick={() => setCurrency(c)}
+                    className={
+                      'h-7 px-2.5 text-[11px] font-semibold rounded-lg transition-all ' +
+                      (currency === c
+                        ? 'bg-white text-primary shadow-[0_4px_12px_-4px_rgba(0,0,0,0.4)]'
+                        : 'text-white/80 hover:text-white hover:bg-white/10')
+                    }
+                  >
+                    {c}
                   </button>
                 ))}
               </div>
