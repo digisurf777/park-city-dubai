@@ -1,7 +1,6 @@
 import { useLocation, Link } from "react-router-dom";
 import { useEffect } from "react";
 import { Home, Search, ArrowLeft, MapPin } from "lucide-react";
-import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 
 const NotFound = () => {
@@ -16,7 +15,7 @@ const NotFound = () => {
 
   return (
     <>
-      <Navbar />
+
       <main className="min-h-screen pt-24 pb-16 bg-gradient-to-b from-surface via-background to-background flex items-center justify-center px-4 relative overflow-hidden">
         {/* Decorative glows */}
         <div className="pointer-events-none absolute -top-20 -left-20 w-[28rem] h-[28rem] rounded-full bg-primary/10 blur-3xl" aria-hidden="true" />

@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
-import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageHero from "@/components/PageHero";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -76,7 +75,7 @@ const FAQ = () => {
   }];
   return <div className="min-h-screen bg-gradient-to-b from-surface to-background animate-fade-in">
       {seo}
-      <Navbar />
+
       
       {/* Hero Section */}
       <PageHero

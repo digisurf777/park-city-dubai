@@ -38,7 +38,6 @@ const pickDefaultAvatar = (seed?: string | null) => {
 };
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import VerificationPanel from '@/components/VerificationPanel';
-import Navbar from '@/components/Navbar';
 import UserInbox from '@/components/UserInbox';
 import { ActiveBookingChats } from '@/components/ActiveBookingChats';
 import { MyListings } from '@/components/MyListings';
@@ -492,7 +491,7 @@ const MyAccount = () => {
   };
   if (loading) {
     return <>
-        <Navbar />
+
         <div className="min-h-screen bg-gradient-to-b from-surface via-background to-background pt-24">
           <div className="max-w-5xl mx-auto p-4 lg:p-6 space-y-6 animate-pulse">
             {/* Hero skeleton */}
@@ -513,7 +512,7 @@ const MyAccount = () => {
       </>;
   }
   return <>
-    <Navbar />
+
     <div className="min-h-screen bg-gradient-to-b from-surface via-background to-background pt-24 animate-fade-in">
       <div className="max-w-5xl mx-auto p-4 lg:p-6">
         {/* Hero header card - premium luxury banner with Dubai night photo */}

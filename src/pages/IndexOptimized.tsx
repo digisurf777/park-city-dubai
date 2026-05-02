@@ -1,5 +1,4 @@
 import { lazy, Suspense } from "react";
-import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PerformantHero from "@/components/PerformantHero";
 import CriticalCSS from "@/components/CriticalCSS";
@@ -27,7 +26,7 @@ const IndexOptimized = () => {
     <div className="min-h-screen bg-white">
       <CriticalCSS />
       {seoData}
-      <Navbar />
+
       
       {/* Performance Optimized Hero */}
       <PerformantHero />

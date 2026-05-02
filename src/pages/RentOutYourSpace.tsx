@@ -7,7 +7,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Upload, CheckCircle, Wallet, Quote, X, Shield, AlertTriangle } from "lucide-react";
-import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ParkingCalculator from "@/components/ParkingCalculator";
 import { useState, useRef, useEffect } from "react";
@@ -359,7 +358,7 @@ const RentOutYourSpace = () => {
   };
   return <div className="min-h-screen bg-white animate-zoom-slow">
       {seo}
-      <Navbar />
+
       
       {/* Hero Section */}
       <PageHero

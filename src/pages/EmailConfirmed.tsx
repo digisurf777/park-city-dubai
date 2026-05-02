@@ -4,7 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle, XCircle, Loader2 } from "lucide-react";
-import Navbar from "@/components/Navbar";
 
 const EmailConfirmed = () => {
   const [loading, setLoading] = useState(true);
@@ -125,7 +124,7 @@ const EmailConfirmed = () => {
   if (loading) {
     return (
       <>
-        <Navbar />
+
         <div className="min-h-screen bg-background flex items-center justify-center px-4 pt-24">
           <Card className="w-full max-w-md">
             <CardContent className="pt-6">
@@ -143,7 +142,7 @@ const EmailConfirmed = () => {
   if (confirmed) {
     return (
       <>
-        <Navbar />
+
         <div className="min-h-screen bg-background flex items-center justify-center px-4 pt-24">
           <Card className="w-full max-w-md">
             <CardHeader>
@@ -171,7 +170,7 @@ const EmailConfirmed = () => {
 
   return (
     <>
-      <Navbar />
+
       <div className="min-h-screen bg-background flex items-center justify-center px-4 pt-24">
         <Card className="w-full max-w-md">
           <CardHeader>

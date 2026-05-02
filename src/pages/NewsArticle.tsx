@@ -1,6 +1,5 @@
 import { useParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import NewsComments from "@/components/NewsComments";
 import { Badge } from "@/components/ui/badge";
@@ -63,7 +62,7 @@ const NewsArticle = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-surface to-background animate-fade-in">
-        <Navbar />
+
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
           <div className="text-center mb-6">
             <p className="text-muted-foreground">Loading article...</p>
@@ -77,7 +76,7 @@ const NewsArticle = () => {
   if (!article) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-surface to-background">
-        <Navbar />
+
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
         <div className="text-center mb-6">
           <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">
@@ -107,7 +106,7 @@ const NewsArticle = () => {
         <meta name="keywords" content={article.tags?.join(', ') || 'Dubai parking, news, ShazamParking'} />
         <link rel="canonical" href={`https://shazamparking.ae/news/${id}`} />
       </Helmet>
-      <Navbar />
+
       
       {/* Back Navigation */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">

@@ -9,7 +9,6 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/hooks/useAuth";
-import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ParkingBookingModal } from "@/components/ParkingBookingModal";
 import ImageZoomModal from "@/components/ImageZoomModal";
@@ -81,7 +80,7 @@ const Deira = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-surface to-background">
-      <Navbar />
+
       
       <div className="relative h-[440px] sm:h-[560px] pt-20 sm:pt-24">
         <div className="absolute inset-0 bg-black/35"></div>
