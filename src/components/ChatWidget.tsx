@@ -73,9 +73,9 @@ const ChatWidget = () => {
     const w = window.innerWidth;
     const h = window.innerHeight;
     const isMobile = w < 768;
-    const size = isMobile ? 64 : 64; // launcher size
+    const size = isMobile ? 52 : 56; // launcher size (smaller, less obtrusive)
     // Mobile: leave space for bottom-nav (~64px) + safe-area + comfy gap
-    const bottomGap = isMobile ? 110 : 28;
+    const bottomGap = isMobile ? 96 : 28;
     const sideGap = isMobile ? 14 : 20;
     return { left: w - size - sideGap, top: h - size - bottomGap };
   };
