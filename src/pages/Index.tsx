@@ -210,9 +210,24 @@ const Index = () => {
         }} viewport={{
           once: true
         }} className="text-center mb-12 sm:mb-16">
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 sm:mb-6 px-4">
-              POPULAR PARKING LOCATIONS IN DUBAI
+            <span className="inline-flex items-center gap-2 mb-5 px-4 py-1.5 rounded-full bg-gradient-to-r from-primary/15 to-primary-glow/15 ring-1 ring-primary/25 text-[10px] sm:text-xs font-bold tracking-[0.22em] uppercase text-primary-deep shadow-sm">
+              <MapPin className="h-3.5 w-3.5 text-primary" />
+              Explore Dubai
+            </span>
+            <h2
+              className="font-black tracking-tight text-3xl sm:text-5xl lg:text-6xl mb-4 sm:mb-5 leading-[1.05] px-4"
+              style={{ fontFamily: '"Playfair Display", Georgia, serif' }}
+            >
+              <span className="block text-slate-900">Popular Parking</span>
+              <span className="block bg-gradient-to-r from-primary via-primary-glow to-primary-deep bg-clip-text text-transparent">
+                Locations in Dubai
+              </span>
             </h2>
+            <div className="mx-auto flex items-center justify-center gap-2 mt-3">
+              <span className="h-1 w-12 sm:w-16 rounded-full bg-gradient-to-r from-transparent to-primary" />
+              <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+              <span className="h-1 w-12 sm:w-16 rounded-full bg-gradient-to-l from-transparent to-primary" />
+            </div>
           </motion.div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
