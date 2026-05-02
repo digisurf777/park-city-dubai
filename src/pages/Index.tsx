@@ -16,7 +16,7 @@ import { motion } from "framer-motion";
 import useSEO from "@/hooks/useSEO";
 import dubaihero from "@/assets/dubai-skyline-hero.webp";
 import phonePremium from "@/assets/phone-mockup-hero.png";
-import secureParking from "@/assets/secure-parking-hero.webp";
+import secureParking from "@/assets/hero-parking-garage.webp";
 import luxuryCar from "@/assets/own-parking-space.jpg";
 import luxuryCarStreet from "@/assets/luxury-car-dubai-street.jpg";
 import dubaiDriverPov from "@/assets/dubai-driver-pov.jpg";
@@ -65,11 +65,11 @@ const Index = () => {
       <section
         className="relative overflow-hidden bg-cover bg-center bg-no-repeat"
         style={{
-          backgroundImage: `linear-gradient(135deg, hsl(174 60% 22% / 0.35) 0%, hsl(174 50% 30% / 0.20) 50%, hsl(174 45% 40% / 0.10) 100%), url(${secureParking})`,
+          backgroundImage: `linear-gradient(135deg, hsl(174 60% 18% / 0.55) 0%, hsl(174 55% 22% / 0.40) 50%, hsl(174 50% 30% / 0.30) 100%), url(${secureParking})`,
         }}
       >
         {/* Bottom darken for text legibility on mobile (only where text sits) */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/40 via-black/10 to-transparent"></div>
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/55 via-black/20 to-transparent"></div>
         {/* Decorative glows - subtle */}
         <div className="pointer-events-none absolute -bottom-32 -right-32 w-[28rem] h-[28rem] rounded-full bg-primary-glow/10 blur-3xl"></div>
         <div className="pointer-events-none absolute -top-24 -left-24 w-[22rem] h-[22rem] rounded-full bg-primary/10 blur-3xl"></div>
