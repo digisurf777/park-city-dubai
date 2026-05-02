@@ -484,7 +484,12 @@ const ChatWidget = () => {
   const StatusIcon = conversationStatus.icon;
 
   return (
-    <div className={`${windowSize} z-50 flex flex-col`}>
+    <div
+      className={`${windowSize} z-50 flex flex-col animate-[chat-drop_320ms_cubic-bezier(0.22,1,0.36,1)] origin-top`}
+      style={{
+        // @ts-ignore - inline keyframes via animation name; defined in index.css
+      }}
+    >
       <Card className="h-full flex flex-col shadow-[0_25px_60px_-12px_hsl(var(--primary-deep)/0.45)] border-primary/15 overflow-hidden rounded-2xl bg-gradient-to-b from-white to-surface">
         {/* Header */}
         <div className="relative flex items-center gap-3 p-3 sm:p-4 bg-gradient-to-r from-primary to-primary-deep text-white">
