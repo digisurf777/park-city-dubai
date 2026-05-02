@@ -224,7 +224,7 @@ export function AdminDashboard({ onJumpTab }: Props) {
           label="Total users"
           value={kpis.totalUsers.toString()}
           accent="primary"
-          footer={<span className="text-xs text-emerald-600 font-semibold">+{kpis.newUsers30d} in 30d · +{kpis.newUsers7d} in 7d</span>}
+          footer={<span className="text-xs text-emerald-600 font-semibold">+{kpis.newUsers30d} in {range}d · +{kpis.newUsers7d} in 7d</span>}
           loading={loading}
         />
         <KpiCard
