@@ -40,6 +40,8 @@ import { MonthlyEmailsTab } from '@/components/admin/MonthlyEmailsTab';
 import { AdminDashboard } from '@/components/admin/AdminDashboard';
 import SupportDashboard from '@/components/admin/SupportDashboard';
 import OnlineSupportHistory from '@/components/admin/OnlineSupportHistory';
+import { VerificationDocThumb } from '@/components/admin/VerificationDocThumb';
+import { MessageUserDialog } from '@/components/admin/MessageUserDialog';
 import { MessagesSquare } from 'lucide-react';
 import { LifeBuoy } from 'lucide-react';
 import { LayoutDashboard } from 'lucide-react';
