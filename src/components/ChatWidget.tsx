@@ -63,19 +63,60 @@ const ChatWidget = () => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // ---------- Draggable launcher state ----------
-  const LAUNCHER_POS_KEY = "shazam_launcher_pos_v1";
-  type LauncherPos = { side: "left" | "right"; bottom: number };
-  const defaultPos: LauncherPos = { side: "right", bottom: 24 };
+  // v2 schema: free 2D position stored as { left, top } in CSS px from viewport top-left.
+  // We persist on resize by re-clamping to the new viewport.
+  const LAUNCHER_POS_KEY = "shazam_launcher_pos_v2";
+  type LauncherPos = { left: number; top: number };
+  // Lazy default — placed bottom-right, but a bit higher than before so it's clearly above the mobile bottom-nav.
+  const computeDefaultPos = (): LauncherPos => {
+    if (typeof window === "undefined") return { left: 16, top: 16 };
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    const isMobile = w < 768;
+    const size = isMobile ? 64 : 64; // launcher size
+    // Mobile: leave space for bottom-nav (~64px) + safe-area + comfy gap
+    const bottomGap = isMobile ? 110 : 28;
+    const sideGap = isMobile ? 14 : 20;
+    return { left: w - size - sideGap, top: h - size - bottomGap };
+  };
   const [launcherPos, setLauncherPos] = useState<LauncherPos>(() => {
-    if (typeof window === "undefined") return defaultPos;
+    if (typeof window === "undefined") return { left: 16, top: 16 };
     try {
       const raw = localStorage.getItem(LAUNCHER_POS_KEY);
-      if (!raw) return defaultPos;
-      const p = JSON.parse(raw) as LauncherPos;
-      if ((p.side === "left" || p.side === "right") && typeof p.bottom === "number") return p;
+      if (raw) {
+        const p = JSON.parse(raw) as LauncherPos;
+        if (typeof p.left === "number" && typeof p.top === "number") {
+          // clamp into viewport
+          const size = 64;
+          return {
+            left: Math.max(8, Math.min(window.innerWidth - size - 8, p.left)),
+            top: Math.max(8, Math.min(window.innerHeight - size - 8, p.top)),
+          };
+        }
+      }
     } catch {}
-    return defaultPos;
+    return computeDefaultPos();
   });
+
+  // Re-clamp on viewport resize / orientation change so the launcher never drifts off-screen.
+  useEffect(() => {
+    const onResize = () => {
+      setLauncherPos((prev) => {
+        const size = 64;
+        return {
+          left: Math.max(8, Math.min(window.innerWidth - size - 8, prev.left)),
+          top: Math.max(8, Math.min(window.innerHeight - size - 8, prev.top)),
+        };
+      });
+    };
+    window.addEventListener("resize", onResize);
+    window.addEventListener("orientationchange", onResize);
+    return () => {
+      window.removeEventListener("resize", onResize);
+      window.removeEventListener("orientationchange", onResize);
+    };
+  }, []);
+
   const [dragRect, setDragRect] = useState<{ left: number; top: number } | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const dragStateRef = useRef<{
@@ -113,7 +154,9 @@ const ChatWidget = () => {
     if (!ds || ds.pointerId !== e.pointerId) return;
     const dx = e.clientX - ds.startX;
     const dy = e.clientY - ds.startY;
-    if (!ds.moved && Math.hypot(dx, dy) < 5) return; // tap threshold
+    // tap threshold (slightly higher on touch to avoid accidental drag on tap)
+    const threshold = e.pointerType === "touch" ? 8 : 5;
+    if (!ds.moved && Math.hypot(dx, dy) < threshold) return;
     ds.moved = true;
     if (!isDragging) setIsDragging(true);
     const left = Math.max(8, Math.min(window.innerWidth - ds.width - 8, e.clientX - ds.offsetX));
@@ -125,16 +168,12 @@ const ChatWidget = () => {
     const ds = dragStateRef.current;
     if (!ds) return;
     const moved = ds.moved;
-    const width = ds.width;
-    const height = ds.height;
     const rect = dragRect;
     dragStateRef.current = null;
     try { launcherRef.current?.releasePointerCapture(e.pointerId); } catch {}
     if (moved && rect) {
-      const centerX = rect.left + width / 2;
-      const side: "left" | "right" = centerX < window.innerWidth / 2 ? "left" : "right";
-      const bottom = Math.max(8, Math.min(window.innerHeight - height - 8, window.innerHeight - rect.top - height));
-      const next = { side, bottom };
+      // Free 2D position — no edge snapping. Persist exactly where user dropped.
+      const next = { left: rect.left, top: rect.top };
       setLauncherPos(next);
       try { localStorage.setItem(LAUNCHER_POS_KEY, JSON.stringify(next)); } catch {}
     }
