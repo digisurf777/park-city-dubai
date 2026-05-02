@@ -642,8 +642,18 @@ const Index = () => {
             <h3 className="text-lg sm:text-xl lg:text-2xl text-gray-700 mb-6 sm:mb-8 px-4">
               We are the quickest, easiest, and the most secure way to rent a parking space in Dubai!
             </h3>
-            <div className="mx-auto max-w-2xl rounded-2xl ring-1 ring-primary/15 shadow-[0_20px_40px_-15px_hsl(var(--primary)/0.35)] p-1.5 bg-gradient-to-br from-primary/10 to-transparent animate-[float_8s_ease-in-out_infinite] overflow-hidden">
-              <img src={dubaiDriverPov} alt="Stylish man in Dubai using the ShazamParking app next to his luxury car with Burj Khalifa in the background" className="rounded-xl w-full object-cover aspect-video" loading="lazy" decoding="async" width={1536} height={1024} />
+            <div
+              className="mx-auto max-w-3xl rounded-3xl p-[3px] animate-[float_8s_ease-in-out_infinite] overflow-hidden"
+              style={{
+                background:
+                  'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-glow)) 50%, hsl(var(--primary-deep)) 100%)',
+                boxShadow:
+                  '0 30px 60px -20px hsl(var(--primary-deep) / 0.55), 0 0 0 1px hsl(var(--primary-glow) / 0.25)',
+              }}
+            >
+              <div className="rounded-[22px] bg-white p-1.5 overflow-hidden">
+                <img src={dubaiDriverPov} alt="Stylish man in Dubai using the ShazamParking app next to his luxury car with Burj Khalifa in the background" className="rounded-[18px] w-full object-cover aspect-video" loading="lazy" decoding="async" width={1536} height={1024} />
+              </div>
             </div>
           </div>
         </div>
