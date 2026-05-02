@@ -89,8 +89,30 @@ export function AdminDashboard({ onJumpTab, headerActions, bannerOnly, hideBanne
   );
 
   const banner = (
-    <DubaiSkylineBanner tall className="p-5 sm:p-8">
-        <div className="flex flex-col gap-5">
+    <DubaiSkylineBanner tall className="p-5 sm:p-8 sm:pr-56 lg:pr-64">
+        {/* Dubai boss portrait — decorative, sits on the right edge of the banner */}
+        <div
+          aria-hidden
+          className="hidden sm:block pointer-events-none select-none absolute right-2 lg:right-4 bottom-0 top-0 w-44 lg:w-56"
+        >
+          {/* Soft gold radial glow behind the portrait */}
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                'radial-gradient(circle at 65% 60%, hsl(40 95% 60% / 0.35) 0%, transparent 60%)',
+            }}
+          />
+          <img
+            src={bossDubai}
+            alt=""
+            loading="lazy"
+            decoding="async"
+            className="absolute right-0 bottom-0 h-[110%] w-auto object-contain object-bottom drop-shadow-[0_18px_28px_rgba(0,0,0,0.45)]"
+          />
+        </div>
+
+        <div className="relative flex flex-col gap-5">
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
             <div className="flex items-center gap-3">
               <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-amber-300 to-amber-500 flex items-center justify-center shadow-[0_8px_22px_-6px_hsl(40_95%_55%/0.6)] ring-1 ring-white/30">
