@@ -119,6 +119,16 @@ export default {
 					opacity: '1'
 				}
 			},
+			'slide-down-menu': {
+				'0%': {
+					transform: 'translateY(-12px) scaleY(0.96)',
+					opacity: '0'
+				},
+				'100%': {
+					transform: 'translateY(0) scaleY(1)',
+					opacity: '1'
+				}
+			},
 			'blink-red': {
 				'0%, 100%': {
 					backgroundColor: 'rgb(239 68 68)',
@@ -158,6 +168,7 @@ export default {
 				'zoom-slow': 'zoom-slow 0.6s ease-out',
 				'mobile-fade-in': 'mobile-fade-in 0.4s ease-out',
 				'slide-up': 'slide-up 0.3s ease-out',
+				'slide-down-menu': 'slide-down-menu 0.32s cubic-bezier(0.22, 1, 0.36, 1)',
 				'blink-red': 'blink-red 1.5s ease-in-out infinite',
 				'frame-pulse': 'frame-pulse 3s ease-in-out infinite',
 				'marquee': 'marquee 50s linear infinite',
