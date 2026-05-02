@@ -299,7 +299,7 @@ export function useAdminStats(rangeDays: 7 | 30 | 90 = 30) {
         existing.listingsCount += 1;
         ownerMap.set(l.owner_id, existing);
       });
-      completedPayouts.forEach((p: any) => {
+      completedPayoutsAll.forEach((p: any) => {
         const prof = profileById.get(p.owner_id);
         const existing = ownerMap.get(p.owner_id) || {
           ownerId: p.owner_id,
@@ -343,7 +343,7 @@ export function useAdminStats(rangeDays: 7 | 30 | 90 = 30) {
             createdAt: p.created_at,
           });
         });
-      completedPayouts
+      completedPayoutsAll
         .slice()
         .sort((a: any, b: any) => String(b.payment_date).localeCompare(String(a.payment_date)))
         .slice(0, 4)
