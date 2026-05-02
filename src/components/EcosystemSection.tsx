@@ -51,22 +51,22 @@ const EcosystemSection = () => {
         className="absolute inset-0 bg-cover bg-center scale-[1.04]"
         style={{ backgroundImage: `url(${dubaiAerial})` }}
       />
-      {/* Brand teal cinematic tint - lighter, with darker center for text contrast */}
+      {/* Brand teal cinematic tint - very light, lets the photo dominate */}
       <div
         aria-hidden="true"
         className="absolute inset-0"
         style={{
           background:
-            "linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--primary-deep) / 0.55) 18%, hsl(var(--primary) / 0.45) 50%, hsl(var(--primary-deep) / 0.6) 82%, hsl(var(--background)) 100%)",
+            "linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--primary-deep) / 0.28) 16%, hsl(var(--primary) / 0.18) 50%, hsl(var(--primary-deep) / 0.32) 84%, hsl(var(--background)) 100%)",
         }}
       />
-      {/* Strong center darken behind text block for legibility */}
+      {/* Soft darken behind heading only - keeps text legible without covering image */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "radial-gradient(ellipse 60% 45% at 50% 32%, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.25) 55%, transparent 100%)",
+            "radial-gradient(ellipse 55% 35% at 50% 22%, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.18) 60%, transparent 100%)",
         }}
       />
       {/* Subtle grid texture */}
