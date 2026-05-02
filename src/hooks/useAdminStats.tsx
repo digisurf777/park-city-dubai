@@ -59,12 +59,45 @@ export interface RecentActivity {
   createdAt: string;
 }
 
+export interface FunnelStage {
+  stage: string;
+  count: number;
+  pct: number; // % of total bookings
+}
+
+export interface ZoneSlice {
+  zone: string;
+  bookings: number;
+}
+
+export interface RecentBooking {
+  id: string;
+  zone: string;
+  location: string;
+  status: string;
+  paymentStatus: string;
+  amountAed: number;
+  createdAt: string;
+  userName: string;
+}
+
+export interface TodayKPIs {
+  bookingsToday: number;
+  revenueToday: number;
+  pendingActions: number; // KYC + listings + unread
+}
+
 export interface AdminDashboardData {
   kpis: AdminKPIs;
+  today: TodayKPIs;
   trend: TrendPoint[];
   zones: ZoneBreakdown[];
   topOwners: TopOwner[];
   recent: RecentActivity[];
+  funnel: FunnelStage[];
+  zoneDonut: ZoneSlice[];
+  hourlyHeatmap: number[][]; // [day 0..6][hour 0..23]
+  recentBookings: RecentBooking[];
 }
 
 const empty: AdminDashboardData = {
@@ -79,10 +112,15 @@ const empty: AdminDashboardData = {
     payingOwners: 0, freeUsers: 0, conversionRate: 0,
     unreadAdminMessages: 0, pendingVerifications: 0,
   },
+  today: { bookingsToday: 0, revenueToday: 0, pendingActions: 0 },
   trend: [],
   zones: [],
   topOwners: [],
   recent: [],
+  funnel: [],
+  zoneDonut: [],
+  hourlyHeatmap: Array.from({ length: 7 }, () => Array(24).fill(0)),
+  recentBookings: [],
 };
 
 const ymd = (d: Date) => d.toISOString().slice(0, 10);
