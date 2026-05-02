@@ -1911,7 +1911,7 @@ const AdminPanelOrganized = () => {
 
           {/* Boss Dashboard Tab */}
           <TabsContent value="dashboard" className="space-y-6 mt-6">
-            <AdminDashboard onJumpTab={(t) => setActiveTab(t)} />
+            <AdminDashboard hideBanner onJumpTab={(t) => setActiveTab(t)} />
           </TabsContent>
 
           {/* Support Inbox Tab */}
