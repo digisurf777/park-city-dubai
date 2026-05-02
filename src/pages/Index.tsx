@@ -215,11 +215,14 @@ const Index = () => {
               Explore Dubai
             </span>
             <h2
-              className="font-black tracking-tight text-3xl sm:text-5xl lg:text-6xl mb-4 sm:mb-5 leading-[1.05] px-4"
-              style={{ fontFamily: '"Playfair Display", Georgia, serif' }}
+              className="font-black tracking-[-0.02em] text-4xl sm:text-5xl lg:text-7xl mb-4 sm:mb-5 leading-[0.98] px-4 text-balance"
+              style={{ fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 900 }}
             >
-              <span className="block text-slate-900">Popular Parking</span>
-              <span className="block bg-gradient-to-r from-primary via-primary-glow to-primary-deep bg-clip-text text-transparent">
+              <span className="block text-slate-900 [text-shadow:0_1px_0_rgb(255_255_255/0.5)]">Popular Parking</span>
+              <span
+                className="block italic bg-gradient-to-r from-primary via-primary-glow to-primary-deep bg-clip-text text-transparent pb-1"
+                style={{ fontWeight: 800 }}
+              >
                 Locations in Dubai
               </span>
             </h2>
