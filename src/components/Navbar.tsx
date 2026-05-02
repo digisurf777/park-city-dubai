@@ -271,9 +271,9 @@ const Navbar = () => {
               onClick={() => setIsMenuOpen(false)}
               aria-hidden="true"
             />
-            {/* Drawer */}
+            {/* Drawer - drops down from top */}
             <div
-              className="md:hidden fixed top-16 left-0 right-0 z-40 max-h-[calc(100vh-4rem)] overflow-y-auto mobile-scroll animate-slide-up"
+              className="md:hidden fixed top-16 left-0 right-0 z-40 max-h-[calc(100vh-4rem)] overflow-y-auto mobile-scroll animate-slide-down-menu origin-top"
               role="dialog"
               aria-modal="true"
             >
