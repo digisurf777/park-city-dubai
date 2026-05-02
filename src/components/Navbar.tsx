@@ -93,28 +93,41 @@ const Navbar = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
-            <Link to="/find-a-parking-space" className="text-gray-700 hover:text-primary transition-colors">
+          <div className="hidden md:flex items-center gap-1">
+            <Link
+              to="/find-a-parking-space"
+              aria-current={isActive("/find-a-parking-space") ? "page" : undefined}
+              className={cn(linkBase, isActive("/find-a-parking-space") ? linkActive : linkIdle)}
+            >
               Find a Parking Space
+              {renderActiveBar(isActive("/find-a-parking-space"))}
             </Link>
-            
+
             {/* Zones Dropdown */}
             <div className="relative" ref={zonesRef}>
               <button
                 onClick={() => setIsZonesOpen(!isZonesOpen)}
                 aria-expanded={isZonesOpen}
                 aria-haspopup="menu"
-                className={`flex items-center gap-1 font-semibold transition-colors px-2 py-1.5 rounded-lg ${isZonesOpen ? 'text-primary bg-primary/10' : 'text-gray-700 hover:text-primary hover:bg-primary/5'}`}
+                className={cn(
+                  linkBase,
+                  "flex items-center gap-1",
+                  isZonesOpen || isZonesActive ? linkActive : linkIdle
+                )}
               >
                 Zones
-                <ChevronDown className={`h-4 w-4 transition-transform ${isZonesOpen ? 'rotate-180' : ''}`} />
+                <ChevronDown className={cn("h-4 w-4 transition-transform", isZonesOpen && "rotate-180")} />
+                {renderActiveBar(isZonesActive)}
               </button>
               {isZonesOpen && (
                 <div
                   role="menu"
-                  className="absolute top-full left-0 mt-3 w-64 bg-white rounded-2xl shadow-[0_24px_50px_-12px_hsl(var(--primary-deep)/0.35),0_8px_16px_-8px_hsl(var(--primary)/0.25)] ring-1 ring-primary/15 z-50 animate-scale-in origin-top overflow-hidden"
+                  className="absolute top-full left-0 mt-3 w-64 bg-white/95 backdrop-blur-xl rounded-2xl shadow-[0_24px_50px_-12px_hsl(var(--primary-deep)/0.4),0_8px_16px_-8px_hsl(var(--primary)/0.3)] ring-1 ring-primary/15 z-50 animate-scale-in origin-top overflow-hidden"
                 >
-                  <div className="p-2 space-y-0.5">
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-primary/70 font-bold px-4 pt-3 pb-1.5">
+                    Choose a Zone
+                  </p>
+                  <div className="p-2 pt-1 space-y-0.5">
                     {[
                       { to: "/dubai-marina", label: "Dubai Marina", icon: Anchor },
                       { to: "/downtown", label: "Downtown", icon: Building2 },
@@ -122,59 +135,98 @@ const Navbar = () => {
                       { to: "/business-bay", label: "Business Bay", icon: Briefcase },
                       { to: "/difc", label: "DIFC", icon: Landmark },
                       { to: "/deira", label: "Deira", icon: Castle },
-                    ].map((z) => (
-                      <Link
-                        key={z.to}
-                        to={z.to}
-                        role="menuitem"
-                        onClick={() => setIsZonesOpen(false)}
-                        className="group flex items-center gap-3 px-3 py-2.5 text-sm font-semibold text-slate-800 rounded-xl hover:bg-gradient-to-r hover:from-primary/10 hover:to-primary-glow/10 hover:text-primary transition-all"
-                      >
-                        <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white transition-colors shadow-sm">
-                          <z.icon className="h-4 w-4" strokeWidth={2.2} />
-                        </span>
-                        <span className="flex-1">{z.label}</span>
-                        <ChevronDown className="h-3.5 w-3.5 -rotate-90 opacity-0 group-hover:opacity-100 text-primary transition-opacity" />
-                      </Link>
-                    ))}
+                    ].map((z) => {
+                      const active = isActive(z.to);
+                      return (
+                        <Link
+                          key={z.to}
+                          to={z.to}
+                          role="menuitem"
+                          aria-current={active ? "page" : undefined}
+                          onClick={() => setIsZonesOpen(false)}
+                          className={cn(
+                            "group flex items-center gap-3 px-3 py-2.5 text-sm font-semibold rounded-xl transition-all",
+                            active
+                              ? "bg-gradient-to-r from-primary/15 to-primary-glow/15 text-primary-deep ring-1 ring-primary/20"
+                              : "text-slate-800 hover:bg-gradient-to-r hover:from-primary/10 hover:to-primary-glow/10 hover:text-primary"
+                          )}
+                        >
+                          <span className={cn(
+                            "flex items-center justify-center w-8 h-8 rounded-lg transition-colors shadow-sm",
+                            active
+                              ? "bg-gradient-to-br from-primary to-primary-glow text-white"
+                              : "bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white"
+                          )}>
+                            <z.icon className="h-4 w-4" strokeWidth={2.2} />
+                          </span>
+                          <span className="flex-1">{z.label}</span>
+                          <ChevronDown className={cn(
+                            "h-3.5 w-3.5 -rotate-90 text-primary transition-opacity",
+                            active ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                          )} />
+                        </Link>
+                      );
+                    })}
                   </div>
                 </div>
               )}
             </div>
 
-            <Link to="/about-us" className="text-gray-700 hover:text-primary font-semibold transition-colors">
-              About Us
-            </Link>
-            <Link to="/faq" className="text-gray-700 hover:text-primary font-semibold transition-colors">
-              FAQ
-            </Link>
-            <Link to="/news" className="text-gray-700 hover:text-primary font-semibold transition-colors">
-              News
-            </Link>
-            <Link to="/calculator" className="text-gray-700 hover:text-primary font-semibold transition-colors">
-              Calculator
-            </Link>
+            {[
+              { to: "/about-us", label: "About Us" },
+              { to: "/faq", label: "FAQ" },
+              { to: "/news", label: "News" },
+              { to: "/calculator", label: "Calculator" },
+            ].map((item) => {
+              const active = isActive(item.to);
+              return (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  aria-current={active ? "page" : undefined}
+                  className={cn(linkBase, active ? linkActive : linkIdle)}
+                >
+                  {item.label}
+                  {renderActiveBar(active)}
+                </Link>
+              );
+            })}
           </div>
 
           {/* Auth Buttons */}
-          <div className="hidden md:flex items-center space-x-4">
+          <div className="hidden md:flex items-center gap-2.5">
             {user ? (
               <>
                 <Link to="/my-account">
-                  <Button variant="ghost" className="text-gray-700 hover:text-primary">
-                    <User className="mr-2 h-4 w-4" />
+                  <button
+                    aria-current={isActive("/my-account") ? "page" : undefined}
+                    className={cn(
+                      "group inline-flex items-center gap-2 pl-1.5 pr-3.5 py-1.5 rounded-full font-semibold text-sm transition-all duration-200 hover:-translate-y-0.5",
+                      isActive("/my-account")
+                        ? "bg-gradient-to-r from-primary to-primary-glow text-white ring-1 ring-primary/40 shadow-[0_8px_22px_-8px_hsl(var(--primary)/0.65)]"
+                        : "bg-white/80 backdrop-blur ring-1 ring-primary/25 text-primary-deep hover:ring-primary/55 hover:bg-white shadow-[0_4px_14px_-4px_hsl(var(--primary)/0.35)]"
+                    )}
+                  >
+                    <span className={cn(
+                      "flex items-center justify-center h-7 w-7 rounded-full shadow-inner",
+                      isActive("/my-account")
+                        ? "bg-white/20 text-white"
+                        : "bg-gradient-to-br from-primary to-primary-glow text-white"
+                    )}>
+                      <User className="h-3.5 w-3.5" strokeWidth={2.4} />
+                    </span>
                     My Account
-                  </Button>
+                  </button>
                 </Link>
-                <Button 
-                  variant="outline" 
+                <button
                   onClick={signOut}
-                  className="text-gray-700 hover:text-primary"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full font-semibold text-sm border border-primary/30 text-primary-deep hover:bg-primary/8 hover:border-primary/60 transition-all duration-200 hover:-translate-y-0.5"
                 >
+                  <LogOut className="h-3.5 w-3.5" />
                   Logout
-                </Button>
+                </button>
                 <Link to="/rent-out-your-space">
-                  <button className="btn-3d-primary px-5 py-2 rounded-lg font-semibold text-sm tracking-wide">
+                  <button className="btn-3d-primary px-5 py-2 rounded-full font-semibold text-sm tracking-wide">
                     List Your Space
                   </button>
                 </Link>
@@ -182,12 +234,13 @@ const Navbar = () => {
             ) : (
               <>
                 <Link to="/auth">
-                  <Button variant="ghost" className="text-gray-700 hover:text-primary font-semibold">
+                  <button className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full font-semibold text-sm bg-primary/8 ring-1 ring-primary/25 text-primary-deep hover:bg-primary/15 hover:ring-primary/45 transition-all duration-200 hover:-translate-y-0.5">
+                    <LogIn className="h-3.5 w-3.5" />
                     Login / Sign Up
-                  </Button>
+                  </button>
                 </Link>
                 <Link to="/rent-out-your-space">
-                  <button className="btn-3d-primary px-5 py-2 rounded-lg font-semibold text-sm tracking-wide">
+                  <button className="btn-3d-primary px-5 py-2 rounded-full font-semibold text-sm tracking-wide">
                     List Your Space
                   </button>
                 </Link>
