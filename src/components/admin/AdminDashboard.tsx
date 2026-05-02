@@ -948,6 +948,31 @@ function BannerStat({
   );
 }
 
+function TodayStat({
+  icon, label, value, accent = 'default',
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  accent?: 'default' | 'amber';
+}) {
+  const accentCls =
+    accent === 'amber'
+      ? 'bg-amber-500/10 border-amber-500/30'
+      : 'bg-muted/40 border-border';
+  return (
+    <div className={`rounded-lg border p-2 sm:p-3 ${accentCls}`}>
+      <div className="flex items-center justify-between text-muted-foreground text-[9px] sm:text-[10px] font-bold uppercase tracking-widest">
+        <span className="truncate">{label}</span>
+        <span className="h-5 w-5 sm:h-6 sm:w-6 rounded-md bg-background flex items-center justify-center text-primary shrink-0 ml-1">
+          {icon}
+        </span>
+      </div>
+      <div className="text-foreground text-base sm:text-xl font-bold tabular-nums mt-1">{value}</div>
+    </div>
+  );
+}
+
 function Heatmap({ data, loading }: { data: number[][]; loading?: boolean }) {
   const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   const max = Math.max(1, ...data.flat());
