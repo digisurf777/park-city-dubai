@@ -282,48 +282,48 @@ const Navbar = () => {
                 <div className="pointer-events-none absolute -top-20 -right-20 w-64 h-64 bg-primary/15 rounded-full blur-3xl" />
                 <div className="pointer-events-none absolute -bottom-24 -left-16 w-72 h-72 bg-primary-glow/15 rounded-full blur-3xl" />
 
-                <div className="relative px-5 pt-5 pb-8 space-y-6 pb-safe-area-bottom">
+                <div className="relative px-4 pt-3 pb-4 space-y-3 pb-safe-area-bottom">
 
                   {/* Auth section / Profile card */}
-                  <div className="space-y-2.5">
+                  <div className="space-y-2">
                     {user ? (
                       <>
                         <Link to="/my-account" onClick={() => setIsMenuOpen(false)}>
-                          <div className="flex items-center gap-3 p-4 rounded-2xl bg-gradient-to-r from-primary/10 to-primary-glow/10 border border-primary/20 shadow-sm active:scale-[0.99] transition-transform">
-                            <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-primary to-primary-deep flex items-center justify-center text-white shadow-md">
-                              <User className="h-5 w-5" />
+                          <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-gradient-to-r from-primary/10 to-primary-glow/10 border border-primary/20 shadow-sm active:scale-[0.99] transition-transform">
+                            <div className="h-9 w-9 rounded-lg bg-gradient-to-br from-primary to-primary-deep flex items-center justify-center text-white shadow-md">
+                              <User className="h-4 w-4" />
                             </div>
                             <div className="flex-1 min-w-0">
-                              <p className="text-sm font-bold text-foreground truncate">My Account</p>
-                              <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                              <p className="text-sm font-bold text-foreground truncate leading-tight">My Account</p>
+                              <p className="text-[11px] text-muted-foreground truncate">{user.email}</p>
                             </div>
-                            <ChevronDown className="h-4 w-4 -rotate-90 text-primary" />
+                            <ChevronDown className="h-3.5 w-3.5 -rotate-90 text-primary" />
                           </div>
                         </Link>
-                        <div className="grid grid-cols-2 gap-2.5">
+                        <div className="grid grid-cols-2 gap-2">
                           <Link to="/rent-out-your-space" onClick={() => setIsMenuOpen(false)}>
-                            <button className="btn-3d-primary w-full px-4 py-3 rounded-xl font-semibold text-sm text-white flex items-center justify-center gap-2">
-                              <Sparkles className="h-4 w-4" /> List Space
+                            <button className="btn-3d-primary w-full px-3 py-2.5 rounded-lg font-semibold text-xs text-white flex items-center justify-center gap-1.5">
+                              <Sparkles className="h-3.5 w-3.5" /> List Space
                             </button>
                           </Link>
                           <button
                             onClick={() => { setIsMenuOpen(false); signOut(); }}
-                            className="w-full px-4 py-3 rounded-xl font-semibold text-sm border border-border bg-white hover:bg-muted text-foreground flex items-center justify-center gap-2 transition-colors"
+                            className="w-full px-3 py-2.5 rounded-lg font-semibold text-xs border border-border bg-white text-foreground flex items-center justify-center gap-1.5 transition-colors"
                           >
-                            <LogOut className="h-4 w-4" /> Logout
+                            <LogOut className="h-3.5 w-3.5" /> Logout
                           </button>
                         </div>
                       </>
                     ) : (
-                      <div className="grid grid-cols-2 gap-2.5">
+                      <div className="grid grid-cols-2 gap-2">
                         <Link to="/auth" onClick={() => setIsMenuOpen(false)}>
-                          <button className="w-full px-4 py-3 rounded-xl font-semibold text-sm border border-primary/30 bg-white text-foreground hover:bg-primary/5 flex items-center justify-center gap-2 transition-colors">
-                            <LogIn className="h-4 w-4" /> Sign In
+                          <button className="w-full px-3 py-2.5 rounded-lg font-semibold text-xs border border-primary/30 bg-white text-foreground flex items-center justify-center gap-1.5 transition-colors">
+                            <LogIn className="h-3.5 w-3.5" /> Sign In
                           </button>
                         </Link>
                         <Link to="/rent-out-your-space" onClick={() => setIsMenuOpen(false)}>
-                          <button className="btn-3d-primary w-full px-4 py-3 rounded-xl font-semibold text-sm text-white flex items-center justify-center gap-2">
-                            <Sparkles className="h-4 w-4" /> List Space
+                          <button className="btn-3d-primary w-full px-3 py-2.5 rounded-lg font-semibold text-xs text-white flex items-center justify-center gap-1.5">
+                            <Sparkles className="h-3.5 w-3.5" /> List Space
                           </button>
                         </Link>
                       </div>
@@ -332,8 +332,8 @@ const Navbar = () => {
 
                   {/* Discover */}
                   <div>
-                    <p className="text-[11px] font-bold text-primary/70 mb-2.5 px-1 uppercase tracking-[0.15em]">Discover</p>
-                    <div className="rounded-2xl bg-white border border-border shadow-md overflow-hidden divide-y divide-border/40">
+                    <p className="text-[10px] font-bold text-primary/70 mb-1.5 px-1 uppercase tracking-[0.15em]">Discover</p>
+                    <div className="rounded-xl bg-white border border-border overflow-hidden divide-y divide-border/40">
                       {[
                         { to: "/find-a-parking-space", label: "Find a Parking Space", icon: Search, accent: true },
                         { to: "/calculator", label: "Earnings Calculator", icon: CalcIcon },
@@ -342,26 +342,26 @@ const Navbar = () => {
                           key={item.to}
                           to={item.to}
                           onClick={() => setIsMenuOpen(false)}
-                          className="flex items-center gap-3 px-4 py-3.5 active:bg-primary/5 transition-colors min-h-[52px]"
+                          className="flex items-center gap-2.5 px-3 py-2 active:bg-primary/5 transition-colors"
                         >
-                          <div className={`h-9 w-9 rounded-lg flex items-center justify-center ${item.accent ? 'bg-gradient-to-br from-primary to-primary-deep text-white shadow-md' : 'bg-primary/10 text-primary'}`}>
-                            <item.icon className="h-[18px] w-[18px]" strokeWidth={2.2} />
+                          <div className={`h-7 w-7 rounded-md flex items-center justify-center ${item.accent ? 'bg-gradient-to-br from-primary to-primary-deep text-white shadow-sm' : 'bg-primary/10 text-primary'}`}>
+                            <item.icon className="h-[15px] w-[15px]" strokeWidth={2.2} />
                           </div>
-                          <span className="flex-1 font-semibold text-sm text-foreground">{item.label}</span>
-                          <ChevronDown className="h-4 w-4 -rotate-90 text-muted-foreground" />
+                          <span className="flex-1 font-semibold text-[13px] text-foreground">{item.label}</span>
+                          <ChevronDown className="h-3.5 w-3.5 -rotate-90 text-muted-foreground" />
                         </Link>
                       ))}
                     </div>
                   </div>
 
-                  {/* Zones */}
+                  {/* Zones - 3 columns, ultra compact */}
                   <div>
-                    <p className="text-[11px] font-bold text-primary/70 mb-2.5 px-1 uppercase tracking-[0.15em]">Popular Zones</p>
-                    <div className="grid grid-cols-2 gap-2">
+                    <p className="text-[10px] font-bold text-primary/70 mb-1.5 px-1 uppercase tracking-[0.15em]">Popular Zones</p>
+                    <div className="grid grid-cols-3 gap-1.5">
                       {[
-                        { to: "/dubai-marina", label: "Dubai Marina", icon: Anchor },
+                        { to: "/dubai-marina", label: "Marina", icon: Anchor },
                         { to: "/downtown", label: "Downtown", icon: Building2 },
-                        { to: "/palm-jumeirah", label: "Palm Jumeirah", icon: Waves },
+                        { to: "/palm-jumeirah", label: "Palm", icon: Waves },
                         { to: "/business-bay", label: "Business Bay", icon: Briefcase },
                         { to: "/difc", label: "DIFC", icon: Landmark },
                         { to: "/deira", label: "Deira", icon: Castle },
@@ -370,12 +370,12 @@ const Navbar = () => {
                           key={z.to}
                           to={z.to}
                           onClick={() => setIsMenuOpen(false)}
-                          className="group flex flex-col items-start gap-2 p-3 rounded-xl bg-white border border-border hover:border-primary/40 active:scale-[0.97] transition-all shadow-md"
+                          className="group flex flex-col items-center gap-1 p-2 rounded-lg bg-white border border-border active:scale-[0.97] transition-all"
                         >
-                          <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary/15 to-primary-glow/15 flex items-center justify-center text-primary group-active:from-primary group-active:to-primary-deep group-active:text-white transition-colors">
-                            <z.icon className="h-4 w-4" strokeWidth={2.2} />
+                          <div className="h-7 w-7 rounded-md bg-gradient-to-br from-primary/15 to-primary-glow/15 flex items-center justify-center text-primary">
+                            <z.icon className="h-3.5 w-3.5" strokeWidth={2.2} />
                           </div>
-                          <span className="text-xs font-bold text-foreground leading-tight">{z.label}</span>
+                          <span className="text-[10.5px] font-bold text-foreground leading-tight text-center truncate w-full">{z.label}</span>
                         </Link>
                       ))}
                     </div>
@@ -383,8 +383,8 @@ const Navbar = () => {
 
                   {/* Company */}
                   <div>
-                    <p className="text-[11px] font-bold text-primary/70 mb-2.5 px-1 uppercase tracking-[0.15em]">Company</p>
-                    <div className="rounded-2xl bg-white border border-border shadow-md overflow-hidden divide-y divide-border/40">
+                    <p className="text-[10px] font-bold text-primary/70 mb-1.5 px-1 uppercase tracking-[0.15em]">Company</p>
+                    <div className="rounded-xl bg-white border border-border overflow-hidden divide-y divide-border/40">
                       {[
                         { to: "/about-us", label: "About Us", icon: Info },
                         { to: "/faq", label: "FAQ", icon: HelpCircle },
@@ -394,22 +394,17 @@ const Navbar = () => {
                           key={item.to}
                           to={item.to}
                           onClick={() => setIsMenuOpen(false)}
-                          className="flex items-center gap-3 px-4 py-3.5 active:bg-primary/5 transition-colors min-h-[52px]"
+                          className="flex items-center gap-2.5 px-3 py-2 active:bg-primary/5 transition-colors"
                         >
-                          <div className="h-9 w-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
-                            <item.icon className="h-[18px] w-[18px]" strokeWidth={2.2} />
+                          <div className="h-7 w-7 rounded-md bg-primary/10 text-primary flex items-center justify-center">
+                            <item.icon className="h-[15px] w-[15px]" strokeWidth={2.2} />
                           </div>
-                          <span className="flex-1 font-semibold text-sm text-foreground">{item.label}</span>
-                          <ChevronDown className="h-4 w-4 -rotate-90 text-muted-foreground" />
+                          <span className="flex-1 font-semibold text-[13px] text-foreground">{item.label}</span>
+                          <ChevronDown className="h-3.5 w-3.5 -rotate-90 text-muted-foreground" />
                         </Link>
                       ))}
                     </div>
                   </div>
-
-                  {/* Footer hint */}
-                  <p className="text-center text-[11px] text-muted-foreground pt-2">
-                    Trusted Parking Platform · Dubai, UAE
-                  </p>
                 </div>
               </div>
             </div>
