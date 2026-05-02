@@ -98,18 +98,25 @@ const EcosystemSection = () => {
           </span>
           <h2
             id="ecosystem-heading"
-            className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white mb-4 [text-shadow:0_2px_8px_rgb(0_0_0/0.7),0_4px_24px_rgb(0_0_0/0.5)]"
+            className="font-black tracking-tight text-white mb-4 [text-shadow:0_2px_8px_rgb(0_0_0/0.7),0_4px_24px_rgb(0_0_0/0.5)]"
           >
-            Built by{" "}
-            <a
-              href="https://shazam.ae/"
-              target="_blank"
-              rel="noopener"
-              className="inline-block uppercase font-black tracking-wider bg-gradient-to-r from-primary-glow via-primary to-primary-glow bg-clip-text text-transparent hover:scale-105 transition-transform [text-shadow:none] drop-shadow-[0_4px_18px_hsl(var(--primary)/0.65)]"
+            <span className="block text-3xl sm:text-4xl lg:text-5xl">
+              Built by{" "}
+              <a
+                href="https://shazam.ae/"
+                target="_blank"
+                rel="noopener"
+                className="inline-block uppercase font-black tracking-wider bg-gradient-to-r from-primary-glow via-primary to-primary-glow bg-clip-text text-transparent hover:scale-105 transition-transform [text-shadow:none] drop-shadow-[0_4px_18px_hsl(var(--primary)/0.65)]"
+              >
+                SHAZAM
+              </a>
+            </span>
+            <span
+              className="block mt-2 text-xl sm:text-2xl lg:text-3xl font-light italic text-white/90"
+              style={{ fontFamily: '"Playfair Display", Georgia, serif' }}
             >
-              SHAZAM
-            </a>{" "}
-            — connecting life in Dubai
+              Connecting life in Dubai
+            </span>
           </h2>
           <p className="text-base sm:text-lg text-white font-medium [text-shadow:0_2px_8px_rgb(0_0_0/0.75),0_1px_3px_rgb(0_0_0/0.6)]">
             Shazam Parking is part of a wider ecosystem of three products. Together they help you understand the city, organise your life and solve everyday mobility in Dubai.
@@ -140,7 +147,7 @@ const EcosystemSection = () => {
             >
               <article className="relative h-full rounded-[14px] bg-white overflow-hidden flex flex-col">
                 {/* Preview screenshot */}
-                <div className="relative aspect-[16/10] overflow-hidden bg-gray-900">
+                <div className="relative aspect-[4/3] sm:aspect-[5/4] overflow-hidden bg-gray-900">
                   <img
                     src={p.preview}
                     alt={`${p.title} preview - ${p.tagline}`}

@@ -382,12 +382,12 @@ const Index = () => {
               </span>
             </h2>
             <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              We connect drivers with private parking owners — solving the{' '}
+              We connect drivers with private parking owners, solving the{' '}
               <span className="font-semibold text-foreground">four biggest pains</span> of city parking.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-7 max-w-6xl mx-auto">
             {[
               {
                 icon: Clock,
@@ -429,8 +429,8 @@ const Index = () => {
                 }}
               >
                 <div className="relative rounded-[14px] bg-white overflow-hidden flex flex-col w-full">
-                  {/* Visual - bigger, more prominent */}
-                  <div className="relative aspect-[5/4] sm:aspect-[4/5] overflow-hidden">
+                  {/* Visual - bigger, square 1:1 */}
+                  <div className="relative aspect-square overflow-hidden">
                     <img
                       src={item.image}
                       alt={item.problem}
@@ -441,18 +441,17 @@ const Index = () => {
                       height={1000}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/15 to-transparent"></div>
-                    {/* Glossy top highlight */}
                     <div className="pointer-events-none absolute inset-x-0 top-0 h-1/3 bg-gradient-to-b from-white/20 to-transparent" />
                     <div
-                      className="absolute top-4 left-4 inline-flex items-center justify-center w-14 h-14 rounded-2xl text-white ring-2 ring-white/70 backdrop-blur-md transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3"
+                      className="absolute top-4 left-4 inline-flex items-center justify-center w-16 h-16 sm:w-[68px] sm:h-[68px] rounded-2xl text-white ring-2 ring-white/70 backdrop-blur-md transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3"
                       style={{
                         background:
                           'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-glow)) 100%)',
                         boxShadow:
-                          '0 12px 28px -8px hsl(var(--primary-deep) / 0.7), inset 0 1px 0 0 hsl(0 0% 100% / 0.5)',
+                          '0 14px 32px -8px hsl(var(--primary-deep) / 0.75), inset 0 1px 0 0 hsl(0 0% 100% / 0.5)',
                       }}
                     >
-                      <item.icon className="h-7 w-7 drop-shadow-[0_2px_4px_rgba(0,0,0,0.35)]" strokeWidth={2.4} />
+                      <item.icon className="h-8 w-8 sm:h-9 sm:w-9 drop-shadow-[0_2px_4px_rgba(0,0,0,0.35)]" strokeWidth={2.4} />
                     </div>
                   </div>
                   {/* Text */}
@@ -643,8 +642,18 @@ const Index = () => {
             <h3 className="text-lg sm:text-xl lg:text-2xl text-gray-700 mb-6 sm:mb-8 px-4">
               We are the quickest, easiest, and the most secure way to rent a parking space in Dubai!
             </h3>
-            <div className="mx-auto max-w-2xl rounded-2xl ring-1 ring-primary/15 shadow-[0_20px_40px_-15px_hsl(var(--primary)/0.35)] p-1.5 bg-gradient-to-br from-primary/10 to-transparent animate-[float_8s_ease-in-out_infinite] overflow-hidden">
-              <img src={dubaiDriverPov} alt="Stylish man in Dubai using the ShazamParking app next to his luxury car with Burj Khalifa in the background" className="rounded-xl w-full object-cover aspect-video" loading="lazy" decoding="async" width={1536} height={1024} />
+            <div
+              className="mx-auto max-w-3xl rounded-3xl p-[3px] animate-[float_8s_ease-in-out_infinite] overflow-hidden"
+              style={{
+                background:
+                  'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-glow)) 50%, hsl(var(--primary-deep)) 100%)',
+                boxShadow:
+                  '0 30px 60px -20px hsl(var(--primary-deep) / 0.55), 0 0 0 1px hsl(var(--primary-glow) / 0.25)',
+              }}
+            >
+              <div className="rounded-[22px] bg-white p-1.5 overflow-hidden">
+                <img src={dubaiDriverPov} alt="Stylish man in Dubai using the ShazamParking app next to his luxury car with Burj Khalifa in the background" className="rounded-[18px] w-full object-cover aspect-video" loading="lazy" decoding="async" width={1536} height={1024} />
+              </div>
             </div>
           </div>
         </div>
