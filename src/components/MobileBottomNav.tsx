@@ -52,15 +52,21 @@ const MobileBottomNav = () => {
 
   return (
     <nav
-      className="md:hidden fixed inset-x-0 bottom-0 z-40 bg-gradient-to-b from-primary-deep to-[hsl(160_75%_18%)] border-t border-primary-glow/30 shadow-[0_-12px_32px_-8px_hsl(var(--primary-deep)/0.55)] pb-safe-area-bottom"
+      className="md:hidden fixed inset-x-0 bottom-0 z-40 pb-safe-area-bottom"
       role="navigation"
       aria-label="Primary mobile navigation"
       style={{ transform: "translateZ(0)", willChange: "transform" }}
     >
-      <div className="relative">
-        {/* Top accent line */}
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary-glow/70 to-transparent" />
-
+      {/* Glassmorphism layer matching the rest of the site */}
+      <div
+        className="relative backdrop-blur-2xl border-t border-white/40"
+        style={{
+          background:
+            "linear-gradient(180deg, hsl(160 55% 96% / 0.85) 0%, hsl(160 50% 92% / 0.78) 100%)",
+          boxShadow:
+            "0 -8px 24px -10px hsl(var(--primary) / 0.25), inset 0 1px 0 hsl(0 0% 100% / 0.7)",
+        }}
+      >
         <ul className="relative flex items-stretch justify-around h-[64px] px-2">
           {items.map((item) => {
             const Icon = item.icon;
@@ -72,15 +78,17 @@ const MobileBottomNav = () => {
                   aria-current={active ? "page" : undefined}
                   className={cn(
                     "group relative flex flex-col items-center justify-center gap-1 h-full text-[10.5px] font-bold transition-all touch-manipulation select-none",
-                    active ? "text-white" : "text-white/65 active:text-white"
+                    active
+                      ? "text-primary-deep"
+                      : "text-foreground/60 active:text-primary-deep"
                   )}
                 >
                   <span
                     className={cn(
-                      "relative flex items-center justify-center w-10 h-10 rounded-xl transition-all",
+                      "relative flex items-center justify-center w-11 h-11 rounded-2xl transition-all duration-300",
                       active
-                        ? "bg-gradient-to-br from-primary-glow to-primary text-white shadow-[inset_0_1px_0_hsl(0_0%_100%/0.35),0_4px_12px_-2px_hsl(var(--primary-glow)/0.55)] scale-105"
-                        : "bg-white/5 group-active:bg-white/10"
+                        ? "bg-gradient-to-br from-primary-glow to-primary text-white scale-110 shadow-[inset_0_1px_0_hsl(0_0%_100%/0.5),0_8px_18px_-4px_hsl(var(--primary)/0.55),0_2px_4px_-1px_hsl(var(--primary-deep)/0.35)]"
+                        : "bg-white/60 backdrop-blur-md border border-white/70 shadow-[inset_0_1px_0_hsl(0_0%_100%/0.9),0_2px_6px_-2px_hsl(var(--primary-deep)/0.15)] group-active:bg-white/90"
                     )}
                   >
                     <Icon
@@ -92,14 +100,6 @@ const MobileBottomNav = () => {
                     />
                   </span>
                   <span className="leading-tight tracking-tight">{item.label}</span>
-                  <span
-                    className={cn(
-                      "absolute -top-px left-1/2 -translate-x-1/2 h-[3px] w-8 rounded-full transition-all",
-                      active
-                        ? "bg-primary-glow opacity-100 shadow-[0_0_10px_hsl(var(--primary-glow))]"
-                        : "opacity-0"
-                    )}
-                  />
                 </Link>
               </li>
             );
