@@ -67,39 +67,39 @@ const MobileBottomNav = () => {
             "0 -8px 24px -10px hsl(var(--primary) / 0.25), inset 0 1px 0 hsl(0 0% 100% / 0.7)",
         }}
       >
-        <ul className="relative flex items-stretch justify-around h-[64px] px-2">
+        <ul className="relative flex items-stretch justify-around h-[78px] px-3 pt-2 pb-2">
           {items.map((item) => {
             const Icon = item.icon;
             const active = item.match(pathname);
             return (
-              <li key={item.label} className="flex-1">
+              <li key={item.label} className="flex-1 min-w-0">
                 <Link
                   to={item.to}
                   aria-current={active ? "page" : undefined}
                   className={cn(
-                    "group relative flex flex-col items-center justify-center gap-1 h-full text-[10.5px] font-bold transition-all touch-manipulation select-none",
+                    "group relative flex flex-col items-center justify-center gap-1 h-full text-[11px] font-bold transition-colors touch-manipulation select-none px-1",
                     active
                       ? "text-primary-deep"
-                      : "text-foreground/60 active:text-primary-deep"
+                      : "text-foreground/65 active:text-primary-deep"
                   )}
                 >
                   <span
                     className={cn(
-                      "relative flex items-center justify-center w-11 h-11 rounded-2xl transition-all duration-300",
+                      "relative flex items-center justify-center w-12 h-12 rounded-2xl transition-all duration-300",
                       active
-                        ? "bg-gradient-to-br from-primary-glow to-primary text-white scale-110 shadow-[inset_0_1px_0_hsl(0_0%_100%/0.5),0_8px_18px_-4px_hsl(var(--primary)/0.55),0_2px_4px_-1px_hsl(var(--primary-deep)/0.35)]"
-                        : "bg-white/60 backdrop-blur-md border border-white/70 shadow-[inset_0_1px_0_hsl(0_0%_100%/0.9),0_2px_6px_-2px_hsl(var(--primary-deep)/0.15)] group-active:bg-white/90"
+                        ? "bg-gradient-to-br from-primary-glow to-primary text-white scale-105 shadow-[inset_0_1px_0_hsl(0_0%_100%/0.5),0_8px_18px_-4px_hsl(var(--primary)/0.55),0_2px_4px_-1px_hsl(var(--primary-deep)/0.35)]"
+                        : "bg-white/70 backdrop-blur-md border border-white/70 shadow-[inset_0_1px_0_hsl(0_0%_100%/0.9),0_2px_6px_-2px_hsl(var(--primary-deep)/0.15)] group-active:bg-white"
                     )}
                   >
                     <Icon
                       className={cn(
-                        "h-[20px] w-[20px] transition-transform",
+                        "h-[22px] w-[22px] transition-transform",
                         active && "scale-110"
                       )}
                       strokeWidth={active ? 2.6 : 2.2}
                     />
                   </span>
-                  <span className="leading-tight tracking-tight">{item.label}</span>
+                  <span className="leading-tight tracking-tight truncate max-w-full">{item.label}</span>
                 </Link>
               </li>
             );

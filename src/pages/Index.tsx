@@ -75,9 +75,9 @@ const Index = () => {
         <div className="pointer-events-none absolute -top-24 -left-24 w-[22rem] h-[22rem] rounded-full bg-primary/10 blur-3xl"></div>
 
         <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-white z-10 pt-16 pb-8 sm:pt-20 sm:pb-10 lg:pt-24 lg:pb-12 flex flex-col items-center">
-          {/* Top - Text */}
+          {/* Top - Text (no badge here on mobile, moved to bottom) */}
           <motion.div
-            className="text-center w-full"
+            className="text-center w-full order-1"
             initial="hidden"
             animate="show"
             variants={{
@@ -85,9 +85,10 @@ const Index = () => {
               show: { transition: { staggerChildren: 0.12, delayChildren: 0.1 } },
             }}
           >
+            {/* Trusted badge - desktop only here; mobile version sits at the bottom */}
             <motion.span
               variants={{ hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } } }}
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass text-white text-xs sm:text-sm font-medium mb-4 sm:mb-6"
+              className="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass text-white text-xs sm:text-sm font-medium mb-4 sm:mb-6"
             >
               <Sparkles className="h-3.5 w-3.5 text-primary-glow" />
               Trusted in Dubai
@@ -118,9 +119,11 @@ const Index = () => {
             >
               List your parking space in minutes and start earning every month.
             </motion.p>
+
+            {/* Desktop CTAs (mobile CTAs are below the phone) */}
             <motion.div
               variants={{ hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } } }}
-              className="flex flex-col sm:flex-row gap-2.5 sm:gap-3 justify-center"
+              className="hidden sm:flex flex-col sm:flex-row gap-2.5 sm:gap-3 justify-center"
             >
               <Link to="/find-parking">
                 <Button size="lg" className="w-full sm:w-auto px-6 py-5 text-sm sm:text-base font-semibold">
@@ -138,7 +141,8 @@ const Index = () => {
                 </Button>
               </Link>
             </motion.div>
-            {/* Inline social proof - smaller chips, stronger contrast */}
+
+            {/* Inline social proof - desktop only */}
             <motion.div
               variants={{ hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } } }}
               className="hidden sm:flex items-center justify-center gap-2 mt-6 text-white text-xs"
@@ -158,29 +162,65 @@ const Index = () => {
             </motion.div>
           </motion.div>
 
-          {/* Bottom - Phone (transparent PNG, centered) */}
-          <div className="flex justify-center w-full mt-6 sm:mt-8">
+          {/* Phone - sits higher on mobile, centered */}
+          <div className="flex justify-center w-full mt-3 sm:mt-8 order-2">
             <motion.div
               className="relative flex items-center justify-center"
-              initial={{ opacity: 0, scale: 0.85, y: 40 }}
+              initial={{ opacity: 0, scale: 0.92, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              transition={{ duration: 1, ease: [0.22, 1, 0.36, 1], delay: 0.4 }}
+              transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1], delay: 0.3 }}
             >
               {/* Soft glow halo behind phone */}
-              <div className="absolute inset-0 -m-10 rounded-full bg-primary-glow/30 blur-3xl animate-pulse-glow pointer-events-none"></div>
+              <div className="absolute inset-0 -m-10 rounded-full bg-primary-glow/30 blur-3xl pointer-events-none hidden sm:block animate-pulse-glow"></div>
               <div className="absolute inset-0 -m-4 rounded-full bg-white/10 blur-2xl pointer-events-none"></div>
               <motion.img
                 src={phonePremium}
                 alt="Shazam Parking app shown on a smartphone"
-                className="relative w-52 sm:w-72 md:w-80 lg:w-96 xl:w-[26rem] h-auto drop-shadow-[0_30px_60px_rgba(0,0,0,0.5)]"
+                className="relative w-48 sm:w-72 md:w-80 lg:w-96 xl:w-[26rem] h-auto drop-shadow-[0_30px_60px_rgba(0,0,0,0.5)] motion-safe:sm:animate-none"
                 loading="eager"
                 fetchPriority="high"
                 decoding="async"
-                animate={{ y: [0, -12, 0] }}
-                transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+                animate={{ y: [0, -10, 0] }}
+                transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                style={{ willChange: 'transform' }}
               />
             </motion.div>
           </div>
+
+          {/* Mobile-only CTAs under the phone */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.7, ease: 'easeOut' }}
+            className="sm:hidden flex flex-col gap-2.5 w-full max-w-xs mt-5 order-3"
+          >
+            <Link to="/find-parking" className="w-full">
+              <Button size="lg" className="w-full px-6 py-5 text-sm font-semibold">
+                Find Parking
+                <ArrowRight className="ml-1 h-4 w-4" />
+              </Button>
+            </Link>
+            <Link to="/rent-out-your-space" className="w-full">
+              <Button
+                size="lg"
+                variant="outline"
+                className="w-full px-6 py-5 text-sm font-semibold bg-white/15 border-white/50 text-white hover:bg-white hover:text-primary backdrop-blur-md"
+              >
+                List Your Space
+              </Button>
+            </Link>
+          </motion.div>
+
+          {/* Mobile-only "Trusted in Dubai" badge at the very bottom */}
+          <motion.span
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.9, ease: 'easeOut' }}
+            className="sm:hidden inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full glass text-white text-xs font-medium mt-5 order-4"
+          >
+            <Sparkles className="h-3.5 w-3.5 text-primary-glow" />
+            Trusted in Dubai
+          </motion.span>
         </div>
       </section>
 
@@ -432,7 +472,7 @@ const Index = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: i * 0.1 }}
                 viewport={{ once: true }}
-                className="group relative rounded-2xl p-[2px] transition-all duration-500 hover:-translate-y-2 flex"
+                className="group relative rounded-2xl p-[2px] flex"
                 style={{
                   background:
                     'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-glow)) 50%, hsl(var(--primary-deep)) 100%)',
@@ -446,7 +486,7 @@ const Index = () => {
                     <img
                       src={item.image}
                       alt={item.problem}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      className="w-full h-full object-cover"
                       loading="lazy"
                       decoding="async"
                       width={1000}
@@ -454,10 +494,10 @@ const Index = () => {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
                   </div>
-                  {/* Floating icon medallion - sits on the seam between image and frame */}
+                  {/* Static icon medallion - sits on the seam between image and frame */}
                   <div className="relative h-0">
                     <div
-                      className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-2xl text-white ring-2 ring-white/90 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3 z-10"
+                      className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-2xl text-white ring-2 ring-white/90 z-10"
                       style={{
                         background:
                           'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-glow)) 100%)',
