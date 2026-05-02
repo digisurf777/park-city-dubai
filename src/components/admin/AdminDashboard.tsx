@@ -879,3 +879,80 @@ function AlertChip({
     </button>
   );
 }
+
+function BannerStat({
+  icon, label, value, accent = 'default',
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  accent?: 'default' | 'amber';
+}) {
+  return (
+    <div
+      className={
+        'rounded-xl border p-3 backdrop-blur-md transition-all hover:bg-white/15 ' +
+        (accent === 'amber'
+          ? 'bg-amber-500/15 border-amber-300/40'
+          : 'bg-white/10 border-white/20')
+      }
+    >
+      <div className="flex items-center justify-between text-white/80 text-[10px] font-bold uppercase tracking-widest">
+        <span>{label}</span>
+        <span className="h-6 w-6 rounded-md bg-white/15 flex items-center justify-center">{icon}</span>
+      </div>
+      <div className="text-white text-lg sm:text-xl font-bold tabular-nums mt-1">{value}</div>
+    </div>
+  );
+}
+
+function Heatmap({ data, loading }: { data: number[][]; loading?: boolean }) {
+  const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const max = Math.max(1, ...data.flat());
+  if (loading) {
+    return <div className="h-[210px] rounded-lg bg-muted animate-pulse" />;
+  }
+  if (max <= 1 && data.flat().every((v) => v === 0)) {
+    return <div className="py-10 text-center text-sm text-muted-foreground">No data in this range.</div>;
+  }
+  return (
+    <div className="overflow-x-auto -mx-2 px-2">
+      <div className="inline-block min-w-full">
+        <div className="grid" style={{ gridTemplateColumns: 'auto repeat(24, minmax(10px, 1fr))', gap: 2 }}>
+          <div />
+          {Array.from({ length: 24 }).map((_, h) => (
+            <div key={h} className="text-[8px] text-muted-foreground text-center">
+              {h % 3 === 0 ? h : ''}
+            </div>
+          ))}
+          {data.map((row, d) => (
+            <>
+              <div key={`l-${d}`} className="text-[10px] text-muted-foreground pr-1 flex items-center font-semibold">{days[d]}</div>
+              {row.map((v, h) => {
+                const intensity = v / max;
+                const bg = v === 0
+                  ? 'hsl(var(--muted) / 0.5)'
+                  : `hsl(var(--primary) / ${0.15 + intensity * 0.85})`;
+                return (
+                  <div
+                    key={`${d}-${h}`}
+                    title={`${days[d]} ${h}:00 — ${v} bookings`}
+                    className="aspect-square rounded-[3px] transition-transform hover:scale-125 cursor-default"
+                    style={{ background: bg, minHeight: 10 }}
+                  />
+                );
+              })}
+            </>
+          ))}
+        </div>
+        <div className="flex items-center justify-end gap-1 mt-2 text-[10px] text-muted-foreground">
+          <span>Less</span>
+          {[0.15, 0.35, 0.55, 0.75, 1].map((o) => (
+            <div key={o} className="h-2 w-3 rounded-[2px]" style={{ background: `hsl(var(--primary) / ${o})` }} />
+          ))}
+          <span>More</span>
+        </div>
+      </div>
+    </div>
+  );
+}
