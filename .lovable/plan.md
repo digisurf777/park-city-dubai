@@ -1,71 +1,108 @@
+## Cel
 
-# Admin Panel Upgrade — Banner, KYC Preview, Support Desk, Booking Analytics
+Strony zone (`/deira`, `/difc`, `/palm-jumeirah`, `/business-bay`, `/downtown`, `/dubai-marina`) wyglądają jak nieukończone — płaski hero z czarnym overlay, pusty pasek filtrów, brak zielonych akcentów platformy, brak gradient ramek na kartach, brak CTA. Trzeba je doprowadzić do spójnego, premium stylu landing page (gradient frames, glassmorphism, zielone podświetlenia, animacje).
 
-Four focused improvements to `/admin`. All data already exists in the DB — we only refine UI and wire a few new queries.
+## Co budujemy
 
-## 1. Premium "Dubai" Dashboard Banner
+### 1. Nowy współdzielony komponent `ZonePageLayout`
 
-Replace the current header strip in `AdminDashboard.tsx` with a tall hero banner:
+Plik: `src/components/zones/ZonePageLayout.tsx`
 
-- Background: layered Dubai skyline silhouette (Burj Khalifa + Marina) as an SVG line-art layer over a deep gradient (`--primary-deep` → `--primary` → black), plus a soft golden "desert" glow at the bottom and animated star/particle dots.
-- Frosted glass info row on top: "Boss Dashboard" title with crown icon, live status dot, last sync time, currency switcher, range selector (7/30/90d) and refresh button — all in a single pill-shaped glass bar with stronger 1px white/10 borders for the contrast the user asked for.
-- Adds 3 quick KPIs inline (GMV today, bookings today, pending actions count) so the banner is informative, not just decorative.
-- Stronger borders/contrast applied globally to KPI cards and chart cards: bumped from `border-primary/15` → `border-primary/30`, added 1px inner highlight, slightly darker shadows.
+Jeden komponent obsługujący całą strukturę strony zone — eliminuje 1500+ linii duplikacji i gwarantuje 100% spójności. Każda strona zone redukuje się do ~30 linii konfiguracji.
 
-```text
-┌──────────────────────────────────────────────────────────┐
-│  ✦ stars      ▲   ▲▲▲                                    │
-│         ▲▲▲ ▲▲▲▲▲▲▲▲▲ ▲   Dubai skyline silhouette       │
-│  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━         │
-│  👑 Boss Dashboard   • Live · synced 3s ago              │
-│  Today: 12 bookings · 4,320 AED · 2 pending KYC          │
-│  [ 7d │ 30d │ 90d ]  [AED ▼]  [↻]                        │
-└──────────────────────────────────────────────────────────┘
+Props:
+```
+{
+  zoneName: string                    // "Deira"
+  zoneSlug: string                    // używane przez useParkingAvailability
+  heroImage: string
+  description: string
+  fromPrice: number                   // 500, 600, 850...
+  highlights: { icon, title, text }[] // 3-4 punkty "Why park here"
+  nearbyLandmarks?: string[]          // chipy z lokalizacjami
+}
 ```
 
-## 2. User Verification — Inline Document Preview + Quick Actions + Direct Message
+Strony zone (`Deira.tsx`, `DIFC.tsx`, ...) stają się cienkimi wrapperami, które wołają `<ZonePageLayout zoneName="Deira" ... />`.
 
-Rework the verification card in `AdminPanel.tsx` (Users → Verifications tab):
+### 2. Sekcje nowego layoutu
 
-- **Inline preview**: instead of "Quick View" loading separately, the document image is shown immediately in a 320x220 thumbnail on the right side of every card, lazy-loaded via the existing `generate-secure-document-token` flow. Click thumbnail → opens existing full-size dialog with zoom.
-- Thumbnail has Approve/Reject overlay buttons on hover for one-click action.
-- **Reject with reason**: clicking Reject opens a small dialog asking for a reason (textarea, 3 quick presets: "Document blurry", "ID expired", "Name mismatch"). Reason is sent to the user via the existing email function and saved as an admin note in `user_messages`.
-- **Message user button** added to every verification card — opens the existing `MessageUserDialog` pre-filled with the user.
-- Status badges get clearer colors (amber pending / emerald verified / rose rejected) and a "Submitted X days ago" relative time chip.
+**Hero (premium, jak landing)**
+- Tło: zdjęcie strefy z gradientem `linear-gradient(135deg, primary-deep/55, primary/30, transparent)` zamiast płaskiego `black/35`.
+- Animowane glow blobs (jak na landing).
+- Badge "Trusted in Dubai" z `glass` i ikoną Sparkles.
+- Tytuł: dwuwierszowy, z gradient-text na nazwie strefy (`from-primary-glow via-white to-primary-glow`).
+- Opis + chip "Secure a monthly parking bay from AED X" z glassmorphism (nie czarny).
+- Dwa CTA: "Browse Spaces" (scroll do listingu) + "List Your Space" (link do `/rent-out-your-space`).
+- Animacje wejścia z `framer-motion` stagger (jak na landing).
 
-## 3. Support Desk Upgrade
+**Why park in {zone} – highlights strip**
+- 3-4 karty z ikonami (Shield, Zap, MapPin, Clock).
+- Glassmorphism + zielona ramka gradientowa, ten sam styl co "How It Works" na landing.
+- Treść per-zone (np. dla Deira: "Heritage district", "24/7 secure", "Walk to metro", "From AED 500").
 
-Refine `SupportDashboard.tsx`:
+**Listing section header (jak "Popular Locations" na landing)**
+- Eyebrow badge "Available Now" z ikoną MapPin.
+- H2 z gradient text: `Parking Spaces in {zone}` (`from-primary via-primary-glow to-primary-deep`).
+- Animowany divider (kreska–kropka–kreska) jak na landing.
+- Licznik wyników poniżej.
 
-- Add a per-conversation **status pill**: `New` (red), `Awaiting reply` (amber), `Replied` (green), `Closed` (gray). Status is computed from message order: if last message is from user → `Awaiting reply`; if from admin → `Replied`; never read by admin → `New`.
-- New filter tabs at top: `Needs reply` (default) · `Awaiting user` · `All` · `Feedback` · `Handoff`. Counts shown on each tab.
-- "Mark as actioned" button on each conversation that flips `read_status=true` for all admin-side messages so the row drops out of `Needs reply`.
-- SLA timer chip per conversation: "Waiting 2h 14m" — turns red after 4h.
-- Stat cards row gets a 5th card: **Needs reply** (big red number) so the admin sees workload at a glance.
-- Conversation list shows a colored left border matching the status pill for instant scanning.
+**Karty parkingowe — gradient frame**
+- Zachowujemy istniejącą logikę karuzeli/zooma (działa dobrze).
+- Owijamy każdą `<Card>` w `<div>` z zielonym gradientem `p-[2px]` jak na "Explore Dubai" na landing.
+- Subtelna zielona poświata pod kartą (radial blur, jak ostatnio dodaliśmy w Explore Dubai).
+- Cena wyświetlana z gradient text w stylu primary.
+- Przycisk "Book Now" — pełny wariant gradient z hover scale.
+- Pusty stan ("No spaces found") — ładniejszy: ikona, tekst, button.
 
-## 4. Booking Analytics — More Charts on the Dashboard
+**Empty/loading skeletons**
+- Podczas `loading` pokazujemy 6 skeleton-cards z shimmerem (zamiast pustki).
 
-Add a new section under the existing Revenue & Bookings chart in `AdminDashboard.tsx`:
+**Bottom CTA banner**
+- Sekcja "Can't find what you need?" z gradientowym tłem primary→primary-deep, dwa CTA: "View All Locations" + "Contact Us".
+- Spójna z banerami CTA z innych stron.
 
-- **Bookings funnel** (horizontal bar): Pending → Pre-authorized → Paid → Completed → Cancelled, with counts and conversion % between stages.
-- **Bookings by zone** (donut): top 6 zones by booking count for selected range, with legend on the right.
-- **Hourly heatmap** (7×24 grid): when bookings are created, intensity from primary-glow → primary-deep — shows peak hours/days.
-- **Recent bookings strip**: last 8 bookings as compact cards (name, zone, status pill, amount, time ago) with one-click jump to the booking in the bookings tab.
-- All charts pull from the same `useAdminStats` hook; we extend it with `funnel`, `zoneDonut`, `hourlyHeatmap`, `recentBookings` arrays computed in one pass.
-- Loading skeletons for each chart; empty states when no data.
+### 3. Drobne porządki
 
-## Technical Notes
+- Usunąć z plików zone niewykorzystane importy (`Input`, `Slider`, `Checkbox`, `Search`, `useToast`, `useAuth` w Deira itd. — pozostałości po starym filterze).
+- Usunąć puste `sticky top-20` filter bary (były tylko strukturą bez treści).
+- Downtown — zachować `<DubaiLiveMapsCTA />` (jest używany tylko tam, dorzucamy go jako opcjonalny prop do layoutu).
+- Każda strona zachowuje swój `useSEO`-style `<title>` (dodajemy hook jeśli go nie ma — bez SEO regression).
 
-- Files edited:
-  - `src/components/admin/AdminDashboard.tsx` — new banner + analytics section + stronger borders
-  - `src/hooks/useAdminStats.tsx` — add funnel / donut / heatmap / recent computations
-  - `src/pages/AdminPanel.tsx` — verification card layout + reject-reason dialog + Message button wiring
-  - `src/components/admin/SupportDashboard.tsx` — status pill, filters, SLA timer, mark-actioned
-  - `src/components/SecureDocumentViewer.tsx` — expose a thumbnail variant that auto-loads the secure URL
-- New file: `src/components/admin/DubaiSkylineBanner.tsx` — SVG skyline + particles, reused only in dashboard.
-- No DB migrations. No new edge functions. Existing `MessageUserDialog`, `send-verification-approval`, `send-user-reply-notification` are reused.
-- All colors via design tokens (`--primary`, `--primary-glow`, `--primary-deep`, semantic emerald/amber/rose). No hardcoded hex.
-- Mobile: banner collapses to a shorter version; charts stack 1-column; verification thumbnail moves above the actions.
+### 4. Treści per-zone (highlights)
 
-After approval I will implement everything in one pass.
+Każda strefa dostanie 3-4 zwięzłe punkty (1 zdanie każdy):
+
+- **Deira**: Heritage commercial hub, Metro access, 24/7 secure, From AED 500.
+- **DIFC**: Financial district core, Covered & guarded, Walk to metro, Premium spaces.
+- **Palm Jumeirah**: Iconic island living, Beach & resort proximity, Resident-only buildings, From AED 850.
+- **Business Bay**: Central business hub, Burj Khalifa views, 24/7 access, Easy SZR access.
+- **Downtown**: Heart of Dubai, Walk to Burj/Mall, Premium covered spaces, Tourist-area convenience.
+- **Dubai Marina**: Waterfront lifestyle, Tram & metro access, JBR walking distance, Building-secure.
+
+## Zakres zmian
+
+**Nowy plik:**
+- `src/components/zones/ZonePageLayout.tsx` (~350 linii)
+
+**Przepisane (każdy ~40 linii zamiast 250+):**
+- `src/pages/zones/Deira.tsx`
+- `src/pages/zones/DIFC.tsx`
+- `src/pages/zones/PalmJumeirah.tsx`
+- `src/pages/zones/BusinessBay.tsx`
+- `src/pages/zones/Downtown.tsx`
+- `src/pages/zones/DubaiMarina.tsx`
+
+**Bez zmian:**
+- Routing (`App.tsx`) — wszystkie obecne ścieżki działają bez zmian.
+- Logika rezerwacji (`ParkingBookingModal`, `useParkingAvailability`) — bez ingerencji.
+- `ImageZoomModal`, `LazyImage` — bez ingerencji.
+
+## Notatki techniczne
+
+- Wszystkie kolory przez semantic tokens (`primary`, `primary-glow`, `primary-deep`, `surface`, `muted`).
+- Animacje przez `framer-motion` (już używane na landing) — `whileInView` + `staggerChildren`.
+- Obrazki kart nadal lazy + cache via SW.
+- Hero zachowuje `pt-20 sm:pt-24` żeby nie kolidować z fixed Navbar.
+- Pełna zgodność mobile (podgląd na 375px sprawdzony w istniejących klasach `text-2xl sm:text-3xl`).
+- Zero zmian w bazie / migracjach / API.
