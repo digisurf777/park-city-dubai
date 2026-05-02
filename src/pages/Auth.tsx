@@ -783,7 +783,7 @@ const Auth = () => {
                 />
               </div>
               
-              <Button type="submit" className="w-full" disabled={loading}>
+              <Button type="submit" className="w-full h-11 rounded-xl font-semibold text-base shadow-md" disabled={loading}>
                 {loading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -822,13 +822,13 @@ const Auth = () => {
   return (
     <>
     <Navbar />
-    <div className="min-h-screen bg-gradient-to-br from-primary-deep via-background to-surface flex items-center justify-center px-4 py-10 pt-24 animate-fade-in">
+    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-primary-deep via-background to-surface flex items-center justify-center px-3 sm:px-4 py-6 sm:py-10 pt-20 sm:pt-24 animate-fade-in">
       {seoTags}
       {/* Decorative blobs */}
-      <div className="pointer-events-none absolute top-20 left-10 h-64 w-64 rounded-full bg-primary/30 blur-3xl" aria-hidden />
-      <div className="pointer-events-none absolute bottom-10 right-10 h-72 w-72 rounded-full bg-primary-glow/20 blur-3xl" aria-hidden />
+      <div className="pointer-events-none absolute top-20 left-4 sm:left-10 h-48 sm:h-64 w-48 sm:w-64 rounded-full bg-primary/30 blur-3xl" aria-hidden />
+      <div className="pointer-events-none absolute bottom-10 right-4 sm:right-10 h-56 sm:h-72 w-56 sm:w-72 rounded-full bg-primary-glow/20 blur-3xl" aria-hidden />
 
-      <div className="relative w-full max-w-5xl grid lg:grid-cols-2 frame-3d overflow-hidden">
+      <div className="relative w-full max-w-5xl grid lg:grid-cols-2 frame-3d overflow-hidden rounded-2xl sm:rounded-3xl shadow-2xl">
         {/* Left visual panel - hidden on mobile */}
         <div className="hidden lg:block relative min-h-[640px]">
           <img
@@ -845,9 +845,9 @@ const Auth = () => {
 
           {/* Logo lockup top-left */}
           <div className="absolute top-6 left-6 flex items-center gap-3">
-            <div className="h-12 w-12 rounded-2xl bg-white/95 backdrop-blur shadow-xl flex items-center justify-center p-2 ring-1 ring-white/40">
+            <div className="h-12 w-12 rounded-2xl bg-white/95 backdrop-blur shadow-xl flex items-center justify-center p-1.5 ring-1 ring-white/40">
               <img
-                src="/lovable-uploads/logo.webp"
+                src="/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.webp"
                 alt="Shazam Parking logo"
                 className="h-full w-full object-contain"
                 width={48}
@@ -882,26 +882,26 @@ const Auth = () => {
         </div>
 
         {/* Right form panel */}
-        <div className="bg-white p-6 sm:p-10">
-          <div className="text-center mb-6">
-            <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-white shadow-glow ring-1 ring-primary/20 mb-4 p-2">
+        <div className="bg-white p-5 sm:p-8 md:p-10 [&_input]:h-11 [&_input]:rounded-xl [&_input]:text-base [&_input]:px-4">
+          <div className="text-center mb-5 sm:mb-6">
+            <div className="inline-flex h-16 w-16 sm:h-14 sm:w-14 items-center justify-center rounded-2xl bg-white shadow-glow ring-1 ring-primary/20 mb-3 sm:mb-4 p-2">
               <img
-                src="/lovable-uploads/logo.webp"
+                src="/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.webp"
                 alt="Shazam Parking"
                 className="h-full w-full object-contain"
                 width={56}
                 height={56}
               />
             </div>
-            <h1 className="text-2xl sm:text-3xl font-black text-foreground">Welcome to Shazam Parking</h1>
-            <p className="text-muted-foreground text-sm mt-1">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-foreground tracking-tight">Welcome to Shazam Parking</h1>
+            <p className="text-muted-foreground text-xs sm:text-sm mt-1.5 px-2">
               Log in to your account or create a new one
             </p>
           </div>
           <Tabs defaultValue="login" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="login">Login</TabsTrigger>
-              <TabsTrigger value="signup">Sign Up</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 h-11 p-1 bg-muted/70 rounded-xl">
+              <TabsTrigger value="login" className="h-9 rounded-lg text-sm font-semibold data-[state=active]:shadow-md">Login</TabsTrigger>
+              <TabsTrigger value="signup" className="h-9 rounded-lg text-sm font-semibold data-[state=active]:shadow-md">Sign Up</TabsTrigger>
             </TabsList>
             
             <TabsContent value="login">
@@ -909,7 +909,7 @@ const Auth = () => {
                 <Button 
                   type="button" 
                   variant="outline" 
-                  className="w-full" 
+                  className="w-full h-11 rounded-xl font-semibold" 
                   onClick={handleGoogleAuth}
                 >
                   <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
@@ -948,7 +948,7 @@ const Auth = () => {
                     />
                   </div>
                   
-                  <Button type="submit" className="w-full" disabled={loading}>
+                  <Button type="submit" className="w-full h-11 rounded-xl font-semibold text-base shadow-md" disabled={loading}>
                     {loading ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -1025,7 +1025,7 @@ const Auth = () => {
                 <Button 
                   type="button" 
                   variant="outline" 
-                  className="w-full" 
+                  className="w-full h-11 rounded-xl font-semibold" 
                   onClick={handleGoogleAuth}
                 >
                   <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
@@ -1144,7 +1144,7 @@ const Auth = () => {
                     </div>
                   </div>
                   
-                  <Button type="submit" className="w-full" disabled={loading || rateLimited}>
+                  <Button type="submit" className="w-full h-11 rounded-xl font-semibold text-base shadow-md" disabled={loading || rateLimited}>
                     {loading ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
