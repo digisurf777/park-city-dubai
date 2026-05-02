@@ -457,7 +457,7 @@ All colors MUST be HSL.
 
   /* Mobile bottom-nav safe spacing */
   .pb-mobile-nav {
-    padding-bottom: calc(4.5rem + env(safe-area-inset-bottom));
+    padding-bottom: calc(5.25rem + env(safe-area-inset-bottom));
   }
   @media (min-width: 768px) {
     .pb-mobile-nav { padding-bottom: 0; }
