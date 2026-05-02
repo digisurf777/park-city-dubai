@@ -19,7 +19,7 @@ const PerformantHero = () => {
       <link 
         rel="preload" 
         as="image" 
-        href="/lovable-uploads/c910d35f-a4b2-4c06-88e3-7f5b16a45558.webp"
+        href={heroPhoneMockup}
         fetchPriority="high"
       />
       
