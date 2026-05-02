@@ -75,7 +75,7 @@ const Index = () => {
         <div className="pointer-events-none absolute -bottom-32 -right-32 w-[28rem] h-[28rem] rounded-full bg-primary-glow/10 blur-3xl"></div>
         <div className="pointer-events-none absolute -top-24 -left-24 w-[22rem] h-[22rem] rounded-full bg-primary/10 blur-3xl"></div>
 
-        <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-white z-10 pt-20 pb-12 sm:pt-28 sm:pb-16 lg:pt-32 lg:pb-20 flex flex-col items-center">
+        <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-white z-10 pt-16 pb-8 sm:pt-20 sm:pb-10 lg:pt-24 lg:pb-12 flex flex-col items-center">
           {/* Top - Text */}
           <motion.div
             className="text-center w-full"
@@ -160,7 +160,7 @@ const Index = () => {
           </motion.div>
 
           {/* Bottom - Phone (transparent PNG, centered) */}
-          <div className="flex justify-center w-full mt-10 sm:mt-14">
+          <div className="flex justify-center w-full mt-6 sm:mt-8">
             <motion.div
               className="relative flex items-center justify-center"
               initial={{ opacity: 0, scale: 0.85, y: 40 }}
