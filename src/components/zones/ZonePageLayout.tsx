@@ -365,13 +365,13 @@ const ZonePageLayout = ({
                   />
                   {/* Gradient frame */}
                   <div
-                    className="relative rounded-2xl p-[2px] transition-all duration-500 group-hover:-translate-y-1.5 shadow-[0_18px_40px_-18px_hsl(var(--primary-deep)/0.45)] group-hover:shadow-[0_28px_60px_-20px_hsl(var(--primary)/0.55)]"
+                    className="relative rounded-2xl p-[2px] transition-all duration-500 group-hover:-translate-y-1.5 shadow-[0_18px_40px_-18px_hsl(var(--primary-deep)/0.45)] group-hover:shadow-[0_28px_60px_-20px_hsl(var(--primary)/0.55)] flex-1 flex"
                     style={{
                       background:
                         "linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-glow)) 50%, hsl(var(--primary-deep)) 100%)",
                     }}
                   >
-                    <Card className="overflow-hidden rounded-[14px] border-0 bg-white">
+                    <Card className="overflow-hidden rounded-[14px] border-0 bg-white flex-1 flex flex-col">
                       {/* Image */}
                       <div className="relative w-full aspect-[4/3] overflow-hidden bg-muted">
                         <img
