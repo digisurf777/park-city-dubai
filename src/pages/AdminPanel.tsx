@@ -2708,6 +2708,13 @@ const AdminPanelOrganized = () => {
                     </div>
                   </DialogContent>
                 </Dialog>
+
+                {/* Direct message to user from verification card */}
+                <MessageUserDialog
+                  open={!!messageUserId}
+                  onOpenChange={(v) => { if (!v) setMessageUserId(null); }}
+                  preselectUserId={messageUserId || undefined}
+                />
               </TabsContent>
 
               <TabsContent value="messages" className="space-y-6">
