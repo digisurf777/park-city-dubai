@@ -74,7 +74,73 @@ const Footer = () => {
     <footer className="bg-gradient-to-b from-gray-900 to-[hsl(174_30%_8%)] text-white">
       <div className="h-0.5 bg-gradient-to-r from-primary via-primary/60 to-primary" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* ============ MOBILE - compact ============ */}
+      <div className="md:hidden max-w-7xl mx-auto px-5 py-6">
+        {/* Brand row */}
+        <div className="flex items-center justify-between mb-4">
+          <Link
+            to="/"
+            className="inline-flex items-center"
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          >
+            <img
+              src="/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.webp"
+              alt="Shazam Parking"
+              className="h-7 w-auto"
+            />
+          </Link>
+          <a
+            href="mailto:support@shazam.ae"
+            className="inline-flex items-center text-[11px] text-gray-300 bg-white/5 px-2.5 py-1 rounded-full ring-1 ring-white/10"
+          >
+            <Mail className="h-3 w-3 mr-1 text-primary" />
+            Contact
+          </a>
+        </div>
+
+        {/* Compact link grid */}
+        <ul className="grid grid-cols-3 gap-x-3 gap-y-1.5 mb-4">
+          {[...quickLinks, ...legalLinks].map((item) => (
+            <li key={item.to}>
+              <Link
+                to={item.to}
+                className="text-[12px] text-gray-300 hover:text-primary transition-colors"
+              >
+                {item.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
+
+        {/* Socials - compact row */}
+        <div className="flex items-center justify-center gap-2 mb-4">
+          {socials.map(({ svg, href, label, brand }) => (
+            <a
+              key={label}
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={label}
+              title={label}
+              className={`group h-8 w-8 inline-flex items-center justify-center rounded-lg bg-gradient-to-br ${brand} text-white ring-1 ring-white/15`}
+            >
+              <span className="relative [&>svg]:h-[14px] [&>svg]:w-[14px]">{svg}</span>
+            </a>
+          ))}
+        </div>
+
+        {/* Bottom bar */}
+        <div className="border-t border-white/10 pt-3 flex items-center justify-between text-[10px] text-gray-500">
+          <span>© 2026 ShazamParking.ae</span>
+          <span className="inline-flex items-center gap-1">
+            <MapPin className="h-3 w-3 text-primary" />
+            Dubai, UAE
+          </span>
+        </div>
+      </div>
+
+      {/* ============ DESKTOP - full ============ */}
+      <div className="hidden md:block max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-6">
           {/* Brand + contact */}
           <div>
@@ -109,7 +175,7 @@ const Footer = () => {
                   rel="noopener noreferrer"
                   aria-label={label}
                   title={label}
-                  className={`group relative h-10 w-10 inline-flex items-center justify-center rounded-xl bg-gradient-to-br ${brand} text-white ring-1 ring-white/20 shadow-[0_6px_14px_-4px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.25)] hover:scale-110 hover:-translate-y-0.5 hover:shadow-[0_10px_22px_-6px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.35)] active:scale-95 transition-all duration-300`}
+                  className={`group relative h-10 w-10 inline-flex items-center justify-center rounded-xl bg-gradient-to-br ${brand} text-white ring-1 ring-white/20 shadow-[0_6px_14px_-4px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.25)] hover:scale-110 hover:-translate-y-0.5 transition-all duration-300`}
                 >
                   <span className="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-b from-white/25 to-transparent opacity-70" />
                   <span className="relative [&>svg]:h-[18px] [&>svg]:w-[18px]">{svg}</span>
@@ -120,16 +186,11 @@ const Footer = () => {
 
           {/* Quick Links */}
           <div>
-            <h3 className="text-xs font-bold tracking-[0.18em] uppercase text-primary mb-3">
-              Explore
-            </h3>
+            <h3 className="text-xs font-bold tracking-[0.18em] uppercase text-primary mb-3">Explore</h3>
             <ul className="grid grid-cols-2 gap-y-1.5 gap-x-4">
               {quickLinks.map((item) => (
                 <li key={item.to}>
-                  <Link
-                    to={item.to}
-                    className="text-sm text-gray-300 hover:text-primary transition-colors"
-                  >
+                  <Link to={item.to} className="text-sm text-gray-300 hover:text-primary transition-colors">
                     {item.label}
                   </Link>
                 </li>
@@ -139,16 +200,11 @@ const Footer = () => {
 
           {/* Legal */}
           <div>
-            <h3 className="text-xs font-bold tracking-[0.18em] uppercase text-primary mb-3">
-              Legal
-            </h3>
+            <h3 className="text-xs font-bold tracking-[0.18em] uppercase text-primary mb-3">Legal</h3>
             <ul className="space-y-1.5">
               {legalLinks.map((item) => (
                 <li key={item.to}>
-                  <Link
-                    to={item.to}
-                    className="text-sm text-gray-300 hover:text-primary transition-colors"
-                  >
+                  <Link to={item.to} className="text-sm text-gray-300 hover:text-primary transition-colors">
                     {item.label}
                   </Link>
                 </li>
@@ -159,62 +215,32 @@ const Footer = () => {
 
         {/* Ecosystem + Apps */}
         <div className="border-t border-white/10 mt-6 pt-5 grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Shazam Ecosystem */}
           <div>
-            <h3 className="text-xs font-bold tracking-[0.18em] uppercase text-primary mb-3">
-              Shazam Ecosystem
-            </h3>
+            <h3 className="text-xs font-bold tracking-[0.18em] uppercase text-primary mb-3">Shazam Ecosystem</h3>
             <div className="flex flex-wrap gap-2">
-              <a
-                href="https://shazam.ae/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 text-xs text-gray-200 bg-white/5 px-3 py-1.5 rounded-full ring-1 ring-white/10 hover:ring-primary/40 hover:bg-white/10 transition-colors"
-              >
-                Shazam
-                <ExternalLink className="h-3 w-3" />
+              <a href="https://shazam.ae/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs text-gray-200 bg-white/5 px-3 py-1.5 rounded-full ring-1 ring-white/10 hover:ring-primary/40 hover:bg-white/10 transition-colors">
+                Shazam <ExternalLink className="h-3 w-3" />
               </a>
-              <a
-                href="https://dubailifeos.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 text-xs text-gray-200 bg-white/5 px-3 py-1.5 rounded-full ring-1 ring-white/10 hover:ring-primary/40 hover:bg-white/10 transition-colors"
-              >
-                Dubai Life OS
-                <ExternalLink className="h-3 w-3" />
+              <a href="https://dubailifeos.com/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs text-gray-200 bg-white/5 px-3 py-1.5 rounded-full ring-1 ring-white/10 hover:ring-primary/40 hover:bg-white/10 transition-colors">
+                Dubai Life OS <ExternalLink className="h-3 w-3" />
               </a>
-              <a
-                href="https://dubailifemaps.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 text-xs text-gray-200 bg-white/5 px-3 py-1.5 rounded-full ring-1 ring-white/10 hover:ring-primary/40 hover:bg-white/10 transition-colors"
-              >
-                Dubai Life Maps
-                <ExternalLink className="h-3 w-3" />
+              <a href="https://dubailifemaps.com/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs text-gray-200 bg-white/5 px-3 py-1.5 rounded-full ring-1 ring-white/10 hover:ring-primary/40 hover:bg-white/10 transition-colors">
+                Dubai Life Maps <ExternalLink className="h-3 w-3" />
               </a>
             </div>
           </div>
 
-          {/* Mobile Apps - Coming Soon */}
           <div className="md:text-right">
-            <h3 className="text-xs font-bold tracking-[0.18em] uppercase text-primary mb-3">
-              Mobile Apps
-            </h3>
+            <h3 className="text-xs font-bold tracking-[0.18em] uppercase text-primary mb-3">Mobile Apps</h3>
             <div className="flex flex-wrap gap-2 md:justify-end">
-              <div
-                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 ring-1 ring-white/10 text-gray-300 cursor-not-allowed"
-                title="Coming soon"
-              >
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 ring-1 ring-white/10 text-gray-300 cursor-not-allowed" title="Coming soon">
                 <Apple className="h-4 w-4" />
                 <div className="leading-tight text-left">
                   <div className="text-[9px] uppercase tracking-wider text-gray-500">Coming soon</div>
                   <div className="text-xs font-semibold">App Store</div>
                 </div>
               </div>
-              <div
-                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 ring-1 ring-white/10 text-gray-300 cursor-not-allowed"
-                title="Coming soon"
-              >
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 ring-1 ring-white/10 text-gray-300 cursor-not-allowed" title="Coming soon">
                 <Smartphone className="h-4 w-4" />
                 <div className="leading-tight text-left">
                   <div className="text-[9px] uppercase tracking-wider text-gray-500">Coming soon</div>
@@ -225,7 +251,6 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Bottom Bar */}
         <div className="border-t border-white/10 mt-6 pt-4 flex flex-col sm:flex-row justify-between items-center gap-2">
           <p className="text-gray-500 text-xs text-center sm:text-left">
             © 2026 ShazamParking.ae · A Shazam product. All rights reserved.
