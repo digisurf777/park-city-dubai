@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageHero from "@/components/PageHero";
 import { Button } from "@/components/ui/button";
@@ -18,7 +17,7 @@ const AboutUs = () => {
   }, []);
   return <div className="min-h-screen bg-gradient-to-b from-surface to-background animate-fade-in">
       {seo}
-      <Navbar />
+
       
       {/* Hero Section */}
       <PageHero

@@ -9,7 +9,6 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Mail, Send, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import PageHero from '@/components/PageHero';
 import heroContact from '@/assets/hero-contact.jpg';
@@ -92,7 +91,7 @@ const ContactAdmin = () => {
   };
   return <div className="min-h-screen bg-gradient-to-b from-surface to-background animate-fade-in">
       {seoData}
-      <Navbar />
+
 
       <PageHero
         image={heroContact}

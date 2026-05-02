@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ParkingCalculator from "@/components/ParkingCalculator";
 import PageHero from "@/components/PageHero";
@@ -12,7 +11,7 @@ const Calculator = () => {
   }, []);
   return (
     <div className="min-h-screen bg-gradient-to-b from-surface via-background to-background animate-fade-in">
-      <Navbar />
+
 
       <PageHero
         image={heroCalculator}

@@ -10,7 +10,6 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
 import ImageZoomModal from '@/components/ImageZoomModal';
-import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { logPhotoRepairReport } from '@/utils/photoRepair';
 
@@ -229,7 +228,7 @@ const ProductPage: React.FC = () => {
   if (showConfirmation) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-surface to-background">
-        <Navbar />
+
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24">
           <Card className="w-full max-w-md mx-auto">
             <CardContent className="pt-6">
@@ -256,7 +255,7 @@ const ProductPage: React.FC = () => {
   return (
     <TooltipProvider>
       <div className="min-h-screen bg-gradient-to-b from-surface to-background">
-        <Navbar />
+
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

@@ -12,18 +12,12 @@ export const Shimmer = ({ className }: { className?: string }) => (
  * Clean monochrome spinner + subtle wordmark — no clutter.
  */
 export const PageLoader = ({ label = "Loading" }: { label?: string }) => (
-  <div className="min-h-screen flex flex-col items-center justify-center gap-6 bg-background">
-    {/* Apple-style minimalist spinner */}
+  <div className="min-h-screen flex items-center justify-center bg-white">
     <div className="apple-spinner" aria-label={label} role="status">
       {Array.from({ length: 12 }).map((_, i) => (
         <span key={i} style={{ transform: `rotate(${i * 30}deg)`, animationDelay: `${(i - 12) * 0.083}s` }} />
       ))}
     </div>
-
-    {/* Quiet wordmark */}
-    <p className="text-[11px] font-semibold tracking-[0.3em] uppercase text-muted-foreground/80">
-      {label}
-    </p>
   </div>
 );
 

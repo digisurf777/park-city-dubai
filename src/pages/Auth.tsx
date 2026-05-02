@@ -14,7 +14,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { InputOTP, InputOTPGroup, InputOTPSlot, InputOTPSeparator } from '@/components/ui/input-otp';
 import authLuxury from '@/assets/auth-dubai-skyline.jpg';
 import useSEO from '@/hooks/useSEO';
-import Navbar from '@/components/Navbar';
 
 const Auth = () => {
   const [loading, setLoading] = useState(false);
@@ -821,7 +820,7 @@ const Auth = () => {
 
   return (
     <>
-    <Navbar />
+
     <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-primary-deep via-background to-surface flex items-center justify-center px-3 sm:px-4 py-6 sm:py-10 pt-20 sm:pt-24 animate-fade-in">
       {seoTags}
       {/* Decorative blobs */}

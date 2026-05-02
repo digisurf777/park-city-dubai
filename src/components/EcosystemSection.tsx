@@ -147,7 +147,7 @@ const EcosystemSection = () => {
             >
               <article className="relative h-full rounded-[14px] bg-white overflow-hidden flex flex-col">
                 {/* Preview screenshot */}
-                <div className="relative aspect-[4/3] sm:aspect-[5/4] overflow-hidden bg-gray-900">
+                <div className="relative aspect-[16/10] sm:aspect-[16/9] overflow-hidden bg-gray-900">
                   <img
                     src={p.preview}
                     alt={`${p.title} preview - ${p.tagline}`}

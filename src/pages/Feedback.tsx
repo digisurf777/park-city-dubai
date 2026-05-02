@@ -8,7 +8,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { MessageSquare, Send } from 'lucide-react';
-import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import PageHero from '@/components/PageHero';
 import heroFeedback from '@/assets/hero-feedback.jpg';
@@ -92,7 +91,7 @@ ${message}`,
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-surface to-background animate-fade-in">
-      <Navbar />
+
 
       <PageHero
         image={heroFeedback}

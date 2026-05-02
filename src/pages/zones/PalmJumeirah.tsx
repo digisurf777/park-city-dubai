@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
-import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ParkingBookingModal } from "@/components/ParkingBookingModal";
 import ImageZoomModal from "@/components/ImageZoomModal";
@@ -71,7 +70,7 @@ const PalmJumeirah = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-surface to-background">
-      <Navbar />
+
       
       {/* Hero Section */}
       <div className="relative h-[440px] sm:h-[560px] pt-20 sm:pt-24">

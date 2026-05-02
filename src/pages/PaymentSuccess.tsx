@@ -3,7 +3,6 @@ import { useSearchParams, Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, Clock, ArrowLeft } from "lucide-react";
-import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 export default function PaymentSuccess() {
@@ -23,7 +22,7 @@ export default function PaymentSuccess() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
-        <Navbar />
+
         <div className="container mx-auto px-4 py-16">
           <div className="max-w-md mx-auto">
             <Card className="text-center">
@@ -40,7 +39,7 @@ export default function PaymentSuccess() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
-      <Navbar />
+
       
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-2xl mx-auto">

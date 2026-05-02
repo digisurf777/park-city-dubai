@@ -1,5 +1,4 @@
 import { useSEO } from "@/hooks/useSEO";
-import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 const CookiesNotice = () => {
@@ -12,7 +11,7 @@ const CookiesNotice = () => {
   return (
     <>
       {seo}
-      <Navbar />
+
       <div className="min-h-screen bg-gradient-to-b from-surface to-background">
         {/* Hero Section */}
         <div className="bg-gradient-to-r from-primary to-secondary text-white py-16">

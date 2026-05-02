@@ -1,4 +1,3 @@
-import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageHero from "@/components/PageHero";
 import { useEffect, useRef, useState } from "react";
@@ -151,7 +150,7 @@ const News = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-surface to-background animate-fade-in">
       {seoData}
-      <Navbar />
+
 
       {/* Hero Section */}
       <PageHero

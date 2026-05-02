@@ -7,7 +7,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { MapPin, Search, X, Car, CreditCard, Ruler } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
-import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useSearchParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -164,7 +163,7 @@ const FindParking = () => {
   });
   return <div className="min-h-screen bg-gradient-to-b from-surface to-background animate-fade-in">
       {seoData}
-      <Navbar />
+
       
       {/* Hero Section - Mobile Optimized, no clipping */}
       <div className="relative overflow-hidden">
