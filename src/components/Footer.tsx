@@ -100,7 +100,7 @@ const Footer = () => {
               support@shazam.ae
             </a>
 
-            <div className="flex items-center gap-1.5 mt-3 flex-wrap">
+            <div className="flex items-center gap-2 mt-4 flex-wrap">
               {socials.map(({ svg, href, label, brand }) => (
                 <a
                   key={label}
@@ -109,13 +109,10 @@ const Footer = () => {
                   rel="noopener noreferrer"
                   aria-label={label}
                   title={label}
-                  className="group relative h-8 w-8 inline-flex items-center justify-center rounded-lg bg-white/5 ring-1 ring-white/15 text-white hover:ring-white/30 transition-all overflow-hidden"
+                  className={`group relative h-10 w-10 inline-flex items-center justify-center rounded-xl bg-gradient-to-br ${brand} text-white ring-1 ring-white/20 shadow-[0_6px_14px_-4px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.25)] hover:scale-110 hover:-translate-y-0.5 hover:shadow-[0_10px_22px_-6px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.35)] active:scale-95 transition-all duration-300`}
                 >
-                  <span
-                    className={`absolute inset-0 bg-gradient-to-br ${brand} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}
-                    aria-hidden="true"
-                  />
-                  <span className="relative">{svg}</span>
+                  <span className="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-b from-white/25 to-transparent opacity-70" />
+                  <span className="relative [&>svg]:h-[18px] [&>svg]:w-[18px]">{svg}</span>
                 </a>
               ))}
             </div>
