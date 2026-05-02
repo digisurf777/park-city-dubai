@@ -298,6 +298,7 @@ const AdminPanelOrganized = () => {
   const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(null);
   const [documentViewDialog, setDocumentViewDialog] = useState(false);
   const [documentImageUrl, setDocumentImageUrl] = useState<string>('');
+  const [messageUserId, setMessageUserId] = useState<string | null>(null);
   const [documentLoading, setDocumentLoading] = useState(false);
 
   // **CRITICAL SECURITY**: Validate admin access with AAL2 on mount and periodically
