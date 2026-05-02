@@ -5,14 +5,15 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
   ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid,
-  BarChart, Bar, LineChart, Line, Legend,
+  BarChart, Bar, LineChart, Line, Legend, PieChart, Pie, Cell,
 } from 'recharts';
 import {
   TrendingUp, TrendingDown, DollarSign, Users, Car, CreditCard,
   Megaphone, Send, RefreshCw, AlertCircle, Crown, Activity, ShieldAlert,
   ArrowUpRight, ArrowDownRight, Sparkles, Wallet, Receipt, UserPlus,
-  Target, Zap,
+  Target, Zap, PieChart as PieIcon, Flame, GitBranch, Calendar,
 } from 'lucide-react';
+import { DubaiSkylineBanner } from './DubaiSkylineBanner';
 import { BroadcastDialog } from './BroadcastDialog';
 import { MessageUserDialog } from './MessageUserDialog';
 import { useCurrency } from '@/contexts/CurrencyContext';
