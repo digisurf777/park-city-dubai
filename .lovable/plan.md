@@ -1,108 +1,63 @@
 ## Cel
 
-Strony zone (`/deira`, `/difc`, `/palm-jumeirah`, `/business-bay`, `/downtown`, `/dubai-marina`) wyglądają jak nieukończone — płaski hero z czarnym overlay, pusty pasek filtrów, brak zielonych akcentów platformy, brak gradient ramek na kartach, brak CTA. Trzeba je doprowadzić do spójnego, premium stylu landing page (gradient frames, glassmorphism, zielone podświetlenia, animacje).
+Top Navigation Bar (desktop) wygląda obecnie płasko: linki to czysty `text-gray-700 hover:text-primary` bez tła ani podkreślenia, a guziki **My Account / Login / Logout** używają domyślnych wariantów `ghost`/`outline` — szare, bez zielonych akcentów, nie pasują do reszty platformy. Dopracowujemy styl, kolorystykę, hover/active states oraz wyróżnienie aktywnej strony.
 
-## Co budujemy
+## Zakres
 
-### 1. Nowy współdzielony komponent `ZonePageLayout`
+Tylko `src/components/Navbar.tsx` — sekcja desktop (mobile drawer już ładnie wygląda i zostaje bez zmian).
 
-Plik: `src/components/zones/ZonePageLayout.tsx`
+## Zmiany
 
-Jeden komponent obsługujący całą strukturę strony zone — eliminuje 1500+ linii duplikacji i gwarantuje 100% spójności. Każda strona zone redukuje się do ~30 linii konfiguracji.
+### 1. Linki w głównym pasku (Find a Parking Space, Zones, About Us, FAQ, News, Calculator)
 
-Props:
+- Wprowadzam pomocniczą funkcję `isActive(path)` z `useLocation()`.
+- Każdy link dostaje wspólny wzorzec stylu:
+  - Padding `px-3 py-2`, `rounded-lg`, `font-semibold text-sm`.
+  - Hover: subtelny gradient `from-primary/8 to-primary-glow/8` + `text-primary`.
+  - **Aktywna strona**: tło `bg-gradient-to-r from-primary/15 to-primary-glow/15`, `text-primary-deep`, `ring-1 ring-primary/20`, plus mała kropka-wskaźnik pod linkiem (zielony pasek 2px szerokości, `bg-primary` z glow).
+  - Hover dodatkowo: lekka translacja `-translate-y-0.5` + transition dla efektu 3D.
+- Ujednolicam Zones dropdown trigger — ten sam wzorzec aktywny/hover.
+
+### 2. Guziki autoryzacyjne (zalogowany)
+
+**My Account** — zamiast szarego ghost button zrobimy premium "profile pill":
 ```
-{
-  zoneName: string                    // "Deira"
-  zoneSlug: string                    // używane przez useParkingAvailability
-  heroImage: string
-  description: string
-  fromPrice: number                   // 500, 600, 850...
-  highlights: { icon, title, text }[] // 3-4 punkty "Why park here"
-  nearbyLandmarks?: string[]          // chipy z lokalizacjami
-}
+[avatar circle gradient] My Account ▾
 ```
+- Pigułka z `bg-white`, `ring-1 ring-primary/25`, hover `ring-primary/50` + cień `shadow-[0_4px_14px_-4px_hsl(var(--primary)/0.35)]`.
+- Mała kółkowa ikona `User` z gradientem `from-primary to-primary-glow`, biała ikona — pasuje do pigułek na landing.
+- `text-primary-deep font-semibold`.
+- Aktywne (na `/my-account`): pełny zielony gradient tła + biały text.
 
-Strony zone (`Deira.tsx`, `DIFC.tsx`, ...) stają się cienkimi wrapperami, które wołają `<ZonePageLayout zoneName="Deira" ... />`.
+**Logout** — zamiast `variant="outline"`:
+- Zachowujemy outline, ale z `border-primary/30`, `text-primary-deep`, hover `bg-primary/8 border-primary/60`.
+- Ikona `LogOut` po lewej dla spójności wizualnej.
 
-### 2. Sekcje nowego layoutu
+**Login / Sign Up** (niezalogowany):
+- Zamiast szarego ghost: pigułka `bg-primary/8 ring-1 ring-primary/25 text-primary-deep`, hover `bg-primary/15 ring-primary/45`. Ikona `LogIn` z lewej.
 
-**Hero (premium, jak landing)**
-- Tło: zdjęcie strefy z gradientem `linear-gradient(135deg, primary-deep/55, primary/30, transparent)` zamiast płaskiego `black/35`.
-- Animowane glow blobs (jak na landing).
-- Badge "Trusted in Dubai" z `glass` i ikoną Sparkles.
-- Tytuł: dwuwierszowy, z gradient-text na nazwie strefy (`from-primary-glow via-white to-primary-glow`).
-- Opis + chip "Secure a monthly parking bay from AED X" z glassmorphism (nie czarny).
-- Dwa CTA: "Browse Spaces" (scroll do listingu) + "List Your Space" (link do `/rent-out-your-space`).
-- Animacje wejścia z `framer-motion` stagger (jak na landing).
+**List Your Space** — zostaje `btn-3d-primary` (już dobrze wygląda, jest brand-CTA).
 
-**Why park in {zone} – highlights strip**
-- 3-4 karty z ikonami (Shield, Zap, MapPin, Clock).
-- Glassmorphism + zielona ramka gradientowa, ten sam styl co "How It Works" na landing.
-- Treść per-zone (np. dla Deira: "Heritage district", "24/7 secure", "Walk to metro", "From AED 500").
+### 3. Dropdown Zones — drobne wykończenie
 
-**Listing section header (jak "Popular Locations" na landing)**
-- Eyebrow badge "Available Now" z ikoną MapPin.
-- H2 z gradient text: `Parking Spaces in {zone}` (`from-primary via-primary-glow to-primary-deep`).
-- Animowany divider (kreska–kropka–kreska) jak na landing.
-- Licznik wyników poniżej.
+- Zachowujemy strukturę, dodajemy `aria-current="page"` dla aktywnej zony (zaznaczone tłem `bg-primary/10` na stałe).
+- Dropdown panel: lekko wzmocnić cień, tytuł "Choose a Zone" jako mały eyebrow nagłówek u góry (`text-[10px] uppercase tracking-[0.2em] text-primary/70 font-bold px-3 pt-2.5 pb-1`).
 
-**Karty parkingowe — gradient frame**
-- Zachowujemy istniejącą logikę karuzeli/zooma (działa dobrze).
-- Owijamy każdą `<Card>` w `<div>` z zielonym gradientem `p-[2px]` jak na "Explore Dubai" na landing.
-- Subtelna zielona poświata pod kartą (radial blur, jak ostatnio dodaliśmy w Explore Dubai).
-- Cena wyświetlana z gradient text w stylu primary.
-- Przycisk "Book Now" — pełny wariant gradient z hover scale.
-- Pusty stan ("No spaces found") — ładniejszy: ikona, tekst, button.
+### 4. Cały navbar — drobne tła
 
-**Empty/loading skeletons**
-- Podczas `loading` pokazujemy 6 skeleton-cards z shimmerem (zamiast pustki).
+- Bardziej wyrazisty separator: zostaje `bg-white/85 backdrop-blur-xl` (już glassmorphism), ale dorzucamy `border-b border-primary/10` żeby pasek miał lekką zieloną krawędź — wizualnie spina się z resztą stron.
 
-**Bottom CTA banner**
-- Sekcja "Can't find what you need?" z gradientowym tłem primary→primary-deep, dwa CTA: "View All Locations" + "Contact Us".
-- Spójna z banerami CTA z innych stron.
+## Czego NIE zmieniam
 
-### 3. Drobne porządki
-
-- Usunąć z plików zone niewykorzystane importy (`Input`, `Slider`, `Checkbox`, `Search`, `useToast`, `useAuth` w Deira itd. — pozostałości po starym filterze).
-- Usunąć puste `sticky top-20` filter bary (były tylko strukturą bez treści).
-- Downtown — zachować `<DubaiLiveMapsCTA />` (jest używany tylko tam, dorzucamy go jako opcjonalny prop do layoutu).
-- Każda strona zachowuje swój `useSEO`-style `<title>` (dodajemy hook jeśli go nie ma — bez SEO regression).
-
-### 4. Treści per-zone (highlights)
-
-Każda strefa dostanie 3-4 zwięzłe punkty (1 zdanie każdy):
-
-- **Deira**: Heritage commercial hub, Metro access, 24/7 secure, From AED 500.
-- **DIFC**: Financial district core, Covered & guarded, Walk to metro, Premium spaces.
-- **Palm Jumeirah**: Iconic island living, Beach & resort proximity, Resident-only buildings, From AED 850.
-- **Business Bay**: Central business hub, Burj Khalifa views, 24/7 access, Easy SZR access.
-- **Downtown**: Heart of Dubai, Walk to Burj/Mall, Premium covered spaces, Tourist-area convenience.
-- **Dubai Marina**: Waterfront lifestyle, Tram & metro access, JBR walking distance, Building-secure.
-
-## Zakres zmian
-
-**Nowy plik:**
-- `src/components/zones/ZonePageLayout.tsx` (~350 linii)
-
-**Przepisane (każdy ~40 linii zamiast 250+):**
-- `src/pages/zones/Deira.tsx`
-- `src/pages/zones/DIFC.tsx`
-- `src/pages/zones/PalmJumeirah.tsx`
-- `src/pages/zones/BusinessBay.tsx`
-- `src/pages/zones/Downtown.tsx`
-- `src/pages/zones/DubaiMarina.tsx`
-
-**Bez zmian:**
-- Routing (`App.tsx`) — wszystkie obecne ścieżki działają bez zmian.
-- Logika rezerwacji (`ParkingBookingModal`, `useParkingAvailability`) — bez ingerencji.
-- `ImageZoomModal`, `LazyImage` — bez ingerencji.
+- Mobile drawer (`isMenuOpen`) — wygląda już dobrze, nie ruszamy.
+- Logika Auth, Zones state, Escape/Click-outside, scroll-lock.
+- Routing.
+- Mobile bottom nav.
 
 ## Notatki techniczne
 
-- Wszystkie kolory przez semantic tokens (`primary`, `primary-glow`, `primary-deep`, `surface`, `muted`).
-- Animacje przez `framer-motion` (już używane na landing) — `whileInView` + `staggerChildren`.
-- Obrazki kart nadal lazy + cache via SW.
-- Hero zachowuje `pt-20 sm:pt-24` żeby nie kolidować z fixed Navbar.
-- Pełna zgodność mobile (podgląd na 375px sprawdzony w istniejących klasach `text-2xl sm:text-3xl`).
-- Zero zmian w bazie / migracjach / API.
+- Nowy import: `useLocation` z `react-router-dom` + `cn` z `@/lib/utils`.
+- Dodaję `aria-current="page"` na aktywnym linku (a11y).
+- Animacje przez Tailwind transitions (bez nowych keyframes).
+- Wszystkie kolory przez semantic tokens (`primary`, `primary-glow`, `primary-deep`).
+- Bez zmian w `index.css` / `tailwind.config.ts`.
