@@ -345,7 +345,202 @@ export function AdminDashboard({ onJumpTab }: Props) {
         </Card>
       </div>
 
-      {/* Zones + Top owners */}
+      {/* Booking analytics: funnel + zone donut + heatmap */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        {/* Funnel */}
+        <Card
+          className="relative overflow-hidden border-2 border-primary/25 transition-all duration-300 hover:shadow-[0_18px_48px_-18px_hsl(var(--primary)/0.5)]"
+          style={{
+            background: 'linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(var(--surface)) 100%)',
+            boxShadow: '0 6px 22px -10px hsl(var(--primary) / 0.3), inset 0 1px 0 0 hsl(0 0% 100% / 0.85)',
+          }}
+        >
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-primary-glow to-primary" />
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base flex items-center gap-2">
+              <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-primary to-primary-glow flex items-center justify-center shadow-[0_4px_12px_-4px_hsl(var(--primary)/0.5)]">
+                <GitBranch className="h-4 w-4 text-white" />
+              </div>
+              Bookings funnel
+              <Badge variant="outline" className="ml-auto text-[10px] font-semibold border-primary/30 text-primary bg-primary/5">all-time</Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {loading ? (
+              <div className="space-y-2">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <div key={i} className="h-9 rounded-lg bg-muted animate-pulse" />
+                ))}
+              </div>
+            ) : funnel.every((f) => f.count === 0) ? (
+              <div className="py-10 text-center text-sm text-muted-foreground">No booking data yet.</div>
+            ) : (
+              <div className="space-y-2">
+                {funnel.map((f, i) => {
+                  const stageColors = [
+                    'from-amber-500 to-amber-400',
+                    'from-sky-500 to-sky-400',
+                    'from-emerald-500 to-emerald-400',
+                    'from-primary to-primary-glow',
+                    'from-rose-500 to-rose-400',
+                  ];
+                  const widthPct = Math.max(4, f.pct);
+                  return (
+                    <div key={f.stage} className="group">
+                      <div className="flex items-center justify-between text-xs mb-1">
+                        <span className="font-semibold text-foreground">{f.stage}</span>
+                        <span className="tabular-nums text-muted-foreground">
+                          <span className="font-bold text-foreground">{f.count}</span> · {f.pct.toFixed(0)}%
+                        </span>
+                      </div>
+                      <div className="h-7 rounded-lg bg-muted/60 overflow-hidden border border-border">
+                        <div
+                          className={`h-full bg-gradient-to-r ${stageColors[i]} transition-all duration-500 rounded-lg`}
+                          style={{ width: `${widthPct}%`, boxShadow: 'inset 0 1px 0 hsl(0 0% 100% / 0.3)' }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Zone donut */}
+        <Card
+          className="relative overflow-hidden border-2 border-sky-500/25 transition-all duration-300 hover:shadow-[0_18px_48px_-18px_hsl(200_90%_50%/0.4)]"
+          style={{
+            background: 'linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(var(--surface)) 100%)',
+            boxShadow: '0 6px 22px -10px hsl(200 90% 50% / 0.3), inset 0 1px 0 0 hsl(0 0% 100% / 0.85)',
+          }}
+        >
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-sky-500 via-sky-400 to-sky-500" />
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base flex items-center gap-2">
+              <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-sky-500 to-sky-400 flex items-center justify-center shadow-[0_4px_12px_-4px_hsl(200_90%_50%/0.5)]">
+                <PieIcon className="h-4 w-4 text-white" />
+              </div>
+              Bookings by zone
+              <Badge variant="outline" className="ml-auto text-[10px] font-semibold border-sky-500/30 text-sky-700 bg-sky-500/5">last {range}d</Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {loading ? (
+              <div className="h-[220px] rounded-lg bg-muted animate-pulse" />
+            ) : zoneDonut.length === 0 ? (
+              <div className="py-10 text-center text-sm text-muted-foreground">No bookings in this range.</div>
+            ) : (
+              <ResponsiveContainer width="100%" height={220}>
+                <PieChart>
+                  <Pie
+                    data={zoneDonut}
+                    dataKey="bookings"
+                    nameKey="zone"
+                    innerRadius={50}
+                    outerRadius={85}
+                    paddingAngle={2}
+                  >
+                    {zoneDonut.map((_, i) => {
+                      const colors = [
+                        'hsl(var(--primary))',
+                        'hsl(200 90% 55%)',
+                        'hsl(152 70% 45%)',
+                        'hsl(40 95% 55%)',
+                        'hsl(280 70% 60%)',
+                        'hsl(350 80% 60%)',
+                      ];
+                      return <Cell key={i} fill={colors[i % colors.length]} stroke="hsl(var(--background))" strokeWidth={2} />;
+                    })}
+                  </Pie>
+                  <Tooltip
+                    contentStyle={{ background: 'hsl(var(--popover))', border: '1px solid hsl(var(--border))', borderRadius: 8 }}
+                    formatter={(v: any, _n: any, p: any) => [`${v} bookings`, p.payload.zone]}
+                  />
+                  <Legend wrapperStyle={{ fontSize: 11 }} iconType="circle" />
+                </PieChart>
+              </ResponsiveContainer>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Hourly heatmap */}
+        <Card
+          className="relative overflow-hidden border-2 border-amber-500/25 transition-all duration-300 hover:shadow-[0_18px_48px_-18px_hsl(40_95%_55%/0.4)]"
+          style={{
+            background: 'linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(var(--surface)) 100%)',
+            boxShadow: '0 6px 22px -10px hsl(40 95% 55% / 0.3), inset 0 1px 0 0 hsl(0 0% 100% / 0.85)',
+          }}
+        >
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500" />
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base flex items-center gap-2">
+              <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-amber-500 to-amber-400 flex items-center justify-center shadow-[0_4px_12px_-4px_hsl(40_95%_55%/0.5)]">
+                <Flame className="h-4 w-4 text-white" />
+              </div>
+              Peak hours
+              <Badge variant="outline" className="ml-auto text-[10px] font-semibold border-amber-500/30 text-amber-700 bg-amber-500/5">last {range}d</Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Heatmap data={hourlyHeatmap} loading={loading} />
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Recent bookings strip */}
+      <Card
+        className="relative overflow-hidden border-2 border-primary/25"
+        style={{
+          background: 'linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(var(--surface)) 100%)',
+          boxShadow: '0 6px 22px -10px hsl(var(--primary) / 0.3), inset 0 1px 0 0 hsl(0 0% 100% / 0.85)',
+        }}
+      >
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-primary-glow to-primary" />
+        <CardHeader className="pb-2 flex flex-row items-center justify-between">
+          <CardTitle className="text-base flex items-center gap-2">
+            <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-primary to-primary-glow flex items-center justify-center shadow-[0_4px_12px_-4px_hsl(var(--primary)/0.5)]">
+              <Calendar className="h-4 w-4 text-white" />
+            </div>
+            Recent bookings
+          </CardTitle>
+          <Button size="sm" variant="ghost" onClick={() => onJumpTab?.('bookings')}>View all</Button>
+        </CardHeader>
+        <CardContent>
+          {loading ? (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {Array.from({ length: 8 }).map((_, i) => <div key={i} className="h-24 rounded-xl bg-muted animate-pulse" />)}
+            </div>
+          ) : recentBookings.length === 0 ? (
+            <div className="py-8 text-center text-sm text-muted-foreground">No bookings yet.</div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              {recentBookings.map((b) => (
+                <button
+                  key={b.id}
+                  onClick={() => onJumpTab?.('bookings')}
+                  className="group text-left rounded-xl border-2 border-border hover:border-primary/50 bg-background p-3 transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_22px_-10px_hsl(var(--primary)/0.4)]"
+                >
+                  <div className="flex items-start justify-between gap-2 mb-2">
+                    <div className="min-w-0 flex-1">
+                      <div className="text-sm font-bold truncate">{b.userName}</div>
+                      <div className="text-[11px] text-muted-foreground truncate">{b.zone}</div>
+                    </div>
+                    <Badge variant="outline" className={`${statusColor(b.paymentStatus || b.status)} text-[9px] py-0 px-1.5 shrink-0`}>
+                      {b.paymentStatus || b.status}
+                    </Badge>
+                  </div>
+                  <div className="flex items-end justify-between mt-1">
+                    <span className="text-[10px] text-muted-foreground">{relTime(b.createdAt)}</span>
+                    <span className="text-sm font-bold text-primary tabular-nums">{fmtMoney(b.amountAed)}</span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card
           className="relative overflow-hidden border border-sky-500/20 transition-all duration-300 hover:shadow-[0_18px_48px_-18px_hsl(200_90%_50%/0.4)]"
