@@ -494,10 +494,10 @@ const Index = () => {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
                   </div>
-                  {/* Floating icon medallion - sits on the seam between image and frame */}
+                  {/* Static icon medallion - sits on the seam between image and frame */}
                   <div className="relative h-0">
                     <div
-                      className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-2xl text-white ring-2 ring-white/90 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3 z-10"
+                      className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-2xl text-white ring-2 ring-white/90 z-10"
                       style={{
                         background:
                           'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-glow)) 100%)',
