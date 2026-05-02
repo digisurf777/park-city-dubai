@@ -56,18 +56,14 @@ const PopularLocations = () => {
             <Sparkles className="h-3.5 w-3.5 text-primary" />
             Explore Dubai
           </span>
-          <h2
-            className="font-black tracking-tight text-3xl sm:text-5xl lg:text-6xl mb-4 sm:mb-5 leading-[1.05]"
-            style={{ fontFamily: '"Playfair Display", Georgia, serif' }}
-          >
+          <h2 className="font-black tracking-tight text-4xl sm:text-5xl lg:text-6xl mb-4 sm:mb-5 leading-[1.05]">
             <span className="block text-slate-900">Popular Parking</span>
             <span className="block bg-gradient-to-r from-primary via-primary-glow to-primary-deep bg-clip-text text-transparent">
               Locations in Dubai
             </span>
           </h2>
           <p className="mx-auto max-w-2xl text-base sm:text-lg text-slate-600 mb-6 px-4">
-            Discover guaranteed monthly spaces in Dubai's most sought-after districts -
-            verified, secure and ready to book.
+            Discover guaranteed monthly spaces in Dubai's most sought-after districts. Verified, secure and ready to book.
           </p>
           <div className="mx-auto flex items-center justify-center gap-2">
             <span className="h-1 w-12 sm:w-16 rounded-full bg-gradient-to-r from-transparent to-primary" />
@@ -117,10 +113,7 @@ const PopularLocations = () => {
                       <p className="text-[11px] sm:text-xs font-semibold uppercase tracking-[0.2em] text-primary-glow mb-1.5">
                         {location.tagline}
                       </p>
-                      <h3
-                        className="text-2xl sm:text-3xl lg:text-[2rem] font-black mb-4 drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)] leading-tight"
-                        style={{ fontFamily: '"Playfair Display", Georgia, serif' }}
-                      >
+                      <h3 className="text-2xl sm:text-3xl lg:text-[2rem] font-black mb-4 drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)] leading-tight tracking-tight">
                         {location.name}
                       </h3>
                       <Link to={location.link} className="block">
