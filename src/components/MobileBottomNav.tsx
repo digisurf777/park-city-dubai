@@ -126,36 +126,36 @@ const MobileBottomNav = () => {
         <ul className="relative flex items-stretch justify-around h-16 px-1.5">
           {leftItems.map(renderItem)}
 
-          {/* Center raised "List" 3D CTA */}
-          <li className="flex-1 flex items-start justify-center -mt-5">
+          {/* Center "List" CTA — same height as siblings, premium gradient */}
+          <li className="flex-1">
             <Link
               to="/rent-out-your-space"
               aria-current={listActive ? "page" : undefined}
-              className="group flex flex-col items-center gap-1 touch-manipulation select-none"
+              className={cn(
+                "group relative flex flex-col items-center justify-center gap-0.5 h-full text-[10.5px] font-bold transition-all touch-manipulation select-none",
+                listActive ? "text-primary" : "text-slate-700"
+              )}
             >
               <span
                 className={cn(
-                  "relative flex items-center justify-center w-14 h-14 rounded-2xl text-white",
+                  "relative flex items-center justify-center w-11 h-11 rounded-2xl text-white transition-all",
                   "bg-gradient-to-br from-primary-glow via-primary to-primary-deep",
-                  "shadow-[0_6px_0_0_hsl(var(--primary-deep)/0.55),0_12px_24px_-6px_hsl(var(--primary)/0.55)]",
-                  "ring-4 ring-white",
-                  "transition-all duration-200",
-                  "active:translate-y-1 active:shadow-[0_2px_0_0_hsl(var(--primary-deep)/0.55),0_6px_12px_-4px_hsl(var(--primary)/0.45)]",
-                  listActive && "translate-y-0.5"
+                  "shadow-[0_3px_0_0_hsl(var(--primary-deep)/0.45),0_6px_14px_-4px_hsl(var(--primary)/0.5)]",
+                  "ring-1 ring-white/40",
+                  "active:translate-y-0.5 active:shadow-[0_1px_0_0_hsl(var(--primary-deep)/0.4),0_3px_8px_-2px_hsl(var(--primary)/0.4)]",
+                  listActive && "scale-105"
                 )}
               >
-                {/* Inner glossy highlight */}
-                <span className="absolute inset-x-1.5 top-1.5 h-3 rounded-t-xl bg-gradient-to-b from-white/35 to-transparent pointer-events-none" />
-                <Plus className="h-6 w-6 relative" strokeWidth={2.6} />
+                <span className="absolute inset-x-1.5 top-1 h-2.5 rounded-t-xl bg-gradient-to-b from-white/30 to-transparent pointer-events-none" />
+                <Plus className="h-[22px] w-[22px] relative" strokeWidth={2.6} />
               </span>
+              <span className="leading-tight tracking-tight">List</span>
               <span
                 className={cn(
-                  "text-[10.5px] font-bold tracking-wide",
-                  listActive ? "text-primary" : "text-slate-800"
+                  "block h-1 w-1 rounded-full transition-all",
+                  listActive ? "bg-primary opacity-100" : "opacity-0"
                 )}
-              >
-                List
-              </span>
+              />
             </Link>
           </li>
 
