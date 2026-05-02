@@ -214,15 +214,9 @@ const Index = () => {
               <MapPin className="h-3.5 w-3.5 text-primary" />
               Explore Dubai
             </span>
-            <h2
-              className="font-black tracking-[-0.03em] text-4xl sm:text-6xl lg:text-7xl mb-4 sm:mb-5 leading-[0.95] px-4 text-balance"
-              style={{ fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 900 }}
-            >
-              <span className="block text-slate-900 [text-shadow:0_1px_0_rgb(255_255_255/0.5),0_2px_4px_rgb(0_0_0/0.08)]" style={{ fontWeight: 900 }}>Popular Parking</span>
-              <span
-                className="block italic bg-gradient-to-r from-primary via-primary-glow to-primary-deep bg-clip-text text-transparent pb-1"
-                style={{ fontWeight: 900 }}
-              >
+            <h2 className="font-black tracking-tight text-4xl sm:text-6xl lg:text-7xl mb-4 sm:mb-5 leading-[0.95] px-4 text-balance">
+              <span className="block text-slate-900 [text-shadow:0_1px_0_rgb(255_255_255/0.5),0_2px_4px_rgb(0_0_0/0.08)]">Popular Parking</span>
+              <span className="block bg-gradient-to-r from-primary via-primary-glow to-primary-deep bg-clip-text text-transparent pb-1">
                 Locations in Dubai
               </span>
             </h2>
@@ -290,7 +284,7 @@ const Index = () => {
                         <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5 flex items-end justify-between gap-3">
                           <div>
                             <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-[0.2em] text-primary-glow mb-1 drop-shadow">Dubai</p>
-                            <motion.h3 initial={{ y: 4, opacity: 0.9 }} whileInView={{ y: 0, opacity: 1 }} className="text-xl sm:text-2xl font-black uppercase text-white drop-shadow-lg leading-tight" style={{ fontFamily: '"Playfair Display", Georgia, serif' }}>
+                            <motion.h3 initial={{ y: 4, opacity: 0.9 }} whileInView={{ y: 0, opacity: 1 }} className="text-xl sm:text-2xl font-black uppercase text-white drop-shadow-lg leading-tight tracking-tight">
                               {location.name}
                             </motion.h3>
                           </div>
@@ -429,8 +423,8 @@ const Index = () => {
                 }}
               >
                 <div className="relative rounded-[14px] bg-white overflow-hidden flex flex-col w-full">
-                  {/* Visual - bigger, square 1:1 */}
-                  <div className="relative aspect-square overflow-hidden">
+                  {/* Visual - larger, taller aspect for impact */}
+                  <div className="relative aspect-[4/5] overflow-hidden">
                     <img
                       src={item.image}
                       alt={item.problem}
@@ -438,24 +432,26 @@ const Index = () => {
                       loading="lazy"
                       decoding="async"
                       width={1000}
-                      height={1000}
+                      height={1250}
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/15 to-transparent"></div>
-                    <div className="pointer-events-none absolute inset-x-0 top-0 h-1/3 bg-gradient-to-b from-white/20 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
+                  </div>
+                  {/* Floating icon medallion - sits on the seam between image and frame */}
+                  <div className="relative h-0">
                     <div
-                      className="absolute top-4 left-4 inline-flex items-center justify-center w-16 h-16 sm:w-[68px] sm:h-[68px] rounded-2xl text-white ring-2 ring-white/70 backdrop-blur-md transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3"
+                      className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-2xl text-white ring-2 ring-white/90 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3 z-10"
                       style={{
                         background:
                           'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-glow)) 100%)',
                         boxShadow:
-                          '0 14px 32px -8px hsl(var(--primary-deep) / 0.75), inset 0 1px 0 0 hsl(0 0% 100% / 0.5)',
+                          '0 10px 24px -6px hsl(var(--primary-deep) / 0.6), inset 0 1px 0 0 hsl(0 0% 100% / 0.5)',
                       }}
                     >
-                      <item.icon className="h-8 w-8 sm:h-9 sm:w-9 drop-shadow-[0_2px_4px_rgba(0,0,0,0.35)]" strokeWidth={2.4} />
+                      <item.icon className="h-6 w-6 sm:h-7 sm:w-7 drop-shadow-[0_2px_4px_rgba(0,0,0,0.35)]" strokeWidth={2.4} />
                     </div>
                   </div>
                   {/* Text */}
-                  <div className="p-5 sm:p-6">
+                  <div className="px-5 pt-9 pb-5 sm:px-6 sm:pt-10 sm:pb-6 text-center">
                     <p className="text-xs font-semibold text-foreground/55 line-through mb-1.5">
                       {item.problem}
                     </p>
