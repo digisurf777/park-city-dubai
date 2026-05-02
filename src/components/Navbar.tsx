@@ -11,10 +11,24 @@ import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 
+const ZONE_PATHS = ["/dubai-marina", "/downtown", "/palm-jumeirah", "/business-bay", "/difc", "/deira"];
+
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isZonesOpen, setIsZonesOpen] = useState(false);
   const zonesRef = useRef<HTMLDivElement>(null);
+  const { pathname } = useLocation();
+  const isActive = (path: string) => pathname === path;
+  const isZonesActive = ZONE_PATHS.includes(pathname);
+
+  // Shared link styles
+  const linkBase = "relative px-3 py-2 rounded-lg font-semibold text-sm transition-all duration-200 hover:-translate-y-0.5";
+  const linkIdle = "text-slate-700 hover:text-primary hover:bg-gradient-to-r hover:from-primary/10 hover:to-primary-glow/10";
+  const linkActive = "text-primary-deep bg-gradient-to-r from-primary/15 to-primary-glow/15 ring-1 ring-primary/25 shadow-[0_2px_10px_-4px_hsl(var(--primary)/0.35)]";
+  const renderActiveBar = (active: boolean) =>
+    active ? (
+      <span className="pointer-events-none absolute left-1/2 -translate-x-1/2 -bottom-[3px] h-[2px] w-6 rounded-full bg-gradient-to-r from-primary to-primary-glow shadow-[0_0_10px_hsl(var(--primary)/0.6)]" />
+    ) : null;
 
   // Lock scroll when mobile menu is open
   useEffect(() => {
