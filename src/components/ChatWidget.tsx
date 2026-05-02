@@ -56,6 +56,9 @@ const ChatWidget = () => {
   const [input, setInput] = useState("");
   const [unread, setUnread] = useState(0);
   const [thinking, setThinking] = useState(false);
+  // Typewriter effect: maps message id -> currently revealed character count
+  const [typingProgress, setTypingProgress] = useState<Record<string, number>>({});
+  const typingTimers = useRef<Record<string, number>>({});
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -195,6 +198,58 @@ const ChatWidget = () => {
       .subscribe();
     return () => { supabase.removeChannel(channel); };
   }, [user, isOpen, fetchAll]);
+
+  // Typewriter: animate the latest admin/AI message in the current session
+  // Strategy: only animate messages that arrive AFTER the widget mounted (not history).
+  const seenMessageIdsRef = useRef<Set<string>>(new Set());
+  const initializedTypingRef = useRef(false);
+  useEffect(() => {
+    // First pass: seed all existing messages so we don't typewrite history on open
+    if (!initializedTypingRef.current) {
+      messages.forEach((m) => seenMessageIdsRef.current.add(m.id));
+      initializedTypingRef.current = true;
+      return;
+    }
+    // Look for new admin/AI messages that we haven't started typing yet
+    for (const m of messages) {
+      if (seenMessageIdsRef.current.has(m.id)) continue;
+      seenMessageIdsRef.current.add(m.id);
+      if (!m.from_admin) continue; // only animate AI / admin replies
+      if (m.pending) continue;
+      const fullLength = m.message?.length ?? 0;
+      if (fullLength === 0) continue;
+      // start at 0
+      setTypingProgress((prev) => ({ ...prev, [m.id]: 0 }));
+      // characters per tick — natural cadence ~22-32ms per char, with small bursts
+      const tickMs = 18;
+      const charsPerTick = Math.max(1, Math.round(fullLength / 80)); // longer messages reveal a bit faster
+      const id = window.setInterval(() => {
+        setTypingProgress((prev) => {
+          const cur = prev[m.id] ?? 0;
+          // Tiny natural variability: occasionally pause for a beat at sentence ends
+          const next = Math.min(fullLength, cur + charsPerTick + Math.floor(Math.random() * 2));
+          if (next >= fullLength) {
+            window.clearInterval(typingTimers.current[m.id]);
+            delete typingTimers.current[m.id];
+            const { [m.id]: _, ...rest } = prev;
+            return { ...rest, [m.id]: fullLength };
+          }
+          return { ...prev, [m.id]: next };
+        });
+        // gentle scroll along with typing
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+      }, tickMs);
+      typingTimers.current[m.id] = id as unknown as number;
+    }
+  }, [messages]);
+
+  // Cleanup any running typewriter timers on unmount
+  useEffect(() => {
+    return () => {
+      Object.values(typingTimers.current).forEach((t) => window.clearInterval(t));
+      typingTimers.current = {};
+    };
+  }, []);
 
   // Build session history list (grouped)
   const sessions: SessionSummary[] = useMemo(() => {
@@ -503,7 +558,7 @@ const ChatWidget = () => {
                       isMe
                         ? "bg-gradient-to-br from-primary to-primary-deep text-white rounded-br-md"
                         : "bg-white border border-border/60 text-foreground rounded-bl-md"
-                    } ${msg.pending ? "opacity-70" : ""}`}>
+                    } ${msg.pending ? "opacity-70" : ""} animate-fade-in`}>
                       {!isMe && (
                         <div className="flex items-center gap-1.5 mb-1 flex-wrap">
                           <span className="text-[10px] font-bold uppercase tracking-wide text-primary">
@@ -516,9 +571,24 @@ const ChatWidget = () => {
                           )}
                         </div>
                       )}
-                      <div className={`prose prose-sm max-w-none ${isMe ? "prose-invert" : ""} prose-p:my-1 prose-ul:my-1 prose-li:my-0`}>
-                        <ReactMarkdown>{msg.message}</ReactMarkdown>
-                      </div>
+                      {(() => {
+                        // Typewriter only for assistant/admin replies that are still revealing
+                        const progress = typingProgress[msg.id];
+                        const isTyping = !isMe && typeof progress === "number" && progress < (msg.message?.length ?? 0);
+                        const visibleText = isTyping ? msg.message.slice(0, progress) : msg.message;
+                        return (
+                          <div className={`prose prose-sm max-w-none ${isMe ? "prose-invert" : ""} prose-p:my-1 prose-ul:my-1 prose-li:my-0`}>
+                            {isTyping ? (
+                              <p className="whitespace-pre-wrap leading-relaxed">
+                                {visibleText}
+                                <span className="inline-block w-[2px] h-[1em] -mb-[2px] ml-0.5 bg-primary animate-pulse align-middle" aria-hidden="true" />
+                              </p>
+                            ) : (
+                              <ReactMarkdown>{visibleText}</ReactMarkdown>
+                            )}
+                          </div>
+                        );
+                      })()}
                       <p className={`text-[10px] mt-1 ${isMe ? "text-white/70" : "text-muted-foreground"}`}>
                         {new Date(msg.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                       </p>
@@ -533,14 +603,17 @@ const ChatWidget = () => {
               })}
 
               {thinking && (
-                <div className="flex justify-start gap-2">
+                <div className="flex justify-start gap-2 animate-fade-in">
                   <img src={supportAvatar} alt="" width={28} height={28}
                     className="w-7 h-7 rounded-full object-cover mt-auto flex-shrink-0" loading="lazy" />
-                  <div className="bg-white border border-border/60 px-4 py-3 rounded-2xl rounded-bl-md shadow-sm">
-                    <div className="flex items-center gap-1">
-                      <span className="w-2 h-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: "0ms" }} />
-                      <span className="w-2 h-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: "150ms" }} />
-                      <span className="w-2 h-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: "300ms" }} />
+                  <div className="bg-white border border-border/60 px-4 py-2.5 rounded-2xl rounded-bl-md shadow-sm">
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-primary/70 animate-bounce" style={{ animationDelay: "0ms" }} />
+                        <span className="w-1.5 h-1.5 rounded-full bg-primary/70 animate-bounce" style={{ animationDelay: "150ms" }} />
+                        <span className="w-1.5 h-1.5 rounded-full bg-primary/70 animate-bounce" style={{ animationDelay: "300ms" }} />
+                      </div>
+                      <span className="text-[11px] text-muted-foreground italic">Online Support is typing…</span>
                     </div>
                   </div>
                 </div>
