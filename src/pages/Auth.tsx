@@ -882,7 +882,7 @@ const Auth = () => {
         </div>
 
         {/* Right form panel */}
-        <div className="bg-white p-5 sm:p-8 md:p-10">
+        <div className="bg-white p-5 sm:p-8 md:p-10 [&_input]:h-11 [&_input]:rounded-xl [&_input]:text-base [&_input]:px-4">
           <div className="text-center mb-5 sm:mb-6">
             <div className="inline-flex h-16 w-16 sm:h-14 sm:w-14 items-center justify-center rounded-2xl bg-white shadow-glow ring-1 ring-primary/20 mb-3 sm:mb-4 p-2">
               <img
