@@ -140,6 +140,7 @@ export function useAdminStats(rangeDays: 7 | 30 | 90 = 30) {
       const since60 = new Date(Date.now() - 60 * 86400000).toISOString();
       const since7 = new Date(Date.now() - 7 * 86400000).toISOString();
       const sinceRange = new Date(Date.now() - rangeDays * 86400000).toISOString();
+      const sincePrevRange = new Date(Date.now() - 2 * rangeDays * 86400000).toISOString();
 
       const [
         profilesRes, listingsRes, bookingsRes, payoutsRes,
