@@ -20,8 +20,14 @@ import defaultAvatar3 from '@/assets/avatars/avatar-3.png';
 import defaultAvatar4 from '@/assets/avatars/avatar-4.png';
 import defaultAvatar5 from '@/assets/avatars/avatar-5.png';
 import defaultAvatar6 from '@/assets/avatars/avatar-6.png';
+import defaultAvatar7 from '@/assets/avatars/avatar-7.png';
+import defaultAvatar8 from '@/assets/avatars/avatar-8.png';
+import defaultAvatar9 from '@/assets/avatars/avatar-9.png';
+import defaultAvatar10 from '@/assets/avatars/avatar-10.png';
+import defaultAvatar11 from '@/assets/avatars/avatar-11.png';
+import defaultAvatar12 from '@/assets/avatars/avatar-12.png';
 
-const DEFAULT_AVATARS = [defaultAvatar1, defaultAvatar2, defaultAvatar3, defaultAvatar4, defaultAvatar5, defaultAvatar6];
+const DEFAULT_AVATARS = [defaultAvatar1, defaultAvatar2, defaultAvatar3, defaultAvatar4, defaultAvatar5, defaultAvatar6, defaultAvatar7, defaultAvatar8, defaultAvatar9, defaultAvatar10, defaultAvatar11, defaultAvatar12];
 
 // Pick a deterministic default avatar based on user id (stable per user)
 const pickDefaultAvatar = (seed?: string | null) => {
