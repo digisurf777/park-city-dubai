@@ -1789,25 +1789,81 @@ const AdminPanelOrganized = () => {
     <div className="min-h-screen bg-gradient-to-b from-surface via-background to-background p-3 sm:p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="sticky top-2 z-30 mb-6 sm:mb-8 rounded-2xl glass shadow-soft px-4 sm:px-6 py-3 sm:py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+        <div
+          className={
+            'sticky top-2 z-30 mb-6 sm:mb-8 px-4 sm:px-6 py-3 sm:py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 ' +
+            (activeTab === 'dashboard'
+              ? 'rounded-t-2xl rounded-b-none border border-b-0 border-primary/30 text-white shadow-[0_8px_24px_-12px_hsl(var(--primary)/0.45)] -mb-2'
+              : 'rounded-2xl glass shadow-soft')
+          }
+          style={
+            activeTab === 'dashboard'
+              ? {
+                  background:
+                    'linear-gradient(140deg, hsl(var(--primary-deep, var(--primary))) 0%, hsl(var(--primary)) 60%, hsl(var(--primary-deep, var(--primary))) 100%)',
+                }
+              : undefined
+          }
+        >
           <div className="flex items-center gap-3">
-            <div className="hidden sm:flex h-10 w-10 rounded-xl bg-gradient-primary shadow-elegant items-center justify-center text-primary-foreground font-bold">
+            <div
+              className={
+                'hidden sm:flex h-10 w-10 rounded-xl items-center justify-center font-bold ' +
+                (activeTab === 'dashboard'
+                  ? 'bg-white/20 backdrop-blur ring-1 ring-white/30 text-white shadow-md'
+                  : 'bg-gradient-primary shadow-elegant text-primary-foreground')
+              }
+            >
               S
             </div>
             <div>
-              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gradient-primary leading-tight">
+              <h1
+                className={
+                  'text-xl sm:text-2xl lg:text-3xl font-bold leading-tight ' +
+                  (activeTab === 'dashboard'
+                    ? 'text-white drop-shadow-sm'
+                    : 'text-gradient-primary')
+                }
+              >
                 Admin Dashboard
               </h1>
-              <p className="hidden sm:block text-xs text-muted-foreground">ShazamParking control center</p>
+              <p
+                className={
+                  'hidden sm:block text-xs ' +
+                  (activeTab === 'dashboard' ? 'text-white/80' : 'text-muted-foreground')
+                }
+              >
+                ShazamParking control center
+              </p>
             </div>
           </div>
           <div className="flex gap-2 w-full sm:w-auto items-center">
-            <CurrencySwitcher variant="light" />
-            <Button onClick={() => navigate('/')} variant="outline" size="sm" className="flex-1 sm:flex-none">
+            <CurrencySwitcher variant={activeTab === 'dashboard' ? 'dark' : 'light'} />
+            <Button
+              onClick={() => navigate('/')}
+              variant="outline"
+              size="sm"
+              className={
+                'flex-1 sm:flex-none border ' +
+                (activeTab === 'dashboard'
+                  ? 'bg-white/15 border-white/40 text-white hover:bg-white/25 hover:text-white backdrop-blur'
+                  : 'border-primary/30')
+              }
+            >
               <Home className="mr-2 h-4 w-4" />
               <span className="hidden xs:inline">Home</span>
             </Button>
-            <Button onClick={handleLogout} variant="outline" size="sm" className="flex-1 sm:flex-none">
+            <Button
+              onClick={handleLogout}
+              variant="outline"
+              size="sm"
+              className={
+                'flex-1 sm:flex-none border ' +
+                (activeTab === 'dashboard'
+                  ? 'bg-white/15 border-white/40 text-white hover:bg-white/25 hover:text-white backdrop-blur'
+                  : 'border-primary/30')
+              }
+            >
               <LogOut className="mr-2 h-4 w-4" />
               <span className="hidden xs:inline">Logout</span>
             </Button>
