@@ -57,7 +57,7 @@ export function AdminDashboard({ onJumpTab }: Props) {
   const { data, loading, refreshing, lastUpdated, refetch } = useAdminStats(range);
   const [broadcastOpen, setBroadcastOpen] = useState(false);
   const [messageOpen, setMessageOpen] = useState(false);
-  const { format: fmtMoney, convert, symbol, currency } = useCurrency();
+  const { format: fmtMoney, convert, symbol, currency, setCurrency, options: currencyOptions, ratesUpdatedAt } = useCurrency();
   // Compact format in active currency
   const fmtMoneyCompact = (aedAmount: number) => {
     const v = convert(aedAmount);
@@ -108,7 +108,7 @@ export function AdminDashboard({ onJumpTab }: Props) {
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <div className="inline-flex rounded-xl border border-white/20 bg-white/10 backdrop-blur p-1">
                 {[7, 30, 90].map((d) => (
                   <button
@@ -121,7 +121,26 @@ export function AdminDashboard({ onJumpTab }: Props) {
                         : 'text-white/80 hover:text-white hover:bg-white/10')
                     }
                   >
-                    {d}d
+                    Last {d}d
+                  </button>
+                ))}
+              </div>
+              <div
+                className="inline-flex rounded-xl border border-white/20 bg-white/10 backdrop-blur p-1"
+                title={ratesUpdatedAt ? `FX updated ${relTime(ratesUpdatedAt.toISOString())}` : 'Using fallback FX rates'}
+              >
+                {currencyOptions.map((c) => (
+                  <button
+                    key={c}
+                    onClick={() => setCurrency(c)}
+                    className={
+                      'h-7 px-2.5 text-[11px] font-semibold rounded-lg transition-all ' +
+                      (currency === c
+                        ? 'bg-white text-primary shadow-[0_4px_12px_-4px_rgba(0,0,0,0.4)]'
+                        : 'text-white/80 hover:text-white hover:bg-white/10')
+                    }
+                  >
+                    {c}
                   </button>
                 ))}
               </div>
@@ -161,7 +180,7 @@ export function AdminDashboard({ onJumpTab }: Props) {
           footer={
             <span className={`inline-flex items-center gap-1 text-xs font-semibold ${gmvDelta >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
               {gmvDelta >= 0 ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
-              {Math.abs(gmvDelta).toFixed(0)}% · last 30d
+              {Math.abs(gmvDelta).toFixed(0)}% vs prev {range}d
             </span>
           }
           loading={loading}
@@ -205,7 +224,7 @@ export function AdminDashboard({ onJumpTab }: Props) {
           label="Total users"
           value={kpis.totalUsers.toString()}
           accent="primary"
-          footer={<span className="text-xs text-emerald-600 font-semibold">+{kpis.newUsers30d} in 30d · +{kpis.newUsers7d} in 7d</span>}
+          footer={<span className="text-xs text-emerald-600 font-semibold">+{kpis.newUsers30d} in {range}d · +{kpis.newUsers7d} in 7d</span>}
           loading={loading}
         />
         <KpiCard
