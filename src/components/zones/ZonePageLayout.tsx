@@ -352,7 +352,7 @@ const ZonePageLayout = ({
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: (idx % 6) * 0.05 }}
                   viewport={{ once: true, amount: 0.15 }}
-                  className="group relative"
+                  className="group relative h-full flex"
                 >
                   {/* Subtle green underglow */}
                   <div
@@ -365,13 +365,13 @@ const ZonePageLayout = ({
                   />
                   {/* Gradient frame */}
                   <div
-                    className="relative rounded-2xl p-[2px] transition-all duration-500 group-hover:-translate-y-1.5 shadow-[0_18px_40px_-18px_hsl(var(--primary-deep)/0.45)] group-hover:shadow-[0_28px_60px_-20px_hsl(var(--primary)/0.55)]"
+                    className="relative rounded-2xl p-[2px] transition-all duration-500 group-hover:-translate-y-1.5 shadow-[0_18px_40px_-18px_hsl(var(--primary-deep)/0.45)] group-hover:shadow-[0_28px_60px_-20px_hsl(var(--primary)/0.55)] flex-1 flex"
                     style={{
                       background:
                         "linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-glow)) 50%, hsl(var(--primary-deep)) 100%)",
                     }}
                   >
-                    <Card className="overflow-hidden rounded-[14px] border-0 bg-white">
+                    <Card className="overflow-hidden rounded-[14px] border-0 bg-white flex-1 flex flex-col">
                       {/* Image */}
                       <div className="relative w-full aspect-[4/3] overflow-hidden bg-muted">
                         <img
@@ -490,11 +490,11 @@ const ZonePageLayout = ({
                       </div>
 
                       {/* Body */}
-                      <div className="p-4 sm:p-5">
-                        <h3 className="text-base sm:text-lg font-bold text-foreground mb-2 leading-tight line-clamp-2">
+                      <div className="p-4 sm:p-5 flex flex-col flex-1">
+                        <h3 className="text-base sm:text-lg font-bold text-foreground mb-2 leading-tight line-clamp-2 min-h-[2.75rem]">
                           {spot.name}
                         </h3>
-                        <div className="mb-4 min-h-[3rem]">
+                        <div className="mb-4 flex-1">
                           {formatDescription(spot.description) || (
                             <p className="text-sm text-muted-foreground leading-relaxed">
                               Secure parking space. 24/7 access, covered area.
