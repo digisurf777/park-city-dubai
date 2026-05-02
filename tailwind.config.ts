@@ -119,6 +119,16 @@ export default {
 					opacity: '1'
 				}
 			},
+			'slide-down-menu': {
+				'0%': {
+					transform: 'translateY(-12px) scaleY(0.96)',
+					opacity: '0'
+				},
+				'100%': {
+					transform: 'translateY(0) scaleY(1)',
+					opacity: '1'
+				}
+			},
 			'blink-red': {
 				'0%, 100%': {
 					backgroundColor: 'rgb(239 68 68)',
