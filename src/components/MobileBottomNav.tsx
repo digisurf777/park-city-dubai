@@ -113,12 +113,13 @@ const MobileBottomNav = () => {
 
   return (
     <nav
-      className="md:hidden fixed bottom-0 left-0 right-0 z-40 pb-safe-area-bottom"
+      className="md:hidden fixed inset-x-0 bottom-0 z-40 bg-white/97 backdrop-blur-xl border-t border-primary/15 shadow-[0_-10px_28px_-8px_hsl(var(--primary-deep)/0.22)] pb-safe-area-bottom"
       role="navigation"
       aria-label="Primary mobile navigation"
+      style={{ transform: "translateZ(0)", willChange: "transform" }}
     >
       {/* Solid frosted bar */}
-      <div className="relative bg-white/97 backdrop-blur-xl border-t border-primary/15 shadow-[0_-10px_28px_-8px_hsl(var(--primary-deep)/0.22)]">
+      <div className="relative">
         {/* Subtle top highlight line */}
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
 
