@@ -783,7 +783,7 @@ const Auth = () => {
                 />
               </div>
               
-              <Button type="submit" className="w-full" disabled={loading}>
+              <Button type="submit" className="w-full h-11 rounded-xl font-semibold text-base shadow-md" disabled={loading}>
                 {loading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -948,7 +948,7 @@ const Auth = () => {
                     />
                   </div>
                   
-                  <Button type="submit" className="w-full" disabled={loading}>
+                  <Button type="submit" className="w-full h-11 rounded-xl font-semibold text-base shadow-md" disabled={loading}>
                     {loading ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -1144,7 +1144,7 @@ const Auth = () => {
                     </div>
                   </div>
                   
-                  <Button type="submit" className="w-full" disabled={loading || rateLimited}>
+                  <Button type="submit" className="w-full h-11 rounded-xl font-semibold text-base shadow-md" disabled={loading || rateLimited}>
                     {loading ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
