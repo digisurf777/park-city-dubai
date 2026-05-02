@@ -1813,7 +1813,7 @@ const AdminPanelOrganized = () => {
 
         {/* New Message Alert */}
         {newMessageAlert && (
-          <div className="mb-6 p-4 bg-green-50 border border-green-200 text-green-800 rounded-lg flex items-center justify-between animate-pulse">
+          <div className="mb-6 p-4 bg-green-50 border border-green-200 text-green-800 rounded-lg flex items-center justify-between shadow-sm">
             <div className="flex items-center gap-2">
               <MessageCircle className="h-5 w-5" />
               <span className="font-medium">🔔 {newMessageAlert}</span>
