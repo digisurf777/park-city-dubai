@@ -59,12 +59,45 @@ export interface RecentActivity {
   createdAt: string;
 }
 
+export interface FunnelStage {
+  stage: string;
+  count: number;
+  pct: number; // % of total bookings
+}
+
+export interface ZoneSlice {
+  zone: string;
+  bookings: number;
+}
+
+export interface RecentBooking {
+  id: string;
+  zone: string;
+  location: string;
+  status: string;
+  paymentStatus: string;
+  amountAed: number;
+  createdAt: string;
+  userName: string;
+}
+
+export interface TodayKPIs {
+  bookingsToday: number;
+  revenueToday: number;
+  pendingActions: number; // KYC + listings + unread
+}
+
 export interface AdminDashboardData {
   kpis: AdminKPIs;
+  today: TodayKPIs;
   trend: TrendPoint[];
   zones: ZoneBreakdown[];
   topOwners: TopOwner[];
   recent: RecentActivity[];
+  funnel: FunnelStage[];
+  zoneDonut: ZoneSlice[];
+  hourlyHeatmap: number[][]; // [day 0..6][hour 0..23]
+  recentBookings: RecentBooking[];
 }
 
 const empty: AdminDashboardData = {
@@ -79,10 +112,15 @@ const empty: AdminDashboardData = {
     payingOwners: 0, freeUsers: 0, conversionRate: 0,
     unreadAdminMessages: 0, pendingVerifications: 0,
   },
+  today: { bookingsToday: 0, revenueToday: 0, pendingActions: 0 },
   trend: [],
   zones: [],
   topOwners: [],
   recent: [],
+  funnel: [],
+  zoneDonut: [],
+  hourlyHeatmap: Array.from({ length: 7 }, () => Array(24).fill(0)),
+  recentBookings: [],
 };
 
 const ymd = (d: Date) => d.toISOString().slice(0, 10);
@@ -301,7 +339,81 @@ export function useAdminStats(rangeDays: 7 | 30 | 90 = 30) {
         });
       recent.sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
 
-      setData({ kpis, trend, zones, topOwners, recent: recent.slice(0, 12) });
+      // Today KPIs
+      const startOfToday = new Date(); startOfToday.setHours(0, 0, 0, 0);
+      const startOfTodayIso = startOfToday.toISOString();
+      const todaysBookings = bookings.filter((b: any) => b.created_at >= startOfTodayIso);
+      const todayPaid = todaysBookings.filter(isPaidBooking);
+      const today: TodayKPIs = {
+        bookingsToday: todaysBookings.length,
+        revenueToday: todayPaid.reduce((s, b: any) => s + Number(b.cost_aed || 0), 0),
+        pendingActions:
+          (kpis.pendingVerifications || 0) +
+          (kpis.pendingListings || 0) +
+          (kpis.unreadAdminMessages || 0),
+      };
+
+      // Funnel
+      const totalB = bookings.length || 1;
+      const completedCount = bookings.filter((b: any) => b.status === 'completed').length;
+      const funnel: FunnelStage[] = [
+        { stage: 'Pending', count: pending.length, pct: (pending.length / totalB) * 100 },
+        { stage: 'Pre-authorized', count: preAuthorized.length, pct: (preAuthorized.length / totalB) * 100 },
+        { stage: 'Paid', count: paidBookings.length, pct: (paidBookings.length / totalB) * 100 },
+        { stage: 'Completed', count: completedCount, pct: (completedCount / totalB) * 100 },
+        { stage: 'Cancelled', count: cancelled.length, pct: (cancelled.length / totalB) * 100 },
+      ];
+
+      // Zone donut (range-scoped, by booking count)
+      const rangeBookings = bookings.filter((b: any) => b.created_at >= sinceRange);
+      const donutMap = new Map<string, number>();
+      rangeBookings.forEach((b: any) => {
+        const z = norm(b.zone);
+        donutMap.set(z, (donutMap.get(z) || 0) + 1);
+      });
+      const zoneDonut: ZoneSlice[] = Array.from(donutMap.entries())
+        .map(([zone, count]) => ({ zone, bookings: count }))
+        .sort((a, b) => b.bookings - a.bookings)
+        .slice(0, 6);
+
+      // Hourly heatmap (range-scoped) - day index 0=Sun..6=Sat
+      const heatmap: number[][] = Array.from({ length: 7 }, () => Array(24).fill(0));
+      rangeBookings.forEach((b: any) => {
+        const d = new Date(b.created_at);
+        heatmap[d.getDay()][d.getHours()] += 1;
+      });
+
+      // Recent bookings (last 8)
+      const recentBookings: RecentBooking[] = bookings
+        .slice()
+        .sort((a: any, b: any) => String(b.created_at).localeCompare(String(a.created_at)))
+        .slice(0, 8)
+        .map((b: any) => {
+          const u = profileById.get(b.user_id);
+          return {
+            id: b.id,
+            zone: b.zone || 'Unknown',
+            location: b.location || b.zone || '',
+            status: b.status,
+            paymentStatus: b.payment_status,
+            amountAed: Number(b.cost_aed || 0),
+            createdAt: b.created_at,
+            userName: u?.full_name || u?.email?.split('@')[0] || 'Customer',
+          };
+        });
+
+      setData({
+        kpis,
+        today,
+        trend,
+        zones,
+        topOwners,
+        recent: recent.slice(0, 12),
+        funnel,
+        zoneDonut,
+        hourlyHeatmap: heatmap,
+        recentBookings,
+      });
       setLastUpdated(new Date());
     } catch (err) {
       console.error('useAdminStats fetch error:', err);

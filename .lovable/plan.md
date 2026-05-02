@@ -1,88 +1,71 @@
 
-# Cosmic Revenue Command Center — Plan
+# Admin Panel Upgrade — Banner, KYC Preview, Support Desk, Booking Analytics
 
-A new premium **Revenue** sub-dashboard inside the admin panel that visualizes how money flows through the platform: bookings → revenue → owner payouts → platform margin. Designed as a single, breathtaking page (Jarvis / SpaceX vibe — deep space gradients, neon glow, glassmorphism, animated counters, particle flows).
+Four focused improvements to `/admin`. All data already exists in the DB — we only refine UI and wire a few new queries.
 
-## What you'll see on the page
+## 1. Premium "Dubai" Dashboard Banner
+
+Replace the current header strip in `AdminDashboard.tsx` with a tall hero banner:
+
+- Background: layered Dubai skyline silhouette (Burj Khalifa + Marina) as an SVG line-art layer over a deep gradient (`--primary-deep` → `--primary` → black), plus a soft golden "desert" glow at the bottom and animated star/particle dots.
+- Frosted glass info row on top: "Boss Dashboard" title with crown icon, live status dot, last sync time, currency switcher, range selector (7/30/90d) and refresh button — all in a single pill-shaped glass bar with stronger 1px white/10 borders for the contrast the user asked for.
+- Adds 3 quick KPIs inline (GMV today, bookings today, pending actions count) so the banner is informative, not just decorative.
+- Stronger borders/contrast applied globally to KPI cards and chart cards: bumped from `border-primary/15` → `border-primary/30`, added 1px inner highlight, slightly darker shadows.
 
 ```text
-┌─────────────────────────────────────────────────────────────┐
-│  ✦ REVENUE COMMAND CENTER          [ 7d │ 30d │ 90d │ All ] │
-│  Live • Last sync 2s ago                                    │
-└─────────────────────────────────────────────────────────────┘
-
-┌───────────┬───────────┬───────────┬───────────┐
-│ TOTAL REV │ THIS MONTH│ PLATFORM  │ PAYOUTS   │
-│ 109,954   │ +24,300   │ MARGIN    │ 24,567    │
-│ AED ↑42%  │ ✦ pulse   │ 22.3%     │ to owners │
-│ [sparkline]│[sparkline]│ [ring gauge]│[sparkline]│
-└───────────┴───────────┴───────────┴───────────┘
-        ↑ animated count-up + neon glow on hover
-
-┌─────────────────────────────┬───────────────────────────────┐
-│ REVENUE FLOW (last 30 days) │  MONEY FLOW DIAGRAM           │
-│  ╱╲    ╱╲ area gradient     │  Bookings ──┐                 │
-│ ╱  ╲  ╱  ╲  with neon glow  │             ├→ Revenue        │
-│ ─────────────                │  Pre-auth ──┘    ├→ Payouts   │
-│ Bookings vs Revenue          │                  └→ Platform  │
-└─────────────────────────────┴───────────────────────────────┘
-
-┌─────────────────────────┬───────────────────────────────────┐
-│ TOP ZONES (radar)       │  LIVE PULSE (real-time activity)  │
-│  Marina  ●●●●●          │  ● 2s ago — 1,200 AED captured    │
-│  JBR     ●●●●           │  ● 14s ago — Pre-auth held        │
-│  Downtown●●●            │  ● 1m ago — Payout 580 AED        │
-└─────────────────────────┴───────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────┐
-│  PAYMENT STATUS BREAKDOWN (donut + animated legend)         │
-│  Paid 1 · Pre-authorized 19 · Pending 9 · Cancelled 21      │
-└─────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────┐
+│  ✦ stars      ▲   ▲▲▲                                    │
+│         ▲▲▲ ▲▲▲▲▲▲▲▲▲ ▲   Dubai skyline silhouette       │
+│  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━         │
+│  👑 Boss Dashboard   • Live · synced 3s ago              │
+│  Today: 12 bookings · 4,320 AED · 2 pending KYC          │
+│  [ 7d │ 30d │ 90d ]  [AED ▼]  [↻]                        │
+└──────────────────────────────────────────────────────────┘
 ```
 
-## Visual direction
+## 2. User Verification — Inline Document Preview + Quick Actions + Direct Message
 
-- **Deep space backdrop** — radial gradients in `--primary-deep` → black, subtle starfield (CSS dot pattern) and floating gradient orbs
-- **Neon glassmorphism** — frosted cards with primary/cyan glow rings, intense shadow on hover
-- **Animated count-up** — KPIs animate from 0 → value on mount (framer-motion `useSpring`)
-- **Neon area charts** — recharts `<AreaChart>` with gradient fill + drop-shadow glow filter
-- **Money-flow diagram** — custom SVG with animated dashed paths (CSS `stroke-dashoffset` keyframes) so money visibly "flows" from Bookings → Revenue → Payouts → Platform
-- **Real-time pulse feed** — Supabase realtime subscription on `parking_bookings` and `owner_payments`; new events slide in with `animate-fade-in`
-- **Period selector** — sleek segmented control (7d / 30d / 90d / All) that re-queries
-- All colors via existing semantic tokens (`--primary`, `--primary-glow`, `--primary-deep`) — no hardcoded hex
+Rework the verification card in `AdminPanel.tsx` (Users → Verifications tab):
 
-## Data sources (already in DB)
+- **Inline preview**: instead of "Quick View" loading separately, the document image is shown immediately in a 320x220 thumbnail on the right side of every card, lazy-loaded via the existing `generate-secure-document-token` flow. Click thumbnail → opens existing full-size dialog with zoom.
+- Thumbnail has Approve/Reject overlay buttons on hover for one-click action.
+- **Reject with reason**: clicking Reject opens a small dialog asking for a reason (textarea, 3 quick presets: "Document blurry", "ID expired", "Name mismatch"). Reason is sent to the user via the existing email function and saved as an admin note in `user_messages`.
+- **Message user button** added to every verification card — opens the existing `MessageUserDialog` pre-filled with the user.
+- Status badges get clearer colors (amber pending / emerald verified / rose rejected) and a "Submitted X days ago" relative time chip.
 
-- `parking_bookings` — `cost_aed`, `payment_status`, `status`, `zone`, `created_at`, `start_time`
-- `owner_payments` — `amount_aed`, `payment_date`, `owner_id`
-- Derived KPIs:
-  - **Gross revenue** = SUM of confirmed/captured bookings
-  - **Platform margin** = Gross revenue − SUM(owner_payments) for same period
-  - **Active holds** = count + sum of `pre_authorized`
-  - **Top zones** = GROUP BY zone
+## 3. Support Desk Upgrade
 
-## Files
+Refine `SupportDashboard.tsx`:
 
-- **NEW** `src/components/admin/RevenueCommandCenter.tsx` — the whole dashboard component
-- **NEW** `src/components/admin/MoneyFlowDiagram.tsx` — animated SVG flow
-- **NEW** `src/components/admin/AnimatedCounter.tsx` — count-up hook/component
-- **EDIT** `src/pages/AdminPanel.tsx` — add a new tab `revenue` between Pre-Auth and Payments, wire the component
-- **EDIT** `src/index.css` — add a few keyframes (`flow-dash`, `cosmic-pulse`) and a starfield utility class
+- Add a per-conversation **status pill**: `New` (red), `Awaiting reply` (amber), `Replied` (green), `Closed` (gray). Status is computed from message order: if last message is from user → `Awaiting reply`; if from admin → `Replied`; never read by admin → `New`.
+- New filter tabs at top: `Needs reply` (default) · `Awaiting user` · `All` · `Feedback` · `Handoff`. Counts shown on each tab.
+- "Mark as actioned" button on each conversation that flips `read_status=true` for all admin-side messages so the row drops out of `Needs reply`.
+- SLA timer chip per conversation: "Waiting 2h 14m" — turns red after 4h.
+- Stat cards row gets a 5th card: **Needs reply** (big red number) so the admin sees workload at a glance.
+- Conversation list shows a colored left border matching the status pill for instant scanning.
 
-## Technical notes
+## 4. Booking Analytics — More Charts on the Dashboard
 
-- Charts: **recharts** (already installed) with custom `<defs>` gradients + SVG filters for neon glow
-- Animations: **framer-motion** (already installed); no three.js to keep bundle lean and load fast
-- Realtime: Supabase channel on `parking_bookings` + `owner_payments` postgres_changes
-- Data queries are read-only client-side (admin RLS already enforces access)
-- Mobile: KPI grid collapses to 2 cols, charts stack vertically, money-flow diagram switches to vertical orientation
-- Period switches refetch in <300ms; loading skeletons match card shapes
+Add a new section under the existing Revenue & Bookings chart in `AdminDashboard.tsx`:
 
-## Out of scope (kept minimal)
+- **Bookings funnel** (horizontal bar): Pending → Pre-authorized → Paid → Completed → Cancelled, with counts and conversion % between stages.
+- **Bookings by zone** (donut): top 6 zones by booking count for selected range, with legend on the right.
+- **Hourly heatmap** (7×24 grid): when bookings are created, intensity from primary-glow → primary-deep — shows peak hours/days.
+- **Recent bookings strip**: last 8 bookings as compact cards (name, zone, status pill, amount, time ago) with one-click jump to the booking in the bookings tab.
+- All charts pull from the same `useAdminStats` hook; we extend it with `funnel`, `zoneDonut`, `hourlyHeatmap`, `recentBookings` arrays computed in one pass.
+- Loading skeletons for each chart; empty states when no data.
 
-- No new edge functions
-- No DB migrations
-- No three.js / WebGPU (would add 500KB+ and risk preview crashes); the "3D feel" comes from gradients, glow, depth shadows and motion
-- Existing PaymentHistoryAdmin tab stays untouched (it's the operational view); Revenue Center is the executive view
+## Technical Notes
 
-After your approval I'll build it in one pass.
+- Files edited:
+  - `src/components/admin/AdminDashboard.tsx` — new banner + analytics section + stronger borders
+  - `src/hooks/useAdminStats.tsx` — add funnel / donut / heatmap / recent computations
+  - `src/pages/AdminPanel.tsx` — verification card layout + reject-reason dialog + Message button wiring
+  - `src/components/admin/SupportDashboard.tsx` — status pill, filters, SLA timer, mark-actioned
+  - `src/components/SecureDocumentViewer.tsx` — expose a thumbnail variant that auto-loads the secure URL
+- New file: `src/components/admin/DubaiSkylineBanner.tsx` — SVG skyline + particles, reused only in dashboard.
+- No DB migrations. No new edge functions. Existing `MessageUserDialog`, `send-verification-approval`, `send-user-reply-notification` are reused.
+- All colors via design tokens (`--primary`, `--primary-glow`, `--primary-deep`, semantic emerald/amber/rose). No hardcoded hex.
+- Mobile: banner collapses to a shorter version; charts stack 1-column; verification thumbnail moves above the actions.
+
+After approval I will implement everything in one pass.

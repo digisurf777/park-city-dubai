@@ -40,6 +40,8 @@ import { MonthlyEmailsTab } from '@/components/admin/MonthlyEmailsTab';
 import { AdminDashboard } from '@/components/admin/AdminDashboard';
 import SupportDashboard from '@/components/admin/SupportDashboard';
 import OnlineSupportHistory from '@/components/admin/OnlineSupportHistory';
+import { VerificationDocThumb } from '@/components/admin/VerificationDocThumb';
+import { MessageUserDialog } from '@/components/admin/MessageUserDialog';
 import { MessagesSquare } from 'lucide-react';
 import { LifeBuoy } from 'lucide-react';
 import { LayoutDashboard } from 'lucide-react';
@@ -296,6 +298,7 @@ const AdminPanelOrganized = () => {
   const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(null);
   const [documentViewDialog, setDocumentViewDialog] = useState(false);
   const [documentImageUrl, setDocumentImageUrl] = useState<string>('');
+  const [messageUserId, setMessageUserId] = useState<string | null>(null);
   const [documentLoading, setDocumentLoading] = useState(false);
 
   // **CRITICAL SECURITY**: Validate admin access with AAL2 on mount and periodically
@@ -2609,6 +2612,16 @@ const AdminPanelOrganized = () => {
                                     )}
                                     
                                     <Button
+                                      onClick={() => setMessageUserId(verification.user_id)}
+                                      variant="outline"
+                                      size="sm"
+                                      className="border-primary/40 text-primary hover:bg-primary/5"
+                                    >
+                                      <Mail className="h-4 w-4 mr-2" />
+                                      Message
+                                    </Button>
+
+                                    <Button
                                       onClick={() => deleteVerification(verification.id)}
                                       disabled={verificationUpdating === verification.id}
                                       variant="outline"
@@ -2628,8 +2641,16 @@ const AdminPanelOrganized = () => {
                                   </div>
                                 </div>
 
-                                {/* Document Viewer */}
-                                <div className="lg:w-80">
+                                {/* Document Viewer + inline preview thumbnail */}
+                                <div className="lg:w-80 space-y-3">
+                                  <VerificationDocThumb
+                                    verificationId={verification.id}
+                                    alt={`${verification.full_name} ID document`}
+                                    onClick={(url) => {
+                                      setDocumentImageUrl(url);
+                                      setDocumentViewDialog(true);
+                                    }}
+                                  />
                                   <SecureDocumentViewer
                                     verificationId={verification.id}
                                     documentType={verification.document_type}
@@ -2687,6 +2708,13 @@ const AdminPanelOrganized = () => {
                     </div>
                   </DialogContent>
                 </Dialog>
+
+                {/* Direct message to user from verification card */}
+                <MessageUserDialog
+                  open={!!messageUserId}
+                  onOpenChange={(v) => { if (!v) setMessageUserId(null); }}
+                  preselectUserId={messageUserId || undefined}
+                />
               </TabsContent>
 
               <TabsContent value="messages" className="space-y-6">
