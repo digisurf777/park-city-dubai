@@ -270,25 +270,34 @@ const Index = () => {
             y: -5
           }}>
                 <Link to={location.link} className="block">
-                  <Card className="overflow-hidden rounded-2xl ring-1 ring-primary/10 shadow-lg hover:shadow-2xl hover:ring-primary/40 transition-all duration-300 group">
-                    <div className="relative aspect-[4/5] sm:aspect-[4/5]">
-                      <img src={location.image} alt={location.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" loading="lazy" decoding="async" />
-                      {/* Bottom gradient only - keeps image fully visible */}
-                      <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/85 via-black/40 to-transparent"></div>
-                      {/* Title pinned at bottom-left */}
-                      <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5 flex items-end justify-between gap-3">
-                        <div>
-                          <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-[0.2em] text-primary-glow mb-1 drop-shadow">Dubai</p>
-                          <motion.h3 initial={{ y: 4, opacity: 0.9 }} whileInView={{ y: 0, opacity: 1 }} className="text-xl sm:text-2xl font-black uppercase text-white drop-shadow-lg leading-tight">
-                            {location.name}
-                          </motion.h3>
+                  {/* Brand-green gradient frame */}
+                  <div
+                    className="rounded-[22px] p-[2.5px] transition-all duration-500 hover:-translate-y-1 shadow-[0_18px_40px_-18px_hsl(var(--primary-deep)/0.5)] hover:shadow-[0_26px_60px_-20px_hsl(var(--primary)/0.6)]"
+                    style={{
+                      background:
+                        'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-glow)) 50%, hsl(var(--primary-deep)) 100%)',
+                    }}
+                  >
+                    <Card className="overflow-hidden rounded-[19px] border-0 bg-white group">
+                      <div className="relative aspect-[4/5] sm:aspect-[4/5]">
+                        <img src={location.image} alt={location.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" loading="lazy" decoding="async" />
+                        {/* Bottom gradient only - keeps image fully visible */}
+                        <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/85 via-black/40 to-transparent"></div>
+                        {/* Title pinned at bottom-left */}
+                        <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5 flex items-end justify-between gap-3">
+                          <div>
+                            <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-[0.2em] text-primary-glow mb-1 drop-shadow">Dubai</p>
+                            <motion.h3 initial={{ y: 4, opacity: 0.9 }} whileInView={{ y: 0, opacity: 1 }} className="text-xl sm:text-2xl font-black uppercase text-white drop-shadow-lg leading-tight" style={{ fontFamily: '"Playfair Display", Georgia, serif' }}>
+                              {location.name}
+                            </motion.h3>
+                          </div>
+                          <motion.div whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.95 }} className="flex-shrink-0 w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-elegant ring-2 ring-white/40 group-hover:bg-primary-glow transition-colors">
+                            <ArrowRight className="h-5 w-5" />
+                          </motion.div>
                         </div>
-                        <motion.div whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.95 }} className="flex-shrink-0 w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-elegant ring-2 ring-white/30 group-hover:bg-primary-glow transition-colors">
-                          <ArrowRight className="h-5 w-5" />
-                        </motion.div>
                       </div>
-                    </div>
-                  </Card>
+                    </Card>
+                  </div>
                 </Link>
               </motion.div>)}
           </div>
