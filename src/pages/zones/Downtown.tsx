@@ -129,7 +129,7 @@ const Downtown = () => {
 
             {/* Description */}
             <p className="text-sm sm:text-base md:text-lg text-white/90 mb-6 leading-relaxed max-w-3xl mx-auto drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]">
-              The corporate heart of Dubai — home to Emaar Square, Boulevard Plaza and the city&apos;s most prestigious hospitality and retail brands.
+              The corporate heart of Dubai. Home to Emaar Square, Boulevard Plaza and the city&apos;s most prestigious hospitality and retail brands.
             </p>
 
             {/* Premium pricing badge */}
