@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useAdminStats } from '@/hooks/useAdminStats';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -926,8 +926,8 @@ function Heatmap({ data, loading }: { data: number[][]; loading?: boolean }) {
             </div>
           ))}
           {data.map((row, d) => (
-            <>
-              <div key={`l-${d}`} className="text-[10px] text-muted-foreground pr-1 flex items-center font-semibold">{days[d]}</div>
+            <React.Fragment key={`row-${d}`}>
+              <div className="text-[10px] text-muted-foreground pr-1 flex items-center font-semibold">{days[d]}</div>
               {row.map((v, h) => {
                 const intensity = v / max;
                 const bg = v === 0
@@ -942,7 +942,7 @@ function Heatmap({ data, loading }: { data: number[][]; loading?: boolean }) {
                   />
                 );
               })}
-            </>
+            </React.Fragment>
           ))}
         </div>
         <div className="flex items-center justify-end gap-1 mt-2 text-[10px] text-muted-foreground">
