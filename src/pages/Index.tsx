@@ -210,9 +210,24 @@ const Index = () => {
         }} viewport={{
           once: true
         }} className="text-center mb-12 sm:mb-16">
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 sm:mb-6 px-4">
-              POPULAR PARKING LOCATIONS IN DUBAI
+            <span className="inline-flex items-center gap-2 mb-5 px-4 py-1.5 rounded-full bg-gradient-to-r from-primary/15 to-primary-glow/15 ring-1 ring-primary/25 text-[10px] sm:text-xs font-bold tracking-[0.22em] uppercase text-primary-deep shadow-sm">
+              <MapPin className="h-3.5 w-3.5 text-primary" />
+              Explore Dubai
+            </span>
+            <h2
+              className="font-black tracking-tight text-3xl sm:text-5xl lg:text-6xl mb-4 sm:mb-5 leading-[1.05] px-4"
+              style={{ fontFamily: '"Playfair Display", Georgia, serif' }}
+            >
+              <span className="block text-slate-900">Popular Parking</span>
+              <span className="block bg-gradient-to-r from-primary via-primary-glow to-primary-deep bg-clip-text text-transparent">
+                Locations in Dubai
+              </span>
             </h2>
+            <div className="mx-auto flex items-center justify-center gap-2 mt-3">
+              <span className="h-1 w-12 sm:w-16 rounded-full bg-gradient-to-r from-transparent to-primary" />
+              <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+              <span className="h-1 w-12 sm:w-16 rounded-full bg-gradient-to-l from-transparent to-primary" />
+            </div>
           </motion.div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
@@ -255,25 +270,34 @@ const Index = () => {
             y: -5
           }}>
                 <Link to={location.link} className="block">
-                  <Card className="overflow-hidden rounded-2xl ring-1 ring-primary/10 shadow-lg hover:shadow-2xl hover:ring-primary/40 transition-all duration-300 group">
-                    <div className="relative aspect-[4/5] sm:aspect-[4/5]">
-                      <img src={location.image} alt={location.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" loading="lazy" decoding="async" />
-                      {/* Bottom gradient only - keeps image fully visible */}
-                      <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/85 via-black/40 to-transparent"></div>
-                      {/* Title pinned at bottom-left */}
-                      <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5 flex items-end justify-between gap-3">
-                        <div>
-                          <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-[0.2em] text-primary-glow mb-1 drop-shadow">Dubai</p>
-                          <motion.h3 initial={{ y: 4, opacity: 0.9 }} whileInView={{ y: 0, opacity: 1 }} className="text-xl sm:text-2xl font-black uppercase text-white drop-shadow-lg leading-tight">
-                            {location.name}
-                          </motion.h3>
+                  {/* Brand-green gradient frame */}
+                  <div
+                    className="rounded-[22px] p-[2.5px] transition-all duration-500 hover:-translate-y-1 shadow-[0_18px_40px_-18px_hsl(var(--primary-deep)/0.5)] hover:shadow-[0_26px_60px_-20px_hsl(var(--primary)/0.6)]"
+                    style={{
+                      background:
+                        'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-glow)) 50%, hsl(var(--primary-deep)) 100%)',
+                    }}
+                  >
+                    <Card className="overflow-hidden rounded-[19px] border-0 bg-white group">
+                      <div className="relative aspect-[4/5] sm:aspect-[4/5]">
+                        <img src={location.image} alt={location.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" loading="lazy" decoding="async" />
+                        {/* Bottom gradient only - keeps image fully visible */}
+                        <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/85 via-black/40 to-transparent"></div>
+                        {/* Title pinned at bottom-left */}
+                        <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5 flex items-end justify-between gap-3">
+                          <div>
+                            <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-[0.2em] text-primary-glow mb-1 drop-shadow">Dubai</p>
+                            <motion.h3 initial={{ y: 4, opacity: 0.9 }} whileInView={{ y: 0, opacity: 1 }} className="text-xl sm:text-2xl font-black uppercase text-white drop-shadow-lg leading-tight" style={{ fontFamily: '"Playfair Display", Georgia, serif' }}>
+                              {location.name}
+                            </motion.h3>
+                          </div>
+                          <motion.div whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.95 }} className="flex-shrink-0 w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-elegant ring-2 ring-white/40 group-hover:bg-primary-glow transition-colors">
+                            <ArrowRight className="h-5 w-5" />
+                          </motion.div>
                         </div>
-                        <motion.div whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.95 }} className="flex-shrink-0 w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-elegant ring-2 ring-white/30 group-hover:bg-primary-glow transition-colors">
-                          <ArrowRight className="h-5 w-5" />
-                        </motion.div>
                       </div>
-                    </div>
-                  </Card>
+                    </Card>
+                  </div>
                 </Link>
               </motion.div>)}
           </div>
