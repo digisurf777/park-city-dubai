@@ -1349,35 +1349,60 @@ const MyAccount = () => {
             {/* Payments Tab - For All Users */}
             <TabsContent value="payments" className="mt-6">
               <div className="space-y-6">
+                {/* Section header - premium */}
+                <div className="relative overflow-hidden rounded-2xl p-5 sm:p-6 bg-gradient-to-br from-primary-deep via-primary to-primary-glow shadow-[0_18px_40px_-18px_hsl(var(--primary-deep)/0.55)]">
+                  <div className="pointer-events-none absolute -top-16 -right-16 w-56 h-56 rounded-full bg-white/15 blur-3xl" />
+                  <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-amber-200/60 to-transparent" />
+                  <div className="relative flex items-center gap-4">
+                    <div className="h-12 w-12 rounded-xl bg-white/20 backdrop-blur ring-1 ring-white/30 flex items-center justify-center shadow-inner">
+                      <span className="text-white text-2xl">💳</span>
+                    </div>
+                    <div>
+                      <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight [text-shadow:0_2px_8px_rgb(0_0_0/0.25)]">Payments &amp; Banking</h2>
+                      <p className="text-xs sm:text-sm text-white/85 mt-0.5">Manage payouts, view invoices and download receipts.</p>
+                    </div>
+                  </div>
+                </div>
+
                 {/* Banking Details Section - Owner Only */}
                 {isParkingOwner && (verificationStatus === 'approved' || verificationStatus === 'verified') && (
-                  <BankingDetailsPanel />
+                  <div className="rounded-2xl p-[1.5px] bg-gradient-to-br from-primary via-primary-glow to-primary-deep shadow-[0_14px_30px_-14px_hsl(var(--primary)/0.5)]">
+                    <div className="rounded-[14px] bg-white">
+                      <BankingDetailsPanel />
+                    </div>
+                  </div>
                 )}
-                
+
                 {/* Owner Payments Section */}
                 {isParkingOwner && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Owner Payment History</CardTitle>
+                  <Card className="border-0 rounded-2xl shadow-[0_14px_30px_-14px_hsl(var(--primary)/0.25)] ring-1 ring-primary/15 overflow-hidden">
+                    <CardHeader className="bg-gradient-to-br from-surface via-white to-surface-2 border-b border-primary/10">
+                      <CardTitle className="flex items-center gap-2 text-lg font-black text-primary-deep tracking-tight">
+                        <span className="h-7 w-7 rounded-lg bg-gradient-to-br from-primary to-primary-deep text-white text-sm flex items-center justify-center shadow-sm">💰</span>
+                        Owner Payment History
+                      </CardTitle>
                       <CardDescription>
                         View and download your owner payment documents
                       </CardDescription>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="pt-5">
                       <PaymentHistoryOwner />
                     </CardContent>
                   </Card>
                 )}
-                
+
                 {/* Customer Booking Payments Section */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>{isParkingOwner ? 'My Booking Payments' : 'Payment History'}</CardTitle>
+                <Card className="border-0 rounded-2xl shadow-[0_14px_30px_-14px_hsl(var(--primary)/0.25)] ring-1 ring-primary/15 overflow-hidden">
+                  <CardHeader className="bg-gradient-to-br from-surface via-white to-surface-2 border-b border-primary/10">
+                    <CardTitle className="flex items-center gap-2 text-lg font-black text-primary-deep tracking-tight">
+                      <span className="h-7 w-7 rounded-lg bg-gradient-to-br from-primary to-primary-deep text-white text-sm flex items-center justify-center shadow-sm">🧾</span>
+                      {isParkingOwner ? 'My Booking Payments' : 'Payment History'}
+                    </CardTitle>
                     <CardDescription>
                       View your booking payments and download invoices
                     </CardDescription>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="pt-5">
                     <PaymentHistoryCustomer />
                   </CardContent>
                 </Card>
