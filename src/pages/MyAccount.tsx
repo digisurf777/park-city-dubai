@@ -399,24 +399,6 @@ const MyAccount = () => {
     }
   };
 
-  const generateAiAvatar = async () => {
-    if (!user) return;
-    setGeneratingAvatar(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('generate-avatar', { body: {} });
-      if (error) throw error;
-      const url = (data as any)?.avatar_url as string | undefined;
-      if (!url) throw new Error('No avatar returned');
-      setProfile(prev => prev ? { ...prev, avatar_url: url } : prev);
-      toast.success('AI avatar generated ✨');
-    } catch (err: any) {
-      console.error('Generate AI avatar failed:', err);
-      const msg = err?.context?.error || err?.message || 'Failed to generate avatar';
-      toast.error(msg);
-    } finally {
-      setGeneratingAvatar(false);
-    }
-  };
 
   const setDefaultAvatar = async (url: string) => {
     if (!user) return;
