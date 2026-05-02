@@ -135,6 +135,64 @@ export function AdminDashboard({ onJumpTab, headerActions, bannerOnly, hideBanne
     <div className="space-y-6">
       {!hideBanner && banner}
 
+      {/* Stats filter bar — keeps range + currency + today snapshot together with the metrics */}
+      <Card className="border border-primary/20 bg-gradient-to-br from-background to-surface shadow-sm">
+        <CardContent className="p-3 sm:p-4 space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-muted-foreground">
+              Stats filters
+            </span>
+            <div className="flex items-center gap-2 flex-wrap">
+              <div className="inline-flex rounded-lg border border-border bg-background p-0.5 shadow-sm">
+                {[7, 30, 90].map((d) => (
+                  <button
+                    key={d}
+                    onClick={() => setRange(d as 7 | 30 | 90)}
+                    className={
+                      'h-8 px-2.5 sm:px-3 text-[11px] sm:text-xs font-semibold rounded-md transition-all ' +
+                      (range === d
+                        ? 'bg-primary text-primary-foreground shadow-sm'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-muted')
+                    }
+                  >
+                    Last {d}d
+                  </button>
+                ))}
+              </div>
+              <div
+                className="inline-flex rounded-lg border border-border bg-background p-0.5 shadow-sm"
+                title={ratesUpdatedAt ? `FX updated ${relTime(ratesUpdatedAt.toISOString())}` : 'Using fallback FX rates'}
+              >
+                {currencyOptions.map((c) => (
+                  <button
+                    key={c}
+                    onClick={() => setCurrency(c)}
+                    className={
+                      'h-8 px-2 sm:px-2.5 text-[10px] sm:text-[11px] font-semibold rounded-md transition-all ' +
+                      (currency === c
+                        ? 'bg-primary text-primary-foreground shadow-sm'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-muted')
+                    }
+                  >
+                    {c}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+          <div className="grid grid-cols-3 gap-2 sm:gap-3">
+            <TodayStat icon={<Car className="h-3.5 w-3.5" />} label="Bookings today" value={today.bookingsToday.toString()} />
+            <TodayStat icon={<DollarSign className="h-3.5 w-3.5" />} label="Revenue today" value={fmtMoneyCompact(today.revenueToday)} />
+            <TodayStat
+              icon={<AlertCircle className="h-3.5 w-3.5" />}
+              label="Pending"
+              value={today.pendingActions.toString()}
+              accent={today.pendingActions > 0 ? 'amber' : 'default'}
+            />
+          </div>
+        </CardContent>
+      </Card>
+
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <KpiCard
