@@ -375,7 +375,10 @@ const ChatWidget = () => {
     }
   };
 
-  if (!user) return null;
+  // For guests: still listen for the global "open-support-chat" event and redirect to auth
+  if (!user) {
+    return <GuestSupportListener />;
+  }
 
   // ---------- Launcher ----------
   if (!isOpen) {
