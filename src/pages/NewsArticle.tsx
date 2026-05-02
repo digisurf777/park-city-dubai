@@ -151,11 +151,14 @@ const NewsArticle = () => {
 
         {/* Featured Image */}
         {article.image_url && (
-          <div className="relative aspect-video mb-8 rounded-xl overflow-hidden shadow-lg">
+          <div className="relative aspect-video mb-8 rounded-xl overflow-hidden shadow-lg bg-muted">
             <img
               src={article.image_url}
               alt={article.title}
               className="w-full h-full object-cover"
+              loading="eager"
+              fetchPriority="high"
+              decoding="async"
             />
             {/* Dark gradient overlay to ensure text in images is readable */}
             <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-transparent pointer-events-none" />
