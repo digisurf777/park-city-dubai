@@ -125,17 +125,6 @@ export function AdminDashboard({ onJumpTab, headerActions, bannerOnly, hideBanne
             </div>
           </div>
 
-          {/* Quick stats inline */}
-          <div className="grid grid-cols-3 gap-2 sm:gap-3">
-            <BannerStat icon={<Car className="h-4 w-4" />} label="Bookings today" value={today.bookingsToday.toString()} />
-            <BannerStat icon={<DollarSign className="h-4 w-4" />} label="Revenue today" value={fmtMoneyCompact(today.revenueToday)} />
-            <BannerStat
-              icon={<AlertCircle className="h-4 w-4" />}
-              label="Pending actions"
-              value={today.pendingActions.toString()}
-              accent={today.pendingActions > 0 ? 'amber' : 'default'}
-            />
-          </div>
         </div>
     </DubaiSkylineBanner>
   );
