@@ -67,7 +67,7 @@ export function AdminDashboard({ onJumpTab }: Props) {
     return `${symbol}${Math.round(v)}`;
   };
 
-  const { kpis, trend, zones, topOwners, recent } = data;
+  const { kpis, today, trend, zones, topOwners, recent, funnel, zoneDonut, hourlyHeatmap, recentBookings } = data;
 
   const gmvDelta = useMemo(() => {
     if (!kpis.gmvPrev30d) return kpis.gmvLast30d > 0 ? 100 : 0;
