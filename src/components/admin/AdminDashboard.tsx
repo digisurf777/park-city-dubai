@@ -50,9 +50,14 @@ const statusColor = (s?: string) => {
 
 interface Props {
   onJumpTab?: (tab: string) => void;
+  headerActions?: React.ReactNode;
+  /** When true, render only the Boss Dashboard hero banner (no KPIs/charts). */
+  bannerOnly?: boolean;
+  /** When true, skip rendering the hero banner (it's rendered elsewhere). */
+  hideBanner?: boolean;
 }
 
-export function AdminDashboard({ onJumpTab }: Props) {
+export function AdminDashboard({ onJumpTab, headerActions, bannerOnly, hideBanner }: Props) {
   const [range, setRange] = useState<7 | 30 | 90>(30);
   const { data, loading, refreshing, lastUpdated, refetch } = useAdminStats(range);
   const [broadcastOpen, setBroadcastOpen] = useState(false);
@@ -82,10 +87,8 @@ export function AdminDashboard({ onJumpTab }: Props) {
     [trend]
   );
 
-  return (
-    <div className="space-y-6">
-      {/* Premium Dubai banner header */}
-      <DubaiSkylineBanner tall flatTop className="p-5 sm:p-8 -mt-6 sm:-mt-8">
+  const banner = (
+    <DubaiSkylineBanner tall className="p-5 sm:p-8">
         <div className="flex flex-col gap-5">
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
             <div className="flex items-center gap-3">
@@ -153,6 +156,7 @@ export function AdminDashboard({ onJumpTab }: Props) {
               >
                 <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
               </Button>
+              {headerActions}
             </div>
           </div>
 
@@ -168,9 +172,16 @@ export function AdminDashboard({ onJumpTab }: Props) {
             />
           </div>
         </div>
-      </DubaiSkylineBanner>
+    </DubaiSkylineBanner>
+  );
 
-      {/* KPI ROW 1 - money */}
+  if (bannerOnly) return banner;
+
+  return (
+    <div className="space-y-6">
+      {!hideBanner && banner}
+
+
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <KpiCard
           icon={<DollarSign className="h-4 w-4" />}
