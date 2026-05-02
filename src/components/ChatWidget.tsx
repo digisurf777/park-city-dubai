@@ -421,14 +421,18 @@ const ChatWidget = () => {
 
   // ---------- Launcher ----------
   if (!isOpen) {
-    const launcherStyle: React.CSSProperties = dragRect
-      ? { left: `${dragRect.left}px`, top: `${dragRect.top}px`, right: "auto", bottom: "auto" }
-      : launcherPos.side === "left"
-        ? { left: "16px", bottom: `${launcherPos.bottom}px` }
-        : { right: "16px", bottom: `${launcherPos.bottom}px` };
+    const pos = dragRect ?? launcherPos;
+    const launcherStyle: React.CSSProperties = {
+      left: `${pos.left}px`,
+      top: `${pos.top}px`,
+      right: "auto",
+      bottom: "auto",
+      // Prevent the browser from doing its own pan/zoom while we drag
+      touchAction: "none",
+    };
 
     return (
-      <div className="hidden md:block fixed z-50" style={launcherStyle}>
+      <div className="fixed z-50" style={launcherStyle}>
         <button
           ref={launcherRef}
           onClick={(e) => {
@@ -444,32 +448,26 @@ const ChatWidget = () => {
           onPointerCancel={finishDrag}
           aria-label="Open online support chat (drag to reposition)"
           title="Click to open · Drag to reposition"
-          className={`group relative flex items-center gap-2.5 pl-1.5 pr-4 py-1.5 rounded-full bg-gradient-to-br from-primary via-primary to-primary-deep text-white shadow-[0_12px_28px_-8px_hsl(var(--primary)/0.55),0_4px_12px_-4px_hsl(var(--primary-deep)/0.4),inset_0_1px_0_0_hsl(0_0%_100%/0.3)] hover:shadow-[0_16px_32px_-8px_hsl(var(--primary)/0.65),inset_0_1px_0_0_hsl(0_0%_100%/0.4)] ring-1 ring-white/30 select-none touch-none ${isDragging ? "cursor-grabbing scale-105 shadow-[0_20px_40px_-10px_hsl(var(--primary)/0.7)] transition-none" : "cursor-grab hover:-translate-y-0.5 transition-all duration-300"}`}
+          className={`group relative flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-primary via-primary to-primary-deep text-white shadow-[0_14px_32px_-8px_hsl(var(--primary)/0.6),0_6px_14px_-4px_hsl(var(--primary-deep)/0.45),inset_0_1px_0_0_hsl(0_0%_100%/0.35)] ring-2 ring-white/40 select-none touch-none ${isDragging ? "cursor-grabbing scale-110 shadow-[0_22px_44px_-10px_hsl(var(--primary)/0.75)] transition-none" : "cursor-grab active:scale-95 hover:-translate-y-0.5 transition-all duration-200"}`}
         >
           <span className="relative pointer-events-none">
             <img
               src={supportAvatar}
               alt="Online Support agent"
-              width={32}
-              height={32}
+              width={48}
+              height={48}
               loading="lazy"
               draggable={false}
-              className="relative w-8 h-8 rounded-full object-cover ring-2 ring-white/80"
+              className="relative w-12 h-12 rounded-full object-cover ring-2 ring-white/80"
             />
-            <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 ring-2 ring-white" />
+            <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 ring-2 ring-white animate-pulse" />
           </span>
-          <span className="flex flex-col items-start leading-tight pointer-events-none">
-            <span className="text-[9px] font-bold uppercase tracking-[0.12em] text-emerald-200">Live</span>
-            <span className="text-[13px] font-bold whitespace-nowrap">Support</span>
-          </span>
-          {/* Drag affordance */}
-          <span className="ml-0.5 hidden group-hover:flex flex-col gap-[2px] pointer-events-none opacity-70">
-            <span className="w-[3px] h-[3px] rounded-full bg-white/90" />
-            <span className="w-[3px] h-[3px] rounded-full bg-white/90" />
-            <span className="w-[3px] h-[3px] rounded-full bg-white/90" />
+          {/* "Live" pill badge */}
+          <span className="absolute -top-1.5 left-1/2 -translate-x-1/2 px-1.5 py-px rounded-full bg-emerald-500 text-white text-[8px] font-black uppercase tracking-[0.12em] ring-2 ring-white shadow pointer-events-none">
+            Live
           </span>
           {unread > 0 && (
-            <span className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1.5 rounded-full bg-rose-500 text-white text-[11px] font-bold flex items-center justify-center ring-2 ring-white pointer-events-none">
+            <span className="absolute -top-1 -right-1 min-w-[22px] h-[22px] px-1.5 rounded-full bg-rose-500 text-white text-[11px] font-bold flex items-center justify-center ring-2 ring-white pointer-events-none">
               {unread}
             </span>
           )}
