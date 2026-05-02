@@ -580,14 +580,14 @@ const ZonePageLayout = ({
                       View All Locations
                     </Button>
                   </Link>
-                  <Link to="/contact-admin">
+                  <Link to="/faq">
                     <Button
                       size="lg"
                       variant="outline"
                       className="w-full sm:w-auto px-6 font-semibold bg-white/10 border-white/50 text-white hover:bg-white hover:text-primary"
                     >
                       <Mail className="mr-1 h-4 w-4" />
-                      Contact Us
+                      Get in Touch
                     </Button>
                   </Link>
                 </div>
