@@ -87,7 +87,7 @@ const ChatWidget = () => {
         const p = JSON.parse(raw) as LauncherPos;
         if (typeof p.left === "number" && typeof p.top === "number") {
           // clamp into viewport
-          const size = 64;
+          const size = 56;
           return {
             left: Math.max(8, Math.min(window.innerWidth - size - 8, p.left)),
             top: Math.max(8, Math.min(window.innerHeight - size - 8, p.top)),
@@ -102,7 +102,7 @@ const ChatWidget = () => {
   useEffect(() => {
     const onResize = () => {
       setLauncherPos((prev) => {
-        const size = 64;
+        const size = 56;
         return {
           left: Math.max(8, Math.min(window.innerWidth - size - 8, prev.left)),
           top: Math.max(8, Math.min(window.innerHeight - size - 8, prev.top)),
