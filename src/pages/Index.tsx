@@ -75,7 +75,7 @@ const Index = () => {
         <div className="pointer-events-none absolute -bottom-32 -right-32 w-[28rem] h-[28rem] rounded-full bg-primary-glow/10 blur-3xl"></div>
         <div className="pointer-events-none absolute -top-24 -left-24 w-[22rem] h-[22rem] rounded-full bg-primary/10 blur-3xl"></div>
 
-        <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-white z-10 pt-20 pb-12 sm:pt-28 sm:pb-16 lg:pt-32 lg:pb-20 flex flex-col items-center">
+        <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-white z-10 pt-16 pb-8 sm:pt-20 sm:pb-10 lg:pt-24 lg:pb-12 flex flex-col items-center">
           {/* Top - Text */}
           <motion.div
             className="text-center w-full"
@@ -160,7 +160,7 @@ const Index = () => {
           </motion.div>
 
           {/* Bottom - Phone (transparent PNG, centered) */}
-          <div className="flex justify-center w-full mt-10 sm:mt-14">
+          <div className="flex justify-center w-full mt-6 sm:mt-8">
             <motion.div
               className="relative flex items-center justify-center"
               initial={{ opacity: 0, scale: 0.85, y: 40 }}
@@ -215,13 +215,13 @@ const Index = () => {
               Explore Dubai
             </span>
             <h2
-              className="font-black tracking-[-0.02em] text-4xl sm:text-5xl lg:text-7xl mb-4 sm:mb-5 leading-[0.98] px-4 text-balance"
+              className="font-black tracking-[-0.03em] text-4xl sm:text-6xl lg:text-7xl mb-4 sm:mb-5 leading-[0.95] px-4 text-balance"
               style={{ fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 900 }}
             >
-              <span className="block text-slate-900 [text-shadow:0_1px_0_rgb(255_255_255/0.5)]">Popular Parking</span>
+              <span className="block text-slate-900 [text-shadow:0_1px_0_rgb(255_255_255/0.5),0_2px_4px_rgb(0_0_0/0.08)]" style={{ fontWeight: 900 }}>Popular Parking</span>
               <span
                 className="block italic bg-gradient-to-r from-primary via-primary-glow to-primary-deep bg-clip-text text-transparent pb-1"
-                style={{ fontWeight: 800 }}
+                style={{ fontWeight: 900 }}
               >
                 Locations in Dubai
               </span>
