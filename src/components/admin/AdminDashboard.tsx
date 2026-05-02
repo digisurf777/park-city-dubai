@@ -14,6 +14,7 @@ import {
   Target, Zap, PieChart as PieIcon, Flame, GitBranch, Calendar,
 } from 'lucide-react';
 import { DubaiSkylineBanner } from './DubaiSkylineBanner';
+import bossDubai from '@/assets/boss-dubai-character.png';
 import { BroadcastDialog } from './BroadcastDialog';
 import { MessageUserDialog } from './MessageUserDialog';
 import { useCurrency } from '@/contexts/CurrencyContext';
