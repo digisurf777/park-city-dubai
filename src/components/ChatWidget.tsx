@@ -744,4 +744,23 @@ const ChatWidget = () => {
   );
 };
 
+// Guest fallback: when not logged in, send users to /auth so they can sign in and chat.
+const GuestSupportListener = () => {
+  const { toast } = useToast();
+  useEffect(() => {
+    const handler = () => {
+      toast({
+        title: "Sign in to chat with Support",
+        description: "Please sign in or create an account to start a conversation.",
+      });
+      // Preserve the current location so we can return after auth
+      const redirect = encodeURIComponent(window.location.pathname + window.location.search);
+      window.location.href = `/auth?redirect=${redirect}`;
+    };
+    window.addEventListener("open-support-chat", handler);
+    return () => window.removeEventListener("open-support-chat", handler);
+  }, [toast]);
+  return null;
+};
+
 export default ChatWidget;
