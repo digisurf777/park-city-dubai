@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { lazy, Suspense } from "react";
+import heroPhoneMockup from "@/assets/hero-phone-mockup.png";
 
 // Lazy load non-critical components
 const LazyImage = lazy(() => import('./LazyImage'));
