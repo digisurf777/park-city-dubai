@@ -50,9 +50,10 @@ const statusColor = (s?: string) => {
 
 interface Props {
   onJumpTab?: (tab: string) => void;
+  headerActions?: React.ReactNode;
 }
 
-export function AdminDashboard({ onJumpTab }: Props) {
+export function AdminDashboard({ onJumpTab, headerActions }: Props) {
   const [range, setRange] = useState<7 | 30 | 90>(30);
   const { data, loading, refreshing, lastUpdated, refetch } = useAdminStats(range);
   const [broadcastOpen, setBroadcastOpen] = useState(false);
