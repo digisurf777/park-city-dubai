@@ -75,9 +75,7 @@ const ResetPassword = () => {
   };
 
   return (
-    <>
-
-      <div className="min-h-screen bg-background flex items-center justify-center px-4 pt-24">
+    <div className="min-h-screen bg-background flex items-center justify-center px-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold">Reset Your Password</CardTitle>
@@ -168,9 +166,8 @@ const ResetPassword = () => {
             </div>
           </form>
         </CardContent>
-        </Card>
-      </div>
-    </>
+      </Card>
+    </div>
   );
 };
 

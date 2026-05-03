@@ -1,4 +1,5 @@
 import { lazy, Suspense } from "react";
+import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PerformantHero from "@/components/PerformantHero";
 import CriticalCSS from "@/components/CriticalCSS";
@@ -10,9 +11,9 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Search, CreditCard, Car, DollarSign, Clock, Shield, Quote } from "lucide-react";
 import { Link } from "react-router-dom";
-import luxuryCar from "@/assets/luxury-car-dubai.webp";
-import businessMan from "@/assets/business-man.webp";
-import phoneLogo from "@/assets/phone-logo.webp";
+import luxuryCar from "@/assets/luxury-car-dubai.png";
+import businessMan from "@/assets/business-man.jpg";
+import phoneLogo from "@/assets/phone-logo.png";
 
 const IndexOptimized = () => {
   const seoData = useSEO({
@@ -26,7 +27,7 @@ const IndexOptimized = () => {
     <div className="min-h-screen bg-white">
       <CriticalCSS />
       {seoData}
-
+      <Navbar />
       
       {/* Performance Optimized Hero */}
       <PerformantHero />

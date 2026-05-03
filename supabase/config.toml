@@ -187,6 +187,3 @@ verify_jwt = false
 
 [functions.check-monthly-emails]
 verify_jwt = false
-
-[functions.generate-avatar]
-verify_jwt = true

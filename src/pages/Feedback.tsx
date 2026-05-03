@@ -8,9 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { MessageSquare, Send } from 'lucide-react';
+import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import PageHero from '@/components/PageHero';
-import heroFeedback from '@/assets/hero-feedback.jpg';
 
 const Feedback = () => {
   const { user } = useAuth();
@@ -90,19 +89,18 @@ ${message}`,
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-surface to-background animate-fade-in">
-
-
-      <PageHero
-        image={heroFeedback}
-        eyebrow="We value your voice"
-        title="Send Us Feedback"
-        highlight="Feedback"
-        subtitle="Share your experience, ideas, or report any issue - your input shapes how we improve ShazamParking."
-      />
-
+    <div className="min-h-screen bg-background">
+      <Navbar />
+      
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-2xl mx-auto">
+          <div className="text-center mb-8">
+            <MessageSquare className="h-12 w-12 text-primary mx-auto mb-4" />
+            <h1 className="text-3xl font-bold mb-4">Send Feedback</h1>
+            <p className="text-muted-foreground">
+              We value your feedback! Let us know about your experience, suggestions, or any issues you've encountered.
+            </p>
+          </div>
 
           <Card>
             <CardHeader>

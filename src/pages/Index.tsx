@@ -4,34 +4,24 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { MapPin, Search, CreditCard, Car, DollarSign, Clock, Shield, Quote, Zap, Lock, Wallet, Smartphone, TrendingUp, Sparkles, ArrowRight, CheckCircle2 } from "lucide-react";
+import { MapPin, Search, CreditCard, Car, DollarSign, Clock, Shield, Quote } from "lucide-react";
+import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import EcosystemSection from "@/components/EcosystemSection";
-import TestimonialsMarquee from "@/components/TestimonialsMarquee";
-
-import carEnteringParking from "@/assets/car-entering-parking.jpg";
 import { EmailConfirmationBanner } from "@/components/EmailConfirmationBanner";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import useSEO from "@/hooks/useSEO";
-import dubaihero from "@/assets/dubai-skyline-hero.webp";
-import phonePremium from "@/assets/phone-mockup-hero.png";
-import secureParking from "@/assets/hero-parking-garage.webp";
-import luxuryCar from "@/assets/own-parking-space.jpg";
-import luxuryCarStreet from "@/assets/luxury-car-dubai-street.jpg";
-import dubaiDriverPov from "@/assets/dubai-driver-pov.jpg";
-import problemCircling from "@/assets/problem-circling.jpg";
-import problemExpensive from "@/assets/problem-expensive.jpg";
-import problemSafety from "@/assets/problem-safety.jpg";
-import problemEmptySpot from "@/assets/problem-empty-spot.jpg";
-import businessMan from "@/assets/business-man.webp";
-import phoneLogo from "@/assets/phone-logo.webp";
-import dubaiMarinaZone from "@/assets/zones/dubai-marina.webp";
-import downtownZone from "/lovable-uploads/f676da2a-39c9-4211-8561-5b884e0ceed8.webp";
-import palmJumeirahZone from "/lovable-uploads/atlantis-hotel-hero.webp";
-import businessBayZone from "@/assets/zones/business-bay.webp";
-import difcZone from "/lovable-uploads/63d539ac-8cbb-46b2-aa39-3de0695ef8c9.webp";
-import deiraZone from "@/assets/zones/deira.webp";
+import dubaihero from "@/assets/dubai-skyline-hero.jpg";
+import secureParking from "@/assets/secure-parking-hero.jpg";
+import luxuryCar from "@/assets/luxury-car-dubai.png";
+import businessMan from "@/assets/business-man.jpg";
+import phoneLogo from "@/assets/phone-logo.png";
+import dubaiMarinaZone from "@/assets/zones/dubai-marina.jpg";
+import downtownZone from "/lovable-uploads/f676da2a-39c9-4211-8561-5b884e0ceed8.png";
+import palmJumeirahZone from "/lovable-uploads/atlantis-hotel-hero.jpg";
+import businessBayZone from "@/assets/zones/business-bay.jpg";
+import difcZone from "/lovable-uploads/63d539ac-8cbb-46b2-aa39-3de0695ef8c9.png";
+import deiraZone from "@/assets/zones/deira.jpg";
 const Index = () => {
   const seoData = useSEO({
     title: "Shazam Parking - Dubai's Trusted Parking Platform",
@@ -50,7 +40,7 @@ const Index = () => {
   
   return <div className="min-h-screen bg-white">
       {seoData}
-
+      <Navbar />
       
       {/* Email Confirmation Banner */}
       <div className="relative">
@@ -61,169 +51,63 @@ const Index = () => {
         </div>
       </div>
       
-      {/* Hero - premium, balanced, readable on mobile */}
-      <section
-        className="relative overflow-hidden bg-cover bg-center bg-no-repeat"
-        style={{
-          backgroundImage: `linear-gradient(135deg, hsl(174 60% 18% / 0.55) 0%, hsl(174 55% 22% / 0.40) 50%, hsl(174 50% 30% / 0.30) 100%), url(${secureParking})`,
-        }}
-      >
-        {/* Bottom darken for text legibility on mobile (only where text sits) */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/55 via-black/20 to-transparent"></div>
-        {/* Decorative glows - subtle */}
-        <div className="pointer-events-none absolute -bottom-32 -right-32 w-[28rem] h-[28rem] rounded-full bg-primary-glow/10 blur-3xl"></div>
-        <div className="pointer-events-none absolute -top-24 -left-24 w-[22rem] h-[22rem] rounded-full bg-primary/10 blur-3xl"></div>
-
-        <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-white z-10 pt-16 pb-8 sm:pt-20 sm:pb-10 lg:pt-24 lg:pb-12 flex flex-col items-center">
-          {/* Top - Text (no badge here on mobile, moved to bottom) */}
-          <motion.div
-            className="text-center w-full order-1"
-            initial="hidden"
-            animate="show"
-            variants={{
-              hidden: {},
-              show: { transition: { staggerChildren: 0.12, delayChildren: 0.1 } },
-            }}
-          >
-            {/* Trusted badge - desktop only here; mobile version sits at the bottom */}
-            <motion.span
-              variants={{ hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } } }}
-              className="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass text-white text-xs sm:text-sm font-medium mb-4 sm:mb-6"
-            >
-              <Sparkles className="h-3.5 w-3.5 text-primary-glow" />
-              Trusted in Dubai
-            </motion.span>
-            <h1 className="text-[2rem] leading-[1.05] sm:text-4xl lg:text-5xl xl:text-6xl font-black tracking-tight mb-3 sm:mb-5">
-              <motion.span
-                variants={{ hidden: { opacity: 0, y: 24 }, show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: "easeOut" } } }}
-                className="block text-white drop-shadow-[0_4px_20px_rgba(0,0,0,0.5)]"
-              >
-                YOUR TRUSTED
-              </motion.span>
-              <motion.span
-                variants={{ hidden: { opacity: 0, y: 24 }, show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: "easeOut" } } }}
-                className="block bg-gradient-to-r from-primary-glow via-[hsl(160_85%_75%)] to-white bg-clip-text text-transparent drop-shadow-[0_4px_20px_rgba(0,0,0,0.4)]"
-              >
-                PARKING PLATFORM
-              </motion.span>
-              <motion.span
-                variants={{ hidden: { opacity: 0, y: 24 }, show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: "easeOut" } } }}
-                className="block text-white drop-shadow-[0_4px_20px_rgba(0,0,0,0.5)]"
-              >
-                IN DUBAI
-              </motion.span>
-            </h1>
-            <motion.p
-              variants={{ hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } } }}
-              className="text-sm sm:text-base lg:text-lg text-white/95 max-w-lg mx-auto mb-5 sm:mb-7 drop-shadow-[0_2px_8px_rgba(0,0,0,0.4)]"
-            >
-              List your parking space in minutes and start earning every month.
-            </motion.p>
-
-            {/* Desktop CTAs (mobile CTAs are below the phone) */}
-            <motion.div
-              variants={{ hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } } }}
-              className="hidden sm:flex flex-col sm:flex-row gap-2.5 sm:gap-3 justify-center"
-            >
-              <Link to="/find-parking">
-                <Button size="lg" className="w-full sm:w-auto px-6 py-5 text-sm sm:text-base font-semibold">
-                  Find Parking
-                  <ArrowRight className="ml-1 h-4 w-4" />
-                </Button>
-              </Link>
-              <Link to="/rent-out-your-space">
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="w-full sm:w-auto px-6 py-5 text-sm sm:text-base font-semibold bg-white/15 border-white/50 text-white hover:bg-white hover:text-primary backdrop-blur-md"
-                >
-                  List Your Space
-                </Button>
-              </Link>
-            </motion.div>
-
-            {/* Inline social proof - desktop only */}
-            <motion.div
-              variants={{ hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } } }}
-              className="hidden sm:flex items-center justify-center gap-2 mt-6 text-white text-xs"
-            >
-              <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/25 shadow-md font-semibold drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)]">
-                <CheckCircle2 className="h-3.5 w-3.5 text-primary-glow" />
-                <span>Verified spaces</span>
-              </div>
-              <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/25 shadow-md font-semibold drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)]">
-                <CheckCircle2 className="h-3.5 w-3.5 text-primary-glow" />
-                <span>Secure payments</span>
-              </div>
-              <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/25 shadow-md font-semibold drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)]">
-                <CheckCircle2 className="h-3.5 w-3.5 text-primary-glow" />
-                <span>Cancel anytime*</span>
-              </div>
-            </motion.div>
-          </motion.div>
-
-          {/* Phone - sits higher on mobile, centered */}
-          <div className="flex justify-center w-full mt-3 sm:mt-8 order-2">
-            <motion.div
-              className="relative flex items-center justify-center"
-              initial={{ opacity: 0, scale: 0.92, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1], delay: 0.3 }}
-            >
-              {/* Soft glow halo behind phone */}
-              <div className="absolute inset-0 -m-10 rounded-full bg-primary-glow/30 blur-3xl pointer-events-none hidden sm:block animate-pulse-glow"></div>
-              <div className="absolute inset-0 -m-4 rounded-full bg-white/10 blur-2xl pointer-events-none"></div>
-              <motion.img
-                src={phonePremium}
-                alt="Shazam Parking app shown on a smartphone"
-                className="relative w-48 sm:w-72 md:w-80 lg:w-96 xl:w-[26rem] h-auto drop-shadow-[0_30px_60px_rgba(0,0,0,0.5)] motion-safe:sm:animate-none"
-                loading="eager"
-                fetchPriority="high"
-                decoding="async"
-                animate={{ y: [0, -10, 0] }}
-                transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-                style={{ willChange: 'transform' }}
-              />
-            </motion.div>
+      {/* Hero Section - Simplified animations for better performance */}
+      <section className="relative min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat" style={{
+      backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url(${secureParking})`,
+      backgroundSize: 'cover'
+    }}>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-white z-10">
+          <div className="flex flex-col lg:flex-row items-center justify-between min-h-screen pt-20 sm:pt-24 lg:pt-0 py-8 sm:py-16 lg:py-[141px]">
+            {/* Left side - Text */}
+            <div className="text-center lg:text-left lg:flex-1 mb-8 lg:mb-0 mt-8 sm:mt-16 lg:mt-0 animate-fade-in">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black leading-tight px-2 lg:px-0 mb-4">
+                <span className="block text-white" style={{
+                textShadow: '3px 3px 12px rgba(0, 0, 0, 0.9), 0 0 30px rgba(0, 0, 0, 0.7)'
+              }}>
+                  YOUR TRUSTED
+                </span>
+                <span className="block text-primary font-black" style={{
+                textShadow: '2px 2px 8px rgba(0, 0, 0, 0.5)'
+              }}>
+                  PARKING PLATFORM
+                </span>
+                <span className="block text-white" style={{
+                textShadow: '3px 3px 12px rgba(0, 0, 0, 0.9), 0 0 30px rgba(0, 0, 0, 0.7)'
+              }}>
+                  IN DUBAI
+                </span>
+              </h1>
+              <p className="text-lg sm:text-xl text-white/90 mt-4 px-2 lg:px-0" style={{
+              textShadow: '2px 2px 8px rgba(0, 0, 0, 0.7)'
+            }}>
+                List your parking space in minutes and start earning every month.
+              </p>
+            </div>
+            
+            {/* Right side - Phone Image */}
+            <div className="lg:flex-1 flex justify-center lg:justify-end">
+              <picture>
+                <source media="(max-width: 640px)" srcSet="/lovable-uploads/c910d35f-a4b2-4c06-88e3-7f5b16a45558.png" type="image/webp" width="256" height="467" />
+                <source media="(max-width: 1024px)" srcSet="/lovable-uploads/c910d35f-a4b2-4c06-88e3-7f5b16a45558.png" type="image/webp" width="320" height="583" />
+                <img alt="Shazam Parking Mobile App" className="w-64 sm:w-80 md:w-96 lg:max-w-md h-auto transition-transform duration-300 hover:scale-105" src="/lovable-uploads/c910d35f-a4b2-4c06-88e3-7f5b16a45558.png" loading="eager" {...{
+                fetchpriority: 'high'
+              }} decoding="async" width="384" height="700" style={{
+                contentVisibility: 'auto'
+              }} />
+              </picture>
+            </div>
           </div>
-
-          {/* Mobile-only CTAs under the phone */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.7, ease: 'easeOut' }}
-            className="sm:hidden flex flex-col gap-2.5 w-full max-w-xs mt-5 order-3"
-          >
-            <Link to="/find-parking" className="w-full">
-              <Button size="lg" className="w-full px-6 py-5 text-sm font-semibold">
-                Find Parking
-                <ArrowRight className="ml-1 h-4 w-4" />
+          
+          {/* CTA Button - Centered */}
+          <div className="flex justify-center mt-8 sm:mt-12 lg:absolute lg:bottom-20 lg:left-1/2 lg:transform lg:-translate-x-1/2 px-4">
+            <Link to="/my-account">
+              <Button className="bg-primary hover:bg-primary/90 text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-full w-full sm:w-auto shadow-lg transition-all duration-300 hover:scale-105">
+                LOGIN / SIGN UP
               </Button>
             </Link>
-            <Link to="/rent-out-your-space" className="w-full">
-              <Button
-                size="lg"
-                variant="outline"
-                className="w-full px-6 py-5 text-sm font-semibold bg-white/15 border-white/50 text-white hover:bg-white hover:text-primary backdrop-blur-md"
-              >
-                List Your Space
-              </Button>
-            </Link>
-          </motion.div>
-
-          {/* Mobile-only "Trusted in Dubai" badge at the very bottom */}
-          <motion.span
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.9, ease: 'easeOut' }}
-            className="sm:hidden inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full glass text-white text-xs font-medium mt-5 order-4"
-          >
-            <Sparkles className="h-3.5 w-3.5 text-primary-glow" />
-            Trusted in Dubai
-          </motion.span>
+          </div>
         </div>
       </section>
-
 
       {/* Popular Parking Locations */}
       <motion.section initial={{
@@ -249,399 +133,288 @@ const Index = () => {
         }} viewport={{
           once: true
         }} className="text-center mb-12 sm:mb-16">
-            <span className="inline-flex items-center gap-2 mb-5 px-4 py-1.5 rounded-full bg-gradient-to-r from-primary/15 to-primary-glow/15 ring-1 ring-primary/25 text-[10px] sm:text-xs font-bold tracking-[0.22em] uppercase text-primary-deep shadow-sm">
-              <MapPin className="h-3.5 w-3.5 text-primary" />
-              Explore Dubai
-            </span>
-            <h2 className="font-black tracking-tight text-4xl sm:text-6xl lg:text-7xl mb-4 sm:mb-5 leading-[0.95] px-4 text-balance">
-              <span className="block text-slate-900 [text-shadow:0_1px_0_rgb(255_255_255/0.5),0_2px_4px_rgb(0_0_0/0.08)]">Popular Parking</span>
-              <span className="block bg-gradient-to-r from-primary via-primary-glow to-primary-deep bg-clip-text text-transparent pb-1">
-                Locations in Dubai
-              </span>
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 sm:mb-6 px-4">
+              POPULAR PARKING LOCATIONS IN DUBAI
             </h2>
-            <div className="mx-auto flex items-center justify-center gap-2 mt-3">
-              <span className="h-1 w-12 sm:w-16 rounded-full bg-gradient-to-r from-transparent to-primary" />
-              <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-              <span className="h-1 w-12 sm:w-16 rounded-full bg-gradient-to-l from-transparent to-primary" />
-            </div>
           </motion.div>
 
-          {(() => {
-            const zones = [
-              { name: "Dubai Marina", link: "/find-parking?district=dubai-marina", image: dubaiMarinaZone },
-              { name: "Downtown", link: "/find-parking?district=downtown", image: downtownZone },
-              { name: "Palm Jumeirah", link: "/find-parking?district=palm-jumeirah", image: palmJumeirahZone },
-              { name: "Business Bay", link: "/find-parking?district=business-bay", image: businessBayZone },
-              { name: "DIFC", link: "/find-parking?district=difc", image: difcZone },
-              { name: "Deira", link: "/find-parking?district=deira", image: deiraZone },
-            ];
-
-            const renderCard = (location: typeof zones[number], index: number, compact = false) => (
-              <Link to={location.link} className="block">
-                <div
-                  className="relative rounded-[20px] p-[2px] shadow-[0_18px_40px_-18px_hsl(var(--primary-deep)/0.5)]"
-                  style={{
-                    background:
-                      'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-glow)) 50%, hsl(var(--primary-deep)) 100%)',
-                  }}
-                >
-                  <Card className="overflow-hidden rounded-[18px] border-0 bg-white group">
-                    <div className={compact ? "relative aspect-[4/3]" : "relative aspect-[4/5]"}>
-                      <img src={location.image} alt={location.name} className="w-full h-full object-cover" loading="lazy" decoding="async" />
-                      <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/85 via-black/40 to-transparent"></div>
-                      <div className="absolute inset-x-0 bottom-0 p-3 sm:p-5 flex items-end justify-between gap-3">
-                        <div>
-                          <p className="text-[9px] sm:text-xs font-semibold uppercase tracking-[0.2em] text-primary-glow mb-0.5 sm:mb-1 drop-shadow">Dubai</p>
-                          <h3 className="text-base sm:text-2xl font-black uppercase text-white drop-shadow-lg leading-tight tracking-tight">
-                            {location.name}
-                          </h3>
-                        </div>
-                        <div className="flex-shrink-0 w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-elegant ring-2 ring-white/40">
-                          <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5" />
-                        </div>
-                      </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+            {[{
+            name: "Dubai Marina",
+            link: "/zones/dubai-marina",
+            image: dubaiMarinaZone
+          }, {
+            name: "Downtown",
+            link: "/find-parking?district=downtown",
+            image: downtownZone
+          }, {
+            name: "Palm Jumeirah",
+            link: "/find-parking?district=palm-jumeirah",
+            image: palmJumeirahZone
+          }, {
+            name: "Business Bay",
+            link: "/find-parking?district=business-bay",
+            image: businessBayZone
+          }, {
+            name: "DIFC",
+            link: "/find-parking?district=difc",
+            image: difcZone
+          }, {
+            name: "Deira",
+            link: "/find-parking?district=deira",
+            image: deiraZone
+          }].map((location, index) => <motion.div key={index} initial={{
+            opacity: 0,
+            y: 50
+          }} whileInView={{
+            opacity: 1,
+            y: 0
+          }} transition={{
+            duration: 0.6,
+            delay: index * 0.1
+          }} viewport={{
+            once: true
+          }} whileHover={{
+            y: -5
+          }}>
+                <Card className="overflow-hidden rounded-2xl ring-1 ring-primary/10 shadow-lg hover:shadow-2xl hover:ring-primary/30 transition-all duration-300 group">
+                  <div className="relative aspect-video">
+                    <img src={location.image} alt={location.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy" decoding="async" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent transition-opacity duration-300 group-hover:from-primary/60 group-hover:via-black/30"></div>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center text-white p-4 sm:p-6">
+                      <motion.h3 initial={{
+                    scale: 0.9
+                  }} whileHover={{
+                    scale: 1.05
+                  }} className="text-lg sm:text-xl lg:text-2xl font-bold mb-3 sm:mb-4 uppercase text-center drop-shadow-lg">
+                        {location.name}
+                      </motion.h3>
+                      <Link to={location.link}>
+                        <motion.div whileHover={{
+                      scale: 1.05
+                    }} whileTap={{
+                      scale: 0.95
+                    }}>
+                          <Button className="px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base lg:text-lg font-semibold">
+                            Select Zone
+                          </Button>
+                        </motion.div>
+                      </Link>
                     </div>
-                  </Card>
-                </div>
-              </Link>
-            );
-
-            return (
-              <>
-                {/* Mobile - auto-scrolling marquee carousel */}
-                <div className="sm:hidden -mx-4 overflow-hidden relative">
-                  {/* Edge fades */}
-                  <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-white to-transparent z-10" />
-                  <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white to-transparent z-10" />
-                  <div className="flex gap-4 px-4 py-2 animate-marquee" style={{ width: 'max-content' }}>
-                    {[...zones, ...zones].map((location, index) => (
-                      <div key={`${location.name}-${index}`} className="w-[68vw] max-w-[280px] flex-shrink-0">
-                        {renderCard(location, index, true)}
-                      </div>
-                    ))}
                   </div>
-                </div>
-
-                {/* Desktop - grid */}
-                <div className="hidden sm:grid grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-                  {zones.map((location, index) => (
-                    <motion.div
-                      key={index}
-                      initial={{ opacity: 0, y: 50 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.6, delay: index * 0.1 }}
-                      viewport={{ once: true }}
-                      whileHover={{ y: -5 }}
-                    >
-                      {renderCard(location, index, false)}
-                    </motion.div>
-                  ))}
-                </div>
-              </>
-            );
-          })()}
+                </Card>
+              </motion.div>)}
+          </div>
         </div>
       </motion.section>
 
-      {/* How It Works - tightened */}
-      <motion.section
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        transition={{ duration: 0.8 }}
-        viewport={{ once: true, amount: 0.2 }}
-        className="py-12 sm:py-16 bg-gradient-subtle"
-      >
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-8 sm:mb-12">
-            <span className="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold uppercase tracking-wider mb-3">
-              How it works
-            </span>
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground">
-              Park in 3 simple steps
+      {/* How It Works Strip */}
+      <motion.section initial={{
+      opacity: 0
+    }} whileInView={{
+      opacity: 1
+    }} transition={{
+      duration: 0.8
+    }} viewport={{
+      once: true,
+      amount: 0.2
+    }} className="py-12 sm:py-16 lg:py-20 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div initial={{
+          opacity: 0,
+          y: 30
+        }} whileInView={{
+          opacity: 1,
+          y: 0
+        }} transition={{
+          duration: 0.8,
+          delay: 0.2
+        }} viewport={{
+          once: true
+        }} className="text-center mb-12 sm:mb-16">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 sm:mb-6 px-4">
+              How It Works
             </h2>
-          </div>
+          </motion.div>
 
-          <div className="relative grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-4">
-            {/* Connector line on desktop */}
-            <div className="hidden md:block absolute top-10 left-[16.66%] right-[16.66%] h-0.5 bg-gradient-to-r from-primary/30 via-primary/60 to-primary/30 z-0"></div>
-
-            {[
-              { icon: Search, title: "Search & Select", description: "Browse verified spaces near you." },
-              { icon: CreditCard, title: "Book Securely", description: "Reserve in seconds with secure payment." },
-              { icon: Car, title: "Park & Relax", description: "Arrive - your spot is waiting." },
-            ].map((step, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.12 }}
-                viewport={{ once: true }}
-                className="relative z-10 text-center"
-              >
-                <div className="relative mx-auto w-20 h-20 mb-4">
-                  <div className="absolute inset-0 bg-gradient-primary rounded-2xl shadow-elegant rotate-3 group-hover:rotate-6 transition-transform"></div>
-                  <div className="relative bg-gradient-primary text-primary-foreground rounded-2xl w-20 h-20 flex items-center justify-center shadow-elegant">
-                    <step.icon className="h-9 w-9" />
-                  </div>
-                  <span className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-white text-primary text-sm font-bold flex items-center justify-center shadow-md ring-2 ring-primary/20">
-                    {index + 1}
-                  </span>
-                </div>
-                <h3 className="text-lg sm:text-xl font-semibold mb-1.5">{step.title}</h3>
-                <p className="text-sm text-muted-foreground max-w-xs mx-auto">{step.description}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </motion.section>
-
-      {/* Problems We Solve - NEW section */}
-      <motion.section
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        transition={{ duration: 0.8 }}
-        viewport={{ once: true, amount: 0.2 }}
-        className="py-14 sm:py-20 bg-white relative overflow-hidden"
-      >
-        <div className="pointer-events-none absolute top-0 right-0 w-[30rem] h-[30rem] bg-primary/5 rounded-full blur-3xl"></div>
-
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-          <div className="text-center mb-10 sm:mb-14 max-w-3xl mx-auto">
-            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-primary/15 to-primary-glow/15 text-primary text-[11px] font-bold uppercase tracking-[0.18em] mb-4 ring-1 ring-primary/20 shadow-sm">
-              <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
-              The problem
-            </span>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-foreground mb-4 leading-[1.1]">
-              Parking in Dubai shouldn't be a{' '}
-              <span className="bg-gradient-to-r from-primary via-primary-glow to-primary-deep bg-clip-text text-transparent">
-                daily headache
-              </span>
-            </h2>
-            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              We connect drivers with private parking owners, solving the{' '}
-              <span className="font-semibold text-foreground">four biggest pains</span> of city parking.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-7 max-w-6xl mx-auto">
-            {[
-              {
-                icon: Clock,
-                image: problemCircling,
-                problem: "Wasting hours circling for spots",
-                solution: "Reserve a guaranteed space in seconds.",
-              },
-              {
-                icon: Wallet,
-                image: problemExpensive,
-                problem: "Paying premium hotel & mall rates",
-                solution: "Save up to 60% on monthly parking.",
-              },
-              {
-                icon: Lock,
-                image: problemSafety,
-                problem: "Worrying about car safety",
-                solution: "Verified, private, secure locations only.",
-              },
-              {
-                icon: TrendingUp,
-                image: problemEmptySpot,
-                problem: "Empty parking spaces wasting money",
-                solution: "Owners earn passive monthly income.",
-              },
-            ].map((item, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: i * 0.1 }}
-                viewport={{ once: true }}
-                className="group relative rounded-2xl p-[2px] flex"
-                style={{
-                  background:
-                    'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-glow)) 50%, hsl(var(--primary-deep)) 100%)',
-                  boxShadow:
-                    '0 24px 48px -16px hsl(var(--primary-deep) / 0.5), 0 10px 20px -8px hsl(var(--primary) / 0.35), inset 0 1px 0 0 hsl(0 0% 100% / 0.4)',
-                }}
-              >
-                <div className="relative rounded-[14px] bg-white overflow-hidden flex flex-col w-full">
-                  {/* Visual - larger, taller aspect for impact */}
-                  <div className="relative aspect-[4/5] overflow-hidden">
-                    <img
-                      src={item.image}
-                      alt={item.problem}
-                      className="w-full h-full object-cover"
-                      loading="lazy"
-                      decoding="async"
-                      width={1000}
-                      height={1250}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
-                  </div>
-                  {/* Static icon medallion - sits on the seam between image and frame */}
-                  <div className="relative h-0">
-                    <div
-                      className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-2xl text-white ring-2 ring-white/90 z-10"
-                      style={{
-                        background:
-                          'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-glow)) 100%)',
-                        boxShadow:
-                          '0 10px 24px -6px hsl(var(--primary-deep) / 0.6), inset 0 1px 0 0 hsl(0 0% 100% / 0.5)',
-                      }}
-                    >
-                      <item.icon className="h-6 w-6 sm:h-7 sm:w-7 drop-shadow-[0_2px_4px_rgba(0,0,0,0.35)]" strokeWidth={2.4} />
-                    </div>
-                  </div>
-                  {/* Text */}
-                  <div className="px-5 pt-9 pb-5 sm:px-6 sm:pt-10 sm:pb-6 text-center">
-                    <p className="text-xs font-semibold text-foreground/55 line-through mb-1.5">
-                      {item.problem}
-                    </p>
-                    <p className="text-base sm:text-lg font-bold text-foreground leading-snug">
-                      {item.solution}
-                    </p>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-12">
+            {[{
+            icon: Search,
+            title: "Search & Select",
+            description: "Find the perfect parking location from our verified spaces"
+          }, {
+            icon: CreditCard,
+            title: "Book & Pay Securely",
+            description: "Reserve your spot instantly with secure online payment"
+          }, {
+            icon: Car,
+            title: "Park & Relax",
+            description: "Arrive at your destination with parking available"
+          }].map((step, index) => <motion.div key={index} initial={{
+            opacity: 0,
+            y: 50
+          }} whileInView={{
+            opacity: 1,
+            y: 0
+          }} transition={{
+            duration: 0.6,
+            delay: 0.3 + index * 0.2
+          }} viewport={{
+            once: true
+          }} whileHover={{
+            y: -5
+          }} className="text-center">
+                <motion.div initial={{
+              scale: 0
+            }} whileInView={{
+              scale: 1
+            }} transition={{
+              duration: 0.5,
+              delay: 0.5 + index * 0.2
+            }} viewport={{
+              once: true
+            }} whileHover={{
+              scale: 1.1
+            }} className="bg-primary/10 rounded-full w-16 sm:w-20 h-16 sm:h-20 flex items-center justify-center mx-auto mb-4 sm:mb-6">
+                  <step.icon className="h-8 sm:h-10 w-8 sm:w-10 text-primary" />
+                </motion.div>
+                <motion.h3 initial={{
+              opacity: 0
+            }} whileInView={{
+              opacity: 1
+            }} transition={{
+              duration: 0.6,
+              delay: 0.7 + index * 0.2
+            }} viewport={{
+              once: true
+            }} className="text-lg sm:text-xl lg:text-2xl font-semibold mb-3 sm:mb-4">
+                  {step.title}
+                </motion.h3>
+                <motion.p initial={{
+              opacity: 0
+            }} whileInView={{
+              opacity: 1
+            }} transition={{
+              duration: 0.6,
+              delay: 0.9 + index * 0.2
+            }} viewport={{
+              once: true
+            }} className="text-gray-600 text-sm sm:text-base px-4">
+                  {step.description}
+                </motion.p>
+              </motion.div>)}
           </div>
         </div>
       </motion.section>
 
-
-      {/* Own a Parking Space - premium */}
-      <motion.section
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        transition={{ duration: 0.8 }}
-        viewport={{ once: true, amount: 0.2 }}
-        className="py-14 sm:py-20 bg-gradient-to-br from-surface via-white to-surface-2 relative overflow-hidden"
-      >
-        <div className="pointer-events-none absolute -top-20 -left-20 w-80 h-80 rounded-full bg-primary/15 blur-3xl"></div>
-        <div className="pointer-events-none absolute -bottom-32 -right-20 w-96 h-96 rounded-full bg-primary-glow/15 blur-3xl"></div>
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
-            {/* Text */}
-            <motion.div
-              initial={{ opacity: 0, x: -40 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.7 }}
-              viewport={{ once: true }}
-              className="text-center lg:text-left order-2 lg:order-1"
-            >
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-foreground mb-4 leading-tight">
-                Own a parking space?
-                <span className="block text-gradient-primary mt-1">Turn it into income.</span>
-              </h2>
-              <p className="text-base sm:text-lg text-muted-foreground mb-6 max-w-lg mx-auto lg:mx-0">
-                Your unused parking spot can earn steady monthly income. We handle bookings, payments, and tenant matching - you just get paid.
-              </p>
-
-              {/* Stat badges */}
-              <div className="grid grid-cols-3 gap-3 sm:gap-4 mb-8 max-w-md mx-auto lg:mx-0">
-                {[
-                  { value: "AED 1k+", label: "Avg. monthly" },
-                  { value: "5 min", label: "To list" },
-                  { value: "0%", label: "Fees to list" },
-                ].map((stat) => (
-                  <div
-                    key={stat.label}
-                    className="text-center p-3 rounded-xl glass-card hover-lift"
-                  >
-                    <div className="text-lg sm:text-xl font-black text-gradient-primary leading-none">
-                      {stat.value}
-                    </div>
-                    <div className="text-[10px] sm:text-xs text-muted-foreground mt-1 uppercase tracking-wide">
-                      {stat.label}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
+      {/* Rent Out Your Space Section */}
+      <motion.section initial={{
+      opacity: 0
+    }} whileInView={{
+      opacity: 1
+    }} transition={{
+      duration: 0.8
+    }} viewport={{
+      once: true,
+      amount: 0.2
+    }} className="py-12 sm:py-16 lg:py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+            <motion.div initial={{
+            opacity: 0,
+            x: -50
+          }} whileInView={{
+            opacity: 1,
+            x: 0
+          }} transition={{
+            duration: 0.8,
+            delay: 0.2
+          }} viewport={{
+            once: true
+          }} className="text-center lg:text-left">
+              <motion.h2 initial={{
+              opacity: 0,
+              y: 30
+            }} whileInView={{
+              opacity: 1,
+              y: 0
+            }} transition={{
+              duration: 0.6,
+              delay: 0.3
+            }} viewport={{
+              once: true
+            }} className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 sm:mb-6">
+                Are you looking to rent out your space?
+              </motion.h2>
+              <motion.p initial={{
+              opacity: 0,
+              y: 20
+            }} whileInView={{
+              opacity: 1,
+              y: 0
+            }} transition={{
+              duration: 0.6,
+              delay: 0.5
+            }} viewport={{
+              once: true
+            }} className="text-base lg:text-xl text-gray-600 mb-6 sm:mb-8 uppercase font-semibold sm:text-lg">ShazamParking
+IS HERE TO HELP YOU</motion.p>
+              <motion.div initial={{
+              opacity: 0,
+              y: 20
+            }} whileInView={{
+              opacity: 1,
+              y: 0
+            }} transition={{
+              duration: 0.6,
+              delay: 0.7
+            }} viewport={{
+              once: true
+            }}>
                 <Link to="/rent-out-your-space">
-                  <Button size="lg" className="w-full sm:w-auto px-7 py-6 text-base font-semibold">
-                    List Your Space
-                    <ArrowRight className="ml-1 h-5 w-5" />
-                  </Button>
+                  <motion.div whileHover={{
+                  scale: 1.05
+                }} whileTap={{
+                  scale: 0.95
+                }}>
+                    <Button className="bg-primary hover:bg-primary/90 text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg w-full sm:w-auto shadow-lg transition-all duration-300">
+                      List Your Space
+                    </Button>
+                  </motion.div>
                 </Link>
-                <Link to="/calculator">
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className="w-full sm:w-auto px-7 py-6 text-base font-semibold border-primary/30 text-primary hover:bg-primary hover:text-primary-foreground"
-                  >
-                    Estimate earnings
-                  </Button>
-                </Link>
-              </div>
+              </motion.div>
             </motion.div>
-
-            {/* Image - premium frame */}
-            <motion.div
-              initial={{ opacity: 0, x: 40 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.7, delay: 0.15 }}
-              viewport={{ once: true }}
-              className="order-1 lg:order-2 relative"
-            >
-              {/* Soft outer glow */}
-              <div className="absolute inset-0 -m-6 rounded-[2.25rem] bg-gradient-primary opacity-25 blur-3xl pointer-events-none"></div>
-
-              {/* Premium green gradient frame */}
-              <div
-                className="relative rounded-3xl p-[3px] shadow-[0_30px_60px_-20px_hsl(var(--primary)/0.55)] animate-frame-pulse overflow-hidden"
-                style={{
-                  background:
-                    'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-glow)) 50%, hsl(var(--primary-deep)) 100%)',
-                }}
-              >
-                <div className="relative rounded-[22px] overflow-hidden bg-background">
-                  <motion.img
-                    whileHover={{ scale: 1.04 }}
-                    transition={{ duration: 0.5 }}
-                    src={luxuryCar}
-                    alt="Smart parking space dashboard with monthly income, occupancy and bookings overlay"
-                    className="w-full h-auto object-cover block"
-                    loading="lazy"
-                    decoding="async"
-                    width={1280}
-                    height={1280}
-                  />
-                </div>
+            <motion.div initial={{
+            opacity: 0,
+            x: 50
+          }} whileInView={{
+            opacity: 1,
+            x: 0
+          }} transition={{
+            duration: 0.8,
+            delay: 0.4
+          }} viewport={{
+            once: true
+            }} className="order-first lg:order-last">
+              <div className="rounded-2xl ring-1 ring-primary/20 shadow-[0_20px_40px_-15px_hsl(var(--primary)/0.4)] p-1.5 bg-gradient-to-br from-primary/15 to-transparent animate-[float_6s_ease-in-out_infinite]">
+                <motion.img whileHover={{
+                scale: 1.03
+              }} transition={{
+                duration: 0.3
+              }} src={luxuryCar} alt="Luxury car in Dubai" className="w-full rounded-xl shadow-lg" loading="lazy" decoding="async" />
               </div>
             </motion.div>
           </div>
         </div>
       </motion.section>
-
 
       {/* Find Parking Section */}
-      <section className="py-12 sm:py-16 lg:py-20 bg-gradient-to-br from-surface via-white to-surface-2 relative overflow-hidden">
-        <div className="pointer-events-none absolute -top-32 -right-32 w-96 h-96 rounded-full bg-primary/10 blur-3xl"></div>
+      <section className="py-12 sm:py-16 lg:py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             <div className="order-2 lg:order-1">
-              <div
-                className="group relative rounded-3xl p-[3px] bg-gradient-to-br from-primary via-primary-glow to-primary-deep shadow-[0_30px_60px_-20px_hsl(var(--primary)/0.55)] animate-frame-pulse overflow-hidden"
-              >
-                <div className="absolute -inset-1 bg-gradient-to-br from-primary/30 via-transparent to-primary-glow/30 blur-2xl opacity-60 pointer-events-none" />
-                <div className="relative rounded-[22px] overflow-hidden bg-white">
-                  <img
-                    src={carEnteringParking}
-                    alt="Luxury car entering a premium Dubai building parking garage at golden hour"
-                    className="w-full object-cover aspect-[4/3] transition-transform duration-700 group-hover:scale-[1.03]"
-                    loading="lazy"
-                    decoding="async"
-                    width={1536}
-                    height={1024}
-                  />
-                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-primary-deep/30 via-transparent to-transparent" />
-                  <div className="absolute top-4 left-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 backdrop-blur text-xs font-semibold text-primary shadow-sm">
-                    <Sparkles className="h-3.5 w-3.5" /> Premium Locations
-                  </div>
-                </div>
+              <div className="rounded-2xl ring-1 ring-primary/20 shadow-[0_20px_40px_-15px_hsl(var(--primary)/0.4)] p-1.5 bg-gradient-to-br from-primary/15 to-transparent animate-[float_7s_ease-in-out_infinite]">
+                <img src={dubaihero} alt="Dubai UAE skyline" className="w-full rounded-xl shadow-lg" loading="lazy" decoding="async" />
               </div>
             </div>
             <div className="order-1 lg:order-2 text-center lg:text-left">
@@ -663,22 +436,18 @@ const Index = () => {
       <section className="py-12 sm:py-16 lg:py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 mb-12 sm:mb-16">
-            {[
-              { Icon: DollarSign, title: "Save Money", desc: "Lower-cost monthly parking, no hidden fees." },
-              { Icon: Clock, title: "Save Time", desc: "Book in seconds, skip the daily search." },
-              { Icon: Shield, title: "Absolute Convenience", desc: "Verified spaces and secure payments." },
-            ].map(({ Icon, title, desc }) => (
-              <div
-                key={title}
-                className="group text-center p-6 sm:p-8 rounded-2xl glass-primary hover-lift"
-              >
-                <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-primary text-primary-foreground shadow-elegant mb-4 sm:mb-6 group-hover:scale-110 transition-transform duration-300">
-                  <Icon className="h-8 sm:h-10 w-8 sm:w-10" />
-                </div>
-                <h3 className="text-lg sm:text-xl lg:text-2xl font-semibold mb-2">{title}</h3>
-                <p className="text-sm sm:text-base text-muted-foreground">{desc}</p>
-              </div>
-            ))}
+            <div className="text-center">
+              <DollarSign className="h-12 sm:h-16 w-12 sm:w-16 text-primary mx-auto mb-4 sm:mb-6" />
+              <h3 className="text-lg sm:text-xl lg:text-2xl font-semibold mb-2 sm:mb-4">Save Money</h3>
+            </div>
+            <div className="text-center">
+              <Clock className="h-12 sm:h-16 w-12 sm:w-16 text-primary mx-auto mb-4 sm:mb-6" />
+              <h3 className="text-lg sm:text-xl lg:text-2xl font-semibold mb-2 sm:mb-4">Save Time</h3>
+            </div>
+            <div className="text-center">
+              <Shield className="h-12 sm:h-16 w-12 sm:w-16 text-primary mx-auto mb-4 sm:mb-6" />
+              <h3 className="text-lg sm:text-xl lg:text-2xl font-semibold mb-2 sm:mb-4">Absolute Convenience</h3>
+            </div>
           </div>
 
           <div className="text-center mb-12 sm:mb-16">
@@ -688,25 +457,15 @@ const Index = () => {
             <h3 className="text-lg sm:text-xl lg:text-2xl text-gray-700 mb-6 sm:mb-8 px-4">
               We are the quickest, easiest, and the most secure way to rent a parking space in Dubai!
             </h3>
-            <div
-              className="mx-auto max-w-3xl rounded-3xl p-[3px] animate-[float_8s_ease-in-out_infinite] overflow-hidden"
-              style={{
-                background:
-                  'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-glow)) 50%, hsl(var(--primary-deep)) 100%)',
-                boxShadow:
-                  '0 30px 60px -20px hsl(var(--primary-deep) / 0.55), 0 0 0 1px hsl(var(--primary-glow) / 0.25)',
-              }}
-            >
-              <div className="rounded-[22px] bg-white p-1.5 overflow-hidden">
-                <img src={dubaiDriverPov} alt="Stylish man in Dubai using the ShazamParking app next to his luxury car with Burj Khalifa in the background" className="rounded-[18px] w-full object-cover aspect-video" loading="lazy" decoding="async" width={1536} height={1024} />
-              </div>
+            <div className="mx-auto max-w-2xl rounded-2xl ring-1 ring-primary/15 shadow-[0_20px_40px_-15px_hsl(var(--primary)/0.35)] p-1.5 bg-gradient-to-br from-primary/10 to-transparent animate-[float_8s_ease-in-out_infinite]">
+              <img src={businessMan} alt="Successful businessman" className="rounded-xl w-full" loading="lazy" decoding="async" />
             </div>
           </div>
         </div>
       </section>
 
       {/* Steps Section */}
-      <section className="py-12 sm:py-16 lg:py-20 bg-gradient-to-b from-surface-2 to-white">
+      <section className="py-12 sm:py-16 lg:py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12 sm:mb-16">
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 sm:mb-6 px-4">
@@ -714,17 +473,161 @@ const Index = () => {
             </h2>
           </div>
           <div className="flex justify-center">
-            <img alt="Three simple steps to rent parking" className="max-w-4xl w-full" src="/lovable-uploads/e36f8df6-09a1-434e-aac9-f077569e37a1.webp" />
+            <img alt="Three simple steps to rent parking" className="max-w-4xl w-full" src="/lovable-uploads/e36f8df6-09a1-434e-aac9-f077569e37a1.png" />
           </div>
         </div>
       </section>
 
-      {/* Testimonials - animated marquee */}
-      <TestimonialsMarquee />
+      {/* Testimonials */}
+      <section className="py-12 sm:py-16 lg:py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12 sm:mb-16">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 sm:mb-6 px-4">
+              What customers say about ShazamParking
+            </h2>
+          </div>
 
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+            {[{
+            quote: "ShazamParking is a game-changer for anyone looking for a stress-free parking experience, it's easy to use, reliable and convenient.",
+            name: "Aaliyah Armasi"
+          }, {
+            quote: "I highly recommend ShazamParking, it offers an easy-to-use platform, a wide range of parking options, and excellent customer service, making it the perfect parking solution.",
+            name: "Ahmed Mohammed"
+          }, {
+            quote: "ShazamParking is my go-to platform for parking, it's user-friendly, reliable, and offers a wide range of options, making it convenient and easy to find a parking spot.",
+            name: "Murtaza Hussain"
+          }].map((testimonial, index) => <Card key={index} className="p-6 sm:p-8 hover:shadow-xl transition-all duration-300">
+                <Quote className="h-6 sm:h-8 w-6 sm:w-8 text-primary mb-3 sm:mb-4" />
+                <p className="text-gray-600 mb-4 sm:mb-6 italic text-sm sm:text-base">"{testimonial.quote}"</p>
+                <h4 className="font-semibold text-gray-900 text-sm sm:text-base">{testimonial.name}</h4>
+              </Card>)}
+          </div>
+        </div>
+      </section>
+
+      {/* Hero CTA Banner - Matching Reference Style */}
+      <motion.section initial={{
+      opacity: 0
+    }} whileInView={{
+      opacity: 1
+    }} transition={{
+      duration: 0.8
+    }} viewport={{
+      once: true,
+      amount: 0.2
+    }} className="py-12 sm:py-16 lg:py-20 relative overflow-hidden bg-gradient-to-br from-[hsl(174_57%_36%)] via-primary to-[hsl(174_60%_50%)]">
+        {/* Decorative blurred blobs */}
+        <div className="pointer-events-none absolute -top-24 -left-24 w-72 h-72 rounded-full bg-white/10 blur-3xl"></div>
+        <div className="pointer-events-none absolute -bottom-24 -right-24 w-96 h-96 rounded-full bg-white/10 blur-3xl"></div>
+        <div className="pointer-events-none absolute inset-0 opacity-[0.15]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '24px 24px' }}></div>
+        
+        <div className="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 text-center relative z-10">
+          {/* Main Headline - Exact Match to Reference */}
+          <motion.div initial={{
+          opacity: 0,
+          y: 50
+        }} whileInView={{
+          opacity: 1,
+          y: 0
+        }} transition={{
+          duration: 0.8,
+          delay: 0.2
+        }} viewport={{
+          once: true
+        }} className="mb-6 sm:mb-8">
+            <motion.h1 initial={{
+            opacity: 0,
+            y: 30
+          }} whileInView={{
+            opacity: 1,
+            y: 0
+          }} transition={{
+            duration: 0.6,
+            delay: 0.3
+          }} viewport={{
+            once: true
+          }} className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white mb-4 sm:mb-6 tracking-tight">
+              Own a Parking Space?
+            </motion.h1>
+            <motion.h2 initial={{
+            opacity: 0,
+            y: 30
+          }} whileInView={{
+            opacity: 1,
+            y: 0
+          }} transition={{
+            duration: 0.6,
+            delay: 0.5
+          }} viewport={{
+            once: true
+          }} className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black mb-6 sm:mb-8 leading-[0.9] tracking-tight">
+              <span className="text-white text-4xl font-semibold drop-shadow-[0_2px_8px_rgba(0,0,0,0.25)]">
+                Turn it into a steady passive income.
+              </span>
+            </motion.h2>
+          </motion.div>
+          
+          {/* CTA Button */}
+          <motion.div initial={{
+          opacity: 0,
+          y: 30
+        }} whileInView={{
+          opacity: 1,
+          y: 0
+        }} transition={{
+          duration: 0.6,
+          delay: 0.7
+        }} viewport={{
+          once: true
+        }} className="space-y-6 sm:space-y-8">
+            <Link to="/rent-out-your-space">
+              <motion.div whileHover={{
+              scale: 1.05
+            }} whileTap={{
+              scale: 0.95
+            }}>
+                <Button size="lg" className="bg-white text-primary hover:bg-white hover:text-primary px-10 sm:px-16 py-5 sm:py-7 text-xl sm:text-2xl font-bold shadow-[0_6px_0_0_rgba(0,0,0,0.15),0_20px_40px_-10px_rgba(0,0,0,0.4)] hover:shadow-[0_8px_0_0_rgba(0,0,0,0.2),0_24px_50px_-10px_rgba(0,0,0,0.5)] hover:-translate-y-0.5 active:translate-y-0.5 transition-all duration-300 w-full sm:w-auto h-auto">
+                  Start Earning Today
+                </Button>
+              </motion.div>
+            </Link>
+            
+            {/* Trust Indicators */}
+            <motion.div initial={{
+            opacity: 0,
+            y: 20
+          }} whileInView={{
+            opacity: 1,
+            y: 0
+          }} transition={{
+            duration: 0.6,
+            delay: 0.9
+          }} viewport={{
+            once: true
+          }} className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-8 text-white/95 text-sm sm:text-base font-semibold">
+              {["Free to list", "Earn up to AED 1,000/month", "Secure payments"].map((text, index) => <motion.div key={index} initial={{
+              opacity: 0,
+              x: -20
+            }} whileInView={{
+              opacity: 1,
+              x: 0
+            }} transition={{
+              duration: 0.5,
+              delay: 1 + index * 0.1
+            }} viewport={{
+              once: true
+            }} className="flex items-center gap-2">
+                  <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-white text-primary text-sm font-bold shadow-md">✓</span>
+                  {text}
+                </motion.div>)}
+            </motion.div>
+          </motion.div>
+        </div>
+      </motion.section>
 
       {/* Final CTA */}
-      <section className="py-12 sm:py-16 lg:py-20 bg-gradient-to-b from-white to-surface">
+      <section className="py-12 sm:py-16 lg:py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 sm:mb-6 px-4">
             Your Trusted Parking Platform
@@ -741,9 +644,6 @@ Makes it Easy</h3>
           </Link>
         </div>
       </section>
-
-      {/* Shazam Ecosystem */}
-      <EcosystemSection />
 
       <Footer />
     </div>;

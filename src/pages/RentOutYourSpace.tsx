@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Upload, CheckCircle, Wallet, Quote, X, Shield, AlertTriangle } from "lucide-react";
+import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ParkingCalculator from "@/components/ParkingCalculator";
 import { useState, useRef, useEffect } from "react";
@@ -17,18 +18,9 @@ import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { useVerificationStatus } from "@/hooks/useVerificationStatus";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import luxuryCar from "@/assets/luxury-car-dubai.webp";
-import phoneLogo from "@/assets/phone-logo.webp";
-import PageHero from "@/components/PageHero";
-import heroRentOut from "@/assets/hero-rent-out.jpg";
-import useSEO from "@/hooks/useSEO";
+import luxuryCar from "@/assets/luxury-car-dubai.png";
+import phoneLogo from "@/assets/phone-logo.png";
 const RentOutYourSpace = () => {
-  const seo = useSEO({
-    title: "Rent Out Your Parking Space in Dubai - Earn Monthly Income | Shazam Parking",
-    description: "List your unused parking space in Dubai and earn passive monthly income. Free listing, verified drivers, secure payments and full owner protection with Shazam Parking.",
-    keywords: "rent out parking Dubai, list parking space, earn from parking Dubai, monthly parking income, parking owner Dubai",
-    url: "/rent-out-your-space",
-  });
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -357,18 +349,22 @@ const RentOutYourSpace = () => {
     }
   };
   return <div className="min-h-screen bg-white animate-zoom-slow">
-      {seo}
-
+      <Navbar />
       
       {/* Hero Section */}
-      <PageHero
-        image={heroRentOut}
-        eyebrow="List your space"
-        title="Earn From Your Empty Bay"
-        highlight="Empty Bay"
-        subtitle="List your parking space in minutes and start earning every month - completely free to post."
-        size="lg"
-      />
+      <section className="relative min-h-[70vh] flex items-center justify-center bg-cover bg-center bg-no-repeat" style={{
+      backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url(/lovable-uploads/d672c78d-465f-41e0-9e3d-cd28db512923.png)`
+    }}>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
+          <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
+            Earn Passive Income<br />
+            <span className="text-primary">From Your Empty Bay</span>
+          </h1>
+          <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto opacity-90">
+            List your parking space in minutes and start earning every month.
+          </p>
+        </div>
+      </section>
 
       {/* How It Works Section */}
       <section className="py-20 bg-gray-50">
@@ -383,7 +379,7 @@ const RentOutYourSpace = () => {
           </div>
 
           <div className="flex justify-center">
-            <img src="/lovable-uploads/90ac71db-2b33-4d06-8b4e-7fdb761027f4.webp" alt="Three step process: List for Free, Confirm Booking, Facilitate Access" className="max-w-full h-auto" />
+            <img src="/lovable-uploads/90ac71db-2b33-4d06-8b4e-7fdb761027f4.png" alt="Three step process: List for Free, Confirm Booking, Facilitate Access" className="max-w-full h-auto" />
           </div>
         </div>
       </section>

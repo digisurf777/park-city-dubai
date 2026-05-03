@@ -10,8 +10,6 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import { MFARequiredGuard } from "@/components/MFARequiredGuard";
 import TawkToChat from '@/components/TawkToChat';
 import ChatWidget from '@/components/ChatWidget';
-import MobileBottomNav from '@/components/MobileBottomNav';
-import Navbar from '@/components/Navbar';
 import { MobileOptimizations } from "@/components/MobileOptimizations";
 // Import Auth directly to fix dynamic import issue
 import Auth from "./pages/Auth";
@@ -47,6 +45,8 @@ const Deira = lazy(() => import("./pages/zones/Deira"));
 const TermsAndConditions = lazy(() => import("./pages/TermsAndConditions"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const CookiesNotice = lazy(() => import("./pages/CookiesNotice"));
+const LavableHome = lazy(() => import("./pages/LavableHome"));
+const LavableFAQ = lazy(() => import("./pages/LavableFAQ"));
 const AdminSetup = lazy(() => import("./pages/AdminSetup"));
 const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
 
@@ -60,8 +60,11 @@ const queryClient = new QueryClient({
 });
 
 // Performance-optimized loading fallback
-import { PageLoader } from "@/components/ui/loading";
-const LoadingFallback = () => <PageLoader label="Loading…" />;
+const LoadingFallback = () => (
+  <div className="min-h-screen flex items-center justify-center">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+  </div>
+);
 
 const App = () => {
   console.log('App.tsx: App component rendering');
@@ -76,14 +79,14 @@ const App = () => {
           <AuthProvider>
             <BrowserRouter>
               
-              <Navbar />
               <TawkToChat />
               <ChatWidget />
-              <MobileBottomNav />
               <Suspense fallback={<LoadingFallback />}>
                 <Routes>
-
-
+                {/* Lavable Routes */}
+                <Route path="/lavable" element={<LavableHome />} />
+                 <Route path="/lavable/faq" element={<LavableFAQ />} />
+                 
                  <Route path="/" element={<Index />} />
                  <Route path="/find-parking" element={<FindParking />} />
                  <Route path="/find-a-parking-space" element={<FindParking />} />

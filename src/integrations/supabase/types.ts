@@ -1136,42 +1136,6 @@ export type Database = {
         }
         Relationships: []
       }
-      platform_knowledge: {
-        Row: {
-          category: string
-          content: string
-          created_at: string
-          id: string
-          is_active: boolean
-          keywords: string[]
-          priority: number
-          title: string
-          updated_at: string
-        }
-        Insert: {
-          category?: string
-          content: string
-          created_at?: string
-          id?: string
-          is_active?: boolean
-          keywords?: string[]
-          priority?: number
-          title: string
-          updated_at?: string
-        }
-        Update: {
-          category?: string
-          content?: string
-          created_at?: string
-          id?: string
-          is_active?: boolean
-          keywords?: string[]
-          priority?: number
-          title?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
       profile_access_audit: {
         Row: {
           access_reason: string | null
@@ -1213,51 +1177,36 @@ export type Database = {
       }
       profiles: {
         Row: {
-          avatar_url: string | null
-          bio: string | null
           created_at: string
           email: string | null
           email_confirmed_at: string | null
           full_name: string | null
           id: string
-          notification_email: boolean
-          notification_sms: boolean
           phone: string | null
-          preferred_language: string | null
           signup_notified: boolean | null
           updated_at: string
           user_id: string
           user_type: string
         }
         Insert: {
-          avatar_url?: string | null
-          bio?: string | null
           created_at?: string
           email?: string | null
           email_confirmed_at?: string | null
           full_name?: string | null
           id?: string
-          notification_email?: boolean
-          notification_sms?: boolean
           phone?: string | null
-          preferred_language?: string | null
           signup_notified?: boolean | null
           updated_at?: string
           user_id: string
           user_type?: string
         }
         Update: {
-          avatar_url?: string | null
-          bio?: string | null
           created_at?: string
           email?: string | null
           email_confirmed_at?: string | null
           full_name?: string | null
           id?: string
-          notification_email?: boolean
-          notification_sms?: boolean
           phone?: string | null
-          preferred_language?: string | null
           signup_notified?: boolean | null
           updated_at?: string
           user_id?: string
@@ -1385,12 +1334,9 @@ export type Database = {
         Row: {
           created_at: string
           from_admin: boolean
-          handoff_requested: boolean
           id: string
-          is_ai: boolean
           message: string
           read_status: boolean
-          session_id: string | null
           subject: string
           updated_at: string
           user_id: string
@@ -1398,12 +1344,9 @@ export type Database = {
         Insert: {
           created_at?: string
           from_admin?: boolean
-          handoff_requested?: boolean
           id?: string
-          is_ai?: boolean
           message: string
           read_status?: boolean
-          session_id?: string | null
           subject: string
           updated_at?: string
           user_id: string
@@ -1411,12 +1354,9 @@ export type Database = {
         Update: {
           created_at?: string
           from_admin?: boolean
-          handoff_requested?: boolean
           id?: string
-          is_ai?: boolean
           message?: string
           read_status?: boolean
-          session_id?: string | null
           subject?: string
           updated_at?: string
           user_id?: string

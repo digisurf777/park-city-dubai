@@ -1,4 +1,5 @@
 import { Helmet } from "react-helmet-async";
+import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 const TermsAndConditions = () => {
   return <>
@@ -7,8 +8,8 @@ const TermsAndConditions = () => {
         <meta name="description" content="ShazamParking Terms and Conditions - Read our complete terms of service, user agreements, and legal policies for parking booking and listing services in Dubai, UAE." />
       </Helmet>
       
-      <div className="min-h-screen bg-gradient-to-b from-surface to-background">
-
+      <div className="min-h-screen bg-background">
+        <Navbar />
         
         {/* Hero Section */}
         <div className="bg-gradient-to-r from-primary to-secondary text-white py-16">

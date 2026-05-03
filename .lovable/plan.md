@@ -1,62 +1,62 @@
-## Problem
 
-Two issues on `/admin`:
+# Landing Page UI Refresh
 
-1. The **Boss Dashboard hero banner** is slightly clipped at the top because the global `Navbar` is `fixed top-0` with height `h-16` (64px), but `src/pages/AdminPanel.tsx` wraps content in `p-3 sm:p-6` with no top offset for the fixed bar. Every other page (Index, AboutUs, etc.) adds its own `pt-16`/`pt-20`. The admin page is missing this.
-2. The hero currently only shows the gold **Crown** icon next to the "Boss Dashboard" title. The user wants a richer Dubai-flavored visual — a "boss from Dubai" character — inside the banner.
+Goal: a more modern, cohesive look across the landing page using the new brand color **#31B2A0**, with rounded "3D" buttons, framed images with a subtle animation, a restyled "Own a Parking Space" CTA banner, and a polished footer.
 
-## Plan
+## 1. Brand color update (global)
 
-### 1. Push the boss dashboard down so the navbar no longer covers it
+File: `src/index.css`
+- Change `--primary` from `174 66% 56%` (#4ECDC4) to `174 57% 44%` (#31B2A0) in both `:root` and `.dark`.
+- Update `--ring` and `--sidebar-primary` to match.
+- This automatically recolors every `bg-primary`, `text-primary`, `hover:bg-primary/90` across the app — no per-component color swaps needed.
 
-In `src/pages/AdminPanel.tsx` (line ~1789), update the page wrapper to add top padding equal to the fixed navbar height (plus a small breathing buffer):
+## 2. Rounded 3D button style (global)
 
-- Change `p-3 sm:p-6` → `px-3 sm:px-6 pb-3 sm:pb-6 pt-20 sm:pt-24`
+File: `src/components/ui/button.tsx`
+- Default variant becomes more rounded and gets a soft 3D effect:
+  - Base classes: `rounded-full` (instead of `rounded-md`), `shadow-[0_4px_0_0_hsl(var(--primary)/0.35),0_8px_20px_-6px_hsl(var(--primary)/0.45)]`, `hover:-translate-y-0.5 hover:shadow-[0_6px_0_0_hsl(var(--primary)/0.4),0_12px_24px_-6px_hsl(var(--primary)/0.55)]`, `active:translate-y-0.5 active:shadow-[0_2px_0_0_hsl(var(--primary)/0.3)]`, `transition-all duration-200`.
+  - Add `transition-colors` → `transition-all` to support transform.
+- `lg` and `sm` sizes also become `rounded-full`.
+- Outcome: every button on the site (and there are many `<Button className="bg-primary ...">` usages on the landing page) gets the new look without editing each call site.
 
-This gives the hero banner clean space below the glass navbar on every breakpoint, matching the spacing used elsewhere on the site.
+## 3. Landing page image polish
 
-### 2. Generate a "Dubai boss" character illustration
+File: `src/pages/Index.tsx`
+- **Popular Locations cards** (~line 180): change `Card` to `rounded-2xl ring-1 ring-primary/10 shadow-lg hover:shadow-2xl hover:ring-primary/30`, keep the existing zoom-on-hover. Add a subtle floating animation via `whileHover={{ y: -8 }}` (already similar) and a soft gradient overlay on hover.
+- **"Rent out your space" image** (luxuryCar, ~line 399): wrap in a framed container — `rounded-2xl ring-1 ring-primary/20 shadow-[0_20px_40px_-15px_hsl(var(--primary)/0.4)] p-1 bg-gradient-to-br from-primary/10 to-transparent`, image inside `rounded-xl`. Add a gentle continuous float animation (`animate-[float_6s_ease-in-out_infinite]`).
+- **"Find Parking" image** (dubaihero, ~line 414): same framing treatment.
+- **Businessman image** (~line 456): same framing treatment, slightly tighter ring.
+- Add a `float` keyframe to `src/index.css` (`0%,100% { translateY(0) } 50% { translateY(-8px) }`).
 
-Use the AI image generation gateway (`google/gemini-3.1-flash-image-preview` — Nano banana 2, fast + high quality) to produce a single hero portrait:
+## 4. "Own a Parking Space" CTA banner
 
-- Prompt direction: a confident, friendly Emirati businessman in a crisp white kandura and ghutra, soft smile, premium executive vibe, Dubai skyline (Burj Khalifa, Business Bay) softly blurred in the background at golden hour, cinematic lighting, transparent or soft gradient backdrop, square framing, professional editorial illustration style, no text.
-- Save the output to `src/assets/boss-dubai-character.webp` (or `.png` if alpha is needed).
+File: `src/pages/Index.tsx` (~lines 503–619)
+- Replace flat `bg-primary` with a richer brand-tinted background:
+  - `bg-gradient-to-br from-[hsl(174_57%_38%)] via-primary to-[hsl(174_60%_50%)]`.
+  - Add decorative blurred blobs (`absolute w-72 h-72 rounded-full bg-white/10 blur-3xl`) for depth.
+  - Add a subtle dotted/grid overlay using a CSS radial-gradient for texture.
+- Headline gradient: switch the yellow gradient on "Turn it into a steady passive income." to a clean white with subtle drop-shadow, so it stays on-brand (currently mismatched yellow/slate).
+- CTA button: keep white background, primary text, but use new rounded-3D button style automatically.
+- Trust indicator checkmarks: change yellow `✓` to a small white circular badge with primary check icon for cleaner brand alignment.
 
-### 3. Place the character inside the existing `DubaiSkylineBanner`
+## 5. Footer polish
 
-Edit `src/components/admin/AdminDashboard.tsx`, the `banner` JSX (around lines 90–130):
+File: `src/components/Footer.tsx`
+- Background: switch from flat `bg-gray-900` to `bg-gradient-to-b from-gray-900 to-[hsl(174_30%_8%)]` for a subtle brand tint.
+- Add a thin top accent bar: `<div className="h-1 bg-gradient-to-r from-primary via-primary/60 to-primary" />`.
+- Section headings: add small primary underline accent (`after:` pseudo via inline span, or `border-b-2 border-primary/40 inline-block pb-1`).
+- Quick Links / Support items: add `hover:translate-x-1 transition-transform` along with existing color hover for a nicer micro-interaction.
+- Contact email row: wrap in a small rounded chip `inline-flex bg-white/5 px-3 py-1.5 rounded-full ring-1 ring-white/10`.
+- App store buttons: tighten styling — `rounded-xl`, `hover:bg-white/5 transition-colors`, keep "Coming Soon" label.
+- Bottom bar: add `border-primary/20` instead of `border-gray-800` for a subtle brand line; update copyright year to 2026.
 
-- Add a right-side decorative portrait that sits inside the banner without competing with the title:
-  - On `sm+`: absolutely positioned on the right edge of the banner, ~h-44 to h-56, with `object-contain object-bottom`, slight drop-shadow, `pointer-events-none`, `select-none`, `aria-hidden`.
-  - On mobile: hidden (`hidden sm:block`) so the title and refresh button stay readable.
-- Increase the banner's right padding on `sm+` (e.g. `sm:pr-56`) so text never overlaps the portrait.
-- Keep the gold Crown badge next to the "Boss Dashboard" title — it acts as the small icon the user also asked for; the portrait is the bigger statement piece.
+## Out of scope
+- No copy changes besides the bottom-bar year.
+- No structural/section reordering.
+- No changes to other pages (the global color + button refresh will, however, propagate across the whole app — this is intentional).
 
-### 4. Optional polish
-
-- Add a soft radial highlight behind the portrait (tinted gold) so it blends with the existing skyline gradient already in `DubaiSkylineBanner`.
-- Ensure the image uses `loading="lazy"` and `decoding="async"` for performance (consistent with the existing skyline `<img>` in `DubaiSkylineBanner.tsx`).
-
-## Technical details
-
-Files touched:
-
-- `src/pages/AdminPanel.tsx` — wrapper padding only (1 line).
-- `src/components/admin/AdminDashboard.tsx` — import the new asset, render the `<img>` inside the banner, adjust right padding.
-- `src/assets/boss-dubai-character.webp` — new generated image asset.
-
-Layout sketch of the updated hero:
-
-```text
-┌──────────────────────────────────────────────────────────────┐
-│ [👑] Boss Dashboard                                          │
-│      ● Live · synced 4s ago · Dubai, UAE        [⟳][AED][⎋] │
-│                                              ╔═════════════╗ │
-│                                              ║   Dubai     ║ │
-│                                              ║   Boss      ║ │
-│                                              ║  portrait   ║ │
-│                                              ╚═════════════╝ │
-└──────────────────────────────────────────────────────────────┘
-```
-
-No KPI/chart logic, routing, or data layer is touched — purely visual.
+## Technical notes
+- All color changes flow through CSS variables; no hard-coded hex values added in components.
+- New keyframe `float` added once in `src/index.css`.
+- Button shadow uses `hsl(var(--primary)/X)` so the 3D depth automatically follows the brand color.
+- Respects existing `prefers-reduced-motion` block (animation will be disabled there).
