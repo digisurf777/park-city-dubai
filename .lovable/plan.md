@@ -1,62 +1,42 @@
+## Problem
 
-# Landing Page UI Refresh
+Admin login fails at the MFA step with the toast "Could not start verification. Please try again."
 
-Goal: a more modern, cohesive look across the landing page using the new brand color **#31B2A0**, with rounded "3D" buttons, framed images with a subtle animation, a restyled "Own a Parking Space" CTA banner, and a polished footer.
+Root cause (from auth + browser logs):
 
-## 1. Brand color update (global)
+- The Supabase Auth API returns `403: invalid claim: missing sub claim` on `POST /factors/{id}/challenge` and `GET /user` immediately after the access token is issued/refreshed.
+- This is a known issue with `@supabase/supabase-js@2.50.x` against projects that have been migrated to the new asymmetric JWT signing keys: the client occasionally hands back a refreshed access token whose payload is missing the `sub` claim, which GoTrue then rejects.
+- Effect: `challengeMFA()` fails, the MFA challenge can never be created, and even after the user enters a valid code the AAL2 upgrade never lands (`AAL2 not yet reflected` warning), so the admin route bounces them back.
 
-File: `src/index.css`
-- Change `--primary` from `174 66% 56%` (#4ECDC4) to `174 57% 44%` (#31B2A0) in both `:root` and `.dark`.
-- Update `--ring` and `--sidebar-primary` to match.
-- This automatically recolors every `bg-primary`, `text-primary`, `hover:bg-primary/90` across the app — no per-component color swaps needed.
+## Fix
 
-## 2. Rounded 3D button style (global)
+### 1. Upgrade `@supabase/supabase-js` to a version that handles the new JWT signing keys
 
-File: `src/components/ui/button.tsx`
-- Default variant becomes more rounded and gets a soft 3D effect:
-  - Base classes: `rounded-full` (instead of `rounded-md`), `shadow-[0_4px_0_0_hsl(var(--primary)/0.35),0_8px_20px_-6px_hsl(var(--primary)/0.45)]`, `hover:-translate-y-0.5 hover:shadow-[0_6px_0_0_hsl(var(--primary)/0.4),0_12px_24px_-6px_hsl(var(--primary)/0.55)]`, `active:translate-y-0.5 active:shadow-[0_2px_0_0_hsl(var(--primary)/0.3)]`, `transition-all duration-200`.
-  - Add `transition-colors` → `transition-all` to support transform.
-- `lg` and `sm` sizes also become `rounded-full`.
-- Outcome: every button on the site (and there are many `<Button className="bg-primary ...">` usages on the landing page) gets the new look without editing each call site.
+Bump the dependency in `package.json` from `^2.50.4` to `^2.57.2` (matches what edge functions already pin). This release contains the refresh-token / claim-handling fixes for projects on asymmetric JWT keys and resolves the `missing sub claim` errors.
 
-## 3. Landing page image polish
+No code changes are required — the public API used in `useAuth.tsx` (`supabase.auth.mfa.challenge`, `verify`, `listFactors`, `getAuthenticatorAssuranceLevel`, `refreshSession`) is unchanged.
 
-File: `src/pages/Index.tsx`
-- **Popular Locations cards** (~line 180): change `Card` to `rounded-2xl ring-1 ring-primary/10 shadow-lg hover:shadow-2xl hover:ring-primary/30`, keep the existing zoom-on-hover. Add a subtle floating animation via `whileHover={{ y: -8 }}` (already similar) and a soft gradient overlay on hover.
-- **"Rent out your space" image** (luxuryCar, ~line 399): wrap in a framed container — `rounded-2xl ring-1 ring-primary/20 shadow-[0_20px_40px_-15px_hsl(var(--primary)/0.4)] p-1 bg-gradient-to-br from-primary/10 to-transparent`, image inside `rounded-xl`. Add a gentle continuous float animation (`animate-[float_6s_ease-in-out_infinite]`).
-- **"Find Parking" image** (dubaihero, ~line 414): same framing treatment.
-- **Businessman image** (~line 456): same framing treatment, slightly tighter ring.
-- Add a `float` keyframe to `src/index.css` (`0%,100% { translateY(0) } 50% { translateY(-8px) }`).
+### 2. Harden the MFA challenge effect in `src/pages/Auth.tsx`
 
-## 4. "Own a Parking Space" CTA banner
+The `refreshChallenge` `useEffect` currently re-runs after a successful verification (because `MFA_CHALLENGE_VERIFIED` mutates session state and `showMFAChallenge` is briefly still `true`), which is what surfaces the red error toast even when the verify call has already succeeded.
 
-File: `src/pages/Index.tsx` (~lines 503–619)
-- Replace flat `bg-primary` with a richer brand-tinted background:
-  - `bg-gradient-to-br from-[hsl(174_57%_38%)] via-primary to-[hsl(174_60%_50%)]`.
-  - Add decorative blurred blobs (`absolute w-72 h-72 rounded-full bg-white/10 blur-3xl`) for depth.
-  - Add a subtle dotted/grid overlay using a CSS radial-gradient for texture.
-- Headline gradient: switch the yellow gradient on "Turn it into a steady passive income." to a clean white with subtle drop-shadow, so it stays on-brand (currently mismatched yellow/slate).
-- CTA button: keep white background, primary text, but use new rounded-3D button style automatically.
-- Trust indicator checkmarks: change yellow `✓` to a small white circular badge with primary check icon for cleaner brand alignment.
+Changes inside `Auth.tsx` only:
 
-## 5. Footer polish
+- Track whether a challenge has already been issued for the current `mfaFactorId` and skip re-creation if it has, instead of unconditionally calling `challengeMFA` every time the effect fires.
+- Demote the user-facing toast to a single, debounced attempt: only show "Could not start verification" if the very first challenge attempt fails, and keep retries silent (logged to console).
+- After a successful verify, clear `mfaChallengeId` and `mfaFactorId` before navigating, so the effect cannot re-enter.
 
-File: `src/components/Footer.tsx`
-- Background: switch from flat `bg-gray-900` to `bg-gradient-to-b from-gray-900 to-[hsl(174_30%_8%)]` for a subtle brand tint.
-- Add a thin top accent bar: `<div className="h-1 bg-gradient-to-r from-primary via-primary/60 to-primary" />`.
-- Section headings: add small primary underline accent (`after:` pseudo via inline span, or `border-b-2 border-primary/40 inline-block pb-1`).
-- Quick Links / Support items: add `hover:translate-x-1 transition-transform` along with existing color hover for a nicer micro-interaction.
-- Contact email row: wrap in a small rounded chip `inline-flex bg-white/5 px-3 py-1.5 rounded-full ring-1 ring-white/10`.
-- App store buttons: tighten styling — `rounded-xl`, `hover:bg-white/5 transition-colors`, keep "Coming Soon" label.
-- Bottom bar: add `border-primary/20` instead of `border-gray-800` for a subtle brand line; update copyright year to 2026.
+### 3. Verify
 
-## Out of scope
-- No copy changes besides the bottom-bar year.
-- No structural/section reordering.
-- No changes to other pages (the global color + button refresh will, however, propagate across the whole app — this is intentional).
+After the dependency bump and effect cleanup:
 
-## Technical notes
-- All color changes flow through CSS variables; no hard-coded hex values added in components.
-- New keyframe `float` added once in `src/index.css`.
-- Button shadow uses `hsl(var(--primary)/X)` so the 3D depth automatically follows the brand color.
-- Respects existing `prefers-reduced-motion` block (animation will be disabled there).
+- Sign in as the admin account → MFA prompt appears with no error toast.
+- Enter a valid TOTP code → toast shows "MFA verified! Redirecting to admin..." and the user lands on `/admin` with AAL2.
+- Confirm in the auth logs that the `403: invalid claim: missing sub claim` entries stop appearing for `/factors/.../challenge` and `/user`.
+
+## Files touched
+
+- `package.json` — bump `@supabase/supabase-js` to `^2.57.2`.
+- `src/pages/Auth.tsx` — guard `refreshChallenge` effect against re-entry and silence the duplicate toast.
+
+No database migrations, no edge function changes, no schema changes.
