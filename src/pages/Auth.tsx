@@ -349,6 +349,10 @@ const Auth = () => {
           console.warn('Auth: AAL2 not yet reflected; proceeding to /admin where server will recheck.');
         }
         toast.success('MFA verified! Redirecting to admin...');
+        // Clear MFA state BEFORE navigating so the refreshChallenge effect
+        // does not re-fire and surface a misleading error toast.
+        setMfaChallengeId('');
+        setMfaFactorId('');
         setShowMFAChallenge(false);
         navigate('/admin');
       }
@@ -358,12 +362,15 @@ const Auth = () => {
       setLoading(false);
     }
   };
-  // When MFA screen opens, always (re)create a fresh challenge to avoid expired/absent challenges
+  // When MFA screen opens, create a single fresh challenge. Skip if one already
+  // exists for the current factor to avoid spamming /factors/.../challenge.
   useEffect(() => {
+    if (!showMFAChallenge) return;
+    if (mfaChallengeId) return; // already have an active challenge
+    let cancelled = false;
+    let toastShown = false;
     const refreshChallenge = async () => {
       try {
-        if (!showMFAChallenge) return;
-        // Ensure we have a factorId
         let factorId = mfaFactorId;
         if (!factorId) {
           const { factors } = await getMFAFactors();
@@ -374,12 +381,16 @@ const Auth = () => {
             return;
           }
           factorId = totp.id;
-          setMfaFactorId(factorId);
+          if (!cancelled) setMfaFactorId(factorId);
         }
         const { challengeId, error } = await challengeMFA(factorId);
+        if (cancelled) return;
         if (error || !challengeId) {
           console.error('Failed to create MFA challenge:', error);
-          toast.error('Could not start verification. Please try again.');
+          if (!toastShown) {
+            toastShown = true;
+            toast.error('Could not start verification. Please try again.');
+          }
           return;
         }
         setMfaChallengeId(challengeId);
@@ -388,7 +399,10 @@ const Auth = () => {
       }
     };
     refreshChallenge();
-  }, [showMFAChallenge, mfaFactorId, challengeMFA, getMFAFactors, navigate, toast]);
+    return () => {
+      cancelled = true;
+    };
+  }, [showMFAChallenge, mfaFactorId, mfaChallengeId, challengeMFA, getMFAFactors, navigate]);
 
   const validatePassword = (password: string) => {
     const hasLowercase = /[a-z]/.test(password);
