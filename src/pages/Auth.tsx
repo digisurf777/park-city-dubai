@@ -314,12 +314,6 @@ const Auth = () => {
         setMfaCode('');
         setLoading(false);
       } else {
-        // Refresh session so the token upgrades to AAL2 immediately, then wait for it
-        try {
-          await supabase.auth.refreshSession();
-        } catch (e) {
-          console.warn('Auth: refreshSession after MFA verify failed (continuing)', e);
-        }
         const waitForAAL2 = async (maxMs: number = 6000) => {
           const start = Date.now();
           while (Date.now() - start < maxMs) {
@@ -343,7 +337,6 @@ const Auth = () => {
             break;
           }
           await new Promise((r) => setTimeout(r, 400));
-          try { await supabase.auth.refreshSession(); } catch {}
         }
         if (!upgraded) {
           console.warn('Auth: AAL2 not yet reflected; proceeding to /admin where server will recheck.');
