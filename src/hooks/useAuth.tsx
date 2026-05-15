@@ -364,10 +364,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       });
       
       if (!error) {
-        // Force-refresh session so the access token reflects AAL2 immediately
         try {
-          await supabase.auth.refreshSession();
-          // Small wait loop to ensure the SDK exposes aal2 on the session
           const start = Date.now();
           while (Date.now() - start < 6000) {
             const { data: aalCheck } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
@@ -375,7 +372,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             await new Promise((r) => setTimeout(r, 250));
           }
         } catch (e) {
-          console.warn('verifyMFA: refreshSession failed (continuing)', e);
+          console.warn('verifyMFA: waiting for aal2 failed (continuing)', e);
         }
 
         // Update MFA status in database (best-effort)
@@ -423,9 +420,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       });
 
       if (!error) {
-        // Ensure the client has an upgraded AAL2 token immediately
         try {
-          await supabase.auth.refreshSession();
           const start = Date.now();
           while (Date.now() - start < 6000) {
             const { data: aalCheck } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
@@ -433,7 +428,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             await new Promise((r) => setTimeout(r, 250));
           }
         } catch (e) {
-          console.warn('verifyMFAChallenge: refreshSession failed (continuing)', e);
+          console.warn('verifyMFAChallenge: waiting for aal2 failed (continuing)', e);
         }
       }
       
