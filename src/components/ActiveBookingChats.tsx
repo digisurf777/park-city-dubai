@@ -36,7 +36,8 @@ export const ActiveBookingChats = () => {
   useEffect(() => {
     if (user) {
       fetchActiveBookings();
-      setupRealtimeSubscription();
+      const cleanup = setupRealtimeSubscription();
+      return cleanup;
     }
   }, [user]);
 
