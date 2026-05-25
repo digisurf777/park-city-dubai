@@ -39,6 +39,8 @@ import { MonthlyEmailsTab } from '@/components/admin/MonthlyEmailsTab';
 import { useInactivityLogout } from '@/hooks/useInactivityLogout';
 import { InactivityWarningDialog } from '@/components/InactivityWarningDialog';
 
+const ADMIN_MFA_PENDING_KEY = 'admin_mfa_pending';
+
 // Import all interfaces and state from original AdminPanel
 interface NewsPost {
   id: string;
@@ -295,6 +297,12 @@ const AdminPanelOrganized = () => {
         if (currentAAL !== 'aal2') {
           console.warn('AdminPanel: Waiting for AAL2, current:', currentAAL);
           accessToken = await waitForAAL2();
+          const { data: updatedAalInfo } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+          if (updatedAalInfo?.currentLevel !== 'aal2') {
+            sessionStorage.setItem(ADMIN_MFA_PENDING_KEY, 'true');
+            navigate('/auth', { replace: true });
+            return;
+          }
         }
         
         if (!accessToken) {
@@ -337,6 +345,7 @@ const AdminPanelOrganized = () => {
           console.error('Admin access validation failed:', data);
 
           if (data.requires_mfa) {
+            sessionStorage.setItem(ADMIN_MFA_PENDING_KEY, 'true');
             toast({
               title: 'MFA Required',
               description: 'Admin access requires two-factor authentication. Please complete MFA.',
@@ -358,11 +367,12 @@ const AdminPanelOrganized = () => {
           }
 
           // Do NOT sign out here to avoid loops; keep session so /auth can show MFA challenge
-          navigate('/auth');
+          navigate('/auth', { replace: true });
           return;
         }
 
         console.log('Admin access validated with AAL2:', data);
+        sessionStorage.removeItem(ADMIN_MFA_PENDING_KEY);
         setIsValidated(true);
         setValidating(false);
       } catch (error) {

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -20,6 +20,7 @@ export const MFARequiredGuard = ({ children }: { children: React.ReactNode }) =>
   const [verifying, setVerifying] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [checkingRole, setCheckingRole] = useState(true);
+  const activeChallengeFactorRef = useRef<string | null>(null);
 
   // Check if user is admin
   useEffect(() => {
@@ -78,8 +79,15 @@ export const MFARequiredGuard = ({ children }: { children: React.ReactNode }) =>
           const totpFactor = factors.find((f: any) => f.factor_type === 'totp' && f.status === 'verified');
           
           if (totpFactor) {
+            if (activeChallengeFactorRef.current === totpFactor.id && challengeId) {
+              setShowMFAChallenge(true);
+              setShowSetup(false);
+              return;
+            }
+
             const { challengeId: newChallengeId, error: challengeError } = await challengeMFA(totpFactor.id);
             if (!challengeError && newChallengeId) {
+              activeChallengeFactorRef.current = totpFactor.id;
               setChallengeId(newChallengeId);
               setShowMFAChallenge(true);
               setShowSetup(false);
@@ -103,7 +111,7 @@ export const MFARequiredGuard = ({ children }: { children: React.ReactNode }) =>
       }
     };
     validateSecureAccess();
-  }, [user, loading, isAdmin, checkingRole, mfaEnabled]);
+  }, [user, loading, isAdmin, checkingRole, mfaEnabled, challengeId, getMFAFactors, challengeMFA]);
 
   if (loading || checkingRole) {
     return (
@@ -136,13 +144,11 @@ export const MFARequiredGuard = ({ children }: { children: React.ReactNode }) =>
       }
 
       toast.success('Authentication successful');
+      activeChallengeFactorRef.current = null;
+      setChallengeId('');
       setShowMFAChallenge(false);
       setMfaCode('');
-      
-      // Force a re-validation after successful MFA
-      setTimeout(() => {
-        window.location.reload();
-      }, 500);
+      navigate('/admin', { replace: true });
     } catch (error) {
       console.error('MFA verification error:', error);
       toast.error('Failed to verify authentication code');
