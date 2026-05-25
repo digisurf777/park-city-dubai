@@ -43,7 +43,7 @@ const ChatWidget = () => {
     
     // Set up real-time subscription
     const channel = supabase
-      .channel('chat-messages')
+      .channel(`chat-messages-${user.id}-${Math.random().toString(36).slice(2)}`)
       .on(
         'postgres_changes',
         {
