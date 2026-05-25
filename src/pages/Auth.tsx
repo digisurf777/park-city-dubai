@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -28,6 +28,7 @@ const Auth = () => {
   const [mfaCode, setMfaCode] = useState('');
   const [mfaFactorId, setMfaFactorId] = useState('');
   const [mfaChallengeId, setMfaChallengeId] = useState('');
+  const issuedChallengeFactorRef = useRef<string | null>(null);
   const { signIn, signUp, resetPassword, updatePassword, user, challengeMFA, verifyMFAChallenge, getMFAFactors, signOut } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -142,11 +143,12 @@ const Auth = () => {
   const isRecoveryMode = searchParams.get('type') === 'recovery' || showPasswordUpdate;
   useEffect(() => {
     const maybeRedirectOrChallenge = async () => {
-      if (!user || isRecoveryMode || showMFAChallenge) return;
+      if (!user || isRecoveryMode || loading || showMFAChallenge) return;
 
       try {
         const { data: sessionData } = await supabase.auth.getSession();
-        const currentAAL = (sessionData.session as any)?.aal;
+        const { data: aalData } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+        const currentAAL = aalData?.currentLevel;
         const userId = sessionData.session?.user?.id;
         if (!userId) return;
 
@@ -159,13 +161,16 @@ const Auth = () => {
           .maybeSingle();
         
         if (roleData) {
-          // Admin user
           if (currentAAL === 'aal2') {
-            // Already MFA verified, safe to redirect
             navigate('/admin');
             return;
           }
-          // AAL1: ensure MFA challenge is shown (fallback in case login handler didn't run)
+
+          if (mfaChallengeId) {
+            setShowMFAChallenge(true);
+            return;
+          }
+
           try {
             const { factors } = await getMFAFactors();
             const totpFactor = factors?.find((f: any) => f.status === 'verified');
@@ -174,8 +179,15 @@ const Auth = () => {
               navigate('/admin-setup');
               return;
             }
+
+            if (issuedChallengeFactorRef.current === totpFactor.id) {
+              setShowMFAChallenge(true);
+              return;
+            }
+
             const { challengeId, error: challengeError } = await challengeMFA(totpFactor.id);
             if (!challengeError && challengeId) {
+              issuedChallengeFactorRef.current = totpFactor.id;
               setMfaFactorId(totpFactor.id);
               setMfaChallengeId(challengeId);
               setShowMFAChallenge(true);
@@ -196,11 +208,16 @@ const Auth = () => {
     };
 
     maybeRedirectOrChallenge();
-  }, [user, isRecoveryMode, showMFAChallenge, navigate, getMFAFactors, challengeMFA]);
+  }, [user, isRecoveryMode, loading, showMFAChallenge, mfaChallengeId, navigate, getMFAFactors, challengeMFA]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    issuedChallengeFactorRef.current = null;
+    setShowMFAChallenge(false);
+    setMfaCode('');
+    setMfaFactorId('');
+    setMfaChallengeId('');
     
     try {
       const { error } = await signIn(loginForm.email, loginForm.password);
@@ -264,6 +281,7 @@ const Auth = () => {
           const { challengeId, error: challengeError } = await challengeMFA(totpFactor.id);
           
           if (!challengeError && challengeId) {
+            issuedChallengeFactorRef.current = totpFactor.id;
             setMfaFactorId(totpFactor.id);
             setMfaChallengeId(challengeId);
             setShowMFAChallenge(true);
@@ -342,11 +360,11 @@ const Auth = () => {
           console.warn('Auth: AAL2 not yet reflected; proceeding to /admin where server will recheck.');
         }
         toast.success('MFA verified! Redirecting to admin...');
-        // Clear MFA state BEFORE navigating so the refreshChallenge effect
-        // does not re-fire and surface a misleading error toast.
+        issuedChallengeFactorRef.current = null;
         setMfaChallengeId('');
         setMfaFactorId('');
         setShowMFAChallenge(false);
+        setLoading(false);
         navigate('/admin');
       }
     } catch (err) {
@@ -376,6 +394,7 @@ const Auth = () => {
           factorId = totp.id;
           if (!cancelled) setMfaFactorId(factorId);
         }
+        if (issuedChallengeFactorRef.current === factorId) return;
         const { challengeId, error } = await challengeMFA(factorId);
         if (cancelled) return;
         if (error || !challengeId) {
@@ -386,6 +405,7 @@ const Auth = () => {
           }
           return;
         }
+        issuedChallengeFactorRef.current = factorId;
         setMfaChallengeId(challengeId);
       } catch (e) {
         console.error('Error refreshing MFA challenge:', e);
