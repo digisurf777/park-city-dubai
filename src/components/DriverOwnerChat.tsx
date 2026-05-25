@@ -59,7 +59,8 @@ export const DriverOwnerChat = ({ bookingId, isOpen, onClose }: DriverOwnerChatP
     if (isOpen && user && bookingId) {
       fetchBookingDetails();
       fetchMessages();
-      setupRealtimeSubscription();
+      const cleanup = setupRealtimeSubscription();
+      return cleanup;
     }
   }, [isOpen, user, bookingId]);
 
