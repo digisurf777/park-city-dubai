@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -12,6 +12,8 @@ import { toast } from 'sonner';
 import { Loader2, Mail, Lock, Shield } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { InputOTP, InputOTPGroup, InputOTPSlot, InputOTPSeparator } from '@/components/ui/input-otp';
+
+const ADMIN_MFA_PENDING_KEY = 'admin_mfa_pending';
 
 const Auth = () => {
   const [loading, setLoading] = useState(false);
@@ -28,6 +30,7 @@ const Auth = () => {
   const [mfaCode, setMfaCode] = useState('');
   const [mfaFactorId, setMfaFactorId] = useState('');
   const [mfaChallengeId, setMfaChallengeId] = useState('');
+  const issuedChallengeFactorRef = useRef<string | null>(null);
   const { signIn, signUp, resetPassword, updatePassword, user, challengeMFA, verifyMFAChallenge, getMFAFactors, signOut } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -142,11 +145,12 @@ const Auth = () => {
   const isRecoveryMode = searchParams.get('type') === 'recovery' || showPasswordUpdate;
   useEffect(() => {
     const maybeRedirectOrChallenge = async () => {
-      if (!user || isRecoveryMode || showMFAChallenge) return;
+      if (!user || isRecoveryMode || loading || showMFAChallenge) return;
 
       try {
         const { data: sessionData } = await supabase.auth.getSession();
-        const currentAAL = (sessionData.session as any)?.aal;
+        const { data: aalData } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+        const currentAAL = aalData?.currentLevel;
         const userId = sessionData.session?.user?.id;
         if (!userId) return;
 
@@ -159,13 +163,16 @@ const Auth = () => {
           .maybeSingle();
         
         if (roleData) {
-          // Admin user
           if (currentAAL === 'aal2') {
-            // Already MFA verified, safe to redirect
             navigate('/admin');
             return;
           }
-          // AAL1: ensure MFA challenge is shown (fallback in case login handler didn't run)
+
+          if (mfaChallengeId) {
+            setShowMFAChallenge(true);
+            return;
+          }
+
           try {
             const { factors } = await getMFAFactors();
             const totpFactor = factors?.find((f: any) => f.status === 'verified');
@@ -174,8 +181,15 @@ const Auth = () => {
               navigate('/admin-setup');
               return;
             }
+
+            if (issuedChallengeFactorRef.current === totpFactor.id) {
+              setShowMFAChallenge(true);
+              return;
+            }
+
             const { challengeId, error: challengeError } = await challengeMFA(totpFactor.id);
             if (!challengeError && challengeId) {
+              issuedChallengeFactorRef.current = totpFactor.id;
               setMfaFactorId(totpFactor.id);
               setMfaChallengeId(challengeId);
               setShowMFAChallenge(true);
@@ -196,11 +210,16 @@ const Auth = () => {
     };
 
     maybeRedirectOrChallenge();
-  }, [user, isRecoveryMode, showMFAChallenge, navigate, getMFAFactors, challengeMFA]);
+  }, [user, isRecoveryMode, loading, showMFAChallenge, mfaChallengeId, navigate, getMFAFactors, challengeMFA]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    issuedChallengeFactorRef.current = null;
+    setShowMFAChallenge(false);
+    setMfaCode('');
+    setMfaFactorId('');
+    setMfaChallengeId('');
     
     try {
       const { error } = await signIn(loginForm.email, loginForm.password);
@@ -246,6 +265,7 @@ const Auth = () => {
       if (roleData) {
         // User is admin - check AAL level
         console.log('Admin login detected. Current AAL:', currentAAL);
+        sessionStorage.setItem(ADMIN_MFA_PENDING_KEY, 'true');
         
         if (currentAAL === 'aal1') {
           // Admin logged in with only password (AAL1) - need MFA (AAL2)
@@ -264,6 +284,7 @@ const Auth = () => {
           const { challengeId, error: challengeError } = await challengeMFA(totpFactor.id);
           
           if (!challengeError && challengeId) {
+            issuedChallengeFactorRef.current = totpFactor.id;
             setMfaFactorId(totpFactor.id);
             setMfaChallengeId(challengeId);
             setShowMFAChallenge(true);
@@ -273,6 +294,7 @@ const Auth = () => {
           }
         } else if (currentAAL === 'aal2') {
           // Already verified MFA in this session
+          sessionStorage.removeItem(ADMIN_MFA_PENDING_KEY);
           toast.success('Logged in successfully with MFA!');
           navigate('/admin');
           setLoading(false);
@@ -281,6 +303,7 @@ const Auth = () => {
       }
 
       // Non-admin user
+      sessionStorage.removeItem(ADMIN_MFA_PENDING_KEY);
       toast.success('Logged in successfully!');
       navigate('/');
       setLoading(false);
@@ -338,15 +361,19 @@ const Auth = () => {
           }
           await new Promise((r) => setTimeout(r, 400));
         }
-        if (!upgraded) {
-          console.warn('Auth: AAL2 not yet reflected; proceeding to /admin where server will recheck.');
+        if (!upgraded && !ok) {
+          console.warn('Auth: MFA verify succeeded but admin session is still syncing');
+          toast.error('Authentication succeeded, but admin access is still syncing. Please wait a moment and try again.');
+          setLoading(false);
+          return;
         }
         toast.success('MFA verified! Redirecting to admin...');
-        // Clear MFA state BEFORE navigating so the refreshChallenge effect
-        // does not re-fire and surface a misleading error toast.
+        issuedChallengeFactorRef.current = null;
+        sessionStorage.removeItem(ADMIN_MFA_PENDING_KEY);
         setMfaChallengeId('');
         setMfaFactorId('');
         setShowMFAChallenge(false);
+        setLoading(false);
         navigate('/admin');
       }
     } catch (err) {
@@ -376,6 +403,7 @@ const Auth = () => {
           factorId = totp.id;
           if (!cancelled) setMfaFactorId(factorId);
         }
+        if (issuedChallengeFactorRef.current === factorId) return;
         const { challengeId, error } = await challengeMFA(factorId);
         if (cancelled) return;
         if (error || !challengeId) {
@@ -386,6 +414,7 @@ const Auth = () => {
           }
           return;
         }
+        issuedChallengeFactorRef.current = factorId;
         setMfaChallengeId(challengeId);
       } catch (e) {
         console.error('Error refreshing MFA challenge:', e);
