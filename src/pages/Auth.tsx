@@ -13,6 +13,8 @@ import { Loader2, Mail, Lock, Shield } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { InputOTP, InputOTPGroup, InputOTPSlot, InputOTPSeparator } from '@/components/ui/input-otp';
 
+const ADMIN_MFA_PENDING_KEY = 'admin_mfa_pending';
+
 const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [resetLoading, setResetLoading] = useState(false);
@@ -263,6 +265,7 @@ const Auth = () => {
       if (roleData) {
         // User is admin - check AAL level
         console.log('Admin login detected. Current AAL:', currentAAL);
+        sessionStorage.setItem(ADMIN_MFA_PENDING_KEY, 'true');
         
         if (currentAAL === 'aal1') {
           // Admin logged in with only password (AAL1) - need MFA (AAL2)
@@ -291,6 +294,7 @@ const Auth = () => {
           }
         } else if (currentAAL === 'aal2') {
           // Already verified MFA in this session
+          sessionStorage.removeItem(ADMIN_MFA_PENDING_KEY);
           toast.success('Logged in successfully with MFA!');
           navigate('/admin');
           setLoading(false);
@@ -299,6 +303,7 @@ const Auth = () => {
       }
 
       // Non-admin user
+      sessionStorage.removeItem(ADMIN_MFA_PENDING_KEY);
       toast.success('Logged in successfully!');
       navigate('/');
       setLoading(false);
@@ -356,11 +361,15 @@ const Auth = () => {
           }
           await new Promise((r) => setTimeout(r, 400));
         }
-        if (!upgraded) {
-          console.warn('Auth: AAL2 not yet reflected; proceeding to /admin where server will recheck.');
+        if (!upgraded && !ok) {
+          console.warn('Auth: MFA verify succeeded but admin session is still syncing');
+          toast.error('Authentication succeeded, but admin access is still syncing. Please wait a moment and try again.');
+          setLoading(false);
+          return;
         }
         toast.success('MFA verified! Redirecting to admin...');
         issuedChallengeFactorRef.current = null;
+        sessionStorage.removeItem(ADMIN_MFA_PENDING_KEY);
         setMfaChallengeId('');
         setMfaFactorId('');
         setShowMFAChallenge(false);
