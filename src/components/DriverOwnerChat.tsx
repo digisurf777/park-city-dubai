@@ -155,7 +155,7 @@ export const DriverOwnerChat = ({ bookingId, isOpen, onClose }: DriverOwnerChatP
     if (!user || !bookingId) return;
 
     const channel = supabase
-      .channel('booking-messages')
+      .channel(`booking-messages-${bookingId}-${Math.random().toString(36).slice(2)}`)
       .on(
         'postgres_changes',
         {
