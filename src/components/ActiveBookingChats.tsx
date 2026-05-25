@@ -118,7 +118,7 @@ export const ActiveBookingChats = () => {
     if (!user) return;
 
     const channel = supabase
-      .channel('active-booking-chats')
+      .channel(`active-booking-chats-${user.id}-${Math.random().toString(36).slice(2)}`)
       .on(
         'postgres_changes',
         {
