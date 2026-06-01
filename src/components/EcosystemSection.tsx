@@ -3,9 +3,9 @@ import { ArrowUpRight, Sparkles } from "lucide-react";
 import shazamLogo from "@/assets/ecosystem/shazam-logo.png";
 import dubaiLifeOsLogo from "@/assets/ecosystem/dubai-life-os-logo.png";
 import dubaiLifeMapsLogo from "@/assets/ecosystem/dubai-life-maps-logo.png";
-import shazamPreview from "@/assets/ecosystem/shazam-preview.png";
-import dubaiLifeOsPreview from "@/assets/ecosystem/dubai-life-os-preview.png";
-import dubaiLifeMapsPreview from "@/assets/ecosystem/dubai-life-maps-preview.png";
+import shazamPreview from "@/assets/ecosystem/shazam-preview-opt.webp";
+import dubaiLifeOsPreview from "@/assets/ecosystem/dubai-life-os-preview-opt.webp";
+import dubaiLifeMapsPreview from "@/assets/ecosystem/dubai-life-maps-preview-opt.webp";
 import dubaiAerial from "@/assets/dubai-drone-aerial.jpg";
 
 const products = [
