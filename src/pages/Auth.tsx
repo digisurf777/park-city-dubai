@@ -490,7 +490,8 @@ const Auth = () => {
     
     try {
       console.log('Calling signUp function...');
-      const { error } = await signUp(signupForm.email, signupForm.password, signupForm.fullName, 'seeker');
+      const normalizedEmail = signupForm.email.trim().toLowerCase();
+      const { error } = await signUp(normalizedEmail, signupForm.password, signupForm.fullName.trim(), 'seeker');
       
       // Save phone to profiles table after signup (best-effort)
       if (!error) {
