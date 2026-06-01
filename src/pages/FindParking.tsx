@@ -186,42 +186,6 @@ const FindParking = () => {
               The quickest, easiest, and most secure way to rent a monthly parking space across Dubai.
             </p>
           </div>
-
-          {/* Premium Search Bar */}
-          <div className="w-full max-w-3xl mt-8 px-2">
-            <div className="frame-3d p-2 sm:p-3 flex flex-col sm:flex-row gap-2 items-stretch">
-              <div className="flex-1 flex items-center gap-2 px-4 py-2 bg-white rounded-xl">
-                <Search className="h-5 w-5 text-primary flex-shrink-0" />
-                <Input
-                  placeholder="Search by zone, building, or area..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="border-0 shadow-none focus-visible:ring-0 p-0 h-auto text-base min-w-0"
-                />
-                {searchTerm && (
-                  <button onClick={() => setSearchTerm("")} className="p-1 text-muted-foreground hover:text-foreground flex-shrink-0">
-                    <X className="h-4 w-4" />
-                  </button>
-                )}
-              </div>
-              <button className="btn-3d-primary px-6 py-3 rounded-xl font-bold tracking-wide flex items-center justify-center gap-2 sm:min-w-[140px]">
-                <Search className="h-4 w-4" />
-                Search
-              </button>
-            </div>
-            {/* Quick chips */}
-            <div className="flex flex-wrap justify-center gap-2 mt-4">
-              {districtZones.slice(0, 6).map((z) => (
-                <button
-                  key={z.slug}
-                  onClick={() => handleSelectZone(z.slug)}
-                  className="px-3 py-1.5 rounded-full text-xs font-semibold bg-white/15 backdrop-blur border border-white/25 text-white hover:bg-white/25 transition-colors"
-                >
-                  {z.name}
-                </button>
-              ))}
-            </div>
-          </div>
         </div>
       </div>
 
