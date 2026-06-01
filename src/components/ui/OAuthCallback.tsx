@@ -31,12 +31,14 @@ const OAuthCallback = () => {
 
         // If we got a PKCE authorization code, exchange it for a session explicitly.
         const code = queryParams.get('code');
+        const next = queryParams.get('next') || '/my-account';
         if (code) {
-          const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(
-            window.location.href
-          );
+          const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
           if (exchangeError) {
             console.error('OAuthCallback: Code exchange failed:', exchangeError);
+            toast.error(`Google sign-in failed: ${exchangeError.message}`);
+            navigate('/auth');
+            return;
           }
         }
 
@@ -78,7 +80,7 @@ const OAuthCallback = () => {
             navigate('/auth');
           } else {
             // Regular users land on their account page
-            navigate('/my-account');
+            navigate(next.startsWith('/') ? next : '/my-account');
           }
         } else {
           console.log('OAuthCallback: No session found, redirecting to auth');
