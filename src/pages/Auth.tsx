@@ -145,6 +145,7 @@ const Auth = () => {
   // Redirect logic: only redirect when either not admin or session is AAL2; if admin+AAL1, trigger MFA challenge here
   const isRecoveryMode = searchParams.get('type') === 'recovery' || showPasswordUpdate;
   const mfaChallengeInFlight = useRef(false);
+  const mfaVerifiedRef = useRef(false);
   useEffect(() => {
     const maybeRedirectOrChallenge = async () => {
       if (!user || isRecoveryMode || showMFAChallenge || mfaChallengeInFlight.current) return;
@@ -324,12 +325,10 @@ const Auth = () => {
         setMfaCode('');
         setLoading(false);
       } else {
-        // Refresh session so the token upgrades to AAL2 immediately, then wait for it
-        try {
-          await supabase.auth.refreshSession();
-        } catch (e) {
-          console.warn('Auth: refreshSession after MFA verify failed (continuing)', e);
-        }
+        // Verification succeeded — block the challenge-refresh effect from firing.
+        mfaVerifiedRef.current = true;
+        // mfa.verify() (inside verifyMFAChallenge) already upgraded the session to
+        // AAL2. Do NOT call refreshSession() here — it corrupts the fresh token.
         const waitForAAL2Token = async (maxMs: number = 6000) => {
           const start = Date.now();
           while (Date.now() - start < maxMs) {
@@ -343,6 +342,7 @@ const Auth = () => {
           const { data: s } = await supabase.auth.getSession();
           return s.session?.access_token ?? null;
         };
+
         const aal2Token = await waitForAAL2Token();
         // Double-check with server using the explicit AAL2 token to avoid bouncing back
         if (aal2Token) {
@@ -378,7 +378,7 @@ const Auth = () => {
   useEffect(() => {
     const refreshChallenge = async () => {
       try {
-        if (!showMFAChallenge) return;
+        if (!showMFAChallenge || mfaVerifiedRef.current) return;
         // Ensure we have a factorId
         let factorId = mfaFactorId;
         if (!factorId) {
