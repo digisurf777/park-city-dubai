@@ -325,6 +325,8 @@ const Auth = () => {
         setMfaCode('');
         setLoading(false);
       } else {
+        // Verification succeeded — block the challenge-refresh effect from firing.
+        mfaVerifiedRef.current = true;
         // mfa.verify() (inside verifyMFAChallenge) already upgraded the session to
         // AAL2. Do NOT call refreshSession() here — it corrupts the fresh token.
         const waitForAAL2Token = async (maxMs: number = 6000) => {
