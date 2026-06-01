@@ -937,6 +937,11 @@ const Auth = () => {
                         <Input
                           id="reset-email"
                           type="email"
+                          inputMode="email"
+                          autoComplete="email"
+                          autoCapitalize="none"
+                          autoCorrect="off"
+                          spellCheck={false}
                           placeholder="Enter your email"
                           value={resetEmail}
                           onChange={(e) => setResetEmail(e.target.value)}
