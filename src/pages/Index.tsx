@@ -625,8 +625,8 @@ const Index = () => {
                   <div className="absolute inset-0 -m-6 rounded-full bg-primary-glow/25 blur-3xl pointer-events-none" />
 
                   {/* Phone frame */}
-                  <div className="relative w-[200px] sm:w-full max-w-[210px] mx-auto rounded-[2.4rem] bg-gradient-to-b from-gray-900 to-black p-[3px] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.45)] ring-1 ring-white/10">
-                    <div className="relative rounded-[2.2rem] bg-white overflow-hidden aspect-[9/19]">
+                  <div className="relative w-[200px] mx-auto rounded-[2.4rem] bg-gradient-to-b from-gray-900 to-black p-[3px] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.45)] ring-1 ring-white/10">
+                    <div className="relative w-full rounded-[2.2rem] bg-white overflow-hidden aspect-[9/19]">
                       {/* Notch */}
                       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/3 h-5 bg-black rounded-b-2xl z-10" />
                       {/* Status bar */}
