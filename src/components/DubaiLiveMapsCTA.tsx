@@ -15,7 +15,7 @@ const DubaiLiveMapsCTA = ({ variant = "full", zoneName }: DubaiLiveMapsCTAProps)
         className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 ring-1 ring-primary/20 text-primary text-sm font-semibold hover:bg-primary/15 hover:ring-primary/40 transition-all"
       >
         <Map className="h-4 w-4" />
-        Explore on Dubai Live Maps
+        Explore on Dubai Life Maps
         <ExternalLink className="h-3.5 w-3.5 opacity-70" />
       </a>
     );
@@ -46,7 +46,7 @@ const DubaiLiveMapsCTA = ({ variant = "full", zoneName }: DubaiLiveMapsCTAProps)
               Powered by the Shazam Ecosystem
             </p>
             <h3 className="text-xl sm:text-2xl font-bold mb-1.5">
-              See {zoneName ? zoneName : "this area"} live on Dubai Live Maps
+              See {zoneName ? zoneName : "this area"} live on Dubai Life Maps
             </h3>
             <p className="text-sm sm:text-base text-white/75">
               Open the interactive city map to explore traffic, mobility and area context
