@@ -222,7 +222,8 @@ const Auth = () => {
     setMfaChallengeId('');
     
     try {
-      const { error } = await signIn(loginForm.email, loginForm.password);
+      const normalizedEmail = loginForm.email.trim().toLowerCase();
+      const { error } = await signIn(normalizedEmail, loginForm.password);
       
       if (error) {
         console.error('Login error:', error);
@@ -489,7 +490,8 @@ const Auth = () => {
     
     try {
       console.log('Calling signUp function...');
-      const { error } = await signUp(signupForm.email, signupForm.password, signupForm.fullName, 'seeker');
+      const normalizedEmail = signupForm.email.trim().toLowerCase();
+      const { error } = await signUp(normalizedEmail, signupForm.password, signupForm.fullName.trim(), 'seeker');
       
       // Save phone to profiles table after signup (best-effort)
       if (!error) {
@@ -613,7 +615,7 @@ const Auth = () => {
     
     try {
       console.log('Calling resetPassword function...');
-      const { error } = await resetPassword(resetEmail);
+      const { error } = await resetPassword(resetEmail.trim().toLowerCase());
       console.log('Reset password response:', { hasError: !!error, error });
       
       if (error) {
@@ -877,14 +879,19 @@ const Auth = () => {
                 <form onSubmit={handleLogin} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="login-email">Email</Label>
-                    <Input
-                      id="login-email"
-                      type="email"
-                      placeholder="Enter your email"
-                      value={loginForm.email}
-                      onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })}
-                      required
-                    />
+                     <Input
+                       id="login-email"
+                       type="email"
+                       inputMode="email"
+                       autoComplete="email"
+                       autoCapitalize="none"
+                       autoCorrect="off"
+                       spellCheck={false}
+                       placeholder="Enter your email"
+                       value={loginForm.email}
+                       onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })}
+                       required
+                     />
                   </div>
                   
                   <div className="space-y-2">
@@ -892,6 +899,7 @@ const Auth = () => {
                     <Input
                       id="login-password"
                       type="password"
+                      autoComplete="current-password"
                       placeholder="Enter your password"
                       value={loginForm.password}
                       onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
@@ -931,6 +939,11 @@ const Auth = () => {
                         <Input
                           id="reset-email"
                           type="email"
+                          inputMode="email"
+                          autoComplete="email"
+                          autoCapitalize="none"
+                          autoCorrect="off"
+                          spellCheck={false}
                           placeholder="Enter your email"
                           value={resetEmail}
                           onChange={(e) => setResetEmail(e.target.value)}
@@ -1006,6 +1019,7 @@ const Auth = () => {
                     <Input
                       id="signup-name"
                       type="text"
+                      autoComplete="name"
                       placeholder="Enter your full name"
                       value={signupForm.fullName}
                       onChange={(e) => setSignupForm({ ...signupForm, fullName: e.target.value })}
@@ -1018,6 +1032,8 @@ const Auth = () => {
                     <Input
                       id="signup-phone"
                       type="tel"
+                      inputMode="tel"
+                      autoComplete="tel"
                       placeholder="+971 50 123 4567"
                       value={signupForm.phone}
                       onChange={(e) => setSignupForm({ ...signupForm, phone: e.target.value })}
@@ -1030,6 +1046,11 @@ const Auth = () => {
                     <Input
                       id="signup-email"
                       type="email"
+                      inputMode="email"
+                      autoComplete="email"
+                      autoCapitalize="none"
+                      autoCorrect="off"
+                      spellCheck={false}
                       placeholder="Enter your email address"
                       value={signupForm.email}
                       onChange={(e) => setSignupForm({ ...signupForm, email: e.target.value })}
@@ -1042,6 +1063,7 @@ const Auth = () => {
                     <Input
                       id="signup-password"
                       type="password"
+                      autoComplete="new-password"
                       placeholder="Choose a password (min. 6 characters)"
                       value={signupForm.password}
                       onChange={(e) => setSignupForm({ ...signupForm, password: e.target.value })}
@@ -1055,6 +1077,7 @@ const Auth = () => {
                     <Input
                       id="signup-confirm-password"
                       type="password"
+                      autoComplete="new-password"
                       placeholder="Confirm your password"
                       value={signupForm.confirmPassword}
                       onChange={(e) => setSignupForm({ ...signupForm, confirmPassword: e.target.value })}

@@ -118,6 +118,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signUp = async (email: string, password: string, fullName: string, userType: string = 'seeker') => {
     try {
+      email = email.trim().toLowerCase();
       console.log('AuthProvider: Starting signup process for:', email);
       
       const redirectUrl = `${window.location.origin}/email-confirmed?redirect_to=/`;
@@ -172,6 +173,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signIn = async (email: string, password: string) => {
     try {
+      email = email.trim().toLowerCase();
       console.log('AuthProvider: Starting signin process for:', email);
 
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -219,6 +221,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const resetPassword = async (email: string) => {
     try {
+      email = email.trim().toLowerCase();
       // Use auth page with recovery type parameter
       const redirectUrl = `${window.location.origin}/auth?type=recovery`;
       
@@ -269,6 +272,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const resendConfirmationEmail = async (email: string) => {
     try {
+      email = email.trim().toLowerCase();
       const redirectUrl = `${window.location.origin}/email-confirmed?redirect_to=/`;
       
       const { error } = await supabase.auth.resend({
