@@ -13,9 +13,9 @@ export const useInactivityLogout = (onLogout: () => void): UseInactivityLogoutRe
   const [showWarning, setShowWarning] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(60);
   const lastActivityRef = useRef(Date.now());
-  const warningTimerRef = useRef<ReturnType<typeof setTimeout>>();
-  const logoutTimerRef = useRef<ReturnType<typeof setTimeout>>();
-  const countdownIntervalRef = useRef<ReturnType<typeof setTimeout>>();
+  const warningTimerRef = useRef<NodeJS.Timeout>();
+  const logoutTimerRef = useRef<NodeJS.Timeout>();
+  const countdownIntervalRef = useRef<NodeJS.Timeout>();
 
   const resetTimer = useCallback(() => {
     lastActivityRef.current = Date.now();
@@ -59,7 +59,7 @@ export const useInactivityLogout = (onLogout: () => void): UseInactivityLogoutRe
     const events = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
     
     // Debounce to avoid excessive resets
-    let debounceTimeout: ReturnType<typeof setTimeout>;
+    let debounceTimeout: NodeJS.Timeout;
     const debouncedActivity = () => {
       clearTimeout(debounceTimeout);
       debounceTimeout = setTimeout(handleActivity, 500);

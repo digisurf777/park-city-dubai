@@ -59,8 +59,7 @@ export const DriverOwnerChat = ({ bookingId, isOpen, onClose }: DriverOwnerChatP
     if (isOpen && user && bookingId) {
       fetchBookingDetails();
       fetchMessages();
-      const cleanup = setupRealtimeSubscription();
-      return cleanup;
+      setupRealtimeSubscription();
     }
   }, [isOpen, user, bookingId]);
 
@@ -155,7 +154,7 @@ export const DriverOwnerChat = ({ bookingId, isOpen, onClose }: DriverOwnerChatP
     if (!user || !bookingId) return;
 
     const channel = supabase
-      .channel(`booking-messages-${bookingId}-${Math.random().toString(36).slice(2)}`)
+      .channel('booking-messages')
       .on(
         'postgres_changes',
         {

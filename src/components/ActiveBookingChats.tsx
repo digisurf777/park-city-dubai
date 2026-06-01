@@ -36,8 +36,7 @@ export const ActiveBookingChats = () => {
   useEffect(() => {
     if (user) {
       fetchActiveBookings();
-      const cleanup = setupRealtimeSubscription();
-      return cleanup;
+      setupRealtimeSubscription();
     }
   }, [user]);
 
@@ -118,7 +117,7 @@ export const ActiveBookingChats = () => {
     if (!user) return;
 
     const channel = supabase
-      .channel(`active-booking-chats-${user.id}-${Math.random().toString(36).slice(2)}`)
+      .channel('active-booking-chats')
       .on(
         'postgres_changes',
         {

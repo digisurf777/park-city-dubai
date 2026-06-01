@@ -4,9 +4,9 @@ const PreloadResources = () => {
   useEffect(() => {
     // Preload critical images immediately
     const criticalImages = [
-      '/lovable-uploads/atlantis-hotel-hero.jpg',
-      '/assets/dubai-skyline-hero.jpg',
-      '/assets/dubai-parking-hero.jpg'
+      '/lovable-uploads/atlantis-hotel-hero.webp',
+      '/assets/dubai-skyline-hero.webp',
+      '/assets/dubai-parking-hero.webp'
     ];
 
     criticalImages.forEach(src => {

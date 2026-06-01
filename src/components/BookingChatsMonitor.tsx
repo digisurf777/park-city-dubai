@@ -63,8 +63,7 @@ export const BookingChatsMonitor = () => {
 
   useEffect(() => {
     fetchBookingChats();
-    const cleanup = setupRealtimeSubscription();
-    return cleanup;
+    setupRealtimeSubscription();
   }, []);
 
   useEffect(() => {
@@ -111,7 +110,7 @@ export const BookingChatsMonitor = () => {
 
   const setupRealtimeSubscription = () => {
     const channel = supabase
-      .channel(`booking-chats-monitor-${Math.random().toString(36).slice(2)}`)
+      .channel('booking-chats-monitor')
       .on(
         'postgres_changes',
         {

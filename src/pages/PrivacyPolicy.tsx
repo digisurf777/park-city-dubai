@@ -1,5 +1,4 @@
 import { Helmet } from "react-helmet-async";
-import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 const PrivacyPolicy = () => {
@@ -14,8 +13,8 @@ const PrivacyPolicy = () => {
         <meta name="keywords" content="privacy policy, data protection, UAE PDPL, personal data, Shazam Parking" />
       </Helmet>
       
-      <div className="min-h-screen bg-background">
-        <Navbar />
+      <div className="min-h-screen bg-gradient-to-b from-surface to-background">
+
         
         {/* Hero Section */}
         <div className="bg-gradient-to-r from-primary to-secondary text-white py-16">

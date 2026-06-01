@@ -12,8 +12,8 @@ import { toast } from 'sonner';
 import { Loader2, Mail, Lock, Shield } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { InputOTP, InputOTPGroup, InputOTPSlot, InputOTPSeparator } from '@/components/ui/input-otp';
-
-const ADMIN_MFA_PENDING_KEY = 'admin_mfa_pending';
+import authLuxury from '@/assets/auth-dubai-skyline.jpg';
+import useSEO from '@/hooks/useSEO';
 
 const Auth = () => {
   const [loading, setLoading] = useState(false);
@@ -30,7 +30,6 @@ const Auth = () => {
   const [mfaCode, setMfaCode] = useState('');
   const [mfaFactorId, setMfaFactorId] = useState('');
   const [mfaChallengeId, setMfaChallengeId] = useState('');
-  const issuedChallengeFactorRef = useRef<string | null>(null);
   const { signIn, signUp, resetPassword, updatePassword, user, challengeMFA, verifyMFAChallenge, getMFAFactors, signOut } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -143,9 +142,10 @@ const Auth = () => {
 
   // Redirect logic: only redirect when either not admin or session is AAL2; if admin+AAL1, trigger MFA challenge here
   const isRecoveryMode = searchParams.get('type') === 'recovery' || showPasswordUpdate;
+  const mfaChallengeInFlight = useRef(false);
   useEffect(() => {
     const maybeRedirectOrChallenge = async () => {
-      if (!user || isRecoveryMode || loading || showMFAChallenge) return;
+      if (!user || isRecoveryMode || showMFAChallenge || mfaChallengeInFlight.current) return;
 
       try {
         const { data: sessionData } = await supabase.auth.getSession();
@@ -161,18 +161,16 @@ const Auth = () => {
           .eq('user_id', userId)
           .eq('role', 'admin')
           .maybeSingle();
-        
+
         if (roleData) {
+          // Admin user
           if (currentAAL === 'aal2') {
+            // Already MFA verified, safe to redirect
             navigate('/admin');
             return;
           }
-
-          if (mfaChallengeId) {
-            setShowMFAChallenge(true);
-            return;
-          }
-
+          // AAL1: ensure MFA challenge is shown (fallback in case login handler didn't run)
+          mfaChallengeInFlight.current = true;
           try {
             const { factors } = await getMFAFactors();
             const totpFactor = factors?.find((f: any) => f.status === 'verified');
@@ -181,26 +179,22 @@ const Auth = () => {
               navigate('/admin-setup');
               return;
             }
-
-            if (issuedChallengeFactorRef.current === totpFactor.id) {
-              setShowMFAChallenge(true);
-              return;
-            }
-
             const { challengeId, error: challengeError } = await challengeMFA(totpFactor.id);
             if (!challengeError && challengeId) {
-              issuedChallengeFactorRef.current = totpFactor.id;
               setMfaFactorId(totpFactor.id);
               setMfaChallengeId(challengeId);
               setShowMFAChallenge(true);
               toast.info('Enter your 6-digit authentication code');
+            } else {
+              mfaChallengeInFlight.current = false;
             }
           } catch (e) {
+            mfaChallengeInFlight.current = false;
             console.error('Failed to initiate MFA challenge in redirect effect:', e);
           }
           return;
         }
-        
+
         // Not admin: redirect home
         navigate('/');
       } catch (e) {
@@ -210,20 +204,14 @@ const Auth = () => {
     };
 
     maybeRedirectOrChallenge();
-  }, [user, isRecoveryMode, loading, showMFAChallenge, mfaChallengeId, navigate, getMFAFactors, challengeMFA]);
+  }, [user, isRecoveryMode, showMFAChallenge, navigate, getMFAFactors, challengeMFA]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    issuedChallengeFactorRef.current = null;
-    setShowMFAChallenge(false);
-    setMfaCode('');
-    setMfaFactorId('');
-    setMfaChallengeId('');
     
     try {
-      const normalizedEmail = loginForm.email.trim().toLowerCase();
-      const { error } = await signIn(normalizedEmail, loginForm.password);
+      const { error } = await signIn(loginForm.email, loginForm.password);
       
       if (error) {
         console.error('Login error:', error);
@@ -266,7 +254,6 @@ const Auth = () => {
       if (roleData) {
         // User is admin - check AAL level
         console.log('Admin login detected. Current AAL:', currentAAL);
-        sessionStorage.setItem(ADMIN_MFA_PENDING_KEY, 'true');
         
         if (currentAAL === 'aal1') {
           // Admin logged in with only password (AAL1) - need MFA (AAL2)
@@ -285,7 +272,6 @@ const Auth = () => {
           const { challengeId, error: challengeError } = await challengeMFA(totpFactor.id);
           
           if (!challengeError && challengeId) {
-            issuedChallengeFactorRef.current = totpFactor.id;
             setMfaFactorId(totpFactor.id);
             setMfaChallengeId(challengeId);
             setShowMFAChallenge(true);
@@ -295,7 +281,6 @@ const Auth = () => {
           }
         } else if (currentAAL === 'aal2') {
           // Already verified MFA in this session
-          sessionStorage.removeItem(ADMIN_MFA_PENDING_KEY);
           toast.success('Logged in successfully with MFA!');
           navigate('/admin');
           setLoading(false);
@@ -304,7 +289,6 @@ const Auth = () => {
       }
 
       // Non-admin user
-      sessionStorage.removeItem(ADMIN_MFA_PENDING_KEY);
       toast.success('Logged in successfully!');
       navigate('/');
       setLoading(false);
@@ -338,6 +322,12 @@ const Auth = () => {
         setMfaCode('');
         setLoading(false);
       } else {
+        // Refresh session so the token upgrades to AAL2 immediately, then wait for it
+        try {
+          await supabase.auth.refreshSession();
+        } catch (e) {
+          console.warn('Auth: refreshSession after MFA verify failed (continuing)', e);
+        }
         const waitForAAL2 = async (maxMs: number = 6000) => {
           const start = Date.now();
           while (Date.now() - start < maxMs) {
@@ -361,20 +351,13 @@ const Auth = () => {
             break;
           }
           await new Promise((r) => setTimeout(r, 400));
+          try { await supabase.auth.refreshSession(); } catch {}
         }
-        if (!upgraded && !ok) {
-          console.warn('Auth: MFA verify succeeded but admin session is still syncing');
-          toast.error('Authentication succeeded, but admin access is still syncing. Please wait a moment and try again.');
-          setLoading(false);
-          return;
+        if (!upgraded) {
+          console.warn('Auth: AAL2 not yet reflected; proceeding to /admin where server will recheck.');
         }
         toast.success('MFA verified! Redirecting to admin...');
-        issuedChallengeFactorRef.current = null;
-        sessionStorage.removeItem(ADMIN_MFA_PENDING_KEY);
-        setMfaChallengeId('');
-        setMfaFactorId('');
         setShowMFAChallenge(false);
-        setLoading(false);
         navigate('/admin');
       }
     } catch (err) {
@@ -383,15 +366,12 @@ const Auth = () => {
       setLoading(false);
     }
   };
-  // When MFA screen opens, create a single fresh challenge. Skip if one already
-  // exists for the current factor to avoid spamming /factors/.../challenge.
+  // When MFA screen opens, always (re)create a fresh challenge to avoid expired/absent challenges
   useEffect(() => {
-    if (!showMFAChallenge) return;
-    if (mfaChallengeId) return; // already have an active challenge
-    let cancelled = false;
-    let toastShown = false;
     const refreshChallenge = async () => {
       try {
+        if (!showMFAChallenge) return;
+        // Ensure we have a factorId
         let factorId = mfaFactorId;
         if (!factorId) {
           const { factors } = await getMFAFactors();
@@ -402,30 +382,21 @@ const Auth = () => {
             return;
           }
           factorId = totp.id;
-          if (!cancelled) setMfaFactorId(factorId);
+          setMfaFactorId(factorId);
         }
-        if (issuedChallengeFactorRef.current === factorId) return;
         const { challengeId, error } = await challengeMFA(factorId);
-        if (cancelled) return;
         if (error || !challengeId) {
           console.error('Failed to create MFA challenge:', error);
-          if (!toastShown) {
-            toastShown = true;
-            toast.error('Could not start verification. Please try again.');
-          }
+          toast.error('Could not start verification. Please try again.');
           return;
         }
-        issuedChallengeFactorRef.current = factorId;
         setMfaChallengeId(challengeId);
       } catch (e) {
         console.error('Error refreshing MFA challenge:', e);
       }
     };
     refreshChallenge();
-    return () => {
-      cancelled = true;
-    };
-  }, [showMFAChallenge, mfaFactorId, mfaChallengeId, challengeMFA, getMFAFactors, navigate]);
+  }, [showMFAChallenge, mfaFactorId, challengeMFA, getMFAFactors, navigate, toast]);
 
   const validatePassword = (password: string) => {
     const hasLowercase = /[a-z]/.test(password);
@@ -490,8 +461,7 @@ const Auth = () => {
     
     try {
       console.log('Calling signUp function...');
-      const normalizedEmail = signupForm.email.trim().toLowerCase();
-      const { error } = await signUp(normalizedEmail, signupForm.password, signupForm.fullName.trim(), 'seeker');
+      const { error } = await signUp(signupForm.email, signupForm.password, signupForm.fullName, 'seeker');
       
       // Save phone to profiles table after signup (best-effort)
       if (!error) {
@@ -615,7 +585,7 @@ const Auth = () => {
     
     try {
       console.log('Calling resetPassword function...');
-      const { error } = await resetPassword(resetEmail.trim().toLowerCase());
+      const { error } = await resetPassword(resetEmail);
       console.log('Reset password response:', { hasError: !!error, error });
       
       if (error) {
@@ -812,7 +782,7 @@ const Auth = () => {
                 />
               </div>
               
-              <Button type="submit" className="w-full" disabled={loading}>
+              <Button type="submit" className="w-full h-11 rounded-xl font-semibold text-base shadow-md" disabled={loading}>
                 {loading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -841,20 +811,96 @@ const Auth = () => {
     );
   }
 
+  const seoTags = useSEO({
+    title: 'Sign In or Sign Up | Shazam Parking Dubai',
+    description: 'Log in or create your Shazam Parking account to book secure parking across Dubai or list your parking space and earn monthly income.',
+    keywords: 'Shazam Parking login, sign up Dubai parking, parking account Dubai, list parking space Dubai',
+    url: '/auth'
+  });
+
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-4 animate-zoom-slow">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle className="text-center">Welcome to Shazam Parking</CardTitle>
-          <CardDescription className="text-center">
-            Log in to your account or create a new one
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+    <>
+
+    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-primary-deep via-background to-surface flex items-center justify-center px-3 sm:px-4 py-6 sm:py-10 pt-20 sm:pt-24 animate-fade-in">
+      {seoTags}
+      {/* Decorative blobs */}
+      <div className="pointer-events-none absolute top-20 left-4 sm:left-10 h-48 sm:h-64 w-48 sm:w-64 rounded-full bg-primary/30 blur-3xl" aria-hidden />
+      <div className="pointer-events-none absolute bottom-10 right-4 sm:right-10 h-56 sm:h-72 w-56 sm:w-72 rounded-full bg-primary-glow/20 blur-3xl" aria-hidden />
+
+      <div className="relative w-full max-w-5xl grid lg:grid-cols-2 frame-3d overflow-hidden rounded-2xl sm:rounded-3xl shadow-2xl">
+        {/* Left visual panel - hidden on mobile */}
+        <div className="hidden lg:block relative min-h-[640px]">
+          <img
+            src={authLuxury}
+            alt="Dubai skyline at golden hour"
+            className="absolute inset-0 h-full w-full object-cover"
+            loading="lazy"
+            width={1024}
+            height={1408}
+          />
+          {/* Brand-tinted gradient for legibility */}
+          <div className="absolute inset-0 bg-gradient-to-t from-primary-deep/95 via-primary-deep/30 to-primary-deep/10" />
+          <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-primary/20 mix-blend-overlay" />
+
+          {/* Logo lockup top-left */}
+          <div className="absolute top-6 left-6 flex items-center gap-3">
+            <div className="h-12 w-12 rounded-2xl bg-white/95 backdrop-blur shadow-xl flex items-center justify-center p-1.5 ring-1 ring-white/40">
+              <img
+                src="/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.webp"
+                alt="Shazam Parking logo"
+                className="h-full w-full object-contain"
+                width={48}
+                height={48}
+              />
+            </div>
+            <div className="text-white">
+              <div className="text-base font-black leading-none tracking-tight">Shazam Parking</div>
+              <div className="text-[10px] uppercase tracking-[0.22em] opacity-80 mt-1">Dubai · Premium</div>
+            </div>
+          </div>
+
+          {/* Bottom copy block */}
+          <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
+            <span className="inline-flex items-center gap-1.5 mb-3 px-3 py-1 rounded-full bg-white/15 backdrop-blur text-[10px] font-semibold tracking-[0.18em] uppercase border border-white/25">
+              <span className="text-amber-300">★</span> Premium Parking
+            </span>
+            <h2 className="text-3xl xl:text-4xl font-black leading-tight">
+              Dubai's Most Trusted<br/>Parking Platform
+            </h2>
+            <p className="mt-3 text-white/85 text-sm max-w-sm">
+              Join thousands of drivers and owners using Shazam Parking every day.
+            </p>
+            <div className="mt-5 flex items-center gap-4 text-xs text-white/80">
+              <div className="flex items-center gap-1.5"><Shield className="h-3.5 w-3.5" /> Secure</div>
+              <div className="opacity-40">·</div>
+              <div>★ 4.9 / 5</div>
+              <div className="opacity-40">·</div>
+              <div>10k+ users</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Right form panel */}
+        <div className="bg-white p-5 sm:p-8 md:p-10 [&_input]:h-11 [&_input]:rounded-xl [&_input]:text-base [&_input]:px-4">
+          <div className="text-center mb-5 sm:mb-6">
+            <div className="inline-flex h-16 w-16 sm:h-14 sm:w-14 items-center justify-center rounded-2xl bg-white shadow-glow ring-1 ring-primary/20 mb-3 sm:mb-4 p-2">
+              <img
+                src="/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.webp"
+                alt="Shazam Parking"
+                className="h-full w-full object-contain"
+                width={56}
+                height={56}
+              />
+            </div>
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-foreground tracking-tight">Welcome to Shazam Parking</h1>
+            <p className="text-muted-foreground text-xs sm:text-sm mt-1.5 px-2">
+              Log in to your account or create a new one
+            </p>
+          </div>
           <Tabs defaultValue="login" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="login">Login</TabsTrigger>
-              <TabsTrigger value="signup">Sign Up</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 h-11 p-1 bg-muted/70 rounded-xl">
+              <TabsTrigger value="login" className="h-9 rounded-lg text-sm font-semibold data-[state=active]:shadow-md">Login</TabsTrigger>
+              <TabsTrigger value="signup" className="h-9 rounded-lg text-sm font-semibold data-[state=active]:shadow-md">Sign Up</TabsTrigger>
             </TabsList>
             
             <TabsContent value="login">
@@ -862,7 +908,7 @@ const Auth = () => {
                 <Button 
                   type="button" 
                   variant="outline" 
-                  className="w-full" 
+                  className="w-full h-11 rounded-xl font-semibold" 
                   onClick={handleGoogleAuth}
                 >
                   <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
@@ -879,19 +925,14 @@ const Auth = () => {
                 <form onSubmit={handleLogin} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="login-email">Email</Label>
-                     <Input
-                       id="login-email"
-                       type="email"
-                       inputMode="email"
-                       autoComplete="email"
-                       autoCapitalize="none"
-                       autoCorrect="off"
-                       spellCheck={false}
-                       placeholder="Enter your email"
-                       value={loginForm.email}
-                       onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })}
-                       required
-                     />
+                    <Input
+                      id="login-email"
+                      type="email"
+                      placeholder="Enter your email"
+                      value={loginForm.email}
+                      onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })}
+                      required
+                    />
                   </div>
                   
                   <div className="space-y-2">
@@ -899,7 +940,6 @@ const Auth = () => {
                     <Input
                       id="login-password"
                       type="password"
-                      autoComplete="current-password"
                       placeholder="Enter your password"
                       value={loginForm.password}
                       onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
@@ -907,7 +947,7 @@ const Auth = () => {
                     />
                   </div>
                   
-                  <Button type="submit" className="w-full" disabled={loading}>
+                  <Button type="submit" className="w-full h-11 rounded-xl font-semibold text-base shadow-md" disabled={loading}>
                     {loading ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -939,11 +979,6 @@ const Auth = () => {
                         <Input
                           id="reset-email"
                           type="email"
-                          inputMode="email"
-                          autoComplete="email"
-                          autoCapitalize="none"
-                          autoCorrect="off"
-                          spellCheck={false}
                           placeholder="Enter your email"
                           value={resetEmail}
                           onChange={(e) => setResetEmail(e.target.value)}
@@ -989,7 +1024,7 @@ const Auth = () => {
                 <Button 
                   type="button" 
                   variant="outline" 
-                  className="w-full" 
+                  className="w-full h-11 rounded-xl font-semibold" 
                   onClick={handleGoogleAuth}
                 >
                   <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
@@ -1019,7 +1054,6 @@ const Auth = () => {
                     <Input
                       id="signup-name"
                       type="text"
-                      autoComplete="name"
                       placeholder="Enter your full name"
                       value={signupForm.fullName}
                       onChange={(e) => setSignupForm({ ...signupForm, fullName: e.target.value })}
@@ -1032,8 +1066,6 @@ const Auth = () => {
                     <Input
                       id="signup-phone"
                       type="tel"
-                      inputMode="tel"
-                      autoComplete="tel"
                       placeholder="+971 50 123 4567"
                       value={signupForm.phone}
                       onChange={(e) => setSignupForm({ ...signupForm, phone: e.target.value })}
@@ -1046,11 +1078,6 @@ const Auth = () => {
                     <Input
                       id="signup-email"
                       type="email"
-                      inputMode="email"
-                      autoComplete="email"
-                      autoCapitalize="none"
-                      autoCorrect="off"
-                      spellCheck={false}
                       placeholder="Enter your email address"
                       value={signupForm.email}
                       onChange={(e) => setSignupForm({ ...signupForm, email: e.target.value })}
@@ -1063,7 +1090,6 @@ const Auth = () => {
                     <Input
                       id="signup-password"
                       type="password"
-                      autoComplete="new-password"
                       placeholder="Choose a password (min. 6 characters)"
                       value={signupForm.password}
                       onChange={(e) => setSignupForm({ ...signupForm, password: e.target.value })}
@@ -1077,7 +1103,6 @@ const Auth = () => {
                     <Input
                       id="signup-confirm-password"
                       type="password"
-                      autoComplete="new-password"
                       placeholder="Confirm your password"
                       value={signupForm.confirmPassword}
                       onChange={(e) => setSignupForm({ ...signupForm, confirmPassword: e.target.value })}
@@ -1118,7 +1143,7 @@ const Auth = () => {
                     </div>
                   </div>
                   
-                  <Button type="submit" className="w-full" disabled={loading || rateLimited}>
+                  <Button type="submit" className="w-full h-11 rounded-xl font-semibold text-base shadow-md" disabled={loading || rateLimited}>
                     {loading ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -1142,9 +1167,10 @@ const Auth = () => {
               </div>
             </TabsContent>
           </Tabs>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
+    </>
   );
 };
 

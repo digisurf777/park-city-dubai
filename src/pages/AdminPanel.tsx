@@ -19,7 +19,7 @@ import {
   Pencil, Trash2, Plus, CheckCircle, XCircle, FileText, Mail, Upload, X, 
   Eye, Edit, Lightbulb, Camera, Settings, RefreshCw, MessageCircle, Send, 
   LogOut, Home, Grid, Bell, Users, Car, Copy, ExternalLink, Image, CreditCard,
-  Calendar, Clock, DollarSign, AlertTriangle, RotateCcw, Shield
+  Calendar, Clock, DollarSign, AlertTriangle, RotateCcw, Shield, Sparkles
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
@@ -35,11 +35,20 @@ import { PreAuthorizationPanel } from '@/components/PreAuthorizationPanel';
 import { BookingChatsMonitor } from '@/components/BookingChatsMonitor';
 import { PaymentHistoryUnified } from '@/components/PaymentHistoryUnified';
 import { PaymentHistoryAdmin } from '@/components/PaymentHistoryAdmin';
+import { RevenueCommandCenter } from '@/components/admin/RevenueCommandCenter';
 import { MonthlyEmailsTab } from '@/components/admin/MonthlyEmailsTab';
+import { AdminDashboard } from '@/components/admin/AdminDashboard';
+import SupportDashboard from '@/components/admin/SupportDashboard';
+import OnlineSupportHistory from '@/components/admin/OnlineSupportHistory';
+import { VerificationDocThumb } from '@/components/admin/VerificationDocThumb';
+import { MessageUserDialog } from '@/components/admin/MessageUserDialog';
+import { MessagesSquare } from 'lucide-react';
+import { LifeBuoy } from 'lucide-react';
+import { LayoutDashboard } from 'lucide-react';
 import { useInactivityLogout } from '@/hooks/useInactivityLogout';
 import { InactivityWarningDialog } from '@/components/InactivityWarningDialog';
-
-const ADMIN_MFA_PENDING_KEY = 'admin_mfa_pending';
+import { CurrencyProvider } from '@/contexts/CurrencyContext';
+import CurrencySwitcher from '@/components/admin/CurrencySwitcher';
 
 // Import all interfaces and state from original AdminPanel
 interface NewsPost {
@@ -131,6 +140,7 @@ interface ChatMessage {
   message: string;
   from_admin: boolean;
   read_status: boolean;
+  is_ai?: boolean;
   created_at: string;
   profiles?: {
     full_name: string;
@@ -152,6 +162,7 @@ const AdminPanelOrganized = () => {
   const navigate = useNavigate();
   const [isValidated, setIsValidated] = useState(false);
   const [validating, setValidating] = useState(true);
+  const [activeTab, setActiveTab] = useState<string>('dashboard');
   
   // Inactivity logout with warning dialog
   const handleAutoLogout = async () => {
@@ -205,6 +216,34 @@ const AdminPanelOrganized = () => {
   const [chatUsers, setChatUsers] = useState<ChatUser[]>([]);
   const [chatTotalUnread, setChatTotalUnread] = useState(0);
   const chatMessagesEndRef = useRef<HTMLDivElement>(null);
+  const [draftLoading, setDraftLoading] = useState(false);
+
+  const generateDraft = async () => {
+    if (!selectedChatUser) return;
+    setDraftLoading(true);
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData.session?.access_token;
+      if (!token) throw new Error('Not authenticated');
+      const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/support-chat`;
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ mode: 'draft', targetUserId: selectedChatUser }),
+      });
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        throw new Error(j.error || `Request failed (${res.status})`);
+      }
+      const json = await res.json();
+      if (json.reply) setChatReply(json.reply);
+    } catch (e: any) {
+      console.error('Draft generation failed', e);
+      toast({ title: 'Draft failed', description: e?.message || 'Could not generate draft', variant: 'destructive' });
+    } finally {
+      setDraftLoading(false);
+    }
+  };
 
   // Form state
   const [title, setTitle] = useState('');
@@ -259,6 +298,7 @@ const AdminPanelOrganized = () => {
   const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(null);
   const [documentViewDialog, setDocumentViewDialog] = useState(false);
   const [documentImageUrl, setDocumentImageUrl] = useState<string>('');
+  const [messageUserId, setMessageUserId] = useState<string | null>(null);
   const [documentLoading, setDocumentLoading] = useState(false);
 
   // **CRITICAL SECURITY**: Validate admin access with AAL2 on mount and periodically
@@ -297,12 +337,6 @@ const AdminPanelOrganized = () => {
         if (currentAAL !== 'aal2') {
           console.warn('AdminPanel: Waiting for AAL2, current:', currentAAL);
           accessToken = await waitForAAL2();
-          const { data: updatedAalInfo } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
-          if (updatedAalInfo?.currentLevel !== 'aal2') {
-            sessionStorage.setItem(ADMIN_MFA_PENDING_KEY, 'true');
-            navigate('/auth', { replace: true });
-            return;
-          }
         }
         
         if (!accessToken) {
@@ -345,7 +379,6 @@ const AdminPanelOrganized = () => {
           console.error('Admin access validation failed:', data);
 
           if (data.requires_mfa) {
-            sessionStorage.setItem(ADMIN_MFA_PENDING_KEY, 'true');
             toast({
               title: 'MFA Required',
               description: 'Admin access requires two-factor authentication. Please complete MFA.',
@@ -367,12 +400,11 @@ const AdminPanelOrganized = () => {
           }
 
           // Do NOT sign out here to avoid loops; keep session so /auth can show MFA challenge
-          navigate('/auth', { replace: true });
+          navigate('/auth');
           return;
         }
 
         console.log('Admin access validated with AAL2:', data);
-        sessionStorage.removeItem(ADMIN_MFA_PENDING_KEY);
         setIsValidated(true);
         setValidating(false);
       } catch (error) {
@@ -1644,7 +1676,7 @@ const AdminPanelOrganized = () => {
     if (!isAdmin) return;
 
     const channel = supabase
-      .channel(`admin-chat-messages-${Math.random().toString(36).slice(2)}`)
+      .channel('admin-chat-messages')
       .on(
         'postgres_changes',
         {
@@ -1753,28 +1785,41 @@ const AdminPanelOrganized = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background p-3 sm:p-6">
+    <CurrencyProvider>
+    <div className="min-h-screen bg-gradient-to-b from-surface via-background to-background px-3 sm:px-6 pb-3 sm:pb-6 pt-20 sm:pt-24">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-            Admin Dashboard
-          </h1>
-          <div className="flex gap-2 w-full sm:w-auto">
-            <Button onClick={() => navigate('/')} variant="outline" size="sm" className="flex-1 sm:flex-none">
-              <Home className="mr-2 h-4 w-4" />
-              <span className="hidden xs:inline">Home</span>
-            </Button>
-            <Button onClick={handleLogout} variant="outline" size="sm" className="flex-1 sm:flex-none">
-              <LogOut className="mr-2 h-4 w-4" />
-              <span className="hidden xs:inline">Logout</span>
-            </Button>
-          </div>
+        {/* Unified Boss Dashboard hero (replaces the old sticky Admin Dashboard header) */}
+        <div className="mb-6 sm:mb-8">
+          <AdminDashboard
+            bannerOnly
+            onJumpTab={(t) => setActiveTab(t)}
+            headerActions={
+              <>
+                <CurrencySwitcher variant="dark" />
+                <Button
+                  onClick={() => navigate('/')}
+                  size="sm"
+                  className="h-9 px-3 border-2 border-white/60 bg-white/25 text-white hover:bg-white/35 hover:text-white backdrop-blur-md font-semibold shadow-[0_4px_14px_-4px_rgba(0,0,0,0.4)]"
+                >
+                  <Home className="h-4 w-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Home</span>
+                </Button>
+                <Button
+                  onClick={handleLogout}
+                  size="sm"
+                  className="h-9 px-3 border-2 border-white/60 bg-white/25 text-white hover:bg-white/35 hover:text-white backdrop-blur-md font-semibold shadow-[0_4px_14px_-4px_rgba(0,0,0,0.4)]"
+                >
+                  <LogOut className="h-4 w-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Logout</span>
+                </Button>
+              </>
+            }
+          />
         </div>
 
         {/* New Message Alert */}
         {newMessageAlert && (
-          <div className="mb-6 p-4 bg-green-50 border border-green-200 text-green-800 rounded-lg flex items-center justify-between animate-pulse">
+          <div className="mb-6 p-4 bg-green-50 border border-green-200 text-green-800 rounded-lg flex items-center justify-between shadow-sm">
             <div className="flex items-center gap-2">
               <MessageCircle className="h-5 w-5" />
               <span className="font-medium">🔔 {newMessageAlert}</span>
@@ -1789,88 +1834,88 @@ const AdminPanelOrganized = () => {
           </div>
         )}
 
-        {/* Main Tabs */}
-        <Tabs defaultValue="content" className="w-full">
+        {/* Main Tabs - 2 rows with 3D depth */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <div className="overflow-x-auto -mx-3 sm:mx-0 px-3 sm:px-0 pb-2">
-            <TabsList className="inline-flex sm:grid sm:grid-cols-8 gap-1 sm:gap-2 h-auto p-1 sm:p-2 bg-gradient-to-r from-background to-muted/20 rounded-xl border shadow-sm min-w-max sm:min-w-0 w-auto sm:w-full">
-              <TabsTrigger 
-                value="content" 
-                className="flex flex-col items-center p-2 sm:p-3 h-auto text-xs sm:text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg min-w-[70px] sm:min-w-0"
-              >
-                <FileText className="h-4 w-4 sm:h-5 sm:w-5 mb-1" />
-                <span className="font-semibold text-[10px] sm:text-sm">Content</span>
-                <span className="text-[8px] sm:text-xs opacity-70 mt-0.5 sm:mt-1 hidden sm:block">News & Updates</span>
-              </TabsTrigger>
-              
-              <TabsTrigger 
-                value="parking" 
-                className="flex flex-col items-center p-2 sm:p-3 h-auto text-xs sm:text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg min-w-[70px] sm:min-w-0"
-              >
-                <Car className="h-4 w-4 sm:h-5 sm:w-5 mb-1" />
-                <span className="font-semibold text-[10px] sm:text-sm">Parking</span>
-                <span className="text-[8px] sm:text-xs opacity-70 mt-0.5 sm:mt-1 hidden sm:block">Spaces & Bookings</span>
-              </TabsTrigger>
-
-              <TabsTrigger 
-                value="pre-auth" 
-                className="flex flex-col items-center p-2 sm:p-3 h-auto text-xs sm:text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg relative min-w-[70px] sm:min-w-0"
-              >
-                <CreditCard className="h-4 w-4 sm:h-5 sm:w-5 mb-1" />
-                <span className="font-semibold text-[10px] sm:text-sm">Pre-Auth</span>
-                <span className="text-[8px] sm:text-xs opacity-70 mt-0.5 sm:mt-1 hidden sm:block">Payment Holds</span>
-              </TabsTrigger>
-
-              <TabsTrigger 
-                value="owner-payments" 
-                className="flex flex-col items-center p-2 sm:p-3 h-auto text-xs sm:text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg min-w-[70px] sm:min-w-0"
-              >
-                <DollarSign className="h-4 w-4 sm:h-5 sm:w-5 mb-1" />
-                <span className="font-semibold text-[10px] sm:text-sm">Payments</span>
-                <span className="text-[8px] sm:text-xs opacity-70 mt-0.5 sm:mt-1 hidden sm:block">View Banking & Pay</span>
-              </TabsTrigger>
-              
-              <TabsTrigger 
-                value="users"
-                className="flex flex-col items-center p-2 sm:p-3 h-auto text-xs sm:text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg min-w-[70px] sm:min-w-0"
-              >
-                <Users className="h-4 w-4 sm:h-5 sm:w-5 mb-1" />
-                <span className="font-semibold text-[10px] sm:text-sm">Users</span>
-                <span className="text-[8px] sm:text-xs opacity-70 mt-0.5 sm:mt-1 hidden sm:block">Manage & Message</span>
-              </TabsTrigger>
-              
-              <TabsTrigger 
-                value="chat" 
-                className="flex flex-col items-center p-2 sm:p-3 h-auto text-xs sm:text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-red-500 data-[state=active]:text-white bg-gradient-to-br from-red-50 to-red-100 border-red-200 animate-pulse rounded-lg relative min-w-[70px] sm:min-w-0"
-              >
-                <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5 mb-1" />
-                <span className="font-bold text-[10px] sm:text-sm">🔥 Chat</span>
-                <span className="text-[8px] sm:text-xs mt-0.5 sm:mt-1 hidden sm:block">Real-time Support</span>
-                {chatTotalUnread > 0 && (
-                  <Badge variant="destructive" className="absolute -top-1 -right-1 min-w-[18px] sm:min-w-[20px] h-4 sm:h-5 text-[10px] sm:text-xs px-1">
-                    {chatTotalUnread}
-                  </Badge>
-                )}
-              </TabsTrigger>
-              
-              <TabsTrigger 
-                value="booking-chats" 
-                className="flex flex-col items-center p-2 sm:p-3 h-auto text-xs sm:text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg min-w-[70px] sm:min-w-0"
-              >
-                <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5 mb-1" />
-                <span className="font-semibold text-[10px] sm:text-sm">Bookings</span>
-                <span className="text-[8px] sm:text-xs opacity-70 mt-0.5 sm:mt-1 hidden sm:block">Driver ↔ Owner</span>
-              </TabsTrigger>
-
-              <TabsTrigger 
-                value="invoices" 
-                className="flex flex-col items-center p-2 sm:p-3 h-auto text-xs sm:text-sm font-medium transition-all hover:scale-105 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg min-w-[70px] sm:min-w-0"
-              >
-                <FileText className="h-4 w-4 sm:h-5 sm:w-5 mb-1" />
-                <span className="font-semibold text-[10px] sm:text-sm">Invoices</span>
-                <span className="text-[8px] sm:text-xs opacity-70 mt-0.5 sm:mt-1 hidden sm:block">All Customer Invoices</span>
-              </TabsTrigger>
+            <TabsList
+              className="inline-flex sm:grid sm:grid-cols-6 gap-2 sm:gap-3 h-auto p-2 sm:p-3 rounded-2xl border border-primary/15 min-w-max sm:min-w-0 w-auto sm:w-full"
+              style={{
+                background:
+                  'linear-gradient(135deg, hsl(var(--surface)) 0%, hsl(var(--background)) 100%)',
+                boxShadow:
+                  '0 12px 30px -12px hsl(var(--primary) / 0.25), inset 0 1px 0 0 hsl(0 0% 100% / 0.6), inset 0 -1px 0 0 hsl(var(--primary) / 0.08)',
+              }}
+            >
+              {[
+                { value: 'dashboard', icon: LayoutDashboard, label: 'Dashboard', sub: 'Live KPIs' },
+                { value: 'content', icon: FileText, label: 'Content', sub: 'News & Updates' },
+                { value: 'parking', icon: Car, label: 'Parking', sub: 'Spaces & Bookings' },
+                { value: 'pre-auth', icon: CreditCard, label: 'Pre-Auth', sub: 'Payment Holds' },
+                { value: 'revenue', icon: Sparkles, label: 'Revenue', sub: 'Cosmic Insights', highlight: 'cosmic' as const },
+                { value: 'owner-payments', icon: DollarSign, label: 'Payments', sub: 'View Banking & Pay' },
+                { value: 'users', icon: Users, label: 'Users', sub: 'Manage & Message' },
+                { value: 'support', icon: LifeBuoy, label: 'Support', sub: 'Inbox + AI Drafts', highlight: 'soft' as const },
+                { value: 'chat', icon: MessageCircle, label: '🔥 Chat', sub: 'Real-time Support', badge: chatTotalUnread, highlight: 'hot' as const },
+                { value: 'chat-history', icon: MessagesSquare, label: 'Chat History', sub: 'Online support log' },
+                { value: 'booking-chats', icon: MessageCircle, label: 'Bookings', sub: 'Driver ↔ Owner' },
+                { value: 'invoices', icon: FileText, label: 'Invoices', sub: 'All Customer Invoices' },
+              ].map((t) => {
+                const Icon = t.icon;
+                const isCosmic = t.highlight === 'cosmic';
+                const isHot = t.highlight === 'hot';
+                const isSoft = t.highlight === 'soft';
+                return (
+                  <TabsTrigger
+                    key={t.value}
+                    value={t.value}
+                    className={`group relative flex flex-col items-center justify-center gap-1 p-2.5 sm:p-3 h-auto min-h-[78px] sm:min-h-[88px] text-xs sm:text-sm font-semibold rounded-xl transition-all duration-300 hover:-translate-y-0.5 min-w-[90px] sm:min-w-0
+                      bg-white border border-border/70 text-slate-800
+                      shadow-[0_2px_6px_-2px_hsl(var(--primary)/0.12),inset_0_1px_0_0_hsl(0_0%_100%/0.8)]
+                      hover:bg-gradient-to-b hover:from-white hover:to-[hsl(var(--surface-2))]
+                      hover:shadow-[0_10px_22px_-8px_hsl(var(--primary)/0.4),inset_0_1px_0_0_hsl(0_0%_100%/0.9)]
+                      hover:border-primary/40 hover:text-slate-900
+                      ${isHot ? '!bg-gradient-to-br !from-red-500 !to-rose-600 !text-white !border-red-700 shadow-[0_10px_24px_-6px_hsl(0_75%_45%/0.55)] hover:!text-white' : ''}
+                      ${
+                        isCosmic
+                          ? 'data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary-deep data-[state=active]:via-primary data-[state=active]:to-primary-glow data-[state=active]:!text-white data-[state=active]:shadow-[0_12px_30px_-8px_hsl(var(--primary-glow)/0.7),inset_0_1px_0_0_hsl(0_0%_100%/0.4)] data-[state=active]:border-primary-deep/60'
+                          : isHot
+                          ? 'data-[state=active]:!from-red-600 data-[state=active]:!to-rose-700 data-[state=active]:!text-white data-[state=active]:shadow-[0_12px_28px_-8px_hsl(0_75%_40%/0.7),inset_0_1px_0_0_hsl(0_0%_100%/0.4)]'
+                          : isSoft
+                          ? 'data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary-deep data-[state=active]:to-primary data-[state=active]:!text-white data-[state=active]:shadow-[0_10px_24px_-6px_hsl(var(--primary)/0.55),inset_0_1px_0_0_hsl(0_0%_100%/0.4)]'
+                          : 'data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary-deep data-[state=active]:to-primary data-[state=active]:!text-white data-[state=active]:shadow-[0_10px_24px_-6px_hsl(var(--primary)/0.55),inset_0_1px_0_0_hsl(0_0%_100%/0.4)] data-[state=active]:border-primary-deep/60'
+                      }
+                    `}
+                  >
+                    <Icon className={`h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:scale-110 ${isHot ? 'text-white' : 'text-primary group-data-[state=active]:text-white'}`} />
+                    <span className="font-bold text-[10px] sm:text-sm leading-tight text-center">
+                      {t.label}
+                    </span>
+                    <span className={`text-[8px] sm:text-[10px] leading-tight text-center hidden sm:block font-medium ${isHot ? 'text-white/90' : 'text-slate-500 group-data-[state=active]:text-white/90'}`}>
+                      {t.sub}
+                    </span>
+                    {typeof t.badge === 'number' && t.badge > 0 && (
+                      <Badge
+                        variant="destructive"
+                        className="absolute -top-1.5 -right-1.5 min-w-[18px] sm:min-w-[20px] h-4 sm:h-5 text-[10px] sm:text-xs px-1 shadow-md ring-2 ring-white"
+                      >
+                        {t.badge}
+                      </Badge>
+                    )}
+                  </TabsTrigger>
+                );
+              })}
             </TabsList>
           </div>
+
+          {/* Boss Dashboard Tab */}
+          <TabsContent value="dashboard" className="space-y-6 mt-6">
+            <AdminDashboard hideBanner onJumpTab={(t) => setActiveTab(t)} />
+          </TabsContent>
+
+          {/* Support Inbox Tab */}
+          <TabsContent value="support" className="space-y-6 mt-6">
+            <SupportDashboard />
+          </TabsContent>
 
           {/* Content Management Tab */}
           <TabsContent value="content" className="space-y-6 mt-6">
@@ -2339,7 +2384,11 @@ const AdminPanelOrganized = () => {
             <PreAuthorizationPanel />
           </TabsContent>
 
-          {/* Owner Payments Tab */}
+          {/* Cosmic Revenue Command Center */}
+          <TabsContent value="revenue" className="space-y-6 mt-6">
+            <RevenueCommandCenter />
+          </TabsContent>
+
           <TabsContent value="owner-payments" className="space-y-6 mt-6">
             <PaymentHistoryAdmin />
           </TabsContent>
@@ -2566,6 +2615,16 @@ const AdminPanelOrganized = () => {
                                     )}
                                     
                                     <Button
+                                      onClick={() => setMessageUserId(verification.user_id)}
+                                      variant="outline"
+                                      size="sm"
+                                      className="border-primary/40 text-primary hover:bg-primary/5"
+                                    >
+                                      <Mail className="h-4 w-4 mr-2" />
+                                      Message
+                                    </Button>
+
+                                    <Button
                                       onClick={() => deleteVerification(verification.id)}
                                       disabled={verificationUpdating === verification.id}
                                       variant="outline"
@@ -2585,8 +2644,16 @@ const AdminPanelOrganized = () => {
                                   </div>
                                 </div>
 
-                                {/* Document Viewer */}
-                                <div className="lg:w-80">
+                                {/* Document Viewer + inline preview thumbnail */}
+                                <div className="lg:w-80 space-y-3">
+                                  <VerificationDocThumb
+                                    verificationId={verification.id}
+                                    alt={`${verification.full_name} ID document`}
+                                    onClick={(url) => {
+                                      setDocumentImageUrl(url);
+                                      setDocumentViewDialog(true);
+                                    }}
+                                  />
                                   <SecureDocumentViewer
                                     verificationId={verification.id}
                                     documentType={verification.document_type}
@@ -2644,6 +2711,13 @@ const AdminPanelOrganized = () => {
                     </div>
                   </DialogContent>
                 </Dialog>
+
+                {/* Direct message to user from verification card */}
+                <MessageUserDialog
+                  open={!!messageUserId}
+                  onOpenChange={(v) => { if (!v) setMessageUserId(null); }}
+                  preselectUserId={messageUserId || undefined}
+                />
               </TabsContent>
 
               <TabsContent value="messages" className="space-y-6">
@@ -2949,10 +3023,15 @@ const AdminPanelOrganized = () => {
                                 >
                                   <div className="flex items-center gap-2 mb-1">
                                     <span className="text-sm font-medium">
-                                      {msg.from_admin ? 'Admin' : msg.profiles?.full_name || 'User'}
+                                      {msg.from_admin ? (msg.is_ai ? 'Layla AI' : 'Admin') : msg.profiles?.full_name || 'User'}
                                     </span>
+                                    {msg.is_ai && (
+                                      <Badge variant="outline" className="h-4 px-1.5 text-[9px] border-amber-300 bg-amber-50 text-amber-700">
+                                        <Sparkles className="h-2.5 w-2.5 mr-0.5" />AI
+                                      </Badge>
+                                    )}
                                   </div>
-                                  <p className="text-sm">{msg.message}</p>
+                                  <p className="text-sm whitespace-pre-wrap">{msg.message}</p>
                                   <p className="text-xs opacity-70 mt-1">
                                     {new Date(msg.created_at).toLocaleString()}
                                   </p>
@@ -2962,22 +3041,41 @@ const AdminPanelOrganized = () => {
                           <div ref={chatMessagesEndRef} />
                         </div>
 
-                        {/* Reply Input */}
-                        <div className="flex items-center space-x-2">
-                          <Input
-                            value={chatReply}
-                            onChange={(e) => setChatReply(e.target.value)}
-                            placeholder="Type your reply..."
-                            onKeyPress={(e) => e.key === 'Enter' && sendChatReply()}
-                            className="flex-1"
-                          />
-                          <Button 
-                            onClick={sendChatReply} 
-                            disabled={!chatReply.trim() || sendingReply}
-                            size="icon"
-                          >
-                            <Send className="h-4 w-4" />
-                          </Button>
+                        {/* Reply Input with AI draft */}
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={generateDraft}
+                              disabled={draftLoading}
+                              className="border-primary/30 text-primary hover:bg-primary/5"
+                            >
+                              <Sparkles className={`h-4 w-4 mr-1.5 ${draftLoading ? 'animate-pulse' : ''}`} />
+                              {draftLoading ? 'Drafting…' : 'Generate AI draft'}
+                            </Button>
+                            {chatReply && (
+                              <button onClick={() => setChatReply('')} className="text-xs text-muted-foreground hover:text-foreground">Clear</button>
+                            )}
+                          </div>
+                          <div className="flex items-end space-x-2">
+                            <Textarea
+                              value={chatReply}
+                              onChange={(e) => setChatReply(e.target.value)}
+                              placeholder="Type your reply or click 'Generate AI draft'…"
+                              rows={3}
+                              className="flex-1 resize-none"
+                            />
+                            <Button
+                              onClick={sendChatReply}
+                              disabled={!chatReply.trim() || sendingReply}
+                              size="icon"
+                              className="h-10 w-10"
+                            >
+                              <Send className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </div>
                       </>
                     ) : (
@@ -2992,6 +3090,11 @@ const AdminPanelOrganized = () => {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Online Support - Chat History (AI assistant transcripts) */}
+          <TabsContent value="chat-history" className="space-y-6 mt-6">
+            <OnlineSupportHistory />
           </TabsContent>
 
           {/* Booking Chats Monitoring Tab */}
@@ -3264,6 +3367,7 @@ const AdminPanelOrganized = () => {
         onStayLoggedIn={resetTimer}
       />
     </div>
+    </CurrencyProvider>
   );
 };
 

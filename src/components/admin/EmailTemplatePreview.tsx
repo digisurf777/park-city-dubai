@@ -24,7 +24,7 @@ const getDriverEmailTemplate = (firstName: string = "Customer") => {
           <!-- Header with Logo -->
           <tr>
             <td style="background-color: #10b981; padding: 30px 40px; text-align: center;">
-              <img src="https://shazamparking.ae/lovable-uploads/logo.png" alt="ShazamParking" style="height: 50px; width: auto;" />
+              <img src="https://shazamparking.ae/lovable-uploads/logo.webp" alt="ShazamParking" style="height: 50px; width: auto;" />
             </td>
           </tr>
           
@@ -117,7 +117,7 @@ const getOwnerEmailTemplate = (firstName: string = "Partner") => {
           <!-- Header with Logo -->
           <tr>
             <td style="background-color: #10b981; padding: 30px 40px; text-align: center;">
-              <img src="https://shazamparking.ae/lovable-uploads/logo.png" alt="ShazamParking" style="height: 50px; width: auto;" />
+              <img src="https://shazamparking.ae/lovable-uploads/logo.webp" alt="ShazamParking" style="height: 50px; width: auto;" />
             </td>
           </tr>
           

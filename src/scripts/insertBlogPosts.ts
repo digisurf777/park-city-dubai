@@ -86,7 +86,7 @@ const blogPostsData = [
         <p class="mb-8 leading-relaxed">If you're unsure where to start, platforms like <a href="/find-parking" class="text-primary hover:underline">Shazam Parking</a> make it easier to find long-term parking that suits your lifestyle and location. The platform connects residents with unused spaces and drivers in need, perfect for areas with high demand and limited availability.</p>
       </div>
     `,
-    featured_image_url: "/news/megaprojects-featured.png",
+    featured_image_url: "/news/megaprojects-featured.webp",
     author: "admin",
     published_date: "2025-07-08T00:00:00Z",
     category: "ShazamParking",
@@ -174,7 +174,7 @@ const blogPostsData = [
         <p class="mb-8 leading-relaxed">Whatever your choice, having a reliable parking solution through <a href="/find-parking" class="text-primary hover:underline">ShazamParking</a> ensures you're never stuck circling blocks looking for a spot.</p>
       </div>
     `,
-    featured_image_url: "/news/commute-featured.png",
+    featured_image_url: "/news/commute-featured.webp",
     author: "admin",
     published_date: "2025-07-05T00:00:00Z",
     category: "ShazamParking"
@@ -267,7 +267,7 @@ const blogPostsData = [
         <p class="mb-8 leading-relaxed">Remember, building a social circle takes time, but Dubai's welcoming expat community makes it easier than most cities. And when you're heading to events around the city, don't let parking stress ruin your mood – <a href="/find-parking" class="text-primary hover:underline">book your spot with ShazamParking</a> and arrive relaxed and ready to make connections!</p>
       </div>
     `,
-    featured_image_url: "/news/meet-people-featured.png",
+    featured_image_url: "/news/meet-people-featured.webp",
     author: "admin",
     published_date: "2025-07-05T00:00:00Z",
     category: "ShazamParking"
@@ -352,7 +352,7 @@ const blogPostsData = [
         <p class="mb-8 leading-relaxed">Visit <a href="/rent-out-your-space" class="text-primary hover:underline">ShazamParking.ae</a> today and turn your unused parking bay into a money-making asset. It takes just a few minutes to list, and you could have your first tenant by next week.</p>
       </div>
     `,
-    featured_image_url: "/news/parking-income-featured.png",
+    featured_image_url: "/news/parking-income-featured.webp",
     author: "admin",
     published_date: "2025-07-05T00:00:00Z",
     category: "ShazamParking"
@@ -461,7 +461,7 @@ const blogPostsData = [
         <p class="mb-8 leading-relaxed">AI tools are transforming how UAE residents navigate complex decisions. From choosing the right parking solution with <a href="/find-parking" class="text-primary hover:underline">ShazamParking</a> to understanding government regulations, smart consumers are using AI to save time, money, and avoid costly mistakes.</p>
       </div>
     `,
-    featured_image_url: "/news/ai-uae-featured.png",
+    featured_image_url: "/news/ai-uae-featured.webp",
     author: "admin",
     published_date: "2025-07-02T00:00:00Z",
     category: "ShazamParking"
@@ -591,7 +591,7 @@ const blogPostsData = [
         <p class="mb-8 leading-relaxed">Finding the perfect apartment in Dubai takes patience, but with the right preparation and tools like <a href="/find-parking" class="text-primary hover:underline">ShazamParking for your parking needs</a>, you'll be settled into your new home in no time. Welcome to Dubai! 🏠✨</p>
       </div>
     `,
-    featured_image_url: "/news/apartment-dubai-featured.png",
+    featured_image_url: "/news/apartment-dubai-featured.webp",
     author: "admin",
     published_date: "2025-06-29T00:00:00Z",
     category: "ShazamParking"

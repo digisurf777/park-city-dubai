@@ -1,34 +1,62 @@
-## Goal
+## Problem
 
-Make email + password login reliable across all mobile browsers (iOS Safari/Chrome, Android Chrome/Samsung Internet, etc.) and desktop. The login logic itself works; the failures come from how mobile keyboards mangle the typed email and from missing input hints.
+Two issues on `/admin`:
 
-## Root causes found
+1. The **Boss Dashboard hero banner** is slightly clipped at the top because the global `Navbar` is `fixed top-0` with height `h-16` (64px), but `src/pages/AdminPanel.tsx` wraps content in `p-3 sm:p-6` with no top offset for the fixed bar. Every other page (Index, AboutUs, etc.) adds its own `pt-16`/`pt-20`. The admin page is missing this.
+2. The hero currently only shows the gold **Crown** icon next to the "Boss Dashboard" title. The user wants a richer Dubai-flavored visual — a "boss from Dubai" character — inside the banner.
 
-1. **Email gets capitalized / autocorrected on mobile.** The email `Input` (login, signup, and reset forms) only sets `type="email"`. Mobile keyboards then auto-capitalize the first letter, run autocorrect/spellcheck, and can append a trailing space — producing values like `"John@Gmail.com "` that fail with "Invalid login credentials".
-2. **Email is never normalized before sign-in.** `handleLogin` passes the raw field value straight into `signIn`. Any stray whitespace or casing from the keyboard goes through untouched.
-3. **No autofill / password-manager hints.** Missing `autoComplete` attributes mean iOS/Android and password managers don't reliably offer saved credentials, so users retype (and mistype) on small screens.
-4. **iOS zoom-on-focus.** The shared `Input` uses a 14px font; iOS Safari zooms the page when focusing a sub-16px field, which feels broken on phones.
+## Plan
 
-## Changes
+### 1. Push the boss dashboard down so the navbar no longer covers it
 
-### `src/pages/Auth.tsx`
-- Add mobile-safe attributes to every email field (login, signup, reset):
-  `inputMode="email"`, `autoComplete="email"`, `autoCapitalize="none"`, `autoCorrect="off"`, `spellCheck={false}`.
-- Add `autoComplete="current-password"` to the login password field and `autoComplete="new-password"` to the signup password/confirm fields, so password managers fill the right field.
-- Normalize the email at submit time in `handleLogin`, `handleSignup`, and `handleResetPassword`: `email.trim().toLowerCase()` before calling the auth function.
+In `src/pages/AdminPanel.tsx` (line ~1789), update the page wrapper to add top padding equal to the fixed navbar height (plus a small breathing buffer):
 
-### `src/hooks/useAuth.tsx`
-- Defensively normalize email inside `signIn`, `signUp`, `resetPassword`, and `resendConfirmationEmail` (`email.trim().toLowerCase()`) so the fix holds regardless of caller.
+- Change `p-3 sm:p-6` → `px-3 sm:px-6 pb-3 sm:pb-6 pt-20 sm:pt-24`
 
-### `src/components/ui/input.tsx` (mobile zoom only)
-- Bump the input font to 16px on small screens (e.g. `text-base md:text-sm`) so iOS Safari no longer zooms when a field is focused. This is a presentational tweak and affects inputs app-wide consistently.
+This gives the hero banner clean space below the glass navbar on every breakpoint, matching the spacing used elsewhere on the site.
 
-## Verification
+### 2. Generate a "Dubai boss" character illustration
 
-- Use the in-tool browser at mobile viewports (e.g. 390×844 iPhone, 360×800 Android) to load `/auth`, confirm the email field no longer auto-capitalizes and that login succeeds with surrounding spaces/mixed case.
-- Confirm desktop login still works unchanged.
+Use the AI image generation gateway (`google/gemini-3.1-flash-image-preview` — Nano banana 2, fast + high quality) to produce a single hero portrait:
 
-## Notes / out of scope
+- Prompt direction: a confident, friendly Emirati businessman in a crisp white kandura and ghutra, soft smile, premium executive vibe, Dubai skyline (Burj Khalifa, Business Bay) softly blurred in the background at golden hour, cinematic lighting, transparent or soft gradient backdrop, square framing, professional editorial illustration style, no text.
+- Save the output to `src/assets/boss-dubai-character.webp` (or `.png` if alpha is needed).
 
-- This plan only touches email + password login per your answer. Google OAuth and admin MFA are left as-is.
-- If logins still fail on a specific mobile browser after this, the next suspect is Supabase Auth **Redirect URLs / Site URL** config for the custom domains (shazamparking.ae, swiftlaces.com) — that's a dashboard setting, not code, and I'll flag it if needed.
+### 3. Place the character inside the existing `DubaiSkylineBanner`
+
+Edit `src/components/admin/AdminDashboard.tsx`, the `banner` JSX (around lines 90–130):
+
+- Add a right-side decorative portrait that sits inside the banner without competing with the title:
+  - On `sm+`: absolutely positioned on the right edge of the banner, ~h-44 to h-56, with `object-contain object-bottom`, slight drop-shadow, `pointer-events-none`, `select-none`, `aria-hidden`.
+  - On mobile: hidden (`hidden sm:block`) so the title and refresh button stay readable.
+- Increase the banner's right padding on `sm+` (e.g. `sm:pr-56`) so text never overlaps the portrait.
+- Keep the gold Crown badge next to the "Boss Dashboard" title — it acts as the small icon the user also asked for; the portrait is the bigger statement piece.
+
+### 4. Optional polish
+
+- Add a soft radial highlight behind the portrait (tinted gold) so it blends with the existing skyline gradient already in `DubaiSkylineBanner`.
+- Ensure the image uses `loading="lazy"` and `decoding="async"` for performance (consistent with the existing skyline `<img>` in `DubaiSkylineBanner.tsx`).
+
+## Technical details
+
+Files touched:
+
+- `src/pages/AdminPanel.tsx` — wrapper padding only (1 line).
+- `src/components/admin/AdminDashboard.tsx` — import the new asset, render the `<img>` inside the banner, adjust right padding.
+- `src/assets/boss-dubai-character.webp` — new generated image asset.
+
+Layout sketch of the updated hero:
+
+```text
+┌──────────────────────────────────────────────────────────────┐
+│ [👑] Boss Dashboard                                          │
+│      ● Live · synced 4s ago · Dubai, UAE        [⟳][AED][⎋] │
+│                                              ╔═════════════╗ │
+│                                              ║   Dubai     ║ │
+│                                              ║   Boss      ║ │
+│                                              ║  portrait   ║ │
+│                                              ╚═════════════╝ │
+└──────────────────────────────────────────────────────────────┘
+```
+
+No KPI/chart logic, routing, or data layer is touched — purely visual.

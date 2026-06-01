@@ -90,8 +90,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         // Handle auth events
         if (event === 'SIGNED_IN' && session?.user) {
           console.log('AuthProvider: User signed in successfully');
-          const isOAuthCallback = window.location.pathname === '/auth/callback' || window.location.hash.includes('access_token');
-          if (isOAuthCallback) {
+          // Redirect to home page after successful OAuth login
+          if (window.location.pathname === '/auth' || window.location.hash.includes('access_token')) {
             window.history.replaceState(null, '', '/');
           }
         } else if (event === 'SIGNED_OUT') {
@@ -118,7 +118,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signUp = async (email: string, password: string, fullName: string, userType: string = 'seeker') => {
     try {
-      email = email.trim().toLowerCase();
       console.log('AuthProvider: Starting signup process for:', email);
       
       const redirectUrl = `${window.location.origin}/email-confirmed?redirect_to=/`;
@@ -173,7 +172,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signIn = async (email: string, password: string) => {
     try {
-      email = email.trim().toLowerCase();
       console.log('AuthProvider: Starting signin process for:', email);
 
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -221,7 +219,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const resetPassword = async (email: string) => {
     try {
-      email = email.trim().toLowerCase();
       // Use auth page with recovery type parameter
       const redirectUrl = `${window.location.origin}/auth?type=recovery`;
       
@@ -272,7 +269,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const resendConfirmationEmail = async (email: string) => {
     try {
-      email = email.trim().toLowerCase();
       const redirectUrl = `${window.location.origin}/email-confirmed?redirect_to=/`;
       
       const { error } = await supabase.auth.resend({
@@ -368,7 +364,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       });
       
       if (!error) {
+        // Force-refresh session so the access token reflects AAL2 immediately
         try {
+          await supabase.auth.refreshSession();
+          // Small wait loop to ensure the SDK exposes aal2 on the session
           const start = Date.now();
           while (Date.now() - start < 6000) {
             const { data: aalCheck } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
@@ -376,7 +375,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             await new Promise((r) => setTimeout(r, 250));
           }
         } catch (e) {
-          console.warn('verifyMFA: waiting for aal2 failed (continuing)', e);
+          console.warn('verifyMFA: refreshSession failed (continuing)', e);
         }
 
         // Update MFA status in database (best-effort)
@@ -424,7 +423,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       });
 
       if (!error) {
+        // Ensure the client has an upgraded AAL2 token immediately
         try {
+          await supabase.auth.refreshSession();
           const start = Date.now();
           while (Date.now() - start < 6000) {
             const { data: aalCheck } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
@@ -432,7 +433,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             await new Promise((r) => setTimeout(r, 250));
           }
         } catch (e) {
-          console.warn('verifyMFAChallenge: waiting for aal2 failed (continuing)', e);
+          console.warn('verifyMFAChallenge: refreshSession failed (continuing)', e);
         }
       }
       

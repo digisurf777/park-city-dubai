@@ -7,19 +7,26 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { MapPin, Search, X, Car, CreditCard, Ruler } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
-import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useSearchParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import useSEO from "@/hooks/useSEO";
+import DubaiLiveMapsCTA from "@/components/DubaiLiveMapsCTA";
 
-import dubaiMarinaZone from "@/assets/zones/dubai-marina-real.jpg";
-import downtownZone from "/lovable-uploads/f676da2a-39c9-4211-8561-5b884e0ceed8.png";
-import dubaiHeroImage from "@/assets/dubai-daytime-hero.jpg";
-import palmJumeirahZone from "/lovable-uploads/atlantis-hotel-hero.jpg";
-import businessBayZone from "@/assets/zones/business-bay-real.jpg";
-import difcZone from "/lovable-uploads/63d539ac-8cbb-46b2-aa39-3de0695ef8c9.png";
-import deiraZone from "@/assets/zones/deira-real.jpg";
+import dubaiMarinaZone from "@/assets/zones/dubai-marina-real.webp";
+import downtownZone from "/lovable-uploads/f676da2a-39c9-4211-8561-5b884e0ceed8.webp";
+import findParkingHero from "@/assets/find-parking-hero.jpg";
+import palmJumeirahZone from "/lovable-uploads/atlantis-hotel-hero.webp";
+import businessBayZone from "@/assets/zones/business-bay-real.webp";
+import difcZone from "/lovable-uploads/63d539ac-8cbb-46b2-aa39-3de0695ef8c9.webp";
+import deiraZone from "@/assets/zones/deira-real.webp";
 const FindParking = () => {
+  const seoData = useSEO({
+    title: "Find a Parking Space in Dubai | Monthly Rentals - Shazam Parking",
+    description: "Looking for a parking space in Dubai? Browse verified monthly parking rentals in Marina, Downtown, Business Bay, DIFC, Palm Jumeirah and Deira. Secure, hassle-free booking.",
+    keywords: "find parking Dubai, monthly parking Dubai, rent parking space, Dubai Marina parking, Downtown parking, Business Bay parking, DIFC parking, Palm Jumeirah parking",
+    url: "/find-a-parking-space"
+  });
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -116,7 +123,7 @@ const FindParking = () => {
           district: listing.zone,
           price: customerPrice,
           basePrice: basePrice,
-          image: listing.images && listing.images.length > 0 ? listing.images[0] : "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.png",
+          image: listing.images && listing.images.length > 0 ? listing.images[0] : "/lovable-uploads/df8d1c6e-af94-4aa0-953c-34a15faf930f.webp",
           images: listing.images || [],
           specs: listing.features || ["Access Card", "Secure"],
           available: listing.status === 'approved'
@@ -154,28 +161,68 @@ const FindParking = () => {
     const matchesAvailability = !showAvailableOnly || spot.available;
     return matchesSearch && matchesDistrict && matchesPrice && matchesAvailability;
   });
-  return <div className="min-h-screen bg-background animate-zoom-slow">
-      <Navbar />
+  return <div className="min-h-screen bg-gradient-to-b from-surface to-background animate-fade-in">
+      {seoData}
+
       
-      {/* Hero Section - Mobile Optimized */}
-      <div className="relative h-[400px] sm:h-[500px] lg:h-[600px] bg-gradient-to-r from-primary/10 to-primary/5">
-        <div className="absolute inset-0 bg-cover bg-center" style={{
-        backgroundImage: `url(${dubaiHeroImage})`
-      }}></div>
-        <div className="absolute inset-0 bg-black/40"></div>
-        <div className="relative z-10 flex items-center justify-center h-full px-4">
+      {/* Hero Section - Mobile Optimized, no clipping */}
+      <div className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-cover bg-center scale-105" style={{ backgroundImage: `url(${findParkingHero})` }}></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-primary-deep/65 via-primary-deep/35 to-background"></div>
+        <div className="relative z-10 flex flex-col items-center justify-center px-4 pt-28 pb-14 sm:pt-32 sm:pb-20 lg:pt-36 lg:pb-24">
           <div className="text-center text-white max-w-4xl">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6 leading-tight">
-              We are the quickest, easiest, and the most secure way to rent a parking space in Dubai!
+            <span className="inline-block mb-4 px-4 py-1.5 rounded-full bg-white/15 backdrop-blur border border-white/25 text-xs font-bold tracking-[0.2em] uppercase">
+              ★ Find Your Spot
+            </span>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black mb-4 leading-tight text-3d-light">
+              Find a Parking Space{" "}
+              <span
+                className="bg-gradient-to-r from-white via-[hsl(160_90%_88%)] to-white bg-clip-text text-transparent drop-shadow-[0_2px_12px_hsl(var(--primary-glow)/0.55)]"
+              >
+                in Dubai
+              </span>
             </h1>
-            <p className="text-base sm:text-lg md:text-xl opacity-90">Browse secure monthly bays across Dubai</p>
+            <p className="text-base sm:text-lg md:text-xl text-white/90 max-w-2xl mx-auto px-2">
+              The quickest, easiest, and most secure way to rent a monthly parking space across Dubai.
+            </p>
+          </div>
+
+          {/* Premium Search Bar */}
+          <div className="w-full max-w-3xl mt-8 px-2">
+            <div className="frame-3d p-2 sm:p-3 flex flex-col sm:flex-row gap-2 items-stretch">
+              <div className="flex-1 flex items-center gap-2 px-4 py-2 bg-white rounded-xl">
+                <Search className="h-5 w-5 text-primary flex-shrink-0" />
+                <Input
+                  placeholder="Search by zone, building, or area..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="border-0 shadow-none focus-visible:ring-0 p-0 h-auto text-base min-w-0"
+                />
+                {searchTerm && (
+                  <button onClick={() => setSearchTerm("")} className="p-1 text-muted-foreground hover:text-foreground flex-shrink-0">
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
+              <button className="btn-3d-primary px-6 py-3 rounded-xl font-bold tracking-wide flex items-center justify-center gap-2 sm:min-w-[140px]">
+                <Search className="h-4 w-4" />
+                Search
+              </button>
+            </div>
+            {/* Quick chips */}
+            <div className="flex flex-wrap justify-center gap-2 mt-4">
+              {districtZones.slice(0, 6).map((z) => (
+                <button
+                  key={z.slug}
+                  onClick={() => handleSelectZone(z.slug)}
+                  className="px-3 py-1.5 rounded-full text-xs font-semibold bg-white/15 backdrop-blur border border-white/25 text-white hover:bg-white/25 transition-colors"
+                >
+                  {z.name}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
-
-      {/* Sticky Filter Bar */}
-      <div className="sticky top-20 z-40 bg-white border-b shadow-sm">
-        
       </div>
 
       {/* District Selector Section - Mobile Optimized */}
@@ -185,7 +232,7 @@ const FindParking = () => {
           <p className="text-muted-foreground text-base sm:text-lg">Select a zone to find parking spaces in that area</p>
         </div>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-7 lg:gap-8">
           {districtZones.map(zone => {
           const zoneImages = {
             'dubai-marina': dubaiMarinaZone,
@@ -195,29 +242,49 @@ const FindParking = () => {
             'difc': difcZone,
             'deira': deiraZone
           };
-          return <div key={zone.slug} className="relative group overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 touch-manipulation">
+          return (
+            <div
+              key={zone.slug}
+              className="group relative rounded-2xl p-[2px] transition-all duration-500 hover:-translate-y-2 touch-manipulation"
+              style={{
+                background: 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-glow)) 50%, hsl(var(--primary-deep)) 100%)',
+                boxShadow: '0 20px 40px -15px hsl(var(--primary-deep) / 0.45), inset 0 1px 0 0 hsl(0 0% 100% / 0.4)',
+              }}
+            >
+              <div className="relative overflow-hidden rounded-[14px] bg-white flex flex-col">
                 {/* Zone Image */}
-                <div className="relative h-48 sm:h-56 lg:h-64 overflow-hidden">
-                  <img src={zoneImages[zone.slug as keyof typeof zoneImages]} alt={zone.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" decoding="async" />
-                  <div className="absolute inset-0 bg-black/30"></div>
-                  
-                  {/* Zone Title Overlay */}
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <h3 className="text-xl sm:text-2xl font-bold text-white text-center px-4">
+                <div className="relative h-44 sm:h-52 lg:h-60 overflow-hidden">
+                  <img src={zoneImages[zone.slug as keyof typeof zoneImages]} alt={zone.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" decoding="async" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+                  {/* glossy top highlight */}
+                  <div className="pointer-events-none absolute inset-x-0 top-0 h-1/3 bg-gradient-to-b from-white/30 to-transparent" />
+
+                  {/* Zone Title Overlay - bottom of image */}
+                  <div className="absolute inset-x-0 bottom-0 p-4">
+                    <h3 className="text-xl sm:text-2xl font-bold text-white drop-shadow-lg">
                       {zone.name}
                     </h3>
                   </div>
                 </div>
-                
-                {/* Select Zone Button */}
-                <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 right-3 sm:right-4">
-                  <Button onClick={() => handleSelectZone(zone.slug)} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium min-h-[44px] touch-manipulation">
+
+                {/* Select Zone Button - 3D, consistent with hero */}
+                <div className="p-4">
+                  <button
+                    onClick={() => handleSelectZone(zone.slug)}
+                    className="btn-3d-primary w-full px-5 py-3 rounded-xl font-bold tracking-wide flex items-center justify-center gap-2 min-h-[44px] touch-manipulation"
+                  >
+                    <MapPin className="h-4 w-4" />
                     Select zone
-                  </Button>
+                  </button>
                 </div>
-              </div>;
+              </div>
+            </div>
+          );
         })}
         </div>
+
+        {/* Dubai Live Maps CTA */}
+        <DubaiLiveMapsCTA />
 
         {/* Parking Listings Section */}
         {loading ? <div id="listings-section" className="mt-16 text-center">

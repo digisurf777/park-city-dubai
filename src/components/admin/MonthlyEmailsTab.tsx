@@ -578,7 +578,7 @@ export function MonthlyEmailsTab() {
                               </p>
                             </div>
                           ) : (
-                            <span className="text-muted-foreground">—</span>
+                            <span className="text-muted-foreground">-</span>
                           )}
                         </TableCell>
                         <TableCell>
@@ -592,7 +592,7 @@ export function MonthlyEmailsTab() {
                         <TableCell className="text-sm text-muted-foreground">
                           {record.monthly_followup_sent_at 
                             ? format(new Date(record.monthly_followup_sent_at), 'MMM d, yyyy')
-                            : '—'
+                            : '-'
                           }
                         </TableCell>
                       </TableRow>
@@ -715,7 +715,7 @@ export function MonthlyEmailsTab() {
                               </p>
                             </div>
                           ) : (
-                            <span className="text-muted-foreground">—</span>
+                            <span className="text-muted-foreground">-</span>
                           )}
                         </TableCell>
                         <TableCell>
@@ -729,7 +729,7 @@ export function MonthlyEmailsTab() {
                         <TableCell className="text-sm text-muted-foreground">
                           {record.payout_email_sent_at 
                             ? format(new Date(record.payout_email_sent_at), 'MMM d, yyyy')
-                            : '—'
+                            : '-'
                           }
                         </TableCell>
                       </TableRow>
