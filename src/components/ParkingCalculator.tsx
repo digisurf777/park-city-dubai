@@ -404,24 +404,6 @@ const ParkingCalculator = () => {
               The 500 AED card deposit is refundable when the driver returns the access device.
             </div>
           )}
-
-          {/* Save / share quote */}
-          <div className="mt-6 p-4 rounded-2xl bg-muted/30 border border-border/50">
-            <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">
-              Save or share your quote
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-              <Button variant="outline" size="sm" onClick={handleDownloadPDF} className="justify-center">
-                <Download className="h-4 w-4 mr-1.5" /> Download PDF
-              </Button>
-              <Button variant="outline" size="sm" onClick={handleEmailQuote} className="justify-center">
-                <Mail className="h-4 w-4 mr-1.5" /> Send by email
-              </Button>
-              <Button variant="outline" size="sm" onClick={handleCopyLink} className="justify-center">
-                <LinkIcon className="h-4 w-4 mr-1.5" /> Copy link
-              </Button>
-            </div>
-          </div>
         </CardContent>
       </Card>
 
