@@ -222,7 +222,8 @@ const Auth = () => {
     setMfaChallengeId('');
     
     try {
-      const { error } = await signIn(loginForm.email, loginForm.password);
+      const normalizedEmail = loginForm.email.trim().toLowerCase();
+      const { error } = await signIn(normalizedEmail, loginForm.password);
       
       if (error) {
         console.error('Login error:', error);
