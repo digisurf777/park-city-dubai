@@ -82,16 +82,20 @@ const MyAccount = () => {
   const [unreadChatCount, setUnreadChatCount] = useState<number>(0);
 
   // Redirect if not logged in
-  if (!user) {
-    navigate('/auth');
-    return null;
-  }
   useEffect(() => {
+    if (!user) {
+      navigate('/auth');
+    }
+  }, [user, navigate]);
+
+  useEffect(() => {
+    if (!user) return;
     fetchProfile();
     fetchBookings();
     fetchListings();
     fetchUnreadChatCount();
-    setupChatRealtimeSubscription();
+    const cleanup = setupChatRealtimeSubscription();
+    return cleanup;
   }, [user]);
   useEffect(() => {
     // Combine bookings and listings into unified history
@@ -205,7 +209,7 @@ const MyAccount = () => {
     if (!user) return;
 
     const channel = supabase
-      .channel('my-account-chat-updates')
+      .channel(`my-account-chat-updates-${user.id}-${Math.random().toString(36).slice(2)}`)
       .on(
         'postgres_changes',
         {
@@ -354,6 +358,9 @@ const MyAccount = () => {
          </div>;
     }
   };
+  if (!user) {
+    return null;
+  }
   if (loading) {
     return <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin" />
