@@ -427,25 +427,21 @@ const Index = () => {
             {[
               {
                 icon: Clock,
-                image: problemCircling,
                 problem: "Wasting hours circling for spots",
                 solution: "Reserve a guaranteed space in seconds.",
               },
               {
                 icon: Wallet,
-                image: problemExpensive,
                 problem: "Paying premium hotel & mall rates",
                 solution: "Save up to 60% on monthly parking.",
               },
               {
                 icon: Lock,
-                image: problemSafety,
                 problem: "Worrying about car safety",
                 solution: "Verified, private, secure locations only.",
               },
               {
                 icon: TrendingUp,
-                image: problemEmptySpot,
                 problem: "Empty parking spaces wasting money",
                 solution: "Owners earn passive monthly income.",
               },
@@ -464,43 +460,26 @@ const Index = () => {
                     '0 24px 48px -16px hsl(var(--primary-deep) / 0.5), 0 10px 20px -8px hsl(var(--primary) / 0.35), inset 0 1px 0 0 hsl(0 0% 100% / 0.4)',
                 }}
               >
-                <div className="relative rounded-[14px] bg-white overflow-hidden flex flex-col w-full">
-                  {/* Visual - larger, taller aspect for impact */}
-                  <div className="relative aspect-[4/5] overflow-hidden">
-                    <img
-                      src={item.image}
-                      alt={item.problem}
-                      className="w-full h-full object-cover"
-                      loading="lazy"
-                      decoding="async"
-                      width={1000}
-                      height={1250}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
-                  </div>
-                  {/* Static icon medallion - sits on the seam between image and frame */}
-                  <div className="relative h-0">
-                    <div
-                      className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-2xl text-white ring-2 ring-white/90 z-10"
-                      style={{
-                        background:
-                          'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-glow)) 100%)',
-                        boxShadow:
-                          '0 10px 24px -6px hsl(var(--primary-deep) / 0.6), inset 0 1px 0 0 hsl(0 0% 100% / 0.5)',
-                      }}
-                    >
-                      <item.icon className="h-6 w-6 sm:h-7 sm:w-7 drop-shadow-[0_2px_4px_rgba(0,0,0,0.35)]" strokeWidth={2.4} />
-                    </div>
+                <div className="relative rounded-[14px] bg-white overflow-hidden flex flex-col w-full p-6 sm:p-7 text-center">
+                  {/* Icon medallion */}
+                  <div
+                    className="mx-auto mb-5 inline-flex items-center justify-center w-14 h-14 rounded-2xl text-white ring-2 ring-white/90"
+                    style={{
+                      background:
+                        'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-glow)) 100%)',
+                      boxShadow:
+                        '0 10px 24px -6px hsl(var(--primary-deep) / 0.6), inset 0 1px 0 0 hsl(0 0% 100% / 0.5)',
+                    }}
+                  >
+                    <item.icon className="h-7 w-7 drop-shadow-[0_2px_4px_rgba(0,0,0,0.35)]" strokeWidth={2.4} />
                   </div>
                   {/* Text */}
-                  <div className="px-5 pt-9 pb-5 sm:px-6 sm:pt-10 sm:pb-6 text-center">
-                    <p className="text-xs font-semibold text-foreground/55 line-through mb-1.5">
-                      {item.problem}
-                    </p>
-                    <p className="text-base sm:text-lg font-bold text-foreground leading-snug">
-                      {item.solution}
-                    </p>
-                  </div>
+                  <p className="text-xs font-semibold text-foreground/55 line-through mb-1.5">
+                    {item.problem}
+                  </p>
+                  <p className="text-base sm:text-lg font-bold text-foreground leading-snug">
+                    {item.solution}
+                  </p>
                 </div>
               </motion.div>
             ))}
