@@ -17,6 +17,7 @@ import { motion } from "framer-motion";
 import useSEO from "@/hooks/useSEO";
 import dubaihero from "@/assets/dubai-skyline-hero.webp";
 import phonePremium from "@/assets/phone-mockup-hero.png";
+import shazamPin from "@/assets/shazam-pin.png";
 import secureParking from "@/assets/hero-parking-garage.webp";
 import luxuryCar from "@/assets/own-parking-space.jpg";
 import luxuryCarStreet from "@/assets/luxury-car-dubai-street.jpg";
