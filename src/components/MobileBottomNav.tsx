@@ -31,9 +31,9 @@ const MobileBottomNav = () => {
     },
     {
       to: "/find-a-parking-space",
-      label: "Search",
-      icon: Search,
-      match: (p: string) => p.startsWith("/find"),
+      label: "Zones",
+      icon: MapPin,
+      match: (p: string) => p.startsWith("/find") || p.startsWith("/zones"),
     },
     {
       to: "/rent-out-your-space",
