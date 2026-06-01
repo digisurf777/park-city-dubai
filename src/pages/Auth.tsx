@@ -15,6 +15,8 @@ import { InputOTP, InputOTPGroup, InputOTPSlot, InputOTPSeparator } from '@/comp
 import authLuxury from '@/assets/auth-dubai-skyline.jpg';
 import useSEO from '@/hooks/useSEO';
 
+const GOOGLE_AUTH_PUBLIC_ORIGIN = 'https://shazamparking.ae';
+
 const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [resetLoading, setResetLoading] = useState(false);
@@ -195,8 +197,8 @@ const Auth = () => {
           return;
         }
 
-        // Not admin: redirect home
-        navigate('/');
+        // Not admin: redirect to account
+        navigate('/my-account');
       } catch (e) {
         // Do not redirect on error to avoid loops; stay on auth
         console.warn('Auth redirect check error:', e);
@@ -290,7 +292,7 @@ const Auth = () => {
 
       // Non-admin user
       toast.success('Logged in successfully!');
-      navigate('/');
+      navigate('/my-account');
       setLoading(false);
     } catch (error: any) {
       console.error('Login exception:', error);
@@ -651,6 +653,12 @@ const Auth = () => {
     try {
       console.log('Starting Google OAuth...');
       setLoading(true);
+      const isPreviewOrDevHost =
+        window.location.hostname.includes('lovable.app') ||
+        window.location.hostname.includes('lovableproject.com') ||
+        window.location.hostname === 'localhost';
+      const oauthOrigin = isPreviewOrDevHost ? GOOGLE_AUTH_PUBLIC_ORIGIN : window.location.origin;
+      const redirectTo = `${oauthOrigin}/auth/callback?next=${encodeURIComponent('/my-account')}`;
       
       // Clean up auth state before OAuth
       try {
@@ -667,7 +675,7 @@ const Auth = () => {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo,
         },
       });
       
