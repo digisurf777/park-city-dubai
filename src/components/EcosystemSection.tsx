@@ -94,28 +94,22 @@ const EcosystemSection = () => {
           className="text-center max-w-3xl mx-auto mb-12 sm:mb-16"
         >
           <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-black/45 backdrop-blur-md ring-1 ring-white/30 text-primary-glow text-xs font-bold tracking-[0.2em] uppercase mb-4 shadow-[0_4px_16px_-4px_rgb(0_0_0/0.6)]">
-            <Sparkles className="h-3.5 w-3.5" /> Part of the Shazam Ecosystem
+            <Sparkles className="h-3.5 w-3.5" /> Part of Shazam Technology Group
           </span>
           <h2
             id="ecosystem-heading"
             className="font-black tracking-tight text-white mb-4 [text-shadow:0_2px_8px_rgb(0_0_0/0.7),0_4px_24px_rgb(0_0_0/0.5)]"
           >
             <span className="block text-3xl sm:text-4xl lg:text-5xl">
-              Built by{" "}
+              Connecting life in{" "}
               <a
                 href="https://shazam.ae/"
                 target="_blank"
                 rel="noopener"
                 className="inline-block uppercase font-black tracking-wider bg-gradient-to-r from-primary-glow via-primary to-primary-glow bg-clip-text text-transparent hover:scale-105 transition-transform [text-shadow:none] drop-shadow-[0_4px_18px_hsl(var(--primary)/0.65)]"
               >
-                SHAZAM
+                DUBAI
               </a>
-            </span>
-            <span
-              className="block mt-2 text-xl sm:text-2xl lg:text-3xl font-light italic text-white/90"
-              style={{ fontFamily: '"Playfair Display", Georgia, serif' }}
-            >
-              Connecting life in Dubai
             </span>
           </h2>
           <p className="text-base sm:text-lg text-white font-medium [text-shadow:0_2px_8px_rgb(0_0_0/0.75),0_1px_3px_rgb(0_0_0/0.6)]">
