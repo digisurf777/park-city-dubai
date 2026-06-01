@@ -71,9 +71,9 @@ async function fetchDynamicEntries(): Promise<SitemapEntry[]> {
   }
 
   try {
-    // Fetch approved parking listings
+    // Fetch approved/published parking listings
     const listingsRes = await fetch(
-      `${SUPABASE_URL}/rest/v1/parking_listings?select=id,updated_at&status=eq.approved&order=created_at.desc`,
+      `${SUPABASE_URL}/rest/v1/parking_listings?select=id,updated_at&status=in.(approved,published)&order=created_at.desc`,
       { headers }
     );
     if (listingsRes.ok) {
