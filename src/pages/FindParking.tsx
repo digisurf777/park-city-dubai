@@ -247,7 +247,7 @@ const FindParking = () => {
         })}
         </div>
 
-        {/* Dubai Live Maps CTA */}
+        {/* Dubai Life Maps CTA */}
         <DubaiLiveMapsCTA />
 
         {/* Parking Listings Section */}
