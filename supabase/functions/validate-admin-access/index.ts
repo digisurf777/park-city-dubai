@@ -13,7 +13,8 @@ Deno.serve(async (req) => {
 
   try {
     const authHeader = req.headers.get('Authorization');
-    if (!authHeader) {
+    const token = authHeader?.replace(/^Bearer\s+/i, '').trim() ?? '';
+    if (!authHeader || !token) {
       console.error('No authorization header provided');
       return new Response(
         JSON.stringify({ error: 'No authorization header' }),
@@ -25,22 +26,24 @@ Deno.serve(async (req) => {
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
       {
+        auth: { persistSession: false, autoRefreshToken: false },
         global: {
-          headers: { Authorization: authHeader },
+          headers: { Authorization: `Bearer ${token}` },
         },
       }
     );
 
-    // Get user session
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    // Validate the user by passing the token explicitly (avoids stale/anon session resolution)
+    const { data: { user }, error: userError } = await supabase.auth.getUser(token);
     
     if (userError || !user) {
       console.error('User authentication failed:', userError);
       return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
+        JSON.stringify({ error: 'Unauthorized', message: userError?.message ?? 'Invalid session' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
 
     // Check if user is admin
     const { data: roleData, error: roleError } = await supabase
