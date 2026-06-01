@@ -272,6 +272,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const resendConfirmationEmail = async (email: string) => {
     try {
+      email = email.trim().toLowerCase();
       const redirectUrl = `${window.location.origin}/email-confirmed?redirect_to=/`;
       
       const { error } = await supabase.auth.resend({
