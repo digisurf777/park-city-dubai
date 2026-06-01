@@ -13,7 +13,8 @@ Deno.serve(async (req) => {
 
   try {
     const authHeader = req.headers.get('Authorization');
-    if (!authHeader) {
+    const token = authHeader?.replace(/^Bearer\s+/i, '').trim() ?? '';
+    if (!authHeader || !token) {
       console.error('No authorization header provided');
       return new Response(
         JSON.stringify({ error: 'No authorization header' }),
@@ -25,22 +26,24 @@ Deno.serve(async (req) => {
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
       {
+        auth: { persistSession: false, autoRefreshToken: false },
         global: {
-          headers: { Authorization: authHeader },
+          headers: { Authorization: `Bearer ${token}` },
         },
       }
     );
 
-    // Get user session
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    // Validate the user by passing the token explicitly (avoids stale/anon session resolution)
+    const { data: { user }, error: userError } = await supabase.auth.getUser(token);
     
     if (userError || !user) {
       console.error('User authentication failed:', userError);
       return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
+        JSON.stringify({ error: 'Unauthorized', message: userError?.message ?? 'Invalid session' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
 
     // Check if user is admin
     const { data: roleData, error: roleError } = await supabase
@@ -59,7 +62,6 @@ Deno.serve(async (req) => {
     }
 
     // Check Authentication Assurance Level (AAL) from JWT claims to avoid session race conditions
-    const bearer = authHeader?.startsWith('Bearer ') ? authHeader.slice(7).trim() : null;
     const decodeJwt = (t: string) => {
       try {
         const payload = t.split('.')[1];
@@ -72,7 +74,7 @@ Deno.serve(async (req) => {
         return null;
       }
     };
-    const claims: any = bearer ? decodeJwt(bearer) : null;
+    const claims: any = decodeJwt(token);
     // AMR can be strings or objects like { method: 'totp', timestamp: ... }
     const rawAmr = Array.isArray(claims?.amr) ? claims.amr : [];
     const amr = rawAmr.map((v: any) => (typeof v === 'string' ? v : v?.method)).filter(Boolean);

@@ -328,38 +328,44 @@ const Auth = () => {
         } catch (e) {
           console.warn('Auth: refreshSession after MFA verify failed (continuing)', e);
         }
-        const waitForAAL2 = async (maxMs: number = 6000) => {
+        const waitForAAL2Token = async (maxMs: number = 6000) => {
           const start = Date.now();
           while (Date.now() - start < maxMs) {
             const { data: aalCheck } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
-            if (aalCheck?.currentLevel === 'aal2') return true;
+            const { data: s } = await supabase.auth.getSession();
+            if (aalCheck?.currentLevel === 'aal2' && s.session?.access_token) {
+              return s.session.access_token;
+            }
             await new Promise((r) => setTimeout(r, 250));
           }
-          return false;
+          const { data: s } = await supabase.auth.getSession();
+          return s.session?.access_token ?? null;
         };
-        const upgraded = await waitForAAL2();
-        // Double-check with server to avoid bouncing back
-        const validateOnce = async () => {
-          const { data, error } = await supabase.functions.invoke('validate-admin-access');
-          return { data, error } as { data: any; error: any };
-        };
-        let ok = false;
-        for (let i = 0; i < 3 && !ok; i++) {
-          const res = await validateOnce();
-          if (!res.error && !res.data?.requires_mfa) {
-            ok = true;
-            break;
+        const aal2Token = await waitForAAL2Token();
+        // Double-check with server using the explicit AAL2 token to avoid bouncing back
+        if (aal2Token) {
+          let ok = false;
+          for (let i = 0; i < 3 && !ok; i++) {
+            const { data, error } = await supabase.functions.invoke('validate-admin-access', {
+              headers: { Authorization: `Bearer ${aal2Token}` },
+            });
+            if (!error && data?.success && !data?.requires_mfa) {
+              ok = true;
+              break;
+            }
+            await new Promise((r) => setTimeout(r, 400));
           }
-          await new Promise((r) => setTimeout(r, 400));
-          try { await supabase.auth.refreshSession(); } catch {}
-        }
-        if (!upgraded) {
-          console.warn('Auth: AAL2 not yet reflected; proceeding to /admin where server will recheck.');
+          if (!ok) {
+            console.warn('Auth: server admin validation not yet confirmed; proceeding to /admin where server will recheck.');
+          }
+        } else {
+          console.warn('Auth: AAL2 token not yet available; proceeding to /admin where server will recheck.');
         }
         toast.success('MFA verified! Redirecting to admin...');
         setShowMFAChallenge(false);
         navigate('/admin');
       }
+
     } catch (err) {
       toast.error('An error occurred during verification');
       setMfaCode('');
