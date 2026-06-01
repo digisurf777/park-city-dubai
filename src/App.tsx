@@ -74,8 +74,6 @@ const App = () => {
             <BrowserRouter>
               
               <Navbar />
-              <TawkToChat />
-              <ChatWidget />
               <MobileBottomNav />
               <Suspense fallback={<LoadingFallback />}>
                 <Routes>
