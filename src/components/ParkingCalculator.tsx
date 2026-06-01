@@ -301,63 +301,7 @@ const ParkingCalculator = () => {
         </CardContent>
       </Card>
 
-      {/* Visual chart */}
-      {chartData.length > 0 && (
-        <Card className="glass-card border-0 shadow-soft rounded-2xl">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <span className="flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-primary text-primary-foreground shadow-elegant">
-                <TrendingUp className="h-4 w-4" />
-              </span>
-              Compare your earnings 📊
-            </CardTitle>
-            <p className="text-xs text-muted-foreground mt-1">
-              Net earnings per month. Longer commitments unlock higher bonuses.
-            </p>
-          </CardHeader>
-          <CardContent>
-            <div className="h-56 sm:h-64 -ml-2">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-                  <XAxis
-                    dataKey="name"
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fontSize: 12, fontWeight: 600, fill: 'hsl(var(--muted-foreground))' }}
-                  />
-                  <YAxis
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
-                    width={40}
-                  />
-                  <Tooltip
-                    cursor={{ fill: 'hsl(var(--primary) / 0.06)' }}
-                    contentStyle={{
-                      borderRadius: 12,
-                      border: '1px solid hsl(var(--border))',
-                      boxShadow: '0 8px 24px -8px hsl(var(--primary) / 0.25)',
-                      fontSize: 12,
-                    }}
-                    formatter={(value: number, name: string) => [
-                      `${value} AED`,
-                      name === 'net' ? 'Net / month' : 'Total earnings',
-                    ]}
-                  />
-                  <Bar dataKey="net" radius={[10, 10, 4, 4]}>
-                    {chartData.map((entry, idx) => (
-                      <Cell
-                        key={idx}
-                        fill={entry.isBest ? 'hsl(var(--primary))' : 'hsl(var(--primary) / 0.35)'}
-                      />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+
 
       {/* Earnings Breakdown */}
       <Card className="glass-card border-0 shadow-soft rounded-2xl">
