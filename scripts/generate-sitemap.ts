@@ -48,17 +48,17 @@ async function fetchDynamicEntries(): Promise<SitemapEntry[]> {
   };
 
   try {
-    // Fetch published news articles
+    // Fetch published news articles (news table uses id, not slug)
     const newsRes = await fetch(
-      `${SUPABASE_URL}/rest/v1/news?select=slug,updated_at&status=eq.published&order=publication_date.desc`,
+      `${SUPABASE_URL}/rest/v1/news?select=id,updated_at&status=eq.published&order=publication_date.desc`,
       { headers }
     );
     if (newsRes.ok) {
       const news = await newsRes.json();
       for (const article of news) {
-        if (article.slug) {
+        if (article.id) {
           entries.push({
-            path: `/news/${article.slug}`,
+            path: `/news/${article.id}`,
             changefreq: "weekly",
             priority: "0.6",
             lastmod: article.updated_at ? article.updated_at.split("T")[0] : undefined,
