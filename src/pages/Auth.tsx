@@ -1017,6 +1017,7 @@ const Auth = () => {
                     <Input
                       id="signup-name"
                       type="text"
+                      autoComplete="name"
                       placeholder="Enter your full name"
                       value={signupForm.fullName}
                       onChange={(e) => setSignupForm({ ...signupForm, fullName: e.target.value })}
@@ -1029,6 +1030,8 @@ const Auth = () => {
                     <Input
                       id="signup-phone"
                       type="tel"
+                      inputMode="tel"
+                      autoComplete="tel"
                       placeholder="+971 50 123 4567"
                       value={signupForm.phone}
                       onChange={(e) => setSignupForm({ ...signupForm, phone: e.target.value })}
@@ -1041,6 +1044,11 @@ const Auth = () => {
                     <Input
                       id="signup-email"
                       type="email"
+                      inputMode="email"
+                      autoComplete="email"
+                      autoCapitalize="none"
+                      autoCorrect="off"
+                      spellCheck={false}
                       placeholder="Enter your email address"
                       value={signupForm.email}
                       onChange={(e) => setSignupForm({ ...signupForm, email: e.target.value })}
@@ -1053,6 +1061,7 @@ const Auth = () => {
                     <Input
                       id="signup-password"
                       type="password"
+                      autoComplete="new-password"
                       placeholder="Choose a password (min. 6 characters)"
                       value={signupForm.password}
                       onChange={(e) => setSignupForm({ ...signupForm, password: e.target.value })}
@@ -1066,6 +1075,7 @@ const Auth = () => {
                     <Input
                       id="signup-confirm-password"
                       type="password"
+                      autoComplete="new-password"
                       placeholder="Confirm your password"
                       value={signupForm.confirmPassword}
                       onChange={(e) => setSignupForm({ ...signupForm, confirmPassword: e.target.value })}
