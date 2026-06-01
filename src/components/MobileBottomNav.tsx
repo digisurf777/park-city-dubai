@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, Search, Plus, User } from "lucide-react";
+import { Home, MapPin, Plus, User } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 
@@ -31,9 +31,9 @@ const MobileBottomNav = () => {
     },
     {
       to: "/find-a-parking-space",
-      label: "Search",
-      icon: Search,
-      match: (p: string) => p.startsWith("/find"),
+      label: "Zones",
+      icon: MapPin,
+      match: (p: string) => p.startsWith("/find") || p.startsWith("/zones"),
     },
     {
       to: "/rent-out-your-space",
