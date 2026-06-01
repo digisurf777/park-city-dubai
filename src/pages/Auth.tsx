@@ -877,14 +877,19 @@ const Auth = () => {
                 <form onSubmit={handleLogin} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="login-email">Email</Label>
-                    <Input
-                      id="login-email"
-                      type="email"
-                      placeholder="Enter your email"
-                      value={loginForm.email}
-                      onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })}
-                      required
-                    />
+                     <Input
+                       id="login-email"
+                       type="email"
+                       inputMode="email"
+                       autoComplete="email"
+                       autoCapitalize="none"
+                       autoCorrect="off"
+                       spellCheck={false}
+                       placeholder="Enter your email"
+                       value={loginForm.email}
+                       onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })}
+                       required
+                     />
                   </div>
                   
                   <div className="space-y-2">

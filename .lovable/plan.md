@@ -1,24 +1,34 @@
-## Mobile QA Findings & Fix Plan
+## Goal
 
-I tested the site at a 390×844 mobile viewport (homepage, Find Parking, navigation). The core layout, hero, sections, footer and scroll behavior all render correctly. I found two real bugs plus one minor polish item.
+Make email + password login reliable across all mobile browsers (iOS Safari/Chrome, Android Chrome/Samsung Internet, etc.) and desktop. The login logic itself works; the failures come from how mobile keyboards mangle the typed email and from missing input hints.
 
-### Bug 1 — Broken support-chat script (console errors on every page)
-`src/components/TawkToChat.tsx` loads `https://embed.tawk.to/YOUR_PROPERTY_ID/YOUR_WIDGET_ID` — placeholder IDs that were never replaced. This throws a CORS error and a failed network request on every page load (confirmed in the console). The app already has its own working `ChatWidget`, so this component does nothing but generate errors.
+## Root causes found
 
-**Fix:** Remove the `TawkToChat` usage from `src/App.tsx` (and stop rendering the placeholder script). This eliminates the errors with no loss of functionality since `ChatWidget` already provides support chat.
+1. **Email gets capitalized / autocorrected on mobile.** The email `Input` (login, signup, and reset forms) only sets `type="email"`. Mobile keyboards then auto-capitalize the first letter, run autocorrect/spellcheck, and can append a trailing space — producing values like `"John@Gmail.com "` that fail with "Invalid login credentials".
+2. **Email is never normalized before sign-in.** `handleLogin` passes the raw field value straight into `signIn`. Any stray whitespace or casing from the keyboard goes through untouched.
+3. **No autofill / password-manager hints.** Missing `autoComplete` attributes mean iOS/Android and password managers don't reliably offer saved credentials, so users retype (and mistype) on small screens.
+4. **iOS zoom-on-focus.** The shared `Input` uses a 14px font; iOS Safari zooms the page when focusing a sub-16px field, which feels broken on phones.
 
-### Bug 2 — Mobile menu background is see-through (readability)
-In `src/components/Navbar.tsx`, the open mobile menu uses `bg-white/95` over a `backdrop-blur`. In practice page content bleeds through behind the menu items, making the menu hard to read, and the panel only covers its own content height (page shows below it).
+## Changes
 
-**Fix:** Make the mobile menu opaque and cover the screen:
-- Change the panel background to a solid `bg-white` (drop the `/95` translucency).
-- Extend it to full available height below the navbar so no page content shows through behind it.
+### `src/pages/Auth.tsx`
+- Add mobile-safe attributes to every email field (login, signup, reset):
+  `inputMode="email"`, `autoComplete="email"`, `autoCapitalize="none"`, `autoCorrect="off"`, `spellCheck={false}`.
+- Add `autoComplete="current-password"` to the login password field and `autoComplete="new-password"` to the signup password/confirm fields, so password managers fill the right field.
+- Normalize the email at submit time in `handleLogin`, `handleSignup`, and `handleResetPassword`: `email.trim().toLowerCase()` before calling the auth function.
 
-### Polish — Find Parking hero subtitle overlap
-On the Find Parking hero, the subtitle ("Browse secure monthly bays across Dubai") slightly overlaps the heading on small screens. Minor spacing adjustment to the hero text block so the lines don't collide on mobile.
+### `src/hooks/useAuth.tsx`
+- Defensively normalize email inside `signIn`, `signUp`, `resetPassword`, and `resendConfirmationEmail` (`email.trim().toLowerCase()`) so the fix holds regardless of caller.
 
-### Verification
-After the changes I'll re-check on the mobile viewport: confirm no Tawk.to console errors, open the hamburger menu and confirm the panel is fully opaque/readable, and confirm the Find Parking hero text no longer overlaps.
+### `src/components/ui/input.tsx` (mobile zoom only)
+- Bump the input font to 16px on small screens (e.g. `text-base md:text-sm`) so iOS Safari no longer zooms when a field is focused. This is a presentational tweak and affects inputs app-wide consistently.
 
-### Out of scope
-No changes to business logic, data, auth, payments, or the existing `ChatWidget` behavior — these are presentation/cleanup fixes only.
+## Verification
+
+- Use the in-tool browser at mobile viewports (e.g. 390×844 iPhone, 360×800 Android) to load `/auth`, confirm the email field no longer auto-capitalizes and that login succeeds with surrounding spaces/mixed case.
+- Confirm desktop login still works unchanged.
+
+## Notes / out of scope
+
+- This plan only touches email + password login per your answer. Google OAuth and admin MFA are left as-is.
+- If logins still fail on a specific mobile browser after this, the next suspect is Supabase Auth **Redirect URLs / Site URL** config for the custom domains (shazamparking.ae, swiftlaces.com) — that's a dashboard setting, not code, and I'll flag it if needed.
