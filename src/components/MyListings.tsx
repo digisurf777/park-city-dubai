@@ -45,7 +45,8 @@ export const MyListings: React.FC<MyListingsProps> = ({ chatOnly = false }) => {
     if (user) {
       fetchUserListings();
       fetchActiveBookings();
-      setupRealtimeSubscription();
+      const cleanup = setupRealtimeSubscription();
+      return cleanup;
     }
   }, [user]);
 
