@@ -62,7 +62,6 @@ Deno.serve(async (req) => {
     }
 
     // Check Authentication Assurance Level (AAL) from JWT claims to avoid session race conditions
-    const bearer = authHeader?.startsWith('Bearer ') ? authHeader.slice(7).trim() : null;
     const decodeJwt = (t: string) => {
       try {
         const payload = t.split('.')[1];
@@ -75,7 +74,7 @@ Deno.serve(async (req) => {
         return null;
       }
     };
-    const claims: any = bearer ? decodeJwt(bearer) : null;
+    const claims: any = decodeJwt(token);
     // AMR can be strings or objects like { method: 'totp', timestamp: ... }
     const rawAmr = Array.isArray(claims?.amr) ? claims.amr : [];
     const amr = rawAmr.map((v: any) => (typeof v === 'string' ? v : v?.method)).filter(Boolean);
