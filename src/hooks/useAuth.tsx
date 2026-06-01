@@ -118,6 +118,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signUp = async (email: string, password: string, fullName: string, userType: string = 'seeker') => {
     try {
+      email = email.trim().toLowerCase();
       console.log('AuthProvider: Starting signup process for:', email);
       
       const redirectUrl = `${window.location.origin}/email-confirmed?redirect_to=/`;
