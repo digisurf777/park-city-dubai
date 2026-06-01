@@ -5,7 +5,7 @@ import { MapPin, Mail, ExternalLink, Apple, Smartphone } from "lucide-react";
 const Footer = () => {
   const socials = [
     {
-      href: "https://facebook.com/shazamparking",
+      href: "https://www.facebook.com/shazamparking/",
       label: "Facebook",
       brand: "from-[#1877f2] to-[#0a52c2]",
       svg: (
