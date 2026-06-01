@@ -615,7 +615,7 @@ const Auth = () => {
     
     try {
       console.log('Calling resetPassword function...');
-      const { error } = await resetPassword(resetEmail);
+      const { error } = await resetPassword(resetEmail.trim().toLowerCase());
       console.log('Reset password response:', { hasError: !!error, error });
       
       if (error) {
