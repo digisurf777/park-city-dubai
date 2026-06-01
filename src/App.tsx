@@ -8,12 +8,9 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { MFARequiredGuard } from "@/components/MFARequiredGuard";
-import TawkToChat from '@/components/TawkToChat';
-import ChatWidget from '@/components/ChatWidget';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import Navbar from '@/components/Navbar';
 import { MobileOptimizations } from "@/components/MobileOptimizations";
-// Import Auth directly to fix dynamic import issue
 import Auth from "./pages/Auth";
 import EmailConfirmed from "./pages/EmailConfirmed";
 import ResetPassword from "./pages/ResetPassword";
