@@ -90,10 +90,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         // Handle auth events
         if (event === 'SIGNED_IN' && session?.user) {
           console.log('AuthProvider: User signed in successfully');
-          // Redirect to home page after successful OAuth login
-          if (window.location.pathname === '/auth' || window.location.hash.includes('access_token')) {
-            window.history.replaceState(null, '', '/');
-          }
         } else if (event === 'SIGNED_OUT') {
           console.log('AuthProvider: User signed out');
           setSession(null);
