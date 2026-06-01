@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card";
 import { MapPin, Search, CreditCard, Car, DollarSign, Clock, Shield, Quote, Zap, Lock, Wallet, Smartphone, TrendingUp, Sparkles, ArrowRight, CheckCircle2 } from "lucide-react";
 import Footer from "@/components/Footer";
 import EcosystemSection from "@/components/EcosystemSection";
+import TestimonialsMarquee from "@/components/TestimonialsMarquee";
 
 
 import carEnteringParking from "@/assets/car-entering-parking.jpg";
