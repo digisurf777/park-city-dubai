@@ -592,18 +592,78 @@ const Index = () => {
       </section>
 
       {/* Steps Section */}
-      <section className="py-12 sm:py-16 lg:py-20 bg-gradient-to-b from-surface-2 to-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12 sm:mb-16">
+      <section className="py-12 sm:py-16 lg:py-24 bg-gradient-to-b from-surface-2 to-white relative overflow-hidden">
+        <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[40rem] h-[40rem] bg-primary/5 rounded-full blur-3xl" />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+          <div className="text-center mb-12 sm:mb-20">
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 sm:mb-6 px-4">
               Rent a parking space in just 3 simple steps
             </h2>
           </div>
-          <div className="flex justify-center">
-            <img alt="Three simple steps to rent parking" className="max-w-4xl w-full" src="/lovable-uploads/e36f8df6-09a1-434e-aac9-f077569e37a1.webp" />
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-10 sm:gap-6 lg:gap-10 max-w-4xl mx-auto">
+            {[
+              { n: 1, title: "Select the location and duration" },
+              { n: 2, title: "Book Your Space" },
+              { n: 3, title: "Drive & Park" },
+            ].map((step, i) => (
+              <motion.div
+                key={step.n}
+                className="flex justify-center"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: i * 0.15, ease: [0.22, 1, 0.36, 1] }}
+                viewport={{ once: true }}
+              >
+                <motion.div
+                  className="relative"
+                  animate={{ y: [0, -10, 0] }}
+                  transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: i * 0.5 }}
+                  style={{ willChange: "transform" }}
+                >
+                  {/* Glow halo */}
+                  <div className="absolute inset-0 -m-6 rounded-full bg-primary-glow/25 blur-3xl pointer-events-none" />
+
+                  {/* Phone frame */}
+                  <div className="relative w-[200px] sm:w-full max-w-[210px] mx-auto rounded-[2.4rem] bg-gradient-to-b from-gray-900 to-black p-[3px] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.45)] ring-1 ring-white/10">
+                    <div className="relative rounded-[2.2rem] bg-white overflow-hidden aspect-[9/19]">
+                      {/* Notch */}
+                      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/3 h-5 bg-black rounded-b-2xl z-10" />
+                      {/* Status bar */}
+                      <div className="flex items-center justify-between px-5 pt-2.5 text-[10px] font-semibold text-gray-900">
+                        <span>9:41</span>
+                        <div className="flex items-center gap-1">
+                          <span className="tracking-tighter">●●●</span>
+                          <span>5G</span>
+                        </div>
+                      </div>
+                      {/* Screen content */}
+                      <div className="flex flex-col items-center justify-start h-full px-5 pt-8 pb-10 text-center">
+                        <span className="text-xl font-black text-primary mb-5">Step {step.n}</span>
+                        <p className="text-sm font-bold text-gray-900 leading-snug mb-7 min-h-[2.5rem]">
+                          {step.title}
+                        </p>
+                        <img
+                          src={shazamPin}
+                          alt="ShazamParking logo"
+                          className="w-20 h-20 object-contain"
+                          loading="lazy"
+                          width={512}
+                          height={512}
+                        />
+                        <span className="mt-2 text-[11px] font-extrabold tracking-[0.18em] text-primary/80">
+                          SHAZAMPARKING
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
+
 
       {/* Testimonials */}
       <TestimonialsMarquee />
