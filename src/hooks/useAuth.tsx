@@ -419,19 +419,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       });
 
       if (!error) {
-        // Ensure the client has an upgraded AAL2 token immediately
+        // mfa.verify() already upgrades the session to AAL2 and persists it.
+        // Do NOT call refreshSession() here — it races the freshly minted token
+        // and can yield a malformed JWT ("missing sub claim" / bad_jwt).
+        // Just poll until the SDK exposes the AAL2 level from the updated session.
         try {
-          await supabase.auth.refreshSession();
           const start = Date.now();
-          while (Date.now() - start < 6000) {
+          while (Date.now() - start < 4000) {
             const { data: aalCheck } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
             if (aalCheck?.currentLevel === 'aal2') break;
-            await new Promise((r) => setTimeout(r, 250));
+            await new Promise((r) => setTimeout(r, 200));
           }
         } catch (e) {
-          console.warn('verifyMFAChallenge: refreshSession failed (continuing)', e);
+          console.warn('verifyMFAChallenge: AAL2 confirmation wait failed (continuing)', e);
         }
       }
+
       
       return { error };
     } catch (error) {
