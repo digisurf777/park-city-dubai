@@ -209,7 +209,7 @@ const MyAccount = () => {
     if (!user) return;
 
     const channel = supabase
-      .channel('my-account-chat-updates')
+      .channel(`my-account-chat-updates-${user.id}-${Math.random().toString(36).slice(2)}`)
       .on(
         'postgres_changes',
         {
