@@ -17,7 +17,6 @@ import { motion } from "framer-motion";
 import useSEO from "@/hooks/useSEO";
 import dubaihero from "@/assets/dubai-skyline-hero.webp";
 import phonePremium from "@/assets/phone-mockup-hero.png";
-import shazamPin from "@/assets/shazam-pin.png";
 import secureParking from "@/assets/hero-parking-garage.webp";
 import luxuryCar from "@/assets/own-parking-space.jpg";
 import luxuryCarStreet from "@/assets/luxury-car-dubai-street.jpg";
@@ -639,23 +638,21 @@ const Index = () => {
                         </div>
                       </div>
                       {/* Screen content */}
-                      <div className="flex flex-col items-center justify-start h-full px-5 pt-8 pb-10 text-center">
-                        <span className="text-xl font-black text-primary mb-5">Step {step.n}</span>
-                        <p className="text-sm font-bold text-gray-900 leading-snug mb-7 min-h-[2.5rem]">
+                      <div className="flex flex-col items-center h-full px-5 pt-8 pb-10 text-center">
+                        <span className="text-xl font-black text-primary mb-4">Step {step.n}</span>
+                        <p className="text-sm font-bold text-gray-900 leading-snug min-h-[2.75rem] flex items-center justify-center">
                           {step.title}
                         </p>
-                        <img
-                          src={shazamPin}
-                          alt="ShazamParking logo"
-                          className="w-20 h-20 object-contain"
-                          loading="lazy"
-                          width={512}
-                          height={512}
-                        />
-                        <span className="mt-2 text-[11px] font-extrabold tracking-[0.18em] text-primary/80">
-                          SHAZAMPARKING
-                        </span>
+                        <div className="flex-1 flex items-center justify-center w-full">
+                          <img
+                            src="/lovable-uploads/57b00db0-50ff-4536-a807-ccabcb57b49c.webp"
+                            alt="Shazam Parking"
+                            className="w-28 h-auto object-contain"
+                            loading="lazy"
+                          />
+                        </div>
                       </div>
+
                     </div>
                   </div>
                 </motion.div>
