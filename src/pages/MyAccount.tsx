@@ -82,16 +82,20 @@ const MyAccount = () => {
   const [unreadChatCount, setUnreadChatCount] = useState<number>(0);
 
   // Redirect if not logged in
-  if (!user) {
-    navigate('/auth');
-    return null;
-  }
   useEffect(() => {
+    if (!user) {
+      navigate('/auth');
+    }
+  }, [user, navigate]);
+
+  useEffect(() => {
+    if (!user) return;
     fetchProfile();
     fetchBookings();
     fetchListings();
     fetchUnreadChatCount();
-    setupChatRealtimeSubscription();
+    const cleanup = setupChatRealtimeSubscription();
+    return cleanup;
   }, [user]);
   useEffect(() => {
     // Combine bookings and listings into unified history
