@@ -145,6 +145,7 @@ const Auth = () => {
   // Redirect logic: only redirect when either not admin or session is AAL2; if admin+AAL1, trigger MFA challenge here
   const isRecoveryMode = searchParams.get('type') === 'recovery' || showPasswordUpdate;
   const mfaChallengeInFlight = useRef(false);
+  const mfaVerifiedRef = useRef(false);
   useEffect(() => {
     const maybeRedirectOrChallenge = async () => {
       if (!user || isRecoveryMode || showMFAChallenge || mfaChallengeInFlight.current) return;
