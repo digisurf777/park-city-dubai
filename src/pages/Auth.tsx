@@ -324,12 +324,8 @@ const Auth = () => {
         setMfaCode('');
         setLoading(false);
       } else {
-        // Refresh session so the token upgrades to AAL2 immediately, then wait for it
-        try {
-          await supabase.auth.refreshSession();
-        } catch (e) {
-          console.warn('Auth: refreshSession after MFA verify failed (continuing)', e);
-        }
+        // mfa.verify() (inside verifyMFAChallenge) already upgraded the session to
+        // AAL2. Do NOT call refreshSession() here — it corrupts the fresh token.
         const waitForAAL2Token = async (maxMs: number = 6000) => {
           const start = Date.now();
           while (Date.now() - start < maxMs) {
@@ -343,6 +339,7 @@ const Auth = () => {
           const { data: s } = await supabase.auth.getSession();
           return s.session?.access_token ?? null;
         };
+
         const aal2Token = await waitForAAL2Token();
         // Double-check with server using the explicit AAL2 token to avoid bouncing back
         if (aal2Token) {
