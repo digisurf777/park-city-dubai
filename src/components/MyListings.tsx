@@ -45,7 +45,8 @@ export const MyListings: React.FC<MyListingsProps> = ({ chatOnly = false }) => {
     if (user) {
       fetchUserListings();
       fetchActiveBookings();
-      setupRealtimeSubscription();
+      const cleanup = setupRealtimeSubscription();
+      return cleanup;
     }
   }, [user]);
 
@@ -111,7 +112,7 @@ export const MyListings: React.FC<MyListingsProps> = ({ chatOnly = false }) => {
     if (!user) return;
 
     const channel = supabase
-      .channel('user-listings-updates')
+      .channel(`user-listings-updates-${user.id}-${Math.random().toString(36).slice(2)}`)
       .on(
         'postgres_changes',
         {
