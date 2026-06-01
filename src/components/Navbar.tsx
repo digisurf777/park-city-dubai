@@ -179,7 +179,7 @@ const Navbar = () => {
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="md:hidden fixed top-16 left-0 right-0 z-40 backdrop-blur-md bg-white/95 border-b border-white/20 shadow-lg animate-fade-in max-h-[calc(100vh-4rem)] overflow-y-auto mobile-scroll">
+          <div className="md:hidden fixed top-16 left-0 right-0 bottom-0 z-40 bg-white border-b border-gray-200 shadow-lg animate-fade-in h-[calc(100vh-4rem)] overflow-y-auto mobile-scroll">
             <div className="px-4 py-6 space-y-2 pb-safe-area-bottom">
               
               {/* Auth Buttons - Top of mobile menu */}

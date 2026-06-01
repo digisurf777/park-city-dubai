@@ -159,10 +159,10 @@ const FindParking = () => {
       
       {/* Hero Section - Mobile Optimized */}
       <div className="relative h-[400px] sm:h-[500px] lg:h-[600px] bg-gradient-to-r from-primary/10 to-primary/5">
-        <div className="absolute inset-0 bg-black/40"></div>
         <div className="absolute inset-0 bg-cover bg-center" style={{
         backgroundImage: `url(${dubaiHeroImage})`
       }}></div>
+        <div className="absolute inset-0 bg-black/40"></div>
         <div className="relative z-10 flex items-center justify-center h-full px-4">
           <div className="text-center text-white max-w-4xl">
             <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6 leading-tight">
