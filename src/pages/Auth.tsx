@@ -376,7 +376,7 @@ const Auth = () => {
   useEffect(() => {
     const refreshChallenge = async () => {
       try {
-        if (!showMFAChallenge) return;
+        if (!showMFAChallenge || mfaVerifiedRef.current) return;
         // Ensure we have a factorId
         let factorId = mfaFactorId;
         if (!factorId) {
