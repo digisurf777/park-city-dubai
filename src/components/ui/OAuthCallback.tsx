@@ -26,9 +26,29 @@ const OAuthCallback = () => {
         if (data.session) {
           console.log('OAuthCallback: OAuth session established successfully');
           toast.success('Successfully signed in with Google!');
-          // Clean up URL and redirect to home
-          window.history.replaceState(null, '', '/');
-          navigate('/');
+          // Clean up the URL hash/query left over from the OAuth redirect
+          window.history.replaceState(null, '', '/auth/callback');
+
+          // Check if the user is an admin — admins must complete MFA before reaching /admin
+          const userId = data.session.user?.id;
+          let isAdmin = false;
+          if (userId) {
+            const { data: roleData } = await supabase
+              .from('user_roles')
+              .select('role')
+              .eq('user_id', userId)
+              .eq('role', 'admin')
+              .maybeSingle();
+            isAdmin = !!roleData;
+          }
+
+          if (isAdmin) {
+            // Send admins to /auth, which detects admin + AAL1 and triggers the MFA challenge
+            console.log('OAuthCallback: Admin user detected, routing to MFA challenge');
+            navigate('/auth');
+          } else {
+            navigate('/');
+          }
         } else {
           console.log('OAuthCallback: No session found, redirecting to auth');
           navigate('/auth');
