@@ -221,6 +221,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const resetPassword = async (email: string) => {
     try {
+      email = email.trim().toLowerCase();
       // Use auth page with recovery type parameter
       const redirectUrl = `${window.location.origin}/auth?type=recovery`;
       
