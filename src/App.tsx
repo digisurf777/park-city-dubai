@@ -78,8 +78,6 @@ const App = () => {
           <Sonner />
           <AuthProvider>
             <BrowserRouter>
-              
-              <TawkToChat />
               <ChatWidget />
               <Suspense fallback={<LoadingFallback />}>
                 <Routes>
