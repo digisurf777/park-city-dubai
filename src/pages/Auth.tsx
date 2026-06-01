@@ -897,6 +897,7 @@ const Auth = () => {
                     <Input
                       id="login-password"
                       type="password"
+                      autoComplete="current-password"
                       placeholder="Enter your password"
                       value={loginForm.password}
                       onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
