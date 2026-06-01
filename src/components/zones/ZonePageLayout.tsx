@@ -39,7 +39,7 @@ export interface ZonePageLayoutProps {
   seoTitle?: string;
   seoDescription?: string;
   seoKeywords?: string;
-  /** Render the Dubai Live Maps CTA above the listing */
+  /** Render the Dubai Life Maps CTA above the listing */
   showLiveMapsCTA?: boolean;
 }
 

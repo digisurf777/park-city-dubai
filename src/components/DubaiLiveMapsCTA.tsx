@@ -60,7 +60,7 @@ const DubaiLiveMapsCTA = ({ variant = "full", zoneName }: DubaiLiveMapsCTAProps)
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-5 sm:px-6 py-3 rounded-xl bg-primary text-white font-bold text-sm sm:text-base hover:bg-primary-glow hover:text-primary-deep transition-all shadow-lg whitespace-nowrap"
           >
-            Open Live Maps
+            Open Dubai Life Maps
             <ExternalLink className="h-4 w-4" />
           </a>
         </div>
