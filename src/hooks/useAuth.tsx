@@ -173,6 +173,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signIn = async (email: string, password: string) => {
     try {
+      email = email.trim().toLowerCase();
       console.log('AuthProvider: Starting signin process for:', email);
 
       const { data, error } = await supabase.auth.signInWithPassword({
