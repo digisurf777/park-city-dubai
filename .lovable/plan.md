@@ -1,62 +1,24 @@
-# Fix Driver-Owner Chat Realtime Stability
+## Mobile QA Findings & Fix Plan
 
-## Problem
+I tested the site at a 390×844 mobile viewport (homepage, Find Parking, navigation). The core layout, hero, sections, footer and scroll behavior all render correctly. I found two real bugs plus one minor polish item.
 
-Two driver-owner chat components reuse the exact bug pattern that was already fixed in `BookingChatsMonitor.tsx` and `MyAccount.tsx`:
+### Bug 1 — Broken support-chat script (console errors on every page)
+`src/components/TawkToChat.tsx` loads `https://embed.tawk.to/YOUR_PROPERTY_ID/YOUR_WIDGET_ID` — placeholder IDs that were never replaced. This throws a CORS error and a failed network request on every page load (confirmed in the console). The app already has its own working `ChatWidget`, so this component does nothing but generate errors.
 
-1. **`src/components/DriverOwnerChat.tsx`** — uses a static channel name `'booking-messages'`, and the `useEffect` on line 58–64 calls `setupRealtimeSubscription()` but never returns its cleanup. Under React StrictMode (and when the modal is opened/closed/reopened), this can throw `cannot add postgres_changes callbacks for realtime:booking-messages after subscribe()`, leaving the chat without live updates and sometimes crashing the modal.
+**Fix:** Remove the `TawkToChat` usage from `src/App.tsx` (and stop rendering the placeholder script). This eliminates the errors with no loss of functionality since `ChatWidget` already provides support chat.
 
-2. **`src/components/ActiveBookingChats.tsx`** — same pattern: static channel `'active-booking-chats'` and the `useEffect` on line 38–43 does not return the cleanup from `setupRealtimeSubscription()`. The booking list stops auto-refreshing on new messages/booking updates after a remount.
+### Bug 2 — Mobile menu background is see-through (readability)
+In `src/components/Navbar.tsx`, the open mobile menu uses `bg-white/95` over a `backdrop-blur`. In practice page content bleeds through behind the menu items, making the menu hard to read, and the panel only covers its own content height (page shows below it).
 
-Both lead to "chat between driver/owner not working correctly" symptoms: missing live message updates, stale unread badges, and occasional ErrorBoundary screens.
+**Fix:** Make the mobile menu opaque and cover the screen:
+- Change the panel background to a solid `bg-white` (drop the `/95` translucency).
+- Extend it to full available height below the navbar so no page content shows through behind it.
 
-## Fix
+### Polish — Find Parking hero subtitle overlap
+On the Find Parking hero, the subtitle ("Browse secure monthly bays across Dubai") slightly overlaps the heading on small screens. Minor spacing adjustment to the hero text block so the lines don't collide on mobile.
 
-Apply the same two-line pattern we used in `BookingChatsMonitor.tsx`:
+### Verification
+After the changes I'll re-check on the mobile viewport: confirm no Tawk.to console errors, open the hamburger menu and confirm the panel is fully opaque/readable, and confirm the Find Parking hero text no longer overlaps.
 
-1. Make each channel name unique per mount by suffixing a random id.
-2. Capture the cleanup returned by `setupRealtimeSubscription()` inside the `useEffect` and return it so React tears the channel down on unmount.
-
-### Files to change
-
-**`src/components/DriverOwnerChat.tsx`**
-- `useEffect` (lines 58–64): capture cleanup
-  ```ts
-  if (isOpen && user && bookingId) {
-    fetchBookingDetails();
-    fetchMessages();
-    const cleanup = setupRealtimeSubscription();
-    return cleanup;
-  }
-  ```
-- `setupRealtimeSubscription` (line 157): use a unique channel name
-  ```ts
-  .channel(`booking-messages-${bookingId}-${Math.random().toString(36).slice(2)}`)
-  ```
-
-**`src/components/ActiveBookingChats.tsx`**
-- `useEffect` (lines 38–43): capture cleanup
-  ```ts
-  if (user) {
-    fetchActiveBookings();
-    const cleanup = setupRealtimeSubscription();
-    return cleanup;
-  }
-  ```
-- `setupRealtimeSubscription` (line 113): use a unique channel name
-  ```ts
-  .channel(`active-booking-chats-${user.id}-${Math.random().toString(36).slice(2)}`)
-  ```
-
-## Out of scope
-
-- No changes to the `send_booking_message` / `get_booking_messages` / `mark_booking_messages_read` RPCs — those are working correctly per the existing logs.
-- No UI/visual changes to the chat modal or booking list.
-- No changes to validation rules, notification emails, or admin chat monitor.
-
-## Verification
-
-1. Open `/my-account` → Active Booking Chats → click "Chat Now" on an approved booking. Modal opens without ErrorBoundary.
-2. Send a message from the driver side; confirm it appears on the owner side in real time without a manual refresh.
-3. Close and reopen the chat modal several times; confirm no "callbacks after subscribe" error in the console and the message list still updates live.
-4. Confirm unread badges in `ActiveBookingChats` clear/update live when new messages arrive.
+### Out of scope
+No changes to business logic, data, auth, payments, or the existing `ChatWidget` behavior — these are presentation/cleanup fixes only.
