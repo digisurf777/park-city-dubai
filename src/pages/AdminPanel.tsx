@@ -3087,7 +3087,7 @@ const AdminPanelOrganized = () => {
                         <div
                           className={cn(
                             "space-y-2",
-                            isMobile && selectedChatUser && "flex-shrink-0 border-t bg-muted/20 p-3"
+                            isMobile && selectedChatUser && "flex-shrink-0 border-t bg-background p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]"
                           )}
                         >
                           <div className="flex items-center justify-between">
