@@ -384,7 +384,7 @@ const SupportDashboard = () => {
       {/* Inbox grid */}
       <div className="grid grid-cols-1 lg:grid-cols-[340px_1fr] gap-4">
         {/* Conversation list */}
-        <Card className="overflow-hidden">
+        <Card className={cn("overflow-hidden", isMobile && selectedConvo && "hidden")}>
           <CardHeader className="py-3 px-4 border-b bg-muted/30">
             <CardTitle className="text-sm flex items-center gap-2">
               <Filter className="h-3.5 w-3.5" />
@@ -462,9 +462,14 @@ const SupportDashboard = () => {
         </Card>
 
         {/* Conversation thread + reply */}
-        <Card className="overflow-hidden flex flex-col">
+        <Card
+          className={cn(
+            "overflow-hidden flex flex-col",
+            isMobile && selectedConvo && "fixed inset-0 z-50 rounded-none border-0"
+          )}
+        >
           {!selectedConvo ? (
-            <CardContent className="flex-1 flex items-center justify-center p-8 text-center text-muted-foreground">
+            <CardContent className={cn("flex-1 flex items-center justify-center p-8 text-center text-muted-foreground", isMobile && "hidden")}>
               <div>
                 <MessageSquare className="h-10 w-10 mx-auto mb-3 opacity-40" />
                 <p className="text-sm">Select a conversation to start replying.</p>
@@ -473,9 +478,20 @@ const SupportDashboard = () => {
           ) : (
             <>
               {/* Thread header */}
-              <CardHeader className="py-3 px-4 border-b bg-muted/30">
+              <CardHeader className="py-3 px-4 border-b bg-muted/30 flex-shrink-0">
                 <div className="flex items-start justify-between gap-3 flex-wrap">
-                  <div className="flex items-center gap-3 min-w-0">
+                  <div className="flex items-center gap-2 min-w-0">
+                    {isMobile && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 -ml-1 flex-shrink-0"
+                        onClick={() => setSelectedUserId(null)}
+                        aria-label="Back to conversations"
+                      >
+                        <ArrowLeft className="h-4 w-4" />
+                      </Button>
+                    )}
                     <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                       <User className="h-4 w-4 text-primary" />
                     </div>
@@ -498,7 +514,7 @@ const SupportDashboard = () => {
               </CardHeader>
 
               {/* Messages */}
-              <ScrollArea className="flex-1 p-4 max-h-[380px]">
+              <ScrollArea className={cn("flex-1 min-h-0 p-4", !(isMobile && selectedConvo) && "max-h-[380px]")}>
                 <div className="space-y-3">
                   {[...selectedConvo.msgs].reverse().map((m) => (
                     <div
@@ -530,11 +546,12 @@ const SupportDashboard = () => {
                       </p>
                     </div>
                   ))}
+                  <div ref={messagesEndRef} />
                 </div>
               </ScrollArea>
 
-              {/* Reply composer */}
-              <div className="border-t p-3 space-y-2 bg-muted/20">
+              {/* Reply composer (pinned to bottom) */}
+              <div className="border-t p-3 space-y-2 bg-muted/20 flex-shrink-0">
                 <div className="flex items-center justify-between gap-2 flex-wrap">
                   <p className="text-xs font-semibold text-muted-foreground">Your reply</p>
                   <Button
@@ -556,7 +573,7 @@ const SupportDashboard = () => {
                   value={reply}
                   onChange={(e) => setReply(e.target.value)}
                   placeholder="Type your reply, or click 'Generate AI draft' to start with a suggestion…"
-                  rows={4}
+                  rows={isMobile ? 2 : 4}
                   className="resize-none text-sm bg-background"
                 />
                 <div className="flex items-center justify-between gap-2">
