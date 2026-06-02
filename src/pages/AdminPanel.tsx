@@ -15,6 +15,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Check, ChevronsUpDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { 
   Pencil, Trash2, Plus, CheckCircle, XCircle, FileText, Mail, Upload, X, 
   Eye, Edit, Lightbulb, Camera, Settings, RefreshCw, MessageCircle, Send, 
