@@ -1025,17 +1025,7 @@ const MyAccount = () => {
                         <Switch
                           checked={profile?.notification_email ?? true}
                           onCheckedChange={val => setProfile(prev => prev ? { ...prev, notification_email: val } : null)}
-                        />
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-sm">SMS notifications</p>
-                          <p className="text-xs text-muted-foreground">Critical updates only (additional charges may apply)</p>
-                        </div>
-                        <Switch
-                          checked={profile?.notification_sms ?? false}
-                          onCheckedChange={val => setProfile(prev => prev ? { ...prev, notification_sms: val } : null)}
-                        />
+                       />
                       </div>
                     </div>
 
