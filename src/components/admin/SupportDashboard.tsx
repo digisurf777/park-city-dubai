@@ -52,6 +52,8 @@ const SupportDashboard = () => {
   const [reply, setReply] = useState("");
   const [drafting, setDrafting] = useState(false);
   const [sending, setSending] = useState(false);
+  const isMobile = useIsMobile();
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     void load();
