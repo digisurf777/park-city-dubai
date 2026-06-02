@@ -15,11 +15,12 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Check, ChevronsUpDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { 
   Pencil, Trash2, Plus, CheckCircle, XCircle, FileText, Mail, Upload, X, 
   Eye, Edit, Lightbulb, Camera, Settings, RefreshCw, MessageCircle, Send, 
   LogOut, Home, Grid, Bell, Users, Car, Copy, ExternalLink, Image, CreditCard,
-  Calendar, Clock, DollarSign, AlertTriangle, RotateCcw, Shield, Sparkles
+  Calendar, Clock, DollarSign, AlertTriangle, RotateCcw, Shield, Sparkles, ArrowLeft
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
@@ -160,6 +161,7 @@ const AdminPanelOrganized = () => {
   const { user, signOut } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const [isValidated, setIsValidated] = useState(false);
   const [validating, setValidating] = useState(true);
   const [activeTab, setActiveTab] = useState<string>('dashboard');
@@ -217,6 +219,15 @@ const AdminPanelOrganized = () => {
   const [chatTotalUnread, setChatTotalUnread] = useState(0);
   const chatMessagesEndRef = useRef<HTMLDivElement>(null);
   const [draftLoading, setDraftLoading] = useState(false);
+
+  // Auto-scroll to newest message when opening a conversation or new messages arrive
+  useEffect(() => {
+    if (!selectedChatUser) return;
+    const id = window.setTimeout(() => {
+      chatMessagesEndRef.current?.scrollIntoView({ block: "end" });
+    }, 60);
+    return () => window.clearTimeout(id);
+  }, [selectedChatUser, chatMessages]);
 
   const generateDraft = async () => {
     if (!selectedChatUser) return;
@@ -2932,11 +2943,26 @@ const AdminPanelOrganized = () => {
 
           {/* Live Chat Tab */}
           <TabsContent value="chat" className="space-y-6 mt-6">
-            <Card>
-              <CardHeader>
+            <Card
+              className={cn(
+                isMobile && selectedChatUser && "fixed inset-0 z-50 rounded-none border-0 flex flex-col"
+              )}
+            >
+              <CardHeader className={cn(isMobile && selectedChatUser && "flex-shrink-0 border-b")}>
                 <CardTitle className="flex items-center gap-2 w-full">
-                  <MessageCircle className="h-5 w-5 text-red-500" />
-                  Live Chat Management
+                  {isMobile && selectedChatUser && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 -ml-1 flex-shrink-0"
+                      onClick={() => setSelectedChatUser(null)}
+                      aria-label="Back to conversations"
+                    >
+                      <ArrowLeft className="h-4 w-4" />
+                    </Button>
+                  )}
+                  <MessageCircle className="h-5 w-5 text-red-500 flex-shrink-0" />
+                  <span className="truncate">Live Chat Management</span>
                   {chatTotalUnread > 0 && (
                     <Badge variant="destructive" className="ml-2">
                       {chatTotalUnread}
@@ -2952,14 +2978,19 @@ const AdminPanelOrganized = () => {
                     className="ml-auto"
                   >
                     <RefreshCw className="h-4 w-4 mr-2" />
-                    Refresh
+                    <span className="hidden sm:inline">Refresh</span>
                   </Button>
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-6">
+              <CardContent className={cn(isMobile && selectedChatUser && "flex-1 min-h-0 flex flex-col p-0")}>
+                <div
+                  className={cn(
+                    "grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-6",
+                    isMobile && selectedChatUser && "flex-1 min-h-0 flex flex-col gap-0"
+                  )}
+                >
                   {/* User List */}
-                  <div className="space-y-4">
+                  <div className={cn("space-y-4", isMobile && selectedChatUser && "hidden")}>
                     <h3 className="font-semibold">Active Conversations</h3>
                     {chatUsers.length === 0 ? (
                       <p className="text-muted-foreground text-sm">No conversations yet</p>
@@ -3003,10 +3034,21 @@ const AdminPanelOrganized = () => {
                   </div>
 
                   {/* Chat Messages */}
-                  <div className="lg:col-span-2 space-y-4">
+                  <div
+                    className={cn(
+                      "lg:col-span-2 space-y-4",
+                      isMobile && !selectedChatUser && "hidden",
+                      isMobile && selectedChatUser && "flex-1 min-h-0 flex flex-col space-y-0"
+                    )}
+                  >
                     {selectedChatUser ? (
                       <>
-                        <div className="border rounded-lg p-4 h-96 overflow-y-auto space-y-3">
+                        <div
+                          className={cn(
+                            "border rounded-lg p-4 h-96 overflow-y-auto space-y-3",
+                            isMobile && selectedChatUser && "flex-1 min-h-0 h-auto rounded-none border-x-0 border-t-0"
+                          )}
+                        >
                           {chatMessages
                             .filter(msg => msg.user_id === selectedChatUser)
                             .map((msg) => (
@@ -3042,7 +3084,12 @@ const AdminPanelOrganized = () => {
                         </div>
 
                         {/* Reply Input with AI draft */}
-                        <div className="space-y-2">
+                        <div
+                          className={cn(
+                            "space-y-2",
+                            isMobile && selectedChatUser && "flex-shrink-0 border-t bg-muted/20 p-3"
+                          )}
+                        >
                           <div className="flex items-center justify-between">
                             <Button
                               type="button"
@@ -3064,7 +3111,7 @@ const AdminPanelOrganized = () => {
                               value={chatReply}
                               onChange={(e) => setChatReply(e.target.value)}
                               placeholder="Type your reply or click 'Generate AI draft'…"
-                              rows={3}
+                              rows={isMobile ? 2 : 3}
                               className="flex-1 resize-none"
                             />
                             <Button
