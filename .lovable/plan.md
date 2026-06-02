@@ -1,53 +1,26 @@
 ## Goal
-Fix two issues: (1) the admin customer‑service chat is painful on mobile because the reply box sits below the whole conversation, and (2) both personal and admin accounts keep getting logged out.
+On mobile, when an admin taps a conversation in the **Live Chat Management** tab, open the chat in a focused full-screen view (header + messages + reply box always visible) instead of having to scroll down past the conversation list and message area to type a reply.
 
----
+## Why the earlier fix didn't help
+The previous change was applied to `src/components/admin/SupportDashboard.tsx` (the "Support Inbox" tab), which already works on mobile. The chat the admin actually uses is the **"Live Chat Management"** tab rendered inline in `src/pages/AdminPanel.tsx` (around lines 2934–3093). That section still uses a simple stacked grid (`grid-cols-1 lg:grid-cols-3`), so on mobile the conversation list sits on top, then a fixed `h-96` message box, then the reply composer — forcing the admin to scroll to reach the input.
 
-## Issue 1 — Admin chat is hard to use on mobile
+## What I'll change (mobile only, desktop layout untouched)
+In the "Live Chat Management" `TabsContent` in `src/pages/AdminPanel.tsx`:
 
-**What happens today** (`src/components/admin/SupportDashboard.tsx`): on mobile the layout collapses to one column — the conversation list, then the message thread, then the reply box stacked underneath. To reply you must scroll past the entire conversation to reach the composer. The messages area uses a fixed `max-h-[380px]` and the composer is just a normal block below it, so it scrolls with the page.
+1. Detect mobile (the page can use the existing `useIsMobile` hook) and, when a conversation is selected on mobile, render the messages + composer as a focused full-screen panel:
+   - A compact sticky top bar with a "← Back" button that clears the selected user and returns to the conversation list.
+   - The messages area scrolls internally and fills the available height (instead of the fixed `h-96`).
+   - The reply composer (AI-draft button, textarea, send button) pinned to the bottom so it's always visible without scrolling.
+2. On mobile, hide the conversation list while a chat is open, and hide the chat panel until one is selected (so the admin sees the list first, taps a conversation, lands directly in the chat).
+3. Auto-scroll to the newest message when a conversation opens / new messages arrive (the existing `chatMessagesEndRef` already supports this).
+4. On desktop (`lg` and up) keep the current two/three-column layout exactly as it is now.
 
-**Fix — mobile‑first focused thread view (desktop layout unchanged):**
-- When a conversation is selected on mobile, show a focused, near‑full‑height thread panel instead of stacking everything:
-  - A compact sticky header with a "← Conversations" back button (returns to the list).
-  - A messages area that scrolls **internally** (its own scroll region, fills available height) — not the whole page.
-  - The reply composer **pinned to the bottom** of that panel (sticky), always visible, so the admin can read and reply without scrolling to the end.
-- Auto‑scroll the messages area to the newest message when a conversation opens and after sending a reply.
-- Keep the existing AI‑draft button and send button in the pinned composer.
-- On desktop (`lg` and up) keep the current two‑column list + thread layout exactly as it is.
-
-This makes replying on mobile a "WhatsApp‑style" experience: header on top, messages in the middle, input always at the bottom.
-
----
-
-## Issue 2 — Users keep getting logged out
-
-**Primary cause (server‑side):** the Supabase Auth logs show the token‑refresh endpoint failing:
-```
-POST /token  grant_type=refresh_token  →  500
-"missing destination name oauth_client_id in *models.Session"
-```
-This is a Supabase Auth (GoTrue) platform/schema issue: when the session token can't be refreshed, the session can't be renewed and the user is forced to log in again. This affects both personal and admin accounts and matches "logged out multiple times today." This part is fixed by upgrading the project's Supabase Auth (GoTrue) version, not by app code — I'll flag this and recommend the upgrade in the Supabase dashboard. I'll verify current refresh behavior after the client hardening below.
-
-**Client‑side hardening I will do:**
-- Make session persistence explicit and robust in `src/integrations/supabase/client.ts` (explicit `storageKey`, `storage: localStorage`, `flowType: 'pkce'`, keep `persistSession`/`autoRefreshToken`), so a refreshed/restored session is reliably restored on revisit.
-- Remove the auth‑cache‑clearing footguns that can wipe tokens:
-  - `src/components/EnhancedServiceWorker.tsx` — the `beforeunload` handler that posts `CLEAR_AUTH_CACHE` (dead/harmful pattern).
-  - Neutralize `clearAuthCache`/`no-store` helpers in `src/utils/cacheUtils.ts` that strip `sb-*` / `supabase.auth.*` keys, so they can't accidentally clear the session.
-- Handle a failed token refresh gracefully in `src/hooks/useAuth.tsx` (treat transient `TOKEN_REFRESHED` failures without immediately dumping the user to `/auth`), so a one‑off server hiccup doesn't end the session.
-
-Note: admins are intentionally re‑challenged for MFA when a session is at AAL1 — that is by design and will be left in place. The goal here is to stop *unintended* logouts.
-
----
-
-## Technical details / files touched
-- `src/components/admin/SupportDashboard.tsx` — responsive thread/composer restructure, internal scroll region, sticky composer, auto‑scroll-to-bottom, mobile back button.
-- `src/integrations/supabase/client.ts` — explicit, robust auth storage config.
-- `src/components/EnhancedServiceWorker.tsx` — remove `beforeunload` auth‑cache clearing.
-- `src/utils/cacheUtils.ts` — stop clearing Supabase auth keys / no‑store meta.
-- `src/hooks/useAuth.tsx` — resilient handling of refresh/sign‑out events.
+## Technical details
+- File: `src/pages/AdminPanel.tsx`, the `<TabsContent value="chat">` block (~2934–3093).
+- Use a conditional `className` (via `cn`) on the chat panel: when `isMobile && selectedChatUser`, apply `fixed inset-0 z-50` full-screen styling with a flex column (sticky header / scrollable messages / pinned composer); otherwise keep the existing grid.
+- Replace the fixed `h-96` messages container with a flex-grow scroll region in the mobile full-screen case.
+- Reuse existing state/handlers (`selectedChatUser`, `chatMessages`, `chatReply`, `sendChatReply`, `generateDraft`, `markThreadAsRead`, `chatMessagesEndRef`). No backend/data changes.
 
 ## Verification
-- Mobile viewport (≈390px): open Admin → Support Inbox, select a conversation, confirm composer is visible without scrolling, messages scroll internally, and sending scrolls to newest.
-- Desktop: confirm the two‑column layout is unchanged.
-- Auth: reload and re‑enter the site to confirm the session persists; watch for refresh‑token errors. If the GoTrue 500 persists, recommend the Supabase Auth upgrade.
+- Mobile (~390px): open Admin → Live Chat Management, tap a conversation → chat opens full-screen, reply box visible immediately at the bottom, messages scroll internally, "Back" returns to the list.
+- Desktop: layout unchanged.
