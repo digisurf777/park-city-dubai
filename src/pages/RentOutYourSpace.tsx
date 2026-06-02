@@ -555,7 +555,7 @@ const RentOutYourSpace = () => {
                         {Array.from({
                       length: 21
                     }, (_, i) => {
-                      const price = 300 + i * 50;
+                      const price = 500 + i * 50;
                       return price <= 1300 ? <SelectItem key={price} value={price.toString()}>
                               {price} AED
                             </SelectItem> : null;
