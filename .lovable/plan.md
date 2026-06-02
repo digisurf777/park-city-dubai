@@ -1,62 +1,53 @@
-## Problem
+## Goal
+Fix two issues: (1) the admin customer‑service chat is painful on mobile because the reply box sits below the whole conversation, and (2) both personal and admin accounts keep getting logged out.
 
-Two issues on `/admin`:
+---
 
-1. The **Boss Dashboard hero banner** is slightly clipped at the top because the global `Navbar` is `fixed top-0` with height `h-16` (64px), but `src/pages/AdminPanel.tsx` wraps content in `p-3 sm:p-6` with no top offset for the fixed bar. Every other page (Index, AboutUs, etc.) adds its own `pt-16`/`pt-20`. The admin page is missing this.
-2. The hero currently only shows the gold **Crown** icon next to the "Boss Dashboard" title. The user wants a richer Dubai-flavored visual — a "boss from Dubai" character — inside the banner.
+## Issue 1 — Admin chat is hard to use on mobile
 
-## Plan
+**What happens today** (`src/components/admin/SupportDashboard.tsx`): on mobile the layout collapses to one column — the conversation list, then the message thread, then the reply box stacked underneath. To reply you must scroll past the entire conversation to reach the composer. The messages area uses a fixed `max-h-[380px]` and the composer is just a normal block below it, so it scrolls with the page.
 
-### 1. Push the boss dashboard down so the navbar no longer covers it
+**Fix — mobile‑first focused thread view (desktop layout unchanged):**
+- When a conversation is selected on mobile, show a focused, near‑full‑height thread panel instead of stacking everything:
+  - A compact sticky header with a "← Conversations" back button (returns to the list).
+  - A messages area that scrolls **internally** (its own scroll region, fills available height) — not the whole page.
+  - The reply composer **pinned to the bottom** of that panel (sticky), always visible, so the admin can read and reply without scrolling to the end.
+- Auto‑scroll the messages area to the newest message when a conversation opens and after sending a reply.
+- Keep the existing AI‑draft button and send button in the pinned composer.
+- On desktop (`lg` and up) keep the current two‑column list + thread layout exactly as it is.
 
-In `src/pages/AdminPanel.tsx` (line ~1789), update the page wrapper to add top padding equal to the fixed navbar height (plus a small breathing buffer):
+This makes replying on mobile a "WhatsApp‑style" experience: header on top, messages in the middle, input always at the bottom.
 
-- Change `p-3 sm:p-6` → `px-3 sm:px-6 pb-3 sm:pb-6 pt-20 sm:pt-24`
+---
 
-This gives the hero banner clean space below the glass navbar on every breakpoint, matching the spacing used elsewhere on the site.
+## Issue 2 — Users keep getting logged out
 
-### 2. Generate a "Dubai boss" character illustration
-
-Use the AI image generation gateway (`google/gemini-3.1-flash-image-preview` — Nano banana 2, fast + high quality) to produce a single hero portrait:
-
-- Prompt direction: a confident, friendly Emirati businessman in a crisp white kandura and ghutra, soft smile, premium executive vibe, Dubai skyline (Burj Khalifa, Business Bay) softly blurred in the background at golden hour, cinematic lighting, transparent or soft gradient backdrop, square framing, professional editorial illustration style, no text.
-- Save the output to `src/assets/boss-dubai-character.webp` (or `.png` if alpha is needed).
-
-### 3. Place the character inside the existing `DubaiSkylineBanner`
-
-Edit `src/components/admin/AdminDashboard.tsx`, the `banner` JSX (around lines 90–130):
-
-- Add a right-side decorative portrait that sits inside the banner without competing with the title:
-  - On `sm+`: absolutely positioned on the right edge of the banner, ~h-44 to h-56, with `object-contain object-bottom`, slight drop-shadow, `pointer-events-none`, `select-none`, `aria-hidden`.
-  - On mobile: hidden (`hidden sm:block`) so the title and refresh button stay readable.
-- Increase the banner's right padding on `sm+` (e.g. `sm:pr-56`) so text never overlaps the portrait.
-- Keep the gold Crown badge next to the "Boss Dashboard" title — it acts as the small icon the user also asked for; the portrait is the bigger statement piece.
-
-### 4. Optional polish
-
-- Add a soft radial highlight behind the portrait (tinted gold) so it blends with the existing skyline gradient already in `DubaiSkylineBanner`.
-- Ensure the image uses `loading="lazy"` and `decoding="async"` for performance (consistent with the existing skyline `<img>` in `DubaiSkylineBanner.tsx`).
-
-## Technical details
-
-Files touched:
-
-- `src/pages/AdminPanel.tsx` — wrapper padding only (1 line).
-- `src/components/admin/AdminDashboard.tsx` — import the new asset, render the `<img>` inside the banner, adjust right padding.
-- `src/assets/boss-dubai-character.webp` — new generated image asset.
-
-Layout sketch of the updated hero:
-
-```text
-┌──────────────────────────────────────────────────────────────┐
-│ [👑] Boss Dashboard                                          │
-│      ● Live · synced 4s ago · Dubai, UAE        [⟳][AED][⎋] │
-│                                              ╔═════════════╗ │
-│                                              ║   Dubai     ║ │
-│                                              ║   Boss      ║ │
-│                                              ║  portrait   ║ │
-│                                              ╚═════════════╝ │
-└──────────────────────────────────────────────────────────────┘
+**Primary cause (server‑side):** the Supabase Auth logs show the token‑refresh endpoint failing:
 ```
+POST /token  grant_type=refresh_token  →  500
+"missing destination name oauth_client_id in *models.Session"
+```
+This is a Supabase Auth (GoTrue) platform/schema issue: when the session token can't be refreshed, the session can't be renewed and the user is forced to log in again. This affects both personal and admin accounts and matches "logged out multiple times today." This part is fixed by upgrading the project's Supabase Auth (GoTrue) version, not by app code — I'll flag this and recommend the upgrade in the Supabase dashboard. I'll verify current refresh behavior after the client hardening below.
 
-No KPI/chart logic, routing, or data layer is touched — purely visual.
+**Client‑side hardening I will do:**
+- Make session persistence explicit and robust in `src/integrations/supabase/client.ts` (explicit `storageKey`, `storage: localStorage`, `flowType: 'pkce'`, keep `persistSession`/`autoRefreshToken`), so a refreshed/restored session is reliably restored on revisit.
+- Remove the auth‑cache‑clearing footguns that can wipe tokens:
+  - `src/components/EnhancedServiceWorker.tsx` — the `beforeunload` handler that posts `CLEAR_AUTH_CACHE` (dead/harmful pattern).
+  - Neutralize `clearAuthCache`/`no-store` helpers in `src/utils/cacheUtils.ts` that strip `sb-*` / `supabase.auth.*` keys, so they can't accidentally clear the session.
+- Handle a failed token refresh gracefully in `src/hooks/useAuth.tsx` (treat transient `TOKEN_REFRESHED` failures without immediately dumping the user to `/auth`), so a one‑off server hiccup doesn't end the session.
+
+Note: admins are intentionally re‑challenged for MFA when a session is at AAL1 — that is by design and will be left in place. The goal here is to stop *unintended* logouts.
+
+---
+
+## Technical details / files touched
+- `src/components/admin/SupportDashboard.tsx` — responsive thread/composer restructure, internal scroll region, sticky composer, auto‑scroll-to-bottom, mobile back button.
+- `src/integrations/supabase/client.ts` — explicit, robust auth storage config.
+- `src/components/EnhancedServiceWorker.tsx` — remove `beforeunload` auth‑cache clearing.
+- `src/utils/cacheUtils.ts` — stop clearing Supabase auth keys / no‑store meta.
+- `src/hooks/useAuth.tsx` — resilient handling of refresh/sign‑out events.
+
+## Verification
+- Mobile viewport (≈390px): open Admin → Support Inbox, select a conversation, confirm composer is visible without scrolling, messages scroll internally, and sending scrolls to newest.
+- Desktop: confirm the two‑column layout is unchanged.
+- Auth: reload and re‑enter the site to confirm the session persists; watch for refresh‑token errors. If the GoTrue 500 persists, recommend the Supabase Auth upgrade.
