@@ -2945,7 +2945,7 @@ const AdminPanelOrganized = () => {
           <TabsContent value="chat" className="space-y-6 mt-6">
             <Card
               className={cn(
-                isMobile && selectedChatUser && "fixed inset-0 z-50 rounded-none border-0 flex flex-col"
+                isMobile && selectedChatUser && "fixed inset-0 z-50 h-[100dvh] max-h-[100dvh] rounded-none border-0 flex flex-col overflow-hidden"
               )}
             >
               <CardHeader className={cn(isMobile && selectedChatUser && "flex-shrink-0 border-b")}>
@@ -2986,7 +2986,7 @@ const AdminPanelOrganized = () => {
                 <div
                   className={cn(
                     "grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-6",
-                    isMobile && selectedChatUser && "flex-1 min-h-0 flex flex-col gap-0"
+                    isMobile && selectedChatUser && "flex-1 min-h-0 flex flex-col gap-0 overflow-hidden"
                   )}
                 >
                   {/* User List */}
@@ -3087,7 +3087,7 @@ const AdminPanelOrganized = () => {
                         <div
                           className={cn(
                             "space-y-2",
-                            isMobile && selectedChatUser && "flex-shrink-0 border-t bg-muted/20 p-3"
+                            isMobile && selectedChatUser && "flex-shrink-0 border-t bg-background p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]"
                           )}
                         >
                           <div className="flex items-center justify-between">
