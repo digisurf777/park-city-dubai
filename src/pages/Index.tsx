@@ -572,7 +572,7 @@ const Index = () => {
               Why choose ShazamParking?
             </h2>
             <h3 className="text-lg sm:text-xl lg:text-2xl text-gray-700 mb-6 sm:mb-8 px-4">
-              We are the quickest, easiest, and the most secure way to rent a parking space in Dubai!
+              We are the quickest, easiest, and the most secure way to rent private long term parking space in Dubai.
             </h3>
             <div
               className="mx-auto max-w-3xl rounded-3xl p-[3px] animate-[float_8s_ease-in-out_infinite] overflow-hidden"
