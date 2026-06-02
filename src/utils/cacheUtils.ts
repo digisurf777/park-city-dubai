@@ -1,44 +1,33 @@
 /**
- * Cache utilities for clearing browser cache and preventing authentication issues
+ * Cache utilities for clearing the browser/asset cache.
+ *
+ * IMPORTANT: These helpers must NEVER remove Supabase auth tokens
+ * (`supabase.auth.*` / `sb-*` keys). Clearing those wipes the user's session
+ * and forces repeated logins. Only non-auth asset caches are cleared here.
  */
 
 export const clearAuthCache = async () => {
   try {
-    // Clear all caches
+    // Clear non-auth asset caches only (HTTP cache / service-worker image cache).
     if ('caches' in window) {
       const cacheNames = await caches.keys();
       await Promise.all(
         cacheNames.map(cacheName => caches.delete(cacheName))
       );
-      console.log('Browser caches cleared');
+      console.log('Browser asset caches cleared (auth tokens preserved)');
     }
-    
-    // Clear service worker cache
+
+    // Ask the service worker to drop its image cache only — never auth data.
     if ('serviceWorker' in navigator) {
       const registration = await navigator.serviceWorker.getRegistration();
       if (registration && registration.active) {
-        registration.active.postMessage({ type: 'CLEAR_AUTH_CACHE' });
+        registration.active.postMessage({ type: 'CLEAR_IMAGE_CACHE' });
       }
     }
-    
-    // Clear localStorage auth data
-    Object.keys(localStorage).forEach((key) => {
-      if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
-        localStorage.removeItem(key);
-      }
-    });
-    
-    // Clear sessionStorage auth data
-    if (typeof sessionStorage !== 'undefined') {
-      Object.keys(sessionStorage).forEach((key) => {
-        if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
-          sessionStorage.removeItem(key);
-        }
-      });
-    }
-    
+
+    // Deliberately DO NOT touch localStorage/sessionStorage auth keys here.
   } catch (error) {
-    console.error('Error clearing auth cache:', error);
+    console.error('Error clearing asset cache:', error);
   }
 };
 
