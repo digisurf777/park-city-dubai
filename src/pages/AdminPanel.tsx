@@ -161,6 +161,7 @@ const AdminPanelOrganized = () => {
   const { user, signOut } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const [isValidated, setIsValidated] = useState(false);
   const [validating, setValidating] = useState(true);
   const [activeTab, setActiveTab] = useState<string>('dashboard');
