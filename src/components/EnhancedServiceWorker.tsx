@@ -45,17 +45,9 @@ const EnhancedServiceWorker = () => {
           }
         });
 
-        // Send message to service worker to clear auth cache when needed
-        const clearAuthCache = () => {
-          if (navigator.serviceWorker.controller) {
-            navigator.serviceWorker.controller.postMessage({
-              type: 'CLEAR_AUTH_CACHE'
-            });
-          }
-        };
-
-        // Clear auth cache on auth state changes
-        window.addEventListener('beforeunload', clearAuthCache);
+        // NOTE: We intentionally do NOT clear auth cache on `beforeunload`.
+        // Doing so wiped Supabase session tokens every time the user left the
+        // page, forcing repeated logins on return.
 
         console.log('Enhanced Service Worker registered');
       } catch (error) {

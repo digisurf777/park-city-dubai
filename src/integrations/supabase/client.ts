@@ -10,8 +10,12 @@ const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiO
 
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: {
+    // Explicit, robust persistence so sessions survive leaving/returning to the site.
+    storage: typeof window !== 'undefined' ? window.localStorage : undefined,
+    storageKey: 'sb-eoknluyunximjlsnyceb-auth-token',
     persistSession: true,
     autoRefreshToken: true,
     detectSessionInUrl: true,
+    flowType: 'pkce',
   }
 });
