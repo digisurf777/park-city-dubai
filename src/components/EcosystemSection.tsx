@@ -113,7 +113,7 @@ const EcosystemSection = () => {
             </span>
           </h2>
           <p className="text-base sm:text-lg text-white font-medium [text-shadow:0_2px_8px_rgb(0_0_0/0.75),0_1px_3px_rgb(0_0_0/0.6)]">
-            Shazam Parking is part of a wider ecosystem of three products. Together they help you understand the city, organise your life and solve everyday mobility in Dubai.
+            Shazam Parking is part of a wider ecosystem of many products. Together they help you understand the city, organise your life and solve everyday mobility in Dubai.
           </p>
         </motion.div>
 
