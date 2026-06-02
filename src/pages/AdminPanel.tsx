@@ -2986,7 +2986,7 @@ const AdminPanelOrganized = () => {
                 <div
                   className={cn(
                     "grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-6",
-                    isMobile && selectedChatUser && "flex-1 min-h-0 flex flex-col gap-0"
+                    isMobile && selectedChatUser && "flex-1 min-h-0 flex flex-col gap-0 overflow-hidden"
                   )}
                 >
                   {/* User List */}
