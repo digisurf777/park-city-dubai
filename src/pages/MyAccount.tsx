@@ -56,7 +56,6 @@ interface Profile {
   bio?: string | null;
   preferred_language?: string | null;
   notification_email?: boolean | null;
-  notification_sms?: boolean | null;
   email?: string | null;
 }
 interface ParkingBooking {
