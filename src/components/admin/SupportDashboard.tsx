@@ -192,12 +192,13 @@ const SupportDashboard = () => {
     [conversations, selectedUserId]
   );
 
-  // Auto-select first conversation when none selected
+  // Auto-select first conversation when none selected (desktop only — on mobile
+  // the admin should see the conversation list first and tap to open a thread)
   useEffect(() => {
-    if (!selectedUserId && conversations.length > 0) {
+    if (!isMobile && !selectedUserId && conversations.length > 0) {
       setSelectedUserId(conversations[0].userId);
     }
-  }, [conversations, selectedUserId]);
+  }, [conversations, selectedUserId, isMobile]);
 
   // Mark inbound as read when opened
   useEffect(() => {
