@@ -56,7 +56,6 @@ interface Profile {
   bio?: string | null;
   preferred_language?: string | null;
   notification_email?: boolean | null;
-  notification_sms?: boolean | null;
   email?: string | null;
 }
 interface ParkingBooking {
@@ -304,7 +303,6 @@ const MyAccount = () => {
         bio: profile.bio ?? null,
         preferred_language: profile.preferred_language ?? 'en',
         notification_email: profile.notification_email ?? true,
-        notification_sms: profile.notification_sms ?? false,
       };
 
       let query = supabase.from('profiles').update(updatePayload);
@@ -1027,17 +1025,7 @@ const MyAccount = () => {
                         <Switch
                           checked={profile?.notification_email ?? true}
                           onCheckedChange={val => setProfile(prev => prev ? { ...prev, notification_email: val } : null)}
-                        />
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-sm">SMS notifications</p>
-                          <p className="text-xs text-muted-foreground">Critical updates only (additional charges may apply)</p>
-                        </div>
-                        <Switch
-                          checked={profile?.notification_sms ?? false}
-                          onCheckedChange={val => setProfile(prev => prev ? { ...prev, notification_sms: val } : null)}
-                        />
+                       />
                       </div>
                     </div>
 
