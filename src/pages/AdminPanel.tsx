@@ -2945,7 +2945,7 @@ const AdminPanelOrganized = () => {
           <TabsContent value="chat" className="space-y-6 mt-6">
             <Card
               className={cn(
-                isMobile && selectedChatUser && "fixed inset-0 z-50 rounded-none border-0 flex flex-col"
+                isMobile && selectedChatUser && "fixed inset-0 z-50 h-[100dvh] max-h-[100dvh] rounded-none border-0 flex flex-col overflow-hidden"
               )}
             >
               <CardHeader className={cn(isMobile && selectedChatUser && "flex-shrink-0 border-b")}>
