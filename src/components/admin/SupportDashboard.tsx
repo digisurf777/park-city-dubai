@@ -209,6 +209,15 @@ const SupportDashboard = () => {
     void supabase.from("user_messages").update({ read_status: true }).in("id", unreadIds);
   }, [selectedConvo?.userId]);
 
+  // Auto-scroll to the newest message when opening a conversation or new messages arrive
+  useEffect(() => {
+    if (!selectedConvo) return;
+    const id = window.setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ block: "end" });
+    }, 60);
+    return () => window.clearTimeout(id);
+  }, [selectedConvo?.userId, selectedConvo?.msgs.length]);
+
   // ------------ AI draft ------------
   const generateDraft = async () => {
     if (!selectedConvo) return;
