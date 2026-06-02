@@ -220,6 +220,15 @@ const AdminPanelOrganized = () => {
   const chatMessagesEndRef = useRef<HTMLDivElement>(null);
   const [draftLoading, setDraftLoading] = useState(false);
 
+  // Auto-scroll to newest message when opening a conversation or new messages arrive
+  useEffect(() => {
+    if (!selectedChatUser) return;
+    const id = window.setTimeout(() => {
+      chatMessagesEndRef.current?.scrollIntoView({ block: "end" });
+    }, 60);
+    return () => window.clearTimeout(id);
+  }, [selectedChatUser, chatMessages]);
+
   const generateDraft = async () => {
     if (!selectedChatUser) return;
     setDraftLoading(true);
