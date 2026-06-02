@@ -11,8 +11,9 @@ import { useToast } from "@/hooks/use-toast";
 import {
   Mail, MailOpen, Sparkles, Send, Search, Clock, Inbox,
   CheckCircle2, MessageSquare, RefreshCw, AlertCircle, User,
-  Filter, TrendingUp, Loader2,
+  Filter, TrendingUp, Loader2, ArrowLeft,
 } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { format, formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
 
