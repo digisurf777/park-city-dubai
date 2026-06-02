@@ -20,7 +20,7 @@ import {
   Pencil, Trash2, Plus, CheckCircle, XCircle, FileText, Mail, Upload, X, 
   Eye, Edit, Lightbulb, Camera, Settings, RefreshCw, MessageCircle, Send, 
   LogOut, Home, Grid, Bell, Users, Car, Copy, ExternalLink, Image, CreditCard,
-  Calendar, Clock, DollarSign, AlertTriangle, RotateCcw, Shield, Sparkles
+  Calendar, Clock, DollarSign, AlertTriangle, RotateCcw, Shield, Sparkles, ArrowLeft
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
