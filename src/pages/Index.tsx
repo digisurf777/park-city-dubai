@@ -571,12 +571,9 @@ const Index = () => {
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 sm:mb-6 px-4">
               Why choose ShazamParking?
             </h2>
-            <h3 className="text-lg sm:text-xl lg:text-2xl text-gray-700 mb-4 sm:mb-6 px-4">
+            <h3 className="text-lg sm:text-xl lg:text-2xl text-gray-700 mb-6 sm:mb-8 px-4">
               We are the quickest, easiest, and the most secure way to rent a parking space in Dubai!
             </h3>
-            <p className="text-base sm:text-lg lg:text-xl text-gray-700 font-semibold mb-6 sm:mb-8 px-4">
-              Private long term parking
-            </p>
             <div
               className="mx-auto max-w-3xl rounded-3xl p-[3px] animate-[float_8s_ease-in-out_infinite] overflow-hidden"
               style={{
