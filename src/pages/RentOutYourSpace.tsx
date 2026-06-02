@@ -40,7 +40,7 @@ const RentOutYourSpace = () => {
   } = useToast();
   const navigate = useNavigate();
   const { status: verificationStatus, loading: verificationLoading } = useVerificationStatus();
-  const [monthlyPrice, setMonthlyPrice] = useState<number>(300);
+  const [monthlyPrice, setMonthlyPrice] = useState<number>(500);
   const [uploadedImages, setUploadedImages] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
@@ -338,7 +338,7 @@ const RentOutYourSpace = () => {
         agreeToAuthorization: false
       });
       setUploadedImages([]);
-      setMonthlyPrice(300);
+      setMonthlyPrice(500);
       setIsSubmitting(false);
 
       // Redirect to account page to view the submitted listing
@@ -555,7 +555,7 @@ const RentOutYourSpace = () => {
                         {Array.from({
                       length: 21
                     }, (_, i) => {
-                      const price = 300 + i * 50;
+                      const price = 500 + i * 50;
                       return price <= 1300 ? <SelectItem key={price} value={price.toString()}>
                               {price} AED
                             </SelectItem> : null;
