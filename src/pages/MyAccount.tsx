@@ -303,7 +303,6 @@ const MyAccount = () => {
         bio: profile.bio ?? null,
         preferred_language: profile.preferred_language ?? 'en',
         notification_email: profile.notification_email ?? true,
-        notification_sms: profile.notification_sms ?? false,
       };
 
       let query = supabase.from('profiles').update(updatePayload);
