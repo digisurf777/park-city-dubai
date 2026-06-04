@@ -1,26 +1,42 @@
 ## Goal
-On mobile, when an admin taps a conversation in the **Live Chat Management** tab, open the chat in a focused full-screen view (header + messages + reply box always visible) instead of having to scroll down past the conversation list and message area to type a reply.
+Stop admin chat history from disappearing and make the Live Chat Management tab reliably show all existing conversations and messages.
 
-## Why the earlier fix didn't help
-The previous change was applied to `src/components/admin/SupportDashboard.tsx` (the "Support Inbox" tab), which already works on mobile. The chat the admin actually uses is the **"Live Chat Management"** tab rendered inline in `src/pages/AdminPanel.tsx` (around lines 2934–3093). That section still uses a simple stacked grid (`grid-cols-1 lg:grid-cols-3`), so on mobile the conversation list sits on top, then a fixed `h-96` message box, then the reply composer — forcing the admin to scroll to reach the input.
+## What I’ll change
+1. **Stabilize how admin chat history is loaded**
+   - Refactor the admin chat fetch logic in `src/pages/AdminPanel.tsx` so it uses one consistent source of truth for conversation threads and message history.
+   - Prevent the UI from briefly replacing a valid thread list or message list with an empty state during refreshes or realtime updates.
 
-## What I'll change (mobile only, desktop layout untouched)
-In the "Live Chat Management" `TabsContent` in `src/pages/AdminPanel.tsx`:
+2. **Preserve existing chat data in the UI during refreshes**
+   - Avoid clearing the current chat thread while data is reloading.
+   - Keep the selected conversation intact when new messages arrive or when the admin panel refreshes its chat data.
 
-1. Detect mobile (the page can use the existing `useIsMobile` hook) and, when a conversation is selected on mobile, render the messages + composer as a focused full-screen panel:
-   - A compact sticky top bar with a "← Back" button that clears the selected user and returns to the conversation list.
-   - The messages area scrolls internally and fills the available height (instead of the fixed `h-96`).
-   - The reply composer (AI-draft button, textarea, send button) pinned to the bottom so it's always visible without scrolling.
-2. On mobile, hide the conversation list while a chat is open, and hide the chat panel until one is selected (so the admin sees the list first, taps a conversation, lands directly in the chat).
-3. Auto-scroll to the newest message when a conversation opens / new messages arrive (the existing `chatMessagesEndRef` already supports this).
-4. On desktop (`lg` and up) keep the current two/three-column layout exactly as it is now.
+3. **Harden realtime update behavior**
+   - Review the realtime subscription in the admin panel so inserts/updates in `user_messages` do not cause the chat list/history to flicker, reset, or disappear.
+   - Make sure the selected thread still resolves correctly after realtime refreshes.
+
+4. **Check database-side access for admin chat history**
+   - Verify that the `user_messages` table and any RPCs used by the admin chat (`get_chat_users_overview`, `get_user_basic_info`) still allow admins to read the data they need.
+   - If a policy or RPC issue is hiding older messages or certain users, I’ll prepare the required database migration.
+
+5. **Align the mobile chat screen with the fixed data flow**
+   - Ensure the mobile full-screen chat view still shows the full thread history once the underlying fetch/state logic is stabilized.
 
 ## Technical details
-- File: `src/pages/AdminPanel.tsx`, the `<TabsContent value="chat">` block (~2934–3093).
-- Use a conditional `className` (via `cn`) on the chat panel: when `isMobile && selectedChatUser`, apply `fixed inset-0 z-50` full-screen styling with a flex column (sticky header / scrollable messages / pinned composer); otherwise keep the existing grid.
-- Replace the fixed `h-96` messages container with a flex-grow scroll region in the mobile full-screen case.
-- Reuse existing state/handlers (`selectedChatUser`, `chatMessages`, `chatReply`, `sendChatReply`, `generateDraft`, `markThreadAsRead`, `chatMessagesEndRef`). No backend/data changes.
+- Primary frontend file:
+  - `src/pages/AdminPanel.tsx`
+- Likely data paths involved:
+  - `user_messages`
+  - `get_chat_users_overview`
+  - `get_user_basic_info`
+- Likely root cause from current code:
+  - The admin chat uses multiple fallback fetch paths and full refreshes on every realtime event, which can temporarily replace populated state with partial or empty results.
+  - The thread list and message list are loaded separately, so they can drift out of sync.
 
-## Verification
-- Mobile (~390px): open Admin → Live Chat Management, tap a conversation → chat opens full-screen, reply box visible immediately at the bottom, messages scroll internally, "Back" returns to the list.
-- Desktop: layout unchanged.
+## Validation
+- Open Admin → Live Chat Management and confirm existing conversations appear consistently.
+- Select a thread and confirm older messages remain visible.
+- Send/receive a message and confirm the thread stays selected and history does not disappear.
+- Reopen the admin panel and confirm prior chat history still loads.
+
+## If database changes are needed
+I’ll add a focused migration only if I confirm an RLS/RPC access issue is contributing to the disappearing history.
