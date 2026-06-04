@@ -41,8 +41,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [mfaRequired, setMfaRequired] = useState(false);
   const [mfaEnabled, setMfaEnabled] = useState(false);
 
-  console.log('AuthProvider: Initializing');
-
   useEffect(() => {
     console.log('AuthProvider: Setting up auth state listener');
     
