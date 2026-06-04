@@ -374,37 +374,10 @@ const Auth = () => {
       setLoading(false);
     }
   };
-  // When MFA screen opens, always (re)create a fresh challenge to avoid expired/absent challenges
-  useEffect(() => {
-    const refreshChallenge = async () => {
-      try {
-        if (!showMFAChallenge || mfaVerifiedRef.current) return;
-        // Ensure we have a factorId
-        let factorId = mfaFactorId;
-        if (!factorId) {
-          const { factors } = await getMFAFactors();
-          const totp = factors?.find((f: any) => f.status === 'verified');
-          if (!totp) {
-            toast.error('MFA setup required for admin access');
-            navigate('/admin-setup');
-            return;
-          }
-          factorId = totp.id;
-          setMfaFactorId(factorId);
-        }
-        const { challengeId, error } = await challengeMFA(factorId);
-        if (error || !challengeId) {
-          console.error('Failed to create MFA challenge:', error);
-          toast.error('Could not start verification. Please try again.');
-          return;
-        }
-        setMfaChallengeId(challengeId);
-      } catch (e) {
-        console.error('Error refreshing MFA challenge:', e);
-      }
-    };
-    refreshChallenge();
-  }, [showMFAChallenge, mfaFactorId, challengeMFA, getMFAFactors, navigate, toast]);
+  // NOTE: We intentionally do NOT pre-create / refresh an MFA challenge here.
+  // verifyMFAChallenge() now creates a fresh challenge immediately before
+  // verifying the typed code, which eliminates the previous race where multiple
+  // effects created competing challenges and caused correct codes to be rejected.
 
   const validatePassword = (password: string) => {
     const hasLowercase = /[a-z]/.test(password);
