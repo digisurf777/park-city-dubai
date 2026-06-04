@@ -220,6 +220,13 @@ const AdminPanelOrganized = () => {
   const chatMessagesEndRef = useRef<HTMLDivElement>(null);
   const [draftLoading, setDraftLoading] = useState(false);
 
+  // Load the full thread for the selected user so older history always shows
+  useEffect(() => {
+    if (!selectedChatUser) return;
+    fetchThreadForUser(selectedChatUser);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedChatUser]);
+
   // Auto-scroll to newest message when opening a conversation or new messages arrive
   useEffect(() => {
     if (!selectedChatUser) return;
@@ -228,6 +235,7 @@ const AdminPanelOrganized = () => {
     }, 60);
     return () => window.clearTimeout(id);
   }, [selectedChatUser, chatMessages]);
+
 
   const generateDraft = async () => {
     if (!selectedChatUser) return;
@@ -1112,54 +1120,70 @@ const AdminPanelOrganized = () => {
     }
   };
   
+  // Attach resolved display names to a list of raw messages
+  const attachProfilesToMessages = async (messages: any[]): Promise<ChatMessage[]> => {
+    if (!messages || messages.length === 0) return [];
+    const userIds = [...new Set(messages.map((msg) => msg.user_id))];
+
+    const { data: userInfos, error: infoErr } = await supabase
+      .rpc('get_user_basic_info', { user_ids: userIds });
+    if (infoErr) console.error('RPC names for messages failed:', infoErr);
+
+    // profiles fallback only for missing
+    const missing = (userInfos || []).filter((u: any) => !u?.full_name && !u?.email).map((u: any) => u.user_id);
+    let profiles: any[] = [];
+    if (missing.length > 0) {
+      const { data: pData, error: pErr } = await supabase
+        .from('profiles')
+        .select('user_id, full_name, email')
+        .in('user_id', missing);
+      if (pErr) console.error('Profiles fallback for messages failed:', pErr);
+      profiles = pData || [];
+    }
+
+    return messages.map((msg) => {
+      const info = userInfos?.find((u: any) => u.user_id === msg.user_id);
+      const prof = profiles.find((p: any) => p.user_id === msg.user_id);
+      const name = (info?.full_name && info.full_name.trim()) || prof?.full_name?.trim() || info?.email || prof?.email || `User ${String(msg.user_id).slice(0, 8)}`;
+      return {
+        ...msg,
+        profiles: { full_name: name, user_id: msg.user_id },
+      };
+    }) as ChatMessage[];
+  };
+
+  // Merge a batch of messages into existing state without dropping history
+  const mergeChatMessages = (incoming: ChatMessage[]) => {
+    setChatMessages((prev) => {
+      const map = new Map<string, ChatMessage>();
+      prev.forEach((m) => map.set(m.id, m));
+      incoming.forEach((m) => map.set(m.id, m));
+      return Array.from(map.values()).sort(
+        (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+      );
+    });
+  };
+
   const fetchChatMessages = async () => {
     setChatLoading(true);
     try {
-      // First get messages
+      // Fetch the most RECENT messages first (descending) so newer conversations
+      // are never dropped by the 1000-row query cap, then sort ascending for display.
       const { data: messages, error: msgError } = await supabase
         .from('user_messages')
         .select('*')
-        .order('created_at', { ascending: true });
+        .order('created_at', { ascending: false })
+        .limit(1000);
 
       if (msgError) throw msgError;
 
-      // Then resolve sender names using RPC (auth.users) with profiles fallback
-      if (messages && messages.length > 0) {
-        const userIds = [...new Set(messages.map(msg => msg.user_id))];
-
-        const { data: userInfos, error: infoErr } = await supabase
-          .rpc('get_user_basic_info', { user_ids: userIds });
-        if (infoErr) console.error('RPC names for messages failed:', infoErr);
-
-        // profiles fallback only for missing
-        const missing = (userInfos || []).filter((u: any) => !u?.full_name && !u?.email).map((u: any) => u.user_id);
-        let profiles: any[] = [];
-        if (missing.length > 0) {
-          const { data: pData, error: pErr } = await supabase
-            .from('profiles')
-            .select('user_id, full_name, email')
-            .in('user_id', missing);
-          if (pErr) console.error('Profiles fallback for messages failed:', pErr);
-          profiles = pData || [];
-        }
-
-        // Combine messages with resolved display name
-        const messagesWithProfiles = messages.map(msg => {
-          const info = userInfos?.find((u: any) => u.user_id === msg.user_id);
-          const prof = profiles.find((p: any) => p.user_id === msg.user_id);
-          const name = (info?.full_name && info.full_name.trim()) || prof?.full_name?.trim() || info?.email || prof?.email || `User ${String(msg.user_id).slice(0,8)}`;
-          return {
-            ...msg,
-            profiles: { full_name: name, user_id: msg.user_id }
-          };
-        });
-
-        setChatMessages(messagesWithProfiles as ChatMessage[]);
-      } else {
-        setChatMessages([]);
-      }
+      const ascending = (messages || []).slice().reverse();
+      const withProfiles = await attachProfilesToMessages(ascending);
+      // Merge so a currently-open thread (loaded in full) keeps its history
+      mergeChatMessages(withProfiles);
     } catch (error) {
       console.error('Error fetching chat messages:', error);
+      // Keep existing messages on error so history doesn't disappear
       toast({
         title: "Error",
         description: "Failed to fetch chat messages",
@@ -1167,6 +1191,23 @@ const AdminPanelOrganized = () => {
       });
     } finally {
       setChatLoading(false);
+    }
+  };
+
+  // Load the COMPLETE thread for a single user so the selected conversation
+  // always shows full history regardless of the global recent-messages cap.
+  const fetchThreadForUser = async (userId: string) => {
+    try {
+      const { data: messages, error } = await supabase
+        .from('user_messages')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: true });
+      if (error) throw error;
+      const withProfiles = await attachProfilesToMessages(messages || []);
+      mergeChatMessages(withProfiles);
+    } catch (error) {
+      console.error('Error fetching thread for user:', error);
     }
   };
 
