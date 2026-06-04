@@ -220,6 +220,13 @@ const AdminPanelOrganized = () => {
   const chatMessagesEndRef = useRef<HTMLDivElement>(null);
   const [draftLoading, setDraftLoading] = useState(false);
 
+  // Load the full thread for the selected user so older history always shows
+  useEffect(() => {
+    if (!selectedChatUser) return;
+    fetchThreadForUser(selectedChatUser);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedChatUser]);
+
   // Auto-scroll to newest message when opening a conversation or new messages arrive
   useEffect(() => {
     if (!selectedChatUser) return;
@@ -228,6 +235,7 @@ const AdminPanelOrganized = () => {
     }, 60);
     return () => window.clearTimeout(id);
   }, [selectedChatUser, chatMessages]);
+
 
   const generateDraft = async () => {
     if (!selectedChatUser) return;
