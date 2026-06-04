@@ -183,11 +183,17 @@ const ChatWidget = () => {
   };
 
 
-  // Always start a brand-new session id when the widget mounts (per user's request).
+  // Reuse the existing session on mount so chat history doesn't appear to vanish.
+  // Only create a fresh session if none is stored (or via an explicit "New chat").
   useEffect(() => {
-    const fresh = crypto.randomUUID();
-    setSessionId(fresh);
-    sessionStorage.setItem(STORAGE_SESSION_KEY, fresh);
+    const existing = sessionStorage.getItem(STORAGE_SESSION_KEY);
+    if (existing) {
+      setSessionId(existing);
+    } else {
+      const fresh = crypto.randomUUID();
+      setSessionId(fresh);
+      sessionStorage.setItem(STORAGE_SESSION_KEY, fresh);
+    }
   }, [user?.id]);
 
   const scrollToBottom = () => {
