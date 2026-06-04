@@ -1,51 +1,47 @@
-## What I’ll fix
+## Goals
+- Keep both personal and admin users signed in when they close and reopen the mobile browser shortly after.
+- Make admin authenticator codes verify reliably on the first valid entry.
+- Restore the improved popup-style support chat and stop missing support messages from disappearing.
+- Apply the improved chat-window pattern to support, booking chat, and admin chat monitoring.
 
-1. **Stop the repeated logout problem** for both personal and admin accounts so closing the phone browser/app and reopening shortly after keeps the user signed in.
-2. **Fix the admin authenticator flow** so the correct code is accepted consistently on the first valid attempt instead of failing several times.
-3. **Restore the improved support chat experience** so mobile users get the newer chat-window style layout instead of the older scroll-heavy screen.
-4. **Fix disappearing chat history** so recent user/admin messages remain visible, including the missing newer support messages.
-5. **Apply the improved chat layout across the platform** for support chat, booking chat, and admin monitoring views.
+## What I’ll change
 
-## Plan
+### 1) Stabilize auth/session persistence
+- Refactor auth bootstrap in `src/hooks/useAuth.tsx` so session restore is driven by an initial `getSession()` pass plus non-blocking auth state updates, preventing the app from treating a still-restoring session as logged out.
+- Remove remaining forced-refresh / hard-reset behavior around logout and route transitions where it can interrupt persisted auth on mobile.
+- Audit guarded pages (`ProtectedRoute`, `Auth`, admin validation flow) so redirects wait for auth readiness instead of reacting to a transient `INITIAL_SESSION no user` state.
+- Keep explicit logout working, but limit cleanup to targeted Supabase auth keys only.
 
-### 1) Stabilize session persistence
-- Remove the aggressive auth-token clearing that is wiping valid Supabase sessions during normal login/OAuth/logout error paths.
-- Replace broad storage clearing with **targeted logout-only cleanup** so normal navigation, app restarts, and OAuth callbacks do not destroy persisted credentials.
-- Tighten auth bootstrap so the app restores the saved session cleanly before route guards redirect users to `/auth`.
-- Keep the existing persistent Supabase client config, but make the surrounding app logic stop fighting it.
+### 2) Make admin MFA deterministic
+- Consolidate MFA challenge ownership so only one place creates or refreshes a challenge during admin login/reauth.
+- Stop `Auth.tsx` and `MFARequiredGuard.tsx` from competing to create challenges for the same factor during session transitions.
+- Keep verification on a fresh challenge, but add submission guarding and a stable “current challenge” flow so the UI cannot race itself.
+- Preserve the AAL2 handoff after verification without forcing reloads that can bounce the user back into MFA.
 
-### 2) Fix admin MFA verification races
-- Consolidate the MFA challenge flow so only **one place owns challenge creation and verification** during admin login.
-- Stop creating/recreating challenges from multiple effects/guards while the user is mid-verification.
-- Verify against the intended enrolled factor instead of relying on whichever factor is first in the returned list.
-- Remove forced full-page reload behavior after MFA verification and replace it with a controlled AAL2/session handoff before admin validation runs.
-- Add submission guarding so duplicate verify attempts don’t create misleading “wrong code” failures.
+### 3) Remove the support chat regression in admin
+- Eliminate the duplicate legacy “Live Chat Management” surface in `src/pages/AdminPanel.tsx` as the primary admin support inbox path.
+- Use the improved `SupportDashboard` experience as the single admin support-chat UI so mobile no longer falls back to the old scroll-heavy screen.
+- Keep admin reply, unread counts, AI drafting, and thread selection behavior intact while removing duplicated state that currently drifts out of sync.
 
-### 3) Remove the support chat regression
-- Unify the admin support surfaces so the old “Live Chat Management” path no longer overrides the newer support inbox/chat experience.
-- Reuse the improved conversation layout patterns already present in the newer support UI for mobile and desktop.
-- Preserve selected thread, scroll position to newest messages, and compose area visibility on mobile.
+### 4) Restore full support message history reliably
+- Extend the support dashboard loading strategy so the conversation list can stay performant, but the selected user thread always loads complete history.
+- Apply the same full-thread logic already added in `AdminPanel.tsx` to the actual mounted support inbox, so newer messages like the missing Ethesy relist request appear in the correct thread.
+- Preserve existing thread state during refresh/realtime updates instead of replacing it with capped global results.
 
-### 4) Fix missing/disappearing support messages
-- Make support-thread loading use a stable source of truth so thread lists and thread bodies don’t drift apart.
-- Preserve the current thread while refreshes and realtime updates run, instead of replacing it with partial results.
-- Keep the recent-global fetch for overview performance, but always load the **full selected thread** when a conversation is opened.
-- Verify the missing newer messages are present in the database and ensure the UI renders them in the correct conversation.
+### 5) Unify the chat-window layout across the platform
+- Keep the floating support `ChatWidget` as the main user support experience and ensure it resumes the active thread instead of feeling reset.
+- Refactor `DriverOwnerChat`, `ActiveBookingChats`, and `BookingChatsMonitor` to share the improved popup/drawer-style interaction pattern rather than separate long-scroll layouts.
+- Make admin booking monitoring and user booking chat feel like the same system structurally, while preserving their existing permissions and moderation tools.
 
-### 5) Roll the improved chat window pattern into booking and user-to-user chat
-- Refactor booking chat and admin booking-monitor chat to use the same popup/drawer-style interaction model instead of long page scrolling.
-- Keep each chat’s existing permissions/business rules, while only changing the presentation/state flow needed for the better mobile experience.
-- Align support chat, booking chat, and admin monitoring so they feel like one coherent system rather than three separate chat products.
-
-### 6) Validate the full end-to-end behavior
-- Test personal account session persistence across refresh, close/reopen, and short idle periods.
-- Test admin sign-in + MFA from a clean login and confirm the same correct code works immediately.
-- Verify the newer support layout is what appears in admin and mobile views.
-- Confirm the missing recent support messages show up in the correct conversation.
-- Confirm booking/user chats open in the improved window-style layout and remain usable on mobile.
+### 6) Validate end-to-end
+- Verify session persistence across refresh and close/reopen flows for both normal and admin users.
+- Verify admin login + MFA from a clean sign-in, including the first valid code path.
+- Verify support chat shows the improved mobile layout and that selected threads render the latest messages.
+- Verify booking chat and booking-monitor chat open in the improved window-style layout and remain usable on mobile.
 
 ## Technical details
-- **Likely files:** `src/hooks/useAuth.tsx`, `src/utils/authUtils.ts`, `src/pages/Auth.tsx`, `src/pages/MyAccount.tsx`, `src/components/ProtectedRoute.tsx`, `src/components/MFARequiredGuard.tsx`, `src/pages/AdminPanel.tsx`, `src/components/admin/SupportDashboard.tsx`, `src/components/ChatWidget.tsx`, `src/components/DriverOwnerChat.tsx`, `src/components/BookingChatsMonitor.tsx`, `src/components/ActiveBookingChats.tsx`, `src/components/UserInbox.tsx`.
-- **Primary causes already identified:** token wiping in auth/logout flows, duplicated MFA challenge logic, duplicated support/admin chat implementations, and partial chat refresh patterns.
-- **Database:** I do **not** expect a schema migration for the first pass. If implementation exposes an RPC/RLS gap while validating missing messages, I’ll add a focused migration then.
-- **Important constraint:** keep manual logout working exactly as logout, while preventing ordinary app reopen/navigation from behaving like logout.
+- **Auth files:** `src/hooks/useAuth.tsx`, `src/pages/Auth.tsx`, `src/components/MFARequiredGuard.tsx`, `src/components/ProtectedRoute.tsx`, `src/utils/authUtils.ts`
+- **Support chat files:** `src/App.tsx`, `src/components/ChatWidget.tsx`, `src/components/admin/SupportDashboard.tsx`, `src/pages/AdminPanel.tsx`
+- **Booking chat files:** `src/components/DriverOwnerChat.tsx`, `src/components/ActiveBookingChats.tsx`, `src/components/BookingChatsMonitor.tsx`
+- **Root causes confirmed:** transient auth restore being treated as signed-out, overlapping MFA challenge flows, duplicate admin support UIs, and support inboxes relying on capped/global message loads instead of full selected-thread fetches.
+- **Database:** no schema change planned unless validation exposes an RPC/RLS gap while loading full support threads.
