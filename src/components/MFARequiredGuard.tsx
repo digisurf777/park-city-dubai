@@ -20,6 +20,7 @@ export const MFARequiredGuard = ({ children }: { children: React.ReactNode }) =>
   const [verifying, setVerifying] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [checkingRole, setCheckingRole] = useState(true);
+  const [verified, setVerified] = useState(false);
 
   // Check if user is admin
   useEffect(() => {
