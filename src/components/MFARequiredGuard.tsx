@@ -119,6 +119,11 @@ export const MFARequiredGuard = ({ children }: { children: React.ReactNode }) =>
     return <>{children}</>;
   }
 
+  // MFA was just verified in this session — allow access without a page reload.
+  if (verified) {
+    return <>{children}</>;
+  }
+
   // Handle MFA verification for existing users
   const handleMFAVerify = async () => {
     if (!mfaCode.trim() || !challengeId) {
