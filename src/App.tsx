@@ -15,6 +15,7 @@ import Auth from "./pages/Auth";
 import EmailConfirmed from "./pages/EmailConfirmed";
 import ResetPassword from "./pages/ResetPassword";
 import OAuthCallback from "./components/ui/OAuthCallback";
+import ChatWidget from "@/components/ChatWidget";
 
 
 
@@ -121,6 +122,7 @@ const App = () => {
                 <Route path="*" element={<NotFound />} />
                 </Routes>
               </Suspense>
+              <ChatWidget />
             </BrowserRouter>
           </AuthProvider>
         </TooltipProvider>

@@ -20,6 +20,7 @@ export const MFARequiredGuard = ({ children }: { children: React.ReactNode }) =>
   const [verifying, setVerifying] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [checkingRole, setCheckingRole] = useState(true);
+  const [verified, setVerified] = useState(false);
 
   // Check if user is admin
   useEffect(() => {
@@ -118,6 +119,11 @@ export const MFARequiredGuard = ({ children }: { children: React.ReactNode }) =>
     return <>{children}</>;
   }
 
+  // MFA was just verified in this session — allow access without a page reload.
+  if (verified) {
+    return <>{children}</>;
+  }
+
   // Handle MFA verification for existing users
   const handleMFAVerify = async () => {
     if (!mfaCode.trim() || !challengeId) {
@@ -138,11 +144,10 @@ export const MFARequiredGuard = ({ children }: { children: React.ReactNode }) =>
       toast.success('Authentication successful');
       setShowMFAChallenge(false);
       setMfaCode('');
-      
-      // Force a re-validation after successful MFA
-      setTimeout(() => {
-        window.location.reload();
-      }, 500);
+      // Session is already upgraded to AAL2 by verify(). Avoid a full-page reload
+      // (which can race the persisted token on mobile and bounce back to MFA).
+      // Just allow access via local state.
+      setVerified(true);
     } catch (error) {
       console.error('MFA verification error:', error);
       toast.error('Failed to verify authentication code');

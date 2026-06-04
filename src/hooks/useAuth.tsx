@@ -41,8 +41,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [mfaRequired, setMfaRequired] = useState(false);
   const [mfaEnabled, setMfaEnabled] = useState(false);
 
-  console.log('AuthProvider: Initializing');
-
   useEffect(() => {
     console.log('AuthProvider: Setting up auth state listener');
     
@@ -98,11 +96,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
     );
 
-    // Check for existing session
+    // Fallback safety: if the INITIAL_SESSION event hasn't flipped loading off
+    // shortly after mount, resolve it from the persisted session. We do NOT
+    // overwrite an already-restored user with null to avoid a logged-out flash
+    // on slow mobile connections.
     supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('AuthProvider: Initial session check:', !!session);
-      setSession(session);
-      setUser(session?.user ?? null);
+      setSession((prev) => prev ?? session);
+      setUser((prev) => prev ?? session?.user ?? null);
       setLoading(false);
     });
 
@@ -402,20 +402,38 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  // Verify MFA challenge
-  const verifyMFAChallenge = async (challengeId: string, code: string) => {
+  // Verify MFA challenge.
+  // NOTE: the passed `challengeId` is intentionally ignored. A TOTP challenge is
+  // only valid for a short window, and multiple effects in the app used to create
+  // competing challenges that invalidated each other — which is why a correct code
+  // would be rejected a few times before finally working. To make verification
+  // deterministic, we always create a brand-new challenge immediately before
+  // verifying the code the user just typed.
+  const verifyMFAChallenge = async (_challengeId: string, code: string) => {
     try {
+      const sanitized = (code || '').replace(/\s/g, '');
+
       const { data: factors } = await supabase.auth.mfa.listFactors();
-      const factorId = factors?.totp?.[0]?.id;
-      
+      const factor =
+        factors?.totp?.find((f: any) => f.status === 'verified') || factors?.totp?.[0];
+      const factorId = factor?.id;
+
       if (!factorId) {
         return { error: { message: 'No MFA factor found' } };
       }
 
+      // Create a fresh challenge right before verifying to avoid stale/expired IDs.
+      const { data: challenge, error: challengeError } = await supabase.auth.mfa.challenge({
+        factorId,
+      });
+      if (challengeError || !challenge?.id) {
+        return { error: challengeError || { message: 'Could not start verification' } };
+      }
+
       const { error } = await supabase.auth.mfa.verify({
         factorId,
-        challengeId,
-        code,
+        challengeId: challenge.id,
+        code: sanitized,
       });
 
       if (!error) {
@@ -435,7 +453,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
       }
 
-      
       return { error };
     } catch (error) {
       return { error };
