@@ -1913,7 +1913,7 @@ const AdminPanelOrganized = () => {
               ].map((t) => {
                 const Icon = t.icon;
                 const isCosmic = t.highlight === 'cosmic';
-                const isHot = t.highlight === 'hot';
+                const isHot = false;
                 const isSoft = t.highlight === 'soft';
                 return (
                   <TabsTrigger
