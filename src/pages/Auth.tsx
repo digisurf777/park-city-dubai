@@ -633,17 +633,9 @@ const Auth = () => {
       const oauthOrigin = isPreviewOrDevHost ? GOOGLE_AUTH_PUBLIC_ORIGIN : window.location.origin;
       const redirectTo = `${oauthOrigin}/auth/callback?next=${encodeURIComponent('/my-account')}`;
       
-      // Clean up auth state before OAuth
-      try {
-        localStorage.removeItem('supabase.auth.token');
-        Object.keys(localStorage).forEach((key) => {
-          if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
-            localStorage.removeItem(key);
-          }
-        });
-      } catch (cleanupError) {
-        console.error('Error cleaning up auth state:', cleanupError);
-      }
+      // Do NOT clear auth/PKCE state here. Wiping sb-* / supabase.auth.* keys (and
+      // the PKCE verifier) before starting OAuth can break the redirect exchange
+      // and log the user out. Supabase manages the verifier for the new flow.
 
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
