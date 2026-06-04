@@ -75,34 +75,46 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     // Process OAuth callback if present
     handleOAuthCallback();
     
-    // Set up auth state listener
+    // Track whether the initial persisted session has been resolved. We must NOT
+    // let route guards treat a still-restoring session as "logged out" — on mobile
+    // (close + reopen) the listener can briefly emit INITIAL_SESSION before the
+    // token is read back from storage. Only flip `loading` off once we have
+    // explicitly resolved the persisted session via getSession().
+    let initialResolved = false;
+
+    // Set up auth state listener (fires for SIGNED_IN, SIGNED_OUT, TOKEN_REFRESHED…)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         console.log('AuthProvider: Auth state changed:', event, session?.user?.email || 'no user');
-        
-        // Update state synchronously
-        setSession(session);
-        setUser(session?.user ?? null);
-        setLoading(false);
-        
-        // Handle auth events
-        if (event === 'SIGNED_IN' && session?.user) {
-          console.log('AuthProvider: User signed in successfully');
-        } else if (event === 'SIGNED_OUT') {
+
+        if (event === 'SIGNED_OUT') {
+          // Explicit sign-out: clear everything.
           console.log('AuthProvider: User signed out');
+          setSession(null);
+          setUser(null);
+          return;
+        }
+
+        // For INITIAL_SESSION with no session, don't clobber a session that
+        // getSession() may still be restoring. Only apply a non-null session here,
+        // or apply null once the initial resolution has completed.
+        if (session) {
+          setSession(session);
+          setUser(session.user ?? null);
+          if (initialResolved) setLoading(false);
+        } else if (initialResolved) {
           setSession(null);
           setUser(null);
         }
       }
     );
 
-    // Fallback safety: if the INITIAL_SESSION event hasn't flipped loading off
-    // shortly after mount, resolve it from the persisted session. We do NOT
-    // overwrite an already-restored user with null to avoid a logged-out flash
-    // on slow mobile connections.
+    // Resolve the persisted session first. This is the source of truth for the
+    // initial auth state and prevents a logged-out flash on app reopen.
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession((prev) => prev ?? session);
       setUser((prev) => prev ?? session?.user ?? null);
+      initialResolved = true;
       setLoading(false);
     });
 

@@ -1906,15 +1906,14 @@ const AdminPanelOrganized = () => {
                 { value: 'revenue', icon: Sparkles, label: 'Revenue', sub: 'Cosmic Insights', highlight: 'cosmic' as const },
                 { value: 'owner-payments', icon: DollarSign, label: 'Payments', sub: 'View Banking & Pay' },
                 { value: 'users', icon: Users, label: 'Users', sub: 'Manage & Message' },
-                { value: 'support', icon: LifeBuoy, label: 'Support', sub: 'Inbox + AI Drafts', highlight: 'soft' as const },
-                { value: 'chat', icon: MessageCircle, label: '🔥 Chat', sub: 'Real-time Support', badge: chatTotalUnread, highlight: 'hot' as const },
+                { value: 'support', icon: LifeBuoy, label: 'Support', sub: 'Inbox + AI Drafts', badge: chatTotalUnread, highlight: 'soft' as const },
                 { value: 'chat-history', icon: MessagesSquare, label: 'Chat History', sub: 'Online support log' },
                 { value: 'booking-chats', icon: MessageCircle, label: 'Bookings', sub: 'Driver ↔ Owner' },
                 { value: 'invoices', icon: FileText, label: 'Invoices', sub: 'All Customer Invoices' },
               ].map((t) => {
                 const Icon = t.icon;
                 const isCosmic = t.highlight === 'cosmic';
-                const isHot = t.highlight === 'hot';
+                const isHot = false;
                 const isSoft = t.highlight === 'soft';
                 return (
                   <TabsTrigger
@@ -2982,203 +2981,9 @@ const AdminPanelOrganized = () => {
             </Tabs>
           </TabsContent>
 
-          {/* Live Chat Tab */}
-          <TabsContent value="chat" className="space-y-6 mt-6">
-            <Card
-              className={cn(
-                isMobile && selectedChatUser && "fixed inset-0 z-50 h-[100dvh] max-h-[100dvh] rounded-none border-0 flex flex-col overflow-hidden"
-              )}
-            >
-              <CardHeader className={cn(isMobile && selectedChatUser && "flex-shrink-0 border-b")}>
-                <CardTitle className="flex items-center gap-2 w-full">
-                  {isMobile && selectedChatUser && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 -ml-1 flex-shrink-0"
-                      onClick={() => setSelectedChatUser(null)}
-                      aria-label="Back to conversations"
-                    >
-                      <ArrowLeft className="h-4 w-4" />
-                    </Button>
-                  )}
-                  <MessageCircle className="h-5 w-5 text-red-500 flex-shrink-0" />
-                  <span className="truncate">Live Chat Management</span>
-                  {chatTotalUnread > 0 && (
-                    <Badge variant="destructive" className="ml-2">
-                      {chatTotalUnread}
-                    </Badge>
-                  )}
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => {
-                      fetchChatUsers();
-                      fetchChatMessages();
-                    }}
-                    className="ml-auto"
-                  >
-                    <RefreshCw className="h-4 w-4 mr-2" />
-                    <span className="hidden sm:inline">Refresh</span>
-                  </Button>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className={cn(isMobile && selectedChatUser && "flex-1 min-h-0 flex flex-col p-0")}>
-                <div
-                  className={cn(
-                    "grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-6",
-                    isMobile && selectedChatUser && "flex-1 min-h-0 flex flex-col gap-0 overflow-hidden"
-                  )}
-                >
-                  {/* User List */}
-                  <div className={cn("space-y-4", isMobile && selectedChatUser && "hidden")}>
-                    <h3 className="font-semibold">Active Conversations</h3>
-                    {chatUsers.length === 0 ? (
-                      <p className="text-muted-foreground text-sm">No conversations yet</p>
-                    ) : (
-                       chatUsers.map((user) => (
-                         <div
-                           key={user.user_id}
-                           className={`p-3 border rounded-lg cursor-pointer transition-colors ${
-                             selectedChatUser === user.user_id 
-                               ? 'bg-primary/10 border-primary' 
-                               : 'hover:bg-muted/50'
-                           }`}
-                           onClick={() => {
-                             setSelectedChatUser(user.user_id);
-                             markThreadAsRead(user.user_id);
-                           }}
-                         >
-                           <div className="flex items-center justify-between">
-                             <div className="flex flex-col min-w-0 flex-1">
-                               <span className="font-medium truncate">{user.full_name}</span>
-                               {user.last_message_at && (
-                                 <span className="text-xs text-muted-foreground">
-                                   {new Date(user.last_message_at).toLocaleString()}
-                                 </span>
-                               )}
-                               {user.last_message_preview && (
-                                 <span className="text-xs text-muted-foreground mt-1 truncate">
-                                   {user.last_message_preview}
-                                 </span>
-                               )}
-                             </div>
-                             {user.unread_count > 0 && (
-                               <Badge variant="destructive" className="ml-2">
-                                 {user.unread_count}
-                               </Badge>
-                             )}
-                           </div>
-                         </div>
-                       ))
-                    )}
-                  </div>
-
-                  {/* Chat Messages */}
-                  <div
-                    className={cn(
-                      "lg:col-span-2 space-y-4",
-                      isMobile && !selectedChatUser && "hidden",
-                      isMobile && selectedChatUser && "flex-1 min-h-0 flex flex-col space-y-0"
-                    )}
-                  >
-                    {selectedChatUser ? (
-                      <>
-                        <div
-                          className={cn(
-                            "border rounded-lg p-4 h-96 overflow-y-auto space-y-3",
-                            isMobile && selectedChatUser && "flex-1 min-h-0 h-auto rounded-none border-x-0 border-t-0"
-                          )}
-                        >
-                          {chatMessages
-                            .filter(msg => msg.user_id === selectedChatUser)
-                            .map((msg) => (
-                              <div
-                                key={msg.id}
-                                className={`flex ${msg.from_admin ? 'justify-end' : 'justify-start'}`}
-                              >
-                                <div
-                                  className={`max-w-[80%] p-3 rounded-lg ${
-                                    msg.from_admin
-                                      ? 'bg-primary text-primary-foreground'
-                                      : 'bg-muted'
-                                  }`}
-                                >
-                                  <div className="flex items-center gap-2 mb-1">
-                                    <span className="text-sm font-medium">
-                                      {msg.from_admin ? (msg.is_ai ? 'Layla AI' : 'Admin') : msg.profiles?.full_name || 'User'}
-                                    </span>
-                                    {msg.is_ai && (
-                                      <Badge variant="outline" className="h-4 px-1.5 text-[9px] border-amber-300 bg-amber-50 text-amber-700">
-                                        <Sparkles className="h-2.5 w-2.5 mr-0.5" />AI
-                                      </Badge>
-                                    )}
-                                  </div>
-                                  <p className="text-sm whitespace-pre-wrap">{msg.message}</p>
-                                  <p className="text-xs opacity-70 mt-1">
-                                    {new Date(msg.created_at).toLocaleString()}
-                                  </p>
-                                </div>
-                              </div>
-                            ))}
-                          <div ref={chatMessagesEndRef} />
-                        </div>
-
-                        {/* Reply Input with AI draft */}
-                        <div
-                          className={cn(
-                            "space-y-2",
-                            isMobile && selectedChatUser && "flex-shrink-0 border-t bg-background p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]"
-                          )}
-                        >
-                          <div className="flex items-center justify-between">
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={generateDraft}
-                              disabled={draftLoading}
-                              className="border-primary/30 text-primary hover:bg-primary/5"
-                            >
-                              <Sparkles className={`h-4 w-4 mr-1.5 ${draftLoading ? 'animate-pulse' : ''}`} />
-                              {draftLoading ? 'Drafting…' : 'Generate AI draft'}
-                            </Button>
-                            {chatReply && (
-                              <button onClick={() => setChatReply('')} className="text-xs text-muted-foreground hover:text-foreground">Clear</button>
-                            )}
-                          </div>
-                          <div className="flex items-end space-x-2">
-                            <Textarea
-                              value={chatReply}
-                              onChange={(e) => setChatReply(e.target.value)}
-                              placeholder="Type your reply or click 'Generate AI draft'…"
-                              rows={isMobile ? 2 : 3}
-                              className="flex-1 resize-none"
-                            />
-                            <Button
-                              onClick={sendChatReply}
-                              disabled={!chatReply.trim() || sendingReply}
-                              size="icon"
-                              className="h-10 w-10"
-                            >
-                              <Send className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      </>
-                    ) : (
-                      <div className="flex items-center justify-center h-96 text-muted-foreground">
-                        <div className="text-center">
-                          <MessageCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                          <p>Select a conversation to start chatting</p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+          {/* Legacy "Live Chat Management" surface removed — the unified, mobile-friendly
+              Support inbox (SupportDashboard) under the "Support" tab is now the single
+              admin support-chat experience. */}
 
           {/* Online Support - Chat History (AI assistant transcripts) */}
           <TabsContent value="chat-history" className="space-y-6 mt-6">
