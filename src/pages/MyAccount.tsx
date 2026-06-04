@@ -425,9 +425,8 @@ const MyAccount = () => {
       window.location.href = '/auth';
     } catch (error) {
       console.error('Logout error:', error);
-      toast.error('Error logging out');
-      // Force clear auth state even if signOut fails
-      localStorage.clear();
+      // signOut() already performs targeted auth cleanup. Avoid localStorage.clear()
+      // which can wipe unrelated keys; just navigate to the auth screen.
       window.location.href = '/auth';
     }
   };
