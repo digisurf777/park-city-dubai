@@ -139,11 +139,10 @@ export const MFARequiredGuard = ({ children }: { children: React.ReactNode }) =>
       toast.success('Authentication successful');
       setShowMFAChallenge(false);
       setMfaCode('');
-      
-      // Force a re-validation after successful MFA
-      setTimeout(() => {
-        window.location.reload();
-      }, 500);
+      // Session is already upgraded to AAL2 by verify(). Avoid a full-page reload
+      // (which can race the persisted token on mobile and bounce back to MFA).
+      // Just allow access via local state.
+      setVerified(true);
     } catch (error) {
       console.error('MFA verification error:', error);
       toast.error('Failed to verify authentication code');
