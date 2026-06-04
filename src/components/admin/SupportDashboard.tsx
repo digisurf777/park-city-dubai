@@ -75,7 +75,9 @@ const SupportDashboard = () => {
         .limit(500);
       if (error) throw error;
       const list = (msgs ?? []) as UserMessage[];
-      setMessages(list);
+      // Merge instead of replace so a fully-loaded selected thread keeps its
+      // complete history when the global (capped) overview refreshes.
+      mergeMessages(list);
 
       const ids = Array.from(new Set(list.map((m) => m.user_id)));
       if (ids.length) {
@@ -85,13 +87,43 @@ const SupportDashboard = () => {
           .in("user_id", ids);
         const map: Record<string, ProfileLite> = {};
         (profs ?? []).forEach((p: any) => (map[p.user_id] = p));
-        setProfiles(map);
+        setProfiles((prev) => ({ ...prev, ...map }));
       }
     } catch (e: any) {
       console.error(e);
       toast({ title: "Failed to load support inbox", description: e.message, variant: "destructive" });
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Merge a batch of messages into state, de-duplicating by id and keeping a
+  // stable newest-first order. Never drops messages already loaded.
+  const mergeMessages = (incoming: UserMessage[]) => {
+    setMessages((prev) => {
+      const map = new Map<string, UserMessage>();
+      prev.forEach((m) => map.set(m.id, m));
+      incoming.forEach((m) => map.set(m.id, m));
+      return Array.from(map.values()).sort(
+        (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
+    });
+  };
+
+  // Load the COMPLETE thread for one user so the selected conversation always
+  // shows full history regardless of the global recent-messages cap. This fixes
+  // newer messages disappearing from a long-running conversation.
+  const loadThread = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from("user_messages")
+        .select("*")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: true });
+      if (error) throw error;
+      mergeMessages((data ?? []) as UserMessage[]);
+    } catch (e: any) {
+      console.error("Failed to load full thread:", e);
     }
   };
 
