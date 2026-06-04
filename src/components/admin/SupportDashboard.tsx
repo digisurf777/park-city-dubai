@@ -232,6 +232,14 @@ const SupportDashboard = () => {
     }
   }, [conversations, selectedUserId, isMobile]);
 
+  // Whenever a conversation is opened, load its COMPLETE history so no messages
+  // are hidden by the global recent-messages cap.
+  useEffect(() => {
+    if (!selectedUserId) return;
+    void loadThread(selectedUserId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedUserId]);
+
   // Mark inbound as read when opened
   useEffect(() => {
     if (!selectedConvo) return;
