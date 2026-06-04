@@ -96,11 +96,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
     );
 
-    // Check for existing session
+    // Fallback safety: if the INITIAL_SESSION event hasn't flipped loading off
+    // shortly after mount, resolve it from the persisted session. We do NOT
+    // overwrite an already-restored user with null to avoid a logged-out flash
+    // on slow mobile connections.
     supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('AuthProvider: Initial session check:', !!session);
-      setSession(session);
-      setUser(session?.user ?? null);
+      setSession((prev) => prev ?? session);
+      setUser((prev) => prev ?? session?.user ?? null);
       setLoading(false);
     });
 
