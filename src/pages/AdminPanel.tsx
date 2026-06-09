@@ -46,8 +46,6 @@ import { MessageUserDialog } from '@/components/admin/MessageUserDialog';
 import { MessagesSquare } from 'lucide-react';
 import { LifeBuoy } from 'lucide-react';
 import { LayoutDashboard } from 'lucide-react';
-import { useInactivityLogout } from '@/hooks/useInactivityLogout';
-import { InactivityWarningDialog } from '@/components/InactivityWarningDialog';
 import { CurrencyProvider } from '@/contexts/CurrencyContext';
 import CurrencySwitcher from '@/components/admin/CurrencySwitcher';
 
@@ -165,19 +163,6 @@ const AdminPanelOrganized = () => {
   const [isValidated, setIsValidated] = useState(false);
   const [validating, setValidating] = useState(true);
   const [activeTab, setActiveTab] = useState<string>('dashboard');
-  
-  // Inactivity logout with warning dialog
-  const handleAutoLogout = async () => {
-    toast({
-      title: 'Session Expired',
-      description: 'You have been logged out due to inactivity',
-      variant: 'destructive',
-    });
-    await signOut();
-    navigate('/auth');
-  };
-  
-  const { showWarning, timeRemaining, resetTimer } = useInactivityLogout(handleAutoLogout);
   
   // All state variables from original AdminPanel
   const [posts, setPosts] = useState<NewsPost[]>([]);
@@ -3253,12 +3238,6 @@ const AdminPanelOrganized = () => {
         </Tabs>
       </div>
       
-      {/* Inactivity Warning Dialog */}
-      <InactivityWarningDialog
-        open={showWarning}
-        timeRemaining={timeRemaining}
-        onStayLoggedIn={resetTimer}
-      />
     </div>
     </CurrencyProvider>
   );
