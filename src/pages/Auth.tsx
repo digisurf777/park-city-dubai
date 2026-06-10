@@ -309,13 +309,8 @@ const Auth = () => {
       const { error } = await verifyMFAChallenge(mfaChallengeId, sanitized);
       
       if (error) {
-        // Recreate challenge once to guard against expired/invalid challenge
-        const { factors } = await getMFAFactors();
-        const totp = factors?.find((f: any) => f.status === 'verified');
-        if (totp) {
-          const { challengeId } = await challengeMFA(totp.id);
-          if (challengeId) setMfaChallengeId(challengeId);
-        }
+        // verifyMFAChallenge() creates a fresh challenge on every call, so there
+        // is nothing to recreate here — the user just re-enters the code.
         toast.error('Invalid code. Please try again.');
         setMfaCode('');
         setLoading(false);
