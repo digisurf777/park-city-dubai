@@ -128,13 +128,14 @@ export const MFARequiredGuard = ({ children }: { children: React.ReactNode }) =>
 
   // Handle MFA verification for existing users
   const handleMFAVerify = async () => {
-    if (!mfaCode.trim() || !challengeId) {
+    if (!mfaCode.trim()) {
       toast.error('Please enter your authentication code');
       return;
     }
 
     setVerifying(true);
     try {
+      // challengeId is unused — verifyMFAChallenge() creates its own fresh challenge.
       const { error } = await verifyMFAChallenge(challengeId, mfaCode);
       
       if (error) {
