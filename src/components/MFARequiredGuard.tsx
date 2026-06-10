@@ -21,10 +21,7 @@ export const MFARequiredGuard = ({ children }: { children: React.ReactNode }) =>
   const [isAdmin, setIsAdmin] = useState(false);
   const [checkingRole, setCheckingRole] = useState(true);
   const [verified, setVerified] = useState(false);
-  // Guards against the validation effect creating multiple competing TOTP
-  // challenges for the same factor (which caused valid codes to be rejected
-  // several times before finally being accepted).
-  const challengePreparedRef = useRef(false);
+
 
   // Check if user is admin
   useEffect(() => {
