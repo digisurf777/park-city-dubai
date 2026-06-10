@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -11,20 +11,17 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 export const MFARequiredGuard = ({ children }: { children: React.ReactNode }) => {
-  const { mfaRequired, mfaEnabled, user, loading, signOut, challengeMFA, verifyMFAChallenge, getMFAFactors } = useAuth();
+  const { mfaRequired, mfaEnabled, user, loading, signOut, verifyMFAChallenge, getMFAFactors } = useAuth();
   const navigate = useNavigate();
   const [showSetup, setShowSetup] = useState(false);
   const [showMFAChallenge, setShowMFAChallenge] = useState(false);
   const [mfaCode, setMfaCode] = useState('');
-  const [challengeId, setChallengeId] = useState('');
+  const [challengeId] = useState('');
   const [verifying, setVerifying] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [checkingRole, setCheckingRole] = useState(true);
   const [verified, setVerified] = useState(false);
-  // Guards against the validation effect creating multiple competing TOTP
-  // challenges for the same factor (which caused valid codes to be rejected
-  // several times before finally being accepted).
-  const challengePreparedRef = useRef(false);
+
 
   // Check if user is admin
   useEffect(() => {
@@ -76,30 +73,18 @@ export const MFARequiredGuard = ({ children }: { children: React.ReactNode }) =>
           return;
         }
 
-        // If MFA is enabled but session is AAL1, trigger MFA challenge — but only
-        // ONCE. Re-running this effect (deps change during auth bootstrap) must not
-        // create competing challenges for the same factor.
+        // If MFA is enabled but session is AAL1, show the code-entry UI. Do NOT
+        // pre-create a challenge — verifyMFAChallenge() creates exactly one fresh
+        // challenge when the user submits the code. Pre-creating challenges caused
+        // competing challenges that rejected the first correct code.
         if (mfaEnabled && clientAAL === 'aal1') {
-          if (challengePreparedRef.current) {
+          const { factors } = await getMFAFactors();
+          const totpFactor = factors.find((f: any) => f.factor_type === 'totp' && f.status === 'verified');
+
+          if (totpFactor) {
             setShowMFAChallenge(true);
             setShowSetup(false);
             return;
-          }
-          console.log('MFARequiredGuard: MFA enabled but session is AAL1, triggering challenge');
-          const { factors } = await getMFAFactors();
-          const totpFactor = factors.find((f: any) => f.factor_type === 'totp' && f.status === 'verified');
-          
-          if (totpFactor) {
-            challengePreparedRef.current = true;
-            const { challengeId: newChallengeId, error: challengeError } = await challengeMFA(totpFactor.id);
-            if (!challengeError && newChallengeId) {
-              setChallengeId(newChallengeId);
-              setShowMFAChallenge(true);
-              setShowSetup(false);
-              return;
-            }
-            // Allow a retry if the challenge could not be created.
-            challengePreparedRef.current = false;
           }
         }
 
@@ -140,13 +125,14 @@ export const MFARequiredGuard = ({ children }: { children: React.ReactNode }) =>
 
   // Handle MFA verification for existing users
   const handleMFAVerify = async () => {
-    if (!mfaCode.trim() || !challengeId) {
+    if (!mfaCode.trim()) {
       toast.error('Please enter your authentication code');
       return;
     }
 
     setVerifying(true);
     try {
+      // challengeId is unused — verifyMFAChallenge() creates its own fresh challenge.
       const { error } = await verifyMFAChallenge(challengeId, mfaCode);
       
       if (error) {

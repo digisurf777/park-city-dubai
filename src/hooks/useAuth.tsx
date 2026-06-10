@@ -40,6 +40,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const [mfaRequired, setMfaRequired] = useState(false);
   const [mfaEnabled, setMfaEnabled] = useState(false);
+  // Prevents concurrent verify calls from each creating a competing TOTP
+  // challenge (a double-submit would otherwise reject the first valid code).
+  const verifyInFlightRef = React.useRef(false);
 
   useEffect(() => {
     console.log('AuthProvider: Setting up auth state listener');
@@ -422,6 +425,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // deterministic, we always create a brand-new challenge immediately before
   // verifying the code the user just typed.
   const verifyMFAChallenge = async (_challengeId: string, code: string) => {
+    if (verifyInFlightRef.current) {
+      return { error: { message: 'Verification already in progress' } };
+    }
+    verifyInFlightRef.current = true;
     try {
       const sanitized = (code || '').replace(/\s/g, '');
 
@@ -468,6 +475,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       return { error };
     } catch (error) {
       return { error };
+    } finally {
+      verifyInFlightRef.current = false;
     }
   };
 

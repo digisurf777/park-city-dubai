@@ -172,7 +172,10 @@ const Auth = () => {
             navigate('/admin');
             return;
           }
-          // AAL1: ensure MFA challenge is shown (fallback in case login handler didn't run)
+          // AAL1: show the MFA code-entry UI. Do NOT pre-create a challenge here —
+          // verifyMFAChallenge() creates exactly one fresh challenge when the user
+          // submits the code. Pre-creating challenges caused competing challenges /
+          // rate limiting that rejected the first correct code.
           mfaChallengeInFlight.current = true;
           try {
             const { factors } = await getMFAFactors();
@@ -182,18 +185,12 @@ const Auth = () => {
               navigate('/admin-setup');
               return;
             }
-            const { challengeId, error: challengeError } = await challengeMFA(totpFactor.id);
-            if (!challengeError && challengeId) {
-              setMfaFactorId(totpFactor.id);
-              setMfaChallengeId(challengeId);
-              setShowMFAChallenge(true);
-              toast.info('Enter your 6-digit authentication code');
-            } else {
-              mfaChallengeInFlight.current = false;
-            }
+            setMfaFactorId(totpFactor.id);
+            setShowMFAChallenge(true);
+            toast.info('Enter your 6-digit authentication code');
           } catch (e) {
             mfaChallengeInFlight.current = false;
-            console.error('Failed to initiate MFA challenge in redirect effect:', e);
+            console.error('Failed to initiate MFA prompt in redirect effect:', e);
           }
           return;
         }
@@ -271,17 +268,15 @@ const Auth = () => {
             return;
           }
           
-          // Has MFA enrolled - challenge for code
-          const { challengeId, error: challengeError } = await challengeMFA(totpFactor.id);
-          
-          if (!challengeError && challengeId) {
-            setMfaFactorId(totpFactor.id);
-            setMfaChallengeId(challengeId);
-            setShowMFAChallenge(true);
-            toast.info('Enter your 6-digit authentication code');
-            setLoading(false);
-            return;
-          }
+          // Has MFA enrolled - show the code-entry UI. Do NOT pre-create a
+          // challenge; verifyMFAChallenge() creates exactly one when the user
+          // submits the code. This avoids competing challenges that caused the
+          // first correct code to be rejected.
+          setMfaFactorId(totpFactor.id);
+          setShowMFAChallenge(true);
+          toast.info('Enter your 6-digit authentication code');
+          setLoading(false);
+          return;
         } else if (currentAAL === 'aal2') {
           // Already verified MFA in this session
           toast.success('Logged in successfully with MFA!');
@@ -314,13 +309,8 @@ const Auth = () => {
       const { error } = await verifyMFAChallenge(mfaChallengeId, sanitized);
       
       if (error) {
-        // Recreate challenge once to guard against expired/invalid challenge
-        const { factors } = await getMFAFactors();
-        const totp = factors?.find((f: any) => f.status === 'verified');
-        if (totp) {
-          const { challengeId } = await challengeMFA(totp.id);
-          if (challengeId) setMfaChallengeId(challengeId);
-        }
+        // verifyMFAChallenge() creates a fresh challenge on every call, so there
+        // is nothing to recreate here — the user just re-enters the code.
         toast.error('Invalid code. Please try again.');
         setMfaCode('');
         setLoading(false);

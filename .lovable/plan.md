@@ -1,47 +1,40 @@
-## Goals
-- Keep both personal and admin users signed in when they close and reopen the mobile browser shortly after.
-- Make admin authenticator codes verify reliably on the first valid entry.
-- Restore the improved popup-style support chat and stop missing support messages from disappearing.
-- Apply the improved chat-window pattern to support, booking chat, and admin chat monitoring.
+## Goal
+Make the admin authenticator code work on the **first** correct entry, instead of being rejected ~3 times before being accepted.
 
-## What I’ll change
+## Root cause
+The app creates several TOTP "challenges" at once during admin login, and the verify step also creates its own. Each new challenge invalidates the previous one and the rapid burst hits Supabase's MFA challenge rate limit. So the verify call's own challenge creation intermittently fails or races, and the correct code is rejected until the noise settles (~30s / a few retries).
 
-### 1) Stabilize auth/session persistence
-- Refactor auth bootstrap in `src/hooks/useAuth.tsx` so session restore is driven by an initial `getSession()` pass plus non-blocking auth state updates, preventing the app from treating a still-restoring session as logged out.
-- Remove remaining forced-refresh / hard-reset behavior around logout and route transitions where it can interrupt persisted auth on mobile.
-- Audit guarded pages (`ProtectedRoute`, `Auth`, admin validation flow) so redirects wait for auth readiness instead of reacting to a transient `INITIAL_SESSION no user` state.
-- Keep explicit logout working, but limit cleanup to targeted Supabase auth keys only.
+Today, challenges are created in **four** places for the same login:
+- `src/pages/Auth.tsx` → `handleLogin` (on successful admin password login)
+- `src/pages/Auth.tsx` → `maybeRedirectOrChallenge` effect (fires again when `user` changes)
+- `src/pages/Auth.tsx` → `handleMFAVerification` error-retry branch
+- `src/components/MFARequiredGuard.tsx` → validation effect
 
-### 2) Make admin MFA deterministic
-- Consolidate MFA challenge ownership so only one place creates or refreshes a challenge during admin login/reauth.
-- Stop `Auth.tsx` and `MFARequiredGuard.tsx` from competing to create challenges for the same factor during session transitions.
-- Keep verification on a fresh challenge, but add submission guarding and a stable “current challenge” flow so the UI cannot race itself.
-- Preserve the AAL2 handoff after verification without forcing reloads that can bounce the user back into MFA.
+Meanwhile `verifyMFAChallenge` in `src/hooks/useAuth.tsx` *already* creates a fresh challenge right before verifying (and ignores any passed id). So all the pre-created challenges are pure noise that cause the failure.
 
-### 3) Remove the support chat regression in admin
-- Eliminate the duplicate legacy “Live Chat Management” surface in `src/pages/AdminPanel.tsx` as the primary admin support inbox path.
-- Use the improved `SupportDashboard` experience as the single admin support-chat UI so mobile no longer falls back to the old scroll-heavy screen.
-- Keep admin reply, unread counts, AI drafting, and thread selection behavior intact while removing duplicated state that currently drifts out of sync.
+## Fix
+Adopt a single rule: **only `verifyMFAChallenge` creates a challenge, exactly once, at the moment the user submits the code.** Everywhere else just shows the code-entry UI — no challenge pre-creation.
 
-### 4) Restore full support message history reliably
-- Extend the support dashboard loading strategy so the conversation list can stay performant, but the selected user thread always loads complete history.
-- Apply the same full-thread logic already added in `AdminPanel.tsx` to the actual mounted support inbox, so newer messages like the missing Ethesy relist request appear in the correct thread.
-- Preserve existing thread state during refresh/realtime updates instead of replacing it with capped global results.
+### 1) `src/pages/Auth.tsx`
+- In `handleLogin`: when an admin is at AAL1 with a verified TOTP factor, stop calling `challengeMFA`. Just set the factor id, show the MFA prompt (`setShowMFAChallenge(true)`), and prompt for the code. No challenge id needed.
+- In the `maybeRedirectOrChallenge` effect: same change — for admin + AAL1, show the MFA prompt without calling `challengeMFA`.
+- In `handleMFAVerification` error branch: remove the "recreate challenge" retry block. Since verify makes its own fresh challenge each call, the user simply re-enters the code.
+- Keep the success path (AAL2 wait + server `validate-admin-access` recheck + redirect) unchanged.
 
-### 5) Unify the chat-window layout across the platform
-- Keep the floating support `ChatWidget` as the main user support experience and ensure it resumes the active thread instead of feeling reset.
-- Refactor `DriverOwnerChat`, `ActiveBookingChats`, and `BookingChatsMonitor` to share the improved popup/drawer-style interaction pattern rather than separate long-scroll layouts.
-- Make admin booking monitoring and user booking chat feel like the same system structurally, while preserving their existing permissions and moderation tools.
+### 2) `src/components/MFARequiredGuard.tsx`
+- Remove the challenge-creation logic from the validation effect (the `challengeMFA` call and `challengePreparedRef`). For admin + AAL1 with MFA enabled, just show the code-entry screen (`setShowMFAChallenge(true)`).
+- `handleMFAVerify` continues to call `verifyMFAChallenge` (which creates the single fresh challenge internally), then sets `verified` on success — no reload.
 
-### 6) Validate end-to-end
-- Verify session persistence across refresh and close/reopen flows for both normal and admin users.
-- Verify admin login + MFA from a clean sign-in, including the first valid code path.
-- Verify support chat shows the improved mobile layout and that selected threads render the latest messages.
-- Verify booking chat and booking-monitor chat open in the improved window-style layout and remain usable on mobile.
+### 3) `src/hooks/useAuth.tsx`
+- `verifyMFAChallenge` already creates one fresh challenge before verifying; keep it as the sole challenge creator.
+- Add a simple in-flight guard (a ref/flag) so a double-submit cannot fire two concurrent verifies (which would create two challenges again).
+- Leave the AAL2 confirmation poll as-is.
 
-## Technical details
-- **Auth files:** `src/hooks/useAuth.tsx`, `src/pages/Auth.tsx`, `src/components/MFARequiredGuard.tsx`, `src/components/ProtectedRoute.tsx`, `src/utils/authUtils.ts`
-- **Support chat files:** `src/App.tsx`, `src/components/ChatWidget.tsx`, `src/components/admin/SupportDashboard.tsx`, `src/pages/AdminPanel.tsx`
-- **Booking chat files:** `src/components/DriverOwnerChat.tsx`, `src/components/ActiveBookingChats.tsx`, `src/components/BookingChatsMonitor.tsx`
-- **Root causes confirmed:** transient auth restore being treated as signed-out, overlapping MFA challenge flows, duplicate admin support UIs, and support inboxes relying on capped/global message loads instead of full selected-thread fetches.
-- **Database:** no schema change planned unless validation exposes an RPC/RLS gap while loading full support threads.
+## Validation
+- Sign in as admin with password, enter the correct 6-digit code once → should verify on the first try and land on `/admin`.
+- Confirm an incorrect code shows an error and a subsequent correct code still works.
+- Confirm the `MFARequiredGuard` path (navigating directly to `/admin` while AAL1) also accepts the code on first try.
+
+## Notes
+- Frontend-only change; no database, RLS, or edge-function changes.
+- `challengeMFA` stays exported (used by enrollment/setup) but is no longer called during the login verify flow.
