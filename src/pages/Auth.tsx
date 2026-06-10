@@ -172,7 +172,10 @@ const Auth = () => {
             navigate('/admin');
             return;
           }
-          // AAL1: ensure MFA challenge is shown (fallback in case login handler didn't run)
+          // AAL1: show the MFA code-entry UI. Do NOT pre-create a challenge here —
+          // verifyMFAChallenge() creates exactly one fresh challenge when the user
+          // submits the code. Pre-creating challenges caused competing challenges /
+          // rate limiting that rejected the first correct code.
           mfaChallengeInFlight.current = true;
           try {
             const { factors } = await getMFAFactors();
@@ -182,18 +185,12 @@ const Auth = () => {
               navigate('/admin-setup');
               return;
             }
-            const { challengeId, error: challengeError } = await challengeMFA(totpFactor.id);
-            if (!challengeError && challengeId) {
-              setMfaFactorId(totpFactor.id);
-              setMfaChallengeId(challengeId);
-              setShowMFAChallenge(true);
-              toast.info('Enter your 6-digit authentication code');
-            } else {
-              mfaChallengeInFlight.current = false;
-            }
+            setMfaFactorId(totpFactor.id);
+            setShowMFAChallenge(true);
+            toast.info('Enter your 6-digit authentication code');
           } catch (e) {
             mfaChallengeInFlight.current = false;
-            console.error('Failed to initiate MFA challenge in redirect effect:', e);
+            console.error('Failed to initiate MFA prompt in redirect effect:', e);
           }
           return;
         }
