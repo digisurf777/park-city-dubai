@@ -475,6 +475,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       return { error };
     } catch (error) {
       return { error };
+    } finally {
+      verifyInFlightRef.current = false;
     }
   };
 
