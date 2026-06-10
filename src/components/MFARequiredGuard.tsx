@@ -76,30 +76,18 @@ export const MFARequiredGuard = ({ children }: { children: React.ReactNode }) =>
           return;
         }
 
-        // If MFA is enabled but session is AAL1, trigger MFA challenge — but only
-        // ONCE. Re-running this effect (deps change during auth bootstrap) must not
-        // create competing challenges for the same factor.
+        // If MFA is enabled but session is AAL1, show the code-entry UI. Do NOT
+        // pre-create a challenge — verifyMFAChallenge() creates exactly one fresh
+        // challenge when the user submits the code. Pre-creating challenges caused
+        // competing challenges that rejected the first correct code.
         if (mfaEnabled && clientAAL === 'aal1') {
-          if (challengePreparedRef.current) {
+          const { factors } = await getMFAFactors();
+          const totpFactor = factors.find((f: any) => f.factor_type === 'totp' && f.status === 'verified');
+
+          if (totpFactor) {
             setShowMFAChallenge(true);
             setShowSetup(false);
             return;
-          }
-          console.log('MFARequiredGuard: MFA enabled but session is AAL1, triggering challenge');
-          const { factors } = await getMFAFactors();
-          const totpFactor = factors.find((f: any) => f.factor_type === 'totp' && f.status === 'verified');
-          
-          if (totpFactor) {
-            challengePreparedRef.current = true;
-            const { challengeId: newChallengeId, error: challengeError } = await challengeMFA(totpFactor.id);
-            if (!challengeError && newChallengeId) {
-              setChallengeId(newChallengeId);
-              setShowMFAChallenge(true);
-              setShowSetup(false);
-              return;
-            }
-            // Allow a retry if the challenge could not be created.
-            challengePreparedRef.current = false;
           }
         }
 
