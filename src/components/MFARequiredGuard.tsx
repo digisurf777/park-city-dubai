@@ -16,7 +16,7 @@ export const MFARequiredGuard = ({ children }: { children: React.ReactNode }) =>
   const [showSetup, setShowSetup] = useState(false);
   const [showMFAChallenge, setShowMFAChallenge] = useState(false);
   const [mfaCode, setMfaCode] = useState('');
-  const [challengeId, setChallengeId] = useState('');
+  const [challengeId] = useState('');
   const [verifying, setVerifying] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [checkingRole, setCheckingRole] = useState(true);
