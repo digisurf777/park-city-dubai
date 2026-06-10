@@ -40,6 +40,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const [mfaRequired, setMfaRequired] = useState(false);
   const [mfaEnabled, setMfaEnabled] = useState(false);
+  // Prevents concurrent verify calls from each creating a competing TOTP
+  // challenge (a double-submit would otherwise reject the first valid code).
+  const verifyInFlightRef = React.useRef(false);
 
   useEffect(() => {
     console.log('AuthProvider: Setting up auth state listener');
