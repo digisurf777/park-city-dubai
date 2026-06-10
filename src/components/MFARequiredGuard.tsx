@@ -11,7 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 export const MFARequiredGuard = ({ children }: { children: React.ReactNode }) => {
-  const { mfaRequired, mfaEnabled, user, loading, signOut, challengeMFA, verifyMFAChallenge, getMFAFactors } = useAuth();
+  const { mfaRequired, mfaEnabled, user, loading, signOut, verifyMFAChallenge, getMFAFactors } = useAuth();
   const navigate = useNavigate();
   const [showSetup, setShowSetup] = useState(false);
   const [showMFAChallenge, setShowMFAChallenge] = useState(false);
