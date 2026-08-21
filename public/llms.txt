@@ -1,0 +1,30 @@
+# Shazam Parking
+
+> Dubai's long-term parking marketplace: rent a verified monthly parking space, or list your unused bay and earn passive income.
+
+Shazam Parking connects drivers who need private long-term parking in Dubai with owners of unused parking bays. Bookings are monthly, verified and paid securely.
+
+## Pages
+
+- [Home](/): Overview of the platform for drivers and parking owners.
+- [Find a parking space](/find-a-parking-space): Browse and book verified monthly parking across Dubai.
+- [Rent out your space](/rent-out-your-space): List a parking bay and start earning monthly income.
+- [Earnings calculator](/calculator): Estimate monthly take-home for 1, 3, 6 and 12 month bookings.
+- [About us](/about-us): Who we are and how the marketplace works.
+- [FAQ](/faq): Bookings, payments, payouts, access cards and verification.
+- [News](/news): Updates on Dubai parking, mobility and the platform.
+
+## Zones
+
+- [Dubai Marina parking](/zones/dubai-marina): Monthly parking in Dubai Marina.
+- [Downtown Dubai parking](/zones/downtown): Monthly parking in Downtown Dubai.
+- [DIFC parking](/zones/difc): Monthly parking in DIFC.
+- [Business Bay parking](/zones/business-bay): Monthly parking in Business Bay.
+- [Palm Jumeirah parking](/zones/palm-jumeirah): Monthly parking on Palm Jumeirah.
+- [Deira parking](/zones/deira): Monthly parking in Deira.
+
+## Optional
+
+- [Terms and conditions](/terms-and-conditions): Platform terms of use.
+- [Privacy policy](/privacy-policy): How we handle personal data.
+- [Cookies notice](/cookies-notice): Cookie usage on the site.
