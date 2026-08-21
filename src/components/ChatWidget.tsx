@@ -708,7 +708,7 @@ const ChatWidget = () => {
                   placeholder="Type your message to support…"
                   className="flex-1 resize-none rounded-xl border border-border/70 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition placeholder:text-muted-foreground min-h-[56px]"
                 />
-                <Button onClick={() => send()} disabled={!input.trim() || thinking} size="icon"
+                <Button onClick={() => send()} disabled={!input.trim() || thinking} size="icon" aria-label="Send message"
                   className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary to-primary-deep hover:opacity-90 shadow-md flex-shrink-0">
                   <Send className="h-4 w-4" />
                 </Button>

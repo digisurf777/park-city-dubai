@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { CalendarDays, Clock, MapPin, Star, Zap, Shield, Wifi, Car, ChevronLeft, ChevronRight, ZoomIn, Camera } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -262,7 +263,7 @@ const ProductPage: React.FC = () => {
           <meta property="og:description" content={(parkingListing.description || `Secure monthly parking in ${parkingListing.zone}, Dubai.`).replace(/<[^>]*>/g, '').substring(0, 155)} />
           <meta property="og:type" content="product" />
           <meta property="og:url" content={`https://shazamparking.ae/parking/${id}`} />
-          <meta property="og:image" content={displayImages[0]?.startsWith('http') ? displayImages[0] : `https://shazamparking.ae${displayImages[0] || '/shazam-parking-og-image.webp'}`} />
+          <meta property="og:image" content={images[0]?.startsWith('http') ? images[0] : `https://shazamparking.ae${images[0] || '/shazam-parking-og-image.webp'}`} />
           <link rel="canonical" href={`https://shazamparking.ae/parking/${id}`} />
           <script type="application/ld+json">
             {JSON.stringify({
@@ -270,7 +271,7 @@ const ProductPage: React.FC = () => {
               "@type": "Product",
               name: parkingListing.title,
               description: (parkingListing.description || `Secure monthly parking in ${parkingListing.zone}, Dubai.`).replace(/<[^>]*>/g, ''),
-              image: displayImages.slice(0, 3).map((img: string) => img?.startsWith('http') ? img : `https://shazamparking.ae${img}`),
+              image: images.slice(0, 3).map((img: string) => img?.startsWith('http') ? img : `https://shazamparking.ae${img}`),
               category: 'Parking space',
               areaServed: parkingListing.zone,
               offers: {
