@@ -32,7 +32,7 @@ import deiraZone from "@/assets/zones/deira.webp";
 const Index = () => {
   const seoData = useSEO({
     title: "Shazam Parking - Dubai's Trusted Parking Platform",
-    description: "Find and book parking spaces in Dubai Marina, Downtown, DIFC, Business Bay, Palm Jumeirah, and Deira. List your parking space and start earning monthly income with Dubai's most trusted parking platform.",
+    description: "Book verified monthly parking in Dubai Marina, Downtown, DIFC, Business Bay, Palm Jumeirah and Deira - or list your bay and earn.",
     keywords: "Dubai parking, parking space rental, Dubai Marina parking, Downtown Dubai parking, DIFC parking, Business Bay parking, Palm Jumeirah parking, Deira parking, secure parking Dubai, monthly parking income, rent parking space Dubai",
     url: "/"
   });

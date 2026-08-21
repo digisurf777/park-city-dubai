@@ -30,7 +30,7 @@ const News = () => {
   const seoData = useSEO({
     title: "Latest News & Updates - Shazam Parking Dubai",
     description:
-      "Stay updated with the latest news, updates, and insights about parking in Dubai. Read about new parking zones, city developments, and Shazam Parking platform updates.",
+      "News and insights on parking in Dubai: new zones, city developments and Shazam Parking platform updates.",
     keywords:
       "Dubai parking news, parking updates Dubai, city developments, urban planning Dubai, parking regulations, Dubai Marina news, Downtown Dubai updates",
     url: "/news",

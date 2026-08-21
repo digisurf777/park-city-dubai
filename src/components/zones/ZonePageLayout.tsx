@@ -63,7 +63,7 @@ const ZonePageLayout = ({
     keywords:
       seoKeywords ??
       `${zoneName} parking, Dubai parking, monthly parking ${zoneName}, secure parking ${zoneName}`,
-    url: `/${zoneSlug.toLowerCase().replace(/\s+/g, "-")}`,
+    url: `/zones/${zoneSlug.toLowerCase().replace(/\s+/g, "-")}`,
   });
 
   const { parkingSpots, loading } = useParkingAvailability(zoneSlug);

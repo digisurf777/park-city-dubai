@@ -93,7 +93,7 @@ const OptimizedNewsCard: React.FC<OptimizedNewsCardProps> = ({ article, priority
               {format(new Date(article.publication_date), 'PPP')}
             </span>
             <span className="inline-flex items-center gap-1 text-sm font-semibold text-primary group-hover:gap-2 transition-all">
-              Read more
+              Read more<span className="sr-only">: {article.title}</span>
               <ArrowRight className="h-3.5 w-3.5" />
             </span>
           </div>
