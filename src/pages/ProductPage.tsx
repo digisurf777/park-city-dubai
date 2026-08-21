@@ -255,6 +255,36 @@ const ProductPage: React.FC = () => {
   return (
     <TooltipProvider>
       <div className="min-h-screen bg-gradient-to-b from-surface to-background">
+        <Helmet>
+          <title>{`${parkingListing.title} - Monthly Parking in ${parkingListing.zone} | Shazam Parking`}</title>
+          <meta name="description" content={(parkingListing.description || `Secure monthly parking in ${parkingListing.zone}, Dubai. Book ${parkingListing.title} on Shazam Parking.`).replace(/<[^>]*>/g, '').substring(0, 155)} />
+          <meta property="og:title" content={`${parkingListing.title} - Parking in ${parkingListing.zone}`} />
+          <meta property="og:description" content={(parkingListing.description || `Secure monthly parking in ${parkingListing.zone}, Dubai.`).replace(/<[^>]*>/g, '').substring(0, 155)} />
+          <meta property="og:type" content="product" />
+          <meta property="og:url" content={`https://shazamparking.ae/parking/${id}`} />
+          <meta property="og:image" content={displayImages[0]?.startsWith('http') ? displayImages[0] : `https://shazamparking.ae${displayImages[0] || '/shazam-parking-og-image.webp'}`} />
+          <link rel="canonical" href={`https://shazamparking.ae/parking/${id}`} />
+          <script type="application/ld+json">
+            {JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Product",
+              name: parkingListing.title,
+              description: (parkingListing.description || `Secure monthly parking in ${parkingListing.zone}, Dubai.`).replace(/<[^>]*>/g, ''),
+              image: displayImages.slice(0, 3).map((img: string) => img?.startsWith('http') ? img : `https://shazamparking.ae${img}`),
+              category: 'Parking space',
+              areaServed: parkingListing.zone,
+              offers: {
+                "@type": "Offer",
+                price: parkingListing.price_per_month,
+                priceCurrency: 'AED',
+                availability: 'https://schema.org/InStock',
+                url: `https://shazamparking.ae/parking/${id}`,
+              },
+            })}
+          </script>
+        </Helmet>
+
+
 
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24">
