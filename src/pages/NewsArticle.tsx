@@ -100,12 +100,27 @@ const NewsArticle = () => {
         <meta name="description" content={article.meta_description || article.content.replace(/<[^>]*>/g, '').substring(0, 150)} />
         <meta property="og:title" content={article.meta_title || article.title} />
         <meta property="og:description" content={article.meta_description || article.content.replace(/<[^>]*>/g, '').substring(0, 150)} />
-        <meta property="og:image" content={article.image_url || '/news/hero.webp'} />
+        <meta property="og:image" content={(article.image_url || '/news/hero.webp').startsWith('http') ? (article.image_url as string) : `https://shazamparking.ae${article.image_url || '/news/hero.webp'}`} />
         <meta property="og:type" content="article" />
+        <meta property="og:url" content={`https://shazamparking.ae/news/${id}`} />
         <meta name="article:published_time" content={article.publication_date} />
         <meta name="keywords" content={article.tags?.join(', ') || 'Dubai parking, news, ShazamParking'} />
         <link rel="canonical" href={`https://shazamparking.ae/news/${id}`} />
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Article",
+            headline: article.meta_title || article.title,
+            description: article.meta_description || article.content.replace(/<[^>]*>/g, '').substring(0, 150),
+            image: [(article.image_url || '/news/hero.webp').startsWith('http') ? article.image_url : `https://shazamparking.ae${article.image_url || '/news/hero.webp'}`],
+            datePublished: article.publication_date,
+            dateModified: article.updated_at || article.publication_date,
+            mainEntityOfPage: `https://shazamparking.ae/news/${id}`,
+            publisher: { "@type": "Organization", name: "Shazam Parking", url: "https://shazamparking.ae" },
+          })}
+        </script>
       </Helmet>
+
 
       
       {/* Back Navigation */}
