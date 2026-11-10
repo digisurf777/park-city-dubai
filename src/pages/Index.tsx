@@ -24,10 +24,10 @@ import dubaiDriverPov from "@/assets/dubai-driver-pov.jpg";
 import businessMan from "@/assets/business-man.webp";
 import phoneLogo from "@/assets/phone-logo.webp";
 import dubaiMarinaZone from "@/assets/zones/dubai-marina.webp";
-import downtownZone from "/lovable-uploads/f676da2a-39c9-4211-8561-5b884e0ceed8.webp";
-import palmJumeirahZone from "/lovable-uploads/atlantis-hotel-hero.webp";
+const downtownZone = "/lovable-uploads/f676da2a-39c9-4211-8561-5b884e0ceed8.webp";
+const palmJumeirahZone = "/lovable-uploads/atlantis-hotel-hero.webp";
 import businessBayZone from "@/assets/zones/business-bay.webp";
-import difcZone from "/lovable-uploads/63d539ac-8cbb-46b2-aa39-3de0695ef8c9.webp";
+const difcZone = "/lovable-uploads/63d539ac-8cbb-46b2-aa39-3de0695ef8c9.webp";
 import deiraZone from "@/assets/zones/deira.webp";
 const Index = () => {
   const seoData = useSEO({
