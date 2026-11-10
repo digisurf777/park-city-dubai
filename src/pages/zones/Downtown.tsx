@@ -1,6 +1,6 @@
 import { Landmark, Shield, MapPin, Sparkles } from "lucide-react";
 import ZonePageLayout from "@/components/zones/ZonePageLayout";
-import downtownHero from "/lovable-uploads/f676da2a-39c9-4211-8561-5b884e0ceed8.webp";
+const downtownHero = "/lovable-uploads/f676da2a-39c9-4211-8561-5b884e0ceed8.webp";
 
 const Downtown = () => (
   <ZonePageLayout

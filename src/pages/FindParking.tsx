@@ -14,11 +14,11 @@ import useSEO from "@/hooks/useSEO";
 import DubaiLiveMapsCTA from "@/components/DubaiLiveMapsCTA";
 
 import dubaiMarinaZone from "@/assets/zones/dubai-marina-real.webp";
-import downtownZone from "/lovable-uploads/f676da2a-39c9-4211-8561-5b884e0ceed8.webp";
+const downtownZone = "/lovable-uploads/f676da2a-39c9-4211-8561-5b884e0ceed8.webp";
 import findParkingHero from "@/assets/find-parking-hero.jpg";
-import palmJumeirahZone from "/lovable-uploads/atlantis-hotel-hero.webp";
+const palmJumeirahZone = "/lovable-uploads/atlantis-hotel-hero.webp";
 import businessBayZone from "@/assets/zones/business-bay-real.webp";
-import difcZone from "/lovable-uploads/63d539ac-8cbb-46b2-aa39-3de0695ef8c9.webp";
+const difcZone = "/lovable-uploads/63d539ac-8cbb-46b2-aa39-3de0695ef8c9.webp";
 import deiraZone from "@/assets/zones/deira-real.webp";
 const FindParking = () => {
   const seoData = useSEO({
